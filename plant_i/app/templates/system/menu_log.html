@@ -1,0 +1,261 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+    .k-daterange-picker .k-dateinput, .k-daterangepicker .k-dateinput {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="생성일">생성일</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_menu" data-labelCd="메뉴">메뉴</label>
+                            <div class="field-wrapper">
+                                <select id="srch_menu" name="srch_menu"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_user" data-labelCd="생성일">생성일</label>
+                            <div class="field-wrapper">
+                                <select id="srch_user" name="srch_user"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="시스템 로그 내역">시스템 로그 내역</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="menu_log_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <!--<i class="material-symbols-outlined">list_alt</i> 적합한 icon 찾아야 할듯 -->
+                        메뉴 로그 상세 정보
+                    </span>
+                </div>
+                <form id="menuLogForm">
+                    <input type="hidden" id="id" name="id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="log_type" data-labelCd="구분">구분</label>
+                                <div class="field-wrapper">
+                                    <select id="log_type" name="log_type"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="source" data-labelCd="에러위치">에러 위치</label>
+                                <div class="field-wrapper">
+                                    <input id="source" name="source" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="created" data-labelCd="발생일">발생일</label>
+                                <div class="field-wrapper">
+                                    <input id="created" name="created" />
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="col-12 col-sm-6 col-md-4">-->
+                        <div class="col-12 col-sm-6 col-md-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="message" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <input id="message" name="message" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class MenuLogPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/system/menu_log';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let systemLogGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    // 차후 수정
+                    { field: "id", title: "No", width: 100 },
+                    { field: "type", title: "구분", width: 100 },
+                    { field: "source", title: "에러위치", width: 100 },
+                    { field: "message", title: "설명", width: 100 },
+                    { field: "created", title: "생성일", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: 680
+            };
+            _this.grid = new Grid($("#system_log_grid"), systemLogGridOption);
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_date",
+                endField: "end_date"
+            });
+            AjaxUtil.fillDropDownOptions($('#srch_log_type'), 'log_type', 'all', null);
+            $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    _this.searchMainData();
+                }
+            })
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            // combo.py에서 정의해서 사용. value = Type, text = Type
+            // AjaxUtil.fillDropDownOptions --> 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
+            AjaxUtil.fillDropDownOptions($('#log_type'), 'log_type', 'choose', null);
+            $('#source').kendoTextBox();
+            $('#created').kendoTextBox();
+            $('#message').kendoTextArea({
+                rows: 4,
+                autosize: true,
+                maxLength: 500,
+                size: "large"   // 칸 높이 때문에 추가해봄
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            const startDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().start);
+            const endDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().end);
+
+            // 9시간 추가(date객체가 UTC 기준이라 서버로 넘어갈 때 9시간 빠져서 넘어감)
+            startDate.setHours(startDate.getHours() + 9);
+            endDate.setHours(endDate.getHours() + 9);
+
+            let param = {
+                action: 'read',
+                // 날짜를 YYYY-MM-DD 형태로 변환 & 시간 제외해서 넘기기
+                start: startDate.toISOString().split("T")[0],
+                end: endDate.toISOString().split("T")[0],
+                log_type: $('#srch_log_type').val(),
+                keyword: $('#keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            console.log(data)
+
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#systemLogForm'));
+
+                $('#log_type').data("kendoDropDownList").value(selectData.type);
+            }
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new MenuLogPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

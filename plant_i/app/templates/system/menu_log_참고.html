@@ -1,0 +1,322 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+   <section >
+        <div class="title_box ">
+            <div class="left_align">
+                <h3 data-labelCd="메뉴 로그">메뉴 로그</h3>
+            </div>
+            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
+            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
+        </div>
+
+        <div class="table_box search">
+
+            <form id="searchForm">
+                <div class="row">
+
+                    <div class="col-12 col-lg-5 col-xl-4" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_sm" data-labelCd="발생일">발생일</span>
+                            </div> 
+                            <div data-ax5picker="multi" id="srchDt">
+                                <div class="input-group-append">
+                                <input class="tac " type="text" id="date_from" name="date_from" />
+                                    <span class="input-group-text fs-xl">
+                                        <i class="fas fa-calendar-alt calendar_color" ></i>
+                                    </span>
+                                <span class="slow_sign">~</span>
+                                <input class="tac " type="text" id="date_to" name="date_to" />
+                                    <span class="input-group-text fs-xl">
+                                        <i class="fas fa-calendar-alt calendar_color"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_sm" data-labelCd="메뉴">메뉴</span>
+                            </div>
+                                <select class="form-control2" id="cboMenu" name="cboMenu"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-11 col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_sm" data-labelCd="사용자">사용자</span>
+                            </div>
+                            <select class="form-control2" id="cboUser" name="cboUser"></select>
+                        </div>
+                    </div>
+
+
+
+                        <div class="col-1" >
+                                <button type="button" class="btn-default" id="btnSearch" title="조회"><i class="fas fa-search"></i></button>
+                        </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+
+    <section class="h-700">
+        <div class="tabs" data-tab="tabWrap">
+            <div class="title_box">
+                <div class="left_align">
+                    <ul class="tab_links">
+                        <li><a href="#" data-tablink="#tab_count" class="tab" data-labelCd="메뉴 카운트">메뉴 카운트</a></li>
+                        <li><a href="#" data-tablink="#tab_log" class="tab" data-labelCd="메뉴 로그">메뉴 로그</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+                <div class="tab-content">
+                    <div class="tab" id="tab_count">
+                        <div class="grid_box">
+                            <div class="title_box">
+                                <span class="right_align rpt" data-labelCd="메뉴 카운트">메뉴 카운트</span>
+                                <button type="button" class="btn-default" id="btnGridSetting1" style="visibility:hidden"><i class="fas fa-cog"></i> Setting</button>
+                            </div>
+                                    <div class="h-580" data-ax5grid="count-grid" ></div>
+                        </div>
+                    </div>
+
+                    <div class="tab" id="tab_log">
+                        <div class="grid_box">
+                            <div class="title_box">
+                                <span class="right_align rpt" data-labelCd="메뉴 로그">메뉴 로그</span>
+                                <button type="button" class="btn-default" id="btnGridSetting2" style="visibility:hidden"><i class="fas fa-cog"></i> Setting</button>
+                            </div>
+                                    <div class="h-580" data-ax5grid="log-grid" ></div>
+                        </div>
+                    </div>
+
+                </div>
+
+        </div>
+        </section>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+    
+    class MenuLogPage {
+        constructor() {
+            this.grid = null;
+            this.count_grid = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let config = {
+                target: $('[data-ax5grid="log-grid"]'),
+                sortable: true,
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 38  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'id', label: 'No', width: 70, align: 'center' },
+                    { key: 'folder_name', label: '메뉴폴더', width: 100, align: 'left', },
+                    { key: 'menu_name', label: '메뉴', width: 100, align: 'left', },
+                    { key: 'username', label: '아이디', width: 150, align: 'left', },
+                    { key: 'user_name', label: '이름', width: 150, align: 'left', },
+                    { key: 'click_date', label: '일시', width: 150, align: 'center', },
+                ]
+            };
+            let config_count = {
+                target: $('[data-ax5grid="count-grid"]'),
+                sortable: true,
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: false, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 38  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'folder_name', label: '메뉴폴더', width: 100, align: 'left', },
+                    { key: 'menu_name', label: '메뉴', width: 100, align: 'left', },
+                    { key: 'use_count', label: '사용횟수', width: 150, align: 'right', formatter: 'money', },
+                ]
+            };
+
+            this.grid = new ax5.ui.grid(config);
+            this.grid_config2 = config;
+            this.count_grid = new ax5.ui.grid(config_count);
+            this.grid_config1 = config_count;
+        }
+
+        searchDataBind() {
+            let _this = this;
+            let param = FormUtil.extractForm($('#searchForm'));
+            let url = '/api/system/menulog?action=log_count';
+
+            let result = AjaxUtil.getSyncData(url, param);
+            if (result != null) {
+                let count = result.length;
+                _this.count_grid.setData({
+                    list: result,
+                    page: {
+                        display: true,
+                        totalElements: count,
+                    }
+                });
+            }
+
+            url = '/api/system/menulog?action=log_list';
+
+            result = AjaxUtil.getSyncData(url, param);
+            if (result != null) {
+                let count = result.length;
+                _this.grid.setData({
+                    list: result,
+                    page: {
+                        display: true,
+                        totalElements: count,
+                    }
+                });
+            }
+
+        }//searchDataBind
+
+    }
+    var page = null;
+    $(document).ready(function (e) {
+        page = new MenuLogPage();
+
+        picker.bind({
+            target: $('[data-ax5picker="multi"]'),  
+            direction: "top",
+   			locale: {
+				format: 'YYYY-MM-DD'
+			},
+            content: {
+                width:  214, 
+                margin: 10,
+                type: 'date',
+                
+                config: {
+                    control: {
+                        left: '<i class="fa fa-arrow-left"></i>',  
+                        yearTmpl: '%s',
+                        monthTmpl: '%s',
+                        right: '<i class="fa fa-arrow-right"></i>'
+                    },
+                    lang: {
+                        yearTmpl: "%s년",
+                        months: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+                        dayTmpl: "%s"
+                    }
+                }
+            },
+            btns: {
+                /*ok: {
+                    label: "조회", theme: "default", onClick: function () {
+                        this.self.close();
+                        page.searchDataBind();
+                        
+
+                    }
+                }*/
+            },
+
+        });
+
+        $('#date_from').val(CommonUtil.getYYYYMMDD(-7));
+        $('#date_to').val(CommonUtil.getYYYYMMDD());
+
+        AjaxUtil.fillSelectOptions($('#cboMenu'), 'menu_item', 'all');
+
+        let url = '/api/system/menulog?action=user_list';
+        let user_list = AjaxUtil.getSyncData(url, {});
+        let $combo = $('#cboUser');
+        $combo.empty();
+        let option = $('<option>',
+            {
+                value: '',
+                text: '전체',
+            });
+        $combo.append(option);
+        $.each(user_list, function (index, row) {
+            let option = $('<option>',
+                {
+                    value: row['value'],
+                    text: row['text'],
+                });
+            $combo.append(option);
+        });
+
+		//그리드 컬럼 설정
+        page.popColSetting = new popColSetting();
+        let columns1 = page.popColSetting.loadColumnData(gui.gui_code, gui.template_key, 'grid1', page.count_grid);
+        let columns2 = page.popColSetting.loadColumnData(gui.gui_code, gui.template_key, 'grid2', page.grid);
+		
+        if (userinfo.group_code == 'admin') {
+            $('#btnGridSetting1').css('visibility','visible');  
+            $('#btnGridSetting2').css('visibility','visible');  
+        }		
+	
+        $('#btnGridSetting1').click(function (e) {
+            let _this = this;
+            let fix_cols = page.grid_config1.frozenColumnIndex;
+            page.popColSetting.show(gui.gui_code, gui.template_key, 'grid1', page.grid_config1.columns, page.count_grid, { 'order_fix':false,  'fix_cols' : fix_cols });
+        });	
+        $('#btnGridSetting2').click(function (e) {
+            let _this = this;
+            let fix_cols = page.grid_config2.frozenColumnIndex;
+            page.popColSetting.show(gui.gui_code, gui.template_key, 'grid2', page.grid_config2.columns, page.grid, { 'order_fix':false,  'fix_cols' : fix_cols });
+        });	
+
+        page.searchDataBind();
+
+        $('#btnSearch').click(function (ex) {
+            page.searchDataBind();
+        });
+
+    });
+</script>
+
+
+{% endblock %}

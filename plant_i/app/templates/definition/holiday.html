@@ -1,0 +1,285 @@
+{% extends "app/layout.html" %}
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="content-ui-row">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span></span>
+                    <span>
+                        <button id="btnExcel">Excel</button>
+                        <button id="btnPDF">PDF</button>
+                        <button id="btnGrid">Grid</button>
+                    </span>
+                </div>
+                <div id="holiday_grid" class="kgrid"></div>
+            </div>
+
+            <div class="card-content edit grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <div class="edit-form-ui">
+                        <input type="hidden" id="h_id" name="h_id" />
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="holiday_date" data-labelCd="공휴일">공휴일</label>
+                                <div class="field-wrapper">
+                                    <input id="holiday_date" name="holiday_date" data-msg="공휴일을" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remark" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="remark" name="remark" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="fixed_yn" data-labelCd="고정여부">고정여부</label>
+                                <div class="field-wrapper">
+                                    <input id="fixed_yn" name="fixed_yn" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class HolidayPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/holiday'
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            // grid option
+            let gridOption = {
+                pageable: false,
+                columns: [
+                    { field: "holiday_date", title: "공휴일", width: 100 },
+                    { field: "use_yn", title: "사용여부", width: 50 },
+                    { field: "fixed_yn", title: "고정여부", width: 50 },
+                    { field: "remark", title: "비고", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "500px"
+            };
+            _this.grid = new Grid($('#holiday_grid'), gridOption);
+
+            // searchForm
+            $('#sch_keyword').kendoTextBox({});
+            $('#sch_keyword').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    _this.searchMainData();
+                }
+            })
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+            $('#btnPDF').kendoButton({ icon: "file-pdf", themeColor: "success" });
+            $('#btnGrid').kendoButton({ themeColor: "success" });
+
+            //detailForm
+            $("#holiday_date").kendoDatePicker({
+                value: new Date(),
+                format: 'yyyy-MM-dd'
+            });
+            $('#remark').kendoTextBox({});
+            $("#use_yn").kendoSwitch({
+                checked: false
+            });
+            $("#fixed_yn").kendoSwitch({
+                checked: false
+            });
+
+            // detailForm btns
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                    $('#btnSave').prop('disabled', false);
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData()
+                    });
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData()
+                    });
+                }
+            });
+
+        }
+
+        setButtonState() {
+            let _this = this;
+            let h_id = $('#h_id').val();
+
+            $('#btnSave').prop('disabled', true);
+            $('#btnDelete').prop('disabled', true);
+
+            if (h_id) {
+                $('#btnSave').prop('disabled', false);
+                $('#btnDelete').prop('disabled', false);
+            } else {
+                $('#btnSave').prop('disabled', true);
+                $('#btnDelete').prop('disabled', true);
+            }
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let data = FormUtil.extractForm($('#searchForm'));
+            data['action'] = 'read'
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, data);
+
+            if (result) {
+                _this.grid.setData(result);
+            }
+
+            _this.resetForm();
+        }
+
+        resetForm() {
+            let _this = this;
+            FormUtil.resetForm($('#detailForm'));
+            _this.setButtonState();
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+            }
+            _this.setButtonState();
+        }
+
+        saveData() {
+            let _this = this;
+            let url = _this.baseUrl + '?action=save';
+            let data = FormUtil.extractForm($('#detailForm'));
+
+            //필수 입력값 체크
+            if (checkForm($('#detailForm')) === false) return;
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('저장되었습니다');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let url = _this.baseUrl + '?action=delete';
+            let h_id = $('#detailForm').find('#h_id').val();
+            let data = { 'h_id': h_id };
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('삭제되었습니다');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+    }
+    let page = null;
+
+    $(document).ready(function () {
+        page = new HolidayPage();
+
+        page.searchMainData();
+    })
+
+</script>
+{% endblock %}

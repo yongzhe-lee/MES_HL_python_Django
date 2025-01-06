@@ -1,0 +1,539 @@
+{% extends "app/layout_page.html" %}
+{% block css %}
+<style>
+    .chart_border {
+        border: 1px solid blue;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="content_wrap">
+    <section>
+
+        <div class="title_box ">
+            <div class="left_align">
+                <h3 data-labelCd="상자수염그림">상자수염그림</h3>
+            </div>
+
+                <button type="button" class="btn-default pull-right " id="btnHedaerSearch"><i class="fas fa-search"></i></button>
+                <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress"><i class="fa fa-compress"></i></button>
+        </div>
+
+    <div class="table_box search" >
+        <div class="row">
+
+                <div class="col-12 col-md-6 col-xl-2">
+                    <div class="input-group" data-ax5picker="basic" id="srchDt">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t4" data-labelCd="일자">일자</span>
+                        </div>
+                        <input class="form-control2 tac" type="text" id="srchStartDt" name="srchStartDt">
+                        <span class="input-group-text fs-xl"><i class="fas fa-calendar-alt calendar_color" ></i></span>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6  col-xl-3" >
+                    <div class="input-group" >
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t4" data-labelCd="시간">시간</span>
+                        </div>
+                            <div class="form-control2">
+                                <input class="tac timepicker" type="text"id="srchStartTm" name="srchStartTm"  />
+                                <span class="slow_sign">~</span>
+                                <input class="tac timepicker" type="text" id="srchEndTm" name="srchEndTm" />
+                            </div>
+                    </div>
+                </div>
+
+
+            <div class="col-6 col-md-3 col-lg-2" >
+                <div class="input-group" >
+                    <div class="input-group-prepend">
+                        <!--<span class="input-group-text fit_box_sm">태그</span>-->
+                    </div>
+                    <select id="cboTag" name="cboTag" class="form-control2" multiple="multiple" title="태그"></select>
+
+                </div>
+            </div>
+
+                <div class="col-5 col-xl-2 mt-5 tac" >
+                        <input type="checkbox" id="chkOutlier" name="chkOutlier" value="NOT" />
+                     Outlier 표시
+                </div>
+
+
+            <div class="col-1" >
+                    <button type="button" class="btn-default" id="btnSearch" title="조회"><i class="fas fa-search"></i></button>
+            </div> 
+
+        </div>
+    </div>
+</section>
+</div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div id="chart_multi" class="chart_border"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <hr />
+        </div>
+    </div>
+ <div class="row" id="divChart">
+</div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div id="chart_0" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_1" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_2" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_3" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_4"></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_5" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_6" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_7" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_8" ></div>
+        </div>
+        <div class="col-lg-4" >
+            <div id="chart_9" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_10" ></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="chart_11" ></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/resource/apexcharts/apexcharts.3.26.min.js"></script>
+<script type="text/javascript">
+    function deepCopyObject(inObject) {
+        let outObject, value, key;
+            if(typeof inObject !== "object" || inObject === null) {
+                return inObject
+            }
+            outObject = Array.isArray(inObject) ? [] : {}
+            for (key in inObject) {
+                value = inObject[key]
+                outObject[key] = (typeof value === "object" && value !== null) ? deepCopyObject(value) : value
+            }
+        return outObject
+    }
+
+    let page = null;
+    let chart_list = [];
+
+    class chartBoxplotMulti {
+        constructor(title, result) {
+            this.chart_multi = null;
+            this.title = title ? title : '상자수염그림';
+            this.result = result;
+            this.categories = [];
+            this.box_data = [];
+            this.out_data = [];
+            this.options = null;
+            this.init();
+            //this.calcBoxplot();
+            this.data = null;
+        }
+
+        init() {
+            let _this = this;
+
+            //console.log('chartBoxplotMulti result', _this.result);
+
+            let series = [];
+            let box_data = {
+                name: 'box',
+                type: 'boxPlot',
+                data: []
+            };
+            let out_data = {
+                name: 'outliers',
+                type: 'scatter',
+                data: []
+            };
+            let categories = [];
+            _this.result.forEach(function (item, index) {
+                let data = {
+                    x: index + 1,
+                    y: item.box_data,
+                };
+                box_data.data.push(data);
+                item.outlier.forEach(function (item2) {
+                    data = {
+                        x: index + 1,
+                        y: item2,
+                    };
+                    out_data.data.push(data);
+                });
+                categories.push(item.data_name);
+            });
+            
+            _this.categories = [''].concat(categories, ['']);
+            
+            //console.log('categories init', _this.categories);
+            series.push(box_data);
+            series.push(out_data);
+
+            this.multi_options = {
+                series: series,
+                chart: {
+                    type: 'boxPlot',
+                    //type: 'scatter',
+                    height: 350
+                },
+                colors: ['#008FFB', '#FEB019'],
+                title: {
+                    text: this.title,
+                    align: 'center'
+                },
+                legend: {
+                    show:false,
+                },
+                xaxis: {
+                    //type: 'categrories',
+                    type: 'numeric',
+                    min: 0,
+                    max: categories.length + 1,
+                    categories: categories,
+                    tickAmount: categories.length + 1,
+                    //tickAmount: 1,
+                    labels: {
+                        formatter: function (val) {
+                            return _this.categories[val];
+                        },
+                    },
+                    tooltip: {
+                        formatter: function (val) {
+                            return _this.categories[val];
+                        },
+                    }
+                },
+                tooltip: {
+                    shared: false,
+                    intersect: true
+                },
+                plotOptions: {
+                    boxPlot: {
+                        colors: {
+                            upper: '#00E396',
+                            lower: '#008FFB'
+                        }
+                    }
+                }
+            };
+
+            this.chart_multi = new ApexCharts(document.querySelector("#chart_multi"), this.multi_options);
+            this.chart_multi.render();
+
+            this.options = {
+                series: [
+                ],
+                chart: {
+                    type: 'boxPlot',
+                    //type: 'scatter',
+                    height: 350
+                },
+                colors: ['#008FFB', '#FEB019'],
+                title: {
+                    text: this.title,
+                    align: 'center'
+                },
+                legend: {
+                    show:false,
+                },
+                xaxis: {
+                    //type: 'categrories',
+                    type: 'numeric',
+                    min: 0,
+                    max: 0,
+                    categories: [],
+                    tickAmount: 0,
+                    //tickAmount: 1,
+                    tickPlacement: 'on',
+                    //labels: {
+                    //    formatter: function (val) {
+                    //        let categories = _this.options.xaxis.categories;
+                    //        //return categories[val - 1];
+                    //        return 'xxx';
+                    //        //return ['AAA', 'B', 'C', 'D', 'E'][val-1];
+                    //    },
+                    //},
+                    //tooltip: {
+                    //    formatter: function (val) {
+                    //        let categories = _this.options.xaxis.categories;
+                    //        return categories[val - 1];
+                    //        //return ['A', 'B', 'C', 'D', 'E'][val-1];
+                    //    },
+                    //}
+                },
+                tooltip: {
+                    shared: false,
+                    intersect: true
+                },
+                plotOptions: {
+                    boxPlot: {
+                        colors: {
+                            upper: '#00E396',
+                            lower: '#008FFB'
+                        }
+                    }
+                }
+            };
+
+            //for (let index = 0; index < 3; index++) {
+            //    let chart_id = "#chart_" + String(index);
+            //    let chart = new ApexCharts(document.querySelector(chart_id), this.options);
+            //    _this.chart.push(chart);
+            //    chart.render();
+            //}
+        }
+    }
+
+
+    class chartBoxplot {
+        constructor(chart_id, title, box_data, out_data) {
+            this.chart_id = chart_id;
+            this.title = title ? title : '상자수염그림';
+            this.box_data = box_data;
+            this.out_data = out_data;
+            this.options = null;
+
+            this.chart = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            //console.log('chart id, box_data, out_date', this.chart_id , _this.box_data, _this.out_data);
+            
+            let box = {
+                x: 1,
+                y: _this.box_data,
+                //marker: {
+                //  size: 0,
+                //  fillColor: "#fff",
+                //  strokeColor: "#333",
+                //  strokeWidth: 3,
+                //  shape: "circle",
+                //  radius: 2,
+                //  OffsetX: 0,
+                //  OffsetY: 0,
+                //  cssClass: '',
+                //},
+            };
+            let box_data = {
+                name: 'box',
+                type: 'boxPlot',
+                data: [box],
+            };
+            let scatter = [];
+            _this.out_data.forEach(function (value) {
+                let data = {
+                    x: 1,
+                    y: value,
+                    //marker: {
+                    //  size: 10,
+                    //  fillColor: "#fff",
+                    //  strokeColor: "#333",
+                    //  strokeWidth: 3,
+                    //  shape: "circle",
+                    //  radius: 2,
+                    //  OffsetX: 0,
+                    //  OffsetY: 0,
+                    //  cssClass: '',
+                    //},
+                };
+                scatter.push(data);
+            });
+
+            let out_data = {
+                name: 'outliers',
+                type: 'scatter',
+                data: scatter,
+            };
+            let series = [];
+            series.push(box_data);
+            if (_this.out_data.length > 0)
+                series.push(out_data);
+
+            this.options = {
+                series: series,
+                chart: {
+                    type: 'boxPlot',
+                    height: 350
+                },
+                colors: ['#008FFB', '#FEB019'],
+                title: {
+                    text: _this.title,
+                    align: 'center'
+                },
+                legend: {
+                    show:false,
+                },
+                xaxis: {
+                    //type: 'categrories',
+                    type: 'numeric',
+                    min: 0,
+                    max: 2,
+                    categories: ['', _this.title, ''],
+                    tickAmount: 2,
+                    //tickAmount: 1,
+                    tickPlacement: 'on',
+                    labels: {
+                        formatter: function (val) {
+                            if (val == 1)
+                                return _this.title;
+                            else
+                                return '';
+                        },
+                    },
+                    //tooltip: {
+                    //    formatter: function (val) {
+                    //        let categories = _this.options.xaxis.categories;
+                    //        return categories[val - 1];
+                    //        //return ['A', 'B', 'C', 'D', 'E'][val-1];
+                    //    },
+                    //}
+                },
+                tooltip: {
+                    shared: false,
+                    intersect: true
+                },
+                plotOptions: {
+                    boxPlot: {
+                        colors: {
+                            upper: '#00E396',
+                            lower: '#008FFB'
+                        }
+                    }
+                }
+            };
+            console.log('options', _this.options)
+            this.chart = new ApexCharts(document.querySelector("#"+_this.chart_id), _this.options);
+            this.chart.render();
+        }
+    }
+            
+    function searchMainData() {
+        //data['option'] = 2;
+        var start_date = $('#srchStartDt').val() + ' ' + $('#srchStartTm').val() + ':00';
+        var end_date = $('#srchStartDt').val() + ' ' + $('#srchEndTm').val() + ':00';
+        var tag_codes = $('#cboTag').val() == null ? '' : $('#cboTag').val().join(';');
+
+        let show_outlier = $('#chkOutlier').prop('checked');
+
+        console.log('main search', start_date, end_date, tag_codes);
+        if (!tag_codes)
+            return;
+
+        let url = '/api/tagdata/boxplot_data?action=read';
+        let param = {
+            option: '2',
+            start_time: start_date,
+            end_time: end_date,
+            tag_codes: tag_codes
+        };
+        let result = AjaxUtil.getSyncData(url, param);
+
+        //chartMulti = new chartBoxplotMulti();
+        //page.drawMultiBoxPlot(result);
+        if (page.chart_multi) {
+            page.chart_multi.destroy();
+            page.chart_multi = null;
+        }
+        page = new chartBoxplotMulti('상자수염그림', result);
+
+        chart_list.forEach(function (item, idx) {
+            if (item != null) {
+                 if (item.chart) {
+                    console.log('chart destroy', idx);
+                    item.chart.destroy();
+                    item.chart = null;
+                }
+            }
+        });
+        $('#divChart').empty();
+
+        $.each(result, function (index, item) {
+            console.log('item', index, item);
+            let html = '<div class="col-lg-4"><div id="chart' + index + '" class="chart_border"></div> </div> ';
+            $('#divChart').append(html);
+            let chart = null;
+            if (show_outlier)
+                chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, item.outlier);
+            else
+                chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, []);
+            //chart.updateOptions(options);
+            //chart.updateSeries(series);
+            //chart.render();
+            chart_list.push(chart);
+        });
+    }
+
+    $(document).ready(function (e) {
+        
+        let result = [
+            {
+                'data_name': 'A',
+                'box_data': [1.1, 2.1, 3.5, 4, 7.8],
+                'outlier': [0.7, 9.0, 10.1],
+            },
+            {
+                'data_name': 'B',
+                'box_data': [10.1, 12.1, 13.5, 14, 17.8],
+                'outlier': [],
+            },
+            {
+                'data_name': 'C',
+                'box_data': [5.1, 6.2, 6.8, 7, 8.2],
+                'outlier': [],
+            },
+        ];
+        page = new chartBoxplotMulti('sample', result);
+
+
+        $('#srchDt').ax5DatePicker({ direction: 'top' });
+        $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
+        
+        AjaxUtil.fillSelectOptions($('#cboTag'), 'tag', '', false);  
+        $('select').select2({ tags: true, });
+
+        $('select').attr("title",'태그');
+    
+        $('#srchStartTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i',
+        }).val('09:00');
+        $('#srchEndTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i'
+        }).val('18:00');
+
+        $('#btnSearch').click(function () {
+            searchMainData();
+        });
+    });
+
+</script>
+{% endblock %}

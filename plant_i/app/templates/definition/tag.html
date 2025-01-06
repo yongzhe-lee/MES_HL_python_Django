@@ -1,0 +1,340 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                        <div class="form-item align-h L-align-h">
+                            <label class="k-label k-form-label" for="srch_tag_group_id" data-labelCd="태그그룹">태그그룹</label>
+                            <div class="field-wrapper">
+                                <select id="srch_tag_group_id" name="srch_tag_group_id"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                        <div class="form-item align-h L-align-h">
+                            <label class="k-label k-form-label" for="srch_equip_id" data-labelCd="설비명">설비명</label>
+                            <div class="field-wrapper">
+                                <select id="srch_equip_id" name="srch_equip_id"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_tag_name" data-labelCd="태그명">태그명</label>
+                            <div class="field-wrapper">
+                                <input id="srch_tag_name" name="srch_tag_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="태그정보">태그정보</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="tag_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="tagForm">
+                    <div class="edit-form-ui">
+                        <input id="tag_id" name="tag_id" type="hidden" />
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="tag_code" data-labelCd="태그코드">태그코드</label>
+                                <div class="field-wrapper">
+                                    <input id="tag_code" name="tag_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="tag_group_id" data-labelCd="태그그룹">태그그룹</label>
+                                <div class="field-wrapper">
+                                    <input id="tag_group_id" name="tag_group_id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="tag_name" data-labelCd="태그명">태그명</label>
+                                <div class="field-wrapper">
+                                    <input id="tag_name" name="tag_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="equipment_id" data-labelCd="설비명">설비명</label>
+                                <div class="field-wrapper">
+                                    <input id="equipment_id" name="equipment_id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="DASconfig_id" data-labelCd="DAS설정">DAS설정</label>
+                                <div class="field-wrapper">
+                                    <input id="DASconfig_id" name="DASconfig_id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="round_digit" data-labelCd="소수점자리수">소수점자리수</label>
+                                <div class="field-wrapper">
+                                    <input id="round_digit" name="round_digit" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="lsl" data-labelCd="하한값">하한값</label>
+                                <div class="field-wrapper">
+                                    <input id="lsl" name="lsl" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="usl" data-labelCd="상한값">상한값</label>
+                                <div class="field-wrapper">
+                                    <input id="usl" name="usl" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class TagPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/tag';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let tagGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'tag_code', title: '태그', width: 200 },
+                    { field: 'tag_name', title: '태그명', width: 200 },
+                    { field: 'tag_group_name', title: '태그그룹명', width: 150 },
+                    { field: 'equipment_name', title: '설비명', width: 150 },
+                    { field: 'DASconfig_name', title: 'DAS설정', width: 150 },
+                    { field: 'round_digit', title: '소수점자리수', width: 150 },
+                    { field: 'lsl', title: 'LSL', width: 100 },
+                    { field: 'usl', title: 'USL', width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#tag_grid"), tagGridOption);
+
+            //search form
+            //combo 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
+            AjaxUtil.fillDropDownOptions($('#srch_tag_group_id'), 'tag_group', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#srch_equip_id'), 'equipment', 'all', null);
+            $('#srch_tag_name').kendoTextBox();
+            $('#srch_tag_name').keypress(function(e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {     
+                    e.preventDefault(); 
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            $('#tag_code').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#tag_group_id'), 'tag_group', 'choose', null);
+            $('#tag_name').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#equipment_id'), 'equipment', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#DASconfig_id'), 'das_config', 'choose', null);
+            $('#round_digit').kendoTextBox();
+            $('#lsl').kendoTextBox();
+            $('#usl').kendoTextBox();
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                tag_group_id: $('#srch_tag_group_id').val(),
+                equipment_id: $('#srch_equip_id').val(),
+                tag_name: $('#srch_tag_name').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#tag_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#tagForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#tagForm')); 
+                console.log("selectData:\n", selectData);
+
+                $('#tag_id').val(selectData.tag_code);
+                $('#tag_group_id').data("kendoDropDownList").value(selectData.tag_group_id);
+                $('#equipment_id').data("kendoDropDownList").value(selectData.equipment_id);
+                $('#DASconfig_id').data("kendoDropDownList").value(selectData.DASconfig_id);
+             }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#tagForm'));
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#tag_id').val(resp.tag_code);
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let param = { 
+                    tag_code: selectData.tag_code 
+                };
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+            }
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new TagPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

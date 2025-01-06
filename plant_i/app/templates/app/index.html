@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLNAT-I :: HLKlemove</title>
+    {% load static %}
+    <!-- UI CSS -->
+    <link rel="stylesheet" href="/static/resource/kendo_ui/styles/default-dataviz-v4.css">
+    <link rel="stylesheet" href="/static/resource/windowContainer/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/resource/windowContainer/css/jquery.scrollbar.min.css">
+    <link rel="stylesheet" href="../../static/resource/kendo_ui/styles/default-ocean-blue-a11y.css" />
+    <!-- Animation CSS  -->
+    <link rel="stylesheet" href="/static/css/animate.css">
+    <!-- Icon CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/static/css/material-icons.css">
+    <!-- Package Styel CSS -->
+    <link rel="stylesheet" href="/static/css/WZ.UI.css?v=240906">
+
+
+    <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+
+
+
+    <!--kendo ui CDN css-->
+    <!--<link rel="stylesheet" href="https://kendo.cdn.telerik.com/themes/8.0.1/default/default-main.css" />-->
+    <!--구글 material icon css-->
+
+</head>
+<body>
+
+    <div class="ux-aside menu-mode">
+        <div class="header-fixed">
+            <div class="ux-top">
+                
+                <a href="/"><img src="../../static/img/klemove_ci.png" class="d-logo" style="width:100%" title="임시로고" /><span id="sim">심볼</span></a>
+                <!--
+                <a href="/"><img src="../../static/img/logo.svg" class="d-logo" style="width:98px" title="임시로고" /><span id="sim">심볼</span></a>
+                -->
+
+            </div>
+        </div>
+        <div class="menu-scrollbar scrollbar-inner">
+
+            <div class="menuTab-content">
+                <ul class="menu-list level-01 bookmark">
+                    <li class="submenu open">
+                        <a data-objid="북마크" menuurl="" class=""><i class="material-symbols-outlined">star</i><span>북마크</span></a>
+                        <ul class="level-02" id="bookmark">
+                            <li><a data-objid="wm_user_group" menuurl="/gui/wm_user_group"><i></i><span>메인 홈</span></a></li>
+                        </ul>
+                        <!--// depth02 -->
+                    </li>
+                </ul>
+                <!--// depth01 -->
+            </div>
+            <div class="menuTab-content" id="leftMenu">
+            </div>
+        </div>
+    </div>
+    <div class="ux-contents">
+        <div class="body-contents">
+            <div class="nth-tabs" id="main-tabs">
+                <div class="markup-menu">
+                    <span class="menu-onoff">
+                        <button type="button">
+                            <i class="material-symbols-outlined">
+                                arrow_left_alt
+                            </i>
+                        </button>
+                    </span>
+                    <div class="navTop-tabs-ui">
+                        <ul id="menu-tabs">
+                            <li id="tab_home" class="home"><i class="material-symbols-outlined"> home </i></li> <!--홈탭 - 맨앞고정-->
+                            <!--
+                                <li>메뉴명 01<button><i class="material-symbols-outlined"> close </i></button></li>
+                                <li class="active">메뉴명 02<button><i class="material-symbols-outlined"> close </i></button></li>
+                            -->
+                        </ul>
+                    </div>
+
+                    <ol id="sideMenu" class="ux-top-item">
+                        <li>
+                            {{userinfo.username}}
+                            <ul>
+                                <li><a href="#" id="infoSetting">개인정보 수정</a></li>
+                                <li><a href="#" id="langSetting">다국어 설정</a></li>
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}" id="logout">
+                                        {% csrf_token %}
+                                        <a href="#" onclick="document.getElementById('logout').submit()">로그아웃</a>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="tab-content auto-height">
+                    <div class="tab-pane animation-fade active" id="wm_test_cls">
+                        <div id="iframe-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul id="context-menu" style=" background-color: #40c0fd; color: #fff;">
+        <!--<li act="popup">새창으로 열기</li>-->
+        <li act="cur_close">현재 탭 닫기</li>
+        <li class="k-separator"></li>
+        <li act="all_close">모든 탭 닫기</li>
+        <li act="other_close">다른 탭 닫기</li>
+    </ul>
+    <!--footer [S]
+    <div class="footer">
+        <span class="footer-left" id="link_privatepolicy" data-commonCd="개인정보 처리방침">개인정보 처리방침</span>
+        <span class="footer-left" id="link_emailreject" data-commonCd="이메일 무단수집 거부">이메일 무단수집 거부</span>
+        <span class="footer-right">Copyright ⓒ (주)위존. All Rights Reserved.</span>
+    </div>
+    footer [E]-->
+    <!--jquery-->
+    <script src="{% static 'resource/jquery/jquery-3.7.1.min.js' %}"></script>
+
+    <script type="text/javascript">
+        {% include './system.js' %}
+    </script>
+
+
+    <script src="{% static 'app/scripts/bootstrap.js' %}"></script>
+    <script src="{% static 'app/scripts/respond.js' %}"></script>
+
+    <script type="text/javascript" src="/static/resource/windowContainer/js/jquery.scrollbar.min.js"></script>
+    <script type="text/javascript" src="/static/resource/windowContainer/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/resource/windowContainer/js/html5sortable.js"></script>
+    <script type="text/javascript" src="/static/resource/nth-tabs.js"></script>
+    <!--kendo ui-->
+    <script src="{% static 'resource/kendo_ui/js/kendo.all.min.js' %}"></script>
+    <script src="/static/resource/kendo_ui/kendo-ui-license.js"></script>
+    <script src="{% static 'resource/common.js' %}"></script>
+    <script>
+        $("#sideMenu").kendoMenu({
+            openOnClick: true
+        });
+        kendo.culture("ko-KR");
+        var tabs = {};  // 탭을 저장하는 객체
+        var tabIdCounter = 0;  // 탭 ID를 생성하기 위한 카운터
+        var $iframeContainer = $('#iframe-container');  // iframe을 넣을 컨테이너
+        var langModal = null;
+        window.menuPath = [];
+
+        function manageTab(name, objId, menuUrl, bookmark = 0) {
+            // objId를 이용해 기존에 같은 ID의 탭이 있는지 확인
+            var existingTabId = Object.keys(tabs).find(key => tabs[key].objId === objId);
+
+            if (existingTabId) {
+                // 탭이 이미 존재하면 선택
+                selectTab(existingTabId);
+            } else {
+                // 새 탭 추가
+                addTab(name, objId, menuUrl, bookmark);
+            }
+        }
+
+        function addTab(name, objId, menuUrl, bookmark) {
+            var tabId = "tab" + tabIdCounter++;  // 고유 탭 ID 생성
+            var $iframe = $('<iframe style="display: none;width: 100%; height: 100%; border: none;" src="' + menuUrl + '?is_bookmark=' + bookmark + '"></iframe>');
+            $iframe.appendTo($iframeContainer);  // iframe을 DOM에 추가
+
+            tabs[tabId] = { name: name, objId: objId, menuUrl: menuUrl, iframe: $iframe, is_bookmark: bookmark };  // 탭 정보 및 iframe 저장
+
+            var $tab = $('<li class="tab_cls" id="' + tabId + '">' + name + '<button class="close-btn"><i class="material-symbols-outlined">close</i></button></li>');
+            $tab.appendTo("#menu-tabs");  // 탭을 DOM에 추가
+            $tab.on('click', function () { selectTab(tabId); });  // 탭 선택 이벤트
+            $tab.find('.close-btn').on('click', function (event) {
+                event.stopPropagation();  // 이벤트 버블링 방지
+                removeTab(tabId);  // 탭 삭제
+            });
+            selectTab(tabId);  // 새로운 탭을 바로 활성화
+
+        }
+
+        function removeTab(tabId) {
+            var keys = Object.keys(tabs);
+            var tabIndex = keys.indexOf(tabId); // 삭제할 tab의 인덱스 가져오기
+
+            tabs[tabId].iframe.remove();  // 해당 iframe 삭제
+            delete tabs[tabId];  // 객체에서 탭 정보 삭제
+            $('#' + tabId).remove();  // DOM에서 탭 삭제
+
+            if (keys.length > 0) {
+                selectTab(keys[tabIndex - 1]);  // 다른 탭 선택
+            }
+        }
+
+        function setActiveClass_before($a) {
+            var $currentLi = $a.parent();
+            var $submenuParent = $currentLi.closest('ul');
+
+            if ($currentLi.hasClass('submenu') && $currentLi.hasClass('open')) {
+                $currentLi.removeClass('open');
+                $a.removeClass('active');
+                $currentLi.find('ul').slideUp(200);
+            } else {
+                // 상위 메뉴가 열려 있는지 확인
+                var isAnyParentOpen = $currentLi.parents('li.submenu').hasClass('open');
+
+                $('.menu-list a').removeClass('active');
+                if (!isAnyParentOpen) {
+                    // 모든 메뉴 닫기 및 비활성화 (상위 메뉴가 열려 있지 않은 경우에만)
+                    $('.menu-list li').removeClass('open');
+                    $('.menu-list ul').slideUp(200);
+                }
+
+                // 클릭된 메뉴 활성화 및 열기
+                $currentLi.addClass('open').children('ul').slideDown(200);
+                $a.addClass('active');
+
+                // 상위 메뉴 활성화 및 열기
+                $currentLi.parents('li.submenu').each(function () {
+                    $(this).addClass('open').children('a').addClass('active');
+                    $(this).children('ul').slideDown(200);
+                });
+            }
+        }
+
+        function setActiveClass($a) {
+            var $currentLi = $a.parent();
+            var $submenuParent = $currentLi.closest('ul');
+
+            // 현재 선택된 메뉴의 모든 상위 메뉴들 중 'open' 상태인 메뉴가 있는지 확인
+            var $openParentLis = $currentLi.parents('li.submenu').filter('.open');
+
+            // 선택된 메뉴가 이미 'open' 상태라면 닫고, 그렇지 않으면 연다
+            if ($currentLi.hasClass('submenu') && $currentLi.hasClass('open')) {
+                $currentLi.removeClass('open');
+                $a.removeClass('active');
+                $currentLi.find('ul').slideUp(200);
+            } else {
+                // 모든 메뉴의 활성화 상태를 초기화하지만, 상위 'open' 메뉴는 제외
+                $('.menu-list a').removeClass('active');
+                $('.menu-list li.submenu').not($openParentLis).removeClass('open').find('ul').slideUp(200);
+
+                // 현재 메뉴를 활성화
+                $currentLi.addClass('open').children('ul').slideDown(200);
+                $a.addClass('active');
+
+                // 현재 메뉴의 모든 상위 메뉴를 활성화, 이미 열린 상위 메뉴는 그대로 둠
+                $currentLi.parents('li.submenu').each(function () {
+                    $(this).addClass('open').children('a').addClass('active');
+                    $(this).children('ul').slideDown(200);
+                });
+            }
+        }
+
+        function selectTab(tabId) {
+            $('#menu-tabs li').removeClass('active');
+            $('#' + tabId).addClass('active');
+            $('iframe').hide();
+            var $iframe = tabs[tabId].iframe;
+            if ($iframe.attr('src') === '') {
+                $iframe.attr('src', tabs[tabId].menuUrl);  // 탭 선택 시 URL 설정
+            }
+            $iframe.show();
+
+            //var objId = tabs[tabId].objId;
+            //$('.menu-list a').each(function () {
+            //    if ($(this).data('objid') === objId) {
+            //        setActiveClass($(this));
+            //    }
+            //});
+
+            var objId = tabs[tabId].objId;
+            let hasBookmark = false;  // bookmark 데이터가 있는지 확인하는 플래그
+            $('.menu-list a').each(function () {
+                var $this = $(this);
+                if ($this.data('objid') === objId) {
+                    if ($this.data('bookmark') === 1) {
+                        setActiveClass($this);
+                        hasBookmark = true; // bookmark 데이터가 있으면 플래그를 true로 설정
+                    }
+                }
+            });
+
+            // bookmark 데이터가 있는 요소가 없는 경우
+            if (!hasBookmark) {
+                $('.menu-list a').each(function () {
+                    var $this = $(this);
+                    if ($this.data('objid') === objId) {
+                        setActiveClass($this);
+                    }
+                });
+            }
+        }
+
+        function menuClickEvent($a, item) {
+            $a.on('click', function (event) {
+                event.preventDefault();  // 기본 이벤트 방지
+                var $currentLi = $(this).parent();
+                const menuDepth = $(this).attr('menu-depth')
+                window.menuPath = window.menuPath.slice(0, menuDepth - 1);
+                window.menuPath.push(item.objNm);
+                if (!$currentLi.hasClass('submenu') && item.objUrl !== '#') {
+                    manageTab(item.objNm, item.objId, item.objUrl, item.isbookmark); // 탭 추가
+                } else {
+                    setActiveClass($(this));
+                }
+            });
+        }
+
+        function updateMenuDisplay() {
+            return window.menuPath.join(' > ');
+        }
+
+        function createLeftMenu(menuData, $parent, level = 0) {
+            let currentLevel = level + 1;
+            var $ul = $('<ul class="' + (level == 0 ? 'menu-list ' : '') + 'level-0' + currentLevel.toString() + '"></ul>');
+
+            $.each(menuData, function (index, item) {
+                var $li = $('<li></li>').addClass(item.nodes.length > 0 ? 'submenu' : '');
+                let menuText = (item.menuIconCls != '' ? '<i class="material-symbols-outlined">' + (currentLevel == 1 ? item.menuIconCls : '') + '</i>' : '<i></i>') + '<span>' + item.objNm + '</span>';
+
+                var $a = $('<a></a>').html(menuText);
+                $a.attr('data-objid', item.objId);
+                $a.attr('menuurl', item.objUrl);
+                $a.attr('menu-depth', currentLevel.toString());
+                menuClickEvent($a, item);
+
+                if (item.nodes.length > 0) {
+                    createLeftMenu(item.nodes, $li, currentLevel);  // 재귀 호출
+                }
+
+                $li.prepend($a);
+                $ul.append($li);
+            });
+
+            $parent.append($ul);
+        }
+
+        function createBookmarkMenu() {
+            let menus = AjaxUtil.getSyncData('/api/system/bookmark', {});
+            var $bookmarkMenu = $('#bookmark');
+            $bookmarkMenu.empty();
+
+            //메인홈매뉴
+            menus.unshift({ objId: 'wm_dashboard', objNm: '메인 홈', objUrl: '/gui/wm_dashboard', isbookmark: 1 });
+
+            $.each(menus, function (index, item) {
+                var $li = $('<li></li>');
+                let menuText = '<i></i><span>' + item.objNm + '</span>';
+
+                var $a = $('<a></a>').html(menuText);
+                $a.attr('data-objid', item.objId);
+                $a.attr('menuurl', item.objUrl);
+                $a.attr('data-bookmark', 1);
+                menuClickEvent($a, item);
+
+                $li.prepend($a);
+                $bookmarkMenu.append($li);
+            });
+        }
+
+        function setDefault() {
+            let defaultObj = { objId: 'wm_dashboard', objNm: '메인 홈', objUrl: '/gui/wm_dashboard' };
+            var $iframe = $('<iframe style="display: none;width: 100%; height: 100%; border: none;" src="' + defaultObj.objUrl + '"></iframe>');
+            $iframe.appendTo($iframeContainer);  // iframe을 DOM에 추가
+
+            tabs['tab_home'] = { name: defaultObj.objNm, objId: defaultObj.objId, menuUrl: defaultObj.objUrl, iframe: $iframe };  // 탭 정보 및 iframe 저장
+            $('#tab_home').on('click', function () { selectTab('tab_home'); });
+
+            $('.menu-list ul').slideUp(5);
+            selectTab('tab_home');
+        }
+
+        function closeTabs(curTab='') {
+            var tabIds = Object.keys(tabs);
+            for (var i = 0; i < tabIds.length; i++) {
+                if (tabIds[i] !== curTab) {
+                    removeTab(tabIds[i]);
+                }
+            }
+        }
+        // 초기 로드
+        $(function () {
+
+            //메뉴 생성
+            let menus = AjaxUtil.getSyncData('/api/system/menus', {});
+            var $menuContainer = $('#leftMenu');
+            $menuContainer.empty();
+            createLeftMenu(menus, $menuContainer);
+            createBookmarkMenu();
+            menuClickEvent($('#bookmark').parent().find('a'), { objUrl: '#' });
+            setDefault();
+
+            // 개인정보 수정
+            $('#infoSetting').on('click', function () {
+                const options = {
+                    title: '내 정보',
+                    width: '400px',
+                    height: '370px',
+                }
+                popupComn.openPopup('/page/popup/myinfo', options);
+            });
+            // 다국어 설정
+            $('#langSetting').on('click', function () {
+                langModal = $("<div></div>").kendoWindow({
+                    width: "400px",
+                    height: "200px",
+                    title: "Language setting",
+                    actions: ["Close"],
+                    content: '/page/popup/language',
+                    iframe: true,
+                    resizable: false
+                }).data("kendoWindow");
+
+                langModal.center().open();
+            });
+
+            // Tab Context Menu
+            $('#context-menu').kendoContextMenu({
+                target: '#menu-tabs',
+                filter: '.tab_cls',
+                orientation: 'vertical',
+                //showOn: 'click',
+                select: function (e) {
+                    var act = $(e.item).attr("act");
+
+                    if (act == 'popup'){
+                        
+                    } else if(act == 'cur_close'){
+                        removeTab(e.target.id);
+                    } else if (act == 'all_close'){
+                        $.each(tabs, function (key, value) {
+                            if (key !== 'tab_home') {
+                                tabs[key].iframe.remove();  // 해당 iframe 삭제
+                                delete tabs[key];  // 객체에서 탭 정보 삭제
+                                $('#' + key).remove();  // DOM에서 탭 삭제
+                            }
+                            selectTab('tab_home');  // 다른 탭 선택
+                        });
+                    } else if (act == 'other_close') {
+                        $.each(tabs, function (key, value) {
+                            if (key !== 'tab_home' & key !== e.target.id) {
+                                tabs[key].iframe.remove();  // 해당 iframe 삭제
+                                delete tabs[key];  // 객체에서 탭 정보 삭제
+                                $('#' + key).remove();  // DOM에서 탭 삭제
+                            }
+                            selectTab(e.target.id);  // 다른 탭 선택
+                        });
+                    } else {
+                    
+                    }
+                }
+            });
+        });
+        // Tab 메뉴 좌우 스크롤
+        $(".navTop-tabs-ui").on('mousewheel', function (e) {
+            event.stopPropagation()
+            event.stopImmediatePropagation()
+            var wheelDelta = e.originalEvent.wheelDelta;
+            if (wheelDelta > 0) {
+                $(this).scrollLeft(-wheelDelta + $(this).scrollLeft());
+            } else {
+                $(this).scrollLeft(-wheelDelta + $(this).scrollLeft());
+            }
+            // 외부 스크롤 이벤트 막기
+            return false;
+        });
+        // 메뉴 minimized 모드
+        $('.ux-aside').on('mouseenter mouseleave', function (e) {
+            var isHover = (e.type === 'mouseenter') ? true : false;
+
+            if ($('.ux-aside').hasClass('minimized')) {
+                if (isHover) {
+                    setTimeout(function () {
+                        $('.minimized').addClass('expand');
+                        $('.level-02').removeClass('d-none');
+                    }, 200);
+                } else {
+                    $('.minimized').removeClass('expand');
+                    $('.level-02').addClass('d-none');
+                }
+            }
+        });
+        // 메뉴 접고/펴기
+        $('.menu-onoff').on('click', function (e) {
+            e.preventDefault();
+
+            if ($('.menu-mode').hasClass("minimized")) {
+                $('.menu-mode').addClass("").removeClass("minimized");
+                $('.level-02').removeClass('d-none');
+                $(this).animate({
+                    rotate: "360deg",
+                }, 500);
+            } else {
+                $('.menu-mode').addClass("minimized").removeClass("");
+                $('.level-02').addClass('d-none');
+                $(this).animate({
+                    rotate: "180deg",
+                }, 500);
+            }
+        });
+
+        jQuery('.scrollbar-inner').scrollbar();
+    </script>
+
+    {% block scripts %}
+
+    {% endblock %}
+
+</body>
+</html>

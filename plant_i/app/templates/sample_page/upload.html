@@ -1,0 +1,52 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2>File Upload</h2>
+    <div id="drop_zone"><input type="file" name="file_upload" id="file_upload" /></div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class SampleUploadPage {
+        constructor() {
+            this.upload = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let uploadOption = {
+                upload: function (e) {
+                    console.log('upload e', e);
+                    e.data = {
+                        'others': 'sample',
+                        'tableName': 'sample',
+                        'attachName': 'sample_attach',
+                        //'accepts': 'jpg,pdf,xlsx'
+                    }
+                }
+            };
+
+            _this.upload = new FileUpload($('#file_upload'), uploadOption);
+        }
+
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SampleUploadPage();
+    });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,244 @@
+
+
+
+/*
+ln.v1	선간전압1
+ln.v2	선간전압2
+ln.v3	선간전압3
+pha.v1	상전압1
+pha.v2	상전압2
+pha.v3	상전압3
+a1	전류1
+a2	전류2
+a3	전류3
+w1	유효전력1
+w2	유효전력2
+w3	유효전력3
+w.tot	유효전력4
+var1	무효전력1
+var2	무효전력2
+var3	무효전력3
+var.tot	무효전력4
+rev1	예약값1
+rev2	예약값2
+rev3	예약값3
+rev4	예약값4
+pf1	역률1
+pf2	역률2
+pf3	역률3
+pf3	역률4
+hz	주파수
+tap1	전체유효전력량1
+tap2	전체유효전력량2
+trap1	전체무효전력량1
+trap2	전체무효전력량2
+ln.v1.max	선간전압최대값1
+ln.v2.max	선간전압최대값2
+ln.v3.max	선간전압최대값3
+v1.max	전압최대값1
+v2.max	전압최대값2
+v3.max	전압최대값3
+a1.max	전류최대값1
+a2.max	전류최대값2
+a3.max	전류최대값3
+pw.max	전력최대값
+hz.max	주파수최대값
+temp.max1	온도1최대값
+temp.max2	온도2최대값
+temp1	온도1
+temp2	온도2
+dido	DI/DO
+v1.ang	전압위상1
+v2.ang	전압위상2
+v3.ang	전압위상3
+a1.ang	전류위상1
+a2.ang	전류위상2
+a3.ang	전류위상3
+ln.v1.ang	선간전압위상1
+ln.v2.ang	선간전압위상2
+ln.v3.ang	선간전압위상3
+*/
+
+--em01
+insert into tag(tag_code, tag_name,data_src_id, "_created") 
+values 
+('em01.ln.v1', 'em01선간전압1', 1, now()),
+('em01.ln.v2', 'em01선간전압2', 1, now()),
+('em01.ln.v3', 'em01선간전압3', 1, now()),
+('em01.pha.v1', 'em01상전압1', 1, now()),
+('em01.pha.v2', 'em01상전압2', 1, now()),
+('em01.pha.v3', 'em01상전압3', 1, now()),
+('em01.a1', 'em01전류1', 1, now()),
+('em01.a2', 'em01전류2', 1, now()),
+('em01.a3', 'em01전류3', 1, now()),
+('em01.w1', 'em01유효전력1', 1, now()),
+('em01.w2', 'em01유효전력2', 1, now()),
+('em01.w3', 'em01유효전력3', 1, now()),
+('em01.w.tot', 'em01유효전력4', 1, now()),
+('em01.var1', 'em01무효전력1', 1, now()),
+('em01.var2', 'em01무효전력2', 1, now()),
+('em01.var3', 'em01무효전력3', 1, now()),
+('em01.var.tot', 'em01무효전력4', 1, now()),
+('em01.rev1', 'em01예약값1', 1, now()),
+('em01.rev2', 'em01예약값2', 1, now()),
+('em01.rev3', 'em01예약값3', 1, now()),
+('em01.rev4', 'em01예약값4', 1, now()),
+('em01.pf1', 'em01역률1', 1, now()),
+('em01.pf2', 'em01역률2', 1, now()),
+('em01.pf3', 'em01역률3', 1, now()),
+('em01.pf4', 'em01역률4', 1, now()),
+('em01.hz', 'em01주파수', 1, now()),
+('em01.tap1', 'em01전체유효전력량1', 1, now()),
+('em01.tap2', 'em01전체유효전력량2', 1, now()),
+('em01.trap1', 'em01전체무효전력량1', 1, now()),
+('em01.trap2', 'em01전체무효전력량2', 1, now()),
+('em01.ln.v1.max', 'em01선간전압최대값1', 1, now()),
+('em01.ln.v2.max', 'em01선간전압최대값2', 1, now()),
+('em01.ln.v3.max', 'em01선간전압최대값3', 1, now()),
+('em01.v1.max', 'em01전압최대값1', 1, now()),
+('em01.v2.max', 'em01전압최대값2', 1, now()),
+('em01.v3.max', 'em01전압최대값3', 1, now()),
+('em01.a1.max', 'em01전류최대값1', 1, now()),
+('em01.a2.max', 'em01전류최대값2', 1, now()),
+('em01.a3.max', 'em01전류최대값3', 1, now()),
+('em01.pw.max', 'em01전력최대값', 1, now()),
+('em01.hz.max', 'em01주파수최대값', 1, now()),
+('em01.temp.max1', 'em01온도1최대값', 1, now()),
+('em01.temp.max2', 'em01온도2최대값', 1, now()),
+('em01.temp1', 'em01온도1', 1, now()),
+('em01.temp2', 'em01온도2', 1, now()),
+('em01.dido', 'em01DI/DO', 1, now()),
+('em01.v1.ang', 'em01전압위상1', 1, now()),
+('em01.v2.ang', 'em01전압위상2', 1, now()),
+('em01.v3.ang', 'em01전압위상3', 1, now()),
+('em01.a1.ang', 'em01전류위상1', 1, now()),
+('em01.a2.ang', 'em01전류위상2', 1, now()),
+('em01.a3.ang', 'em01전류위상3', 1, now()),
+('em01.ln.v1.ang', 'em01선간전압위상1', 1, now()),
+('em01.ln.v2.ang', 'em01선간전압위상2', 1, now()),
+('em01.ln.v3.ang', 'em01선간전압위상3', 1, now())
+;
+
+
+
+--em02
+insert into tag(tag_code, tag_name,data_src_id, "_created")
+values
+('em02.ln.v1', 'em02선간전압1', 2, now()),
+('em02.ln.v2', 'em02선간전압2', 2, now()),
+('em02.ln.v3', 'em02선간전압3', 2, now()),
+('em02.pha.v1', 'em02상전압1', 2, now()),
+('em02.pha.v2', 'em02상전압2', 2, now()),
+('em02.pha.v3', 'em02상전압3', 2, now()),
+('em02.a1', 'em02전류1', 2, now()),
+('em02.a2', 'em02전류2', 2, now()),
+('em02.a3', 'em02전류3', 2, now()),
+('em02.w1', 'em02유효전력1', 2, now()),
+('em02.w2', 'em02유효전력2', 2, now()),
+('em02.w3', 'em02유효전력3', 2, now()),
+('em02.w.tot', 'em02유효전력4', 2, now()),
+('em02.var1', 'em02무효전력1', 2, now()),
+('em02.var2', 'em02무효전력2', 2, now()),
+('em02.var3', 'em02무효전력3', 2, now()),
+('em02.var.tot', 'em02무효전력4', 2, now()),
+('em02.rev1', 'em02예약값1', 2, now()),
+('em02.rev2', 'em02예약값2', 2, now()),
+('em02.rev3', 'em02예약값3', 2, now()),
+('em02.rev4', 'em02예약값4', 2, now()),
+('em02.pf1', 'em02역률1', 2, now()),
+('em02.pf2', 'em02역률2', 2, now()),
+('em02.pf3', 'em02역률3', 2, now()),
+('em02.pf4', 'em02역률4', 2, now()),
+('em02.hz', 'em02주파수', 2, now()),
+('em02.tap1', 'em02전체유효전력량1', 2, now()),
+('em02.tap2', 'em02전체유효전력량2', 2, now()),
+('em02.trap1', 'em02전체무효전력량1', 2, now()),
+('em02.trap2', 'em02전체무효전력량2', 2, now()),
+('em02.ln.v1.max', 'em02선간전압최대값1', 2, now()),
+('em02.ln.v2.max', 'em02선간전압최대값2', 2, now()),
+('em02.ln.v3.max', 'em02선간전압최대값3', 2, now()),
+('em02.v1.max', 'em02전압최대값1', 2, now()),
+('em02.v2.max', 'em02전압최대값2', 2, now()),
+('em02.v3.max', 'em02전압최대값3', 2, now()),
+('em02.a1.max', 'em02전류최대값1', 2, now()),
+('em02.a2.max', 'em02전류최대값2', 2, now()),
+('em02.a3.max', 'em02전류최대값3', 2, now()),
+('em02.pw.max', 'em02전력최대값', 2, now()),
+('em02.hz.max', 'em02주파수최대값', 2, now()),
+('em02.temp.max1', 'em02온도1최대값', 2, now()),
+('em02.temp.max2', 'em02온도2최대값', 2, now()),
+('em02.temp1', 'em02온도1', 2, now()),
+('em02.temp2', 'em02온도2', 2, now()),
+('em02.dido', 'em02DI/DO', 2, now()),
+('em02.v1.ang', 'em02전압위상1', 2, now()),
+('em02.v2.ang', 'em02전압위상2', 2, now()),
+('em02.v3.ang', 'em02전압위상3', 2, now()),
+('em02.a1.ang', 'em02전류위상1', 2, now()),
+('em02.a2.ang', 'em02전류위상2', 2, now()),
+('em02.a3.ang', 'em02전류위상3', 2, now()),
+('em02.ln.v1.ang', 'em02선간전압위상1', 2, now()),
+('em02.ln.v2.ang', 'em02선간전압위상2', 2, now()),
+('em02.ln.v3.ang', 'em02선간전압위상3', 2, now())
+;
+
+
+--em03
+insert into tag(tag_code, tag_name, data_src_id, "_created")
+values
+('em03.ln.v1', 'em03선간전압1', 3, now()),
+('em03.ln.v2', 'em03선간전압2', 3, now()),
+('em03.ln.v3', 'em03선간전압3', 3, now()),
+('em03.pha.v1', 'em03상전압1', 3, now()),
+('em03.pha.v2', 'em03상전압2', 3, now()),
+('em03.pha.v3', 'em03상전압3', 3, now()),
+('em03.a1', 'em03전류1', 3, now()),
+('em03.a2', 'em03전류2', 3, now()),
+('em03.a3', 'em03전류3', 3, now()),
+('em03.w1', 'em03유효전력1', 3, now()),
+('em03.w2', 'em03유효전력2', 3, now()),
+('em03.w3', 'em03유효전력3', 3, now()),
+('em03.w.tot', 'em03유효전력4', 3, now()),
+('em03.var1', 'em03무효전력1', 3, now()),
+('em03.var2', 'em03무효전력2', 3, now()),
+('em03.var3', 'em03무효전력3', 3, now()),
+('em03.var.tot', 'em03무효전력4', 3, now()),
+('em03.rev1', 'em03예약값1', 3, now()),
+('em03.rev2', 'em03예약값2', 3, now()),
+('em03.rev3', 'em03예약값3', 3, now()),
+('em03.rev4', 'em03예약값4', 3, now()),
+('em03.pf1', 'em03역률1', 3, now()),
+('em03.pf2', 'em03역률2', 3, now()),
+('em03.pf3', 'em03역률3', 3, now()),
+('em03.pf4', 'em03역률4', 3, now()),
+('em03.hz', 'em03주파수', 3, now()),
+('em03.tap1', 'em03전체유효전력량1', 3, now()),
+('em03.tap2', 'em03전체유효전력량2', 3, now()),
+('em03.trap1', 'em03전체무효전력량1', 3, now()),
+('em03.trap2', 'em03전체무효전력량2', 3, now()),
+('em03.ln.v1.max', 'em03선간전압최대값1', 3, now()),
+('em03.ln.v2.max', 'em03선간전압최대값2', 3, now()),
+('em03.ln.v3.max', 'em03선간전압최대값3', 3, now()),
+('em03.v1.max', 'em03전압최대값1', 3, now()),
+('em03.v2.max', 'em03전압최대값2', 3, now()),
+('em03.v3.max', 'em03전압최대값3', 3, now()),
+('em03.a1.max', 'em03전류최대값1', 3, now()),
+('em03.a2.max', 'em03전류최대값2', 3, now()),
+('em03.a3.max', 'em03전류최대값3', 3, now()),
+('em03.pw.max', 'em03전력최대값', 3, now()),
+('em03.hz.max', 'em03주파수최대값', 3, now()),
+('em03.temp.max1', 'em03온도1최대값', 3, now()),
+('em03.temp.max2', 'em03온도2최대값', 3, now()),
+('em03.temp1', 'em03온도1', 3, now()),
+('em03.temp2', 'em03온도2', 3, now()),
+('em03.dido', 'em03DI/DO', 3, now()),
+('em03.v1.ang', 'em03전압위상1', 3, now()),
+('em03.v2.ang', 'em03전압위상2', 3, now()),
+('em03.v3.ang', 'em03전압위상3', 3, now()),
+('em03.a1.ang', 'em03전류위상1', 3, now()),
+('em03.a2.ang', 'em03전류위상2', 3, now()),
+('em03.a3.ang', 'em03전류위상3', 3, now()),
+('em03.ln.v1.ang', 'em03선간전압위상1', 3, now()),
+('em03.ln.v2.ang', 'em03선간전압위상2', 3, now()),
+('em03.ln.v3.ang', 'em03선간전압위상3', 3, now())
+;
+

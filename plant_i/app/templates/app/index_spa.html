@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLNAT-I :: HLKlemove</title>
+    {% load static %}
+    <link rel="stylesheet" href="/static/resource/windowContainer/css/jquery.scrollbar.min.css">
+    <link rel="stylesheet" href="/static/resource/windowContainer/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/resource/windowContainer/css/nth-icons.css">
+    <link rel="stylesheet" href="/static/resource/windowContainer/css/nth-tabs.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/theme-top-a.css">
+    <link rel="stylesheet" href="/static/css/theme-left-a.css">
+
+    <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+
+    <!--kendo ui css-->
+    <!--<link rel="stylesheet" href="/static/resource/kendo_ui/styles/default-ocean-blue.css">-->
+    <!--kendo ui CDN css-->
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/themes/8.0.1/default/default-main.css" />
+
+</head>
+<body>
+    <div class="wrap">
+        <div class="header">
+            <div class="logo">
+                <div id="navbarBarMenu1" style="display: none;">
+                    <button type="button" class="open_menu">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </button>
+                </div>
+                <h1 id="mainlogotitle">QM-LIMS</h1>
+            </div>
+            <div class="navbar">
+                <div class="left_align">
+                    <div id="navbarBarMenu2" style="display: none;">
+                        <button type="button" class="open_menu">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="right_align" style="padding: 7px 14px;">
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-info">로그아웃</button>
+                    </form>
+                </div>
+            </div>
+
+            <!--header [E]-->
+        </div>
+        <div class="container">
+            <div class="menu_area">
+                <div id="menuTab">
+                    <ul>
+                        <li><span class="icon"></span>전체메뉴</li>
+                        <li><span class="icon"></span>즐겨찾기</li>
+                    </ul>
+                    <div class="k-drawer-items">
+                        <ul id="panelbar">
+                            <li>
+                                대매뉴1
+                                <ul>
+                                    <li>매뉴1</li>
+                                    <li>
+                                        매뉴2
+                                        <ul>
+                                            <li>매뉴2-1</li>
+                                            <li>매뉴2-2</li>
+                                            <li>매뉴2-3</li>
+                                            <li>매뉴2-4</li>
+                                        </ul>
+                                    </li>
+                                    <li>매뉴3</li>
+                                </ul>
+
+                            </li>
+                            <li>
+                                대매뉴2
+                                <ul>
+                                    <li><a href="#home" onclick="navigate(event, 'home')">Home</a></li>
+                                    <li><a href="#about" onclick="navigate(event, 'about')">About</a></li>
+                                    <li><a href="#contact" onclick="navigate(event, 'contact')">Contact</a></li>
+                                    <li>매뉴4</li>
+                                    <li>매뉴5</li>
+                                </ul>
+                            </li>
+                            <li disabled="disabled">
+                                사용안하는매뉴
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <!--즐겨찾기메뉴-->
+                        <ul>
+                            <li><span class="k-icon k-i-grid"></span><span class="k-item-text" data-id="Inbox">Dashboard</span></li>
+                            <li><span class="k-icon k-i-notification k-i-globe"></span><span class="k-item-text" data-id="Notifications">Performance &amp; Sales</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="con_area">
+                <div class="contents">
+                    <!--<div class="nth-tabs" id="main-tabs">
+                        <div class="page-tabs">
+                            <a href="#" class="roll-nav roll-nav-left"><span class="fa fa-angle-left"></span><span class="hidden">TAB move left</span></a><div class="content-tabs">
+                                <div class="content-tabs-container" style="margin-left: 40px;">
+                                    <ul class="nav nav-tabs" id="tabdragdrop" aria-dropeffect="move">
+                                        <li data-title="Main" not-allow-close="" class="" draggable="true" role="option" aria-grabbed="false" style="cursor: default; list-style-image: none;"><a href="#wm_sample_test" data-toggle="tab" data-optionurl="/gui/wm_text_to_sql_dataset/default"><i class="fas fa-star"></i><span>Main</span></a></li>
+                                        <li data-title="탭매뉴" class="active" draggable="true" role="option" aria-grabbed="false">
+                                            <a href="#wm_depart" data-toggle="tab" data-optionurl="/gui/wm_depart">
+                                                <i class="fas fa-star"></i><span>탭매뉴</span>
+                                            </a><i class="icon nth-icon-close-mini tab-close"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <a href="#" class="roll-nav roll-nav-right"><span class="fa fa-angle-right"></span><span class="hidden">TAB move right</span></a><ul id="contextTabMenu" class="dropdown-menu tabmenus animated flipInX" style="display: none;"><li style="cursor: default; list-style-image: none;"><a href="#" class="tab-open-current">새창으로 열기</a></li><li style="cursor: default; list-style-image: none;"><a href="#" class="tab-close-current otherAuthmaintab">현재 탭 닫기</a></li><li role="separator" class="divider" style="cursor: default; list-style-image: none;"></li><li style="cursor: default; list-style-image: none;"><a href="#" class="tab-close-other otherAuthtab otherAuthmaintab">다른 탭 닫기</a></li><li style="cursor: default; list-style-image: none;"><a href="#" class="tab-close-all">모든 탭 닫기</a></li></ul>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane animation-fade active" id="wm_sample_test">
+                                <iframe src="/gui/wm_sample_test/default" frameborder="0" class="nth-tabs-frame"></iframe>
+                            </div>
+                        </div>
+                    </div>-->
+                    <div class="nth-tabs" id="main-tabs">
+                        <div class="page-tabs">
+                            <a href="#" class="roll-nav roll-nav-left"><span class="fa fa-angle-left"></span><span class="hidden">TAB move left</span></a><div class="content-tabs">
+                                <div class="content-tabs-container" style="margin-left: 40px;">
+                                    <ul class="nav nav-tabs" id="tabdragdrop" aria-dropeffect="move">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane animation-fade active" id="content">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <!--footer [S]-->
+            <span class="footer-left" id="link_privatepolicy" data-commonCd="개인정보 처리방침">개인정보 처리방침</span>
+            <span class="footer-left" id="link_emailreject" data-commonCd="이메일 무단수집 거부">이메일 무단수집 거부</span>
+            <span class="footer-right">Copyright ⓒ (주)위존. All Rights Reserved.</span>
+            <!--footer [E]-->
+        </div>
+    </div>
+
+    <!--jquery-->
+    <script src="{% static 'resource/jquery/jquery-3.7.1.min.js' %}"></script>
+
+    <script type="text/javascript">
+        {% include './system.js' %}
+    </script>
+
+
+    <script src="{% static 'app/scripts/bootstrap.js' %}"></script>
+    <script src="{% static 'app/scripts/respond.js' %}"></script>
+
+    <script type="text/javascript" src="/static/resource/windowContainer/js/jquery.scrollbar.min.js"></script>
+    <script type="text/javascript" src="/static/resource/windowContainer/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/resource/nth-tabs.js"></script>
+    <!--kendo ui-->
+    <!--<script src="{% static 'resource/kendo_ui/js/kendo.all.min.js' %}"></script>-->
+    <!--kendo ui CDN-->
+    <script src="https://kendo.cdn.telerik.com/2024.2.514/js/kendo.all.min.js"></script>
+    <script src="{% static 'resource/common.js' %}"></script>
+    <script>
+        kendo.culture("ko-KR");
+
+        const routes = {
+            home: 'This is the home page content.',
+            about: 'This is the about page content.',
+            contact: 'This is the contact page content.'
+        };
+
+        function navigate(event, route) {
+            event.preventDefault();
+            loadPage(route);
+            addTab(route);
+        }
+
+        function loadPage(route) {
+            const contentDiv = $('#content');
+            contentDiv.html(routes[route] || 'Page not found.');
+        }
+
+        function addTab(route) {
+            const tabsDiv = $('#tabdragdrop');
+            let existingTab = $(`.nth-tabs a[href="#${route}"]`);
+            if (existingTab.length === 0) {
+                const newTab = $('<a></a>')
+                    .attr('href', `#${route}`)
+                    .text(route.charAt(0).toUpperCase() + route.slice(1))
+                    .addClass('active')
+                    .on('click', function (event) {
+                        event.preventDefault();
+                        setActiveTab(route);
+                        loadPage(route);
+                    });
+                tabsDiv.append(newTab);
+            }
+            setActiveTab(route);
+        }
+
+        function setActiveTab(route) {
+            $('.nth-tabs a').removeClass('active');
+            $(`.nth-tabs a[href="#${route}"]`).addClass('active');
+        }
+
+        // 초기 로드
+        $(function () {
+            $("#menuTab").kendoTabStrip();
+            $("#panelbar").kendoPanelBar({
+                expandMode: "single"
+            });
+
+            const initialRoute = window.location.hash.substring(1) || 'home';
+            loadPage(initialRoute);
+            addTab(initialRoute);
+        });
+
+    </script>
+
+    {% block scripts %}
+
+    {% endblock %}
+
+</body>
+</html>

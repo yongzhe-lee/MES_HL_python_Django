@@ -1,0 +1,252 @@
+{% extends "app/layout.html" %}
+{% block css %}
+<style>
+    /* Kendo TextBox가 비활성화된 상태일 때 스타일 변경 */
+    .k-textbox.k-disabled {
+        background-color: #f0f0f0; /* 비활성화된 상태의 배경색 */
+        border: 1px solid #d0d0d0; /* 비활성화된 상태의 테두리 색 */
+    }
+    .k-textarea.k-disabled {
+        background-color: #f0f0f0; /* 비활성화된 상태의 배경색 */
+        border: 1px solid #d0d0d0; /* 비활성화된 상태의 테두리 색 */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+    <div class="content-ui-row">
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span>
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="의뢰정보">의뢰정보</label></span>
+                    </span>
+                </div>
+                <form id="reqPopupForm" class="search-form">
+                    <div class="edit-form-ui col-auto">
+                        <input type="hidden" id="sm_id" name="sm_id" />
+
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="req_type" data-labelCd="의뢰유형">의뢰유형</label>
+                            <div class="field-wrapper">
+                                <input id="req_type" name="req_type" data-msg="의뢰유형을" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="req_date" data-labelCd="의뢰일">의뢰일</label>
+                            <div class="field-wrapper">
+                                <input id="req_date" name="req_date" data-msg="의뢰일을" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="req_name" data-labelCd="의뢰자">의뢰자</label>
+                            <div class="field-wrapper">
+                                <input id="req_name" name="req_name" data-msg="의뢰자를" />
+                            </div>
+                        </div>
+                        <div class="col-12 form-item align-h">
+                            <label class="k-label k-form-label" for="req_desc" data-labelCd="의뢰비고">의뢰비고</label>
+                            <div class="field-wrapper">
+                                <input id="req_desc" name="req_desc" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span>
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="샘플정보">샘플정보</label></span>
+                    </span>
+                </div>
+
+                <form id="smpPopupForm" class="search-form">
+                    <div class="edit-form-ui col-auto">
+                        <input type="hidden" id="sm_id" name="sm_id" />
+
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="smp_id" data-labelCd="샘플ID">샘플ID</label>
+                            <div class="field-wrapper">
+                                <input id="smp_id" name="smp_id" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="smp_type" data-labelCd="샘플종류">샘플종류</label>
+                            <div class="field-wrapper">
+                                <input id="smp_cls_name" name="smp_cls_name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="smp_grp_name" data-labelCd="샘플그룹">샘플그룹</label>
+                            <div class="field-wrapper">
+                                <input id="smp_grp_name" name="smp_grp_name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="smp_name" data-labelCd="샘플">샘플</label>
+                            <div class="field-wrapper">
+                                <input id="smp_name" name="smp_name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="prod_name" data-labelCd="제품">제품</label>
+                            <div class="field-wrapper">
+                                <input id="prod_name" name="prod_name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="company" data-labelCd="업체">업체</label>
+                            <div class="field-wrapper">
+                                <input id="company" name="company" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="gather_date" data-labelCd="채취일">채취일</label>
+                            <div class="field-wrapper">
+                                <input id="gather_date" name="gather_date" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="gather_time" data-labelCd="채취시간">채취시간</label>
+                            <div class="field-wrapper">
+                                <input id="gather_time" name="gather_time" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="gather_site" data-labelCd="채취장소">채취장소</label>
+                            <div class="field-wrapper">
+                                <input id="gather_site" name="gather_site" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="lot_no" data-labelCd="Lot No">Lot No</label>
+                            <div class="field-wrapper">
+                                <input id="lot_no" name="lot_no" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="input_date" data-labelCd="입고일">입고일</label>
+                            <div class="field-wrapper">
+                                <input id="input_date" name="input_date" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="input_qty" data-labelCd="입고량">입고량</label>
+                            <div class="field-wrapper">
+                                <input id="input_qty" name="input_qty" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="smp_desc" data-labelCd="샘플비고">샘플비고</label>
+                            <div class="field-wrapper">
+                                <input id="smp_desc" name="smp_desc" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="req_item" data-labelCd="요청항목">요청항목</label>
+                            <div class="field-wrapper">
+                                <input id="req_item" name="req_item" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 form-item align-h">
+                            <label class="k-label k-form-label" for="stats_ex" data-labelCd="통계제외">통계제외</label>
+                            <div class="field-wrapper">
+                                <input id="stats_ex" name="stats_ex" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="col-auto">
+                <div class="card-group-btn" style="margin-top:10px">
+                    <span></span>
+                    <span>
+                        <button id="btnPopSave" class="btn-save">저장</button>
+                        <button id="btnPopClose" class="btn-cancel">닫기</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    {% endblock %}
+
+    {% block scripts %}
+    {% include 'common/file_upload.html' %}
+    <script type="text/javascript">
+        class PopupSmpPage {
+            constructor() {
+                this.popupData = null;
+
+                this.init();
+            }
+            init() {
+                let _this = this;
+                _this.popupData = window.popupData
+                const _state = _this.popupData.popState;
+                $('#req_type').kendoTextBox({ enable: _state === 'edit' });
+                $('#req_date').kendoTextBox({ enable: false });
+                $('#req_name').kendoTextBox({ enable: false });
+                $('#req_desc').kendoTextArea({
+                    rows: 4,
+                    autosize: true,
+                    maxLength: 500, // 글자수
+                    size: "large",
+                    enable: _state === 'edit'
+                });
+                $('#smp_id').kendoTextBox({ enable: false });
+                $('#smp_cls_name').kendoTextBox({ enable: false });
+                $('#smp_grp_name').kendoTextBox({ enable: false });
+                $('#smp_name').kendoTextBox({ enable: false });
+                $('#prod_name').kendoTextBox({ enable: false });
+                $('#company').kendoTextBox({ enable: false });
+                $('#gather_date').kendoTextBox({ enable: _state === 'edit' });
+                $('#gather_time').kendoTextBox({ enable: _state === 'edit' });
+                $('#gather_site').kendoTextBox({ enable: _state === 'edit' });
+                $('#lot_no').kendoTextBox({ enable: _state === 'edit' });
+                $('#input_date').kendoTextBox({ enable: _state === 'edit' });
+                $('#input_qty').kendoTextBox({ enable: _state === 'edit' });
+                $('#smp_desc').kendoTextBox({ enable: _state === 'edit' });
+                $('#req_item').kendoTextBox({ enable: _state === 'edit' });
+                var switchInstance = $("#stats_ex").kendoSwitch({ checked: false }).data("kendoSwitch");
+                switchInstance.enable(_state === 'edit');
+
+                // 저장버튼 클릭시
+                $('#btnPopSave').kendoButton({
+                    themeColor: "base",
+                    click: function () {
+                        Alert.confirm('', '저장하시겠습니까?', function () {
+                        });
+                    }
+                });
+
+                $('#btnPopClose').kendoButton({
+                    themeColor: "base",
+                    click: function () {
+                        window.popupData.parentPopup.close();
+                    }
+                });
+
+                // btn visible 
+                if (_state === 'edit') {
+                    $("#btnPopSave").show();
+                } else {
+                    $("#btnPopSave").hide();
+                }
+            };
+
+        };
+
+        $(document).ready(function () {
+            page = new PopupSmpPage();
+
+        });
+    </script>
+    {% endblock %}
+

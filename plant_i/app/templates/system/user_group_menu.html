@@ -1,0 +1,229 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="user_group" data-labelCd="사용자그룹">사용자그룹</label>
+                            <div class="field-wrapper">
+                                <select id="user_group" name="user_group"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="menu_folder" data-labelCd="메뉴폴더">메뉴폴더</label>
+                            <div class="field-wrapper">
+                                <select id="menu_folder" name="menu_folder"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group-btn search">
+                        <button id="btnSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="메뉴 목록">메뉴 목록</label></span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                    </span>
+                </div>
+                <div id="user_grp_menu_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class UserGroupMenuPage {
+        constructor() {
+            this.baseUrl = '/api/system/usergroupmenu';
+
+            this.grid = null;
+            this.searchForm = null;
+            this.comboUserGrp = [];
+            this.comboFolder = [];
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            _this.userGrpCombo = AjaxUtil.getSelectData('user_group');
+            _this.comboFolder = AjaxUtil.getSelectDataWithNull('menu_folder', 'all');
+
+            let gridOption = {
+                editable: true,
+                sortable: false,
+                filterable: false,
+                columns: [
+                    { field: "name", title: "메뉴명", width: 100, editable: false },
+                    {
+                        field: "r",
+                        headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="r_all_check"/> <label for="r_all_check">읽기</label>',
+                        width: 100, attributes: {class: "k-text-center"},
+                        template: function(item){
+                            return item.is_folder == 1 ? '' : '<input name="chkbx_r" type="checkbox"' + (item.r == 1 ? 'checked="checked"' : '') + 'class="chkbx k-checkbox k-checkbox-md k-rounded-md" />';
+                        }
+                    },
+                    {
+                        field: "w",
+                        headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="w_all_check"/> <label for="w_all_check">쓰기</label>',
+                        width: 100, attributes: {class: "k-text-center"},
+                        template: function(item){
+                            return item.is_folder == 1 ? '' : '<input name="chkbx_w" type="checkbox"' + (item.w == 1 ? 'checked="checked"' : '') + 'class="chkbx k-checkbox k-checkbox-md k-rounded-md" />';
+                        }
+                    },
+                ],
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    }; 
+                },
+                height: "700px"
+            };
+            _this.grid = new TreeGrid($("#user_grp_menu_grid"), gridOption);
+
+            $('#user_group').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.userGrpCombo,
+                change: function () { _this.searchMainData(); }
+            });
+            $('#menu_folder').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.comboFolder,
+                change: function () { _this.searchMainData(); }
+            });
+            $('#btnSearch').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnSave').kendoButton({
+                themeColor: "success",
+                click: function () {
+                    _this.saveMenuAuth();
+                }
+            });
+
+            $('#r_all_check').on('click', function () {
+                let checked = $(this).prop('checked');
+                $('input[name="chkbx_r"]').prop('checked', checked);
+            });
+            $('#w_all_check').on('click', function () {
+                let checked = $(this).prop('checked');
+                $('input[name="chkbx_w"]').prop('checked', checked);
+            })
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                group_id: $('#user_group').val(),
+                folder_id: $('#menu_folder').val(),
+            };
+
+            let succFunc = function (result) {
+                let options = {
+                    id: "id",  // Custom id field name
+                    parentId: "parentId",  // Custom parentId field name
+                    fields: {
+                        id: { type: "number" },
+                        parentId: { type: "number", nullable: true }
+                    }
+                }
+                _this.grid.setTreeDataSource(result, options);
+
+                // 헤더 체크박스 상태 리셋
+                $('#r_all_check').prop('checked', false);
+                $('#w_all_check').prop('checked', false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+        }
+
+        saveMenuAuth() {
+            let _this = this;
+            let gridList = _this.grid.getData();
+            let group_id = $('#user_group').val();
+
+            if (group_id == null || group_id == '') {
+                Alert.alert('', '사용자그룹을 선택하세요');
+                return;
+            }
+
+            let data = { group_id: group_id, Q: '' };
+
+            let items = [];
+            $.each(gridList, function (idx, item) {
+                let $item = $("tr[data-uid='" + item.uid + "']");
+                let rVal = $item.find('input[name="chkbx_r"]').is(":checked");
+                let wVal = $item.find('input[name="chkbx_w"]').is(":checked");
+                
+                let menu_code = item.menu_code;
+                if (menu_code != "") {
+
+                    item.r = rVal == true ? 1 : 0;
+                    item.w = wVal == true ? 1 : 0;
+
+                    items.push({
+                        menu_code: item.menu_code,
+                        r: item.r,
+                        w: item.w,
+                        ugm_id: item.ugm_id,
+                    });
+                }
+            });
+
+            data.Q = JSON.stringify(items);
+            //데이터입력체크루틴 누락
+            //_this.grid.sel
+
+            Alert.confirm('', '저장하시겠습니까?', function () {
+                let fnSuccess = function (res) {
+                    Notify.success('저장되었습니다'); // Notification
+                    _this.searchMainData();
+
+                    // 헤더 체크박스 상태 리셋
+                    $('#r_all_check').prop('checked', false);
+                    $('#w_all_check').prop('checked', false);                    
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, fnSuccess);
+            }, function () { });
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new UserGroupMenuPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

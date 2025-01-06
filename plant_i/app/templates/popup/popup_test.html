@@ -1,0 +1,224 @@
+<script type="text/x-kendo-template" id="TestPopupTemplate">
+    <div class="content-wrap popup">
+        <div class="content-ui-row">
+            <div class="card-content">
+
+                <div class="card-content search">
+                    <div class="form-ui">
+                        <div class="col-auto">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="sch_keyword">검색어</label>
+                                <div class="field-wrapper">
+                                    <input id="sch_keyword" name="sch_keyword" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="card-group-btn search">
+                                <button id="btnPopSearch" class="btn-search">조회</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabstrip">
+                    <ul>
+                        <li class="k-active">시험으로추가</li>
+                        <li>특성으로추가</li>
+                    </ul>
+
+                    <div class="tab-contents">
+
+
+                        <div class="card-content grid">
+                            <div id="test_grid"></div>
+
+                            <div class="card-content">
+                                <div class="card-group-btn">
+                                    <span>
+
+                                    </span>
+                                    <span>
+                                        <button id="btnTestSelect">선택</button>
+                                        <button id="btnTestClose">닫기</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-contents">
+                        <div class="card-content grid">
+                            <div id="prpt_grid"></div>
+
+                            <div class="card-content">
+                                <div class="card-group-btn">
+                                    <span>
+
+                                    </span>
+                                    <span>
+                                        <button id="btnPrptSelect">선택</button>
+                                        <button id="btnPrptClose">닫기</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+
+    class PopupTestPage {
+
+        constructor() {
+            this.test_grid = null;
+            this.prpt_grid = null;
+            this.callback = null;
+            this.baseUrl = '/api/popup/popup_test'
+            this.selectedItem = null;
+            this.activate_tab = '시험으로추가';
+        }
+
+        init($content) {
+            let _this = this;
+            $content.find("#tabstrip").kendoTabStrip({
+                activate: onActivate,
+            });
+            $content.find('#sch_keyword').kendoTextBox({});
+
+            let testGridOption = {
+                pageable: false,
+                columns: [
+                    { field: "test_cls_name", title: "시험종류", width: 100 },
+                    { field: "test_name", title: "시험", width: 100 },
+                ],
+                height: "350px"
+            };
+            _this.test_grid = new Grid($content.find('#test_grid'), testGridOption);
+
+            let prptGridOption = {
+                pageable: false,
+                columns: [
+                    { field: "test_cls_name", title: "시험종류", width: 100 },
+                    { field: "test_name", title: "시험", width: 100 },
+                    { field: "prpt_name", title: "특성", width: 100 },
+                ],
+                height: "350px"
+            };
+            _this.prpt_grid = new Grid($content.find('#prpt_grid'), prptGridOption);
+
+            function onActivate(e) {
+                _this.activate_tab = $(e.item).find("> .k-link").text();
+            }
+
+            $content.find('#btnPopSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $content.find('#btnTestSelect').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    let items = _this.test_grid.getSelect()[0];
+                    items['type'] = 'test'
+                    _this.selectData(items, $content);
+                }
+            });
+
+            $content.find('#btnPrptSelect').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    let items = _this.prpt_grid.getSelect()[0];
+                    items['type'] = 'prpt'
+                    _this.selectData(items, $content);
+                }
+            });
+
+            $content.find('#btnTestClose').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    $content.data('kendoWindow').close();
+                }
+            });
+
+            $content.find('#btnPrptClose').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    $content.data('kendoWindow').close();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+
+            let data = {
+                keyword: $('#sch_keyword').val()
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, data);
+
+            let test_list = result.test_list
+            let prpt_list = result.prpt_list
+
+            if (test_list) {
+                _this.test_grid.setData(test_list);
+            }
+
+            if (prpt_list) {
+                _this.prpt_grid.setData(prpt_list);
+            }
+
+            this.selectedItem = null;
+        }
+
+        selectData(item, $content) {
+            if (typeof this.callback !== 'undefined' && this.callback != null) {
+                
+                this.callback(item);
+            }
+            $content.data('kendoWindow').close();
+        }
+
+        show(callback) {
+            let _this = this;
+            this.callback = callback;
+
+            let content = $('#TestPopupTemplate').html()
+            let $content = $(content);
+
+            // 브라우저 너비의 80%를 팝업 너비로 설정
+            let windowWidth = window.innerWidth * 0.8;
+
+            $content.kendoWindow({
+                width: "800px", // windowWidth
+                height: "600px",
+                title: "시험선택",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+            _this.init($content);
+            $content.data("kendoWindow").center().open();
+
+            _this.searchMainData();
+
+        }
+
+
+
+    }
+</script>

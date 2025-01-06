@@ -1,0 +1,842 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_line" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select id="srch_equ_line" name="srch_equ_line"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_grp" data-labelCd="설비그룹">설비그룹</label>
+                            <div class="field-wrapper">
+                                <select id="srch_equ_grp" name="srch_equ_grp"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_name" data-labelCd="설비명">설비명</label>
+                            <div class="field-wrapper">
+                                <input id="srch_equ_name" name="srch_equ_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="설비정보">설비정보</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="equipment_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <!--<form id="equipmentForm">
+                    <div class="edit-form-ui">
+                        <input type="hidden" id="id" name="id" />
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="EquipmentGroup_id" data-labelCd="설비그룹">설비그룹</label>
+                                <div class="field-wrapper">
+                                    <input id="EquipmentGroup_id" name="EquipmentGroup_id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Code" data-labelCd="설비코드">설비코드</label>
+                                <div class="field-wrapper">
+                                    <input id="Code" name="Code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Name" data-labelCd="설비명">설비명</label>
+                                <div class="field-wrapper">
+                                    <input id="Name" name="Name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ManageNumber" data-labelCd="관리번호">관리번호</label>
+                                <div class="field-wrapper">
+                                    <input id="ManageNumber" name="ManageNumber" />
+                                </div>
+                            </div>
+                        </div>-->
+                <!-- 워크센터 사용 안함 -->
+                <!--<div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label essential" for="workcenter_name" data-labelCd="워크센터">워크센터</label>
+                        <div class="field-wrapper">
+                            <input id="workcenter_name" name="workcenter_name" />
+                        </div>
+                    </div>
+                </div>-->
+                <!--<div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Model" data-labelCd="모델명">모델명</label>
+                                <div class="field-wrapper">
+                                    <input id="Model" name="Model" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Maker" data-labelCd="제조사">제조사</label>
+                                <div class="field-wrapper">
+                                    <input id="Maker" name="Maker" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="SerialNumber" data-labelCd="시리얼번호">시리얼번호</label>
+                                <div class="field-wrapper">
+                                    <input id="SerialNumber" name="SerialNumber" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ProductionYear" data-labelCd="제작연도">제작연도</label>
+                                <div class="field-wrapper">
+                                    <input id="ProductionYear" name="ProductionYear" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="PurchaseDate" data-labelCd="구매일">구매일</label>
+                                <div class="field-wrapper">
+                                    <input id="PurchaseDate" name="PurchaseDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="InstallDate" data-labelCd="설치일">설치일</label>
+                                <div class="field-wrapper">
+                                    <input id="InstallDate" name="InstallDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="SupplierName" data-labelCd="공급업체">공급업체</label>
+                                <div class="field-wrapper">
+                                    <input id="SupplierName" name="SupplierName" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="PurchaseCost" data-labelCd="구매금액(원)">구매금액(원)</label>
+                                <div class="field-wrapper">
+                                    <input id="PurchaseCost" name="PurchaseCost" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="OperationRateYN" data-labelCd="가동률표시여부">가동률표시여부</label>
+                                <div class="field-wrapper">
+                                    <input id="OperationRateYN" name="OperationRateYN" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="DisposalDate" data-labelCd="폐기일">폐기일</label>
+                                <div class="field-wrapper">
+                                    <input id="DisposalDate" name="DisposalDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Manager" data-labelCd="관리책임자">관리책임자</label>
+                                <div class="field-wrapper">
+                                    <input id="Manager" name="Manager" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <textarea id="Description" name="Description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>-->
+                <form id="equipmentForm">
+                    <div class="edit-form-ui">
+                        <!-- id -->
+                        <input type="hidden" id="id" name="id" />
+                        <!-- 기본 정보 -->
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Line_id" data-labelCd="라인">라인</label>
+                                <div class="field-wrapper">
+                                    <select id="Line_id" name="Line_id"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="EquipmentGroup_id" data-labelCd="설비그룹">설비그룹</label>
+                                <div class="field-wrapper">
+                                    <select id="EquipmentGroup_id" name="EquipmentGroup_id"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Code" data-labelCd="설비코드">설비코드</label>
+                                <div class="field-wrapper">
+                                    <input id="Code" name="Code" data-msg="설비코드를" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Name" data-labelCd="설비명">설비명</label>
+                                <div class="field-wrapper">
+                                    <input id="Name" name="Name" data-msg="설비명을" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="MESCode" data-labelCd="MES설비코드">MES설비코드</label>
+                                <div class="field-wrapper">
+                                    <input id="MESCode" name="MESCode" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="SAPCode" data-labelCd="SAP설비코드">SAP설비코드</label>
+                                <div class="field-wrapper">
+                                    <input id="SAPCode" name="SAPCode" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Usage" data-labelCd="용도">용도</label>
+                                <div class="field-wrapper">
+                                    <input id="Usage" name="Usage" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 제조 정보 -->
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Maker" data-labelCd="제조사">제조사</label>
+                                <div class="field-wrapper">
+                                    <input id="Maker" name="Maker" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Model" data-labelCd="모델명">모델명</label>
+                                <div class="field-wrapper">
+                                    <input id="Model" name="Model" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Standard" data-labelCd="규격">규격</label>
+                                <div class="field-wrapper">
+                                    <input id="Standard" name="Standard" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="SerialNumber" data-labelCd="시리얼넘버">시리얼넘버</label>
+                                <div class="field-wrapper">
+                                    <input id="SerialNumber" name="SerialNumber" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ProductionYear" data-labelCd="제작연도">제작연도</label>
+                                <div class="field-wrapper">
+                                    <input id="ProductionYear" name="ProductionYear" type="number" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 구매 및 설치 정보 -->
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="PurchaseDate" data-labelCd="구매일">구매일</label>
+                                <div class="field-wrapper">
+                                    <input id="PurchaseDate" name="PurchaseDate" type="date" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="PurchaseCost" data-labelCd="구매금액(원)">구매금액(원)</label>
+                                <div class="field-wrapper">
+                                    <input id="PurchaseCost" name="PurchaseCost" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="SupplierName" data-labelCd="공급업체">공급업체</label>
+                                <div class="field-wrapper">
+                                    <input id="SupplierName" name="SupplierName" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Inputdate" data-labelCd="입고일">입고일</label>
+                                <div class="field-wrapper">
+                                    <input id="Inputdate" name="Inputdate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="InstallDate" data-labelCd="설치일">설치일</label>
+                                <div class="field-wrapper">
+                                    <input id="InstallDate" name="InstallDate" type="date" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 운영 및 관리 정보 -->
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ManageNumber" data-labelCd="관리번호">관리번호</label>
+                                <div class="field-wrapper">
+                                    <input id="ManageNumber" name="ManageNumber" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="AssetYN" data-labelCd="자산여부">자산여부</label>
+                                <div class="field-wrapper">
+                                    <input id="AssetYN" name="AssetYN" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="DurableYears" data-labelCd="내용연수">내용연수</label>
+                                <div class="field-wrapper">
+                                    <input id="DurableYears" name="DurableYears" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="PowerWatt" data-labelCd="소비전력(W)">소비전력(W)</label>
+                                <div class="field-wrapper">
+                                    <input id="PowerWatt" name="PowerWatt" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Voltage" data-labelCd="사용전압">사용전압</label>
+                                <div class="field-wrapper">
+                                    <input id="Voltage" name="Voltage" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Status" data-labelCd="설비상태">설비상태</label>
+                                <div class="field-wrapper">
+                                    <select id="Status" name="Status"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Depart_id" data-labelCd="관리부서">관리부서</label>
+                                <div class="field-wrapper">
+                                    <select id="Depart_id" name="Depart_id"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Manager" data-labelCd="관리책임자">관리책임자</label>
+                                <div class="field-wrapper">
+                                    <input id="Manager" name="Manager" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ServiceCharger" data-labelCd="서비스담당자">서비스담당자</label>
+                                <div class="field-wrapper">
+                                    <input id="ServiceCharger" name="ServiceCharger" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ASTelNumber" data-labelCd="AS전화번호">AS전화번호</label>
+                                <div class="field-wrapper">
+                                    <input id="ASTelNumber" name="ASTelNumber" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="OperationRateYN" data-labelCd="가동률 표시여부">가동률 표시여부</label>
+                                <div class="field-wrapper">
+                                    <input id="OperationRateYN" name="OperationRateYN" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 폐기 정보 -->
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="DisposalDate" data-labelCd="폐기일">폐기일</label>
+                                <div class="field-wrapper">
+                                    <input id="DisposalDate" name="DisposalDate" type="date" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="DisposalReason" data-labelCd="폐기사유">폐기사유</label>
+                                <div class="field-wrapper">
+                                    <textarea id="DisposalReason" name="DisposalReason"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 설명란 -->
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <textarea id="Description" name="Description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="AttentionRemark" data-labelCd="주의사항">주의사항</label>
+                                <div class="field-wrapper">
+                                    <textarea id="AttentionRemark" name="AttentionRemark"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 2024.11.27 김하늘. 필요여부 알 수 없음 & 모듈 파악이 덜되어서 우선 주석-->
+                        <!--<div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="file_area" data-labelCd="첨부파일">첨부파일</label>
+                                <div class="field-wrapper">
+                                    <div id="file_area" name="file_area"></div>
+                                </div>
+                            </div>
+                        </div>-->
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'common/file_upload.html' %}
+<script type="text/javascript">
+    class PmMasterPage {
+        constructor() {
+            this.grid = null;
+            this.upload = null;
+            this.baseUrl = '/api/kmms/pm_master';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let equipmentGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                //columns: [
+                //    { field: 'group_name', title: '설비그룹', width: 120 },
+                //    { field: 'Code', title: '설비코드', width: 150 },
+                //    { field: 'Name', title: '설비명', width: 200 },
+                //    //{ field: 'workcenter_name', title: '워크센터', width: 150 },
+                //    { field: 'ManageNumber', title: '관리번호', width: 250 },
+                //    { field: 'Model', title: '모델명', width: 150 },
+                //    { field: 'Maker', title: '제조사', width: 150 },
+                //    { field: 'SerialNumber', title: '시리얼번호', width: 150 },
+                //    { field: 'ProductionYear', title: '제작년도', width: 150 },
+                //    { field: 'PurchaseDate', title: '구매일', width: 150 },
+                //    { field: 'InstallDate', title: '설치일', width: 150 },
+                //    { field: 'SupplierName', title: '공급업체', width: 150 },
+                //    { field: 'PurchaseCost', title: '구매금액', width: 150, /*formatter: 'money'*/ },
+                //    { field: 'OperationRateYN', title: '가동률표시', width: 100 },
+                //    { field: 'Manager', title: '관리책임자', width: 150 },
+                //    { field: 'SupplierName', title: '공급업체', width: 150 },
+                //    { field: 'DisposalDate', title: '폐기일', width: 150 },
+                //    { field: 'Description', title: '설명', width: 150 },
+                //],
+                columns: [
+                    // 기본 정보
+                    { field: 'line_name', title: '라인', width: 150 },
+                    { field: 'group_name', title: '설비그룹', width: 150 },
+                    { field: 'Code', title: '설비코드', width: 150 },
+                    { field: 'Name', title: '설비명', width: 200 },
+                    { field: 'MESCode', title: '설비코드', width: 150 },
+                    { field: 'SAPCode', title: '설비코드', width: 150 },
+                    { field: 'Description', title: '설명', width: 250 },
+                    { field: 'Usage', title: '용도', width: 150 },
+
+                    // 제조 정보
+                    { field: 'Maker', title: '제조사', width: 150 },
+                    { field: 'Model', title: '모델명', width: 150 },
+                    { field: 'Standard', title: '규격', width: 150 },
+                    { field: 'SerialNumber', title: '시리얼넘버', width: 150 },
+                    { field: 'ProductionYear', title: '제작연도', width: 150 },
+
+                    // 구매 및 설치 정보
+                    { field: 'PurchaseDate', title: '구매일', width: 150 },
+                    { field: 'PurchaseCost', title: '구매가', width: 150 /*formatter: 'money'*/ },
+                    { field: 'SupplierName', title: '공급업체', width: 150 },
+                    { field: 'Inputdate', title: '입고일', width: 150 },
+                    { field: 'InstallDate', title: '설치일', width: 150 },
+
+                    // 운영 및 관리 정보
+                    { field: 'ManageNumber', title: '관리번호', width: 200 },
+                    { field: 'AssetYN', title: '자산성여부', width: 100 },
+                    { field: 'DurableYears', title: '내용연수', width: 150 },
+                    { field: 'PowerWatt', title: '소비전력(W)', width: 150 },
+                    { field: 'Voltage', title: '사용전압', width: 150 },
+                    { field: 'Status', title: '설비상태', width: 150 },
+                    { field: 'depart_Name', title: '관리부서', width: 150 },
+                    { field: 'Manager', title: '관리책임자', width: 150 },
+                    { field: 'AttentionRemark', title: '주의사항', width: 250 },
+                    { field: 'ServiceCharger', title: '서비스담당자', width: 150 },
+                    { field: 'ASTelNumber', title: 'AS전화번호', width: 150 },
+                    { field: 'OperationRateYN', title: '가동률표시YN', width: 100 },
+
+                    // 폐기 정보
+                    { field: 'DisposalDate', title: '폐기일', width: 150 },
+                    { field: 'DisposalReason', title: '폐기사유', width: 200 },
+                ],
+
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+
+            //search form
+            //combo 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
+            AjaxUtil.fillDropDownOptions($('#srch_equ_line'), 'line', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#srch_equ_grp'), 'equipment_group', 'all', null);
+            //AjaxUtil.fillDropDownOptions($('#srch_workcenter'), 'workcenter', 'all', null);
+            $('#srch_equ_name').kendoTextBox();
+            $('#srch_equ_name').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            AjaxUtil.fillDropDownOptions($('#Line_id'), 'line', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#EquipmentGroup_id'), 'equipment_group', 'choose', null);
+            $('#Code').kendoTextBox();
+            $('#Name').kendoTextBox();
+            $('#MESCode').kendoTextBox();
+            $('#SAPCode').kendoTextBox();
+            $('#ManageNumber').kendoTextBox();
+            //AjaxUtil.fillDropDownOptions($('#WorkCenter_id'), 'workcenter', 'choose', null);
+            $('#Model').kendoTextBox();
+            $('#Maker').kendoTextBox();
+            $('#SerialNumber').kendoTextBox();
+            $('#ProductionYear').kendoTextBox();
+            $('#PurchaseDate').kendoDatePicker({ format: 'yyyy-MM-dd' });
+            //$('#Inputdate').kendoDatePicker({ format: 'yyyy-MM-dd' });
+            $('#Inputdate').kendoTextBox();
+            $('#InstallDate').kendoDatePicker({ format: 'yyyy-MM-dd' });
+            $('#SupplierName').kendoTextBox();
+            $('#PurchaseCost').kendoTextBox();
+            $('#OperationRateYN').kendoSwitch({
+                checked: true
+            });
+            $('#DisposalDate').kendoDatePicker({ format: 'yyyy-MM-dd' });
+            $('#Manager').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#Depart_id'), 'depart', 'choose', null); // 관리부서 드롭다운
+            $('#Usage').kendoTextBox(); // 용도
+            $('#Standard').kendoTextBox(); // 규격
+            $('#AssetYN').kendoSwitch({
+                checked: true
+            });
+            $('#DurableYears').kendoNumericTextBox({
+                format: 'n0',
+            });
+            $('#PowerWatt').kendoNumericTextBox({
+                format: 'n2',
+            });
+            $('#Voltage').kendoTextBox(); // 사용전압
+            $('#Status').kendoDropDownList({
+                // 예시구문.
+                dataSource: [
+                    { text: '정상', value: 'normal' },
+                    { text: '고장', value: 'fault' },
+                    { text: '유지보수', value: 'maintenance' }
+                ],
+                optionLabel: '선택',
+                dataTextField: 'text',
+                dataValueField: 'value'
+            });
+            $('#ServiceCharger').kendoTextBox(); // 서비스담당자
+            $('#ASTelNumber').kendoMaskedTextBox({
+                mask: '(000) 0000-0000' // 전화번호 포맷
+            }); // AS전화번호
+            $('#DisposalReason').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
+            });
+            $('#AttentionRemark').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
+            });
+            $('#Description').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
+            });
+
+            //slide uploader
+            // 24.11.27. 김하늘 우선 주석처리
+            //드래그로 파일 업로드시 업로드 불가 & file이 업로드 후에도 계속 화면에 보임
+            //_this.upload = new FileUploadPage($('#file_area'), {
+            //    placeholder: 'DRAG & DROP', // 업로드 박스 안내문
+            //    extensions: ['.jpg', '.png', '.xlsx', 'pdf'], // 허용 가능 확장자
+            //    tableName: 'equipment',
+            //    attachName: 'attach_doc',
+            //    others: 'doc',
+            //    dataPk: 3,
+            //    height: '50px',
+            //    width: '100%',
+            //    maxFilesCount: 5,
+            //    maxFileSize: 2000, // mb 기준
+            //    allowedDuple: true // 중복허용
+            //});
+
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                line: $('#srch_equ_line').val(),
+                group: $('#srch_equ_grp').val(),
+                equipment: $('#srch_equ_name').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#equipment_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#equipmentForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#equipmentForm'));
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#equipmentForm'));
+            data.OperationRateYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
+            data.AssetYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            let Code = $('#Code').val();
+            let Name = $('#Name').val();
+
+            if (!Code) {
+                Alert.alert('', '설비코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '설비명을 입력해주세요.');
+                return;
+            }
+
+            if ($('#PurchaseCost').val() < 0) {
+                Alert.alert('', '구매금액을 확인해 주세요.');
+                return;
+            }
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let param = {
+                    id: selectData.id
+                };
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+            }
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new PmMasterPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

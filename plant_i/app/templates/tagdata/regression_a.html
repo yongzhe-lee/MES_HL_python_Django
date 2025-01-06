@@ -1,0 +1,551 @@
+{% extends "app/layout_page.html" %}
+{% block css %}
+<style>
+    .chart_border {
+        border: 1px solid blue;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="content_wrap">
+    <section class="section">
+
+        <div class="title_box ">
+            <div class="left_align">
+                <h3 data-labelCd="산점도 - 회귀분석">산점도 - 회귀분석</h3>
+            </div>
+            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
+            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
+        </div>
+
+        <div class="table_box search">
+        </div>
+    </section>
+
+    <section>
+        <div class="row">
+            <div class="grid_box col-2" id="dataList">
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" >데이터</span>
+                            </div>
+                            <input class="form-control2" type="number" id="txtDataLine" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="차수">차수</span>
+                            </div>
+                            <select class="form-control2" type="number" value="" id="cboEqu" name="cboEqu" title="">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-630" data-ax5grid="data_grid"></div>
+            </div>
+
+            <div class="col-10">
+                <div class="row">
+                    <div class="col-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t9" >y2 소수점자릿수</span>
+                            </div>
+                            <input class="form-control2" type="number" id="txtDigit" />
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <span class="btn-default" id="r2"></span>
+                    </div>
+                    <div class="col-5">
+                        <span class="btn-default" id="equation"></span>
+                    </div>
+                </div>
+                <form id="logChange">
+                    <div class="row">
+                        <div class="col-1">
+                            <input type="checkbox" id="log"/>&nbsp;<span>Log 변환</span>
+                        </div>
+                        <div class="col-2">
+                            <span>y2 = a * log(y+b)</span>
+                        </div>
+                        <div class="col-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width:35px">a</span>
+                                </div>
+                                <input type="number" id="log_a" name="a" style="width:50px"/>&nbsp;&nbsp;&nbsp;
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width:35px">b</span>
+                                </div>
+                                <input type="number" id="log_b" name="b" style="width:50px"/>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <form id="powerChange">
+                    <div class="row">
+                        <div class="col-1">
+                            <input type="checkbox" id="power"/>&nbsp;<span>Power 변환</span>
+                        </div>
+                        <div class="col-2">
+                            <span>y2 = a * (y+b) ^ c</span>
+                        </div>
+                        <div class="col-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width:35px">a</span>
+                                </div>
+                                <input type="number" id="power_a" name="a" style="width:50px"/>&nbsp;&nbsp;&nbsp;
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width:35px">b</span>
+                                </div>
+                                <input type="number" id="power_b" name="b" style="width:50px"/>&nbsp;&nbsp;&nbsp;
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" style="width:35px">c</span>
+                                </div>
+                                <input type="number" id="power_c" name="c" style="width:50px"/>
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="btn-default" id="btnChangeY">Y 변환</button>
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="btn-default" id="btnCalcRegre"> 회귀식계산</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row">
+                    <div class="col-12" id="chart">
+
+                    </div>
+                    <div class="col-11" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_md" data-labelCd="복붙">복붙</span>
+                            </div>
+                            <textarea class="form-control2 h-26" id="txtbox" name="txtbox"  value=""></textarea>
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn-default" id="btnCtrl">붙여넣기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<div id="chart_sample"></div>
+<div class="row" id="divChart">
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/resource/apexcharts/apexcharts.3.26.min.js"></script>
+<script type="text/javascript">
+
+    class chartRegression {
+        constructor() {
+            this.grid = null;
+            this.chart = null;
+            this.options = null;
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let dataConfig = {
+                target: $('[data-ax5grid="data_grid"]'),
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: false, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: false, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 30  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+
+                    },
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'x', label: '<span class="editable_clr">X</span>', width: 50, align: 'right', sortable: false, editor: { type: 'money' }, formatter: 'money' },
+                    { key: 'y', label: '<span class="editable_clr">Y</span>', width: 50, align: 'right', sortable: false, editor: { type: 'money' }, formatter: 'money' },
+                    { key: 'y2', label: 'Y2', width: 150, align: 'right' },
+                ]
+            };
+
+            this.grid = new ax5.ui.grid(dataConfig);
+
+            this.options = {
+                  series: [],
+                  chart: {
+                  height: 490,
+                  type: 'line',
+                },
+                fill: {
+                  type:'solid',
+                },
+                markers: {
+                  size: [6, 0]
+                },
+                tooltip: {
+                  shared: false,
+                  intersect: true,
+                },
+                legend: {
+                  show: false
+                },
+                yaxis: {
+                  labels: {
+                    formatter: function (value) {
+                      //return value.toFixed(0);
+                    }
+                  },
+                },
+                xaxis: {
+                  type: 'numeric',
+                  //min: 0,
+                  //max: 12,
+                  //tickAmount: 12
+                },
+                noData: {
+                    text: 'No data...'
+                }
+            }
+            this.chart = new ApexCharts(document.querySelector("#chart"), this.options);
+            this.chart.render();
+        }
+
+        //데이터 라인수 ++
+        addData() {
+            let _this = this;
+            let line_length = $("#txtDataLine").val();
+            let grid = this.grid.getList();
+            let grid_len = grid.length;
+            for (let i = 0; i < grid_len; i++) {
+                this.grid.removeRow("last");
+            }          
+            for (let i = 0; i < line_length; i++) {
+                this.grid.addRow($.extend({}, {}), "first");
+            }
+
+        };
+
+        //텍스트박스값복사 ++
+        ctrlCctrlV() {
+            let _this = this;
+            this.grid.setData([]);  // grid 초기화
+            let txtbox =$("#txtbox").val(); 
+            console.log('txtBox ', txtbox);
+            let line = txtbox.split('\n');
+            for (let i = 0; i < line.length; i++) {
+                let xy = line[i].split('\t');
+                if (xy[0] === '' || xy[1] === '') {
+                    line.splice(i, 1);
+                    continue
+                }
+                this.grid.addRow($.extend({}, {'x':xy[0],'y':xy[1]}), "last");
+            }
+            $("#txtDataLine").val(line.length); 
+
+        };
+
+
+        // y2 변환
+        changeY2(type) {
+            let _this = this;
+            let url = '/api/tagdata/regression_a?action=changeY2';
+            let grid_list = this.grid.getList();
+            let grid_len = grid_list.length;
+            let x_list = [];
+            let y_list = [];
+            let xy_list = [];
+            for (let i = 0; i < grid_len; i++) {
+                x_list.push(grid_list[i].x);
+                y_list.push(grid_list[i].y);
+                xy_list.push({'x':grid_list[i].x,'y':grid_list[i].y})
+            }
+
+            let data = {
+                'equ_order': $("#cboEqu").val(),
+                'decimal_digit': $("#txtDigit").val(),
+                'type': type,
+                'x_list': x_list,
+                'y_list': y_list,
+                'data_len': grid_len
+            }
+            if (type == 'log') {
+                data['a'] = $("#log_a").val();
+                data['b'] = $("#log_b").val();
+                data['c'] = '1';
+            } else if (type == 'power') {
+                data['a'] = $("#power_a").val();
+                data['b'] = $("#power_b").val();
+                data['c'] = $("#power_c").val();
+            }
+
+            let result = AjaxUtil.getSyncData(url, data);
+
+            for (let i = 0; i < grid_len; i++) {
+            this.grid.setValue(i,'y2',result[0][i])
+            }
+            console.log('chart ,', this.chart)
+            let newseries =
+            [
+                {
+                    name: "y2",
+                    type: 'scatter',
+                    data: result[1]
+                        
+                }
+            ]
+
+            this.options.chart.type = 'scatter'
+            console.log('$("#txtDigit").val()', $("#txtDigit").val());
+            if ($("#txtDigit").val() != '') {
+                let digit = parseInt($("#txtDigit").val())
+                _this.options.yaxis= [
+                                                  {
+                                                    labels: {
+                                                      formatter: function(val) {
+                                                        return val.toFixed(digit);
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+            }
+
+            this.chart.updateOptions(_this.options);
+            this.chart.updateSeries(newseries);
+
+        }//changeY2끝
+
+        calcRegre(type) {
+            let _this = this;
+            let url = '/api/tagdata/regression_a?action=calc_regre';
+            let grid_list = this.grid.getList();
+            let grid_len = grid_list.length;
+            let x_list =[] 
+            let y_list =[]
+            for (let i = 0; i < grid_len; i++) {
+                x_list.push(grid_list[i].x)
+                y_list.push(grid_list[i].y)
+            }   
+            
+            let data = {
+                'equ_order': $("#cboEqu").val(),
+                'decimal_digit': $("#txtDigit").val(),
+                'type': type,
+                'x_list': x_list,
+                'y_list': y_list,
+                'data_len': grid_len
+            }
+            if (type == 'log') {
+                data['a'] = $("#log_a").val();
+                data['b'] = $("#log_b").val();
+                data['c'] = '1';
+            } else if (type == 'power') {
+                data['a'] = $("#power_a").val();
+                data['b'] = $("#power_b").val();
+                data['c'] = $("#power_c").val();
+            }
+
+            console.log('data' ,data)
+            let result = AjaxUtil.getSyncData(url, data);
+            console.log('calcRegre result', result);
+
+            for (let i = 0; i < grid_len; i++) {
+            this.grid.setValue(i,'y2',result[0][i])
+            }
+            console.log('chart ,', this.chart)
+            if ($("#txtDigit").val() != '') {
+                console.log('hhhhhhhhhhhhhhhhhhhhhh1111111')
+                let digit = parseInt($("#txtDigit").val())
+                _this.options.yaxis= [
+                                                  {
+                                                    labels: {
+                                                      formatter: function(val) {
+                                                        return val.toFixed(digit);
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+            }
+            let newseries =
+            [
+                {
+                    name: 'y2',
+                    type: 'scatter',
+                    data: result[1]
+                    },
+                {
+                    name: 'equations',
+                    type: 'line',
+                    data: result[2]
+                }
+            ]
+            this.options.chart.type = 'line'
+            this.chart.updateOptions(_this.options);
+            this.chart.updateSeries(newseries);
+            $("#r2").html('r-square = '+result[4]);
+            $("#equation").html(result[3]);
+        };
+
+
+
+    }
+
+    let page = null;
+
+    $(document).ready(function (e) {
+        page = new chartRegression();
+
+        $('#txtDigit').val('3');
+
+        // 데이터 행 추가
+        $('#txtDataLine').change(function () {
+            page.addData();
+        });
+
+
+        // y2 변환
+        $('#btnChangeY').click(function () {
+
+            if ($('#log').prop("checked") && $('#power').prop("checked")) {  // log 변환, power 변환 둘다 체크시
+                Alert.alert('', '변환 방법을 확인해주세요.');
+                return;
+                
+            } else if ($('#log').prop("checked")) {
+
+                if ($("#log_a").val() == '') {
+                    Alert.alert('', 'a값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#log_b").val() == '') {
+                    Alert.alert('', 'b값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#txtDigit").val()) {
+                    if ($("#txtDigit").val() < '0') {
+                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                        return false;
+                    }
+                }              
+
+                page.changeY2('log');
+
+            } else if ($('#power').prop("checked")) {
+                if ($("#power_a").val() == '') {
+                    Alert.alert('', 'a값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#power_b").val() == '') {
+                    Alert.alert('', 'b값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#power_c").val() == '') {
+                    Alert.alert('', 'c값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#txtDigit").val()) {
+                    if ($("#txtDigit").val() < '0') {
+                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                        return false;
+                    }
+                }     
+                page.changeY2('power');
+
+            } else {  // log 변환, power 변환 둘다 체크 안할시
+                    page.changeY2('none');
+            }
+
+
+
+        });
+
+
+        $("#btnCalcRegre").click(function (e) {
+
+            if ($('#log').prop("checked") && $('#power').prop("checked")) {  // log 변환, power 변환 둘다 체크시
+                Alert.alert('', '변환 방법을 확인해주세요.');
+                return;
+
+            } else if ($('#log').prop("checked")) {
+
+                if ($("#log_a").val() == '') {
+                    Alert.alert('', 'a값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#log_b").val() == '') {
+                    Alert.alert('', 'b값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#txtDigit").val()) {
+                    if ($("#txtDigit").val() < '0') {
+                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                        return false;
+                    }
+                }
+                
+                page.calcRegre('log');
+
+            } else if ($('#power').prop("checked")) {
+                if ($("#power_a").val() == '') {
+                    Alert.alert('', 'a값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#power_b").val() == '') {
+                    Alert.alert('', 'b값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#power_c").val() == '') {
+                    Alert.alert('', 'c값을 채워주세요.', function () { });
+                    return false;
+                }
+                if ($("#txtDigit").val()) {
+                    if ($("#txtDigit").val() < '0') {
+                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                        return false;
+                    }
+                }
+                page.calcRegre('power');
+
+            } else {  // log 변환, power 변환 둘다 체크 안할시
+                page.calcRegre('none');
+            }
+
+
+        });
+
+        $("#btnCtrl").click(function (e) {
+            page.ctrlCctrlV();
+        });
+
+
+
+    })
+
+</script>
+{% endblock %}

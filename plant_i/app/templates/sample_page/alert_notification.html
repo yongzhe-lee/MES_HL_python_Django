@@ -1,0 +1,66 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2>Popup</h2>
+    <section class="section">
+        <button id="btnAlert">Alert</button>
+        <button id="btnConfirm">Confirm</button>
+        <br /><br />
+        <button id="btnNotiSucc">Noti(success)</button>
+        <button id="btnNotiErr">Noti(error)</button>
+        <button id="btnNotiWarn">Noti(warning)</button>
+        <button id="btnNotiInfo">Noti(info)</button>
+    </section>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class SampleAlertNotiPage {
+        constructor() {
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            $("#btnAlert").click(function (e) {
+                Alert.alert('title부분', 'Alert내용부분');
+            });
+            $('#btnConfirm').on('click', function () {
+                Alert.confirm('title부분', 'Confirm내용부분', function () {
+                    Alert.alert('', '확인');
+                }, function () {
+                    Alert.alert('', '취소');
+                });
+            });
+            $("#btnNotiSucc").click(function (e) {
+                Notify.success('success message');
+            });
+            $("#btnNotiErr").click(function (e) {
+                Notify.error('error message');
+            });
+            $("#btnNotiWarn").click(function (e) {
+                Notify.warning('warning message');
+            });
+            $("#btnNotiInfo").click(function (e) {
+                Notify.info('info message');
+            });
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SampleAlertNotiPage();
+    });
+
+</script>
+
+{% endblock %}

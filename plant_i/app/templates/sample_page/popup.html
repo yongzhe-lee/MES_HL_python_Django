@@ -1,0 +1,274 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2>Popup</h2>
+    <section class="section">
+        <button id="btnPopup">팝업1</button>
+        <button id="btnShowTemplatePopup">팝업2</button>
+        <div id="window" style="height: 100%;">
+            <!--<div>
+            <div style="width:40%; height:100%;">
+                <form id="popupForm"></form>
+            </div>
+        </div>-->
+            <div style="width: 100%; height: 100%;">
+                <div id="popupGrid" style="height:100%;"></div>
+            </div>
+        </div>
+        <div id="divShowPopTempalte"></div>
+    </section>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script id="showPopTemplate" type="text/x-kendo-template">
+    <div>
+        <section class="section">
+            <form id="popForm"></form>
+        </section>
+    </div>
+</script>
+
+<script type="text/javascript">
+    class SamplePopupPage {
+        constructor() {
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let $popup = $("#window");
+            let popupGrid = null;
+
+            $popup.kendoWindow({
+                width: "1025px",
+                height: "370px",
+                title: "Popup in Grid Width,Height 100%",
+                actions: ["Refresh", "Maximize", "Close"],
+            });
+
+            $popup.find("#popupForm").kendoForm({
+                formData: {
+                    DropDownList: '',
+                    ComboBox: '',
+                    DatePicker: new Date(),
+                    DateTimePicker: new Date(),
+                    TextBox: '',
+                    TextArea: '',
+                    Switch: false,
+                },
+                layout: "grid",
+                grid: {
+                    cols: 2,
+                    gutter: 30
+                },
+                items: [
+                    {
+                        field: "DropDownList", editor: "DropDownList", label: "DropDownList",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "name",
+                            dataValueField: "code",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSample,
+                            }
+                        }
+                    },
+                    {
+                        field: "DateTimePicker",
+                        editor: "DateTimePicker",
+                        label: "DateTimePicker:",
+                        validation: { required: true },
+                        editorOptions: {
+                            format: "yyyy-MM-dd HH:mm:ss"
+                        }
+                    },
+                    {
+                        field: "TextBox",
+                        label: "TextBox",
+                        editor: "TextBox",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "placeholder"
+                        }
+                    },
+                    {
+                        field: "TextArea",
+                        label: "TextArea",
+                        editor: "TextArea",
+                        validation: { required: true },
+                        editorOptions: { rows: 3 },
+                    }
+                ],
+                submit: function (e) {
+                    e.preventDefault();
+                    let formData = e.model;
+                    console.log(formData);
+                },
+                clear: function (ev) {
+                },
+                messages: {
+                    submit: "저장",
+                    clear: "신규",
+                }
+            });
+
+            let gridOption = {
+                columns: [
+                    { field: "login_id", title: "사원번호", width: 100 },
+                    { field: "name", title: "이름", width: 100 },
+                    { field: "group_name", title: "그룹명", width: 100 },
+                    { field: "dept_name", title: "부서", width: 100 },
+                    { field: "lang_code", title: "언어", width: 100 },
+                    { field: "is_active", title: "활성화", width: 100 },
+                    { field: "created", title: "생성일", width: 100 },
+                ],
+            };
+            popupGrid = new Grid($popup.find("#popupGrid"), gridOption);
+
+            $("#btnPopup").click(function (e) {
+                $popup.data("kendoWindow").open();
+            });
+
+            $("#close").click(function (e) {
+                $popup.data("kendoWindow").close();
+            });
+
+            $("#refresh").click(function (e) {
+                $popup.data("kendoWindow").refresh();
+            });
+
+            $("#center").click(function (e) {
+                $popup.data("kendoWindow").center();
+            });
+        }
+
+        showPopTemplate() {
+            let _this = this;
+
+            let $popup = $('#divShowPopTempalte');
+
+            let popupWindow = $popup.kendoWindow({
+                width: "1025px",
+                height: "260px",
+                visible: false,
+                title: "Template Example",
+                actions: ["Refresh", "Maximize", "Minimize", "Close"],
+                close: function () {
+                    // 팝업 창이 닫힐 때 실행될 함수
+                    kendo.unbind($("#popupWindow")); // 뷰를 해제하여 메모리 누수를 방지
+                },
+                modal: true
+            }).data('kendoWindow');
+
+            let data = {
+                test_id: '',
+                test_name: '',
+                test_code: '',
+                test_type: '',
+                description: '',
+            }
+
+            let view = new kendo.View('showPopTemplate', { model: data });
+            let $html = view.render();
+            let $div = $html.find('#popForm');
+
+            let $form = $div.kendoForm({
+                orientation: "horizontal",
+                validatable: {
+                    validateOnBlur: false,
+                    errorTemplate: function (e) {
+                        let field = e.field;
+                        let label = $("label[for='" + field + "']").text().replace('*', '');
+                        let message = e.message.replace(field, label);
+                        return `<span><strong>${message}</strong></span>`
+                    },
+                },
+                formData: data,
+                layout: "grid",
+                grid: {
+                    cols: 2,
+                    gutter: 30
+                },
+                items: [
+                    {
+                        field: "test_id",
+                        editor: "hidden",
+                        validation: {
+                            required: false,
+                        },
+                    },
+                    {
+                        field: "test_name",
+                        label: "테스트명",
+                        editor: "TextBox",
+                        validation: {
+                            required: true,
+                        },
+                    },
+                    {
+                        field: "test_code",
+                        label: "테스트 코드",
+                        editor: "TextBox",
+                        validation: {
+                            required: false,
+                        },
+                    },
+                    {
+                        field: "test_type",
+                        label: "테스트 타입",
+                        editor: "TextBox",
+                        validation: {
+                            required: false,
+                        },
+                    },
+                    {
+                        field: "description",
+                        label: "비고",
+                        editor: "TextBox",
+                        validation: {
+                            required: false,
+                        },
+                    },
+                ],
+                buttonsTemplate:
+                    '<button type="button" class="k-button" id="btnNew" onclick="onClear()">초기화</button>' +
+                    '<button type="submit" class="k-button k-primary" id="btnSave">저장</button>' +
+                    '<button type="button" class="k-button k-danger" id="btnDelete" onclick="onDelete()">삭제</button>' +
+                    '<button type="button" class="k-button k-success" id="btnRegisterNew" onclick="onRegisterNew()">신규등록</button>',
+                submit: function (e) {
+                    e.preventDefault();
+                    _this.saveSmpClass();
+                }
+            }).getKendoForm();
+
+
+            popupWindow.content($html);
+            popupWindow.center().open();
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SamplePopupPage();
+
+        $('#btnShowTemplatePopup').click(function () {
+            page.showPopTemplate();
+        });
+    });
+
+</script>
+
+{% endblock %}

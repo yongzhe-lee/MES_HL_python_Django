@@ -1,0 +1,273 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <h2>Export 샘플화면</h2>
+    <section>
+        <div class="row">
+            <div class="col-4">
+                <button class='export-pdf'>Export as PDF</button>
+            </div>
+            <div class="col-4">
+                <button class='export-img'>Export as Image</button>
+            </div>
+            <div class="col-4">
+                <button class='export-svg'>Export as SVG</button>
+            </div>
+        </div>
+        <form id="searchForm"></form>
+        <div>
+            <div id="smp_cycle_grid"></div>
+        </div>
+    </section>
+    <section>
+        <form id="detailForm"></form>
+    </section>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class SampleExport {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/smp_cycle';
+            this.searchForm = null;
+            this.detailForm = null;
+            this.detailViewModel = null;
+            this.searchViewModel = null;
+
+            this.comboSmpType = [];
+            this.comboSmpCls = [];
+            this.comboSmpGrp = [];
+            this.comboCycleType = [];
+            this.comboCycle = [];
+
+            this.comboLangCode = [{ 'code': '', name: '한국어' }, { 'code': '', name: '영어' }, { 'code': '', name: '러시아어' }];
+            this.viewModel = {}
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                height: 400, // 그리드 높이
+                toolbar: ["pdf", "search"], // 툴바에 버튼 추가
+                columns: [
+                    { field: "smp_type_name", title: "샘플유형", width: 165 },
+                    { field: "smp_cls_name", title: "샘플종류", width: 250 },
+                    { field: "smp_grp_name", title: "샘플그룹명", width: 260 },
+                    { field: "grade_change_yn", title: "GradeChange여부", width: 160 },
+                    { field: "smp_grp_code", title: "샘플그룹코드", width: 160 },
+                    { field: "disp_ord", title: "표시순서", width: 80 },
+                    { field: "ud", title: "ud", width: 80 },
+                    { field: "rmk", title: "비고", width: 160 },
+                    { field: "use_yn", title: "사용여부", width: 70 },
+                    { field: "_creater", title: "등록자", width: 80 },
+                    { field: "_created", title: "등록일시", width: 120 },
+                    { field: "_modifier", title: "수정자", width: 80 },
+                    { field: "_modified", title: "수정일시", width: 120 },
+                ],
+                allowPaste: true, // 붙여넣기 가능 여부
+                change: function (e) {
+                    let selectedRow = this.select()[0];
+                    let selectedDataItem = this.dataItem(selectedRow);
+
+                    _this.detailForm.setData(selectedDataItem);
+
+                    $('#btnSave').attr('disabled', false);
+                    $('#btnDelete').attr('disabled', false);
+                }
+            };
+            _this.grid = new Grid($("#smp_cycle_grid"), gridOption);
+
+            _this.searchForm = $("#searchForm").kendoCustomForm({
+                orientation: "horizontal",
+                formData: {
+                    srch_smp_type: '',
+                    srch_smp_cls: '',
+                    srch_smp_grp: '',
+                    srch_cycle_type: '',
+                    srch_cycle: '',
+                    srch_keyword: '',
+                    srch_use_yn: true,
+                },
+                layout: "grid",
+                grid: {
+                    cols: 5,
+                    gutter: 30 // 각 셀간의 margin
+                },
+                items: [
+                    {
+                        field: "srch_smp_type",
+                        editor: "ComboBox",
+                        label: "샘플유형",
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSmpType,
+                            }
+                        },
+                    },
+                    {
+                        field: "srch_smp_cls",
+                        editor: "ComboBox",
+                        label: "샘플종류",
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSmpCls,
+                            }
+                        },
+                    },
+                    {
+                        field: "srch_smp_grp",
+                        editor: "ComboBox",
+                        label: "샘플종류",
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSmpGrp,
+                            }
+                        },
+                    },
+                    {
+                        field: "srch_cycle_type",
+                        editor: "ComboBox",
+                        label: "주기유형",
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboCycleType,
+                            }
+                        },
+                    },
+                    {
+                        field: "cycle",
+                        editor: "ComboBox",
+                        label: "주기",
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboCycle,
+                            }
+                        },
+                    },
+                    {
+                        field: "srch_keyword",
+                        label: "검색어",
+                        editor: "TextBox",
+                        editorOptions: {
+                            placeholder: "공정명, 공정코드, 비고"
+                        }
+                    },
+                    {
+                        field: "srch_use_yn",
+                        id: "srch_use_yn",
+                        attributes: {
+                            "name": "srch_use_yn",
+                        },
+                        editor: "Switch",
+                        label: "주기사용",
+                    },
+                    {
+                        field: "btnSearch",
+                        label: "",
+                        editor: function (container, options) {
+                            $("<button type='button' id='btnSearch' class='btn btn-default'>조회</button>")
+                                .appendTo(container);
+                        },
+                    }
+                ],
+                buttonsTemplate: '',
+                //messages: {
+                //    submit: "조회",
+                //}
+            }).data('kendoCustomForm');
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SampleExport();
+        page.grid.setData([]);
+
+        $(".export-pdf").click(function () {
+            // Convert the DOM element to a drawing using kendo.drawing.drawDOM
+            kendo.drawing.drawDOM($(".content-wrap"))
+                .then(function (group) {
+                    // Render the result as a PDF file
+                    return kendo.drawing.exportPDF(group, {
+                        paperSize: "auto",
+                        margin: { left: "1cm", top: "1cm", right: "1cm", bottom: "1cm" }
+                    });
+                })
+                .done(function (data) {
+                    // Save the PDF file
+                    kendo.saveAs({
+                        dataURI: data,
+                        fileName: "HR-Dashboard.pdf",
+                        proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+                    });
+                });
+        });
+
+        $(".export-img").click(function () {
+            // Convert the DOM element to a drawing using kendo.drawing.drawDOM
+            kendo.drawing.drawDOM($(".content-wrap"))
+                .then(function (group) {
+                    // Render the result as a PNG image
+                    return kendo.drawing.exportImage(group);
+                })
+                .done(function (data) {
+                    // Save the image file
+                    kendo.saveAs({
+                        dataURI: data,
+                        fileName: "HR-Dashboard.png",
+                        proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+                    });
+                });
+        });
+
+        $(".export-svg").click(function () {
+            // Convert the DOM element to a drawing using kendo.drawing.drawDOM
+            kendo.drawing.drawDOM($(".content-wrap"))
+                .then(function (group) {
+                    // Render the result as a SVG document
+                    return kendo.drawing.exportSVG(group);
+                })
+                .done(function (data) {
+                    // Save the SVG document
+                    kendo.saveAs({
+                        dataURI: data,
+                        fileName: "HR-Dashboard.svg",
+                        proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+                    });
+                });
+        });
+    });
+
+</script>
+
+{% endblock %}

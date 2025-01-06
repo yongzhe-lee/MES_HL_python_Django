@@ -1,0 +1,961 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <Name>qms</Name>
+    <RootNamespace>qm_lims</RootNamespace>
+    <InterpreterId>MSBuild|env312|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
+    <WebBrowserPort>8080</WebBrowserPort>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>5b1531a5-ac2f-430e-bfd2-bf8135e2d14a</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <StartupFile>manage.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <WebBrowserUrl>http://localhost</WebBrowserUrl>
+    <LaunchProvider>Django launcher</LaunchProvider>
+    <DjangoSettingsModule>configurations.settings</DjangoSettingsModule>
+    <OutputPath>.</OutputPath>
+    <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
+    <PythonRunWebServerCommandType>코드</PythonRunWebServerCommandType>
+    <PythonDebugWebServerCommandType>코드</PythonDebugWebServerCommandType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app\forms.py" />
+    <Compile Include="app\views\das\__init__.py" />
+    <Compile Include="app\views\kmms\pm_master.py" />
+    <Compile Include="app\views\system\depart.py" />
+    <Compile Include="app\views\system\menu_log.py" />
+    <Compile Include="domain\services\das\config.py" />
+    <Compile Include="app\views\definition\calendar.py" />
+    <Compile Include="app\views\definition\notice.py" />
+    <Compile Include="app\views\definition\code.py" />
+    <Compile Include="domain\services\definition\board.py" />
+    <Compile Include="domain\services\definition\meeting_calendar.py" />
+    <Compile Include="app\tests.py" />
+    <Compile Include="app\views\account.py" />
+    <Compile Include="app\views\common\labels.py" />
+    <Compile Include="app\views\definition\equipment.py" />
+    <Compile Include="app\views\definition\equipment_group.py" />
+    <Compile Include="app\views\definition\line.py" />
+    <Compile Include="app\views\definition\material.py" />
+    <Compile Include="app\views\definition\tag.py" />
+    <Compile Include="app\views\definition\tag_group.py" />
+    <Compile Include="app\views\extra.py" />
+    <Compile Include="app\views\definition\company.py" />
+    <Compile Include="app\views\definition\shift.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\definition\process.py" />
+    <Compile Include="app\views\definition\holiday.py" />
+    <Compile Include="app\views\definition\factory.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\definition\unit.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\files\download.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\files\upload.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\popup\popup_test.py" />
+    <Compile Include="app\views\system\login_log.py" />
+    <Compile Include="app\views\system\storyboard.py" />
+    <Compile Include="app\views\system\system_log.py" />
+    <Compile Include="app\views\system\sys_option_setup.py" />
+    <Compile Include="app\views\system\sys_code_setup.py" />
+    <Compile Include="app\views\system\bookmark.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\system\combo.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\system\menus.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\system\menu_setup.py" />
+    <Compile Include="app\views\system\user.py" />
+    <Compile Include="app\views\system\usergroup.py" />
+    <Compile Include="app\views\system\usergroupmenu.py" />
+    <Compile Include="app\views\tagdata\boxplot_data.py" />
+    <Compile Include="app\views\tagdata\ccp_data.py" />
+    <Compile Include="app\views\tagdata\histogram_data.py" />
+    <Compile Include="app\views\tagdata\regression_a.py" />
+    <Compile Include="app\views\tagdata\scatter_data.py" />
+    <Compile Include="app\views\tagdata\tagdata_list.py" />
+    <Compile Include="app\views\tagdata\tag_current.py" />
+    <Compile Include="app\views\tagdata\tag_statistics.py" />
+    <Compile Include="app\views\tagdata\tag_trend.py" />
+    <Compile Include="app\views\tagdata\__init__.py" />
+    <Compile Include="app\views\__init__.py" />
+    <Compile Include="app\__init__.py" />
+    <Compile Include="configurations\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\gui.py" />
+    <Compile Include="domain\migrations\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\models\aas.py" />
+    <Compile Include="domain\models\definition.py" />
+    <Compile Include="domain\models\extra.py" />
+    <Compile Include="domain\models\interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\models\klcs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\models\kmms.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\models\kqms.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\models\system.py" />
+    <Compile Include="domain\models\user.py" />
+    <Compile Include="domain\models\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\account.py" />
+    <Compile Include="domain\services\combo.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\common.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\date.py" />
+    <Compile Include="domain\services\definition\equipment.py" />
+    <Compile Include="domain\services\definition\equipment_group.py" />
+    <Compile Include="domain\services\file\attach_file.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\logging.py" />
+    <Compile Include="domain\services\setup\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\sql.py" />
+    <Compile Include="domain\services\system.py" />
+    <Compile Include="domain\services\__init__.py" />
+    <Compile Include="domain\__init__.py" />
+    <Compile Include="manage.py" />
+    <Compile Include="configurations\settings.py" />
+    <Compile Include="configurations\urls.py" />
+    <Compile Include="configurations\wsgi.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="app\" />
+    <Folder Include="app\static\app\js\" />
+    <Folder Include="app\static\css\webfonts\" />
+    <Folder Include="app\static\resource\bootstrap\" />
+    <Folder Include="app\static\resource\fullCalendar\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\dashboard\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\fonts\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\images\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\styles\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\navigation\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\navigation\images\" />
+    <Folder Include="app\static\resource\kendo_ui\apptemplates\navigation\styles\" />
+    <Folder Include="app\static\resource\kendo_ui\js\cultures\" />
+    <Folder Include="app\static\resource\kendo_ui\license-agreements\" />
+    <Folder Include="app\static\resource\kendo_ui\license-agreements\" />
+    <Folder Include="app\static\resource\kendo_ui\license-agreements\third-party\" />
+    <Folder Include="app\static\resource\kendo_ui\typescript\" />
+    <Folder Include="app\static\resource\kendo_ui\vsdoc\" />
+    <Folder Include="app\static\resource\windowContainer\" />
+    <Folder Include="app\static\resource\windowContainer\css\" />
+    <Folder Include="app\static\resource\windowContainer\fonts\" />
+    <Folder Include="app\static\resource\windowContainer\js\" />
+    <Folder Include="app\templates\dashboard\" />
+    <Folder Include="app\templates\definition\document\" />
+    <Folder Include="app\templates\common\" />
+    <Folder Include="app\templates\definition\" />
+    <Folder Include="app\templates\kmms\" />
+    <Folder Include="app\templates\kmms\check\" />
+    <Folder Include="app\templates\kmms\pm\" />
+    <Folder Include="app\templates\sample_page\" />
+    <Folder Include="app\templates\popup\" />
+    <Folder Include="app\templates\page\" />
+    <Folder Include="app\templates\page\popup\" />
+    <Folder Include="app\templates\system\" />
+    <Folder Include="app\templates\tagdata\" />
+    <Folder Include="app\views\" />
+    <Folder Include="app\static\" />
+    <Folder Include="app\static\app\" />
+    <Folder Include="app\static\app\content\" />
+    <Folder Include="app\static\app\fonts\" />
+    <Folder Include="app\static\app\scripts\" />
+    <Folder Include="app\static\css\" />
+    <Folder Include="app\static\font\" />
+    <Folder Include="app\static\img\" />
+    <Folder Include="app\static\resource\" />
+    <Folder Include="app\static\resource\jquery\" />
+    <Folder Include="app\static\resource\kendo_ui\" />
+    <Folder Include="app\static\resource\kendo_ui\js\" />
+    <Folder Include="app\static\resource\kendo_ui\js\messages\" />
+    <Folder Include="app\static\resource\kendo_ui\styles\" />
+    <Folder Include="app\static\resource\kendo_ui\styles\font-icons\" />
+    <Folder Include="app\templates\" />
+    <Folder Include="app\templates\app\" />
+    <Folder Include="app\views\common\" />
+    <Folder Include="app\views\files\" />
+    <Folder Include="app\views\definition\" />
+    <Folder Include="app\views\kmms\" />
+    <Folder Include="app\views\das\" />
+    <Folder Include="app\views\popup\" />
+    <Folder Include="app\views\system\" />
+    <Folder Include="app\views\tagdata\" />
+    <Folder Include="app\views\tagdata\__pycache__\" />
+    <Folder Include="configurations\" />
+    <Folder Include="domain\" />
+    <Folder Include="domain\migrations\" />
+    <Folder Include="domain\models\" />
+    <Folder Include="domain\services\definition\" />
+    <Folder Include="domain\services\file\" />
+    <Folder Include="domain\services\das\" />
+    <Folder Include="domain\_sql\" />
+    <Folder Include="domain\services\" />
+    <Folder Include="domain\services\setup\" />
+    <Folder Include="domain\_sql\function\" />
+    <Folder Include="domain\_sql\partition\" />
+    <Folder Include="domain\_sql\views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app\static\app\fonts\GowunBatang-Regular.ttf" />
+    <Content Include="app\static\app\fonts\NanumGothic-Regular.ttf" />
+    <Content Include="app\static\css\animate.css" />
+    <Content Include="app\static\css\fontawesome.css" />
+    <Content Include="app\static\css\ionicons.min.css" />
+    <Content Include="app\static\css\main.css" />
+    <Content Include="app\static\css\material-icons.css" />
+    <Content Include="app\static\css\simple-line-icons.css" />
+    <Content Include="app\static\css\theme-left-a.css" />
+    <Content Include="app\static\css\theme-top-a.css" />
+    <Content Include="app\static\css\webfonts\fa-brands-400.eot" />
+    <Content Include="app\static\css\webfonts\fa-brands-400.svg" />
+    <Content Include="app\static\css\webfonts\fa-brands-400.ttf" />
+    <Content Include="app\static\css\webfonts\fa-brands-400.woff" />
+    <Content Include="app\static\css\webfonts\fa-brands-400.woff2" />
+    <Content Include="app\static\css\webfonts\fa-regular-400.eot" />
+    <Content Include="app\static\css\webfonts\fa-regular-400.svg" />
+    <Content Include="app\static\css\webfonts\fa-regular-400.ttf" />
+    <Content Include="app\static\css\webfonts\fa-regular-400.woff" />
+    <Content Include="app\static\css\webfonts\fa-regular-400.woff2" />
+    <Content Include="app\static\css\webfonts\fa-solid-900.eot" />
+    <Content Include="app\static\css\webfonts\fa-solid-900.svg" />
+    <Content Include="app\static\css\webfonts\fa-solid-900.ttf" />
+    <Content Include="app\static\css\webfonts\fa-solid-900.woff" />
+    <Content Include="app\static\css\webfonts\fa-solid-900.woff2" />
+    <Content Include="app\static\css\webfonts\ionicons.eot" />
+    <Content Include="app\static\css\webfonts\ionicons.svg" />
+    <Content Include="app\static\css\webfonts\ionicons.ttf" />
+    <Content Include="app\static\css\webfonts\ionicons.woff" />
+    <Content Include="app\static\css\webfonts\ionicons.woff2" />
+    <Content Include="app\static\css\WZ.UI.css" />
+    <Content Include="app\static\img\klemove_ci.png" />
+    <Content Include="app\static\img\login-backimg.jpg" />
+    <Content Include="app\static\img\logo.svg" />
+    <Content Include="app\static\img\menuIcon-Lv2-active.svg" />
+    <Content Include="app\static\img\menuIcon-Lv2-submenu-active.svg" />
+    <Content Include="app\static\img\menuIcon-Lv2-submenu.svg" />
+    <Content Include="app\static\img\menuIcon-Lv2.svg" />
+    <Content Include="app\static\img\star_01.svg" />
+    <Content Include="app\static\img\star_icon.svg" />
+    <Content Include="app\static\resource\common.js" />
+    <Content Include="app\static\resource\common_원래.js" />
+    <Content Include="app\static\resource\custom_form.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="app\static\resource\fileupload.js" />
+    <Content Include="app\static\resource\fullCalendar\c-main.min.css" />
+    <Content Include="app\static\resource\fullCalendar\c-main.min.js" />
+    <Content Include="app\static\resource\fullCalendar\ko.js" />
+    <Content Include="app\static\resource\grid.js" />
+    <Content Include="app\static\resource\frmCheck.js" />
+    <Content Include="app\static\resource\jquery\jquery-3.7.1.min.js" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\countries-sales.geo.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\country-customers.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\customers.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employee-and-team-sales.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employee-average-sales.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employee-quarter-sales.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employee-sales.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees-list-sales.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees-list.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\1-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\1.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\2-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\2.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\3-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\3.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\4-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\4.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\5-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\5.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\6-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\6.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\7-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\7.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\8-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\8.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\9-t.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\employees\9.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\favicon.ico" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\order-details.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\order-information.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\orders.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\product-details.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\product-sales.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\top-selling-products.json" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\index.html" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\fonts\icomoon.eot" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\fonts\icomoon.svg" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\fonts\icomoon.ttf" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\fonts\icomoon.woff" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\styles\site.css" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\images\200.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\images\accent.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\images\bullet.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\images\heroAccent.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\index.html" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\grid-and-menu\styles\site.css" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\about.html" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\contact.html" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\images\accent.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\images\bullet.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\images\heroAccent.png" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\index.html" />
+    <Content Include="app\static\resource\kendo_ui\apptemplates\navigation\styles\site.css" />
+    <Content Include="app\static\resource\kendo_ui\changelog.html" />
+    <Content Include="app\static\resource\kendo_ui\js\cultures\kendo.culture.ko-KR.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\cultures\kendo.culture.ko-KR.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.actionsheet.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.actionsheet.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.aiprompt.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.aiprompt.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.aiprompt.views.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.aiprompt.views.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.all.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.all.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.appbar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.appbar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.autocomplete.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.autocomplete.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.avatar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.avatar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.badge.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.badge.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.binder.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.binder.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.bottomnavigation.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.bottomnavigation.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.breadcrumb.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.breadcrumb.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.button.menu.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.button.menu.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.button.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.button.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.buttongroup.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.buttongroup.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.calendar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.calendar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.captcha.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.captcha.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.chat.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.chat.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.checkbox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.checkbox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.checkboxgroup.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.checkboxgroup.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.chip.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.chip.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.chiplist.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.chiplist.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.circularprogressbar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.circularprogressbar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.color.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.color.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.colorpicker.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.colorpicker.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.columnmenu.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.columnmenu.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.columnsorter.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.columnsorter.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.combobox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.combobox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.core.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.core.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.odata.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.odata.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.signalr.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.signalr.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.xml.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.data.xml.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.barcode.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.barcode.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.chart.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.chart.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.core.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.core.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.diagram.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.diagram.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.gauge.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.gauge.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.map.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.map.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.mobile.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.mobile.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.qrcode.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.qrcode.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.sankey.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.sankey.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.sparkline.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.sparkline.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.stock.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.stock.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.themes.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.themes.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.treemap.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dataviz.treemap.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dateinput.common.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dateinput.common.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dateinput.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dateinput.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.datepicker.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.datepicker.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.daterangepicker.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.daterangepicker.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.datetimepicker.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.datetimepicker.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dialog.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dialog.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dockmanager.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dockmanager.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dom.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dom.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.draganddrop.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.draganddrop.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.drawer.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.drawer.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.drawing.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.drawing.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dropdownbutton.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dropdownbutton.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dropdownlist.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dropdownlist.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dropdowntree.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.dropdowntree.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.editable.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.editable.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.editor.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.editor.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.excel.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.excel.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.expansionpanel.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.expansionpanel.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filebrowser.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filebrowser.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filemanager.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filemanager.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filter.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filter.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filtercell.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filtercell.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filtermenu.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.filtermenu.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.floatingactionbutton.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.floatingactionbutton.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.floatinglabel.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.floatinglabel.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.form.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.form.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.fx.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.fx.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.data.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.data.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.editors.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.editors.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.list.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.list.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.timeline.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.gantt.timeline.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.grid.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.grid.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.groupable.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.groupable.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.base.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.base.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.button.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.button.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.chip.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.chip.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.chiplist.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.chiplist.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.icon.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.icon.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.input.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.input.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.loadercontainer.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.html.loadercontainer.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.icons.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.icons.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.imagebrowser.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.imagebrowser.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.imageeditor.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.imageeditor.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.inputgroupbase.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.inputgroupbase.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.label.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.label.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.list.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.list.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.listbox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.listbox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.listview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.listview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.loader.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.loader.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.maskedtextbox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.maskedtextbox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.mediaplayer.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.mediaplayer.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.menu.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.menu.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.mobile.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.mobile.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.mobile.scroller.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.mobile.scroller.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.multicolumncombobox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.multicolumncombobox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.multiselect.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.multiselect.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.multiviewcalendar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.multiviewcalendar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.notification.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.notification.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.numerictextbox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.numerictextbox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.ooxml.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.ooxml.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.orgchart.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.orgchart.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pager.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pager.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pane.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pane.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.panelbar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.panelbar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pdf.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pdf.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pdfviewer.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pdfviewer.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivot.common.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivot.common.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivot.configurator.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivot.configurator.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivot.fieldmenu.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivot.fieldmenu.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivotgrid.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.pivotgrid.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.popover.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.popover.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.popup.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.popup.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.progressbar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.progressbar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.propertygrid.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.propertygrid.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.radiobutton.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.radiobutton.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.radiogroup.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.radiogroup.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.rating.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.rating.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.reorderable.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.reorderable.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.resizable.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.resizable.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.responsivepanel.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.responsivepanel.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.ripple.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.ripple.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.router.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.router.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.agendaview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.agendaview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.dayview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.dayview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.monthview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.monthview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.recurrence.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.recurrence.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.timelineview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.timelineview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.view.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.view.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.yearview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scheduler.yearview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scrollview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.scrollview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.selectable.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.selectable.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.signature.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.signature.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.skeletoncontainer.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.skeletoncontainer.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.slider.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.slider.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.sortable.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.sortable.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.splitbutton.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.splitbutton.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.splitter.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.splitter.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.spreadsheet.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.spreadsheet.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.stepper.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.stepper.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.switch.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.switch.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.tabstrip.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.tabstrip.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.taskboard.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.taskboard.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.textarea.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.textarea.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.textbox.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.textbox.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.tilelayout.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.tilelayout.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timedurationpicker.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timedurationpicker.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timeline.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timeline.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timepicker.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timepicker.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timeselector.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timeselector.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timezones.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.timezones.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.togglebutton.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.togglebutton.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.toggleinputbase.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.toggleinputbase.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.toolbar.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.toolbar.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.tooltip.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.tooltip.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.touch.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.touch.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.treelist.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.treelist.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.treeview.draganddrop.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.treeview.draganddrop.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.treeview.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.treeview.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.upload.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.upload.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.userevents.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.userevents.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.validator.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.validator.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.view.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.view.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.virtuallist.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.virtuallist.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.web.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.web.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.window.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.window.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.wizard.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\kendo.wizard.min.js.map" />
+    <Content Include="app\static\resource\kendo_ui\js\messages\kendo.messages.ko-KR.min.js" />
+    <Content Include="app\static\resource\kendo_ui\js\messages\kendo.messages.ko-KR.min.map" />
+    <Content Include="app\static\resource\kendo_ui\kendo-ui-license.js" />
+    <Content Include="app\static\resource\kendo_ui\license-agreements\EULA.pdf" />
+    <Content Include="app\static\resource\kendo_ui\license-agreements\EULA.rtf" />
+    <Content Include="app\static\resource\kendo_ui\license-agreements\EULA.txt" />
+    <Content Include="app\static\resource\kendo_ui\license-agreements\third-party\kendo-ui-for-jquery-NOTICE.txt" />
+    <Content Include="app\static\resource\kendo_ui\README" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-3-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-3.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-4-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-4.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-dataviz-v4.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-main-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-main.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-nordic.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-turquoise-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-turquoise.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-urban.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\bootstrap-vintage.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-green-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-green.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-lavender-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-lavender.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-main-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-main.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-metro-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-metro.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-moonlight.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-opal-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-opal.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-silver-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-silver.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\classic-uniform.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-blue.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-dataviz-v4.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-green.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-main-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-main.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-nordic.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-ocean-blue-a11y.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-ocean-blue.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-orange.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-purple.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-turquoise.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\default-urban.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\fluent-main.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\font-icons\index.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\font-icons\kendo-font-icons.ttf" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-aqua-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-arctic.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-burnt-teal.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-dataviz-v4.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-eggplant.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-lime-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-lime.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-main-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-main.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-nova.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-pacific-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-pacific.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-sky-dark.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-sky.css" />
+    <Content Include="app\static\resource\kendo_ui\styles\material-smoke.css" />
+    <Content Include="app\static\resource\kendo_ui\typescript\kendo.all.d.ts" />
+    <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all.min.intellisense.js" />
+    <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all-vsdoc.js" />
+    <None Include="app\static\resource\kendo_ui\vsdoc\kendo.dataviz.min.intellisense.js" />
+    <None Include="app\static\resource\kendo_ui\vsdoc\kendo.dataviz-vsdoc.js" />
+    <None Include="app\static\resource\kendo_ui\vsdoc\kendo.web.min.intellisense.js" />
+    <None Include="app\static\resource\kendo_ui\vsdoc\kendo.web-vsdoc.js" />
+    <Content Include="app\static\resource\nth-tabs.js" />
+    <Content Include="app\static\resource\windowContainer\css\bootstrap.4.5.min.css" />
+    <Content Include="app\static\resource\windowContainer\css\bootstrap.4.min.css" />
+    <Content Include="app\static\resource\windowContainer\css\bootstrap.min.css" />
+    <Content Include="app\static\resource\windowContainer\css\jquery.scrollbar.min.css" />
+    <Content Include="app\static\resource\windowContainer\css\nth-icons.css" />
+    <Content Include="app\static\resource\windowContainer\css\nth-icons.min.css" />
+    <Content Include="app\static\resource\windowContainer\css\nth-tabs.css" />
+    <Content Include="app\static\resource\windowContainer\css\nth-tabs.min.css" />
+    <Content Include="app\static\resource\windowContainer\fonts\nth-icons.eot" />
+    <Content Include="app\static\resource\windowContainer\fonts\nth-icons.svg" />
+    <Content Include="app\static\resource\windowContainer\fonts\nth-icons.ttf" />
+    <Content Include="app\static\resource\windowContainer\fonts\nth-icons.woff2" />
+    <Content Include="app\static\resource\windowContainer\js\bootstrap.min.js" />
+    <Content Include="app\static\resource\windowContainer\js\html5sortable.js" />
+    <Content Include="app\static\resource\windowContainer\js\jquery.scrollbar.min.js" />
+    <Content Include="app\static\resource\windowContainer\js\nth-tabs-cn.js" />
+    <Content Include="app\static\resource\windowContainer\js\nth-tabs-en.js" />
+    <Content Include="app\static\resource\windowContainer\js\nth-tabs-jp.js" />
+    <Content Include="app\static\resource\windowContainer\js\nth-tabs-tw.js" />
+    <Content Include="app\static\resource\windowContainer\js\nth-tabs.min.js" />
+    <Content Include="app\templates\401.html" />
+    <Content Include="app\templates\403.html" />
+    <Content Include="app\templates\404.html" />
+    <Content Include="app\templates\app\index_spa.html" />
+    <Content Include="app\templates\app\system.js" />
+    <Content Include="app\templates\common\file_upload.html" />
+    <Content Include="app\templates\dashboard\main_dash.html" />
+    <Content Include="app\templates\dashboard\storyboard.html" />
+    <Content Include="app\templates\definition\code.html" />
+    <Content Include="app\templates\definition\equipment.html" />
+    <Content Include="app\templates\definition\equip_group.html" />
+    <Content Include="app\templates\definition\line.html" />
+    <Content Include="app\templates\definition\meeting_calendar.html" />
+    <Content Include="app\templates\definition\notice_board.html" />
+    <Content Include="app\templates\definition\process.html" />
+    <Content Include="app\templates\definition\tag.html" />
+    <Content Include="app\templates\definition\tag_group.html" />
+    <Content Include="app\templates\error.html" />
+    <Content Include="app\templates\definition\holiday.html" />
+    <Content Include="app\templates\definition\shift.html" />
+    <Content Include="app\templates\definition\document\rpt_form.html" />
+    <Content Include="app\templates\definition\material.html" />
+    <Content Include="app\templates\definition\company.html" />
+    <Content Include="app\templates\definition\factory.html" />
+    <Content Include="app\templates\kmms\check\check_result.html" />
+    <Content Include="app\templates\kmms\check\check_result_list.html" />
+    <Content Include="app\templates\kmms\check\check_work_daily.html" />
+    <Content Include="app\templates\kmms\check\check_work_list.html" />
+    <Content Include="app\templates\kmms\equ_grade.html" />
+    <Content Include="app\templates\kmms\pm\pm_schedule.html" />
+    <Content Include="app\templates\kmms\pm\pm_master.html" />
+    <Content Include="app\templates\kmms\cycle.html" />
+    <Content Include="app\templates\kmms\pm\pm_work_list.html" />
+    <Content Include="app\templates\kmms\check\check_master.html" />
+    <Content Include="app\templates\kmms\check\check_schedule.html" />
+    <Content Include="app\templates\kmms\pm\pm_result.html" />
+    <Content Include="app\templates\kmms\pm\pm_result_list.html" />
+    <Content Include="app\templates\kmms\work_order.html" />
+    <Content Include="app\templates\page\popup\label.html" />
+    <Content Include="app\templates\page\popup\myinfo.html" />
+    <Content Include="app\templates\page\popup\language.html" />
+    <Content Include="app\templates\page\popup\popup_prpt_result_edit.html" />
+    <Content Include="app\templates\page\popup\popup_test_result_edit.html" />
+    <Content Include="app\templates\page\popup\popup_smp_hist.html" />
+    <Content Include="app\templates\page\popup\popup_smp.html" />
+    <Content Include="app\templates\popup\popup_test.html" />
+    <Content Include="app\templates\sample_page\alert_notification.html" />
+    <Content Include="app\templates\sample_page\chart.html" />
+    <Content Include="app\templates\sample_page\editor.html" />
+    <Content Include="app\templates\sample_page\export.html" />
+    <Content Include="app\templates\sample_page\form.html" />
+    <Content Include="app\templates\sample_page\popup.html" />
+    <Content Include="app\templates\sample_page\spread_sheet.html" />
+    <Content Include="app\templates\sample_page\test.html" />
+    <Content Include="app\templates\sample_page\tree_list.html" />
+    <Content Include="app\templates\sample_page\upload.html" />
+    <Content Include="app\templates\setup.html" />
+    <Content Include="app\templates\system\das_config.html" />
+    <Content Include="app\templates\system\depart.html" />
+    <Content Include="app\templates\system\login_log.html" />
+    <Content Include="app\templates\system\menu_log_참고.html" />
+    <Content Include="app\templates\system\storyboard_config.html" />
+    <Content Include="app\templates\system\menu_log.html" />
+    <Content Include="app\templates\system\system_log.html" />
+    <Content Include="app\templates\system\user.html" />
+    <Content Include="app\templates\system\user_group.html" />
+    <Content Include="app\templates\system\user_group_menu.html" />
+    <Content Include="app\templates\tagdata\regression_a.html" />
+    <Content Include="app\templates\tagdata\tagdata_list.html" />
+    <Content Include="app\templates\tagdata\tag_boxplot.html" />
+    <Content Include="app\templates\tagdata\tag_brush_trend.html" />
+    <Content Include="app\templates\tagdata\tag_current.html" />
+    <Content Include="app\templates\tagdata\tag_histogram.html" />
+    <Content Include="app\templates\tagdata\tag_scatter.html" />
+    <Content Include="app\templates\tagdata\tag_statistics.html" />
+    <Content Include="app\templates\tagdata\tag_sync_trend.html" />
+    <Content Include="app\templates\tagdata\tag_trend.html" />
+    <Content Include="domain\_sql\function\fn_code_name.txt" />
+    <Content Include="domain\_sql\partition\em_tag_dat.txt" />
+    <Content Include="domain\_sql\partition\tag_dat.txt" />
+    <Content Include="domain\_sql\01.기초데이터.txt" />
+    <Content Include="domain\_sql\views\v_menu_folder.txt" />
+    <Content Include="domain\_sql\02.설비_태그.txt" />
+    <Content Include="domain\_sql\03.전력량계_태그.txt" />
+    <Content Include="domain\_sql\테이블수정이력.txt" />
+    <Content Include="requirements.txt" />
+    <Content Include="app\static\app\content\bootstrap.css" />
+    <Content Include="app\static\app\content\bootstrap.min.css" />
+    <Content Include="app\static\app\content\site.css" />
+    <Content Include="app\static\app\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="app\static\app\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="app\static\app\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="app\static\app\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="app\static\app\scripts\bootstrap.js" />
+    <Content Include="app\static\app\scripts\bootstrap.min.js" />
+    <Content Include="app\static\app\scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="app\static\app\scripts\jquery-1.10.2.js" />
+    <Content Include="app\static\app\scripts\jquery-1.10.2.min.js" />
+    <Content Include="app\static\app\scripts\jquery-1.10.2.min.map" />
+    <Content Include="app\static\app\scripts\jquery.validate-vsdoc.js" />
+    <Content Include="app\static\app\scripts\jquery.validate.js" />
+    <Content Include="app\static\app\scripts\jquery.validate.min.js" />
+    <Content Include="app\static\app\scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="app\static\app\scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="app\static\app\scripts\modernizr-2.6.2.js" />
+    <Content Include="app\static\app\scripts\respond.js" />
+    <Content Include="app\static\app\scripts\respond.min.js" />
+    <Content Include="app\static\app\scripts\_references.js" />
+    <Content Include="app\templates\app\about.html" />
+    <Content Include="app\templates\app\contact.html" />
+    <Content Include="app\templates\app\index.html" />
+    <Content Include="app\templates\app\layout.html" />
+    <Content Include="app\templates\app\login.html" />
+    <Content Include="app\templates\app\loginpartial.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="C:\devprojects\virtual_env\plant_i\env312\">
+      <Id>env312</Id>
+      <Version>0.0</Version>
+      <Description>env312 (Python 3.12 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Django.targets" />
+  <!-- Specify pre- and post-build commands in the BeforeBuild and 
+       AfterBuild targets below. -->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <AutoAssignPort>True</AutoAssignPort>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

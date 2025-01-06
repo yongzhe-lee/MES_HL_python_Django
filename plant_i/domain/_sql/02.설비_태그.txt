@@ -1,0 +1,815 @@
+truncate table equ cascade;
+alter SEQUENCE equ_id_seq restart WITH 1;
+
+truncate table tag cascade;
+
+
+INSERT INTO equ
+(id, "Code", "Name", "Maker", "_created", "_modified", "_creater_id", "_modifier_id",  "MESCode", "SAPCode") 
+values
+(1, 'hpc1.load', '매거진로더', '은일', now(), now(), 1, 1, '', ''),
+(2, 'hpc1.flash' , '플래쉬프로그램입력', '코어솔루션', now(), now(), 1, 1, 'PCU111001', ''),
+(3, 'hpc1.ict' , 'ICT', '코어솔루션', now(), now(), 1, 1, '', 'PCU112001'),
+(4, 'hpc1.coatload', 'PCB코팅로더', 'CJT', now(), now(), 1, 1, '', ''),
+(5, 'hpc1.pcbrev', 'PCB반전', 'CJT', now(), now(), 1, 1, '', ''),
+(6, 'hpc1.curr', '코팅경화Curing', 'YJE', now(), now(), 1, 1, '', ''),
+(7, 'hpc1.frobackload', 'CJT', '코어솔루션', now(), now(), 1, 1, '', ''),
+(8, 'hpc1.uh.load', 'Upper 하우징 로딩', 'CJT', now(), now(), 1, 1, '', ''),
+(9, 'hpc1.tim', 'TIM도포', 'CJT', now(), now(), 1, 1, '', ''),
+(10, 'hpc1.lh.load', 'Lower하우징로딩', 'CJT', now(), now(), 1, 1, '', ''),
+(11, 'hpc1.scrwt', '스크류체결', 'CJT', now(), now(), 1, 1, '', ''),
+(12, 'hpc1.fclip', 'Fan&Clip조립', 'CJT', now(), now(), 1, 1, '', ''),
+(13, 'hpc1.eol1', 'EOL1', '일신', now(), now(), 1, 1, '', ''),
+(14, 'hpc1.eol2', 'EOL2', '일신', now(), now(), 1, 1, '', ''),
+(15, 'hpc1.pinchk', 'Pin검사&라벨', 'CJT', now(), now(), 1, 1, '', ''),
+(16, 'hpc1.brackassm', '브라켓조립', 'CJT', now(), now(), 1, 1, '', ''),
+(17, 'smt3.load', 'SMT#3로더', '은일', now(), now(), 1, 1, '', ''),
+(18, 'smt3.unload', 'SMT#3언로더', '은일', now(), now(), 1, 1, '', '')
+;
+alter SEQUENCE equ_id_seq restart WITH 19;
+
+
+/*
+알람		ALARM
+온도		TEMP
+전압		VOLT
+전류		CURRENT
+가동비가동		RUN
+카운터		COUNTER
+*/
+truncate table tag_grp cascade;
+insert into tag_grp ("Code", "Name", "_created") values('ALARM', '알람', now());
+insert into tag_grp ("Code", "Name", "_created") values('TEMP', '온도', now());
+insert into tag_grp ("Code", "Name", "_created") values('VOLT', '전압', now());
+insert into tag_grp ("Code", "Name", "_created") values('CURRENT', '전류', now());
+insert into tag_grp ("Code", "Name", "_created") values('RUN', '가동비가동', now());
+insert into tag_grp ("Code", "Name", "_created") values('COUNTER', '카운터', now());
+alter SEQUENCE tag_grp_id_seq restart WITH 7;
+
+
+truncate table data_src cascade;
+alter SEQUENCE data_src_id_seq restart WITH 1;
+
+/*전력량계*/
+insert into data_src (id, "Name", "SourceType", _created) values (1, '전력량계1', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (2, '전력량계2', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (3, '전력량계3', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (4, '전력량계4', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (5, '전력량계5', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (6, '전력량계6', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (7, '전력량계7', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (8, '전력량계8', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (9, '전력량계9', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (10, '전력량계10', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (11, '전력량계11', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (12, '전력량계12', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (13, '전력량계13', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (14, '전력량계14', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (15, '전력량계15', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (16, '전력량계16', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (17,'전력량계17', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (18, '전력량계18', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (19, '전력량계19', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (20, '전력량계20', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (21, '전력량계21', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (22, '전력량계22', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (23, '전력량계23', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (24, '전력량계24', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (25, '전력량계25', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (26, '전력량계26', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (27, '전력량계27', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (28, '전력량계28', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (29, '전력량계29', 'EM', now());
+insert into data_src (id, "Name", "SourceType", _created) values (30, '전력량계30', 'EM', now());
+
+
+
+/*PLC*/
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (31, '매거진로더PLC', 'PLC', now(), 1);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (32, '플래쉬프로그램입력PLC', 'PLC', now(), 2);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (33, 'ICTPLC', 'PLC', now(), 3);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (34, 'PCB코팅로더PLC', 'PLC', now(), 4);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (35, 'PCB반전PLC', 'PLC', now(), 5);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (36, '코팅경화CuringPLC', 'PLC', now(), 6);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (37, '프론트백PCB로딩PLC', 'PLC', now(), 7);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (38, 'Upper 하우징 로딩PLC', 'PLC', now(), 8);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (39, 'TIM도포PLC', 'PLC', now(), 9);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (40, 'Lower하우징로딩PLC', 'PLC', now(), 10);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (41, '스크류체결PLC', 'PLC', now(), 11);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (42, 'Fan&Clip조립PLC', 'PLC', now(), 12);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (43, 'EOL1PLC', 'PLC', now(), 13);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (44, 'EOL2PLC', 'PLC', now(), 14);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (45, 'Pin검사&라벨PLC', 'PLC', now(), 15);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (46, '브라켓조립PLC', 'PLC', now(), 16);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (47, 'SMT#3로더PLC', 'PLC', now(), 17);
+insert into data_src (id, "Name", "SourceType", _created, "Equipment_id") values (48, 'SMT#3언로더PLC', 'PLC', now(), 18);
+alter SEQUENCE data_src_id_seq restart WITH 49;
+
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created") 
+values 
+('hpc1.load.au.md','HPC#1LOADER자동모드', 1, now()),
+('hpc1.load.ma.md','HPC#1LOADER수동모드', 1, now()),
+('hpc1.load.au.op','HPC#1LOADER자동운전', 1, now()),
+('hpc1.load.au.stop','HPC#1LOADER자동정지', 1, now()),
+('hpc1.load.alm.cnt','HPC#1LOADER알람갯수', 1, now()),
+('hpc1.load.lamp.g','HPC#1LOADER경광등(GREEN)', 1, now()),
+('hpc1.load.lamp.y','HPC#1LOADER경광등(YELLOW)', 1, now()),
+('hpc1.load.lamp.r','HPC#1LOADER경광등(RED)', 1, now()),
+('hpc1.load.out.sens','HPC#1LOADER아웃 ', 1, now()),
+('hpc1.load.pitch','HPC#1LOADERPITCH', 1, now()),
+('hpc1.load.accu.cnt','HPC#1LOADER아웃카운터 누적', 1, now()),
+('hpc1.load.work.cnt','HPC#1LOADER워크카운터', 1, now()),
+('hpc1.load.chg.reset','HPC#1LOADER카운터리셋', 1, now()),
+('hpc1.load.air.press','HPC#1LOADER공압상태', 1, now()),
+('hpc1.load.door','HPC#1LOADER도어상태', 1, now()),
+('hpc1.load.prod.detect','HPC#1LOADER제품감지', 1, now()),
+('hpc1.load.prod.info','HPC#1LOADER기종정보', 1, now()),
+('hpc1.load.alm.R0281', 'CONVEYOR ERROR', 1 , now()),
+('hpc1.load.alm.R0282', 'MAG IN ERROR1', 1 , now()),
+('hpc1.load.alm.R0283', 'MAG IN ERROR2', 1 , now()),
+('hpc1.load.alm.R0284', 'MAG OUT ERROR1', 1 , now()),
+('hpc1.load.alm.R0285', 'MAG OUT ERROR2', 1 , now()),
+('hpc1.load.alm.R0286', 'LIFT MAG S/S ERR', 1 , now()),
+('hpc1.load.alm.R0287', 'LIFT UP ERROR', 1 , now()),
+('hpc1.load.alm.R0288', 'LIFT DOWN ERROR', 1 , now()),
+('hpc1.load.alm.R0289', 'PUSH ERROR1', 1 , now()),
+('hpc1.load.alm.R028A', 'PUSH ERROR2', 1 , now()),
+('hpc1.load.alm.R028B', 'LOW REV　ERROR', 1 , now()),
+('hpc1.load.alm.R028C', 'INV　ALARM', 1 , now()),
+('hpc1.load.alm.R028D', 'MAG OUT(F->R)ERROR', 1 , now()),
+('hpc1.load.alm.R028E', 'OUT PUSHER LOAD ERROR', 1 , now()),
+('hpc1.load.alm.R028F', 'AIR ERROR', 1 , now()),
+('hpc1.load.alm.R0290', 'WORK COUNT ERROR', 1 , now()),
+('hpc1.load.alm.R0293', '리프트내 메거진 IN잠금장치 잠금 ERROR', 1 , now()),
+('hpc1.load.alm.R0294', 'BATTRY ALARM', 1 , now()),
+('hpc1.load.alm.R0295', 'FINGERPRINT CHECK ERROR', 1 , now()),
+('hpc1.load.alm.R0296', 'width - limit error', 1 , now()),
+('hpc1.load.alm.R0297', 'WIDTH DISBLE ERROR', 1 , now()),
+('hpc1.load.alm.R0298', 'WIDTH TIME  OVER ERROR', 1 , now()),
+('hpc1.load.alm.R0299', 'MAGAZINE WIDTH ERROR', 1 , now()),
+('hpc1.load.alm.R029A', '리프트내 메거진 OUT잠금장치 잠금 ERROR', 1 , now()),
+('hpc1.load.alm.R029B', '리프트내 메거진역방향 ERROR', 1 , now()),
+('hpc1.load.alm.R029C', '메거진내 PCB 돌출 ERROR', 1 , now()),
+('hpc1.load.alm.R029F', 'DOOR ERROR', 1 , now())
+;
+
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.flash.au.md','hpc#1 flash자동모드', 2, now()),
+('hpc1.flash.ma.md','hpc#1 flash수동모드', 2, now()),
+('hpc1.flash.au.op','hpc#1 flash자동운전', 2, now()),
+('hpc1.flash.au.stop','hpc#1 flash자동정지', 2, now()),
+('hpc1.flash.emer.stop','hpc#1 flash비상정지', 2, now()),
+('hpc1.flash.1f.conv.op.step','hpc#1 flash1f컨베이어자동운전STEP', 2, now()),
+('hpc1.flash.1f.tcyli.op.step','hpc#1 flash1f실린더자동운전STEP', 2, now()),
+('hpc1.flash.2f.conv.op.step','hpc#1 flash2f컨베이어자동운전STEP', 2, now()),
+('hpc1.flash.2f.tcyli.op.step','hpc1Flash2f실린더자동운전STEP', 2, now()),
+('hpc1.flash.lamp.r','hpc#1Flash경광등(RED)', 2, now()),
+('hpc1.flash.lamp.y','hpc#1Flash경광등(YELLOW)', 2, now()),
+('hpc1.flash.lamp.g','hpc#1Flash경광등(GREEN)', 2, now()),
+('hpc1.flash.buzz','hpc#1FlashBUZZER', 2, now()),
+('hpc1.flash.1fdoor1','hpc#1 flash1층도어1상태', 2, now()),
+('hpc1.flash.1f.door2','hpc#1 flash1층도어2상태', 2, now()),
+('hpc1.flash.2f.door1','hpc#1 flash2층도어상태', 2, now()),
+('hpc1.flash.1f.prod.detect','hpc#1 flash제품감지 1F', 2, now()),
+('hpc1.flash.2f.prod.detect','hpc#1 flash제품감지 2F', 2, now()),
+('hpc1.flash.prod.info','hpc#1 flash기종정보', 2, now()),
+('hpc1.flash.alm.cnt','hpc#1 flash알람여부', 2, now()), /*M10000*/
+('hpc1.flash.air.press','hpc#1 flash공압상태', 2, now()),
+('hpc1.flash.alm.M9000','hpc#1 flash비상 정지',2,now()),
+('hpc1.flash.alm.M9001','hpc#1 flash메인 에어 이상',2,now()),
+('hpc1.flash.alm.M9100','hpc#1 flash1F 도어 열림 에러',2,now()),
+('hpc1.flash.alm.M9101','hpc#1 flash1F C/V 구동 시간 초과',2,now()),
+('hpc1.flash.alm.M9102','HPC#1 flash1F AX01 축 이상',2,now()),
+('hpc1.flash.alm.M9103','HPC#1 flash1F 폭 안전 확인',2,now()),
+('hpc1.flash.alm.M9104','HPC#1 flash1F 1ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9105','HPC#1 flash1F 2ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9106','HPC#1 flash1F 3ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9107','HPC#1 flash1F 4ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9108','HPC#1 flash1F 상부 실린더 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9109','HPC#1 flash1F 하부 컨베어 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9110','HPC#1 flash1F 1ST 지그 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9111','HPC#1 flash1F 2ST 지그 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9112','HPC#1 flash1F 컨베어 2매 감지 이상',2,now()),
+('hpc1.flash.alm.M9113','HPC#1 flash1F PC 검사 연속 NG',2,now()),
+('hpc1.flash.alm.M9114','HPC#1 flash1F 검사 스타트 지연 이상',2,now()),
+('hpc1.flash.alm.M9115','HPC#1 flash1F 검사 정보 삭제 지연 이상',2,now()),
+('hpc1.flash.alm.M9116','HPC#1 flash1F PC READY 안됨 이상',2,now()),
+('hpc1.flash.alm.M9117','HPC#1 flash1F 전공정 바코드 NG',2,now()),
+('hpc1.flash.alm.M9118','HPC#1 flash1F PC ALARM 이상',2,now()),
+('hpc1.flash.alm.M9119','HPC#1 flash1F 원위치 제품 제거 알람',2,now()),
+('hpc1.flash.alm.M9120','HPC#1 flash1F 컨베어 제품 제거 알람',2,now()),
+('hpc1.flash.alm.M9121','HPC#1 flash1F 상부 하강 조작 이상',2,now()),
+('hpc1.flash.alm.M9122','HPC#1 flash1F 하부 지그안착 상승 조작 이상',2,now()),
+('hpc1.flash.alm.M9123','HPC#1 flash1F 하부 지그안착 하강 조작 이상',2,now()),
+('hpc1.flash.alm.M9124','HPC#1 flash1F 하부 검사기 상승 조작 이상',2,now()),
+('hpc1.flash.alm.M9125','HPC#1 flash1F 하부 검사기 하강 조작 이상',2,now()),
+('hpc1.flash.alm.M9126','HPC#1 flash1F 폭 조절 조작 이상',2,now()),
+('hpc1.flash.alm.M9127','HPC#1 flash1F 원위치 조작 이상',2,now()),
+('hpc1.flash.alm.M9128','HPC#1 flash1F 자동 스타트 조작 이상',2,now()),
+('hpc1.flash.alm.M9129','HPC#1 flash1F 지그 탈착 조작 이상',2,now()),
+('hpc1.flash.alm.M9130','HPC#1 flash1F 지그 안착 조작 이상',2,now()),
+('hpc1.flash.alm.M9131','HPC#1 flash1F JIG MODEL 선택 안됨',2,now()),
+('hpc1.flash.alm.M9200','HPC#1 flash2F 도어 열림 에러',2,now()),
+('hpc1.flash.alm.M9201','HPC#1 flash2F C/V 구동 시간 초과',2,now()),
+('hpc1.flash.alm.M9202','HPC#1 flash2F AX01 축 이상',2,now()),
+('hpc1.flash.alm.M9203','HPC#1 flash2F 폭 안전 확인',2,now()),
+('hpc1.flash.alm.M9204','HPC#1 flash2F 1ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9205','HPC#1 flash2F 2ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9206','HPC#1 flash2F 3ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9207','HPC#1 flash2F 4ST 스토퍼 전/후진 이상',2,now()),
+('hpc1.flash.alm.M9208','HPC#1 flash2F 상부 실린더 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9209','HPC#1 flash2F 하부 컨베어 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9210','HPC#1 flash2F 1ST 지그 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9211','HPC#1 flash2F 2ST 지그 상/하강 이상',2,now()),
+('hpc1.flash.alm.M9212','HPC#1 flash2F 컨베어 2매 감지 이상',2,now()),
+('hpc1.flash.alm.M9213','HPC#1 flash2F PC 검사 연속 NG',2,now()),
+('hpc1.flash.alm.M9214','HPC#1 flash2F 검사 스타트 지연 이상',2,now()),
+('hpc1.flash.alm.M9215','HPC#1 flash2F 검사 정보 삭제 지연 이상',2,now()),
+('hpc1.flash.alm.M9216','HPC#1 flash2F PC READY 안됨 이상',2,now()),
+('hpc1.flash.alm.M9217','HPC#1 flash2F 전공정 바코드 NG',2,now()),
+('hpc1.flash.alm.M9218','HPC#1 flash2F PC ALARM 이상',2,now()),
+('hpc1.flash.alm.M9219','HPC#1 flash2F 원위치 제품 제거 알람',2,now()),
+('hpc1.flash.alm.M9220','HPC#1 flash2F 컨베어 제품 제거 알람',2,now()),
+('hpc1.flash.alm.M9221','HPC#1 flash2F 상부 하강 조작 이상',2,now()),
+('hpc1.flash.alm.M9222','HPC#1 flash2F 하부 지그안착 상승 조작 이상',2,now()),
+('hpc1.flash.alm.M9223','HPC#1 flash2F 하부 지그안착 하강 조작 이상',2,now()),
+('hpc1.flash.alm.M9224','HPC#1 flash2F 하부 검사기 상승 조작 이상',2,now()),
+('hpc1.flash.alm.M9225','HPC#1 flash2F 하부 검사기 하강 조작 이상',2,now()),
+('hpc1.flash.alm.M9226','HPC#1 flash2F 폭 조절 조작 이상',2,now()),
+('hpc1.flash.alm.M9227','HPC#1 flash2F 원위치 조작 이상',2,now()),
+('hpc1.flash.alm.M9228','HPC#1 flash2F 자동 스타트 조작 이상',2,now()),
+('hpc1.flash.alm.M9229','HPC#1 flash2F 지그 탈착 조작 이상',2,now()),
+('hpc1.flash.alm.M9230','HPC#1 flash2F 지그 안착 조작 이상',2,now()),
+('hpc1.flash.alm.M9231','HPC#1 flash2F JIG MODEL 선택 안됨',2,now())
+;
+
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.ict.au.md','ICT자동모드', 3, now()),
+('hpc1.ict.ma.md','ICT수동모드', 3, now()),
+('hpc1.ict.au.op','ICT자동운전', 3, now()),
+('hpc1.ict.au.stop','ICT자동정지', 3, now()),
+('hpc1.ict.emer.stop','ICT비상정지', 3, now()),
+('hpc1.ict.conv.op.step','ICT컨베이버자동운전STEP', 3, now()),
+('hpc1.ict.tcyli.op.step','ICT실린더자동운전STEP', 3, now()),
+('hpc1.ict.lamp.r','ICT경광등(RED)', 3, now()),
+('hpc1.ict.lamp.y','ICT경광등(YELLOW)', 3, now()),
+('hpc1.ict.lamp.g','ICT경광등(GREEN)', 3, now()),
+('hpc1.ict.buzz','ICTBUZZER', 3, now()),
+('hpc1.ict.door','ICT도어상태', 3, now()),
+('hpc1.ict.cyl.up','ICT실린더작동업', 3, now()),
+('hpc1.ict.cyl. donw','ICT실린더작동다운', 3, now()),
+('hpc1.ict.prod.detect','ICT제품감지', 3, now()),
+('hpc1.ict.prod.info','ICT기종정보', 3, now()),
+('hpc1.ict.air.press','ICT공압상태', 3, now()),
+('hpc1.ict.alm.cnt','HPC#1 ict알람여부', 3,now()), /*M10000*/
+('hpc1.ict.alm.M9000','HPC#1 ict비상정지', 3,now()),
+('hpc1.ict.alm.M9001','HPC#1 ict도어 열림', 3,now()),
+('hpc1.ict.alm.M9002','HPC#1 ictC/V 구동 시간 초과', 3,now()),
+('hpc1.ict.alm.M9003','HPC#1 ictAX01 축 이상', 3,now()),
+('hpc1.ict.alm.M9004','HPC#1 ict폭 안전 확인', 3,now()),
+('hpc1.ict.alm.M9005','HPC#1 ict1ST 스토퍼 전/후진 이상', 3,now()),
+('hpc1.ict.alm.M9006','HPC#1 ict2ST 스토퍼 전/후진 이상', 3,now()),
+('hpc1.ict.alm.M9007','HPC#1 ict상부 실린더 상/하강 이상' ,3,now()),
+('hpc1.ict.alm.M9008','HPC#1 ict하부 컨베어 상/하강 이상', 3,now()),
+('hpc1.ict.alm.M9009','HPC#1 ict지그 상/하강 이상', 3,now()),
+('hpc1.ict.alm.M9010','HPC#1 ict상부 클램프 이상', 3,now()),
+('hpc1.ict.alm.M9012','HPC#1 ict하부 컨베어 지그 교체 상/하강 이상', 3,now()),
+('hpc1.ict.alm.M9013','HPC#1 ict컨베어 2매 감지 이상', 3,now()),
+('hpc1.ict.alm.M9014','HPC#1 ictPC 검사 연속 NG', 3,now()),
+('hpc1.ict.alm.M9015','HPC#1 ict검사 스타트 지연 이상', 3,now()),
+('hpc1.ict.alm.M9016','HPC#1 ict검사 정보 삭제 지연 이상', 3,now()),
+('hpc1.ict.alm.M9017','HPC#1 ictPC READY 안됨 이상', 3,now()),
+('hpc1.ict.alm.M9018','HPC#1 ict전공정 바코드 NG', 3,now()),
+('hpc1.ict.alm.M9019','HPC#1 ictPC ALARM 이상', 3,now()),
+('hpc1.ict.alm.M9020','HPC#1 ict원위치 제품 제거 알람', 3,now()),
+('hpc1.ict.alm.M9021','HPC#1 ict컨베어 제품 제거 알람', 3,now()),
+('hpc1.ict.alm.M9022','HPC#1 ict상부 하강 조작 이상', 3,now()),
+('hpc1.ict.alm.M9023','HPC#1 ict상부 클램프 조작 이상', 3,now()),
+('hpc1.ict.alm.M9024','HPC#1 ict하부 지그 안착 상승 조작 이상', 3,now()),
+('hpc1.ict.alm.M9025','HPC#1 ict하부 지그 안착 하강 조작 이상', 3,now()),
+('hpc1.ict.alm.M9026','HPC#1 ict하부 검사기 상승 조작 이상', 3,now()),
+('hpc1.ict.alm.M9027','HPC#1 ict하부 검사기 하강 조작 이상', 3,now()),
+('hpc1.ict.alm.M9028','HPC#1 ict하부 지그 교체 상승 조작 이상', 3,now()),
+('hpc1.ict.alm.M9029','HPC#1 ict하부 지그 교체 하강 조작 이상', 3,now()),
+('hpc1.ict.alm.M9030','HPC#1 ict폭 조절 조작 이상', 3,now()),
+('hpc1.ict.alm.M9031','HPC#1 ictJIG MODEL 선택 안됨', 3,now()),
+('hpc1.ict.alm.M9032','HPC#1 ict원위치 조작 이상', 3,now()),
+('hpc1.ict.alm.M9033','HPC#1 ict자동 스타트 이상', 3,now()),
+('hpc1.ict.alm.M9034','HPC#1 ict메인 압 이상', 3,now()),
+('hpc1.ict.alm.M9035','HPC#1 ict지그 탈착 이상', 3,now()),
+('hpc1.ict.alm.M9036','HPC#1 ict지그 안착 이상', 3,now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.coatloadop.mode','PCB코팅로더자동/수동모드', 4, now()),
+('hpc1.coatloadau.op','PCB코팅로더자동운전', 4, now()),
+('hpc1.coatloadau.stop','PCB코팅로더자동정지', 4, now()),
+('hpc1.coatloademer.stop','PCB코팅로더비상정지', 4, now()),
+('hpc1.coatloadau.op.step','PCB코팅로더자동운전_STEP', 4, now()),
+('hpc1.coatloadlamp.g','PCB코팅로더경광등(GREEN)', 4, now()),
+('hpc1.coatloadlamp.y','PCB코팅로더경광등(YELLOW)', 4, now()),
+('hpc1.coatloadlamp.r','PCB코팅로더경광등(RED)', 4, now()),
+('hpc1.coatloadair.press','PCB코팅로더공압상태', 4, now()),
+('hpc1.coatloaddoor','PCB코팅로더도어상태', 4, now()),
+('hpc1.coatloadprod.detect','PCB코팅로더제품감지', 4, now()),
+('hpc1.coatloadprod.info','PCB코팅로더기종정보', 4, now()),
+('hpc1.coatloadct','PCB코팅로더C/T', 4, now()),
+('hpc1.coatloadalm','PCB코팅로더알람', 4, now()),
+('hpc1.coatloadalm.cnt','PCB코팅로더알람갯수', 4, now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.pcbrev.op.mode','PCB반전자동/수동모드', 5, now()),
+('hpc1.pcbrev.au.op','PCB반전자동운전', 5, now()),
+('hpc1.pcbrev.au.stop','PCB반전자동정지', 5, now()),
+('hpc1.pcbrev.emer.stop','PCB반전비상정지', 5, now()),
+('hpc1.pcbrev.au.op.step','PCB반전자동운전_STEP', 5, now()),
+('hpc1.pcbrev.lamp.g','PCB반전경광등(GREEN)', 5, now()),
+('hpc1.pcbrev.lamp.y','PCB반전경광등(YELLOW)', 5, now()),
+('hpc1.pcbrev.lamp.r','PCB반전경광등(RED)', 5, now()),
+('hpc1.pcbrev.door','PCB반전도어상태', 5, now()),
+('hpc1.pcbrev.prod.detect','PCB반전제품감지', 5, now()),
+('hpc1.pcbrev.prod.info','PCB반전기종정보', 5, now()),
+('hpc1.pcbrev.ct','PCB반전C/T', 5, now()),
+('hpc1.pcbrev.air.press','PCB반전공압상태', 5, now()),
+('hpc1.pcbrev.alm','PCB반전알람', 5, now()),
+('hpc1.pcbrev.alm.cnt','PCB반전알람갯수', 5, now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.curr.au.md','CURING자동모드', 6, now()),
+('hpc1.curr.ma.md','CURING수동모드', 6, now()),
+('hpc1.curr.au.op','CURING자동운전', 6, now()),
+('hpc1.curr.au.stop','CURING자동정지', 6, now()),
+('hpc1.curr.emer.stop','CURING비상정지', 6, now()),
+('hpc1.curr.au.op.step','CURING자동운전_ STEP', 6, now()),
+('hpc1.curr.prod.detect.in','CURING제품감지(in)', 6, now()),
+('hpc1.curr.prod.detect.out','CURING제품감지(out)', 6, now()),
+('hpc1.curr.prod.info','CURING기종정보', 6, now()),
+('hpc1.curr.alm','CURING알람', 6, now()),
+('hpc1.curr.top.cur.temp','CURING상부현재온도', 6, now()),
+('hpc1.curr.top.set.temp','CURING상부설정온도', 6, now()),
+('hpc1.curr.botm.cur.temp','CURING하부현재온도', 6, now()),
+('hpc1.curr.botm.set.temp','CURING하부설정온도', 6, now())
+;
+
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.frobackload.op.mode','프론트백PCB로딩자동/수동모드', 7, now()),
+('hpc1.frobackload.au.op','프론트백PCB로딩자동운전', 7, now()),
+('hpc1.frobackload.au.stop','프론트백PCB로딩자동정지', 7, now()),
+('hpc1.frobackload.emer.stop','프론트백PCB로딩비상정지', 7, now()),
+('hpc1.frobackload.au.op.step','프론트백PCB로딩자동운전_STEP', 7, now()),
+('hpc1.frobackload.lamp.g','프론트백PCB로딩경광등(GREEN)', 7, now()),
+('hpc1.frobackload.lamp.y','프론트백PCB로딩경광등(YELLOW)', 7, now()),
+('hpc1.frobackload.lamp.r','프론트백PCB로딩경광등(RED)', 7, now()),
+('hpc1.frobackload.alm','프론트백PCB로딩알람', 7, now()),
+('hpc1.frobackload.alm.cnt','프론트백PCB로딩알람갯수', 7, now()),
+('hpc1.frobackload.ct','프론트백PCB로딩C/T', 7, now()),
+('hpc1.frobackload.air.press','프론트백PCB로딩공압상태', 7, now()),
+('hpc1.frobackload.door','프론트백PCB로딩도어상태', 7, now()),
+('hpc1.frobackload.prod.info','프론트백PCB로딩기종정보', 7, now())
+;
+
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.uh.load.op.mode','U하우징로딩자동/수동모드', 8, now()),
+('hpc1.uh.load.au.op','U하우징로딩자동운전', 8, now()),
+('hpc1.uh.load.au.stop','U하우징로딩자동정지', 8, now()),
+('hpc1.uh.load.emer.stop','U하우징로딩비상정지', 8, now()),
+('hpc1.uh.load.au.op.step','U하우징로딩자동운전_STEP', 8, now()),
+('hpc1.uh.load.lamp.g','U하우징로딩경광등(GREEN)', 8, now()),
+('hpc1.uh.load.lamp.y','U하우징로딩경광등(YELLOW)', 8, now()),
+('hpc1.uh.load.lamp.r','U하우징로딩경광등(RED)', 8, now()),
+('hpc1.uh.load.door','U하우징로딩도어상태', 8, now()),
+('hpc1.uh.load.prod.detect','U하우징로딩제품감지', 8, now()),
+('hpc1.uh.load.prod.info','U하우징로딩기종정보', 8, now()),
+('hpc1.uh.load.alm','U하우징로딩알람', 8, now()),
+('hpc1.uh.load.alm.cnt','U하우징로딩알람갯수', 8, now()),
+('hpc1.uh.load.ct','U하우징로딩C/T', 8, now()),
+('hpc1.uh.load.air.press','U하우징로딩공압상태', 8, now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.tim.op.mode','TIM도포자동/수동모드', 9, now()),
+('hpc1.tim.au.op','TIM도포자동운전', 9, now()),
+('hpc1.tim.au.stop','TIM도포자동정지', 9, now()),
+('hpc1.tim.emer.stop','TIM도포비상정지', 9, now()),
+('hpc1.tim.au.op.step','TIM도포자동운전STEP', 9, now()),
+('hpc1.tim.vis.au.op.step','TIM비전자동운전STEP', 9, now()),
+('hpc1.tim.scrw.au.op.step','TIM하우징결합자동운전STEP', 9, now()),
+('hpc1.tim.alm.cnt','TIM도포알람갯수', 9, now()),
+('hpc1.tim.lamp.g','TIM도포경광등(GREEN)', 9, now()),
+('hpc1.tim.lamp.y','TIM도포경광등(YELLOW)', 9, now()),
+('hpc1.tim.lamp.r','TIM도포경광등(RED)', 9, now()),
+('hpc1.tim.door','TIM도포도어상태', 9, now()),
+('hpc1.tim.tim.prod.detect','TIM제품감지', 9, now()),
+('hpc1.tim.vis.prod.detect','TIM비전제품감지', 9, now()),
+('hpc1.tim.scrw.prod.detect','TIM하우징결합제품감지', 9, now()),
+('hpc1.tim.prod.info','TIM도포기종정보', 9, now()),
+('hpc1.tim.tim.alm','TIM도포알람', 9, now()),
+('hpc1.tim.vis.alm','TIM비전알람', 9, now()),
+('hpc1.tim.scrw.alm','TIM하우징결합알람', 9, now()),
+('hpc1.tim.ct','TIM도포C/T', 9, now()),
+('hpc1.tim.vis.ct','TIM비전C/T', 9, now()),
+('hpc1.tim.scrw.ct','TIM하우징결합C/T', 9, now()),
+('hpc1.tim.air.press','TIM도포공압상태', 9, now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.lh.load.op.mode','L하우징로딩자동/수동모드', 10, now()),
+('hpc1.lh.load.au.op','L하우징로딩자동운전', 10, now()),
+('hpc1.lh.load.au.stop','L하우징로딩자동정지', 10, now()),
+('hpc1.lh.load.emer.stop','L하우징로딩비상정지', 10, now()),
+('hpc1.lh.load.au.op.step','L하우징로딩자동운전_STEP', 10, now()),
+('hpc1.lh.load.lamp.g','L하우징로딩경광등(GREEN)', 10, now()),
+('hpc1.lh.load.lamp.y','L하우징로딩경광등(YELLOW)', 10, now()),
+('hpc1.lh.load.lamp.r','L하우징로딩경광등(RED)', 10, now()),
+('hpc1.lh.load.door','L하우징로딩도어상태', 10, now()),
+('hpc1.lh.load.prod.detect','L하우징로딩제품감지', 10, now()),
+('hpc1.lh.load.prod.info','L하우징로딩기종정보', 10, now()),
+('hpc1.lh.load.alm','L하우징로딩알람', 10, now()),
+('hpc1.lh.load.alm.cnt','L하우징로딩알람갯수', 10, now()),
+('hpc1.lh.load.ct','L하우징로딩C/T', 10, now()),
+('hpc1.lh.load.air.press','L하우징로딩공압상태', 10, now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('hpc1.scrwt.op.mode','스크류체결자동/수동모드', 11, now()),
+('hpc1.scrwt.au.op','스크류체결자동운전', 11, now()),
+('hpc1.scrwt.au.stop','스크류체결자동정지', 11, now()),
+('hpc1.scrwt.emer.stop','스크류체결비상정지', 11, now()),
+('hpc1.scrwt.au.op.step','스크류체결자동운전STEP', 11, now()),
+('hpc1.scrwt.hc.au.op.step','스크류체결높이체크자동운전STEP', 11, now()),
+('hpc1.scrwt.lamp.g','스크류체결경광등(GREEN)', 11, now()),
+('hpc1.scrwt.lamp.y','스크류체결경광등(YELLOW)', 11, now()),
+('hpc1.scrwt.lamp.r','스크류체결경광등(RED)', 11, now()),
+('hpc1.scrwt.door','스크류체결도어상태', 11, now()),
+('hpc1.scrwt.prod.detect','스크류체결제품감지', 11, now()),
+('hpc1.scrwt.prod.info','스크류체결기종정보', 11, now()),
+('hpc1.scrwt.alm','스크류체결알람', 11, now()),
+('hpc1.scrwt.hc.alm','스크류체결높이체크알람', 11, now()),
+('hpc1.scrwt.alm.cnt','스크류체결알람갯수', 11, now()),
+('hpc1.scrwt.hc.alm.cnt','스크류체결높이체크알람갯수', 11, now()),
+('hpc1.scrwt.ct','스크류체결C/T', 11, now()),
+('hpc1.scrwt.hc.ct','스크류체결높이체크C/T', 11, now()),
+('hpc1.scrwt.air.press','스크류체결공압상태', 11, now()),
+('hpc1.scrwt.use.cnt','스크류체결사용COUNT', 11, now()),
+('hpc1.scrwt.remain.cnt','스크류체결사용임박COUNT', 11, now()),
+('hpc1.scrwt.usg.lim.cnt','스크류체결교체COUNT', 11, now())
+;
+
+insert into tag (tag_code, tag_name, "Equipment_id", "_created")
+values
+('hpc1.fclip.op.mode','팬클립조립공통자동/수동모드', 12, now()),
+('hpc1.fclip.au.op','팬클립조립공통자동운전', 12, now()),
+('hpc1.fclip.au.stop','팬클립조립공통자동정지', 12, now()),
+('hpc1.fclip.emer.stop','팬클립조립공통비상정지', 12, now()),
+('hpc1.fclip.hfan.au.op.step','fc하우징팬결합자동운전STEP', 12, now()),
+('hpc1.fclip.scrw.au.op.step','fc스크류체결자동운전STEP', 12, now()),
+('hpc1.fclip.htck.au.op.step','fc높이체크자동운전STEP', 12, now()),
+('hpc1.fclip.fwir.au.op.step','fc팬와이어자동운전STEP', 12, now()),
+('hpc1.fclip.lamp.g','팬클립조립공통경광등(GREEN)', 12, now()),
+('hpc1.fclip.lamp.y','팬클립조립공통경광등(YELLOW)', 12, now()),
+('hpc1.fclip.lamp.r','팬클립조립공통경광등(RED)', 12, now()),
+('hpc1.fclip.door','팬클립조립공통도어상태', 12, now()),
+('hpc1.fclip.hfan.prod.detect','fc하우징팬결합제품감지', 12, now()),
+('hpc1.fclip.scrw.prod.detect','fc스크류체결제품감지', 12, now()),
+('hpc1.fclip.htck.prod.detect','fc높이체크제품감지', 12, now()),
+('hpc1.fclip.fwir.prod.detect','fc팬와이어제품감지', 12, now()),
+('hpc1.fclip.prod.info','팬클립조립공통기종정보', 12, now()),
+('hpc1.fclip.hfan.alm','fc하우징팬결합알람', 12, now()),
+('hpc1.fclip.scrw.alm','fc스크류체결알람', 12, now()),
+('hpc1.fclip.hc.alm','fc높이체크알람', 12, now()),
+('hpc1.fclip.fw.alm','fc팬와이어알람', 12, now()),
+('hpc1.fclip.alm.cnt','fc팬클립조립공통알람갯수', 12, now()),
+('hpc1.fclip.hfan.ct','하우징팬결합C/T', 12, now()),
+('hpc1.fclip.scrw.ct','fc스크류체결C/T', 12, now()),
+('hpc1.fclip.htck.ct','높이체크C/T', 12, now()),
+('hpc1.fclip.fwir.ct','팬와이어C/T', 12, now()),
+('hpc1.fclip.use.cnt','fc스크류체결사용COUNT', 12, now()),
+('hpc1.fclip.remain.cnt','fc스크류체결사용임박COUNT', 12, now()),
+('hpc1.fclip.usg.lim.cnt','fc스크류체결교체 COUNT', 12, now())
+;
+
+
+insert into tag (tag_code, tag_name, "Equipment_id", "_created")
+values
+('hpc1.eol.op.mode','EOL자동/수동 모드', 13, now()),
+('hpc1.eol.au.op','EOL자동운전', 13, now()),
+('hpc1.eol.au.stop','EOL자동정지', 13, now()),
+('hpc1.eol.emer.stop','EOL비상정지', 13, now()),
+('hpc1.eol.au.op.step','EOL자동운전_STEP', 13, now()),
+('hpc1.eol.lamp.g','EOL경광등(GREEN)', 13, now()),
+('hpc1.eol.lamp.y','EOL경광등(YELLOW)', 13, now()),
+('hpc1.eol.lamp.r','EOL경광등(RED)', 13, now()),
+('hpc1.eol.door','EOL도어상태', 13, now()),
+('hpc1.eol1.prod.detect','EOL1제품감지', 14, now()),
+('hpc1.eol2.prod.detect','EOL2제품감지', 14, now()),
+('hpc1.eol.prod.info','EOL기종정보', 13, now()),
+('hpc1.eol1.jig.clamp','EOL#1 검사지그 클램프', 13, now()),
+('hpc1.eol1.prob.md.forw','EOL#1 프로브 모델전진', 13, now()),
+('hpc1.eol1.prob.fward','EOL#1 프로브 전진', 13, now()),
+('hpc1.eol1.test.exec','EOL#1 테스트 실행', 13, now()),
+('hpc1.eol1.prob.bward','EOL#1 프로브 후진', 13, now()),
+('hpc1.eol1.prob.md.bward','EOL#1 프로브 모델후진', 13, now()),
+('hpc1.eol1.unclamp','EOL#1 언클램프', 13, now()),
+('hpc1.eol1.wk.finish','EOL#1 작업완료', 13, now()),
+('hpc1.eol2.jig.clamp','EOL#2 검사지그 클램프', 14, now()),
+('hpc1.eol2.prob.md.forw','EOL#2 프로브 모델전진', 14, now()),
+('hpc1.eol2.prob.fward','EOL#2 프로브 전진', 14, now()),
+('hpc1.eol2.test.exec','EOL#2 테스트 실행', 14, now()),
+('hpc1.eol2.prob.bward','EOL#2 프로브 후진', 14, now()),
+('hpc1.eol2.prob.md.bward','EOL#2 프로브 모델후진', 14, now()),
+('hpc1.eol2.unclamp','EOL#2 언클램프', 14, now()),
+('hpc1.eol2.wk.finish','EOL#2 작업완료', 14, now()),
+('hpc1.eol.ct','EOL C/T', 13, now()),
+('hpc1.eol.alm','EOL알람', 13, now()),
+('hpc1.eol.air.press','EOL공압상태', 13, now()),
+('hpc1.eol.alm.F0000', '비상정지 알람 (비상정지 스위치 해제)', 13, now()),
+('hpc1.eol.alm.F0001', '메인 공압 이상알람 (MAIN 공압 확인)', 13, now()),
+('hpc1.eol.alm.F0002', '도어 열림 알람 (도어 닫힘 확인)', 13, now()),
+('hpc1.eol.alm.F0007', 'PC-PLC 통신 이상알람 (PC 상태확인)', 13, now()),
+('hpc1.eol.alm.F0008', '서보 1 축 포지션 이동 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0009', '서보 2 축 포지션 이동 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0010', '서보 3 축 포지션 이동 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0011', '서보 1 축 원점복귀 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0012', '서보 2 축 원점복귀 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0013', '서보 3 축 원점복귀 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0014', '1-축 서보 드라이브 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0015', '1-축 서보 리밋 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0016', '2-축 서보 드라이브 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0017', '2-축 서보 리밋 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0018', '3-축 서보 드라이브 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0019', '3-축 서보 리밋 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0021', '[이송유닛] 헤드 그리퍼 열림/닫힘 알람 (센서,공압확인)', 13, now()),
+('hpc1.eol.alm.F0026', 'EOL#1 마스터 NG 판정 (제품확인)', 13, now()),
+('hpc1.eol.alm.F0027', 'EOL#2 마스터 NG 판정 (제품확인)', 14, now()),
+('hpc1.eol.alm.F0028', '마스터모드 선택요구 (스위치ON!)', 13, now()),
+('hpc1.eol.alm.F0029', '[이송유닛] [Home] 원점복귀 타임아웃 알람 (유닛상태확인)', 13, now()),
+('hpc1.eol.alm.F0040', '[NG C/V] 제품 만재 알람 (제품확인)', 13, now()),
+('hpc1.eol.alm.F0049', '[NG C/V] [Home] 원점복귀 타임아웃 알람 (유닛상태확인)', 13, now()),
+('hpc1.eol.alm.F0054', '서보 4 축 포지션 이동 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0055', '서보 5 축 포지션 이동 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0056', '서보 6 축 포지션 이동 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0057', '서보 4 축 원점복귀 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0058', '서보 5 축 원점복귀 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0059', '서보 6 축 원점복귀 타임아웃 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0060', '4-축 서보 드라이브 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0061', '4-축 서보 리밋 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0062', '5-축 서보 드라이브 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0063', '5-축 서보 리밋 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0064', '6-축 서보 드라이브 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0065', '[F065 ,] 6-축 서보 리밋 알람 (서보상태확인)', 13, now()),
+('hpc1.eol.alm.F0070', '[EOL TEST1] 클램프 이상알람 (센서,공압확인)', 13, now()),
+('hpc1.eol.alm.F0071', '[EOL TEST1] 지그연결 커넥터 전진/후진 알람 (센서,공압확인)', 13, now()),
+('hpc1.eol.alm.F0072', '[EOL TEST1] 제품연결 커넥터 모델 전진/후진 알람 (센서,공압확인)', 13, now()),
+('hpc1.eol.alm.F0073', '[EOL TEST1] 검사실행 타임아웃 알람 (검사기 확인)', 13, now()),
+('hpc1.eol.alm.F0074', '[EOL TEST1] 바코드 타임아웃 알람 (바코드 확인)', 13, now()),
+('hpc1.eol.alm.F0075', '[EOL TEST1] 핀카운트 경고 (핀교체확인)', 13, now()),
+('hpc1.eol.alm.F0076', '[EOL TEST1] 핀카운트 알람  (핀교체확인)', 13, now()),
+('hpc1.eol.alm.F0080', '[EOL TEST2] 클램프 이상알람 (센서,공압확인)', 14, now()),
+('hpc1.eol.alm.F0081', '[EOL TEST2] 지그연결 커넥터 전진/후진 알람 (센서,공압확인)', 14, now()),
+('hpc1.eol.alm.F0082', '[EOL TEST2] 제품연결 커넥터 전진/후진 알람 (센서,공압확인)', 14, now()),
+('hpc1.eol.alm.F0083', '[EOL TEST2] 검사실행 타임아웃 알람 (검사기 확인)', 14, now()),
+('hpc1.eol.alm.F0084', '[EOL TEST2] 바코드 타임아웃 알람 (바코드 확인)', 14, now()),
+('hpc1.eol.alm.F0085', '[EOL TEST2] 핀카운트 경고 (핀교체확인)', 14, now()),
+('hpc1.eol.alm.F0086', '[EOL TEST2] 핀카운트 알람 (핀교체확인)', 14, now()),
+('hpc1.eol.alm.F0089', '[EOL TEST] [Home] 원점복귀 타임아웃 알람 (유닛상태확인)', 13, now()),
+('hpc1.eol.alm.F0100', '[버퍼] 파렛트 스토퍼 알람 (파렛트 위치확인)', 13, now()),
+('hpc1.eol.alm.F0101', '[EOL #1] 파렛트 스토퍼 알람 (파렛트 위치확인)', 13, now()),
+('hpc1.eol.alm.F0102', '[EOL #1] 파렛트 포지션 상승/하강 알람 (센서,공압확인)', 13, now()),
+('hpc1.eol.alm.F0103', '[EOL #2] 파렛트 스토퍼 알람 (파렛트 위치확인)', 14, now()),
+('hpc1.eol.alm.F0104', '[EOL #2] 파렛트 포지션 상승/하강 알람 (센서,공압확인)', 14, now()),
+('hpc1.eol.alm.F0105', '[투  입] 리프터 상승/하강 알람 (센서,공압확인)', 13, now()),
+('hpc1.eol.alm.F0106', '하부주행 컨베어 인버터 알람 (인버터상태확인)', 13, now()),
+('hpc1.eol.alm.F0107', '하부 컨베어 스토퍼 알람 (파렛트 위치확인)', 13, now()),
+('hpc1.eol.alm.F0108', '[투  입] 리프터 진입중 걸림 알람 (파렛트 위치확인)', 13, now()),
+('hpc1.eol.alm.F0109', '[투  입] 리프터 제품안착 이상 알람 (파렛트 위치확인)', 13, now()),
+('hpc1.eol.alm.F0110', '[투  입] 리프터 안전센서 감지 알람  (안전센서걸림확인)', 13, now()),
+('hpc1.eol.alm.F0119', '[Conveyor] 원점복귀 타임아웃 알람 (유닛상태확인)', 13, now()),
+('hpc1.eol.alm.F0200', '마스터 모드 실행요구 ()', 13, now()),
+('hpc1.eol.alm.M0050', '파레트 공운전 실행중', 13, now()),
+('hpc1.eol.alm.M0051', '후공정설비 [라벨부착] 투입 준비안됨 (자동&파렛트적재 확인)', 13, now()),
+('hpc1.eol.alm.B1440', 'B1440 READY 신호 ( 준비 완료 시 ON),확인후 OFF',  13, now()),
+('hpc1.eol.alm.B1441', 'B1441 PLC_ALIVE (1Sec ON-OFF)', 13, now()),
+('hpc1.eol.alm.B1442', 'B1442 PLC TEST END REQ', 13, now()),
+('hpc1.eol.alm.B1443', 'B1443 PLC_BCR SCAN REQ', 13, now()),
+('hpc1.eol.alm.B1446', 'B1446 PLC_TEST START', 13, now()),
+('hpc1.eol.alm.B1447', 'B1447 PLC_JIG INIT_OK', 13, now()),
+('hpc1.eol.alm.B144B', 'B144B PLC MASTER SKIP', 13, now()),
+('hpc1.eol.alm.B1450', 'B1450 READY 신호 ( 준비 완료 시 ON),확인후 OFF', 13, now()),
+('hpc1.eol.alm.B1451', 'B1451 PLC_ALIVE (1Sec ON-OFF)', 13, now()),
+('hpc1.eol.alm.B1452', 'B1452 PLC TEST END REQ', 13, now()),
+('hpc1.eol.alm.B1453', 'B1453 PLC_BCR SCAN REQ', 13, now()),
+('hpc1.eol.alm.B1456', 'B1456 PLC_TEST START', 13, now()),
+('hpc1.eol.alm.B1457', 'B1457 PLC_JIG INIT_OK', 13, now()),
+('hpc1.eol.alm.B145B', 'B145B PLC MASTER SKIP', 13, now()),
+('hpc1.eol.alm.B1480', 'B1480 READY 신호', 13, now()),
+('hpc1.eol.alm.B1481', 'B1481 PC_ALIVE', 13, now()),
+('hpc1.eol.alm.B1482', 'B1482 PLC TEST END COMP.', 13, now()),
+('hpc1.eol.alm.B1483', 'B1483 PC_BCR SCAN OK', 13, now()),
+('hpc1.eol.alm.B1484', 'B1484 PC_BCR SCAN NG', 13, now()),
+('hpc1.eol.alm.B1486', 'B1486 PC TEST_OK', 13, now()),
+('hpc1.eol.alm.B1487', 'B1487 PC TEST_NG', 13, now()),
+('hpc1.eol.alm.B148A', 'B148A PC MASTER 완료', 13, now()),
+('hpc1.eol.alm.B148B', 'B148B PC MASTER 요구', 13, now()),
+('hpc1.eol.alm.B1490', 'B1490 READY 신호', 13, now()),
+('hpc1.eol.alm.B1491', 'B1491 PC_ALIVE', 13, now()),
+('hpc1.eol.alm.B1492', 'B1492 PLC TEST END COMP.', 13, now()),
+('hpc1.eol.alm.B1493', 'B1493 PC_BCR SCAN OK', 13, now()),
+('hpc1.eol.alm.B1494', 'B1494 PC_BCR SCAN NG', 13, now()),
+('hpc1.eol.alm.B1496', 'B1496 PC TEST_OK', 13, now()),
+('hpc1.eol.alm.B1497', 'B1497 PC TEST_NG', 13, now()),
+('hpc1.eol.alm.B149A', 'B149A PC MASTER 완료', 13, now()),
+('hpc1.eol.alm.B149B', 'B149B PC MASTER 요구', 13, now())
+;
+
+
+
+insert into tag (tag_code, tag_name, "Equipment_id", "_created")
+values
+('hpc1.pinchk.op.mode','핀체크라벨 자동/수동모드', 15, now()),
+('hpc1.pinchk.au.op','핀체크라벨 자동운전', 15, now()),
+('hpc1.pinchk.au.stop','핀체크라벨 자동정지', 15, now()),
+('hpc1.pinchk.emer.stop','핀체크라벨 비상정지', 15, now()),
+('hpc1.pinchk.au.op.step','핀체크라벨 자동운전_STEP', 15, now()),
+('hpc1.pinchk.lamp.g','핀체크라벨 경광등(GREEN)', 15, now()),
+('hpc1.pinchk.lamp.y','핀체크라벨 경광등(YELLOW)', 15, now()),
+('hpc1.pinchk.lamp.r','핀체크라벨 경광등(RED)', 15, now()),
+('hpc1.pinchk.air.press','핀체크라벨 공압상태', 15, now()),
+('hpc1.pinchk.door','핀체크라벨 도어상태', 15, now()),
+('hpc1.pinchk.prod.detect','핀체크라벨 제품감지', 15, now()),
+('hpc1.pinchk.prod.info','핀체크라벨 기종정보', 15, now()),
+('hpc1.pinchk.ct','핀체크라벨 C/T', 15, now()),
+('hpc1.pinchk.alm.cnt','핀체크라벨알람여부', 15, now()),
+('hpc1.pinchk.alm.F0000','pinchk비상정지 알람 (비상정지 스위치 해제)', 15, now()),
+('hpc1.pinchk.alm.F0001','pinchk메인 공압 이상알람 (MAIN 공압 확인)', 15, now()),
+('hpc1.pinchk.alm.F0002','pinchk도어 열림 알람 (도어 닫힘 확인)', 15, now()),
+('hpc1.pinchk.alm.F0007','pinchkPC-PLC 통신 이상알람 (PC 상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0008','pinchk서보 1 축 포지션 이동 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0009','pinchk서보 2 축 포지션 이동 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0010','pinchk서보 3 축 포지션 이동 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0011','pinchk서보 1 축 원점복귀 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0012','pinchk서보 2 축 원점복귀 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0013','pinchk서보 3 축 원점복귀 타임아웃 알람 (서보상태확인)',15, now()),
+('hpc1.pinchk.alm.F0014','pinchk1-축 서보 드라이브 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0015','pinchk1-축 서보 리밋 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0016','pinchk2-축 서보 드라이브 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0017','pinchk2-축 서보 리밋 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0018','pinchk3-축 서보 드라이브 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0019','pinchk3-축 서보 리밋 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0020','pinchk[이송유닛] 틸팅 전진/후진 알람 ()', 15, now()),
+('hpc1.pinchk.alm.F0021','pinchk[이송유닛] 진공이상 알람 (센서,공압확인)', 15, now()),
+('hpc1.pinchk.alm.F0028','pinchk마스터모드 선택요구 (스위치ON!)', 15, now()),
+('hpc1.pinchk.alm.F0029','pinchk[이송유닛] [Home] 원점복귀 타임아웃 알람 (유닛상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0049','pinchk[NG C/V] [Home] 원점복귀 타임아웃 알람 (유닛상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0054','pinchk서보 4 축 포지션 이동 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0055','pinchk서보 5 축 포지션 이동 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0056','pinchk서보 6 축 포지션 이동 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0057','pinchk서보 4 축 원점복귀 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0058','pinchk서보 5 축 원점복귀 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0059','핀체크서보 6 축 원점복귀 타임아웃 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0060','pinchk4-축 서보 드라이브 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0061','pinchk4-축 서보 리밋 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0062','pinchk5-축 서보 드라이브 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0063','pinchk5-축 서보 리밋 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0064','pinchk6-축 서보 드라이브 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0065','pinchk6-축 서보 리밋 알람 (서보상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0070','pinchk핀체크 카메라위치 전진/후진 알람 (센서,공압확인)', 15, now()),
+('hpc1.pinchk.alm.F0071','pinchk핀체크 비전검사 타임아웃 (비전확인)', 15, now()),
+('hpc1.pinchk.alm.F0073','pinchk라벨발행 타임아웃 (PC확인)', 15, now()),
+('hpc1.pinchk.alm.F0074','pinchk PC_BCR SCAN NG [핀체크전] 알람 (바코드 확인)', 15, now()),
+('hpc1.pinchk.alm.F0075','pinchk PC_BCR SCAN NOREAD [핀체크전] 알람  (바코드 확인)', 15, now()),
+('hpc1.pinchk.alm.F0076','pinchk PC_BCR SCAN NG [라벨] 알람 (바코드 확인)', 15, now()),
+('hpc1.pinchk.alm.F0077','pinchk PC_BCR SCAN NOREAD [라벨] 알람  (바코드 확인)', 15, now()),
+('hpc1.pinchk.alm.F0078','핀체크 비전NG 알람 (비전확인)', 15, now()),
+('hpc1.pinchk.alm.F0079','핀체크] [Home] 원점복귀 타임아웃 알람 (비전확인)', 15, now()),
+('hpc1.pinchk.alm.F0080','핀체크PC_BCR SCAN NG [핀체크후] 알람 (바코드 확인)', 15, now()),
+('hpc1.pinchk.alm.F0081','핀체크PC_BCR SCAN NOREAD [핀체크후] 알람  (바코드 확인)', 15, now()),
+('hpc1.pinchk.alm.F0082','핀체크 [ITAC] NG 알람 (비전확인)', 15, now()),
+('hpc1.pinchk.alm.F0100','핀체크진입버퍼 파렛트 스토퍼 알람 (파렛트 위치확인)', 15, now()),
+('hpc1.pinchk.alm.F0101','[핀체크] 파렛트 스토퍼 알람 (파렛트 위치확인)', 15, now()),
+('hpc1.pinchk.alm.F0102','[핀체크] 파렛트 포지션 상승/하강 알람 (센서,공압확인)', 15, now()),
+('hpc1.pinchk.alm.F0103','핀체크배출 버퍼 스토퍼 알람 (파렛트 위치확인)', 15, now()),
+('hpc1.pinchk.alm.F0106','핀체크상부주행 컨베어 인버터 알람 (인버터상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0107','핀체크배출 리프터 상승/하강 알람 (센서,공압확인)', 15, now()),
+('hpc1.pinchk.alm.F0108','핀체크배출 리프터 진입중 걸림 알람 (파렛트 위치확인)', 15, now()),
+('hpc1.pinchk.alm.F0110','핀체크배출 리프터 안전센서 감지 알람  (안전센서걸림확인)', 15, now()),
+('hpc1.pinchk.alm.F0119','핀체크[컨베어] 원점복귀 타임아웃 알람 (유닛상태확인)', 15, now()),
+('hpc1.pinchk.alm.F0200','핀체크마스터 모드 실행요구 ()', 15, now()),
+('hpc1.pinchk.alm.M0050','핀체크파레트 공운전 실행중', 15, now()),
+('hpc1.pinchk.alm.B1541','B1541 READY 신호 ( 준비 완료 시 ON),확인후 OFF', 15, now()),
+('hpc1.pinchk.alm.B1542','B1542 PLC_BCR SCAN REQ [전공정]핀체크 전', 15, now()),
+('hpc1.pinchk.alm.B1543','B1543 PLC_BCR SCAN REQ [전공정]핀체크 후', 15, now()),
+('hpc1.pinchk.alm.B1544','B1544 PLC_BCR SCAN REQ [라벨]', 15, now()),
+('hpc1.pinchk.alm.B1545','B1545 PLC_PIN CHECK OK', 15, now()),
+('hpc1.pinchk.alm.B1546','B1546 PLC_PIN CHECK NG', 15, now()),
+('hpc1.pinchk.alm.B1547','B1547 PLC_LABEL PRINT START', 15, now()),
+('hpc1.pinchk.alm.B1548','B1548 PLC_RESET', 15, now()),
+('hpc1.pinchk.alm.B154F','B154F PLC_MASTER SKIP', 15, now()),
+('hpc1.pinchk.alm.B1580','B1580 READY 신호', 15, now()),
+('hpc1.pinchk.alm.B1581','B1581 PC_ALIVE', 15, now()),
+('hpc1.pinchk.alm.B1582','B1582 PC_MASTER', 15, now()),
+('hpc1.pinchk.alm.B1583','B1583 PC_BCR SCAN OK 핀체크 후', 15, now()),
+('hpc1.pinchk.alm.B1584','B1584 PC_BCR SCAN NG 핀체크 후', 15, now()),
+('hpc1.pinchk.alm.B1585','B1585 PC_BCR SCAN NOREAD 핀체크 후', 15, now()),
+('hpc1.pinchk.alm.B1586','B1586 PC_BCR SCAN OK 라벨부착', 15, now()),
+('hpc1.pinchk.alm.B1587','B1587 PC_BCR SCAN NG 라벨부착', 15, now()),
+('hpc1.pinchk.alm.B1588','B1588 PC_BCR SCAN NOREAD 라벨부착', 15, now()),
+('hpc1.pinchk.alm.B1589','B1589 PC_핀체크 OK', 15, now()),
+('hpc1.pinchk.alm.B158A','B158A PC_핀체크 NG', 15, now()),
+('hpc1.pinchk.alm.B158B','B158B PC LABEL PRINT_OK', 15, now()),
+('hpc1.pinchk.alm.B158C','B158C PC LABEL PRINT_NG', 15, now()),
+('hpc1.pinchk.alm.B158D','B158D PC_BCR SCAN OK 핀체크 전', 15, now()),
+('hpc1.pinchk.alm.B158E','B158E PC_BCR SCAN NG 핀체크 전', 15, now()),
+('hpc1.pinchk.alm.B158F','B158F PC_BCR SCAN NOREAD 핀체크 전', 15, now())
+;
+
+insert into tag (tag_code, tag_name, "Equipment_id", "_created")
+values
+('hpc1.brackassm.op.mode','브라켓조립자동/수동모드', 16, now()),
+('hpc1.brackassm.au.op','브라켓조립자동운전', 16, now()),
+('hpc1.brackassm.au.stop','브라켓조립자동정지', 16, now()),
+('hpc1.brackassm.emer.stop','브라켓조립비상정지', 16, now()),
+('hpc1.brackassm.scrw.au.op.step','브라켓스크류자동운전_STEP', 16, now()),
+('hpc1.brackassm.hck.au.op.step','브라켓높이체크자동운전_STEP', 16, now()),
+('hpc1.brackassm.lamp.g','브라켓조립경광등(GREEN)', 16, now()),
+('hpc1.brackassm.lamp.y','브라켓조립경광등(YELLOW)', 16, now()),
+('hpc1.brackassm.lamp.r','브라켓조립경광등(RED)', 16, now()),
+('hpc1.brackassm.air.press','브라켓조립공압상태', 16, now()),
+('hpc1.brackassm.door','브라켓스크류도어상태', 16, now()),
+('hpc1.brackassm.scrw.prod.detect','브라켓스크류제품감지', 16, now()),
+('hpc1.brackassm.hck.prod.detect','브라켓높이체크제품감지', 16, now()),
+('hpc1.brackassm.prod.info','브라켓조립기종정보', 16, now()),
+('hpc1.brackassm.scrw.alm','브라켓스크류알람', 16, now()),
+('hpc1.brackassm.hc.alm','브라켓높이체크알람', 16, now()),
+('hpc1.brackassm.alm.cnt','브라켓조립알람갯수', 16, now()),
+('hpc1.brackassm.scrw.ct','브라켓스크류 C/T', 16, now()),
+('hpc1.brackassm.hc.ct','브라켓높이체크 C/T', 16, now())
+;
+
+
+/**********************************************************************/
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created") 
+values 
+('smt3.load.au.md','smt3로더자동모드', 17, now()),
+('smt3.load.ma.md','smt3로더수동모드', 17, now()),
+('smt3.load.au.op.step','smt3로더자동운전_STEP', 17, now()),
+('smt3.load.alm.cnt','smt3로더알람갯수', 17, now()),
+('smt3.load.lamp.g','smt3로더경광등(GREEN)', 17, now()),
+('smt3.load.lamp.y','smt3로더경광등(YELLOW)', 17, now()),
+('smt3.load.lamp.r','smt3로더경광등(RED)', 17, now()),
+('smt3.load.alm1','smt3로더알람1', 17, now()),
+('smt3.load.alm2','smt3로더알람2', 17, now()),
+('smt3.load.alm3','smt3로더알람3', 17, now()),
+('smt3.load.alm4','smt3로더알람4', 17, now()),
+('smt3.load.alm5','smt3로더알람5', 17, now()),
+('smt3.load.alm6','smt3로더알람6', 17, now()),
+('smt3.load.alm7','smt3로더알람7', 17, now()),
+('smt3.load.alm8','smt3로더알람8', 17, now()),
+('smt3.load.alm9','smt3로더알람9', 17, now()),
+('smt3.load.alm10','smt3로더알람10', 17, now()),
+('smt3.load.alm11','smt3로더알람11', 17, now()),
+('smt3.load.alm12','smt3로더알람12', 17, now()),
+('smt3.load.pitch','smt3로더PITCH', 17, now()),
+('smt3.load.pcb.pan.cnt','smt3로더PCB패널개수', 17, now())
+;
+
+insert into tag(tag_code, tag_name,"Equipment_id", "_created")
+values
+('smt3.unload.au.md','smt3언로더자동모드', 18, now()),
+('smt3.unload.ma.md','smt3언로더수동모드', 18, now()),
+('smt3.unload.au.op.step','smt3언로더자동운전STEP', 18, now()),
+('smt3.unload.lamp.g','smt3언로더경광등(GREEN)', 18, now()),
+('smt3.unload.lamp.y','smt3언로더경광등(YELLOW)', 18, now()),
+('smt3.unload.lamp.r','smt3언로더경광등(RED)', 18, now()),
+('smt3.unload.door','smt3언로더도어상태', 18, now()),
+('smt3.unload.prod.detect','smt3언로더제품감지', 18, now()),
+('smt3.unload.alm.cnt','smt3언로더알람갯수', 18, now()),
+('smt3.unload.alm.R0232','smt3언로더알람R0232', 18, now()),
+('smt3.unload.alm.R0290','smt3언로더알람R0290', 18, now()),
+('smt3.unload.alm.R1100','smt3언로더알람R1100', 18, now()),
+('smt3.unload.alm.R1110','smt3언로더알람R1110', 18, now()),
+('smt3.unload.alm.R0400','smt3언로더알람R0400', 18, now()),
+('smt3.unload.alm.R0350','smt3언로더알람R0350', 18, now()),
+('smt3.unload.pitch','smt3언로더PITCH', 18, now()),
+('smt3.unload.pcb.pan.cnt','smt3언로더PCB패널개수', 18, now())
+;
+
+
+

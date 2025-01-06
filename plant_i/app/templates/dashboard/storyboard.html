@@ -1,0 +1,59 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div style="position:absolute;width:100%;display: inline-block;z-index:999">
+    <button type="button" class="btn-default pull-right" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
+</div>
+<div style="width:100%;height:100%;position:relative">
+<iframe src="" frameborder="0" id ="iframe-storyboard" name="iframe-storyboard" style="width:100%;height:100%"></iframe>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+
+    class StoryboardPage {
+        constructor() {
+            this.$frame = $('#iframe-storyboard');
+            this.items = [];
+            this.currentIndex = 0;
+            this.items = this.getStoryboardItemList();
+        }
+
+        getStoryboardItemList() {
+            let url = '/api/system/storyboard?action=read';
+            let items = AjaxUtil.getSyncData(url);
+            return items;
+        }
+
+        callbackTimeout(context) {
+            //console.log('ddd',context.items);
+            if (context.currentIndex >= context.items.length) {
+                context.currentIndex = 0;
+            }
+            let item = context.items[context.currentIndex];
+            context.$frame[0].src = item.Url;
+            context.currentIndex++;
+            setTimeout(context.callbackTimeout, 1000 * item.Duration, context);
+        }
+
+        start() {
+            if (this.items.length == 0) {
+                return;
+            }
+            let startItem = this.items[0];
+            this.$frame[0].src = startItem.Url;
+            this.currentIndex++;
+            setTimeout(this.callbackTimeout, 1000 * startItem.Duration, this);
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function(e){
+        page = new StoryboardPage();
+        page.start();
+    });
+</script>
+
+{% endblock %}

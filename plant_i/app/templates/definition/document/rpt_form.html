@@ -1,0 +1,376 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" placeholder="보고서서식명, 비고" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group-btn search">
+                        <button id="btnSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row">
+            <div class="col-left">
+
+                <div class="card-content edit">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="보고서양식 목록">보고서양식 목록</label></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button id="btnCopy"><i class="material-symbols-outlined">content_copy</i>복사</button>
+                            <button id="btnPaste"><i class="material-symbols-outlined">content_paste</i>붙여넣기</button>
+                            <button id="btnExcelRptForm">Excel</button>
+                        </span>
+                    </div>
+                    <div id="rpt_form_grid"></div>
+                </div>
+
+                <div class="card-content edit">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                        <span>
+                            <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                            <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                            <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        </span>
+                    </div>
+
+                    <form id="rptForm">
+                        <input type="hidden" id="plant_id" name="plant_id" />
+                        <div class="edit-form-ui">
+                            <div class="col-12 col-sm-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="rpt_form_name" data-labelCd="보고서서식명">보고서서식명</label>
+                                    <div class="field-wrapper">
+                                        <input id="rpt_form_name" name="rpt_form_name" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                    <div class="field-wrapper">
+                                        <input id="use_yn" name="use_yn" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="remark" data-labelCd="비고">비고</label>
+                                    <div class="field-wrapper">
+                                        <textarea id="remark" name="remark"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="file_area" data-labelCd="첨부파일">첨부파일</label>
+                                    <div class="field-wrapper">
+                                        <div id="file_area" name="file_area"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-right">
+                <div class="card-content grid">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="양식데이터 목록">양식데이터 목록</label></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button id="btnDataDel"><i class="material-symbols-outlined">delete</i>삭제</button>
+                            <button id="btnDataAdd"><i class="material-symbols-outlined">add</i>추가</button>
+                            <button id="btnDataSave"><i class="material-symbols-outlined">save</i>저장</button>
+                            <button id="btnExcelRptData">Excel</button>
+                        </span>
+                    </div>
+                    <div id="rpt_data_grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'common/file_upload.html' %}
+<script type="text/javascript">
+    class RptFormPage {
+        constructor() {
+            this.rpt_form_grid = null;
+            this.rpt_data_grid = null;
+            this.upload = null;
+            this.baseUrl = '/api/master/rpt_form';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridFormOption = {
+                columns: [
+                    { field: "rpt_form_name", title: "보고서서식", width: 100 },
+                    { field: "remark", title: "비고", width: 100 },
+                    { field: "use_yn", title: "사용여부", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "400px"
+            };
+            _this.rpt_form_grid = new Grid($("#rpt_form_grid"), gridFormOption);
+
+            let gridDataOption = {
+                columns: [
+                    { field: "data_type", title: "데이터유형", width: 100 },
+                    { field: "sheet_name", title: "시트명", width: 100 },
+                    { field: "cell_pos_row", title: "행위치", width: 100 },
+                    { field: "cell_pos_col", title: "열위치", width: 100 },
+                    { field: "orient_name", title: "방향", width: 100 },
+                    { field: "max_data_cnt", title: "최대데이터수", width: 100 },
+                    { field: "page_num", title: "페이지번호", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "713px"
+            };
+            _this.rpt_data_grid = new Grid($("#rpt_data_grid"), gridDataOption);
+
+            //search form
+            $('#keyword').kendoTextBox();
+
+            //form
+            $('#rpt_form_name').kendoTextBox();
+            $('#remark').kendoTextArea({
+                rows: 3,
+                maxLength: 200,
+                placeholder: ""
+            });
+            $('#use_yn').kendoSwitch();
+
+            // 업로드 설정
+            let uploadOption = {
+                upload: function (e) {
+                    e.data = {
+                        'others': 'sample',
+                        'tableName': 'sample',
+                        'attachName': 'sample_attach',
+                        //'accepts': 'jpg,pdf,xlsx,pdf'
+                    }
+                }
+            };
+
+            _this.upload = new FileUploadPage($('#file_area'), {
+                placeholder: 'DRAG & DROP', // 업로드 박스 안내문
+                extensions: ['.jpg', '.png', '.xlsx', 'pdf'], // 허용 가능 확장자
+                tableName: 'npi_doc',
+                attachName: 'attach_doc',
+                others: 'doc',
+                dataPk: 3,
+                height: '50px',
+                width: '100%',
+                maxFilesCount: 5,
+                maxFileSize: 2000, // mb 기준
+                allowedDuple: true // 중복허용
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnCopy').kendoButton({
+                themeColor: "base",
+                click: function () {
+
+                }
+            });
+            $('#btnPaste').kendoButton({
+                themeColor: "base",
+                click: function () {
+
+                }
+            });
+            $('#btnExcelRptForm').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.rpt_form_grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnDataDel').kendoButton({
+                themeColor: "error",
+                click: function () {
+
+                }
+            });
+            $('#btnDataAdd').kendoButton({
+                themeColor: "base",
+                click: function () {
+
+                }
+            });
+            $('#btnDataSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+
+                }
+            });
+            $('#btnExcelRptData').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.rpt_data_grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                prod_type: $('#srch_prod_type').val(),
+                keyword: $('#keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.rpt_form_grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#plant_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#rptForm'));
+        }
+
+        getRptData(form_id) {
+            let _this = this;
+
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.rpt_form_grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#rptForm'));
+
+                let param = {
+                    action: 'get_rpt_data',
+                    rpt_form_id: selectData.rpt_form_id,
+                }
+                let succFunc = function (resp) {
+                    _this.rpt_data_grid.setData(resp);
+                };
+                AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc)
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#rptForm'));
+            data.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#plant_id').val(resp.plant_id);
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.rpt_form_grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', selectData, funcSthisucc);
+            }
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new RptFormPage();
+
+        //page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

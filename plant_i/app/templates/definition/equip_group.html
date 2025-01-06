@@ -1,0 +1,281 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_grp_name" data-labelCd="설비그룹명">설비그룹명</label>
+                            <div class="field-wrapper">
+                                <input id="srch_equ_grp_name" name="srch_equ_grp_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="설비그룹">설비그룹</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="equipment_group_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="equipmentGroupForm">
+                    <input type="hidden" id="id" name="id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="equipment_group_code" data-labelCd="설비그룹코드">설비그룹코드</label>
+                                <div class="field-wrapper">
+                                    <input id="equipment_group_code" name="equipment_group_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="equipment_group_name" data-labelCd="설비그룹명">설비그룹명</label>
+                                <div class="field-wrapper">
+                                    <input id="equipment_group_name" name="equipment_group_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="equipment_type" data-labelCd="설비유형">설비유형</label>
+                                <div class="field-wrapper">
+                                    <input id="equipment_type" name="equipment_type" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="description" name="description" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class EquipmentGroupPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/equipment_group';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let EquipmentGroupGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    //{ field: "tag_group_id", title: "tag_group_id", hidden: true },
+                    { field: "equipment_type", title: "설비유형", width: 100 },
+                    { field: "equipment_group_code", title: "설비그룹코드", width: 100 },
+                    { field: "equipment_group_name", title: "설비그룹명", width: 100 },
+                    { field: "description", title: "비고", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#equipment_group_grid"), EquipmentGroupGridOption);
+
+            //search form
+            $('#srch_equ_grp_name').kendoTextBox();
+            $('#srch_equ_grp_name').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            // 설비구분이 별도 마스터가 있는게 아니면 여기서 생성 가능해야 할 것 같아서
+            //AjaxUtil.fillDropDownOptions($('#equipment_type'), 'system_code', 'choose', null, 'equipment_type');
+            $('#equipment_type').kendoTextBox();
+            $('#equipment_group_code').kendoTextBox();
+            $('#equipment_group_name').kendoTextBox();
+            $('#description').kendoTextArea({
+                rows: 4,
+                autosize: true,
+                maxLength: 500,
+                size: "large"   // 칸 높이 때문에 추가해봄
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                keyword: $('#srch_equ_grp_name').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#equipment_group_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#equipmentGroupForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#equipmentGroupForm'));
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#equipmentGroupForm'));
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let param = {
+                    id: selectData.id
+                };
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+            }
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new EquipmentGroupPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+﻿{% extends "app/layout.html" %}
+
+{% block content %}
+<div class="login-ui">
+
+    <section id="loginForm" class="loginForm-wrap">
+        <form action="." method="post" class="form-horizontal">
+            {% csrf_token %}
+            <h2><span style="font-weight:800; font-size:35px"><em>PLANT-I</em></span>HLKlemove</h2>
+            <h5>Use a local account to log in.</h5>
+
+            <div class="ui-form">
+                <label for="id_username">사용자 아이디</label>
+                <input type="text" name="username" class="form-control" placeholder="User name" maxlength="150" required id="id_username">
+            </div>
+            <div class="ui-form">
+                <label for="id_password">비밀번호</label>
+                <input type="password" name="password" class="form-control" placeholder="Password" required id="id_password">
+            </div>
+            <div class="ui-buttom">
+                <input type="hidden" name="next" value="/" />
+                <input type="submit" value="로그인" />
+            </div>
+
+        </form>
+    </section>
+
+
+    <section id="socialLoginForm" style="display:none"></section>
+    <span class="copyright-text">© WeZON. All rights reserved.</span>
+</div>
+
+
+
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    {% load static %}
+<script src="{% static 'app/scripts/jquery.validate.min.js' %}"></script>
+
+{% endblock %}

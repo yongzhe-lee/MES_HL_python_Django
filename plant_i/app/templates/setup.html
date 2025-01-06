@@ -1,0 +1,985 @@
+{% extends "app/layout.html" %}
+{% block css %}
+<style>
+    /* CSS to style the outline of the Kendo UI TextBox */
+    .k-textbox {
+        outline: 1px solid #000000; /* Change the color and width as needed */
+        padding: 2px; /* Adjust padding as needed */
+    }
+    /* Optional: Add focus style */
+    .k-textbox:focus {
+        outline: 1px solid #0056b3; /* Change the color and width as needed */
+    }
+    .k-grid {
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+    #tabstrip .k-content {
+        padding :15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!--<section class="section">-->
+        <div id="tabstrip">
+            <ul>
+                <li class="k-active">
+                    폴더메뉴설정
+                </li>
+                <li>
+                    코드
+                </li>
+                <li>
+                    옵션
+                </li>
+                <li>
+                    기타
+                </li>
+                <li>
+                    설정4
+                </li>
+            </ul>
+            <!-- 폴더메뉴설정 -->
+            <div>
+                <div class="title_box">
+                    <div class="left_align"><h4>폴더메뉴설정</h4></div>
+                    <div class="right_align">
+                        <button type="button" id="menuSetup" class="search btn btn-default">Menu Setup(메뉴초기화)</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="tab_con_box">
+                            <div class="title_box">
+                                <div class="left_align">
+                                    <h4>메뉴폴더</h4>
+                                </div>
+                            </div>
+                            <div class="title_box">
+                                <div class="left_align">
+                                    <div class="button_group">
+                                        <!--<button id="btnFolderOrderSave" type="button" class="new btn btn-default">순서저장</button>-->
+                                        <button id="btnNewFolder" type="button" class="new btn btn-default">폴더추가</button>
+                                        <button id="btnFolderRename" type="button" class="new btn btn-default">폴더정보변경</button>
+                                        <button id="btnFolderDelete" type="button" class="del btn btn-default">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid_box">
+                                <div id="folder_grid"></div>
+                            </div>
+                            <form id="menuFolderForm">
+                                <table class="table">
+                                    <colgroup>
+                                        <col style="width:30%" />
+                                        <col style="width:70%" />
+                                    </colgroup>
+                                    <tr>
+                                        <th>상위폴더</th>
+                                        <td><select id="cboParentFolder" name="parent_id"></select></td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>번호</th>
+                                        <td><input type="number" id="txtFolderId" name="folder_id" readonly /> </td>
+                                    </tr>
+                                    <tr>
+                                        <th>폴더명</th>
+                                        <td><input type="text" id="txtFolderName" name="folder_name"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>순서</th>
+                                        <td><input type="text" id="txtOrder" name="order"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>아이콘</th>
+                                        <td><input type="text" id="txtIconCSS" name="icon_css"><span class="material-symbols-outlined" id="imageIcon"></span></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr><th>아이콘찾기</th><td><a target="_new" href="https://fonts.google.com/icons">https://fonts.google.com/icons</a></td></tr>
+                                </table>
+                            </form>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="tab_con_box">
+                            <div class="title_box">
+                                <div class="left_align">
+                                    <h4>메뉴항목</h4>
+                                </div>
+                            </div>
+                            <div class="title_box">
+                                <div class="left_align">
+                                    <button id="imgMenuUp" type="button" class="btn btn-default"><i class="material-symbols-outlined">arrow_upward</i></button>
+                                    <button id="imgMenuDown" type="button" class="btn btn-default"><i class="material-symbols-outlined">arrow_downward</i></button>
+                                    <button id="btnMenuSave" type="button" class="new btn btn-default">메뉴저장</button>
+                                    <!--<button id="btnFolderChange" type="button" class="search btn btn-default">폴더변경</button>-->
+                                </div>
+                            </div>
+
+                            <div class="grid_box">
+                                <div style="position: relative;height:640px;">
+                                    <div id="menu_grid" style="height:100%;"></div>
+                                </div>
+                                <div class="table_info_box"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1 align-middle text-center">
+                        <div class="tab_con_box" style="height:640px;">
+                            <br /><br /><br /><br /><br /><br />
+                            <button id="btnDelMenu"><i class="material-symbols-outlined">delete</i>==&gt;</button>
+                            <br /><br />
+                            <button id="btnAddMenu"><i class="material-symbols-outlined">add</i>&lt;==</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+
+                        <div class="tab_con_box">
+                            <div class="title_box">
+                                <div class="left_align">
+                                    <h4>소스메뉴</h4>
+                                </div>
+                            </div>
+                            <div class="title_box">
+
+                                <div class="input-group" style=" display:inline;">
+                                    <input id="unset" type="checkbox" />
+                                    <button id="unuseGuiMenuList" class="btn btn-default">미사용메뉴</button>
+                                    <input type="text" id="menu_keyword" style="width:200px;" />
+
+                                    <button id="btnGuiMenuList" class="new btn btn-default">조회</button>
+                                </div>
+
+                                <div class="grid_box">
+                                    <div style="position: relative;height:640px;">
+                                        <div id="gui_use_grid" style="height:100%;"></div>
+                                    </div>
+                                    <div class="table_info_box"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 시스템 코드 -->
+            <div>
+
+                <div class="content-ui-row" style="grid-template-rows: auto 1fr">
+                    <form id="sysCodeForm">
+
+                        <div class="card-content search" style="grid-template-columns:1fr auto">
+
+                            <div class="form-ui" style="grid-template-columns:1fr 1fr 1fr 1fr">
+
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="sch_sys_code_type" data-labelCd="코드구분">코드구분</label>
+                                    <div style="display: inline-block;">
+                                        <select id="sch_sys_code_type" name="sch_sys_code_type"></select>
+                                    </div>
+                                </div>
+
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="sch_keyword">검색어</label>
+                                    <div style="display: inline-block;">
+                                        <input id="sch_keyword" name="sch_keyword" />
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="card-group-btn search">
+                                <button id="btnSysCodeSearch">조회</button>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                    <div class="content-ui-row" style="grid-template-rows: 1fr">
+
+                        <div class="card-content grid">
+                            <div class="card-group-btn">
+                                <span>
+                                    <button id="btnSysCodeSetup">SystemCode Setup</button>
+                                </span>
+                                <span>
+                                    <!-- 오른쪽 버튼 영역-->
+                                </span>
+                            </div>
+                            <div id="sys_code_grid" class="kgrid"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- 시스템 옵션 -->
+            <div>
+
+                <div class="content-ui-row" style="grid-template-rows: auto 1fr 0.5fr">
+
+                    <div class="content-ui-row" style="grid-template-columns: 1fr 1fr">
+
+                        <div class="table_box">
+
+                            <table class="table">
+                                <tr><th>항목</th><th>값</th></tr>
+                                <tbody>
+                                    <tr><td>SITE_NAME</td><td>{{SITE_NAME}}</td></tr>
+                                    <tr><td>MOSQUITTO_HOST</td><td>{{MOSQUITTO_HOST}}</td></tr>
+                                    <tr><td>TOPIC_DEVICE_EVENT</td><td>{{TOPIC_DEVICE_EVENT}}</td></tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        <div class="table_box">
+
+                            <table class="table">
+                                <tr><th>항목</th><th>값</th></tr>
+                                <tbody>
+                                    <tr><td>DEBUG</td><td>{{DEBUG}}</td></tr>
+                                    <tr><td>TOPIC_DEVICE_DATA</td><td>{{TOPIC_DEVICE_DATA}}</td></tr>
+                                    <tr><td>TOPIC_HMI_DATA</td><td>{{TOPIC_HMI_DATA}}</td></tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-content grid">
+                        <div class="card-group-btn">
+                            <span>
+                                <button id="btnSysOptionSetup">SystemOption Setup</button>
+                            </span>
+                            <span>
+                                <button id="btnSysOptionSearch">조회</button>
+                                <!-- 오른쪽 버튼 영역-->
+                            </span>
+                        </div>
+                        <div id="sys_option_grid" class="kgrid"></div>
+                    </div>
+
+                    <div class="card-content edit grid">
+                        <div class="card-group-btn">
+                            <!--  -->
+                            <span>
+                            </span>
+                            <span>
+                                <button id="btnOptionSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                            </span>
+                        </div>
+
+                        <form id="sysOptionForm">
+
+                            <div class="form-ui" style="grid-template-columns: 1fr 1fr 1fr 1fr">
+
+                                <input type="hidden" id="so_id" name="so_id" />
+
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="so_code" data-labelCd="코드">코드</label>
+                                    <div style="display: inline-block;">
+                                        <input id="so_code" name="so_code" />
+                                    </div>
+                                </div>
+
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="so_value" data-labelCd="값">값</label>
+                                    <div style="display: inline-block;">
+                                        <input id="so_value" name="so_value" />
+                                    </div>
+                                </div>
+
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="so_description" data-labelCd="설명">설명</label>
+                                    <div style="display: inline-block;">
+                                        <input id="so_description" name="so_description" />
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+            <!--기타-->
+            <div>
+
+            </div>
+            <!--설정4-->
+            <div>
+
+            </div>
+        </div>
+        <!--</section>-->
+    </div>
+</div>
+{% endblock %}
+<script type="text/javascript" src="/static/resource/common.js"></script>
+<script type="text/javascript" src="/static/resource/grid.js"></script>
+{% block scripts %}
+<script type="text/javascript">
+
+    class MenuFolderPage {
+        constructor() {
+            this.folderGrid = null;
+            this.menuGrid = null;
+            this.guiUseGrid = null;
+            this.sys_code_grid = null;
+            this.sys_option_grid = null;
+            this.selectedFolderData = null;
+
+            this.baseUrl = '/api/system/menu_setup';
+            this.init();
+            this.sysCodeInit();
+            this.sysOptionInit();
+        }
+
+        init() {
+            let _this = this;
+
+            // ========================================================== tab1 (menu_setup) ========================================================== // 
+
+            let gridOption = {
+                height: 400,
+                columns: [
+                    { field: "parent_id", title: "부모idx", hidden: true },
+                    { field: "folder_id", title: "번호", width: 100 },
+                    { field: "folder_name", title: "폴더명", width: 100 },
+                    { field: "icon_css", title: "ICON", width: 100 },
+                    { field: "order", title: "순서", width: 100 },
+                ],
+                /*dataBound: function (e) {
+                    $("#folder_grid .k-grid-content tr").on("click", function () {
+                        let dataItem = $("#folder_grid").data("kendoTreeList").dataItem(this);
+                        _this.getFolderMenu(dataItem.folder_id);
+                        _this.bindFolderForm(dataItem);
+                    });
+                },*/
+                change: function (e) {
+                    _this.getFolderMenu();
+                    _this.bindFolderForm();
+                }
+            }
+
+            _this.folderGrid = new TreeGrid($('#folder_grid'), gridOption);
+
+            let menuCols = [
+                { selectable: true, width: 30, attributes: { style: "display: flex; justify-content:center;" }, headerAttributes : { style: "display: flex; justify-content:center;" } },
+                { field: "menu_code", title: "메뉴코드", width: 140, editable : true},
+                { field: "menu_name", title: "메뉴명", width: 100 },
+                //{ field: "popup", title: "Popup", width: 100 },
+                { field: "order", title: "순서", width: 100, editable: true },
+            ];
+            gridOption.change = null;
+            gridOption.columns = menuCols;
+            gridOption.editable = true;
+
+            this.menuGrid = new Grid($("#menu_grid"), gridOption);
+
+            let guiMenuCols = [
+                { field: "menu_code", title: "메뉴코드", width: 100 },
+                {
+                    field: "menu_name", title: "메뉴명", width: 100, filterable: {
+                        cell: {
+                            operator: "contains",
+                            suggestionOperator: "contains"
+                        }
+                    } },
+                { field: "popup", title: "Popup", width: 100 },
+                { field: "folder_name", title: "설정폴더", width: 100 },
+            ];
+            gridOption.columns = guiMenuCols;
+            gridOption.filterable = { mode: "row" };
+            gridOption.editable = false;
+
+            this.guiUseGrid = new Grid($("#gui_use_grid"), gridOption);
+
+            // 메뉴셋업
+            $('#menuSetup').click(function (e) {
+                let fnSuccess = function (resp) {
+                    if (resp.success) {
+                        Alert.alert('','success menu setup!')
+                    }
+                };
+
+                Alert.confirm('', '메뉴를 초기화 하시겠습니까?', function () {
+                    AjaxUtil.getAsyncData(_this.baseUrl, { action: 'auto_save' }, fnSuccess);
+                });
+            });
+
+            //AjaxUtil.fillSelectOptions($('#cboParentFolder'), 'menu_folder', 'choose', '', 'null');
+
+            AjaxUtil.fillDropDownOptions($('#cboParentFolder'), 'menu_folder', 'choose', '', 'null');
+
+            // 메뉴 상세정보
+            $('#txtFolderId').kendoTextBox();
+            $('#txtFolderName').kendoTextBox();
+            $('#txtOrder').kendoTextBox();
+            $('#txtIconCSS').kendoTextBox(); 
+
+            // 소스 메뉴 검색
+            $('#menu_keyword').kendoTextBox();
+
+            // 메뉴폴더 조회
+            _this.loadFolderList();
+
+            // gui메뉴 조회
+            _this.getGuiMenu();
+
+            // 이벤트핸들러 초기화
+            _this.initEventHandler();
+        }
+        
+        initEventHandler() {
+            let _this = this;
+
+            $("#txtIconCSS").blur(function (e) {
+                let icon = $("#txtIconCSS").val();
+                $('#imageIcon').text(icon);
+            });
+
+            // 메뉴폴더-순서저장
+            $('#btnFolderOrderSave').click(function (e) {
+                _this.folderOrderSave();
+            });
+
+            // 메뉴폴더-폴더추가
+            $('#btnNewFolder').click(function (e) {
+                _this.newFolder();
+            });
+
+            // 메뉴폴더-이름변경
+            $('#btnFolderRename').click(function (e) {
+                _this.folderReName();
+            });
+
+            // 메뉴폴더-삭제
+            $('#btnFolderDelete').click(function (e) {
+                _this.deleteFolder();
+            });
+
+            // 메뉴항목-이동 up
+            $('#imgMenuUp').click(function (e) {
+                _this.changeOrder('U');
+            });
+
+            // 메뉴항목-이동 down
+            $('#imgMenuDown').click(function (e) {
+                _this.changeOrder('D');
+            });
+
+            // 메뉴항목-메뉴저장
+            $('#btnMenuSave').click(function (e) {
+                _this.saveMenuList()
+            });
+
+            // 메뉴항목->소스메뉴 del
+            $('#btnDelMenu').kendoButton({
+                click: function () {
+                    _this.deleteMenu();
+                }
+            });
+
+            // 메뉴항목<-소스메뉴 add
+            $('#btnAddMenu').kendoButton({
+                click: function () {
+                    _this.addMenu();
+                }
+            });
+
+            // 소스메뉴-조회
+            $('#btnGuiMenuList').click(function (e) {
+                _this.getGuiMenu();
+            });
+
+            // 소스메뉴-미사용
+            $('#unuseGuiMenuList').click(function (e) {
+                _this.getGuiMenu('N');
+            });
+            
+        }
+
+        // 폴더목록 조회
+        loadFolderList() {
+            let _this = this;
+            let resp = AjaxUtil.getSyncData(_this.baseUrl, { action: 'folder_list' });
+
+            let options = {
+                id: "folder_id",  // Custom id field name
+                parentId: "parent_id",  // Custom parentId field name
+                fields: {
+                    folder_id: { type: "number" },
+                    parent_id: { type: "number", nullable: true }
+                }
+            }
+            _this.folderGrid.setTreeDataSource(resp, options);
+        }
+
+        // 폴더별 매뉴조회
+        getFolderMenu() {
+            let _this = this;
+            let selectItem = _this.folderGrid.getTreeData();
+            let param = {
+                action: 'submenu_list',
+                folder_id: selectItem.folder_id
+            };
+            let resp = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.menuGrid.setData(resp);
+        };
+
+        // 폴더별 정보 조회
+        bindFolderForm() {
+            let _this = this;
+            let selectItem = _this.folderGrid.getTreeData();
+            if (selectItem) {
+                $('#cboParentFolder').data('kendoDropDownList').value(selectItem.parent_id);
+                $('#txtFolderId').val(selectItem.folder_id);
+                $('#txtFolderName').val(selectItem.folder_name);
+                $('#txtOrder').val(selectItem.order);
+                $('#txtIconCSS').val(selectItem.icon_css);
+                //$('#imageIcon').text(selectData.icon_css);
+            }
+        }
+
+        // 폴더삭제
+        deleteFolder() {
+            let _this = this;
+            let selectData = _this.folderGrid.getTreeData();
+            if (selectData) {
+                let fnsuccess = function (result) {
+                    if (result.success) {
+                        Alert.alert('', 'success!! 삭제완료!');
+                        _this.loadFolderList();
+                    } else {
+                        Alert.alert('', 'error : ', result.message);
+                    }
+                };
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    AjaxUtil.postAsyncData(_this.baseUrl + '?action=folder_delete', { folder_id: selectData.folder_id }, fnsuccess);
+                } 
+            } else {
+                Alert.alert('', '폴더를 선택하세요.');
+            }
+        }
+
+        // 메뉴폴더-순서저장
+        folderOrderSave() {
+            let _this = this;
+            let folderItems = _this.folderGrid.getData();
+            console.log(folderItems)
+            let items = [];
+            $.each(folderItems, function (idx, item) {
+                items.push(item.folder_id);
+            });
+            let data = { Q: JSON.stringify(items) };
+            console.log(data)
+            /*let _this = this;
+
+            let folderItems = _this.folderGrid.getTreeData();
+            let items = [];
+            $.each(folderItems, function (idx, item) {
+                items.push(item.folder_id);
+            });
+
+            let data = { Q: JSON.stringify(items) };
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    Alert.alert('', '순서가 저장되었습니다.');
+                    _this.loadFolderList();
+                } else {
+                    Alert.alert('', 'error : ', result.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=folder_order_save', data, fnsuccess);*/
+        }
+
+        // 메뉴폴더-폴더추가
+        newFolder() {
+            let _this = this;
+
+            let id = $('#txtFolderId').val();
+            let folderName = $('#txtFolderName').val();
+            let parentID = $('#cboParentFolder').val();
+            let IconCSS = $('#txtIconCSS').val();
+            
+            let data = {
+                old_id: id,
+                FolderName: folderName,
+                Parent_id: parentID,
+                IconCSS: IconCSS
+            };
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    Alert.alert('', '추가되었습니다.');
+                    _this.loadFolderList();
+                } else {
+                    Alert.alert('', 'error : ', result.message);
+                }
+            };
+            if (folderName != '') {
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=folder_insert', data, fnsuccess);
+                AjaxUtil.fillDropDownOptions($('#cboParentFolder'), 'menu_folder', 'choose', '', 'null');
+            } else {
+                Alert.alert('','폴더명을 입력하세요.');
+            }
+        }
+
+        // 메뉴폴더-폴더정보변경
+        folderReName() {
+            let _this = this;
+
+            let id = $('#txtFolderId').val();
+            let FolderName = $('#txtFolderName').val();
+            let Parent_id = $('#cboParentFolder').val();
+            let _order = $('#txtOrder').val();
+            let IconCSS = $('#txtIconCSS').val();
+
+            let data = {
+                id: id,
+                FolderName: FolderName,
+                Parent_id: Parent_id,
+                _order: _order,
+                IconCSS: IconCSS
+            };
+            console.log(data)
+            console.log(id)
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    Alert.alert('', '변경되었습니다.');
+                    _this.loadFolderList();
+                } else {
+                    Alert.alert('', 'error : ', result.message);
+                }
+            };
+
+            if (id) {
+                if (confirm('변경하시겠습니까?')) {
+                    AjaxUtil.postAsyncData(_this.baseUrl + '?action=folder_save', data, fnsuccess);
+                }
+            } else {
+                Alert.alert('','선택된 폴더가 없습니다.');
+                return;
+            }
+        }
+
+        // gui 메뉴 조회
+        getGuiMenu(useYN='') {
+            let _this = this;
+
+            let param = {
+                action: 'gui_use_list',
+                unset: useYN,
+                keyword: $('#menu_keyword').val(),
+            };
+            let resp = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.guiUseGrid.setData(resp);
+        };
+
+        changeOrder(direction) {
+            let _this = this;
+            let selectedItems = _this.menuGrid.getSelect();
+            if (selectedItems.length == 0) {
+                Alert.alert('', '선택된 메뉴가 없습니다.');
+                return;
+            }
+            _this.menuGrid.changeOrder(direction);
+        }
+
+        saveMenuList() {
+            let _this = this;
+            let items = [];
+            let order = 10;
+            let folderID = '';
+            let meneItem = _this.menuGrid.getData()
+            if (meneItem.length == 0) {
+                Alert.alert('', '저장할 메뉴 항목이 없습니다.');
+                return;
+            }
+            if (confirm("메뉴를 저장하시겠습니까?")) {
+                $.each(meneItem, function (idx, item) {
+                    items.push({ folder_id: item.folder_id, menu_code: item.menu_code, menu_name: item.menu_name, _order: order });
+                    folderID = item.folder_id;
+                    order += 10;
+                });
+
+                let fnsuccess = function (result) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.getFolderMenu(folderID);
+                };
+
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=menu_list_save', { menus: JSON.stringify(items) }, fnsuccess);
+            }
+        }
+
+        addMenu() {
+            let _this = this;
+            let selectedGUIItems = _this.guiUseGrid.getSelect();
+            let selectFolderData = _this.folderGrid.getSelect();
+            if (selectedGUIItems.length > 0) {
+                if (selectFolderData.length == 0) {
+                    Alert.alert('','선택된 폴더가 없습니다.');
+                    return;
+                }
+            }
+            else {
+                Alert.alert('','선택된 소스메뉴가 없습니다.');
+                return;
+            }
+
+            
+            let guiItem = selectedGUIItems[0];
+            let folderID = selectFolderData[0].folder_id;
+
+            let data = {
+                MenuCode: guiItem.menu_code,
+                Folder_id: folderID
+            };
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.getFolderMenu(folderID);
+                    _this.getGuiMenu();
+                }
+            };
+
+            if (confirm('추가하시겠습니까?')) {
+                AjaxUtil.postAsyncData(_this.baseUrl +'?action=menu_save', data, fnsuccess);
+            }
+        }
+
+        deleteMenu() {
+            let _this = this;
+            let folderID = '';
+            let menuItems = [];
+            let selectedMenuItems = _this.menuGrid.getSelect();
+            if (selectedMenuItems.length == 0) {
+                Alert.alert('','선택된 소스메뉴가 없습니다.');
+                return;
+            }
+
+            $.each(selectedMenuItems, function (idx, item) {
+                menuItems.push({ MenuCode: item.menu_code, Folder_id: item.folder_id });
+                folderID = item.folder_id;
+            });
+
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.getFolderMenu(folderID);
+                    _this.getGuiMenu();
+                } else {
+                    Alert.alert('','에러가 발생했습니다.');
+                }
+            };
+
+            if (confirm('삭제하시겠습니까?')) {
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=menu_delete', { menus: JSON.stringify(menuItems) }, fnsuccess);
+            }
+        }
+
+        // ========================================================== tab2 (sys_code) ========================================================== // 
+        sysCodeInit() {
+            let _this = this;
+
+            let gridOption = {
+                height: 400,
+                columns: [
+                    { field: "sc_id", title: "id", width: 70 },
+                    { field: "code_type", title: "코드구분", width: 100 },
+                    { field: "code", title: "코드", width: 100 },
+                    { field: "value", title: "표시명", width: 100 },
+                    { field: "_order", title: "순서", width: 100 },
+                    { field: "description", title: "설명", width: 150 },
+                ],
+                change: function (e) {
+
+                },
+            };
+
+            _this.sys_code_grid = new Grid($('#sys_code_grid'), gridOption);
+
+            AjaxUtil.fillDropDownOptions($('#sch_sys_code_type'), 'system_code_type', 'all', null); // combo  만들고 수정 ㄱㄱ!
+            $('#sch_keyword').kendoTextBox({});
+            $('#btnSysCodeSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchSysCode();
+                }
+            });
+            $('#btnSysCodeSetup').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.setupSysCode();
+                }
+            })
+
+            _this.searchSysCode();
+        }
+
+        searchSysCode() {
+            let _this = this;
+            let url = '/api/system/sys_code_setup'
+            let data = FormUtil.extractForm($('#sysCodeForm'));
+            data['action'] = 'read'
+
+            let result = AjaxUtil.getSyncData(url, data);
+
+            if (result) {
+                _this.sys_code_grid.setData(result);
+            }
+        }
+
+        setupSysCode() {
+            let _this = this;
+            let url = '/api/system/sys_code_setup?action=sys_setup'
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('저장되었습니다');
+                    _this.searchSysCode();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, {}, fnSuccess);
+        }
+
+        // ========================================================== tab3 (sys_option) ========================================================== //
+        sysOptionInit() {
+            let _this = this;
+
+            let gridOption = {
+                height: 200,
+                columns: [
+                    { field: "so_code", title: "코드", width: 100 },
+                    { field: "so_value", title: "값", width: 100 },
+                    { field: "so_description", title: "설명", width: 150 },
+                ],
+                change: function (e) {
+                    _this.showSysOption();
+                },
+            }
+            _this.sys_option_grid = new Grid($('#sys_option_grid'), gridOption);
+
+            $('#so_code').kendoTextBox();
+            $('#so_value').kendoTextBox();
+            $('#so_description').kendoTextBox();
+
+            $('#btnSysOptionSearch').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.searchSysOption();
+                }
+            })
+
+            $('#btnSysOptionSetup').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.setupSysOption();
+                }
+            });
+
+            $('#btnOptionSave').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.saveSysOption();
+                }
+            });
+
+            _this.searchSysOption();
+        }
+
+        searchSysOption() {
+            let _this = this;
+            let url = '/api/system/sys_option_setup';
+            let data = {'action':'read'};
+
+            let result = AjaxUtil.getSyncData(url, data);
+
+            if (result) {
+                _this.sys_option_grid.setData(result);
+            }
+
+            FormUtil.resetForm($('#sysOptionForm'));
+        }
+
+        showSysOption() {
+            let _this = this;
+            let formData = _this.sys_option_grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#sysOptionForm'));
+
+            }
+        }
+
+        setupSysOption() {
+            let _this = this;
+            let url = '/api/system/sys_option_setup?action=sys_setup';
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('저장되었습니다');
+                    _this.searchSysOption();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, {}, fnSuccess);
+        }
+
+        saveSysOption() {
+            let _this = this;
+            let url = '/api/system/sys_option_setup?action=sys_option_save';
+            let data = FormUtil.extractForm($('#sysOptionForm'));
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('저장되었습니다');
+                    _this.searchSysOption();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+    };
+
+    var page = null;
+    $(document.body).ready(function () {
+
+        // 메뉴설정
+        let mfpage = new MenuFolderPage()
+
+        //탭
+        $("#tabstrip").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            }
+        });
+
+        $('#menu_keyword').on("keyup", function (e) {
+            if (e.keyCode == 13) {
+                $('#btnGuiMenuList').click();
+            }
+        });
+        
+    });
+</script>
+{% endblock %}

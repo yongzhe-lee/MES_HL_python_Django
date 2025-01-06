@@ -1,0 +1,167 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row" style="grid-template-rows:auto 1fr">
+        <form id="labelForm">
+            <input type="hidden" id="lable_code_id" name="lable_code_id" />
+            <input type="hidden" id="label_lang_id" name="label_lang_id" />
+            <input type="hidden" id="ModuleName" name="ModuleName" value="{{gparam.gui_code}}"/>
+            <div class="card-content edit" style="grid-template-columns: 1fr; height: 80%;">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>Label Info<span id="mode"></span></span>
+                    <span>
+                        <button id="saveLabelCodeLang"><i class="material-symbols-outlined">save</i>저장</button>
+                    </span>
+                </div>
+                <div class="form-ui" style="grid-template-columns:1fr">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="MenuName">MenuName</label>
+                        <div>
+                            <input id="MenuName" name="menu_name" readonly />
+                        </div>
+                    </div>
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="TemplateKey">Template</label>
+                        <div>
+                            <input id="TemplateKey" name="TemplateKey" value="{{gparam.template_key}}" readonly />
+                        </div>
+                    </div>
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="LabelCode">LabelCode</label>
+                        <div>
+                            <input id="LabelCode" name="LabelCode" value="{{gparam.label_code}}" readonly />
+                        </div>
+                    </div>
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="Description">Description</label>
+                        <div>
+                            <input id="Description" name="Description" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-content edit" style="grid-template-columns: 1fr; height: 40%;">
+                <div class="form-ui" style="grid-template-columns:1fr">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="LangCode">Language</label>
+                        <div>
+                            <select id="LangCode" name="LangCode"></select>
+                        </div>
+                    </div>
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="DispText">Display Text</label>
+                        <div>
+                            <input id="DispText" name="DispText" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+
+    class LabelSettingPage {
+        constructor() {
+            this.url = '/api/common/labels';
+            this.$form = $('#labelForm');
+            this.init();
+            $("body").css("overflow", "hidden");
+        }
+
+        init() {
+            let _this = this;
+            let comboLang = AjaxUtil.getSelectData('system_code', 'lang_code');
+
+            let gui_code = $('#ModuleName').val();
+            let template_key = $('#TemplateKey').val();
+            let label_code = $('#LabelCode').val();
+            let $LangCode = $('#LangCode').kendoComboBox({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: {
+                    data: comboLang,
+                },
+                select: function (e) {
+                    var item = e.item;
+                    let lcd = e.dataItem.value;
+                    let resultdata = _this.getLabelCodeLanguageDetail(lcd, gui_code, template_key, label_code);
+                    $('#DispText').val(resultdata.DispText);
+                }
+            }).data('kendoComboBox');
+
+            let lang_code = i18n.getLanguageCode();
+            
+            if (gui_code == '') {
+                gui_code = 'common';
+                $('#ModuleName').val('common');
+            }
+
+            let result = this.getLabelCodeLanguageDetail(lang_code, gui_code, template_key, label_code);
+            if (result) {
+                FormUtil.BindDataForm(result, this.$form);
+                $LangCode.value(result.LangCode);
+                if (gui_code == 'common') {
+                    $('#MenuName').val('Common');
+                    $('#labelcode_info_section').css('display', 'none');
+                }
+
+                if (result.lable_code_id == null) {
+                    $('#mode').text('(new)');
+                }
+            }
+
+            //kendo setting
+            $('#MenuName').kendoTextBox();
+            $('#TemplateKey').kendoTextBox();
+            $('#LabelCode').kendoTextBox();
+            $('#Description').kendoTextBox();
+            $('#DispText').kendoTextBox();
+
+            $('#saveLabelCodeLang').kendoButton({
+                themeColor: "success",
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function (e) { _this.saveData(); });
+                }
+            });
+        }
+
+        getLabelCodeLanguageDetail(lang_code, gui_code, template_key, label_code) {
+            let result = {};
+            let data = {
+                gui_code: gui_code,
+                template_key: template_key,
+                label_code: label_code,
+                lang_code: lang_code,
+                action: 'labelcodelang_detail'
+            };
+            result = AjaxUtil.getSyncData(this.url, data);
+            return result;
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm(_this.$form);
+            let url = '/api/common/labels?action=save_labelcode_lang';
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    Notify.success('저장했습니다.');
+                    i18n.initialize();
+                }
+            };
+            AjaxUtil.postAsyncData(url, data, fnsuccess);
+        }
+    }
+
+    var label_setting_page = null;
+    $(document).ready(function (e) {
+        label_setting_page = new LabelSettingPage();
+    });
+</script>
+
+{% endblock %}

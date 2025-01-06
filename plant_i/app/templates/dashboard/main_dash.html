@@ -1,0 +1,296 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+    .dash-content {
+        padding: 20px;
+        text-align: center;
+        background-color: #fff9ad;
+        align-content: center;
+        border-radius: 20px;
+    }
+
+    .pr-0 {
+        padding-right: 0;
+    }
+    .pl-0 {
+        padding-left: 0;
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-v">
+                            <label class="k-label k-form-label" for="total_test_count" data-labelCd="총 검사 건수">총 검사 건수</label>
+                            <div>
+                                <input id="total_test_count" name="total_test_count" value="120" readonly/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-v">
+                            <label class="k-label k-form-label" for="pass_rate" data-labelCd="합격률">합격률</label>
+                            <div>
+                                <input id="pass_rate" name="pass_rate" value="85%" readonly/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-v">
+                            <label class="k-label k-form-label" for="defect_rate" data-labelCd="불합격률">불합격률</label>
+                            <div>
+                                <input id="defect_rate" name="defect_rate" value="15%" readonly/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-v">
+                            <label class="k-label k-form-label" for="testing_count" data-labelCd="진행중인 처리">진행중인 처리</label>
+                            <div>
+                                <input id="testing_count" name="testing_count" value="120" readonly/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row">
+            <div class="col-12 col-md-6">
+                <div class="card-content edit">
+                    <div id="chart1"></div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card-content edit">
+                    <div id="chart2"></div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card-content edit">
+                    <div id="chart3"></div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card-content edit">
+                    <div id="chart4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class MainDashBoardPage {
+        constructor() {
+            this.chart1 = null;
+            this.chart2 = null;
+            this.chart3 = null;
+            this.chart4 = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            //form
+            $("#total_test_count").kendoNumericTextBox({
+                format: "n0",
+                decimals: 0,
+                min: 0,
+                max: 1000,
+                step: 1,
+                change: function (e) {
+                    console.log("total_test_count", e.sender.value());
+                }
+            });
+            $("#pass_rate").kendoNumericTextBox({
+                format: "p0",
+                decimals: 0,
+                min: 0,
+                max: 100,
+                step: 1,
+                change: function (e) {
+                    console.log("pass_rate", e.sender.value());
+                }
+            });
+            $("#defect_rate").kendoNumericTextBox({
+                format: "p0",
+                decimals: 0,
+                min: 0,
+                max: 100,
+                step: 1,
+                change: function (e) {
+                    console.log("defect_rate", e.sender.value());
+                }
+            });
+            $("#testing_count").kendoNumericTextBox({
+                format: "n0",
+                decimals: 0,
+                min: 0,
+                max: 1000,
+                step: 1,
+                change: function (e) {
+                    console.log("testing_count", e.sender.value());
+                }
+            });
+            //chart
+            this.chart1 = $("#chart1").kendoChart({
+                seriesDefaults: {
+                    type: "line",
+                },
+                legend: {
+                    align: "center",
+                    position: "top"
+                },
+                dataSource: [
+                    { insp_cnt: 10 },
+                    { insp_cnt: 20 },
+                    { insp_cnt: 15 },
+                    { insp_cnt: 34 },
+                    { insp_cnt: 27 },
+                    { insp_cnt: 41 },
+                    { insp_cnt: 35 },
+                    { insp_cnt: 53 },
+                    { insp_cnt: 45 },
+                    { insp_cnt: 66 },
+                    { insp_cnt: 51 },
+                    { insp_cnt: 70 },
+                ],
+                series: [
+                    { name: "검사건수", field: "insp_cnt", color: "rgb(61, 199, 253)" }
+                ],
+                categoryAxis: {
+                    categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    majorGridLines: {
+                        visible: false
+                    },
+                    labels: {
+                        rotation: "auto"
+                    }
+                },
+            }).data("kendoChart");
+            this.chart2 = $("#chart2").kendoChart({
+                legend: {
+                    align: "center",
+                    position: "top"
+                },
+                dataSource: [
+                    { defect_cnt: 1 },
+                    { defect_cnt: 2 },
+                    { defect_cnt: 5 },
+                    { defect_cnt: 4 },
+                    { defect_cnt: 7 },
+                    { defect_cnt: 1 },
+                    { defect_cnt: 5 },
+                    { defect_cnt: 3 },
+                    { defect_cnt: 5 },
+                    { defect_cnt: 6 },
+                    { defect_cnt: 1 },
+                    { defect_cnt: 7 },
+                ],
+                series: [
+                    { name: "불합격 건수", field: 'defect_cnt', color: "rgb(251, 180, 210)" }
+                ],
+                categoryAxis: {
+                    categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    majorGridLines: {
+                        visible: false
+                    },
+                    labels: {
+                        rotation: "auto"
+                    }
+                },
+            }).data("kendoChart");
+            this.chart3 = $("#chart3").kendoChart({
+                seriesDefaults: {
+                    type: "line",
+                },
+                legend: {
+                    align: "center",
+                    position: "top"
+                },
+                dataSource: [
+                    { quality_rate: 84 },
+                    { quality_rate: 78 },
+                    { quality_rate: 90 },
+                    { quality_rate: 92 },
+                    { quality_rate: 82 },
+                    { quality_rate: 79 },
+                    { quality_rate: 99 },
+                    { quality_rate: 70 },
+                    { quality_rate: 68 },
+                    { quality_rate: 66 },
+                    { quality_rate: 84 },
+                    { quality_rate: 91 },
+                ],
+                series: [
+                    { name: "품질지표1", field: "quality_rate", color: "rgb(181, 147, 239)" }
+                ],
+                categoryAxis: {
+                    categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    majorGridLines: {
+                        visible: false
+                    },
+                    labels: {
+                        rotation: "auto"
+                    }
+                },
+            }).data("kendoChart");
+            this.chart4 = $("#chart4").kendoChart({
+                legend: {
+                    align: "center",
+                    position: "top"
+                },
+                dataSource: [
+                    { quality_rate: 91 },
+                    { quality_rate: 92 },
+                    { quality_rate: 99 },
+                    { quality_rate: 87 },
+                    { quality_rate: 91 },
+                    { quality_rate: 94 },
+                    { quality_rate: 89 },
+                    { quality_rate: 96 },
+                    { quality_rate: 92 },
+                    { quality_rate: 93 },
+                    { quality_rate: 93 },
+                    { quality_rate: 97 },
+                ],
+                series: [
+                    { name: "품질지표2", field: "quality_rate", color: "rgb(196, 207, 239)" }
+                ],
+                categoryAxis: {
+                    categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    majorGridLines: {
+                        visible: false
+                    },
+                    labels: {
+                        rotation: "auto"
+                    }
+                },
+            }).data("kendoChart");
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new MainDashBoardPage();
+
+        // kendo chart 반응형 처리
+        $(window).resize(function() {
+            kendo.resize($("div.k-chart[data-role='chart']"));
+        });
+    });
+
+</script>
+
+{% endblock %}

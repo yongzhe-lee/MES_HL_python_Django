@@ -1,0 +1,557 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="sch_dept_name" data-labelCd="부서명"></label>
+                            <div class="field-wrapper">
+                                <input id="sch_dept_name" name="sch_dept_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="업체 목록">업체 목록</label>
+                        <label id="totalCnt"></label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="deptGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">edit_square</i>
+                        <label data-labelCd="상세정보">상세정보</label>
+                    </span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="dept_id" name="dept_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="dept_name" data-labelCd="부서명">부서명</label>
+                                <div class="field-wrapper">
+                                    <input id="dept_name" name="dept_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="dept_code" data-labelCd="부서코드">부서코드</label>
+                                <div class="field-wrapper">
+                                    <input id="dept_code" name="dept_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="up_dept" data-labelCd="상위부서">상위부서</label>
+                                <div class="field-wrapper">
+                                    <input id="up_dept" name="up_dept" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="site_no" data-labelCd="사업장">사업장</label>
+                                <div class="field-wrapper">
+                                    <input id="site_no" name="site_no" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="reqdiv_code" data-labelCd="의뢰구분코드">의뢰구분코드</label>
+                                <div class="field-wrapper">
+                                    <input id="reqdiv_code" name="reqdiv_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="role_no" data-labelCd="부서기본권한">부서기본권한</label>
+                                <div class="field-wrapper">
+                                    <input id="role_no" name="role_no" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="lab_yn" data-labelCd="실험실여부">실험실여부</label>
+                                <div class="field-wrapper">
+                                    <input id="lab_yn" name="lab_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="mfg_yn" data-labelCd="제조부서여부">제조부서여부</label>
+                                <div class="field-wrapper">
+                                    <input id="mfg_yn" name="mfg_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부"></label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="apply_yn" data-labelCd="적용여부"></label>
+                                <div class="field-wrapper">
+                                    <input id="apply_yn" name="apply_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% verbatim %}
+<script type="text/x-kendo-template" id="deptTemplate">
+    <div class="content_wrap popup">
+        <div class="card-content popup">
+            <form class="search-form" id="popSearchForm" onsubmit="return false;">
+                <div class="card-content search">
+                    <div class="form-ui">
+                        <div class="col-auto">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="srch_keyword" data-labelCd="검색어">검색어</label>
+                                <div class="field-wrapper">
+                                    <input id="srch_keyword" name="srch_keyword" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="card-group-btn search">
+                                <button id="popSearchBtn" class="btn-search">조회</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div id="popupDeptGrid"></div>
+
+            <div class="card-group-btn" style="margin-top:10px">
+                <span></span>
+                <span>
+                    <button id="popBtnSave" class="btn-save">선택</button>
+                    <button id="popBtnClose" class="btn-cancel">닫기</button>
+                </span>
+            </div>
+
+        </div>
+    </div>
+</script>
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class DepartPage {
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/system/depart';
+
+
+            this.init();
+        }
+
+        init() {
+            this.initUIComponents();
+            this.initGrids();
+        }
+
+
+        // 그리드 초기화
+        initGrids() {
+            this.grid = new TreeGrid($('#deptGrid'), this.getGridOptions());
+        }
+
+        // 그리드 옵션 설정
+        getGridOptions() {
+            const _this = this;
+            return {
+                pageable: false,
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: { sort: "asc" }
+                },
+                columns: [
+                    { field: 'dept_id', hidden: true },
+                    { field: 'dept_name', title: '부서명', width: 100 },
+                    { field: 'dept_code', title: '부서코드', width: 80 },
+                    { field: 'site_name', title: '사업장', width: 100 },
+                    { field: 'reqdiv_code', title: '의뢰구분코드', width: 85 },
+                    { field: 'role_name', title: '부서기본권한', width: 85 },
+                    {
+                        field: 'lab_yn', title: '실험실여부', width: 75,
+                        attributes: { style: "text-align: center;" },
+                    },
+                    {
+                        field: 'mfg_yn', title: '제조부서여부', width: 75,
+                        attributes: { style: "text-align: center;" },
+                    },
+                    {
+                        field: 'use_yn', title: '사용여부', width: 75,
+                        attributes: { style: "text-align: center;" },
+                    },
+                    {
+                        field: 'apply_yn', title: '적용여부', width: 75,
+                        attributes: { style: "text-align: center;" },
+                    },
+                ],
+                dataBound: function (e) {
+                    // 총 행 수 계산
+                    let totalRecords = this.dataSource.total();
+
+                    // total 라벨 업데이트
+                    $('#totalCnt').text(' (' + totalRecords + '건)');
+                },
+                change: function () {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+        }
+
+        // UI 컴포넌트 초기화
+        initUIComponents() {
+
+            let _this = this;
+            _this.siteCombo = AjaxUtil.getSelectData('site');
+            _this.roleCombo = AjaxUtil.getSelectData('user_group');
+
+            // 검색 버튼 설정
+            kendoUtil.bindButton('#searchBtn', 'search', 'info', () => this.searchMainData());
+
+            // 신규 버튼 설정
+            kendoUtil.bindButton('#btnClear', null, 'base', () => {
+                FormUtil.resetForm($('#detailForm'));
+                FormUtil.enableForm($('#detailForm'));
+                this.setButtonState(true);
+            });
+
+            // 저장 버튼 설정
+            kendoUtil.bindButton('#btnSave', null, 'info', () => {
+                Alert.confirm('', '저장하시겠습니까?', () => {
+                    this.saveData();
+                });
+            });
+
+            // 삭제 버튼 설정
+            kendoUtil.bindButton('#btnDelete', null, 'error', () => {
+                Alert.confirm('', '삭제하시겠습니까?', () => {
+                    this.deleteData();
+                });
+            });
+
+            // 엑셀 버튼 설정
+            kendoUtil.bindButton('#btnExcel', 'file-excel', 'success', () => {
+                kendoUtil.saveAsExcel(this.grid, "업체");
+            });
+
+            $('#sch_dept_name').kendoTextBox();
+
+            // detailForm 설정
+            $('#dept_name').kendoTextBox();
+            $('#dept_code').kendoTextBox();
+            $('#reqdiv_code').kendoTextBox();
+
+            $('#up_dept').kendoTextBox({
+                suffixOptions: {
+                    template: () => `
+                        <button id="up_search_btn"></button>
+                        <button id="up_clear_btn"></button>
+                    `
+                }
+            });
+
+            // 첫 번째 버튼 (검색 버튼)
+            $("#up_search_btn").kendoButton({
+                fillMode: "flat",
+                icon: "search", // 검색 아이콘
+                click: (e) => this.deptPopup()
+            });
+
+            // 두 번째 버튼 (초기화 버튼)
+            $("#up_clear_btn").kendoButton({
+                fillMode: "flat",
+                icon: "trash", // 초기화 아이콘
+                click: function (e) {
+                    alert("초기화 버튼 클릭!");
+                }
+            });
+
+            $('#site_no').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                //기본옵션: 선택하세요
+                optionLabel: "선택하세요",
+                dataSource: _this.siteCombo,
+            });
+            $('#role_no').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                optionLabel: "선택하세요",
+                dataSource: _this.roleCombo,
+            });
+            $("#lab_yn").kendoSwitch({
+                checked: true
+            });
+            $("#mfg_yn").kendoSwitch({
+                checked: false
+            });
+            $("#use_yn").kendoSwitch({
+                checked: true
+            });
+            $("#apply_yn").kendoSwitch({
+                checked: true
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                dept_name: $('#sch_dept_name').val(),
+            };
+
+            let succFunc = function (result) {
+                let options = {
+                    id: 'dept_id',
+                    parentId: 'parent_id',
+                    fields: {
+                        dept_id: { type: 'number' },
+                        parent_id: { type: 'number', nullable: true },
+                    }
+                }
+                _this.grid.setTreeDataSource(result, options);
+
+                // 폼 리셋 및 비활성화
+                FormUtil.resetForm($('#detailForm'));
+                FormUtil.disableForm($('#detailForm'));
+
+                // 버튼 상태 설정
+                _this.setButtonState();
+            };
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+        }
+
+        deptPopup() {
+            const templateHtml = $('#deptTemplate').html();
+            const $popup = $(templateHtml);
+            let windowWidth = window.innerWidth * 0.8;
+
+            $popup.kendoWindow({
+                width: `${windowWidth}px`,
+                height: "500px",
+                title: '부서 등록',
+                visible: false,
+                actions: ['Close'],
+                close: () => { }
+            });
+
+            this.initPopup($popup);
+            $popup.data('kendoWindow').center().open();
+
+        }
+
+        initPopup($popup) {
+            let _this = this;
+
+            let form = $popup.find('#popSearchForm');
+
+            $popup.find('#srch_keyword').kendoTextArea();
+
+            let gridOption = {
+                pageable: false,
+                editable: false,
+                height: "300px",
+                columns: [
+                    { field: "dept_id", width: 100, hidden: true },
+                    { field: "dept_name", title: "부서명", width: 100 },
+                    { field: "dept_code", title: "부서코드", width: 100,},
+                    { field: "site_no", title: "사업장", width: 50 },
+                    { field: "reqdiv_code", title: "의뢰구분코드", width: 50 },
+                    { field: "role_no", title: "부서기본권한", width: 50 },
+                    { field: "lab_yn", title: "실험실여부", width: 50, },
+                    { field: "mfg_yn", title: "제조부서여부", width: 50, },
+                    { field: "use_yn", title: "사용여부", width: 50 },
+                    { field: "apply_yn", title: "적용여부", width: 50 }
+                ],
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+            };
+            _this.popupGrid = new TreeGrid($popup.find('#popupDeptGrid'), gridOption);
+
+            let param = {
+                action: 'get_dept',
+                keyword: $popup.find('#srch_keyword').val()
+            };
+
+            let succFunc = function (result) {
+                let options = {
+                    id: 'dept_id',
+                    parentId: 'parent_id',
+                    fields: {
+                        dept_id: { type: 'number' },
+                        parent_id: { type: 'number', nullable: true }
+                    }
+                }
+                _this.popupGrid.setTreeDataSource(result.items, options);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+
+            $popup.find('#popBtnSave').kendoButton({
+                themeColor: 'base',
+                click: function () {
+                    //grid에서 선택된 데이터 가져오기
+                    _this.setUpDept($popup);
+                }
+            });
+
+            $popup.find('#popBtnClose').kendoButton({
+                themeColor: 'base',
+                click: function () {
+                    $popup.data('kendoWindow').close();
+                }
+            });
+        }
+
+        setUpDept($popup) {
+            let formData = this.popupGrid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                // 선택된 데이터의 dept_name을 searchForm이나 detailForm의 up_dept에 넣어준다.
+                $('#up_dept').val(selectData.dept_name);
+                $popup.data('kendoWindow').close();
+            } else {
+                Alert.alert('', '선택된 값이 없습니다.');
+            }
+        }
+
+        showDetail() {
+            let formData = this.grid.getSelect();
+            
+            if (formData.length > 0) {
+                FormUtil.enableForm($('#detailForm'));
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                $('#site_no').data("kendoDropDownList").value(selectData.site_no || "");
+                $('#role_no').data("kendoDropDownList").value(selectData.role_no || "");
+                
+                this.setButtonState();
+            }
+        }
+
+        setButtonState(isNew = false) {
+            if (isNew) {
+                // 신규일 경우 저장 버튼만 활성화
+                $('#btnSave').prop('disabled', false);
+                $('#btnDelete').prop('disabled', true);
+            } else {
+                // 저장, 삭제 후 버튼 상태 설정
+                let dept_id = $('#dept_id').val();
+                $('#btnSave, #btnDelete').prop('disabled', !dept_id);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#detailForm'));
+
+            formData.lab_yn = $("#lab_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            formData.mfg_yn = $("#mfg_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            formData.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            formData.apply_yn = $("#apply_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = (res) => {
+                if (res.success) {
+                    Notify.success('저장되었습니다.');
+                    this.searchMainData();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(this.baseUrl + '?action=save', formData, fnSuccess);
+        }
+
+        deleteData() {
+            let formData = this.grid.getSelect();
+            if (formData[0].dept_id) {
+                let fnSuccess = (res) => {
+                    if (res.success) {
+                        Notify.success('삭제되었습니다.');
+                        this.searchMainData();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(this.baseUrl + '?action=delete', { dept_id: formData[0].dept_id }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+
+    }
+
+    $(document).ready(function () {
+        let page = new DepartPage();
+        page.searchMainData();
+    });
+</script>
+{% endblock %}

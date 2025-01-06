@@ -1,0 +1,287 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="sch_shift_name" data-labelCd="근무조명">근무조명</label>
+                            <div class="field-wrapper">
+                                <input id="sch_shift_name" name="sch_shift_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="근무조 목록">근무조 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="shift_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="shiftForm">
+                    <input type="hidden" id="shift_id" name="shift_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="shift_code" data-labelCd="근무조코드">근무조코드</label>
+                                <div class="field-wrapper">
+                                    <input id="shift_code" name="shift_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="shift_name" data-labelCd="근무조명">근무조명</label>
+                                <div class="field-wrapper">
+                                    <input id="shift_name" name="shift_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="shift_start_time" data-labelCd="근무시작시간">근무시작시간</label>
+                                <div class="field-wrapper">
+                                    <input id="shift_start_time" name="shift_start_time" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="shift_end_time" data-labelCd="근무종료시간">근무종료시간</label>
+                                <div class="field-wrapper">
+                                    <input id="shift_end_time" name="shift_end_time" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="shift_description" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <input id="shift_description" name="shift_description" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class ShiftPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/shift';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let shiftGridOption = {
+                //height: 450,
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "shift_code", title: "근무조코드", width: 100 },
+                    { field: "shift_name", title: "근무조명", width: 100 },
+                    { field: "shift_start_time", title: "시작시간", width: 100 },
+                    { field: "shift_end_time", title: "종료시간", width: 100 },
+                    { field: "shift_description", title: "비고", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "490px"
+            };
+            _this.grid = new Grid($("#shift_grid"), shiftGridOption);
+
+            //search form
+            $('#sch_shift_name').kendoTextBox();
+
+            //form
+            $('#shift_code').kendoTextBox();
+            $('#shift_name').kendoTextBox();
+            $('#shift_start_time').kendoTimePicker({
+                format: "HH:mm",       
+                parseFormats: ["HH:mm"], 
+            });
+            $('#shift_end_time').kendoTimePicker({
+                format: "HH:mm",
+                parseFormats: ["HH:mm"], 
+            });
+            $('#shift_description').kendoTextBox();
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveAsExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                sch_shift_name: $('#sch_shift_name').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#shiftForm'));
+            $("#shift_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#shiftForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#shiftForm'));
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#shiftForm'));
+
+            if (!data.shift_code || !data.shift_name) {
+                Alert.alert('error', '근무조코드, 근무조명은 필수 입력값입니다.');
+                return;
+            };
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#shift_id').val(resp.shift_id);
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let id = $('#shiftForm').find('#shift_id').val();
+            let data = { shift_id : id };
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('삭제되었습니다'); // Notification
+                    _this.searchMainData();
+
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+
+                _this.resetData();
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', data, fnSuccess);
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new ShiftPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

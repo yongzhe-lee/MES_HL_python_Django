@@ -1,0 +1,653 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+    .k-grid .k-grid-header .k-table-th {
+        background: #ecf7ff;
+    }
+
+    .cell_lock_color {
+        background: #f9f9f9 !important;
+        color: #000 !important;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 좌측 -->
+        <div class="col-12 col-md-4">
+            <div class="content-ui-column">
+                <div class="card-content edit no-box-shadow">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="코드 그룹">코드 그룹 </label></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button id="btnExcelGrp">Excel</button>
+                        </span>
+                    </div>
+                    <div id="code_tree_grid"></div>
+                </div>
+                <div class="card-content edit">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">edit_square</i>코드 그룹</span>
+                        <span>
+                            <button id="btnClearGrp"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                            <button id="btnSaveGrp"><i class="material-symbols-outlined">save</i>저장</button>
+                            <button id="btnDeleteGrp"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        </span>
+                    </div>
+
+                    <form id="codeGroupForm">
+                        <div class="edit-form-ui">
+                            <input type="hidden" id="id" name="id" />
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="grp_code" data-labelCd="그룹코드">그룹코드</label>
+                                    <div class="field-wrapper">
+                                        <input id="grp_code" name="grp_code" data-msg="그룹코드를"></input>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="grp_name" data-labelCd="그룹명">그룹명</label>
+                                    <div class="field-wrapper">
+                                        <input id="grp_name" name="grp_name" data-msg="그룹명을" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="grp_sys_yn" data-labelCd="시스템 여부">시스템 여부</label>
+                                    <div class="field-wrapper">
+                                        <input id="grp_sys_yn" name="grp_sys_yn" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="grp_use_yn" data-labelCd="사용 여부">사용 여부</label>
+                                    <div class="field-wrapper">
+                                        <input id="grp_use_yn" name="grp_use_yn" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="grp_remark" data-labelCd="비고">비고</label>
+                                    <div class="field-wrapper">
+                                        <input id="grp_remark" name="grp_remark" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측 -->
+        <div class="col-12 col-md-8">
+            <div class="content-ui-column">
+                <div class="card-content edit no-box-shadow">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="코드">코드</label></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button id="btnExcel">Excel</button>
+                        </span>
+                    </div>
+                    <div id="code_grid"></div>
+                </div>
+                <div class="card-content edit">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">edit_square</i>코드</span>
+                        <span>
+                            <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                            <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                            <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        </span>
+                    </div>
+
+                    <form id="codeForm">
+                        <div class="edit-form-ui">
+                            <input type="hidden" id="id" name="id" />
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="code_grp_code" data-labelCd="그룹코드">그룹코드</label>
+                                    <div class="field-wrapper">
+                                        <select id="code_grp_code" name="code_grp_code" data-msg="그룹코드를"></select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="code" data-labelCd="코드">코드</label>
+                                    <div class="field-wrapper">
+                                        <input id="code" name="code" data-msg="코드를"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="name" data-labelCd="코드명">코드명</label>
+                                    <div class="field-wrapper">
+                                        <input id="name" name="name" data-msg="코드명을" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="use_yn" data-labelCd="사용 여부">사용 여부</label>
+                                    <div class="field-wrapper">
+                                        <input id="use_yn" name="use_yn" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="attr1" data-labelCd="속성1">속성1</label>
+                                    <div class="field-wrapper">
+                                        <input id="attr1" name="attr1" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="attr2" data-labelCd="속성2">속성2</label>
+                                    <div class="field-wrapper">
+                                        <input id="attr2" name="attr2" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="attr3" data-labelCd="속성3">속성3</label>
+                                    <div class="field-wrapper">
+                                        <input id="attr3" name="attr3" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="disp" data-labelCd="표시순서">표시순서</label>
+                                    <div class="field-wrapper">
+                                        <input id="disp" name="disp" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="remark" data-labelCd="비고">비고</label>
+                                    <div class="field-wrapper">
+                                        <input id="remark" name="remark" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class CodePage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/code';
+
+            this.code_grp_code = null;
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let rowNumberTemplate = function (dataItem) {
+                return '<div>${dataItem.index + 1}</div>';
+            };
+
+            // 그룹코드 그리드(tree)
+            let codeTreeGridOption = {
+                height: "540px",
+                columns: [
+                    { title: "No.", template: rowNumberTemplate, width: 50, attributes: {style: 'text-align: center'}, editable: false },
+                    { field: "grp_name", title: "코드그룹명", width: 100, editable: false },
+                    { field: "grp_sys_yn", title: "시스템코드", width: 100, editable: false },
+                    { field: "grp_use_yn", title: "사용여부", width: 100, editable: false },
+                ],
+                change: function (e) {
+                    // _this.showDetail();
+                    let grid = this;
+                    let selectedRow = kendoUtil.getGridSelectedRow($("#code_tree_grid"));
+
+                    _this.showGroupDetail();
+                    _this.code_grp_code = selectedRow.grp_code;
+                    _this.searchCodeData();
+                    _this.resetCodeData();
+                },
+                dataBound: function (e) {
+                    const grid = this;
+
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        if (index < 1) {
+                            index = "-"; // 전체 행의 No
+                        }
+                        $(this).find("td:first").html(index); // index에 +1을 해주지 않는다.
+                    });
+                }
+            };
+
+            _this.code_tree_grid = new Grid($("#code_tree_grid"), codeTreeGridOption);
+
+            // 코드 그리드
+            let codeGridOption = {
+                height: "540px",
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    {
+                        title: 'No.', template: rowNumberTemplate, width: 50
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                        , attributes: {
+                            style: 'text-align: center'
+                        }
+                    },
+                    {
+                        field: "code", title: "코드", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "name", title: "코드명", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "remark", title: "코드설명", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "attr1", title: "속성1", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "attr2", title: "속성2", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "attr3", title: "속성3", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "use_yn", title: "사용여부", width: 100
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                        , attributes: {
+                            style: 'text-align: center'
+                        }
+                    },
+                ],
+                change: function (e) {
+                    const grid = this;
+                    let selectedRow = kendoUtil.getGridSelectedRow($("#code_grid"));
+                    
+                    if (selectedRow) {
+                        _this.showCodeDetail();
+                    }
+
+                },
+                dataBound: function (e) {
+                    const grid = this;
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element); 
+
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        $(this).find("td:first").html(index + 1);
+                    });
+                },
+            };
+
+            _this.code_grid = new Grid($("#code_grid"), codeGridOption);
+            // grid col 초기값
+            _this.initial_grid_col = [..._this.code_grid.grid.options.columns];
+
+
+            // detail form 그룹코드
+            $('#grp_code').kendoTextBox();
+            $('#grp_name').kendoTextBox();
+            $('#grp_sys_yn').kendoSwitch({
+                checked: false
+            });
+            $('#grp_use_yn').kendoSwitch({
+                checked: true
+            });
+            $('#grp_remark').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
+            });
+
+
+            // detail form 코드
+            AjaxUtil.fillDropDownOptions($('#code_grp_code'), 'code_group', 'choose', null);
+            $('#code').kendoTextBox();
+            $('#name').kendoTextBox();
+            $('#use_yn').kendoSwitch({
+                checked: true
+            });
+            $('#attr1').kendoTextBox();
+            $('#attr2').kendoTextBox();
+            $('#attr3').kendoTextBox();
+            $('#disp').kendoNumericTextBox({
+                format: 'n0',
+            });
+            $('#remark').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
+            });
+
+
+            /* form button */
+            // 그룹
+            $('#btnExcelGrp').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    //_this.code_tree_grid.grid.saveExcel();
+                    kendoUtil.saveAsExcel(_this.code_tree_grid, "그룹");
+                }
+            });
+            $('#btnClearGrp').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetGroupData();
+                }
+            });
+            $('#btnSaveGrp').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveGroupData();
+                }
+            });
+            $('#btnDeleteGrp').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteGroupData();
+                }
+            // 코드
+            });
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    //_this.code_grid.grid.saveExcel();
+                    kendoUtil.saveAsExcel(_this.code_grid, "코드");
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetCodeData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveCodeData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteCodeData();
+                }
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+            let param = {
+                action: 'getCodeClassTree',
+            }
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+            // "전체" 행 추가
+            result.unshift({
+                id: 0,                    // 유일한 ID
+                grp_code: "",             // 그룹 코드 비워둠
+                grp_name: "전체",         // 표시할 이름
+                grp_sys_yn: null,         // 추가 필드들 기본값 설정
+                grp_use_yn: null,
+                grp_remark: null
+            });
+
+            _this.code_tree_grid.setData(result);
+        }
+
+        searchCodeData() {
+            let _this = this;
+
+            // 기본 요청 파라미터
+            let param = {
+                action: 'read'
+            };
+
+            // 특정 그룹코드가 선택된 경우
+            if (_this.code_grp_code) {
+                param.code_grp_code = _this.code_grp_code;
+            }
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+            $("#code_grid").data("kendoGrid").setDataSource(new kendo.data.DataSource({
+                data: result
+            }));
+        }
+
+        resetGroupData() {
+            $("#code_tree_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#codeGroupForm'));
+            // 사용 여부를 Y로 체크
+            $("#grp_use_yn").data("kendoSwitch").check(true);
+        }
+
+        resetCodeData() {
+            $("#code_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#codeForm'));
+            // 사용 여부를 Y로 체크
+            $("#use_yn").data("kendoSwitch").check(true);
+        }
+
+
+        showGroupDetail() {
+            let _this = this;
+            let data = _this.code_tree_grid.getSelect();
+
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#codeGroupForm'));
+            }
+        }
+
+        showCodeDetail() {
+            let _this = this;
+            let data = _this.code_grid.getSelect();
+
+            if (data.length > 0) {
+                const selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#codeForm'));
+            }
+        }
+
+        saveGroupData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#codeGroupForm'));
+
+            data.grp_use_yn = $("#grp_use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            data.grp_sys_yn = $("#grp_sys_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            data.grp = true;
+
+            if (checkForm($('#codeGroupForm')) === false) return;
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('그룹 코드가 저장되었습니다.');
+                    // 그룹코드 수정 시
+                    if (resp.message) {
+                        Alert.alert('', resp.message);
+                    }
+                    _this.searchMainData();
+                    // 그룹코드 드롭다운 데이터 갱신
+                    AjaxUtil.fillDropDownOptions($('#code_grp_code'), 'code_group', 'choose', null);
+                    _this.code_grp_code = data.grp_code;
+                    _this.searchCodeData();
+                    _this.resetCodeData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        saveCodeData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#codeForm'));
+
+            data.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            if (checkForm($('#codeForm')) === false) return;
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('코드가 저장되었습니다.');
+                    _this.searchCodeData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteGroupData() {
+            let _this = this;
+            let data = _this.code_tree_grid.getSelect();
+
+            if (data.length > 0) {
+                let selectData = data[0];
+
+                let param = {
+                    id: selectData.id,
+                    grp: true,
+                };
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('그룹 코드가 삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetGroupData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+            }
+            else {
+                Alert.alert('', '삭제할 코드 그룹을 선택해주세요.');
+            }
+        }
+
+        deleteCodeData() {
+            let _this = this;
+            let data = _this.code_grid.getSelect();
+
+            if (data.length > 0) {
+                let selectData = data[0];
+
+                let param = {
+                    id: selectData.id,
+                };
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('코드가 삭제되었습니다.');
+                        _this.searchCodeData();
+                        _this.resetCodeData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+            }
+            else {
+                Alert.alert('', '삭제할 코드를 선택해주세요.');
+            }
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new CodePage();
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form id="searchForm" class="search-form">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srchStartDt" data-labelCd="조회일"></label>
+                            <div class="field-wrapper">
+                                <input id="srchStartDt" name="srchStartDt" />
+                            </div>
+                            <div class="field-wrapper">
+                                <input id="srchEndDt" name="srchEndDt" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="이름">이름</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group-btn search">
+                        <button id="btnSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="content-ui-row">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="로그인로그 목록">로그인로그 목록</label>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                        <button id="btnGrid">Grid</button>
+                    </span>
+                </div>
+                <div id="login_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class LoginLogPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/system/login_log';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            //그리드셋팅
+            let gridOption = {
+                columns: [
+                    { field: "type", title: "구분", width: 30 },
+                    { field: "arrd", title: "IP Address", width: 100 },
+                    { field: "login_id", title: "사번", width: 30 },
+                    { field: "name", title: "이름", width: 50 },
+                    { field: "created", title: "일시", width: 100 },
+                ],
+                change: function (e) {
+                },
+                pageable: false,
+                height: "700px",
+            };
+            _this.grid = new Grid($("#login_grid"), gridOption);
+
+
+            //날짜 조회
+            let startDt = CommonUtil.getYYYYMMDD(-1);
+            var endDt = CommonUtil.getYYYYMMDD();
+            kendoUtil.kenDateTimePicker($("#srchStartDt"), $("#srchEndDt"), startDt, endDt);
+
+            //form
+            $('#keyword').kendoTextBox();
+
+            //조회버튼
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+            $('#btnGrid').kendoButton({
+                themeColor: "success",
+                click: function () {
+                }
+            });
+        }
+
+
+        searchMainData() {
+            let _this = this;
+            let param = FormUtil.extractForm($('#searchForm'))
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new LoginLogPage();
+
+        page.searchMainData();
+
+    });
+
+</script>
+
+{% endblock %}

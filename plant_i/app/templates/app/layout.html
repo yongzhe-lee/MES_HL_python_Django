@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html class="iframe-ui">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLNAT-I :: HLKlemove</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/bootstrap.min.css' %}" />
+
+    <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+
+    <!--kendo ui css-->
+    <link rel="stylesheet" href="../../static/resource/kendo_ui/styles/default-ocean-blue-a11y.css" />
+
+    <!--구글 material icon css-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/static/css/material-icons.css">
+    <!-- Package Styel CSS -->
+    <link rel="stylesheet" href="/static/css/WZ.UI.css?v=240906">
+
+
+    {% block css %}{% endblock %}
+</head>
+<body>
+    {% csrf_token %}
+
+
+    <!--jquery-->
+    <script src="{% static 'resource/jquery/jquery-3.7.1.min.js' %}"></script>
+
+    <script type="text/javascript">
+        {% include './system.js' %}
+    </script>
+
+
+    <script src="{% static 'app/scripts/bootstrap.js' %}"></script>
+    <script src="{% static 'app/scripts/respond.js' %}"></script>
+
+    <!--kendo ui-->
+    <script src="{% static 'resource/kendo_ui/js/kendo.all.min.js' %}"></script>
+    <script src="/static/resource/kendo_ui/kendo-ui-license.js"></script>
+    <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
+
+    <!--공통모듈-->
+    <script src="{% static 'resource/common.js' %}"></script>
+    <script src="{% static 'resource/grid.js' %}"></script>
+    <script src="{% static 'resource/custom_form.js' %}"></script>
+    <script src="{% static 'resource/fileupload.js' %}"></script>
+    <script src="{% static 'resource/frmCheck.js' %}"></script>
+    <script>
+        kendo.culture("ko-KR");
+
+        $(function () {
+            $("#menuTab").kendoTabStrip();
+
+            if (gparam.is_bookmark == '1') {
+                $('#icon_bookmark').css('color', '#fdce3e');
+            }
+
+            if (gui.path_name) {
+                $('#path_bookmark_area').show();
+
+                $('#btnBookmarkSave').kendoButton({
+                    themeColor: "base",
+                    click: function () {
+                        let succFunc = function (resp) {
+                            if (resp.success) {
+                                parent.createBookmarkMenu();
+                                if (resp.is_bookmark == 1) {
+                                    Notify.success('북마크 저장');
+                                    $('#icon_bookmark').css("color", "#fdce3e");
+                                }
+                                else {
+                                    Notify.error('북마크 취소');
+                                    $('#icon_bookmark').css("color", "");
+                                }
+                            }
+                        }
+
+                        let param = {
+                            gui_code: gui.gui_code,
+                        }
+
+                        AjaxUtil.postAsyncData('/api/system/bookmark?action=save', param, succFunc);
+                    }
+                })
+
+            }
+        });
+
+    </script>
+    <div class="L-card-wrap" id="path_bookmark_area" style="display: none; height: 3%;">
+        <div class="card-group-btn L-card-group-btn">
+            <i class="material-symbols-outlined L-symbols">hub</i>
+            <span class="info-text L-info-txt">
+                <label class="L-info_01">마스터관리 |</label>
+                <label class="L-info_02">기초데이터 |</label>
+                <label class="L-info_03">제품</label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <!-- 오른쪽 버튼 영역-->
+                <img src="/static/img/star_icon.svg" id="icon_bookmark"/>
+                <!--즐겨찾기
+    <img src="/static/img/star_01.svg" alt="" />
+                    -->
+            </span>
+        </div>
+    </div>
+    {% block content %}
+    {% endblock %}
+
+
+    {% block scripts %}
+
+    {% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,470 @@
+<style>
+    .upload-container {
+        position: relative;
+        --width: 100%; /* 부모 요소의 너비에 맞게 설정 */
+        margin: 20px auto;
+    }
+
+    .upload-box {
+        border: 2px dashed #aaa;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 10px;
+        gap: 5px;
+        position: relative;
+        cursor: pointer;
+        overflow-y: auto;
+    }
+
+        .upload-box:hover {
+            background-color: #f0f0f0;
+        }
+
+        .upload-box.dragover {
+            background-color: #e0e0e0;
+            border-color: #000;
+        }
+
+        .upload-box .placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+    .chip-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .k-upload {
+        display: none !important;
+    }
+    /* 아이콘 기본 색상 */
+    .k-chip .k-icon {
+        color: black;
+    }
+        /* 아이콘 위에 마우스를 올렸을 때 색상 변경 */
+        .k-chip .k-icon:hover {
+            color: #0058E9;
+        }
+    /* 확장자명 안내 텍스트와 전체 삭제 버튼을 포함하는 div 스타일 */
+    .file-info-container {
+        position: absolute;
+        top: -30px; /* 위치를 조정하여 위로 올림 */
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start; /* 왼쪽 정렬 */
+        align-items: center;
+        font-size: 12px;
+        color: #555;
+    }
+
+    .delete-all-btn {
+        margin-left: 20px; /* 적절한 간격을 주기 위해 추가 */
+        cursor: pointer;
+        color: red;
+    }
+</style>
+
+
+<script id="uploadTemplate" type="text/x-kendo-template">
+    <div class="upload-container"  width: #: width #">
+        <div class="file-info-container">
+            <div class="file-types">가능한 파일 확장자: #: extensionStr #</div>
+            <button id="delete-all-btn" class="delete-all-btn">전체 삭제</button>
+        </div>
+        <div id="upload-box" class="upload-box" style="height: #: height #;">
+            <div class="placeholder">#: placeholder #</div>
+            <div class="chip-container"></div>
+        </div>
+    </div>
+    <input name="files" id="files" type="file" multiple />
+</script>
+
+<script>
+    class FileUploadPage {
+        constructor($target, option) {
+            this.$target = $target;
+            this.uploader = null;
+            this.option = option;
+            this.fileMap = {}; // 전역 객체 선언: key=uid, value=file
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let extensionStr = '';
+            let defaultPlaceholder = '파일을 선택하려면 클릭하세요.';
+
+            if (_this.option) {
+                _this.tableName = this.option.tableName;
+                _this.attachName = this.option.attachName;
+                _this.filePath = this.option.filePath;
+                _this.others = this.option.others;
+                _this.dataPk = this.option.dataPk;
+                _this.allowedDuple = this.option.allowedDuple;
+                _this.maxFilesCount = this.option.maxFilesCount;
+                _this.maxFileSize = this.option.maxFileSize;
+
+                extensionStr = '';
+                if (_this.option.extensions) {
+                    extensionStr = _this.option.extensions.join(', ');
+                }
+            }
+
+            let data = [
+                {
+                    extensionStr: extensionStr,
+                    placeholder: this.option.placeholder || defaultPlaceholder,
+                    height: this.option.height || '200px',
+                    width: this.option.width || '100%'
+                }
+            ];
+            let template = kendo.template($("#uploadTemplate").html());
+            let result = kendo.render(template, data);
+
+            _this.$target.html(result);
+
+            this.uploader = _this.$target.find('#files').kendoUpload({
+                async: {
+                    autoUpload: true,
+                    saveUrl: '/api/files/upload?action=save_file',
+                    //removeUrl: '/api/files/upload?action=remove_file', // 서버로 삭제 요청을 보낼 URL
+                    removeField: "fileName", // 서버로 전송할 필드명
+                    saveField: "uploadfile"
+                },
+                dropZone: "#upload-box",
+                upload: function (e) {
+                    e.data = { // save시 보낼 파라미터
+                        tableName: _this.tableName,
+                        attachName: _this.attachName,
+                        filePath: _this.filePath,
+                        others: _this.others,
+                        dataPk: _this.dataPk,
+                        allowedDuple: _this.allowedDuple,
+                    }
+                },
+                select: function (e) {
+                    let maxFileSize = _this.maxFileSize * 1024 * 1024; // MB -> Byte
+                    let currentFileCount = Object.keys(_this.fileMap).length;
+                    let allFileCount = currentFileCount + e.files.length;
+
+                    // 최대 파일 개수 검사
+                    if (allFileCount > _this.maxFilesCount) {
+                        console.log('그래서 여기 안 온다 이거지?');
+                        Alert.alert('오류', `최대 ${_this.maxFilesCount}개의 파일만 업로드할 수 있습니다.`);
+                        e.preventDefault(); // 유효하지 않은 파일 선택을 취소합니다.
+                        return;
+                    }
+
+                    // 파일 크기 검사
+                    for (let i = 0; i < e.files.length; i++) {
+                        const file = e.files[i];
+                        if (file.size > maxFileSize) {
+                            Alert.alert('오류', `${file.name} 파일이 너무 큽니다. ${_this.maxFileSize} MB 이하의 파일만 업로드할 수 있습니다.`);
+                            e.preventDefault(); // 유효하지 않은 파일 선택을 취소합니다.
+                            return;
+                        }
+                    }
+
+                    const allowedExtensions = (_this.option.extensions || []).map(ext => ext.toLowerCase());
+                    for (let i = 0; i < e.files.length; i++) {
+                        const fileName = e.files[i].name;
+                        const fileExtension = `.${fileName.split('.').pop().toLowerCase()}`;
+
+                        if (!allowedExtensions.includes(fileExtension)) {
+                            Alert.alert('오류', `허용되지 않은 파일 형식입니다: ${fileName}`);
+                            e.preventDefault(); // 유효하지 않은 파일 선택을 취소합니다.
+                            return;
+                        }
+                    }
+                },
+                success: (e) => {
+                    $(".placeholder").hide();
+
+                    if (!e.response.success) {
+                        Alert.alert('오류', `중복된 파일은 허용하지 않습니다:${e.response.fileNm}`)
+                        return;
+                    }
+
+                    const file = {
+                        name: e.response.fileNm,
+                        size: e.response.fileSize,
+                        uid: e.files[0].uid,
+                        id: e.response.fileId,
+                        file_index: e.response.FileIndex
+                    };
+                    _this.fileMap[file.uid] = file
+                    _this.addChip(file);
+                },
+                error: (e) => {
+                    console.error('파일 업로드 실패:', e);
+                }
+            }).data("kendoUpload");
+
+            // 서버에서 파일 목록을 로드하여 chip으로 표시
+            this.loadFilesFromServer();
+
+            // 이벤트 바인딩
+            this.bindEvents();
+        }
+
+        bindEvents() {
+            let _this = this;
+
+            // Chip 삭제 버튼 클릭 이벤트 처리
+            _this.$target.find("#upload-box").on("click", ".k-chip-action.k-chip-remove-action", function (e) {
+                const chipElement = $(this).closest(".k-chip");
+                const uid = chipElement.attr("data-uid");
+                _this.handleChipDelete(uid); // Chip 삭제 시 서버로 삭제 요청 전송
+                e.stopPropagation();
+            });
+
+            // 드래그 오버 스타일 추가
+            _this.$target.find("#upload-box").on("dragover", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass("dragover");
+            });
+
+            // 드래그가 업로드 상자를 벗어났을 때 스타일 제거
+            _this.$target.find("#upload-box").on("dragleave", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass("dragover");
+            });
+
+            // 파일이 드롭되었을 때 처리
+            _this.$target.find("#upload-box").on("drop", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass("dragover");
+
+                const files = e.originalEvent.dataTransfer.files;
+                _this.handleFileDrop(files);
+            });
+
+            // 다운로드 아이콘 클릭 처리
+            _this.$target.find("#upload-box").on("click", ".k-icon.k-svg-icon.k-svg-i-download.k-chip-icon.k-icon-sm", function (e) {
+                const chipElement = $(e.target).closest(".k-chip");
+                const uid = chipElement.attr("data-uid");
+                const file = _this.fileMap[uid];  // 전역 객체에서 파일 정보를 가져옴
+
+                if (file && file.id) {
+                    // 파일 ID로 서버에 요청하여 다운로드
+                    const downloadUrl = `/api/files/download?file_id=${file.id}`;
+                    window.location.href = downloadUrl;
+                }
+
+                e.stopPropagation();
+            });
+
+
+            // 파일 대화상자를 열기 위한 클릭 이벤트
+            _this.$target.find("#upload-box").on("click", function (e) {
+                if ($(e.target).closest(".k-chip").length === 0) {
+                    $("#files").click();
+                }
+            });
+
+            _this.$target.find("#delete-all-btn").kendoButton({
+                click: function () {
+                    _this.uploader.clearAllFiles();
+
+                    _this.deleteAllChips();
+                }
+            });
+        }
+
+        deleteAllChips() {
+            let _this = this;
+            const chips = $(".chip-container").find(".k-chip");
+
+            chips.each(function () {
+                const uid = $(this).attr("data-uid");
+                _this.handleChipDelete(uid);
+            });
+
+            // ChipContainer 내의 모든 칩들을 제거
+            chips.remove();
+
+            $(".placeholder").show();
+        }
+
+
+        loadFilesFromServer() {
+            let _this = this;
+            let url = '/api/files/upload?action=call_attach_file';  // 파일 목록을 가져오는 서버의 엔드포인트
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    res.data.forEach(fileData => {
+                        const fileUrl = `${fileData.FilePath}${fileData.FileName}`;
+                        const uid = kendo.guid();  // 각 파일에 고유한 UID를 부여
+                        const file = {
+                            name: fileData.FileName,
+                            size: fileData.FileSize,
+                            uid: uid,
+                            url: fileUrl, // 파일 URL 저장
+                            id: fileData.id,
+                            file_index: fileData.FileIndex
+                        };
+
+                        // Chip 추가
+                        _this.addChip(file);
+
+                        // 파일을 전역 객체에 추가
+                        _this.fileMap[uid] = file;
+
+                        //console.log('fileMap', _this.fileMap);
+
+                    });
+                } else {
+                    console.error('파일 목록을 불러오는 중 오류 발생:', error);
+                }
+            }
+            let data = {
+                tableName: _this.tableName,
+                attachName: _this.attachName,
+                dataPk: _this.dataPk,
+            }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        addChip(file) {
+            let _this = this;
+            const chipContainer = $(".chip-container");
+            let chipList = chipContainer.data("kendoChipList");
+
+            const chipItem = {
+                text: file.name,
+                removable: true,
+                uid: file.uid,
+                icon: "k-i-download",
+                attributes: {
+                    "data-uid": file.uid
+                }
+            };
+
+            if (!chipList) {
+                chipList = chipContainer.kendoChipList({
+                    items: [chipItem],
+                    selectable: false,
+                    remove: function (ev) {
+                        const fileUid = ev.item.options.uid;
+                        _this.handleChipDelete(fileUid);
+                    }.bind(this)
+                }).data("kendoChipList");
+            } else {
+                chipList.add(chipItem);
+            }
+
+            // 칩이 DOM에 추가된 후에 kendoDraggable을 적용
+            $(`.k-chip[data-uid="${file.uid}"]`).kendoDraggable({
+                hint: function (element) {
+                    return element.clone().addClass("k-draggable-hint");
+                },
+                cursorOffset: { top: -10, left: -10 },
+                dragstart: (e) => {
+                    this.draggedChipUid = file.uid; // 드래그 시작 시 UID 저장
+                },
+                dragend: (e) => {
+                    const uploadBox = $("#upload-box")[0];
+                    const dropZoneRect = uploadBox.getBoundingClientRect();
+                    const dropX = e.clientX;
+                    const dropY = e.clientY;
+
+                    // 드롭 위치가 업로드 박스 영역 밖이면 파일과 칩을 삭제
+                    if (
+                        dropX < dropZoneRect.left ||
+                        dropX > dropZoneRect.right ||
+                        dropY < dropZoneRect.top ||
+                        dropY > dropZoneRect.bottom
+                    ) {
+                        _this.handleChipDelete(this.draggedChipUid);
+
+                        // 칩 삭제
+                        $(`.k-chip[data-uid="${this.draggedChipUid}"]`).remove();
+                    }
+
+                    this.draggedChipUid = null; // 드래그가 끝난 후 UID 초기화
+                }
+            });
+        }
+
+        handleChipDelete(uid) {
+            let _this = this;
+            let url = '/api/files/upload?action=remove_file';
+            let data = {
+                tableName: _this.tableName,
+                attachName: _this.attachName,
+                fileName: _this.fileMap[uid].name,
+                others: _this.others,
+                dataPk: _this.dataPk,
+                fileIndex: _this.fileMap[uid].file_index,
+            };
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    const input = _this.uploader.wrapper.find('input[type="file"]')[0];
+
+                    // DataTransfer 객체 생성
+                    const fileList = new DataTransfer();
+
+                    // 기존 파일 목록에서 삭제할 파일을 제외한 나머지 파일을 DataTransfer 객체에 추가
+                    for (let i = 0; i < input.files.length; i++) {
+                        if (input.files[i].uid !== uid) {
+                            fileList.items.add(input.files[i]);
+                        }
+                    }
+
+                    // 수정된 파일 목록을 input 요소에 다시 할당
+                    input.files = fileList.files;
+
+                    console.log('getfiles', _this.uploader.getFiles());
+
+                    // 전역 객체에서 파일 삭제
+                    delete _this.fileMap[uid];
+                }
+            }
+
+            // 서버로 삭제 요청
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        handleServerRemove(e) {
+            const fileUid = e.files[0].uid;
+            this.handleChipDelete(fileUid);
+        }
+
+        handleFileDrop(files) {
+            const input = this.uploader.wrapper.find("input[type='file']");
+            const fileList = new DataTransfer();
+
+            // 드롭된 모든 파일을 fileList에 추가
+            for (let i = 0; i < files.length; i++) {
+                fileList.items.add(files[i]);
+            }
+
+            if (fileList.items.length > 0) {
+                // input 엘리먼트에 파일 리스트 설정
+                input[0].files = fileList.files;
+
+                // Kendo UI의 change 이벤트 트리거 (파일이 선택된 것처럼 처리)
+                input.trigger('change');
+
+                // 파일 업로드 트리거
+                this.uploader.upload();
+            }
+        }
+
+    }
+</script>

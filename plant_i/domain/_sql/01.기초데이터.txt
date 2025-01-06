@@ -1,0 +1,228 @@
+-- 기초 데이터 insert 구문
+-- user_group
+insert into user_group(id, "Code", "Name", "Disabled", "_created")
+values
+(1, 'dev', 'Developer', false, now() ),
+(2, 'admin', 'Admin', false, now() );
+
+alter SEQUENCE user_group_id_seq restart WITH 3;
+
+    
+-- user_profile
+insert into user_profile("User_id", "Name", "UserGroup_id", lang_code, "_created", "_modified")
+values
+/* superuser 안 만들었을 경우 주석 해제 후 추가 */
+/* (1, '위존', null, 'ko-KR', now(), now() ), */
+(2,'개발자', 1, 'ko-KR', now(), now() )
+,(3,'관리자', 2, 'ko-KR', now(), now() )
+;
+
+
+-- auth_user
+insert into auth_user(id, username, password, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined)
+values
+/* superuser 안 만들었을 경우 주석 해제 후 추가 */
+/* (1, 'yullin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
+, true, '','','yullin@yullin.com', true, true, now()), */ 
+(2, 'dev', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
+, false, '개발자','','dev@yullin.com', true, true, now())
+,(3, 'admin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
+, false, '관리자','','admin@yullin.com', true, true, now())
+;
+
+
+-- sys_code
+insert into sys_code("CodeType", "Code", "Value", "Description", "_ordering", _created)
+values ('bom_type', 'manufacturing', '제조BOM', 'BOM구분', 1, now() )
+, ('bom_type', 'engineering', '설계BOM', 'BOM구분', 2, now() )
+, ('company_type', 'purchase', '매입처', '업체구분', 1, now() )
+, ('company_type', 'sale', '매출처', '업체구분', 2, now() )
+, ('company_type', 'outsourcing', '외주사', '업체구분', 3, now() )
+, ('company_type', 'equip-maker', '설비제작사', '업체구분', 4, now() )
+, ('company_type', 'sale-purchase', '매입매출처', '업체구분', 5, now() )
+, ('coverage', 'process', '공정별', '적용범위. 공정에만 적용', 1, now() )
+, ('coverage', 'all', '전체', '적용범위. 전체에 적용', 2, now() )
+, ('equipment_type', 'manufacturing', '생산', '설비구분', 1, now() )
+, ('equipment_type', 'etc', '기타', '설비구분', 2, now() )
+, ('equip_asset_yn', 'Y', '자산성', '설비자산성여부', 1, now() )
+, ('equip_asset_yn', 'N', '소모성', '설비자산성여부', 2, now() )
+, ('equip_maint_type', 'prevention', '예방정비', '설비정비구분', 1, now() )
+, ('equip_maint_type', 'failure', '고장정비', '설비정비구분', 2, now() )
+, ('equip_run_state', 'run', '가동', '설비가동상태', 1, now() )
+, ('equip_run_state', 'stop', '비가동', '설비가동상태', 2, now() )
+, ('equip_run_type', 'auto', '자동입력', '설비가동구분', 1, now() )
+, ('equip_run_type', 'manual', '수입력', '설비가동구분', 2, now() )
+, ('equip_state', 'normal', '정상', '설비상태', 1, now() )
+, ('equip_state', 'failure', '고장', '설비상태', 2, now() )
+, ('equip_state', 'checking', '점검중', '설비상태', 1, now() )
+, ('form_type', 'hmi', 'HMI양식', '양식구분', 1, now() )
+, ('form_type', 'excel', '엑셀양식', '양식구분', 2, now() )
+, ('form_type', 'html', 'HTML양식', '양식구분', 3, now() )
+, ('form_type', 'file', '파일', '양식구분', 4, now() )
+, ('lang_code', 'ko-KR', '한국어', '언어구분', 1, now() )
+, ('lang_code', 'en-US', '영어', '언어구분', 2, now() )
+, ('mat_type', 'product', '제품', '품목구분', 1, now() )
+, ('mat_type', 'semi', '반제품', '품목구분', 2, now() )
+, ('mat_type', 'raw_mat', '원재료', '품목구분', 3, now() )
+, ('mat_type', 'sub_mat', '부자재', '품목구분', 4, now() )
+, ('mat_type', 'sangpum', '상품', '품목구분', 5, now() )
+, ('person_type', 'production', '작업자', '작업자구분', 1, now() )
+, ('person_type', 'sales', '영업담당자', '작업자구분', 2, now() )
+, ('person_type', 'office', '사무직', '작업자구분', 3, now() )
+, ('plan_yn', 'Y', '계획', '계획비계획구분', 1, now() )
+, ('plan_yn', 'N', '비계획', '계획비계획구분', 2, now() )
+, ('prod_week_term_state', 'none', '미계획', '', 1, now() )
+, ('prod_week_term_state', 'product', '제품확정', '', 2, now() )
+, ('prod_week_term_state', 'semi', '반제품확정', '', 3, now() )
+, ('prod_week_term_state', 'material', '원부자재확정', '', 4, now() )
+, ('result_type', 'N', '수치값', '결과값유형', 1, now() )
+, ('result_type', 'S', '선택형', '결과값유형', 2, now() )
+, ('result_type', 'D', '서술형', '결과값유형', 3, now() )
+, ('shipment_state', 'ordered', '지시', '출하상태', 1, now() )
+, ('shipment_state', 'shipped', '출하', '출하상태', 2, now() )
+, ('spec_type', 'x', '규격없음', '규격유형', 1, now() )
+, ('spec_type', 'upper', '상한이하', '규격유형', 2, now() )
+, ('spec_type', 'low', '하한이상', '규격유형', 3, now() )
+, ('spec_type', 'range', '범위', '규격유형', 4, now() )
+, ('spec_type', 'just', '정성규격', '규격유형', 5, now() )
+, ('standard_time_unit', 'minute', '분', '표준시간단위', 1, now() )
+, ('standard_time_unit', 'second', '초', '표준시간단위', 2, now() )
+, ('standard_time_unit', 'hour', '시간', '표준시간단위', 3, now() )
+, ('standard_time_unit', 'day', '일', '표준시간단위', 4, now() )
+, ('storehouse_type', 'product', '제품창고', '창고구분', 1, now() )
+, ('storehouse_type', 'semi', '반제품창고', '창고구분', 2, now() )
+, ('storehouse_type', 'material', '자재창고', '창고구분', 3, now() )
+, ('storehouse_type', 'defect', '부적합품창고', '창고구분', 4, now() )
+, ('storehouse_type', 'process', '공정창고', '창고구분', 5, now() )
+, ('storehouse_type', 'scrap', '스크랩창고', '창고구분', 6, now() )
+, ('story_board_type', 'menu', '메뉴', '스토리보드 항목구분', 1, now() )
+, ('story_board_type', 'hmi', 'HMI양식', '스토리보드 항목구분', 2, now() );
+
+
+-- tag_group 
+insert into tag_grp ("Code", "Name" , "_created" )
+values('equip_run', '가동상태그룹', now())
+, ('output_cusum', '생산누적량', now())
+, ('input_cusum', '투입누적량', now())
+;
+
+
+-- equ_group
+insert into equ_grp ("Code", "Name", "EquipmentType", "_created")
+values('PR-012', '기타설비그룹', 'etc', now())
+,('PR-015', 'PUMP', 'etc', now())
+,('PR-017', '배전반', 'etc', now())
+,('PR-016', 'HEAT-EX', 'etc', now())
+,('PR-018', '전원투입', 'etc', now())
+;
+
+
+-- equ
+--insert into equ("Code", "Name", "_created") values('test1', '테스트1', now()), ('test2', '테스트2', now());
+
+--das_server
+
+insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values (1,'DAS_HPC1', 'DAS HPC#1전용', '10.226.234.30', 'WIN', 'a', now());
+insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values(2, 'DAS_SMT3', 'DAS SMT#3전용', '10.226.234.31', 'WIN', 'a', now());
+alter SEQUENCE das_server_id_seq restart WITH 3;
+
+
+-- das_config
+--insert into das_config("Name", "_created") values('das_test1', now()), ('das_test2', now());
+
+--site
+insert into site("Name", "Code", "_created") values('HL클레무브송도', 'hlklemove', now());
+
+--factory
+insert into factory ("Code", "Name", "Site_id", "_created") values('f1', 'HL클레무브송도공장', 1, now());
+
+
+/* 메뉴관련 */
+truncate table menu_folder cascade;
+truncate table menu_item cascade;
+
+--메뉴폴더
+INSERT INTO public.menu_folder (id, "FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
+    (1, '대시보드','inventory',100,NULL,'2024-11-25 15:00:19.159507+09','2024-11-25 15:00:33.069167+09',NULL,NULL,NULL),
+    (2, 'AAS관리','inventory',200,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
+    (3, '기준정보','inventory',300,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
+    (4, '설비관리','inventory',400,NULL,'2024-11-22 17:01:51.726933+09','2024-11-22 17:08:32.731659+09',NULL,NULL,NULL),
+    (5, '설비보전','inventory',500,NULL,'2024-11-22 17:01:59.691078+09','2024-11-22 17:08:46.342553+09',NULL,NULL,NULL),
+    (6, '데이터분석','inventory',600,NULL,'2024-11-22 17:02:09.507788+09','2024-11-22 17:08:53.90439+09',NULL,NULL,NULL),
+    (7, '업무지원','inventory',700,NULL,'2024-11-22 17:02:34.099485+09','2024-11-22 17:09:03.358122+09',NULL,NULL,NULL),
+    (8, '시스템관리','inventory',800,NULL,'2024-11-22 17:02:44.44146+09','2024-11-22 17:09:10.325325+09',NULL,NULL,NULL);
+     
+    alter SEQUENCE menu_folder_id_seq restart WITH 9 ;
+
+
+--메뉴
+INSERT INTO public.menu_item ("MenuCode","MenuName","IconCSS","Url","Popup","_order","_status","_created","_modified","_creater_id","_modifier_id","MenuFolder_id") 
+VALUES
+     -- 대시보드
+     ('wm_dashboard','대시보드',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,1),
+     ('wm_storyboard','스토리보드',NULL,'/gui/wm_storyboard','N',20,NULL,'2024-11-25 15:00:43.246192+09','2024-11-25 15:00:47.008002+09',3,3,1),
+
+     --AAS
+     ('wm_aas','AAS관리',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
+     ('wm_asset','자산관리',NULL,'/gui/wm_dashboard','N',20,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
+     ('wm_aasx','aasx관리',NULL,'/gui/wm_dashboard','N',30,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
+
+     --기준정보
+     ('wm_factory','공장',NULL,'/gui/wm_factory','N',10,NULL,'2024-11-22 17:07:52.512412+09','2024-11-22 17:07:58.799734+09',1,1,3),
+     ('wm_line','라인',NULL,'/gui/wm_line','N',20,NULL,'2024-11-22 17:04:35.779583+09','2024-11-22 17:07:58.810661+09',1,1,3),
+     ('wm_process','공정',NULL,'/gui/wm_process','N',30,NULL,'2024-11-22 17:04:38.218271+09','2024-11-22 17:07:58.818437+09',1,1,3),
+     ('wm_material','품목정보',NULL,'/gui/wm_material','N',40,NULL,'2024-11-22 17:04:41.46544+09','2024-11-22 17:07:58.827905+09',1,1,3),
+     ('wm_bom','BOM',NULL,'/gui/wm_bom','N',50,NULL,'2024-11-22 17:04:44.062137+09','2024-11-22 17:07:58.835202+09',1,1,3),
+     ('wm_defect','부적합정보',NULL,'/gui/wm_defect','N',60,NULL,'2024-11-22 17:04:53.787407+09','2024-11-22 17:07:58.843538+09',1,1,3),
+     ('wm_shift','조교대정보',NULL,'/gui/wm_shift','N',70,NULL,'2024-11-22 17:04:56.656039+09','2024-11-22 17:07:58.849809+09',1,1,3),
+     ('wm_line_inactive','라인비가동정보',NULL,'/gui/wm_line_inactive','N',80,NULL,'2024-11-22 17:05:00.230849+09','2024-11-22 17:07:58.858038+09',1,1,3),
+     ('wm_model_change','기종변경정보',NULL,'/gui/wm_model_change','N',90,NULL,'2024-11-22 17:05:06.581048+09','2024-11-22 17:07:58.864936+09',1,1,3),
+
+     --설비정보
+     ('wm_equip_group','설비그룹',NULL,'/gui/wm_equip_group','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,4),
+     ('wm_equipment','설비',NULL,'/gui/wm_equipment','N',20,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+     ('wm_tag_group','태그그룹',NULL,'/gui/wm_tag_group','N',30,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+     ('wm_tag_master','태그관리',NULL,'/gui/wm_tag_master','N',40,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+     
+     --설비보전
+
+    ('wm_pm_master','PM마스터관리',NULL,'/gui/wm_pm_master','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_schedule','PM일정',NULL,'/gui/wm_pm_schedule','N',20,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_work_order','WO관리',NULL,'/gui/wm_work_order','N',30,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_work_list','PM작업목록조회',NULL,'/gui/wm_pm_work_list','N',40,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_result','PM작업결과등록',NULL,'/gui/wm_pm_result','N',50,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_result_list','PM작업결과조회',NULL,'/gui/wm_pm_result_list','N',60,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_master','점검마스터관리',NULL,'/gui/wm_check_master','N',70,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_schedule','점검일정관리',NULL,'/gui/wm_check_schedule','N',80,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_work_list','점검작업조회',NULL,'/gui/wm_check_work_list','N',90,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_result','점검작업결과등록',NULL,'/gui/wm_check_result','N',100,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_result_list','점검작업결과조회',NULL,'/gui/wm_check_result_list','N',110,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_work_daily','일상점검',NULL,'/gui/wm_check_work_daily','N',120,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_equ_grade','설비등급관리',NULL,'/gui/wm_equ_grade','N',130,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+
+
+     -- 데이터분석
+     ('wm_tag_data_current','태그데이터현황',NULL,'/gui/wm_tag_data_current','N',10,NULL,'2024-11-22 17:09:34.259863+09','2024-11-22 17:10:17.285547+09',1,1,6),
+     ('wm_tag_data_list','태그데이터조회',NULL,'/gui/wm_tag_data_list','N',20,NULL,'2024-11-22 17:09:39.061398+09','2024-11-22 17:10:17.296076+09',1,1,6),
+     ('wm_tag_summary','데이터통계',NULL,'/gui/wm_tag_summary','N',30,NULL,'2024-11-22 17:10:03.213384+09','2024-11-22 17:10:17.304884+09',1,1,6),
+     ('wm_tag_trend','데이터트렌드',NULL,'/gui/wm_tag_trend','N',40,NULL,'2024-11-22 17:10:05.946882+09','2024-11-22 17:10:17.312142+09',1,1,6),
+     ('wm_tag_boxplot','상자수염그림',NULL,'/gui/wm_tag_boxplot','N',50,NULL,'2024-11-22 17:09:41.707796+09','2024-11-22 17:10:17.320561+09',1,1,6),
+     ('wm_tag_histogram','히스토그램',NULL,'/gui/wm_tag_histogram','N',60,NULL,'2024-11-22 17:09:50.213623+09','2024-11-22 17:10:17.328512+09',1,1,6),
+     ('wm_tag_scatter','산점도',NULL,'/gui/wm_tag_scatter','N',70,NULL,'2024-11-22 17:09:59.972834+09','2024-11-22 17:10:17.336552+09',1,1,6),
+     ('wm_regression_a','산점도-회귀분석',NULL,'/gui/wm_regression_a','N',80,NULL,'2024-11-22 17:10:08.706509+09','2024-11-22 17:10:17.344432+09',1,1,6),
+
+     --업무지원
+     ('wm_calendar','캘린더',NULL,'/gui/wm_calendar','N',10,NULL,'2024-11-22 17:03:46.144348+09','2024-11-22 17:03:55.082601+09',1,1,7),
+     ('wm_board','공지사항',NULL,'/gui/wm_board','N',20,NULL,'2024-11-22 17:03:52.168896+09','2024-11-22 17:03:55.093085+09',1,1,7),
+
+     --시스템관리
+     ('wm_user','사용자',NULL,'/gui/wm_user','N',10,NULL,'2024-11-22 17:02:59.75001+09','2024-11-22 17:03:37.503066+09',1,1,8),
+     ('wm_user_group','사용자그룹',NULL,'/gui/wm_user_group','N',20,NULL,'2024-11-22 17:03:05.113621+09','2024-11-22 17:03:37.51691+09',1,1,8),
+     ('wm_user_group_menu','메뉴권한',NULL,'/gui/wm_user_group_menu','N',30,NULL,'2024-11-22 17:03:10.558772+09','2024-11-22 17:03:37.52977+09',1,1,8),
+     ('wm_storyboard_config','스토리보드설정',NULL,'/gui/wm_storyboard_config','N',40,NULL,'2024-11-22 17:03:17.811259+09','2024-11-22 17:03:37.538322+09',1,1,8),
+     ('wm_login_log','로그인로그',NULL,'/gui/wm_login_log','N',50,NULL,'2024-11-22 17:03:22.529364+09','2024-11-22 17:03:37.548868+09',1,1,8),
+     ('wm_menu_log','메뉴로그',NULL,'/gui/wm_menu_log','N',60,NULL,'2024-11-22 17:03:28.79165+09','2024-11-22 17:03:37.558648+09',1,1,8),
+     ('wm_system_log','시스템로그',NULL,'/gui/wm_system_log','N',70,NULL,'2024-11-22 17:03:34.6587+09','2024-11-22 17:03:37.56884+09',1,1,8);
+
+
+

@@ -1,0 +1,264 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" placeholder="공장명, 공장코드" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="공장 목록">공장 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="factory_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="factoryForm">
+                    <input type="hidden" id="factory_id" name="factory_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="factory_name" data-labelCd="공장명">공장명</label>
+                                <div class="field-wrapper">
+                                    <input id="factory_name" name="factory_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="factory_code" data-labelCd="공장코드">공장코드</label>
+                                <div class="field-wrapper">
+                                    <input id="factory_code" name="factory_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="description" name="description" />
+                                </div>
+                            </div>
+                        </div>-->
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class FactoryPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/factory';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                //height: 450,
+                //toolbar: [
+                //    "columns"
+                //],
+                //columnMenu: {
+                //    componentType: "classic",
+                //    autoSize: true,
+                //    clearAllFilters: true,
+                //    columns: {
+                //        sort: "asc",
+                //    }
+                //},
+                columns: [
+                    { field: "factory_code", title: "공장코드", width: 100 },
+                    { field: "factory_name", title: "공장명", width: 150 },
+                    //{ field: "description", title: "비고", width: 200 },
+
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    /*
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                    */
+                },
+                height: 600
+            };
+            _this.grid = new Grid($("#factory_grid"), gridOption);
+
+            //search form
+            $('#keyword').kendoTextBox();
+
+            //form
+            $('#factory_name').kendoTextBox();
+            $('#factory_code').kendoTextBox();
+            //$('#description').kendoTextArea({
+            //    rows: 4,
+            //    maxLength: 200,
+            //    placeholder: ""
+            //});
+            
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                prod_type: $('#srch_prod_type').val(),
+                keyword: $('#keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#factory_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#factoryForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#factoryForm'));
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#factoryForm'));
+
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#factory_id').val(resp.factory_id);
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', selectData, funcSthisucc);
+            }
+        }
+
+    };
+   
+
+    $(document).ready(function () {
+        let page = new FactoryPage();
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

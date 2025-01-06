@@ -1,0 +1,315 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_prod_type" data-labelCd="제품유형">제품유형</label>
+                            <div class="field-wrapper">
+                                <select id="srch_prod_type" name="srch_prod_type"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="제품종류 목록">제품종류 목록</label></span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="prod_cls_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="prodClsForm">
+                    <input type="hidden" id="prod_cls_id" name="prod_cls_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="prod_cls_name" data-labelCd="제품종류명">제품종류명</label>
+                                <div class="field-wrapper">
+                                    <input id="prod_cls_name" name="prod_cls_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="prod_cls_code" data-labelCd="제품종류코드">제품종류코드</label>
+                                <div class="field-wrapper">
+                                    <input id="prod_cls_code" name="prod_cls_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="prod_type_code" data-labelCd="제품유형">제품유형</label>
+                                <div class="field-wrapper">
+                                    <select id="prod_type_code" name="prod_type_code"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="disp_order" data-labelCd="표시순서">표시순서</label>
+                                <div class="field-wrapper">
+                                    <input id="disp_order" name="disp_order" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remark" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="remark" name="remark" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class ProdClsPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/master/prod_cls';
+
+            this.comboProdType = [];
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            //combo데이터 세팅
+            _this.comboProdType = AjaxUtil.getSelectDataWithNull('system_code', 'all', 'prod_type');
+
+            let prodGridOption = {
+                //height: 450,
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "prod_cls_name", title: "제품종류명", width: 100 },
+                    { field: "prod_cls_code", title: "제품종류코드", width: 100 },
+                    { field: "prod_type_name", title: "제품유형", width: 100 },
+                    { field: "disp_order", title: "표시순서", width: 100 },
+                    { field: "remark", title: "비고", width: 100 },
+                    { field: "use_yn", title: "사용여부", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#prod_cls_grid"), prodGridOption);
+
+            //search form
+            $('#srch_prod_type').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.comboProdType,
+            });
+            $('#keyword').kendoTextBox();
+
+            //form
+            $('#prod_cls_name').kendoTextBox();
+            $('#prod_cls_code').kendoTextBox();
+            $('#prod_type_code').kendoComboBox({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.comboProdType,
+            });
+            $('#disp_order').kendoNumericTextBox({
+                format:'n0'
+            });
+            $('#remark').kendoTextArea({
+                rows: 4,
+                maxLength: 200,
+                placeholder: ""
+            });
+            $('#use_yn').kendoSwitch();
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                prod_type: $('#srch_prod_type').val(),
+                keyword: $('#keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#prod_cls_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#prodClsForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#prodClsForm'));
+                $('#prod_type_code').data("kendoComboBox").value(selectData.prod_type_code);
+                $('#disp_order').data("kendoNumericTextBox").value(selectData.disp_order);
+                $("#use_yn").data("kendoSwitch").check(selectData.use_yn == 'Y' ? true : false);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#prodClsForm'));
+            data.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#prod_cls_id').val(resp.prod_cls_id);
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', selectData, funcSthisucc);
+            }
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new ProdClsPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

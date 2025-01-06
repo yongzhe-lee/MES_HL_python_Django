@@ -1,0 +1,765 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+    .my-hr {
+        border: 0;
+        height: 10px;
+        background: #7a7eab;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="example">
+    <h2>FILTER</h2>
+    <div id="filter"></div>
+    <hr class="my-hr" />
+    <h2>GRID</h2>
+    <div id="grid"></div>
+    <hr class="my-hr" />
+    <h2>PIVOT GRID</h2>
+    <div class="k-pivotgrid-wrapper">
+        <div id="configurator" class="hidden-on-narrow"></div>
+        <div id="pivotgrid" class="hidden-on-narrow"></div>
+    </div>
+    <hr class="my-hr" />
+    <h2>SPREAD SHEET</h2>
+    <div id="spreadsheet" style="width: 100%;"></div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        // Grid START------------------------------------------------------------------------------------------------
+        var crudServiceBaseUrl = "https://demos.telerik.com/kendo-ui/service",
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/detailproducts",
+                        dataType: "jsonp"
+                    },
+                    update: {
+                        url: crudServiceBaseUrl + "/detailproducts/Update",
+                        dataType: "jsonp"
+                    },
+                    destroy: {
+                        url: crudServiceBaseUrl + "/detailproducts/Destroy",
+                        dataType: "jsonp"
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+                autoSync: true,
+                aggregate: [{
+                    field: "TotalSales",
+                    aggregate: "sum"
+                }],
+                group: {
+                    field: "Category.CategoryName",
+                    dir: "desc",
+                    aggregates: [
+                        { field: "TotalSales", aggregate: "sum" }
+                    ]
+                },
+                schema: {
+                    model: {
+                        id: "ProductID",
+                        fields: {
+                            ProductID: { editable: false, nullable: true },
+                            Discontinued: { type: "boolean", editable: false },
+                            TotalSales: { type: "number", editable: false },
+                            TargetSales: { type: "number", editable: false },
+                            LastSupply: { type: "date" },
+                            UnitPrice: { type: "number" },
+                            UnitsInStock: { type: "number" },
+                            Category: {
+                                defaultValue: {
+                                    CategoryID: 8,
+                                    CategoryName: "Seafood"
+                                }
+                            },
+                            Country: {
+                                defaultValue: {
+                                    CountryNameLong: "Bulgaria",
+                                    CountryNameShort: "bg"
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            columnMenu: {
+                filterable: false
+            },
+            height: 680,
+            editable: "incell",
+            pageable: true,
+            sortable: true,
+            navigatable: true,
+            resizable: true,
+            reorderable: true,
+            groupable: true,
+            filterable: true,
+            dataBound: onDataBound,
+            toolbar: ["excel", "pdf", "search"],
+            columns: [{
+                selectable: true,
+                width: 75,
+                attributes: {
+                    "class": "checkbox-align",
+                },
+                headerAttributes: {
+                    "class": "checkbox-align",
+                }
+            }, {
+                field: "ProductName",
+                title: "Product Name",
+                //template: "<div class='product-photo' style='background-image: url(../content/web/foods/#:data.ProductID#.jpg);'></div><div class='product-name'>#: ProductName #</div>",
+                width: 300
+            }, {
+                field: "UnitPrice",
+                title: "Price",
+                format: "{0:c}",
+                width: 105
+            }, {
+                field: "Discontinued",
+                title: "In Stock",
+                template: "<span id='badge_#=ProductID#' class='badgeTemplate'></span>",
+                width: 130,
+            }, {
+                field: "Category.CategoryName",
+                title: "Category",
+                editor: clientCategoryEditor,
+                groupHeaderTemplate: "Category: #=data.value#, Total Sales: #=kendo.format('{0:c}', aggregates.TotalSales.sum)#",
+                width: 125
+            }, {
+                field: "CustomerRating",
+                title: "Rating",
+                template: "<input id='rating_#=ProductID#' data-bind='value: CustomerRating' class='rating'/>",
+                editable: returnFalse,
+                width: 200
+            }, {
+                field: "Country.CountryNameLong",
+                title: "Country",
+                //template: "<div class='k-text-center'><img src='../content/web/country-flags/#:data.Country.CountryNameShort#.png' alt='Kendo UI for jQuery Grid #: data.Country.CountryNameLong# Flag' title='#: data.Country.CountryNameLong#' width='30' /></div>",
+                editor: clientCountryEditor,
+                width: 120
+            }, {
+                field: "UnitsInStock",
+                title: "Units",
+                width: 105
+            }, {
+                field: "TotalSales",
+                title: "Total Sales",
+                format: "{0:c}",
+                width: 140,
+                aggregates: ["sum"],
+            }, {
+                field: "TargetSales",
+                title: "Target Sales",
+                format: "{0:c}",
+                template: "<span id='chart_#= ProductID#' class='sparkline-chart'></span>",
+                width: 220
+            },
+            { command: "destroy", title: "&nbsp;", width: 120 }],
+        });
+        // Grid END--------------------------------------------------------------------------------------------------
+        // Filter START----------------------------------------------------------------------------------------------
+        $("#filter").kendoFilter({
+            dataSource: dataSource,
+            expressionPreview: true,
+            applyButton: true,
+            fields: [
+                { name: "name", type: "string", label: "Name" },
+                { name: "price", type: "number", label: "Price" },
+                { name: "description", type: "string", label: "Description" }
+            ],
+            expression: {
+                logic: "or",
+                filters: [
+                    { field: "price", value: 5, operator: "gte" },
+                    { field: "name", value: "salad", operator: "contains" }
+                ]
+            }
+        }).data("kendoFilter").applyFilter();
+        // Filter END------------------------------------------------------------------------------------------------
+        // PIVOT START-----------------------------------------------------------------------------------------------
+        var pivotgrid = $("#pivotgrid").kendoPivotGrid({
+            filterable: true,
+            sortable: true,
+            columnWidth: 200,
+            height: 580,
+            dataSource: {
+                type: "xmla",
+                columns: [{ name: "[Date].[Calendar]", expand: true }, { name: "[Product].[Category]" }],
+                rows: [{ name: "[Geography].[City]" }],
+                measures: ["[Measures].[Reseller Freight Cost]"],
+                transport: {
+                    connection: {
+                        catalog: "Adventure Works DW 2008R2",
+                        cube: "Adventure Works"
+                    },
+                    read: "https://demos.telerik.com/olap/msmdpump.dll"
+                },
+                schema: {
+                    type: "xmla"
+                },
+                error: function (e) {
+                    alert("error: " + kendo.stringify(e.errors[0]));
+                }
+            }
+        }).data("kendoPivotGrid");
+
+        $("#configurator").kendoPivotConfigurator({
+            dataSource: pivotgrid.dataSource,
+            filterable: true,
+            sortable: true,
+            height: 580
+        });
+        // PIVOT END-------------------------------------------------------------------------------------------------
+        // SPREADSHEET START-----------------------------------------------------------------------------------------
+        $("#spreadsheet").kendoSpreadsheet({
+            excel: {
+                // Required to enable saving files in older browsers
+                proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+            },
+            pdf: {
+                proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+            },
+            sheets: [
+                {
+                    name: "Food Order",
+                    mergedCells: [
+                        "A1:G1",
+                        "C15:E15"
+                    ],
+                    rows: [
+                        {
+                            height: 70,
+                            cells: [
+                                {
+                                    index: 0, value: "Invoice #52 - 06/23/2015", fontSize: 32, background: "rgb(96,181,255)",
+                                    textAlign: "center", color: "white"
+                                }
+                            ]
+                        },
+                        {
+                            height: 25,
+                            cells: [
+                                {
+                                    value: "ID", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Product", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Quantity", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Price", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Tax", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Amount", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(167,214,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 216321, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Calzone", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 1, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 12.39, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C3*D3*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C3*D3+E3", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 546897, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Margarita", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 2, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 8.79, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C4*D4*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C4*D4+E4", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 456231, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Pollo Formaggio", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 1, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 13.99, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C5*D5*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C5*D5+E5", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 455873, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Greek Salad", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 1, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 9.49, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C6*D6*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C6*D6+E6", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 456892, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Spinach and Blue Cheese", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 3, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 11.49, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C7*D7*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C7*D7+E7", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 546564, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Rigoletto", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 1, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 10.99, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C8*D8*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C8*D8+E8", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 789455, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Creme Brulee", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 5, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 6.99, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C9*D9*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C9*D9+E9", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 123002, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Radeberger Beer", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 4, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 4.99, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C10*D10*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C10*D10+E10", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            cells: [
+                                {
+                                    value: 564896, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Budweiser Beer", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 3, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: 4.49, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C11*D11*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    formula: "C11*D11+E11", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            index: 11,
+                            cells: [
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            index: 12,
+                            cells: [
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            height: 25,
+                            index: 13,
+                            cells: [
+                                {
+                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+                                },
+                                {
+                                    value: "Tip:", background: "rgb(193,226,255)", color: "rgb(0,62,117)", textAlign: "right", verticalAlign: "bottom"
+                                },
+                                {
+                                    formula: "SUM(F3:F11)*0.1", background: "rgb(193,226,255)", color: "rgb(0,62,117)", format: "$#,##0.00", bold: "true", verticalAlign: "bottom"
+                                },
+                                {
+                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        },
+                        {
+                            height: 50,
+                            index: 14,
+                            cells: [
+                                {
+                                    index: 0, background: "rgb(193,226,255)", color: "rgb(0,62,117)",
+                                },
+                                {
+                                    index: 1, background: "rgb(193,226,255)", color: "rgb(0,62,117)",
+                                },
+                                {
+                                    index: 2, fontSize: 20, value: "Total Amount:",
+                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)", textAlign: "right"
+                                },
+                                {
+                                    index: 5, fontSize: 20, formula: "SUM(F3:F14)", background: "rgb(193,226,255)", color: "rgb(0,62,117)",
+                                    format: "$#,##0.00", bold: "true"
+                                },
+                                {
+                                    index: 6, background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+                                }
+                            ]
+                        }
+                    ],
+                    columns: [
+                        {
+                            width: 100
+                        },
+                        {
+                            width: 215
+                        },
+                        {
+                            width: 115
+                        },
+                        {
+                            width: 115
+                        },
+                        {
+                            width: 115
+                        },
+                        {
+                            width: 155
+                        }
+                    ]
+                }
+            ]
+        });
+        // SPREADSHEET END-------------------------------------------------------------------------------------------
+    });
+
+    function onDataBound(e) {
+        var grid = this;
+        grid.table.find("tr").each(function () {
+            var dataItem = grid.dataItem(this);
+            var themeColor = dataItem.Discontinued ? 'success' : 'error';
+            var text = dataItem.Discontinued ? 'available' : 'not available';
+
+            $(this).find(".badgeTemplate").kendoBadge({
+                themeColor: themeColor,
+                text: text,
+            });
+
+            $(this).find(".rating").kendoRating({
+                min: 1,
+                max: 5,
+                label: false,
+                selection: "continuous"
+            });
+
+            $(this).find(".sparkline-chart").kendoSparkline({
+                legend: {
+                    visible: false
+                },
+                data: [dataItem.TargetSales],
+                type: "bar",
+                chartArea: {
+                    margin: 0,
+                    width: 180,
+                    background: "transparent"
+                },
+                seriesDefaults: {
+                    labels: {
+                        visible: true,
+                        format: '{0}%',
+                        background: 'none'
+                    }
+                },
+                categoryAxis: {
+                    majorGridLines: {
+                        visible: false
+                    },
+                    majorTicks: {
+                        visible: false
+                    }
+                },
+                valueAxis: {
+                    type: "numeric",
+                    min: 0,
+                    max: 130,
+                    visible: false,
+                    labels: {
+                        visible: false
+                    },
+                    minorTicks: { visible: false },
+                    majorGridLines: { visible: false }
+                },
+                tooltip: {
+                    visible: false
+                }
+            });
+
+            kendo.bind($(this), dataItem);
+        });
+    }
+
+    function returnFalse() {
+        return false;
+    }
+
+    function clientCategoryEditor(container, options) {
+        $('<input required name="Category">')
+            .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                dataTextField: "CategoryName",
+                dataValueField: "CategoryID",
+                dataSource: {
+                    data: categories
+                }
+            });
+    }
+
+    function clientCountryEditor(container, options) {
+        $('<input required name="Country">')
+            .appendTo(container)
+            .kendoDropDownList({
+                dataTextField: "CountryNameLong",
+                dataValueField: "CountryNameShort",
+                template: "<div class='dropdown-country-wrap'><img src='../content/web/country-flags/#:CountryNameShort#.png' alt='Kendo UI for jQuery Grid #: CountryNameLong# Flag' title='#: CountryNameLong#' width='30' /><span>#:CountryNameLong #</span></div>",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: " https://demos.telerik.com/kendo-ui/service/countries",
+                            dataType: "jsonp"
+                        }
+                    }
+                },
+                autoWidth: true
+            });
+    }
+
+    var categories = [{
+        "CategoryID": 1,
+        "CategoryName": "Beverages"
+    }, {
+        "CategoryID": 2,
+        "CategoryName": "Condiments"
+    }, {
+        "CategoryID": 3,
+        "CategoryName": "Confections"
+    }, {
+        "CategoryID": 4,
+        "CategoryName": "Dairy Products"
+    }, {
+        "CategoryID": 5,
+        "CategoryName": "Grains/Cereals"
+    }, {
+        "CategoryID": 6,
+        "CategoryName": "Meat/Poultry"
+    }, {
+        "CategoryID": 7,
+        "CategoryName": "Produce"
+    }, {
+        "CategoryID": 8,
+        "CategoryName": "Seafood"
+    }];
+</script>
+
+{% endblock %}

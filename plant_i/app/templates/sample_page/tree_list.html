@@ -1,0 +1,125 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2>Tree List</h2>
+    <section class="section">
+        <div class="grid-container">
+            <button>버튼1</button>
+            <button>버튼2</button>
+            <button>버튼3</button>
+            <div id="sample_tree_grid"></div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class SampleTreeListPage {
+        constructor() {
+            this.grid = null;
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                height: 400,
+                columns: [
+                    { field: "name", title: "메뉴명", width: 100 },
+                    { field: "description", title: "설명", width: 100 },
+                ],
+            };
+            _this.grid = new TreeGrid($("#sample_tree_grid"), gridOption);
+
+            $("#searchForm").kendoForm({
+                //orientation: "horizontal",
+                formData: {
+                    user_group: '',
+                    keyword: '',
+                },
+                layout: "grid",
+                grid: {
+                    cols: 4,
+                    gutter: 30
+                },
+                items: [
+                    {
+                        field: "user_group", editor: "DropDownList", label: "사용자 그룹",
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "name",
+                            dataValueField: "id",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboUserGrp,
+                            }
+                        }
+                    },
+                    {
+                        field: "menu_folder", editor: "DropDownList", label: "메뉴 폴더",
+                        editorOptions: {
+                            placeholder: "전체",
+                            dataTextField: "name",
+                            dataValueField: "id",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboFolder,
+                            }
+                        }
+                    },
+                ],
+                buttonsTemplate: '<button>검색</button>',
+                submit: function (e) {
+                    e.preventDefault();
+                    let formData = e.model;
+                    _this.setSampleData(formData);
+                },
+                clear: function (ev) {
+                },
+                change: function (e) {
+                    e.preventDefault();
+                    console.log('change e', e);
+                },
+                messages: {
+                    submit: "조회",
+                }
+
+            });
+        }
+
+        setSampleData(searchForm = null) {
+            let _this = this;
+
+            let sampleData = [
+                { id: 1, parentId: null, name: '최상위', description: '' },
+                { id: 2, parentId: 1, name: '상위1', description: '' },
+                { id: 3, parentId: 1, name: '상위2', description: '' },
+                { id: 4, parentId: 2, name: '중간1', description: '' },
+                { id: 5, parentId: 2, name: '중간2', description: '' },
+                { id: 6, parentId: 3, name: '중간3', description: '' },
+                { id: 7, parentId: 3, name: '중간4', description: '' },
+            ]
+
+            _this.grid.setData(sampleData);
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SampleTreeListPage();
+
+        page.setSampleData();
+    });
+
+</script>
+
+{% endblock %}

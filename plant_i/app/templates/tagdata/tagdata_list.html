@@ -1,0 +1,304 @@
+{% extends "app/layout_page.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content_wrap">
+    <section>
+
+        <div class="title_box ">
+            <div class="left_align">
+                <h3 data-labelCd="태그데이터 조회">태그데이터 조회</h3>
+            </div>
+            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
+            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
+        </div>
+
+        <div class="table_box search">
+            <form id="searchForm">
+                <div class="row">
+                    <div class="col-12 col-md-4 col-xl-2">
+                        <div class="input-group" data-ax5picker="basic" id="srchDt">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="일자">일자</span>
+                            </div>
+                            <input class="form-control2 tac" type="text" id="srchStartDt" name="srchStartDt">
+                            <span class="input-group-text fs-xl"><i class="fas fa-calendar-alt calendar_color" ></i></span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-5 col-lg-4 col-xl-3" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="시간">시간</span>
+                            </div>
+                            <div class="form-control2">
+                                <input class="tac timepicker" type="text"id="srchStartTm" name="srchStartTm"  />
+                                <span class="slow_sign">~</span>
+                                <input class="tac timepicker" type="text" id="srchEndTm" name="srchEndTm" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 col-lg-3 col-xl-2" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="태그그룹">태그그룹</span>
+                            </div>
+                            <select class="form-control2" id="cboTagGroup" name="cboTagGroup" ></select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 col-lg-2 col-xl-2" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="태그">태그</span>
+                            </div>
+                            <select class="form-control2" id="cboTag" name="cboTag" ></select>
+                        </div>
+                    </div>
+
+                    <div class="col-1" >
+                        <button type="button" class="btn-default" id="btnSearch" title="조회"><i class="fas fa-search"></i></button>
+                    </div> 
+                </div>
+            </form>
+        </div>
+    </section>
+ 
+    <section>
+        <div class="title_box mb-2">
+            <span class="left_align" data-labelCd="태그정보">태그정보</span>
+        </div>       
+        <div class="table_box sub">
+            <form id="tagForm">
+            <div class="row">
+                <div class="col-6 col-md-3 col-lg-2" >
+                    <div class="input-group" >
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t7" data-labelCd="설비명">설비명</span>
+                        </div>
+                        <!--<select class="form-control2" id="equipment_id" name="equipment_id" disabled="disabled" readonly ></select>-->
+                        <input class="form-control2 readonly" id="equipment_name" name="equipment_name" disabled="disabled" readonly />
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 col-lg-2" >
+                    <div class="input-group" >
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t7" data-labelCd="소수점자리수">소수점자리수</span>
+                        </div>
+                        <input class="form-control2 readonly" id="round_digit" name="round_digit" disabled="disabled" readonly />
+
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 col-lg-2" >
+                    <div class="input-group" >
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t7" data-labelCd="하한값">하한값</span>
+                        </div>
+                        <input class="form-control2 readonly" id="lsl" name="lsl" placeholder="" disabled="disabled" readonly />
+
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 col-lg-2" >
+                    <div class="input-group" >
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t7" data-labelCd="상한값">상한값</span>
+                        </div>
+                        <input class="form-control2 readonly" id="usl" name="usl" placeholder="" disabled="disabled" readonly />
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+        
+    </section>
+    <section>
+        <div class="grid_box">
+            <div class="title_box">
+                <span class="right_align rpt" data-labelCd="공정데이터">공정데이터</span>
+                <button type="button" class="btn-default" id="btnExcel"><i class="fas fa-file-excel"></i></button>
+                <button type="button" class="btn-default" id="btnGridSetting" style="visibility:hidden"><i class="fas fa-cog"></i> Setting</button>
+            </div>
+            <div class="h-550" data-ax5grid="equ-tag-grid"></div>  
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include '../common/columns_setting.html' %} 
+<script type="text/javascript">
+    class equipmentTagdata {
+        constructor() {
+            this.grid = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let config = {
+                target: $('[data-ax5grid="equ-tag-grid"]'),
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: false, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 38  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+                        _this.grid.select(this.dindex);
+                        //_this.showDetailStoreHouse(e.item.id);
+                    }
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'tag_code', label: '태그코드', width: 150, align: 'center' },
+                    { key: 'tag_name', label: '태그명', width: 200, align: 'left' },
+                    { key: 'data_value', label: '값', width: 150, align: 'right' },
+                    { key: 'data_char', label: '문자값', width: 150, align: 'left' },
+                    { key: 'data_date', label: '일시', width: 150, align: 'center' },
+                ]
+            };
+
+            this.grid = new ax5.ui.grid(config);
+            this.grid_config = config; 
+            let $cboTagGroup = $('#cboTagGroup');
+            let $cboTag = $('#cboTag');
+            AjaxUtil.fillSelectOptions($cboTagGroup, 'tag_group', 'all', false);
+            $cboTagGroup.change(function (e) {
+                AjaxUtil.fillSelectOptions($cboTag, 'tag', 'choose', false, null, $cboTagGroup.val());
+            });
+
+            AjaxUtil.fillSelectOptions($cboTag, 'tag', 'choose', false);
+            //AjaxUtil.fillSelectOptions($('#equipment_id'), 'equipment', 'choose', false);
+            let $form = $('#tagForm');
+            $cboTag.change(function (e) {
+                let tag = $cboTag.val();
+                if (tag == '') {
+                    $form[0].reset();
+                }
+                else {
+                    _this.loadTagInfo($cboTag.val());
+                }
+            });
+        }
+
+        exportExcel() {
+            var targetview = this.grid;
+            // 현재 html코드로 데이터 만들어 확장자만 xls로 변경해주고 있음
+            targetview.exportExcel('공정데이터 조회.xls');
+        }
+
+        loadTagInfo(tag_code) {
+            let param = { 'tag_code': tag_code, 'action': 'detail' };
+            let url = '/api/definition/tag';
+            let result = AjaxUtil.getSyncData(url, param);
+            if (result != null) {
+                FormUtil.BindDataForm(result, $('#tagForm'));
+            }
+        }
+
+
+        searchMainData() {
+            let _this = this;               //조회조건 변경 필요
+            let srchStartDt = $('#srchStartDt').val();
+            let srchStartTm = $('#srchStartTm').val();
+            let srchEndTm = $('#srchEndTm').val();
+            //let cboTagGroup = $('#cboTagGroup').val();
+            let tag_code = $('#cboTag').val();            
+            let url = '/api/tagdata/tagdata_list';
+            
+            let param = {
+                'action' : 'read',
+                'data_date' : srchStartDt,
+                'start_time' : srchStartTm,
+                'end_time' : srchEndTm,
+                'tag_code' : tag_code,
+            };
+
+            let res = AjaxUtil.getSyncData(url, param);
+            if (res) {
+                let recordsTotal = res.length;
+                _this.grid.setData({
+                    list: res,
+                    page: {
+                        display: true,
+                        totalElements: recordsTotal,
+                    }
+                });
+            }
+
+            //$.getJSON(url, function (res) {
+            //    let recordsTotal = res.length;
+            //    _this.grid.setData({
+            //        list: res,
+            //        page: {
+            //            display: true,
+            //            totalElements: recordsTotal,
+            //        }
+            //    });
+
+            //}).fail(function (e) {
+            //    console.log('fail', e);
+            //    Notify.error(JSON.parse(e.responseText).message);
+            //});
+        }
+    }
+
+    let page = null;
+
+    $(document).ready(function (e) {
+        page = new equipmentTagdata();
+        $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
+        //$('select').select2();
+        $('#srchDt').ax5DatePicker({ direction: 'top' });
+        $('#srchStartTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i',
+        }).val('09:00');
+        $('#srchEndTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i'
+        }).val('18:00');
+        // 검색
+        $('#btnSearch').click(function (e) {
+            if ($('#cboTag').val()) {
+                page.searchMainData();
+            } else {
+                Alert.alert('', '태그를 선택해주세요.');
+                return;
+            }
+        });
+        // 엑셀
+        $('#btnExcel').on('click', function () {
+            page.exportExcel();
+        });
+		//그리드 컬럼 설정
+        page.popColSetting = new popColSetting();
+        let columns = page.popColSetting.loadColumnData(gui.gui_code, gui.template_key, 'grid',  page.grid);
+		
+        if (userinfo.group_code == 'admin') {
+            $('#btnGridSetting').css('visibility','visible');  
+        }		
+	
+        $('#btnGridSetting').click(function (e) {
+            let _this = this;
+            let fix_cols = page.grid_config.frozenColumnIndex;
+            console.log('fix_cols', fix_cols);
+            page.popColSetting.show(gui.gui_code, gui.template_key, 'grid', page.grid_config.columns, page.grid, { 'order_fix':false,  'fix_cols' : fix_cols });
+        });
+        page.searchMainData();    
+    })
+</script>
+{% endblock %}

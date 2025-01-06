@@ -1,0 +1,293 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="공정명, 공정코드" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnExcel">Excel</button>
+                        <button id="btnPDF">PDF</button>
+                        <button id="btnGrid">Grid</button>
+                    </span>
+                </div>
+                <div id="process_grid" class="kgrid"></div>
+            </div>
+
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <div class="edit-form-ui">
+                        <input type="hidden" id="process_id" name="process_id" />
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="process_name" data-labelCd="공정명">공정명</label>
+                                <div class="field-wrapper">
+                                    <input id="process_name" name="process_name" data-msg="공정명을" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="process_code" data-labelCd="공정코드">공정코드</label>
+                                <div class="field-wrapper">
+                                    <input id="process_code" name="process_code" data-msg="공정코드를" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="process_type" data-labelCd="공정유형">공정유형</label>
+                                <div class="field-wrapper">
+                                    <input id="process_type" name="process_type" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="description" name="description" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class ProcessPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/process'
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            // grid option
+            let gridOption = {
+                pageable: false,
+                columns: [
+                    { field: "process_name", title: "공정명", width: 100 },
+                    { field: "process_code", title: "공정코드", width: 100 },
+                    { field: "process_type", title: "공정타입", width: 50 },
+                    { field: "description", title: "비고", width: 100 },
+
+                ],
+                change: function (e) {
+                    let data = _this.grid.getSelect()[0];
+                    _this.showDetail(data.process_id);
+                },
+                height: 520
+            };
+            _this.grid = new Grid($('#process_grid'), gridOption);
+
+            // searchForm
+            $('#sch_keyword').kendoTextBox({});
+            $('#sch_keyword').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    _this.searchMainData();
+                }
+            })
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+            $('#btnPDF').kendoButton({ icon: "file-pdf", themeColor: "success" });
+            $('#btnGrid').kendoButton({ themeColor: "success" });
+
+            //detailForm
+            $('#process_name').kendoTextBox({});
+            $('#process_code').kendoTextBox({});
+            $('#process_type').kendoTextBox({});
+            $('#description').kendoTextBox({});
+            //$('#remark').kendoTextArea({
+            //    rows: 4,
+            //    autosize: true,
+            //    maxLength: 500, // 글자수
+            //    size: "large"
+            //});
+            $("#use_yn").kendoSwitch({
+                checked: false
+            });
+
+            // detailForm btns
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                    $('#btnSave').prop('disabled', false);
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    Alert.confirm('저장하시겠습니까?', function () {
+                        _this.saveData()
+                    });
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    Alert.confirm('삭제하시겠습니까?', function () {
+                        _this.deleteData()
+                    });
+                }
+            });
+
+        }
+
+        setButtonState() {
+            let _this = this;
+            let process_id = $('#process_id').val();
+
+            $('#btnSave').prop('disabled', true);
+            $('#btnDelete').prop('disabled', true);
+
+            if (process_id) {
+                $('#btnSave').prop('disabled', false);
+                $('#btnDelete').prop('disabled', false);
+            } else {
+                $('#btnSave').prop('disabled', true);
+                $('#btnDelete').prop('disabled', true);
+            }
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let data = FormUtil.extractForm($('#searchForm'));
+            data['action'] = 'read'
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, data);
+
+            if (result) {
+                _this.grid.setData(result);
+            }
+
+            _this.resetForm();
+        }
+
+        resetForm() {
+            let _this = this;
+            FormUtil.resetForm($('#detailForm'));
+            _this.setButtonState();
+        }
+
+        showDetail(id) {
+            let _this = this;
+            let data = {
+                'action': 'detail',
+                'id': id
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, data);
+
+            if (result) {
+                FormUtil.BindDataForm(result, $('#detailForm'));
+            }
+
+            _this.setButtonState();
+        }
+
+        saveData() {
+            let _this = this;
+            let url = _this.baseUrl + '?action=save';
+            let data = FormUtil.extractForm($('#detailForm'));
+
+            //필수 입력값 체크
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('저장되었습니다');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let url = _this.baseUrl + '?action=delete';
+            let id = $('#detailForm').find('#process_id').val();
+            let data = { 'id': id };
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success('삭제되었습니다');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('', res.message);
+                }
+            }
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+    }
+    
+
+    $(document).ready(function () {
+        let page = new ProcessPage();
+        page.searchMainData();
+    })
+
+</script>
+{% endblock %}

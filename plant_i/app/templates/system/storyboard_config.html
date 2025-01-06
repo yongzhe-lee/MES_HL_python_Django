@@ -1,0 +1,359 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="스토리보드 설정">스토리보드 설정</label>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnAddMenu">메뉴 항목 추가</button>
+                        <button id="btnAddHmi">HMI 양식 추가</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="storyboard_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% verbatim %}
+<script type="text/x-kendo-template" id="createMenuItemTemplate">
+    <div class="content_wrap popup">
+        <div class="card-content popup">
+            <form id="popupForm" class="search-form">
+                <div class="edit-form-ui col-auto">
+
+                    <div class="col-12 form-item align-h">
+                        <label class="k-label k-form-label essential" for="cboMenuCode" data-labelCd="메뉴 선택">메뉴 선택</label>
+                        <div class="field-wrapper">
+                            <select id="cboMenuCode" name="MenuCode"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 form-item align-h">
+                        <label class="k-label k-form-label" for="Duration" data-labelCd="지속 시간 (초)">지속 시간 (초)</label>
+                        <div class="field-wrapper">
+                            <input id="Duration" name="Duration" value="10"/>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+            <div class="card-group-btn" style="margin-top:10px">
+                <span></span>
+                <span>
+                    <button id="btnSaveMenuItem" class="btn-save">저장</button>
+                    <button id="modal-close-button" class="btn-cancel">닫기</button>
+                </span>
+            </div>
+
+        </div>
+    </div>
+</script>
+{% endverbatim %}
+
+{% verbatim %}
+<script type="text/x-kendo-template" id="createHMIItemTemplate">
+     <div class="content_wrap popup">
+        <div class="card-content popup">
+            <form id="popupForm" class="search-form">
+                <div class="edit-form-ui col-auto">
+
+                    <div class="col-12 form-item align-h">
+                        <label class="k-label k-form-label essential" for="cboHMIType" data-labelCd="HMI 양식 구분">HMI 양식 구분</label>
+                        <div class="field-wrapper">
+                            <select id="cboHMIType" name="hmi_type">
+                                <option value='hmi_a'>A</option>
+                                <option value='hmi_b'>B</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 form-item align-h">
+                        <label class="k-label k-form-label" for="cboHMI" data-labelCd="HMI 양식 선택">HMI 양식 선택</label>
+                        <div class="field-wrapper">
+                            <select id="cboHMI" name="hmi_id"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 form-item align-h">
+                        <label class="k-label k-form-label" for="Duration" data-labelCd="지속 시간 (초)">지속 시간 (초)</label>
+                        <div class="field-wrapper">
+                            <input id="Duration" name="Duration" value="10"/>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+            <div class="card-group-btn" style="margin-top:10px">
+                <span></span>
+                <span>
+                    <button id="btnSaveHmiItem" class="btn-save">저장</button>
+                    <button id="modal-close-button" class="btn-cancel">닫기</button>
+                </span>
+            </div>
+
+        </div>
+    </div>
+</script>
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<!--24.11.07 김하늘. 전혀 사용하지 않는 것 같아서 주석 처리-->
+<!--{% include '../popup/popup_test.html' %}-->
+<script type="text/javascript">
+    class StoryboardPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/system/storyboard';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let storyboardGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    // 차후 수정
+                    { field: "id", title: "id", hidden: true },
+                    { field: "BoardTypeName", title: "항목구분", width: 100 },
+                    { field: "name", title: "항목명", width: 100 },
+                    { field: "Duration", title: "지속시간(초)", width: 100 },
+                    { field: "writer", title: "작성자", width: 100 },
+                    { field: "created", title: "생성일", width: 100 },
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: 680
+            };
+            _this.grid = new Grid($("#storyboard_grid"), storyboardGridOption);
+
+            //form button
+            $('#btnAddMenu').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.openAddMenuItemPopup();
+                }
+            });
+            $('#btnAddHmi').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.openAddHMIItemPopup();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    let selectData = _this.grid.getSelect();
+                    if (selectData.length > 0) {
+                        let id = selectData[0].id;
+                        Alert.confirm('', '삭제하시겠습니까?', function () {
+                            _this.deleteItem(id);
+                        });
+                    }
+
+                }
+            });
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+            let param = {
+                action: 'read',
+            };
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        // 메뉴 항목 추가 팝업 24.11.06 김하늘 qms 참고하여 수정
+        openAddMenuItemPopup() {
+            let _this = this;
+            let templateHtml = $('#createMenuItemTemplate').html();
+            let $popup = $(templateHtml);
+            // 브라우저 너비의 50%를 팝업 너비로 설정
+            let windowWidth = window.innerWidth * 0.5;
+
+            $popup.kendoWindow({
+                width: `${windowWidth}px`,  // 가변적인 너비 설정
+                height: "auto",
+                title: '메뉴 항목 추가',
+                visible: false,
+                actions: ["Close"],
+                close: () => { /* 팝업 닫을 때 필요한 로직 */ }
+            });
+
+            let $cboMenuCode = $popup.find('#cboMenuCode');
+            AjaxUtil.fillDropDownOptions($cboMenuCode, 'menu_item', 'choose', false);
+            let $Duration = $popup.find('#Duration').kendoTextBox({});
+
+            $popup.data("kendoWindow").center().open();
+
+            // 저장버튼 클릭시
+            $popup.find('#btnSaveMenuItem').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        let data = {
+                            'BoardType': 'menu',
+                            'MenuCode': $cboMenuCode.val(),
+                            'Duration': $Duration.val()
+                        };
+                        _this.saveItem(data, $popup);
+                    });
+                }
+            });
+
+            $popup.find('#modal-close-button').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    $popup.data('kendoWindow').close();
+                }
+            });
+
+        }
+
+        // HMI 양식 추가 팝업 24.11.06 김하늘 qms 참고하여 수정
+        openAddHMIItemPopup() {
+            let _this = this;
+            let templateHtml = $('#createHMIItemTemplate').html();
+            let $popup = $(templateHtml);
+            // 브라우저 너비의 50%를 팝업 너비로 설정
+            let windowWidth = window.innerWidth * 0.5;
+
+            $popup.kendoWindow({
+                width: `${windowWidth}px`,  // 가변적인 너비 설정
+                height: "auto",
+                title: 'HMI 양식 추가',
+                visible: false,
+                actions: ["Close"],
+                close: () => { /* 팝업 닫을 때 필요한 로직 */ }
+            });
+
+            let $cboHMIType = $popup.find('#cboHMIType').kendoDropDownList({});
+            let $cboHMI = $popup.find('#cboHMI').kendoDropDownList({});
+            let $Duration = $popup.find('#Duration').kendoTextBox({});
+            AjaxUtil.fillSelectOptions($cboHMI, 'hmi_form', '', false, $cboHMIType.val());
+
+            $cboHMIType.change(function (e) {
+                AjaxUtil.fillSelectOptions($cboHMI, 'hmi_form', '', false, $cboHMIType.val());
+            });
+
+            $popup.data("kendoWindow").center().open();
+
+            // 저장버튼 클릭시
+            $popup.find('#btnSaveHmiItem').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        let MenuCode = '';
+                        let hmiType = $cboHMIType.val();
+                        if (hmiType == 'hmi_a') {
+                            MenuCode = 'wm_hmi_form';
+                        } else {
+                            MenuCode = 'wm_hmi_form_b';
+                        }
+                        let data = {
+                            'BoardType': $cboHMIType.val(),
+                            'MenuCode': MenuCode,
+                            'Duration': $Duration.val(),
+                            'ParameterData': $cboHMI.val()
+                        };
+                        _this.saveItem(data, $popup);
+                    });
+                }
+            });
+
+            $popup.find('#modal-close-button').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    $popup.data('kendoWindow').close();
+                }
+            });
+        }
+
+        // 수정버튼 -> 저장
+        saveItem(data, popup) {
+            let _this = this;
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                    popup.data('kendoWindow').close();
+                } else {
+                    Notify.error(result.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, fnSuccess);
+        }
+
+        searchMainData() {
+            let _this = this;
+            let param = {
+                action: 'read',
+            };
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        deleteItem(id) {
+            let _this = this;
+            let data = { id: id };
+            let fnSuccess = function (res) {
+                Notify.success('삭제했습니다');
+                _this.searchMainData();
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', data, fnSuccess);
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new StoryboardPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

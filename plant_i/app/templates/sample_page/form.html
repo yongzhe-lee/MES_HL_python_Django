@@ -1,0 +1,314 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2>FORM</h2>
+    <section class="section">
+        <h3>[Vertical]</h3>
+        <form id="sampleFormVerti"></form>
+    </section>
+    <section class="section">
+        <h3>[Horizontal]</h3>
+        <form id="sampleFormHori"></form>
+    </section>
+    <section>
+        <button id="btn1">inherit</button>
+        <button id="btn2">default</button>
+        <button id="btn3">primary</button>
+        <button id="btn4">secondary</button>
+        <button id="btn5">tertiary</button>
+        <button id="btn6">info</button>
+        <button id="btn7">success</button>
+        <button id="btn8">warning</button>
+        <button id="btn9">error</button>
+        <button id="btn10">dark</button>
+        <button id="btn11">light</button>
+        <button id="btn12">inverted</button>
+    </section>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    class SampleFormPage {
+        constructor() {
+            this.comboSample = [
+                { 'code': '', name: '샘플1' },
+                { 'code': '', name: '샘플2' },
+                { 'code': '', name: '샘플3' },
+                { 'code': '', name: '샘플4' },
+                { 'code': '', name: '샘플5' },
+                { 'code': '', name: 'ABC' },
+                { 'code': '', name: 'DEF' },
+                { 'code': '', name: '1234' },
+                { 'code': '', name: '5678' },
+                { 'code': '', name: '한글1' },
+                { 'code': '', name: '한글2' },
+            ];
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            $("#sampleFormVerti").kendoForm({
+                //orientation: "horizontal",
+                formData: {
+                    DropDownList: '',
+                    ComboBox: '',
+                    DatePicker: new Date(),
+                    DateTimePicker: new Date(),
+                    TextBox: '',
+                    TextArea: '',
+                    Switch: false,
+                    DateRangePicker: {
+                        start: new Date(),
+                        end: new Date()
+                    }
+                },
+                layout: "grid",
+                grid: {
+                    cols: 4,
+                    gutter: 30
+                },
+                items: [
+                    {
+                        field: "DropDownList", editor: "DropDownList", label: "DropDownList",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "name",
+                            dataValueField: "code",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSample,
+                            }
+                        }
+                    },
+                    {
+                        field: "ComboBox", editor: "ComboBox", label: "ComboBox",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "name",
+                            dataValueField: "code",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSample,
+                            }
+                        }
+                    },
+                    {
+                        field: "DatePicker",
+                        editor: "DatePicker",
+                        label: "DatePicker:",
+                        validation: { required: true },
+                        editorOptions: {
+                            format: "yyyy-MM-dd"
+                        }
+                    },
+                    {
+                        field: "DateTimePicker",
+                        editor: "DateTimePicker",
+                        label: "DateTimePicker:",
+                        validation: { required: true },
+                        editorOptions: {
+                            format: "yyyy-MM-dd HH:mm:ss"
+                        }
+                    },
+                    {
+                        field: "TextBox",
+                        label: "TextBox",
+                        editor: "TextBox",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "placeholder"
+                        }
+                    },
+                    {
+                        field: "TextArea",
+                        label: "TextArea",
+                        editor: "TextArea",
+                        validation: { required: true },
+                        editorOptions: { rows: 3 },
+                    },
+                    {
+                        field: "Switch",
+                        editor: "Switch",
+                        label: "Switch",
+                        validation: { required: true },
+                    },
+                    {
+                        field: "DateRangePicker",
+                        label: "",
+                        editor: function (container, options) {
+                            $("<div name='" + options.field + "'></div>").kendoDateRangePicker({
+                                range: {
+                                    start: options.model.DateRangePicker.start,
+                                    end: options.model.DateRangePicker.end
+                                },
+                                change: function (e) {
+                                    $("#sampleFormVerti").data('kendoForm')._model.testDate.start = e.sender.range().start;
+                                    $("#sampleFormVerti").data('kendoForm')._model.testDate.end = e.sender.range().end;
+                                },
+                                format: "yyyy-MM-dd",
+                                messages: {
+                                    startLabel: "시작",
+                                    endLabel: "종료"
+                                }
+                            }).appendTo(container);
+                        }
+                    }
+                ],
+                submit: function (e) {
+                    e.preventDefault();
+                    let formData = e.model;
+                    console.log(formData);
+                },
+                clear: function (ev) {
+                },
+                messages: {
+                    submit: "저장",
+                    clear: "신규",
+                }
+            });
+
+            $("#sampleFormHori").kendoForm({
+                orientation: "horizontal",
+                formData: {
+                    DropDownList: '',
+                    ComboBox: '',
+                    DatePicker: new Date(),
+                    DateTimePicker: new Date(),
+                    TextBox: '',
+                    TextArea: '',
+                    Switch: false,
+                },
+                layout: "grid",
+                grid: {
+                    cols: 4,
+                    gutter: 30
+                },
+                items: [
+                    {
+                        field: "DropDownList", editor: "DropDownList", label: "DropDownList",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "name",
+                            dataValueField: "code",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSample,
+                            }
+                        }
+                    },
+                    {
+                        field: "ComboBox", editor: "ComboBox", label: "ComboBox",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "선택",
+                            dataTextField: "name",
+                            dataValueField: "code",
+                            filter: "contains",
+                            dataSource: {
+                                data: _this.comboSample,
+                            }
+                        }
+                    },
+                    {
+                        field: "DatePicker",
+                        editor: "DatePicker",
+                        label: "DatePicker:",
+                        validation: { required: true },
+                        editorOptions: {
+                            format: "yyyy-MM-dd"
+                        }
+                    },
+                    {
+                        field: "DateTimePicker",
+                        editor: "DateTimePicker",
+                        label: "DateTimePicker:",
+                        validation: { required: true },
+                        editorOptions: {
+                            format: "yyyy-MM-dd HH:mm:ss"
+                        }
+                    },
+                    {
+                        field: "TextBox",
+                        label: "TextBox",
+                        editor: "TextBox",
+                        validation: { required: true },
+                        editorOptions: {
+                            placeholder: "placeholder"
+                        }
+                    },
+                    {
+                        field: "TextArea",
+                        label: "TextArea",
+                        editor: "TextArea",
+                        validation: { required: true },
+                        editorOptions: { rows: 3 },
+                    },
+                    {
+                        field: "Switch",
+                        editor: "Switch",
+                        label: "Switch",
+                        validation: { required: true },
+                    },
+                    {
+                        field: 'custom',
+                        label: "",
+                        editor: function (container, options) {
+                            $('<button id="btnCustom" title="btnCustom">저장</button>')
+                                .appendTo(container)
+                                .kendoButton();
+                        }
+                    }
+                ],
+                submit: function (e) {
+                    e.preventDefault();
+                    let formData = e.model;
+                    console.log(formData);
+                },
+                clear: function (ev) {
+                },
+                messages: {
+                    submit: "저장",
+                    clear: "신규",
+                }
+            });
+
+            $('#btnCustom').on('click', function () {
+                $("#sampleFormHori").trigger('submit');
+            });
+
+            $('#btn1').kendoButton({ themeColor: "inherit", click: function () { } });
+            $('#btn2').kendoButton({ themeColor: "default", click: function () { } });
+            $('#btn3').kendoButton({ themeColor: "primary", click: function () { } });
+            $('#btn4').kendoButton({ themeColor: "secondary", click: function () { } });
+            $('#btn5').kendoButton({ themeColor: "tertiary", click: function () { } });
+            $('#btn6').kendoButton({ themeColor: "info", click: function () { } });
+            $('#btn7').kendoButton({ themeColor: "success", click: function () { } });
+            $('#btn8').kendoButton({ themeColor: "warning", click: function () { } });
+            $('#btn9').kendoButton({ themeColor: "error", click: function () { } });
+            $('#btn10').kendoButton({ themeColor: "dark", click: function () { } });
+            $('#btn11').kendoButton({ themeColor: "light", click: function () { } });
+            $('#btn12').kendoButton({ themeColor: "inverted", click: function () { } });
+        }
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SampleFormPage();
+    });
+
+</script>
+
+{% endblock %}

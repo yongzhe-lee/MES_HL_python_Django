@@ -1,0 +1,474 @@
+{% extends "app/layout_page.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content_wrap">
+    <section class="section">
+
+        <div class="title_box">
+            <div class="left_align">
+                <h3 data-labelCd="데이터 트렌드2">데이터 트렌드2</h3>
+            </div>
+            <button type="button" class="btn-default pull-right " id="btnHedaerSearch"><i class="fas fa-search"></i></button>        
+            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress"><i class="fas fa-compress"></i></button>  
+        </div>
+
+        <div class="table_box search">
+            <form id="searchForm" autocomplete="off">
+                <div class="row" >
+
+                <div class="col-12 col-md-5 col-lg-2 col-xl-2" >
+                    <div class="input-group" >
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_sm" data-labelCd="일자">일자</span>
+                        </div>
+                        <div class="form-control2" data-ax5picker="basic" id="srchDt">
+                            <input class="tac " type="text" id="srchStartDt" name="srchStartDt" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_sm" data-labelCd="시간">시간</span>
+                        </div>
+                        <div class="form-control2">
+                            <input type="text" id="srchStartTm" name="srchStartTm" class="timepicker tac" />
+                            <span>~</span>
+                            <input type="text" id="srchEndTm" name="srchEndTm" class="timepicker tac"  />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_sm" data-labelCd="태그">태그</span>
+                        </div>
+                        <select id="cboTag" name="cboTag" class="form-control2" multiple="multiple"></select>  
+                    </div>
+                </div>
+
+                <div class="col-3 col-sm-4 col-lg-2">
+                    <button type="button" class="btn-default" id="btnSearch"><i class="fas fa-search"></i> 조회</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </section>
+    <section class="section autoheight-div">
+        <div class="card card-default">
+        <div class="card-wrapper" style="transition: max-height 0.5s ease 0s; position:relative; ">
+            <div class="card-body">
+            <div class="flot-chart" style="padding: 0px; position: relative;">
+            </div>
+
+            </div>
+        </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/resource/apexcharts/apexcharts.3.26.min.js"></script>
+<script type="text/javascript">
+
+    class tagDataTrend {
+        constructor(chartId, title) {
+            this.grid = null;
+            this.chart = null;
+            this.brushChart = null;
+            this.chartId = chartId;
+            this.title = title;
+            this.options = null;
+            this.brushOptions = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            this.options = {
+              series: [],
+                chart: {
+                id: this.chartId,
+                height: 550,
+                width: '100%',
+                type: "line",
+                toolbar: {
+                    //autoSelected: 'pan',
+                    show: false,    // 우측상단 버튼 출력여부
+                },
+                export: {
+                    csv: {
+                    filename: '데이터통계',
+                    columnDelimiter: ',',
+                    headerCategory: 'category',
+                    headerValue: 'value',
+                    dateFormatter(timestamp) {
+                        return new Date(timestamp).toDateString()
+                    }
+                  }
+                }
+              },
+              colors: ["#77B6EA"],    //라인 색상
+              dataLabels: {
+                enabled: false,
+              },
+            stroke: {
+                width: 3,
+            },
+              title: {
+                text: this.title,
+                align: "left"
+              },
+              grid: {
+                borderColor: "#e7e7e7",
+                row: {
+                  colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+                  opacity: 0.5
+                }
+              },
+              markers: {
+                size: 0
+              },
+                tooltip: {
+                //intersect: true,
+                //shared: false,
+                //shared: true,
+                enabled: true,
+                followCursor: true,
+                theme: 'light',       //light, dark
+                x: {
+                    show: true,
+                    format: 'TT hh:mm:ss',
+                },
+                custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                    //console.log('custom w', w);
+                    let color = ['#77B6EA', '#CC3D3D', '#FF5E00'];
+                    let time = new Date(w.config.series[0].data[dataPointIndex][0]).toLocaleTimeString();
+                    let item_name = w.config.title.text.replace(' ', '<br/>');
+                    let value = series[seriesIndex][dataPointIndex];
+                    let lsl = null;
+                    let usl = null;
+                    let array = w.config.annotations.yaxis;
+                    let idx = array.findIndex(function(item) {return item.key == 'lsl'})
+                    if (idx > -1)
+                        lsl = array[idx].y; 
+                    idx = array.findIndex(function(item) {return item.key == 'usl'})
+                    if (idx > -1)
+                        usl = array[idx].y; 
+
+                    let s = '<div class="" style="left: 76.9766px; top: 140.609px;">' +
+                                '<div class="apexcharts-tooltip-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' + time + '</div>' +
+                                    '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: ' + color[0] + '"></span>' +
+                                        '<div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                                            '<div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-label">' + item_name + ': </span><span class="apexcharts-tooltip-text-value">' + value + '</span></div>' +
+                        '</div></div>';
+                    if (lsl) {
+                        s += '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: rgb(1, 0, 255);"></span>' +
+                            '<div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                            '<div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-label">LSL: </span><span class="apexcharts-tooltip-text-value">' + lsl + '</span></div>' +
+                            '</div>' +
+                            '</div>';
+                    }
+                    if (usl) {
+                        s += '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: rgb(255, 0, 0);"></span>' +
+                            '<div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                            '<div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-label">USL: </span><span class="apexcharts-tooltip-text-value">' + usl + '</span></div>' +
+                            '</div></div>';
+                    }
+                    s += '</div>';
+                    
+                    return s;
+                  },
+              },
+              xaxis: {
+                type: "datetime",
+                tickAmount: 10,
+                labels: {
+                    show: true,
+                    datetimeUTC: false,
+                    //format: 'dd/MM',
+                    formatter: function (value, timestamp) {
+                        return new Date(value).toLocaleTimeString();
+                    },
+                    //format: 'HH:mm',
+                    offsetX: 0,
+                    offsetY: 0,
+                    rotate: -55,
+                    rotateAlways: true,
+                     style: {
+                        colors: [],
+                        fontSize: '12px',
+                        fontFamily: 'Helvetica, Arial, sans-serif',
+                        fontWeight: 400,
+                        cssClass: 'apexcharts-xaxis-label',
+                     },
+                },
+                //tickPlacement: 'between',
+                //floating: true
+              },
+              yaxis: {
+                  min: 0, 
+                  forceNiceScale: true,
+                /*title: {
+                  text: "Temperature",
+                },*/
+                //min: 5,       // Y값 최소
+                //max: 40       // Y값 최대
+              },
+              annotations: {
+                  yaxis: [
+                      {
+                        key:'lsl',
+                        y: null,
+                        y2: null,
+                        borderColor: '#0100FF',
+                        borderWidth: 3,
+                        fillColor: '#0100FF',
+                        opacity: 0.3,
+                        label: {
+                            borderColor: '#0100FF',
+                            borderWidth: 1,
+                            borderRadius: 1,
+                            style: {
+                                color: '#fff',
+                                background: '#0100FF',
+                                fontSize: '12px',
+                                    fontWeight: 300,
+                            },
+                            text: 'LSL'
+                        }
+                    },
+                    {
+                        key:'usl',
+                        y: null,
+                        y2: null,
+                        borderColor: '#FF0000',
+                        borderWidth: 3,
+                        fillColor: '#FF0000',
+                        opacity: 0.3,
+                        label: {
+                            borderColor: '#FF0000',
+                            borderWidth: 1,
+                            borderRadius: 1,
+                            style: {
+                                color: '#fff',
+                                background: '#FF0000',
+                                fontSize: '12px',
+                                    fontWeight: 300,
+                            },
+                            text: 'USL'
+                        }
+                    }
+                  ]
+                },
+            };
+            this.chart = new ApexCharts(document.querySelector("#" + this.chartId), this.options);
+            console.log('this.chartId', this.chartId);
+            this.chart.render();
+
+            this.brushOptions = {
+                  series: [],
+                  chart: {
+                  id: 'brush'+this.chartId,
+                  height: 200,
+                  width : '100%',
+                      type: 'area',
+                  brush:{
+                    target: this.chartId,
+                      enabled: true,
+                      autoScaleYaxis: false
+                      },
+                  selection: {
+                    enabled: true,
+                      },
+                      //events: {
+                      //    brushScrolled: function (chartContext, { xaxis, yaxis }) {
+                      //        console.log('브러쉬 슼크롤중~')
+                      //    }
+                      //},
+                },
+                colors: ['#008FFB'],
+                fill: {
+                  type: 'gradient',
+                  gradient: {
+                    opacityFrom: 0.91,
+                    opacityTo: 0.1,
+                  }
+                },
+                xaxis: {
+                type: 'datetime',
+                labels: {
+                    show: true,
+                    datetimeUTC: false,
+                    //format: 'dd/MM',
+                    //formatter: function (value, timestamp) {
+                    //    return new Date(value).toLocaleTimeString();
+                    //},
+                    format: 'HH:mm',
+                    offsetX: 0,
+                    offsetY: 0,
+                    rotate: 0,
+                    rotateAlways: true,
+                     style: {
+                        colors: [],
+                        fontSize: '12px',
+                        fontFamily: 'Helvetica, Arial, sans-serif',
+                        fontWeight: 400,
+                        cssClass: 'apexcharts-xaxis-label',
+                     },
+                },
+                  tooltip: {
+                      enabled: true,
+                      followCursor: true,
+                      //intersect: true,
+                      //shared: false
+                  }
+                },
+                yaxis: {
+                    tickAmount: 2,
+                }
+
+
+            };
+
+            this.brushChart = new ApexCharts(document.querySelector("#brush"+this.chartId), this.brushOptions); 
+            this.brushChart.render();
+
+        }
+    }
+
+    let page = [];
+    let resData;
+
+    $(document).ready(function (e) {
+        $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
+        //셀렉트 검색기능 노준오
+        AjaxUtil.fillSelectOptions($('#cboTag'), 'tag', '', false);  
+        //$('select').select2({tags: true,});
+
+    
+        $('#srchDt').ax5DatePicker({ direction: 'top' });
+        $('#srchStartTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i',
+        }).val('09:00');
+        $('#srchEndTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i'
+        }).val('18:00');
+        $("#btnSearch").click(function (e) { searchMainData(); });
+
+    })
+    
+
+    function searchMainData() {
+        //let tags = $('#tag').val().join(';');
+        var start_date = $('#srchStartDt').val() + ' ' + $('#srchStartTm').val() + ':00';
+        var end_date = $('#srchStartDt').val() + ' ' + $('#srchEndTm').val() + ':00';
+        var tag_codes = $('#cboTag').val() == null ? '' : $('#cboTag').val().join(';');
+        let url = '/api/tagdata/tag_data?action=tag_trend';
+        let result = {
+            "start_time": start_date,
+            "end_time": end_date,
+            "tag_codes": tag_codes
+        };
+        let fnSuccess = function (result) {
+            console.log('result', result);
+
+            if ($('div[id^=chart]')) $('div[id^=chart]').remove();
+            if ($('div[id^=brush]')) $('div[id^=brush]').remove();
+
+            page.forEach(function (item, index) {
+                
+                console.log('삭제전', item)
+                delete item;
+                console.log('삭제후',item)
+            });
+
+            $('#cboTag').val().forEach(function (tag_code, idx) {
+                //console.log('tag e', e);
+                //console.log('tag idx', idx);
+                resData = result;
+                let tag_data = result[tag_code];
+                let data = tag_data.data;
+                //let data = resData[e];
+                $('.flot-chart').append('<div id="chart' + idx + '" class="chart-canvas" style="border-top: ' + (idx == 0 ? 'double;padding-top:15px;' : 'none;') + ';"></div>');
+                $('.flot-chart').append('<div id="brushchart' + idx + '" class="chart-canvas" style="border-bottom: double; padding-bottom:15px;' + ';"></div>');
+                
+                let _this = null;
+                if (page[idx] != null) {
+                    _this = page[idx];
+                    _this.title = tag_data.tag_name;
+                    _this.chart_id = 'chart' + idx;
+                }
+                else {
+                    page[idx] = new tagDataTrend('chart' + idx, tag_data.tag_name);
+                    _this = page[idx];
+                }
+                //if (page) {
+                //    console.log('삭제전page', page);
+                //    delete page;
+                //    console.log('삭제후page', page);
+                //}
+                //page[idx] = new tagDataTrend('chart' + idx, data.tag_name);
+                //let _this = page[idx];
+                _this.series = [
+                    {
+                        name: tag_data.tag_name,
+                        data: []
+                    },
+                ];
+                
+                tag_data.usl = 5;
+
+                let yaxis_arr = _this.options.annotations.yaxis;
+                let index = 0;                                
+                if (tag_data.lsl) {
+                    yaxis_arr[0].y = tag_data.lsl;
+                    index++;
+                }
+                else {
+                    yaxis_arr.splice(0, 1);
+                }
+
+                if (tag_data.usl) {
+                    yaxis_arr[index].y = tag_data.usl;
+                }
+                else
+                    yaxis_arr.splice(index, 1);
+                
+                //let resDataList = resData.rows.filter(ex => ex.tag_code == e);
+                
+                tag_data.data.forEach(function (item, idx) {
+                    //console.log('resDataList e', e);
+                    //_this.series[0].data.push(e.data_value);
+                    //_this.options.xaxis.categories.push(Date.parse(e.data_time));
+                    _this.series[0].data.push(
+                        [ Date.parse(item.data_time), item.data_value ]
+                    );
+                })
+                // chart1 목표/평균
+                
+                _this.chart.updateOptions(_this.options, false, true, true);
+                _this.chart.updateSeries(_this.series);
+
+                _this.brushChart.updateSeries(_this.series);
+                console.log('chart',_this.chart)
+                console.log('brushChart',_this.brushChart) // select option봐보기 
+            })
+            let divHeight = 85;
+            let chartHeight = divHeight + (($('div[id^=chart]:first').height() + $('div[id^=brush]:first').height() +15) * $('div[id^=chart]').length);
+            if ($('div[id^=chart]').length > 1) {
+                $('.autoheight-div')[0].style.height = chartHeight + 'px';
+            } else {
+                $('.autoheight-div')[0].style.height = '800px';
+            }
+        };
+        AjaxUtil.postAsyncData(url, result, fnSuccess);
+    }
+</script>
+{% endblock %}

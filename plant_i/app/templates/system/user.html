@@ -1,0 +1,505 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form id="searchForm" class="search-form">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_user_grp" data-labelCd="사용자그룹">사용자그룹</label>
+                            <div class="field-wrapper">
+                                <select id="srch_user_grp" name="srch_user_grp"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group-btn search">
+                        <button id="btnSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="content-ui-row">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="제품 목록">제품 목록</label>
+                    </span>
+                </div>
+                <div id="user_grid"></div>
+            </div>
+        </div>
+
+        <div class="card-content edit">
+            <div class="card-group-btn">
+                <span class="info-text"><i class="material-symbols-outlined">list_alt</i>입력</span>
+                <span>
+                    <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    <button id="btnSetPwd"><i class="material-symbols-outlined">settings</i>비밀번호설정</button>
+                </span>
+            </div>
+
+            <form id="userForm">
+                <input type="hidden" id="id" name="id" />
+                <div class="edit-form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="user_group_id" data-labelCd="사용자그룹">사용자그룹</label>
+                            <div class="field-wrapper">
+                                <select id="user_group_id" name="user_group_id"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="login_id">사번</label>
+                            <div class="field-wrapper">
+                                <input id="login_id" name="login_id" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="user_name">이름</label>
+                            <div class="field-wrapper">
+                                <input id="user_name" name="user_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="dept_id">부서</label>
+                            <div class="field-wrapper">
+                                <select id="dept_id" name="dept_id"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="e_mail">Email</label>
+                            <div class="field-wrapper">
+                                <input id="e_mail" name="e_mail" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="lang_code">언어</label>
+                            <div class="field-wrapper">
+                                <select id="lang_code" name="lang_code"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="is_active">활성화 여부</label>
+                            <div class="field-wrapper">
+                                <input id="is_active" name="is_active" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+<script id="pwd_set_tmpl" type="text/x-kendo-template">
+    <div class="content-wrap popup">
+        <div class="content-ui-column">
+            <form id="popupForm">
+                <div class="edit-form-ui">
+                    <div class="col-12">
+                        <label class="k-label k-form-label" for="user_group" data-labelCd="비밀번호">비밀번호</label>
+                        <div class="field-wrapper">
+                            <input id="password1" name="password1"/>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="k-label k-form-label" for="user_group" data-labelCd="비밀번호 확인">비밀번호 확인</label>
+                        <div class="field-wrapper">
+                            <input id="password2" name="password2"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card-group-btn">
+                <span>
+                </span>
+                <span>
+                    <button id="btnSavePassword" class="btn-save">저장</button>
+                    <button id="btnClosePassword" class="btn-close">닫기</button>
+                </span>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class UserPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/system/user';
+
+            this.comboUserGrp = [];
+            this.comboDept = [];
+            this.comboLangCode = [];
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            //combo데이터 세팅
+            _this.comboUserGrp = AjaxUtil.getSelectData('user_group');
+            _this.comboDept = AjaxUtil.getSelectDataWithNull('dept', 'choose');
+            _this.comboLangCode = AjaxUtil.getSelectDataWithNull('system_code', 'choose', 'lang_code');
+
+            let searchCombo = [..._this.comboUserGrp];
+            searchCombo.unshift({ value: '', text: '전체' });
+
+            let gridOption = {
+                columns: [
+                    { field: "login_id", title: "사원번호", width: 100 },
+                    { field: "name", title: "이름", width: 100 },
+                    { field: "group_name", title: "그룹명", width: 100 },
+                    { field: "dept_name", title: "부서", width: 100 },
+                    { field: "lang_code", title: "언어", width: 100 },
+                    { field: "is_active", title: "활성화", width: 100, template: function (item) { return item.is_active == 1 ? '활성' : '비활성'; } },
+                    { field: "date_joined", title: "생성일", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                pageable: false,
+                height: "500px",
+            };
+            _this.grid = new Grid($("#user_grid"), gridOption);
+
+            //search form
+            $('#srch_user_grp').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: searchCombo,
+            });
+            $('#keyword').kendoTextBox();
+
+            //form
+            $('#user_group_id').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.comboUserGrp,
+            });
+            $('#login_id').kendoTextBox();
+            $('#user_name').kendoTextBox();
+            $('#dept_id').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.comboDept,
+            });
+            $('#e_mail').kendoTextBox();
+            $('#lang_code').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.comboLangCode,
+            });
+            $('#is_active').kendoSwitch();
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveUser();
+                }
+            });
+            $('#btnClear').kendoButton({ themeColor: "base", click: function () { _this.resetUser(); } });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    let selectData = _this.grid.getSelect();
+                    if (selectData.length > 0) {
+                        Alert.confirm('', '삭제하시겠습니까?', function () { _this.deleteUser(); });
+                    }
+
+                }
+            });
+            $('#btnSetPwd').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    let selectData = _this.grid.getSelect();
+                    if (selectData.length > 0) {
+                        _this.showPassSetting(selectData[0].id);
+                    }
+                }
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                group: $('#srch_user_grp').val(),
+                keyword: $('#keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#userForm'));
+                $('#user_group_id').data('kendoDropDownList').value(selectData.user_group_id);
+                $('#dept_id').data('kendoDropDownList').value(selectData.dept_id);
+                $("#is_active").data("kendoSwitch").check(selectData.is_active == 1 ? true : false);
+            }
+        }
+
+        resetUser() {
+            $('#id').val('');
+            $('#userForm')[0].reset();
+        }
+
+        saveUser() {
+            let _this = this;
+
+            //데이터입력체크루틴 누락
+            let data = FormUtil.extractForm($('#userForm'));
+            data.is_active = data.is_active ? 'Y' : 'N';
+
+            if (data.user_group_id == null || user_group_id == '') {
+                Alert.alert('', '사용자그룹을 선택해주세요.');
+                return;
+            }
+            if (data.login_id == null || data.login_id == '') {
+                Alert.alert('', '사번(로그인ID)을 입력해주세요.');
+                return;
+            }
+            
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success("저장되었습니다."); // Notification
+                    _this.searchMainData();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl +'?action=save', data, fnSuccess);
+        }
+
+        deleteUser() {
+            let _this = this;
+            let url = '/api/system/user?action=delete';
+            let id = $('#userForm').find('#id').val();
+            let data = { id: id };
+            let fnsuccess = function (res) {
+                if (res.success) {
+                    Notify.success('삭제했습니다.');
+                    _this.searchDataBind();
+                } else {
+                    Alert.alert('', res.message);
+                }
+
+            };
+            let result = AjaxUtil.postAsyncData(url, data, fnsuccess);
+        }
+
+        //미사용. 추후에 비밀번호 규칙 확정시 적용
+        validatePassword(pw, options) {
+            // default options (allows any password)
+            var o = {
+                lower: 0,
+                upper: 0,
+                alpha: 0, /* lower + upper */
+                numeric: 0,
+                special: 0,
+                length: [0, Infinity],
+                custom: [ /* regexes and/or functions */],
+                badWords: [],
+                badSequenceLength: 0,
+                noQwertySequences: false,
+                noSequential: false
+            };
+
+            for (var property in options)
+                o[property] = options[property];
+
+            var re = {
+                lower: /[a-z]/g,
+                upper: /[A-Z]/g,
+                alpha: /[A-Z]/gi,
+                numeric: /[0-9]/g,
+                special: /[\W_]/g
+            },
+                rule, i;
+
+            // enforce min/max length
+            if (pw.length < o.length[0] || pw.length > o.length[1])
+                return false;
+
+            // enforce lower/upper/alpha/numeric/special rules
+            for (rule in re) {
+                if ((pw.match(re[rule]) || []).length < o[rule])
+                    return false;
+            }
+
+            // enforce word ban (case insensitive)
+            for (i = 0; i < o.badWords.length; i++) {
+                if (pw.toLowerCase().indexOf(o.badWords[i].toLowerCase()) > -1)
+                    return false;
+            }
+
+            // enforce the no sequential, identical characters rule
+            if (o.noSequential && /([\S\s])\1/.test(pw))
+                return false;
+
+            // enforce alphanumeric/qwerty sequence ban rules
+            if (o.badSequenceLength) {
+                var lower = "abcdefghijklmnopqrstuvwxyz",
+                    upper = lower.toUpperCase(),
+                    numbers = "0123456789",
+                    qwerty = "qwertyuiopasdfghjklzxcvbnm",
+                    start = o.badSequenceLength - 1,
+                    seq = "_" + pw.slice(0, start);
+                for (i = start; i < pw.length; i++) {
+                    seq = seq.slice(1) + pw.charAt(i);
+                    if (
+                        lower.indexOf(seq) > -1 ||
+                        upper.indexOf(seq) > -1 ||
+                        numbers.indexOf(seq) > -1 ||
+                        (o.noQwertySequences && qwerty.indexOf(seq) > -1)
+                    ) {
+                        return false;
+                    }
+                }
+            }
+            // enforce custom regex/function rules
+            for (i = 0; i < o.custom.length; i++) {
+                rule = o.custom[i];
+                if (rule instanceof RegExp) {
+                    if (!rule.test(pw))
+                        return false;
+                } else if (rule instanceof Function) {
+                    if (!rule(pw))
+                        return false;
+                }
+            }
+
+            // great success!
+            return true;
+        }
+
+        showPassSetting(id) {
+            let _this = this;
+            let content = $('#pwd_set_tmpl').html();
+            let $content = $(content);
+
+            // 브라우저 너비의 80%를 팝업 너비로 설정
+            let windowWidth = window.innerWidth * 0.8;
+            
+            $content.kendoWindow({
+                width: windowWidth + "px",  // 가변적인 너비 설정
+                height: "250px",
+                title: '비밀번호 설정',
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            // 팝업 초기화 함수 호출
+            _this.initPopup($content);
+
+            // 팝업 열기
+            $content.data("kendoWindow").center().open();
+        }
+
+        initPopup($content) {
+            let _this = this;
+
+            // 텍스트 박스 초기화
+            $content.find('#password1').kendoTextBox();
+            $content.find('#password2').kendoTextBox();
+
+            // 저장 버튼 설정
+            $content.find('#btnSavePassword').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    let p1 = $content.find('#password1').val();
+                    let p2 = $content.find('#password2').val();
+
+                    if (p1 != p2) {
+                        Alert.alert('', "패스워드가 일치하지 않습니다.");
+                    } else {
+                        let data = { id: id, pass1: p1, pass2: p2 };
+                        let fncallback = function (res) {
+                            if (res.success) {
+                                Notify.success("저장되었습니다.");
+                                $content.data('kendoWindow').close();
+                            } else {
+                                Alert.alert('', res.message);
+                            }
+                        };
+                        AjaxUtil.postAsyncData(_this.baseUrl + '?action=pass_setting', data, fncallback);
+                    }
+                }
+            });
+
+            // 취소 버튼 설정
+            $content.find('#btnClosePassword').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    $content.data('kendoWindow').close();
+                }
+            });
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new UserPage();
+
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

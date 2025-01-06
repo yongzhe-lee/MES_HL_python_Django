@@ -1,0 +1,308 @@
+{% extends "app/layout.html" %}
+{% block css %}
+<style>
+    /* Kendo TextBox가 비활성화된 상태일 때 스타일 변경 */
+    .k-textbox.k-readonly {
+        background-color: #f0f0f0; /* 비활성화된 상태의 배경색 */
+        border: 1px solid #d0d0d0; /* 비활성화된 상태의 테두리 색 */
+    }
+
+    .k-textarea.k-readonly {
+        background-color: #f0f0f0; /* 비활성화된 상태의 배경색 */
+        border: 1px solid #d0d0d0; /* 비활성화된 상태의 테두리 색 */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+    <div class="content-ui-row">
+        <div class="content-ui-row connect">
+            <div class="card-content grid" style="height:79% !important">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="시험 목록">시험 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="deleteTestResultRow"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        <button id="btnUp"><i class="material-symbols-outlined"></i>▲ Up</button>
+                        <button id="btnDown"><i class="material-symbols-outlined"></i>▼ Down</button>
+                        <button id="openPrptResultAdd"><i class="material-symbols-outlined">edit</i>추가</button>
+                        <button id="btnPrptResultSave"><i class="material-symbols-outlined"></i>저장</button>
+                    </span>
+                </div>
+                <div id="test_grid"></div>
+                <div class="card-group-btn" style="margin-top:10px">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="특성 목록">특성 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="deletePrptResultRow"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        <button id="btnPrptUp"><i class="material-symbols-outlined"></i>▲ Up</button>
+                        <button id="btnPrptDown"><i class="material-symbols-outlined"></i>▼ Down</button>
+                    </span>
+                </div>
+                <div id="prpt_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    {% endblock %}
+
+    {% block scripts %}
+    {% include 'common/file_upload.html' %}
+<script type="text/javascript">
+    class PopupTestResultPage {
+        constructor() {
+            this.popupData = null;
+
+            this.smp_result_id = null;
+
+            this.init();
+        }
+        init() {
+            let _this = this;
+            _this.popupData = window.popupData
+            const _smpResultNo = _this.popupData.smp_result_no;
+            let rowNumberTemplate = function (dataItem) {
+                return '<div style="height:10px;">${dataItem.index + 1}</div>';
+            };
+            let testGridOption = {
+                columns: [
+                    {
+                        title: 'No.', template: rowNumberTemplate, width: 20,
+                        attributes: {
+                            style: 'text-align: center'
+                        },
+                    },
+                    { selectable: true, width: "15px" },
+                    { field: "signStateNm", title: "처리상태", width: 100 },
+                    { field: "signDt", title: "처리일시", width: 100 },
+                    { field: "signUserNm", title: "처리자", width: 100 },
+                    { field: "signRmk", title: "비고", width: 100 },
+                ],
+                change: function (e) {
+                    const grid = this;
+                    const selectedRow = grid.select().closest("tr");
+                    const dataItem = grid.dataItem(selectedRow);
+
+                    _this.smp_result_id = dataItem.smp_result_id;
+
+                },
+                dataBound: function (e) {
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
+
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        $(this).find("td:first").html(index + 1);
+                    });
+                    kendoUtil.showGridRowCount($("#test_grid")); // grid 데이터 개수 표시
+                },
+                height: 200
+            };
+            _this.test_grid = new Grid($("#test_grid"), testGridOption);
+
+            let prptGridOption = {
+                columns: [
+                    { selectable: true, width: "17px" },
+                    {
+                        field: "signTypeNm", title: "시험", width: 100,
+                        attributes: {
+                            class: 'cls_test_name', // 클래스 추가
+                        }
+                    },
+                    { field: "signStateNm", title: "처리상태", width: 100 },
+                    { field: "signDt", title: "처리일시", width: 100 },
+                    { field: "signUserNm", title: "처리자", width: 100 },
+                    { field: "signRmk", title: "비고", width: 100 },
+                ],
+                change: function (e) {
+
+                },
+                dataBound: function (e) {
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
+
+                    /* ---------------- test 그룹별로 cell merge ----------------*/
+                    let previousValue = null;
+                    let testCells = $("td.cls_test_name");
+
+                    let rowspanCount = 0; // rowspan을 계산할 카운터
+                    let mergeStartIndex = -1; // 병합 시작 인덱스 (-1로 초기화)
+
+                    testCells.each(function (index) {
+                        let currentCell = $(this); // 현재 셀
+                        let currentValue = currentCell.text().trim();
+
+                        if (currentValue === previousValue) {
+                            // 현재 셀이 이전 셀과 값이 같은 경우
+                            currentCell.css("display", "none"); // 현재 셀을 숨김 (셀을 숨겨야 rowspan 값을 바꿨을 때 칸이 맞음)
+                            rowspanCount++;
+                        } else {
+                            // 이전 값과 다른 경우, 이전 셀에 rowspan 설정
+                            if (previousValue !== null && rowspanCount > 0) {
+                                let mergeCell = testCells.eq(mergeStartIndex);
+                                mergeCell.attr('rowspan', rowspanCount + 1);
+                            }
+                            // 초기화 및 현재 셀로 값 갱신
+                            previousValue = currentValue;
+                            rowspanCount = 0;
+                            mergeStartIndex = index;
+                        }
+                    });
+
+                    // 마지막 값에 대한 rowspan 설정
+                    if (rowspanCount > 0) {
+                        let mergeCell = testCells.eq(testCells.length - rowspanCount - 1);
+                        mergeCell.attr('rowspan', rowspanCount + 1); // rowspan 설정
+                    }
+                    /* ---------------- test 그룹별로 cell merge ---------------- end */
+
+                    kendoUtil.showGridRowCount($("#prpt_grid")); // grid 데이터 개수 표시
+                },
+                height: 400
+            };
+            _this.prpt_grid = new Grid($("#prpt_grid"), prptGridOption);
+            // test_grid
+            $('#deleteTestResultRow').kendoButton({
+                themeColor: "error",
+                click: function () {
+                }
+            });
+            $('#btnUp').kendoButton({
+                themeColor: "info",
+                click: function (e) {
+                    _this.btnUp();
+                }
+            });
+            $('#btnDown').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.btnDown();
+                }
+            });
+            $('#openPrptResultAdd').kendoButton({
+                themeColor: "info",
+                click: function () {
+                }
+            });
+            $('#btnPrptResultSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                }
+            });
+            // prpt_grid
+            $('#deletePrptResultRow').kendoButton({
+                themeColor: "error",
+                click: function () {
+                }
+            });
+            $('#btnPrptUp').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.btnUp('Prpt');
+                }
+            });
+            $('#btnPrptDown').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.btnDown('Prpt');
+                }
+            });
+        };
+        searchTestData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+            };
+            let result = [
+                {
+                    signStateNm: '승인',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '',
+                },
+                {
+                    signStateNm: '검토',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '테스트',
+                },
+                {
+                    signStateNm: '샘플접수',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '',
+                },
+            ]
+            //let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.test_grid.setData(result);
+        }
+        searchPrptData() {
+            let _this = this;
+            let param = {
+                action: 'read',
+            };
+            let result = [
+                {
+                    signTypeNm: '양이온 15종',
+                    signStateNm: '승인',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '테스트',
+                },
+                {
+                    signTypeNm: '양이온 15종',
+                    signStateNm: '시험완료',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '',
+                },
+                {
+                    signTypeNm: '양이온 15종',
+                    signStateNm: '샘플접수',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '',
+                },
+                {
+                    signTypeNm: '음이온 4종',
+                    signStateNm: '승인',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '테스트',
+                },
+                {
+                    signTypeNm: '음이온 4종',
+                    signStateNm: '시험완료',
+                    signDt: '2024-09-24 09:16',
+                    signUserNm: 'demo',
+                    signRmk: '',
+                },
+            ]
+            //let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.prpt_grid.setData(result);
+        }
+        btnUp(_type) {
+            console.log('type', _type);
+        };
+        btnDown(_type) {
+            console.log('type', _type);
+        };
+    };
+    $(document).ready(function () {
+        page = new PopupTestResultPage();
+        page.searchTestData();
+        page.searchPrptData();
+    });
+</script>
+    {% endblock %}
+
