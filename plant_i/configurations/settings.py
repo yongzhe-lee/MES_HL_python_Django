@@ -101,17 +101,17 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DBMS_HOST = '10.10.10.231'
-DBMS_HOST = 'localhost'
+DBMS_HOST = '10.10.10.231'
+# DBMS_HOST = 'localhost'
 
 DBMS = 'POSTGRESQL'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'HOST': DBMS_HOST,
-        'NAME':'postgres',
-        'USER': 'postgres',
-        'PASSWORD' : 'yullin@7033',
+        'NAME':'plant_i',
+        'USER': 'plant_i',
+        'PASSWORD' : 'plant_i',
         'PORT' : 5432
     }
 }

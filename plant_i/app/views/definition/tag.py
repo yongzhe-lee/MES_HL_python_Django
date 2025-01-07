@@ -17,7 +17,7 @@ def tag(context):
         if action == 'read':
             tag_group_id = gparam.get('tag_group_id')
             equipment_id = gparam.get('equipment_id')
-            tag_name = gparam.get('tag_name')
+            keyword = gparam.get('keyword')
 
             sql = ''' 
             SELECT 
@@ -32,10 +32,14 @@ def tag(context):
 	            , t."USL" AS usl
                 , dc.id AS "DASconfig_id"
                 , dc."Name" AS "DASconfig_name"
-            FROM tag t 
-            LEFT JOIN tag_grp tg ON t.tag_group_id = tg.id
-            LEFT JOIN equ e ON e.id = t."Equipment_id"
-            LEFT JOIN das_config dc ON dc.id=t."DASConfig_id"
+            FROM 
+                tag t 
+            LEFT JOIN 
+                tag_grp tg ON t.tag_group_id = tg.id
+            LEFT JOIN 
+                equ e ON e.id = t."Equipment_id"
+            LEFT JOIN 
+                das_config dc ON dc.id=t."DASConfig_id"
             WHERE 1=1
             '''
 
@@ -47,16 +51,19 @@ def tag(context):
                 sql += '''
                 AND t."Equipment_id" = %(equipment_id)s
                 '''
-            if tag_name:
+            if keyword:
                 sql+='''
-                AND UPPER(t.tag_name) LIKE CONCAT('%%', UPPER(%(tag_name)s),'%%')
+                AND (
+                    UPPER(t.tag_code) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(t.tag_name) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                )
                 '''
             sql += '''ORDER BY t.tag_name desc'''
 
             dc = {}
             dc['tag_group_id'] = tag_group_id
             dc['equipment_id'] = equipment_id
-            dc['tag_name'] = tag_name
+            dc['keyword'] = keyword
         
             result = DbUtil.get_rows(sql, dc)   
             

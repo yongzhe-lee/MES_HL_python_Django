@@ -8,9 +8,6 @@ def company(context):
     /api/master/company
     
     작성명 : 업체
-    작성자 : 진우석
-    작성일 : 2024-08-28
-    비고 :
 
     -수정사항-
     수정일             작업자     수정내용
@@ -22,104 +19,105 @@ def company(context):
     
     try:
         if action == 'read':
-            comp_type = gparam.get('sch_comp_kind')
+            comp_type = gparam.get('sch_comp_type')
             keyword = gparam.get('sch_keyword')
             use_yn = gparam.get('filter[use_yn]')
 
             sql = '''
-            select c.id as comp_id
-	            , c.Name as comp_name
-	            , c.Code as comp_code
-	            , c.Email as email
-	            , c.TelNo as tel_no
-	            , c.Addr as addr
-	            , c.BusinessDesc as business_desc
-	            , ifnull(c.CustomerYn,'N') as customer_yn
-	            , ifnull(c.SupplierYn,'N') as supplier_yn
+            SELECT 
+                c.id AS comp_id
+	            , c."Name" AS comp_name
+	            , c."Code" AS comp_code
+	            , c."Site_id" AS site_id
+                , s."Name" AS site_name
+                , c."CEOName" AS ceo_name
+	            , c."CompanyType" AS comp_type
+                , c."BusinessType" AS business_type
+	            , c."BusinessItem" AS business_item
+                , c."Country" AS country
+	            , c."Local" AS local
+	            , c."Manager" AS manager_name
+	            , c."ManagerPhone" AS manager_tel
+	            , c."Manager2" AS manager2_name
+	            , c."Manager2Phone" AS manager2_tel
+                , c."TelNumber" AS tel_no
+	            , c."FaxNumber" AS fax_no
+	            , c."ZipCode" AS zip_code
+                , c."addr" AS addr
+                , c."Email" AS email
+                , c."Homepage" AS homepage
+	            , c."Description" AS desc
             -- 	, c.user_text1
             -- 	, c.user_text2
             -- 	, c.user_text3
             -- 	, c.user_text4
             -- 	, c.user_text5
-	            , c.Remark as remark
-                , c.UseYn as use_yn
-	            , c.DelYn as del_yn
+                , c."UseYn" AS use_yn
+	            , c."DelYn" AS del_yn
 	            , c._modifier_id
-                , uu.username AS upt_user_nm
-	            , DATE_FORMAT(c._modified, '%%Y-%%m-%%d %%H:%%i:%%s') AS upt_date
+                , c._modifier_nm AS upt_user_nm
+	            , TO_CHAR(c._modified, 'YYYY-MM-DD HH24:MI:SS') AS upt_date
 	            , c._creater_id
-                , cu.username AS crt_user_nm
-	            , DATE_FORMAT(c._created, '%%Y-%%m-%%d %%H:%%i:%%s') AS crt_date
-            from company c
-            left outer join auth_user cu on c._creater_id = cu.id
-            left outer join auth_user uu on c._modifier_id = uu.id
-            where c.DelYn = 'N'
+                , c._creater_nm AS crt_user_nm
+	            , TO_CHAR(c._created, 'YYYY-MM-DD HH24:MI:SS') AS crt_date
+            FROM 
+                company c
+            LEFT OUTER JOIN 
+                site s ON c."Site_id" = s.id
+            WHERE 
+                c."DelYn" = 'N'
             '''
             if use_yn:
                 sql += '''
-                and c.UseYn = %(use_yn)s
+                AND c."UseYn" = %(use_yn)s
                 '''
             if comp_type: 
-                if comp_type == 'S':
-                    sql += '''
-                    and c.SupplierYn = 'Y'
-                    '''
-                if comp_type =='C':
-                    sql += '''
-                    and c.CustomerYn = 'Y'
-                    '''
+                sql += '''
+                AND c."CompanyType" LIKE CONCAT('%%', %(comp_type)s, '%%')
+                '''
             if keyword:
                 sql += '''
-                and (
-                    c.Name LIKE CONCAT('%%', %(keyword)s, '%%')
-                    or c.Code LIKE CONCAT('%%', %(keyword)s, '%%')
-                    or c.BusinessDesc LIKE CONCAT('%%', %(keyword)s, '%%')
-                    or c.Remark LIKE CONCAT('%%', %(keyword)s, '%%')
+                AND (
+                    c."Name" LIKE CONCAT('%%', %(keyword)s, '%%')
+                    OR c."Code" LIKE CONCAT('%%', %(keyword)s, '%%')
+                    OR c."Description" LIKE CONCAT('%%', %(keyword)s, '%%')
                 )
                 '''
             
             sql += '''
-            order by c.Name
+            ORDER BY c."Name"
             '''
 
             dc = {}
+            dc['comp_type'] = comp_type
             dc['keyword'] = keyword
             dc['use_yn'] = use_yn
             
             result = DbUtil.get_rows(sql, dc)
             
-        elif action == 'count_company':
-            comp_id = gparam.get('comp_id')
-            comp_name = gparam.get('comp_name')
-            comp_id = int(comp_id)
-            
-            sql = '''
-            select 
-	            count(*) as cnt
-            from company
-            where 1=1
-            and DelYn = 'N'
-            and id != %(comp_id)s
-            and Name = trim(%(comp_name)s)
-            '''
-            dc = {}
-            dc['comp_name'] = comp_name
-            dc['comp_id'] = comp_id
-            
-            result = DbUtil.get_row(sql, dc)
-            
         elif action == 'save':
             comp_id = posparam.get('comp_id')
             comp_name = posparam.get('comp_name', '').strip()
             comp_code = posparam.get('comp_code', '').strip()
-            email = posparam.get('email', '').strip()
+            site_id = posparam.get('site_id')  # ForeignKey
+            comp_type = posparam.get('comp_type', '').strip()
+            business_type = posparam.get('business_type', '').strip()
+            business_item = posparam.get('business_item', '').strip()
+            ceo_name = posparam.get('ceo_name', '').strip()
+            country = posparam.get('country', '').strip()
+            local = posparam.get('local', '').strip()
+            manager_name = posparam.get('manager_name', '').strip()
+            manager_tel = posparam.get('manager_tel', '').strip()
+            manager2_name = posparam.get('manager2_name', '').strip()
+            manager2_tel = posparam.get('manager2_tel', '').strip()
             tel_no = posparam.get('tel_no', '').strip()
+            fax_no = posparam.get('fax_no', '').strip()
+            zip_code = posparam.get('zip_code', '').strip()
             addr = posparam.get('addr', '').strip()
-            customer_yn = posparam.get('customer_yn')
-            supplier_yn = posparam.get('supplier_yn')
-            business_desc = posparam.get('business_desc', '').strip()
-            remark = posparam.get('remark', '').strip()
+            homepage = posparam.get('homepage', '').strip()
+            email = posparam.get('email', '').strip()
             use_yn = posparam.get('use_yn')
+            desc = posparam.get('desc', '').strip()
             
             comp = Company()
             id = CommonUtil.try_int(comp_id)
@@ -134,14 +132,28 @@ def company(context):
                 
             comp.Name = comp_name
             comp.Code = comp_code
+            comp.Country = country
+            comp.Local = local
+            comp.CompanyType = comp_type
+            comp.CEOName = ceo_name
             comp.Email = email
-            comp.TelNo = tel_no
-            comp.Addr = addr
-            comp.CustomerYn = customer_yn
-            comp.SupplierYn = supplier_yn
-            comp.BusinessDesc = business_desc
-            comp.Remark = remark
+            comp.ZipCode = zip_code
+            comp.Address = addr
+            comp.TelNumber = tel_no
+            comp.FaxNumber = fax_no
+            comp.BusinessType = business_type
+            comp.BusinessItem = business_item
+            comp.Homepage = homepage
+            comp.Description = desc
+            comp.Manager = manager_name
+            comp.ManagerPhone = manager_tel
+            comp.Manager2 = manager2_name
+            comp.Manager2Phone = manager2_tel
             comp.UseYn = use_yn
+
+            if site_id:
+                comp.Site_id = site_id
+
             comp.set_audit(context.request.user)
             comp.save()
             
@@ -159,12 +171,12 @@ def company(context):
             
         elif action == 'comp_type_list':
             sql = '''
-            select 
-                Code as code
-                , Description as name
-            from sys_code
-            where CodeType = 'COMP_KIND'
-            order by _ordering
+            SELECT 
+                "Code" AS code
+                , "Description" AS name
+            FROM sys_code
+            WHERE "CodeType" = 'COMP_KIND'
+            ORDER BY _ordering
             '''
             result = DbUtil.get_rows(sql, {})
         

@@ -45,7 +45,6 @@ class GUIConfiguration():
         gui_dc['wm_company'] = cls.gui_item('업체', 'definition/company.html')#업체
         #gui_dc['wm_holiday'] = cls.gui_item('공휴일', 'definition/holiday.html')#공휴일
         gui_dc['wm_defect'] = cls.gui_item('부적합정보', 'definition/defect.html') #부적합정보
-        gui_dc['wm_code'] = cls.gui_item('코드정보', 'definition/code.html') #부적합정보
         gui_dc['wm_shift'] = cls.gui_item('조교대정보', 'definition/shift.html')#조교대정보
         gui_dc['wm_line_inactive'] = cls.gui_item('비가동일정정보', 'definition/line_inactive.html')#비가동정보
         gui_dc['wm_model_change'] = cls.gui_item('기종변경정보', 'definition/model_change.html')#기종변경정보
@@ -74,10 +73,17 @@ class GUIConfiguration():
         gui_dc['wm_equ_grade'] = cls.gui_item('설비등급관리', 'kmms/equ_grade.html') 
 
 
-
         # 업무지원
         gui_dc['wm_calendar'] = cls.gui_item('캘린더', 'definition/meeting_calendar.html') #캘린더
         gui_dc['wm_board'] = cls.gui_item('공지사항', 'definition/notice_board.html') #캘린더
+
+        
+        # 25.01.02 김하늘 추가
+        # 시스템코드(대메뉴)
+        gui_dc['wm_code'] = cls.gui_item('기초코드', 'definition/code.html') #부적합정보
+        # 시스템코드 - 자재관련 코드(중메뉴)
+        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/supplier.html')# 공급업체
+
 
         # 시스템관리
         gui_dc['wm_user'] = cls.gui_item('사용자', 'system/user.html') # wm_user 메뉴이름변경불가
@@ -88,6 +94,7 @@ class GUIConfiguration():
         gui_dc['wm_login_log'] = cls.gui_item('로그인로그', 'system/login_log.html') # 로그인로그
         gui_dc['wm_menu_log'] = cls.gui_item('메뉴로그', 'system/menu_log.html') # 메뉴로그
         gui_dc['wm_system_log'] = cls.gui_item('시스템로그', 'system/system_log.html') # 시스템로그
+        gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'system/holiday.html')  
         
 
         #문서/게시판 관리

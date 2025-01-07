@@ -10,25 +10,25 @@
                 <div class="form-ui">
                     <div class="col-12 col-md-6 col-lg-3 col-xl-3">
                         <div class="form-item align-h L-align-h">
-                            <label class="k-label k-form-label" for="srch_tag_group_id" data-labelCd="태그그룹">태그그룹</label>
+                            <label class="k-label k-form-label" for="sch_tag_group_id" data-labelCd="태그그룹">태그그룹</label>
                             <div class="field-wrapper">
-                                <select id="srch_tag_group_id" name="srch_tag_group_id"></select>
+                                <select id="sch_tag_group_id" name="sch_tag_group_id"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-lg-3 col-xl-3">
                         <div class="form-item align-h L-align-h">
-                            <label class="k-label k-form-label" for="srch_equip_id" data-labelCd="설비명">설비명</label>
+                            <label class="k-label k-form-label" for="sch_equip_id" data-labelCd="설비명">설비명</label>
                             <div class="field-wrapper">
-                                <select id="srch_equip_id" name="srch_equip_id"></select>
+                                <select id="sch_equip_id" name="sch_equip_id"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-lg-3 col-xl-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_tag_name" data-labelCd="태그명">태그명</label>
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="srch_tag_name" name="srch_tag_name" />
+                                <input id="sch_keyword" name="sch_keyword" />
                             </div>
                         </div>
                     </div>
@@ -46,8 +46,6 @@
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
                         <label data-labelCd="태그정보">태그정보</label>
-                    </span>
-                    <span>
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
@@ -81,17 +79,17 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="tag_group_id" data-labelCd="태그그룹">태그그룹</label>
+                                <label class="k-label k-form-label essential" for="tag_name" data-labelCd="태그명">태그명</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_group_id" name="tag_group_id" />
+                                    <input id="tag_name" name="tag_name" />
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="tag_name" data-labelCd="태그명">태그명</label>
+                                <label class="k-label k-form-label" for="tag_group_id" data-labelCd="태그그룹">태그그룹</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_name" name="tag_name" />
+                                    <input id="tag_group_id" name="tag_group_id" />
                                 </div>
                             </div>
                         </div>
@@ -187,6 +185,9 @@
                     for (var i = 0; i < this.columns.length; i++) {
                         this.autoFitColumn(i);
                     };
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element); 
                 },
                 height: "540px"
             };
@@ -194,10 +195,12 @@
 
             //search form
             //combo 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
-            AjaxUtil.fillDropDownOptions($('#srch_tag_group_id'), 'tag_group', 'all', null);
-            AjaxUtil.fillDropDownOptions($('#srch_equip_id'), 'equipment', 'all', null);
-            $('#srch_tag_name').kendoTextBox();
-            $('#srch_tag_name').keypress(function(e) {
+            AjaxUtil.fillDropDownOptions($('#sch_tag_group_id'), 'tag_group', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#sch_equip_id'), 'equipment', 'all', null);
+            $('#sch_keyword').kendoTextBox({
+                placeholder: '태그명, 태그코드'
+            });
+            $('#sch_keyword').keypress(function(e) {
                 // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
                 if (e.keyCode === 13) {     
                     e.preventDefault(); 
@@ -257,9 +260,9 @@
 
             let param = {
                 action: 'read',
-                tag_group_id: $('#srch_tag_group_id').val(),
-                equipment_id: $('#srch_equip_id').val(),
-                tag_name: $('#srch_tag_name').val(),
+                tag_group_id: $('#sch_tag_group_id').val(),
+                equipment_id: $('#sch_equip_id').val(),
+                keyword: $('#sch_keyword').val(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);

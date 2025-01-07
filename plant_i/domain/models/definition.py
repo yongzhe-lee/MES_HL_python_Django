@@ -88,21 +88,33 @@ class Shift(models.Model):
         ]
         
 
-
+# 25.01.06 김하늘 모델 변경(CMMS 공급업체 반영을 위한 필드 추가)
 class Company(models.Model):
     id = models.AutoField(primary_key=True)
-    Name = models.CharField(max_length=75)
-    Code = models.CharField(max_length=50, blank=True, null=True)
-    Email = models.CharField(max_length=50, blank=True, null=True)
-    TelNo = models.CharField(max_length=30, blank=True, null=True)
-    Address = models.CharField(db_column='addr', max_length=1000, blank=True, null=True)
-    BusinessDesc = models.CharField(max_length=150, blank=True, null=True)
-    CustomerYn = models.CharField(max_length=1)
-    SupplierYn = models.CharField(max_length=1)
-    Remark = models.CharField(max_length=300, blank=True, null=True)
+    Name = models.CharField('업체명', max_length=75)
+    Code = models.CharField('업체코드', max_length=50, null=True)
+    Country = models.CharField('국가', max_length=50, null=True)
+    Local = models.CharField('지역명', max_length=50, null=True)
+    CompanyType = models.CharField('업체유형', max_length=30, null=True)
+    CEOName = models.CharField('대표이사', max_length=50, null=True)
+    Email = models.EmailField('이메일', null=True)
+    ZipCode = models.CharField('우편번호', max_length=50, null=True)
+    Address = models.CharField('주소', db_column='addr', max_length=1000, null=True)
+    TelNumber = models.CharField('전화번호', max_length=100, null=True)
+    FaxNumber = models.CharField('팩스번호', max_length=100, null=True)
+    BusinessType = models.CharField('업태', max_length=50, null=True)
+    BusinessItem = models.CharField('종목', max_length=50, null=True)
+    Homepage = models.CharField('홈페이지', max_length=100, null=True)
+    Description = models.CharField('비고', max_length=500, null=True)
+    # CustomerYn = models.CharField(max_length=1)
+    # SupplierYn = models.CharField(max_length=1)
+    Manager = models.CharField('담당자1', max_length=50, null=True)
+    ManagerPhone = models.CharField('담당자2전화번호', max_length=50, null=True)
+    Manager2 = models.CharField('담당자2', max_length=50, null=True)
+    Manager2Phone = models.CharField('담당자2전화번호', max_length=50, null=True)
     UseYn = models.CharField(max_length=1, default='Y')
     DelYn = models.CharField(max_length=1, default='N')
-    Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, blank=True, null=True)
+    Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, null=True)
     UserText1 = models.CharField(max_length=200, blank=True, null=True)
     UserText2 = models.CharField(max_length=200, blank=True, null=True)
     UserText3 = models.CharField(max_length=200, blank=True, null=True)
@@ -110,22 +122,28 @@ class Company(models.Model):
     UserText5 = models.CharField(max_length=200, blank=True, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created = models.DateTimeField('_created', auto_now_add=True)
-    _modified = models.DateTimeField('_modified', auto_now=True, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
+    _creater_nm = models.CharField('작성자명', max_length=10, null=True)
+    _modifier_nm = models.CharField('변경자명', max_length=10, null=True)
 
     def set_audit(self, user):
         if self._creater_id is None:
             self._creater_id = user.id
+            self._creater_nm = user.userprofile.Name
         self._modifier_id = user.id
+        self._modifier_nm = user.userprofile.Name
         self._modified = DateUtil.get_current_datetime()
         return
 
     class Meta:
         db_table = 'company'
         verbose_name = '업체'
-  
+        unique_together = [
+            ['Code', 'Site'],
+        ]
         
 class Cycle(models.Model):
     id = models.AutoField(primary_key=True)
@@ -572,7 +590,7 @@ class TagGroup(models.Model):
 
 class TagMaster(models.Model):
     tag_code = models.CharField('태그코드', primary_key=True, max_length=50)
-    tag_name = models.CharField('태그명', max_length=50)
+    tag_name = models.CharField('태그명', max_length=100)
     tag_group = models.ForeignKey(TagGroup, on_delete=models.DO_NOTHING, null=True)
     Equipment = models.ForeignKey(Equipment, on_delete=models.DO_NOTHING, null=True)
     DASConfig = models.ForeignKey(DASConfig, on_delete=models.DO_NOTHING, null=True)

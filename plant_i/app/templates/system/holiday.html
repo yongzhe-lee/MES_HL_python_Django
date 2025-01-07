@@ -1,0 +1,309 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+    .k-daterange-picker .k-dateinput, .k-daterangepicker .k-dateinput {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-5 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색키워드">검색키워드</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-5 col-xl-2">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_year" data-labelCd="연도">연도</label>
+                            <div class="field-wrapper">
+                                <input id="srch_year" name="srch_year" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="휴일 스케줄">휴일 스케줄</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="system_holiday_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        휴일 스케줄
+                    </span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+                <form id="holidayForm">
+                    <input type="hidden" id="holiday_id" name="holiday_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="name_val" data-labelCd="휴일명">휴일명</label>
+                                <div class="field-wrapper">
+                                    <input id="name_val" name="name_val" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="holidate" data-labelCd="휴일일자">휴일일자</label>
+                                <div class="field-wrapper">
+                                    <input id="holidate" name="holidate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="repeat_yn" data-labelCd="매년반복">매년반복</label>
+                                <div class="field-wrapper">
+                                    <input id="repeat_yn" name="repeat_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class SystemLogPage {
+        constructor() {
+            this.comboYears = [];
+            this.grid = null;
+            this.baseUrl = '/api/system/holiday';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            //combo데이터 세팅
+            _this.comboYears = [2025, 2024];
+
+            _this.searchCombo = [..._this.comboYears.map(year => ({ value: year, text: String(year) }))];
+            _this.searchCombo.unshift({ value: '', text: '전체' });
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'id', hidden: true },
+                    { field: "name_val", title: "휴일명", width: 200 },
+                    { field: "holidate", title: "날짜", width: 200 },
+                    { field: "repeat_yn", title: "반복여부", width: 200 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: 680
+            };
+            _this.grid = new Grid($("#system_holiday_grid"), gridOption);
+
+            //search form
+            $('#srch_year').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: _this.searchCombo,
+            });
+
+            $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    _this.searchMainData();
+                }
+            })
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            // 신규 버튼 설정
+            kendoUtil.bindButton('#btnClear', null, 'base', () => {
+                FormUtil.resetForm($('#holidayForm'));
+                FormUtil.enableForm($('#holidayForm'));
+                this.setButtonState(true);
+            });
+
+            // 저장 버튼 설정
+            kendoUtil.bindButton('#btnSave', null, 'info', () => {
+                Alert.confirm('', '저장하시겠습니까?', () => {
+                    this.saveData();
+                });
+            });
+
+            // 삭제 버튼 설정
+            kendoUtil.bindButton('#btnDelete', null, 'error', () => {
+                Alert.confirm('', '삭제하시겠습니까?', () => {
+                    this.deleteData();
+                });
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });  
+
+        }
+
+        resetHoliday() {
+            $('#name_val').val('');
+            $('#holidate').val('');
+            $('#repeat_yn').val('');
+            $('#holiday_id').val('');
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#holidayForm'));
+            // kendoSwitch 값 가져오기
+            const switchElement = $('#repeat_yn').data("kendoSwitch");
+            if (switchElement && typeof switchElement.options.checked !== 'undefined') {
+                formData.repeat_yn = switchElement.options.checked ? 'Y' : 'N';
+            } else {
+                console.error("kendoSwitch 초기화 실패 또는 값 가져오기 실패");
+                return;
+            }
+            
+            // 저장할 데이터에 id 추가
+            formData.id = $('#holiday_id').val();  // id 값을 폼에서 가져옵니다.
+            let fnSuccess = (res) => {
+                if (res.success) {
+                    Notify.success('저장되었습니다.');
+                    this.searchMainData();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+                _this.resetHoliday();
+            };
+            AjaxUtil.postAsyncData(this.baseUrl + '?action=save', formData, fnSuccess);
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();  // 그리드에서 선택된 데이터 가져오기          
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#holidayForm'));
+                $('#holiday_id').val(selectData.id);  // 숨겨진 필드에 ID 값 설정
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        deleteData() {
+            let formData = this.grid.getSelect(); // 선택된 데이터 가져오기
+
+            // 데이터가 선택되었는지 확인
+            if (formData.length === 0 || !formData[0].id) {
+                Alert.alert('', '데이터를 선택하세요.');
+                return;
+            }
+
+            // 삭제 요청
+            let fnSuccess = (res) => {
+                if (res.success) {
+                    Notify.success('삭제되었습니다.');
+                    this.searchMainData(); // 그리드 다시 로드
+                } else {
+                    Alert.alert('', res.message || '삭제실패');
+                }
+            };
+
+            // Ajax 요청에 id 필드를 사용
+            AjaxUtil.postAsyncData(this.baseUrl + '?action=delete', { id: formData[0].id }, fnSuccess);
+        }
+
+
+        searchMainData() {
+            let _this = this;
+            let param = {
+                action: 'read',
+                keyword: $('#keyword').val(),
+                srch_year: $('#srch_year').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SystemLogPage();
+        page.searchMainData();
+
+        //form
+        $('#name_val').kendoTextBox();
+        $('#holidate').kendoDatePicker({ format: 'yyyy-MM-dd' });
+        $('#repeat_yn').kendoSwitch({
+            checked: false, // 초기값 설정
+            change: function (e) {
+                console.log("Switch 상태 변경됨:", e.checked);
+                $('#repeat_yn').data("kendoSwitch").options.checked = e.checked; // 값 동기화
+            }
+        });
+
+    });
+
+</script>
+
+{% endblock %}

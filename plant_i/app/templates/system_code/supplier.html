@@ -13,18 +13,18 @@
                 <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
                     <div class="col-auto">
-                        <div class="form-item align-h L-align-h">
-                            <label class="k-label k-form-label" for="sch_comp_kind" data-labelCd="업체유형"></label>
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어"></label>
                             <div class="field-wrapper">
-                                <input id="sch_comp_kind" name="sch_comp_kind"/>
+                                <input id="sch_keyword" name="sch_keyword" />
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h L-form-item align-h">
-                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어"></label>
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부"></label>
                             <div class="field-wrapper">
-                                <input id="sch_keyword" name="sch_keyword"/>
+                                <input id="sch_use_yn" name="sch_use_yn" />
                             </div>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="companyGrid"></div>
+                <div id="supplierGrid"></div>
             </div>
         </div>
         <div class="content-ui-row connect">
@@ -243,7 +243,7 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    class CompanyPage {
+    class SupplierPage {
         
         constructor() {
             this.grid = null;
@@ -301,8 +301,6 @@
                     items.each(function (index) {
                         $(this).find("td:first").html(index+1);
                     });
-                    // grid 데이터 개수 표시
-                    kendoUtil.showGridRowCount(this.element);
                 },
                 /*dataBinding: function (e) {
                     //rowNo = (this.dataSource.page() - 1) * this.dataSource.pageSize();
@@ -313,7 +311,7 @@
                 height: "430px"
             };
 
-            _this.grid = new Grid($('#companyGrid'), gridOption);
+            _this.grid = new Grid($('#supplierGrid'), gridOption);
 
             // grid btns
             $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
@@ -336,6 +334,9 @@
 
             $('#sch_keyword').kendoTextBox({
                 placeholder: '업체명, 업체코드, 비고'
+            });
+            $('#sch_use_yn').kendoSwitch({
+                checked: true
             });
 
             // form
@@ -423,8 +424,9 @@
 
             let param = {
                 action: 'read',
+                sch_comp_type: 'purchase',
                 sch_keyword: $('#sch_keyword').val(),
-                sch_comp_kind : $('#sch_comp_kind').val()
+                sch_use_yn: $('#sch_use_yn').val(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -488,7 +490,7 @@
     let page = null;
 
     $(document).ready(function () {
-        page = new CompanyPage();
+        page = new SupplierPage();
         page.searchMainData();
     });
 

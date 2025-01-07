@@ -278,7 +278,11 @@ class SystemService():
                 FROM 
                     M
                 WHERE 
+                    /* 25.01.03 김하늘 수정. */
+                    -- (보류)대메뉴 밑에 중메뉴만 있는 경우 대메뉴가 보이지 않는 관계로 조건 수정(대메뉴면 무조건 보이게)
+                    -- (sub_count > 1 OR depth = 1)
                     sub_count > 1
+
                 ORDER BY 
                     path, folder_order, _order
                 --order by folder_order, _order
@@ -698,6 +702,62 @@ class SystemService():
             items = DbUtil.get_rows(sql, dc)
         except Exception as ex:
             LogWriter.add_dblog('error', 'SystemService.get_system_code_list', ex)
+            raise ex
+
+        return items
+
+    def get_systemlog_list(self, start, end, type, source):
+        sql = ''' select id
+        , "Type" as type
+        , "Source" as source
+        , "Message" as message
+        , to_char(_created ,'yyyy-mm-dd hh24:mi:ss') as created
+        from sys_log sl
+        where _created between %(start)s and %(end)s
+        '''
+        if type:
+            sql += '''and "Type" ilike concat('%%',%(type)s,'%%')
+            '''
+        if source:
+            sql += '''and "Source" ilike concat('%%', %(source)s, '%%')
+            '''
+        sql += ''' order by _created desc
+            '''
+        items = []
+        try:
+            dc = {}
+            dc['start'] = start
+            dc['end'] = end
+            dc['type'] = type
+            dc['source'] = source
+            items = DbUtil.get_rows(sql, dc)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'SystemService.get_systemlog_list', ex)
+            raise ex
+        return items
+
+
+    def get_holiday_list(self, keyword, year):
+        
+        sql = ''' 
+        SELECT nation_cd, type_val, name_val, repeat_yn, holidate, id
+        FROM holiday_custom
+        where 1=1
+        '''
+        if keyword:            
+            sql += '''and "name_val" like concat('%%',%(keyword)s,'%%')
+            '''
+        if year:
+            sql += ''' and left(holidate, 4) = %(year)s '''
+
+        sql+=''' order by nation_cd , holidate , name_val 
+            '''
+
+        try:
+            dc = {'keyword':keyword, 'year':year}
+            items = DbUtil.get_rows(sql, dc)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'SystemService.get_holiday_list', ex)
             raise ex
 
         return items

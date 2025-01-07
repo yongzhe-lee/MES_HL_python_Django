@@ -1,4 +1,4 @@
--- ±âÃÊ µ¥ÀÌÅÍ insert ±¸¹®
+-- ê¸°ì´ˆ ë°ì´í„° insert êµ¬ë¬¸
 -- user_group
 insert into user_group(id, "Code", "Name", "Disabled", "_created")
 values
@@ -11,119 +11,112 @@ alter SEQUENCE user_group_id_seq restart WITH 3;
 -- user_profile
 insert into user_profile("User_id", "Name", "UserGroup_id", lang_code, "_created", "_modified")
 values
-/* superuser ¾È ¸¸µé¾úÀ» °æ¿ì ÁÖ¼® ÇØÁ¦ ÈÄ Ãß°¡ */
-/* (1, 'À§Á¸', null, 'ko-KR', now(), now() ), */
-(2,'°³¹ßÀÚ', 1, 'ko-KR', now(), now() )
-,(3,'°ü¸®ÀÚ', 2, 'ko-KR', now(), now() )
+/* superuser ì•ˆ ë§Œë“¤ì—ˆì„ ê²½ìš° ì£¼ì„ í•´ì œ í›„ ì¶”ê°€ */
+/* (1, 'ìœ„ì¡´', null, 'ko-KR', now(), now() ), */
+(2,'ê°œë°œì', 1, 'ko-KR', now(), now() )
+,(3,'ê´€ë¦¬ì', 2, 'ko-KR', now(), now() )
 ;
 
 
 -- auth_user
 insert into auth_user(id, username, password, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined)
 values
-/* superuser ¾È ¸¸µé¾úÀ» °æ¿ì ÁÖ¼® ÇØÁ¦ ÈÄ Ãß°¡ */
+/* superuser ì•ˆ ë§Œë“¤ì—ˆì„ ê²½ìš° ì£¼ì„ í•´ì œ í›„ ì¶”ê°€ */
 /* (1, 'yullin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
 , true, '','','yullin@yullin.com', true, true, now()), */ 
 (2, 'dev', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
-, false, '°³¹ßÀÚ','','dev@yullin.com', true, true, now())
+, false, 'ê°œë°œì','','dev@yullin.com', true, true, now())
 ,(3, 'admin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
-, false, '°ü¸®ÀÚ','','admin@yullin.com', true, true, now())
+, false, 'ê´€ë¦¬ì','','admin@yullin.com', true, true, now())
 ;
 
 
 -- sys_code
 insert into sys_code("CodeType", "Code", "Value", "Description", "_ordering", _created)
-values ('bom_type', 'manufacturing', 'Á¦Á¶BOM', 'BOM±¸ºĞ', 1, now() )
-, ('bom_type', 'engineering', '¼³°èBOM', 'BOM±¸ºĞ', 2, now() )
-, ('company_type', 'purchase', '¸ÅÀÔÃ³', '¾÷Ã¼±¸ºĞ', 1, now() )
-, ('company_type', 'sale', '¸ÅÃâÃ³', '¾÷Ã¼±¸ºĞ', 2, now() )
-, ('company_type', 'outsourcing', '¿ÜÁÖ»ç', '¾÷Ã¼±¸ºĞ', 3, now() )
-, ('company_type', 'equip-maker', '¼³ºñÁ¦ÀÛ»ç', '¾÷Ã¼±¸ºĞ', 4, now() )
-, ('company_type', 'sale-purchase', '¸ÅÀÔ¸ÅÃâÃ³', '¾÷Ã¼±¸ºĞ', 5, now() )
-, ('coverage', 'process', '°øÁ¤º°', 'Àû¿ë¹üÀ§. °øÁ¤¿¡¸¸ Àû¿ë', 1, now() )
-, ('coverage', 'all', 'ÀüÃ¼', 'Àû¿ë¹üÀ§. ÀüÃ¼¿¡ Àû¿ë', 2, now() )
-, ('equipment_type', 'manufacturing', '»ı»ê', '¼³ºñ±¸ºĞ', 1, now() )
-, ('equipment_type', 'etc', '±âÅ¸', '¼³ºñ±¸ºĞ', 2, now() )
-, ('equip_asset_yn', 'Y', 'ÀÚ»ê¼º', '¼³ºñÀÚ»ê¼º¿©ºÎ', 1, now() )
-, ('equip_asset_yn', 'N', '¼Ò¸ğ¼º', '¼³ºñÀÚ»ê¼º¿©ºÎ', 2, now() )
-, ('equip_maint_type', 'prevention', '¿¹¹æÁ¤ºñ', '¼³ºñÁ¤ºñ±¸ºĞ', 1, now() )
-, ('equip_maint_type', 'failure', '°íÀåÁ¤ºñ', '¼³ºñÁ¤ºñ±¸ºĞ', 2, now() )
-, ('equip_run_state', 'run', '°¡µ¿', '¼³ºñ°¡µ¿»óÅÂ', 1, now() )
-, ('equip_run_state', 'stop', 'ºñ°¡µ¿', '¼³ºñ°¡µ¿»óÅÂ', 2, now() )
-, ('equip_run_type', 'auto', 'ÀÚµ¿ÀÔ·Â', '¼³ºñ°¡µ¿±¸ºĞ', 1, now() )
-, ('equip_run_type', 'manual', '¼öÀÔ·Â', '¼³ºñ°¡µ¿±¸ºĞ', 2, now() )
-, ('equip_state', 'normal', 'Á¤»ó', '¼³ºñ»óÅÂ', 1, now() )
-, ('equip_state', 'failure', '°íÀå', '¼³ºñ»óÅÂ', 2, now() )
-, ('equip_state', 'checking', 'Á¡°ËÁß', '¼³ºñ»óÅÂ', 1, now() )
-, ('form_type', 'hmi', 'HMI¾ç½Ä', '¾ç½Ä±¸ºĞ', 1, now() )
-, ('form_type', 'excel', '¿¢¼¿¾ç½Ä', '¾ç½Ä±¸ºĞ', 2, now() )
-, ('form_type', 'html', 'HTML¾ç½Ä', '¾ç½Ä±¸ºĞ', 3, now() )
-, ('form_type', 'file', 'ÆÄÀÏ', '¾ç½Ä±¸ºĞ', 4, now() )
-, ('lang_code', 'ko-KR', 'ÇÑ±¹¾î', '¾ğ¾î±¸ºĞ', 1, now() )
-, ('lang_code', 'en-US', '¿µ¾î', '¾ğ¾î±¸ºĞ', 2, now() )
-, ('mat_type', 'product', 'Á¦Ç°', 'Ç°¸ñ±¸ºĞ', 1, now() )
-, ('mat_type', 'semi', '¹İÁ¦Ç°', 'Ç°¸ñ±¸ºĞ', 2, now() )
-, ('mat_type', 'raw_mat', '¿øÀç·á', 'Ç°¸ñ±¸ºĞ', 3, now() )
-, ('mat_type', 'sub_mat', 'ºÎÀÚÀç', 'Ç°¸ñ±¸ºĞ', 4, now() )
-, ('mat_type', 'sangpum', '»óÇ°', 'Ç°¸ñ±¸ºĞ', 5, now() )
-, ('person_type', 'production', 'ÀÛ¾÷ÀÚ', 'ÀÛ¾÷ÀÚ±¸ºĞ', 1, now() )
-, ('person_type', 'sales', '¿µ¾÷´ã´çÀÚ', 'ÀÛ¾÷ÀÚ±¸ºĞ', 2, now() )
-, ('person_type', 'office', '»ç¹«Á÷', 'ÀÛ¾÷ÀÚ±¸ºĞ', 3, now() )
-, ('plan_yn', 'Y', '°èÈ¹', '°èÈ¹ºñ°èÈ¹±¸ºĞ', 1, now() )
-, ('plan_yn', 'N', 'ºñ°èÈ¹', '°èÈ¹ºñ°èÈ¹±¸ºĞ', 2, now() )
-, ('prod_week_term_state', 'none', '¹Ì°èÈ¹', '', 1, now() )
-, ('prod_week_term_state', 'product', 'Á¦Ç°È®Á¤', '', 2, now() )
-, ('prod_week_term_state', 'semi', '¹İÁ¦Ç°È®Á¤', '', 3, now() )
-, ('prod_week_term_state', 'material', '¿øºÎÀÚÀçÈ®Á¤', '', 4, now() )
-, ('result_type', 'N', '¼öÄ¡°ª', '°á°ú°ªÀ¯Çü', 1, now() )
-, ('result_type', 'S', '¼±ÅÃÇü', '°á°ú°ªÀ¯Çü', 2, now() )
-, ('result_type', 'D', '¼­¼úÇü', '°á°ú°ªÀ¯Çü', 3, now() )
-, ('shipment_state', 'ordered', 'Áö½Ã', 'ÃâÇÏ»óÅÂ', 1, now() )
-, ('shipment_state', 'shipped', 'ÃâÇÏ', 'ÃâÇÏ»óÅÂ', 2, now() )
-, ('spec_type', 'x', '±Ô°İ¾øÀ½', '±Ô°İÀ¯Çü', 1, now() )
-, ('spec_type', 'upper', '»óÇÑÀÌÇÏ', '±Ô°İÀ¯Çü', 2, now() )
-, ('spec_type', 'low', 'ÇÏÇÑÀÌ»ó', '±Ô°İÀ¯Çü', 3, now() )
-, ('spec_type', 'range', '¹üÀ§', '±Ô°İÀ¯Çü', 4, now() )
-, ('spec_type', 'just', 'Á¤¼º±Ô°İ', '±Ô°İÀ¯Çü', 5, now() )
-, ('standard_time_unit', 'minute', 'ºĞ', 'Ç¥ÁØ½Ã°£´ÜÀ§', 1, now() )
-, ('standard_time_unit', 'second', 'ÃÊ', 'Ç¥ÁØ½Ã°£´ÜÀ§', 2, now() )
-, ('standard_time_unit', 'hour', '½Ã°£', 'Ç¥ÁØ½Ã°£´ÜÀ§', 3, now() )
-, ('standard_time_unit', 'day', 'ÀÏ', 'Ç¥ÁØ½Ã°£´ÜÀ§', 4, now() )
-, ('storehouse_type', 'product', 'Á¦Ç°Ã¢°í', 'Ã¢°í±¸ºĞ', 1, now() )
-, ('storehouse_type', 'semi', '¹İÁ¦Ç°Ã¢°í', 'Ã¢°í±¸ºĞ', 2, now() )
-, ('storehouse_type', 'material', 'ÀÚÀçÃ¢°í', 'Ã¢°í±¸ºĞ', 3, now() )
-, ('storehouse_type', 'defect', 'ºÎÀûÇÕÇ°Ã¢°í', 'Ã¢°í±¸ºĞ', 4, now() )
-, ('storehouse_type', 'process', '°øÁ¤Ã¢°í', 'Ã¢°í±¸ºĞ', 5, now() )
-, ('storehouse_type', 'scrap', '½ºÅ©·¦Ã¢°í', 'Ã¢°í±¸ºĞ', 6, now() )
-, ('story_board_type', 'menu', '¸Ş´º', '½ºÅä¸®º¸µå Ç×¸ñ±¸ºĞ', 1, now() )
-, ('story_board_type', 'hmi', 'HMI¾ç½Ä', '½ºÅä¸®º¸µå Ç×¸ñ±¸ºĞ', 2, now() );
+values ('bom_type', 'manufacturing', 'ì œì¡°BOM', 'BOMêµ¬ë¶„', 1, now() )
+, ('bom_type', 'engineering', 'ì„¤ê³„BOM', 'BOMêµ¬ë¶„', 2, now() )
+, ('company_type', 'purchase', 'ë§¤ì…ì²˜', 'ì—…ì²´êµ¬ë¶„', 1, now() )
+, ('company_type', 'sale', 'ë§¤ì¶œì²˜', 'ì—…ì²´êµ¬ë¶„', 2, now() )
+, ('company_type', 'outsourcing', 'ì™¸ì£¼ì‚¬', 'ì—…ì²´êµ¬ë¶„', 3, now() )
+, ('company_type', 'equip-maker', 'ì„¤ë¹„ì œì‘ì‚¬', 'ì—…ì²´êµ¬ë¶„', 4, now() )
+, ('company_type', 'sale-purchase', 'ë§¤ì…ë§¤ì¶œì²˜', 'ì—…ì²´êµ¬ë¶„', 5, now() )
+, ('coverage', 'process', 'ê³µì •ë³„', 'ì ìš©ë²”ìœ„. ê³µì •ì—ë§Œ ì ìš©', 1, now() )
+, ('coverage', 'all', 'ì „ì²´', 'ì ìš©ë²”ìœ„. ì „ì²´ì— ì ìš©', 2, now() )
+, ('equipment_type', 'manufacturing', 'ìƒì‚°', 'ì„¤ë¹„êµ¬ë¶„', 1, now() )
+, ('equipment_type', 'etc', 'ê¸°íƒ€', 'ì„¤ë¹„êµ¬ë¶„', 2, now() )
+, ('equip_asset_yn', 'Y', 'ìì‚°ì„±', 'ì„¤ë¹„ìì‚°ì„±ì—¬ë¶€', 1, now() )
+, ('equip_asset_yn', 'N', 'ì†Œëª¨ì„±', 'ì„¤ë¹„ìì‚°ì„±ì—¬ë¶€', 2, now() )
+, ('equip_maint_type', 'prevention', 'ì˜ˆë°©ì •ë¹„', 'ì„¤ë¹„ì •ë¹„êµ¬ë¶„', 1, now() )
+, ('equip_maint_type', 'failure', 'ê³ ì¥ì •ë¹„', 'ì„¤ë¹„ì •ë¹„êµ¬ë¶„', 2, now() )
+, ('equip_run_state', 'run', 'ê°€ë™', 'ì„¤ë¹„ê°€ë™ìƒíƒœ', 1, now() )
+, ('equip_run_state', 'stop', 'ë¹„ê°€ë™', 'ì„¤ë¹„ê°€ë™ìƒíƒœ', 2, now() )
+, ('equip_run_type', 'auto', 'ìë™ì…ë ¥', 'ì„¤ë¹„ê°€ë™êµ¬ë¶„', 1, now() )
+, ('equip_run_type', 'manual', 'ìˆ˜ì…ë ¥', 'ì„¤ë¹„ê°€ë™êµ¬ë¶„', 2, now() )
+, ('equip_state', 'normal', 'ì •ìƒ', 'ì„¤ë¹„ìƒíƒœ', 1, now() )
+, ('equip_state', 'failure', 'ê³ ì¥', 'ì„¤ë¹„ìƒíƒœ', 2, now() )
+, ('equip_state', 'checking', 'ì ê²€ì¤‘', 'ì„¤ë¹„ìƒíƒœ', 1, now() )
+, ('form_type', 'hmi', 'HMIì–‘ì‹', 'ì–‘ì‹êµ¬ë¶„', 1, now() )
+, ('form_type', 'excel', 'ì—‘ì…€ì–‘ì‹', 'ì–‘ì‹êµ¬ë¶„', 2, now() )
+, ('form_type', 'html', 'HTMLì–‘ì‹', 'ì–‘ì‹êµ¬ë¶„', 3, now() )
+, ('form_type', 'file', 'íŒŒì¼', 'ì–‘ì‹êµ¬ë¶„', 4, now() )
+, ('lang_code', 'ko-KR', 'í•œêµ­ì–´', 'ì–¸ì–´êµ¬ë¶„', 1, now() )
+, ('lang_code', 'en-US', 'ì˜ì–´', 'ì–¸ì–´êµ¬ë¶„', 2, now() )
+, ('mat_type', 'product', 'ì œí’ˆ', 'í’ˆëª©êµ¬ë¶„', 1, now() )
+, ('mat_type', 'semi', 'ë°˜ì œí’ˆ', 'í’ˆëª©êµ¬ë¶„', 2, now() )
+, ('mat_type', 'raw_mat', 'ì›ì¬ë£Œ', 'í’ˆëª©êµ¬ë¶„', 3, now() )
+, ('mat_type', 'sub_mat', 'ë¶€ìì¬', 'í’ˆëª©êµ¬ë¶„', 4, now() )
+, ('mat_type', 'sangpum', 'ìƒí’ˆ', 'í’ˆëª©êµ¬ë¶„', 5, now() )
+, ('person_type', 'production', 'ì‘ì—…ì', 'ì‘ì—…ìêµ¬ë¶„', 1, now() )
+, ('person_type', 'sales', 'ì˜ì—…ë‹´ë‹¹ì', 'ì‘ì—…ìêµ¬ë¶„', 2, now() )
+, ('person_type', 'office', 'ì‚¬ë¬´ì§', 'ì‘ì—…ìêµ¬ë¶„', 3, now() )
+, ('plan_yn', 'Y', 'ê³„íš', 'ê³„íšë¹„ê³„íšêµ¬ë¶„', 1, now() )
+, ('plan_yn', 'N', 'ë¹„ê³„íš', 'ê³„íšë¹„ê³„íšêµ¬ë¶„', 2, now() )
+, ('prod_week_term_state', 'none', 'ë¯¸ê³„íš', '', 1, now() )
+, ('prod_week_term_state', 'product', 'ì œí’ˆí™•ì •', '', 2, now() )
+, ('prod_week_term_state', 'semi', 'ë°˜ì œí’ˆí™•ì •', '', 3, now() )
+, ('prod_week_term_state', 'material', 'ì›ë¶€ìì¬í™•ì •', '', 4, now() )
+, ('result_type', 'N', 'ìˆ˜ì¹˜ê°’', 'ê²°ê³¼ê°’ìœ í˜•', 1, now() )
+, ('result_type', 'S', 'ì„ íƒí˜•', 'ê²°ê³¼ê°’ìœ í˜•', 2, now() )
+, ('result_type', 'D', 'ì„œìˆ í˜•', 'ê²°ê³¼ê°’ìœ í˜•', 3, now() )
+, ('shipment_state', 'ordered', 'ì§€ì‹œ', 'ì¶œí•˜ìƒíƒœ', 1, now() )
+, ('shipment_state', 'shipped', 'ì¶œí•˜', 'ì¶œí•˜ìƒíƒœ', 2, now() )
+, ('spec_type', 'x', 'ê·œê²©ì—†ìŒ', 'ê·œê²©ìœ í˜•', 1, now() )
+, ('spec_type', 'upper', 'ìƒí•œì´í•˜', 'ê·œê²©ìœ í˜•', 2, now() )
+, ('spec_type', 'low', 'í•˜í•œì´ìƒ', 'ê·œê²©ìœ í˜•', 3, now() )
+, ('spec_type', 'range', 'ë²”ìœ„', 'ê·œê²©ìœ í˜•', 4, now() )
+, ('spec_type', 'just', 'ì •ì„±ê·œê²©', 'ê·œê²©ìœ í˜•', 5, now() )
+, ('standard_time_unit', 'minute', 'ë¶„', 'í‘œì¤€ì‹œê°„ë‹¨ìœ„', 1, now() )
+, ('standard_time_unit', 'second', 'ì´ˆ', 'í‘œì¤€ì‹œê°„ë‹¨ìœ„', 2, now() )
+, ('standard_time_unit', 'hour', 'ì‹œê°„', 'í‘œì¤€ì‹œê°„ë‹¨ìœ„', 3, now() )
+, ('standard_time_unit', 'day', 'ì¼', 'í‘œì¤€ì‹œê°„ë‹¨ìœ„', 4, now() )
+, ('storehouse_type', 'product', 'ì œí’ˆì°½ê³ ', 'ì°½ê³ êµ¬ë¶„', 1, now() )
+, ('storehouse_type', 'semi', 'ë°˜ì œí’ˆì°½ê³ ', 'ì°½ê³ êµ¬ë¶„', 2, now() )
+, ('storehouse_type', 'material', 'ìì¬ì°½ê³ ', 'ì°½ê³ êµ¬ë¶„', 3, now() )
+, ('storehouse_type', 'defect', 'ë¶€ì í•©í’ˆì°½ê³ ', 'ì°½ê³ êµ¬ë¶„', 4, now() )
+, ('storehouse_type', 'process', 'ê³µì •ì°½ê³ ', 'ì°½ê³ êµ¬ë¶„', 5, now() )
+, ('storehouse_type', 'scrap', 'ìŠ¤í¬ë©ì°½ê³ ', 'ì°½ê³ êµ¬ë¶„', 6, now() )
+, ('story_board_type', 'menu', 'ë©”ë‰´', 'ìŠ¤í† ë¦¬ë³´ë“œ í•­ëª©êµ¬ë¶„', 1, now() )
+, ('story_board_type', 'hmi', 'HMIì–‘ì‹', 'ìŠ¤í† ë¦¬ë³´ë“œ í•­ëª©êµ¬ë¶„', 2, now() );
 
-
--- tag_group 
-insert into tag_grp ("Code", "Name" , "_created" )
-values('equip_run', '°¡µ¿»óÅÂ±×·ì', now())
-, ('output_cusum', '»ı»ê´©Àû·®', now())
-, ('input_cusum', 'ÅõÀÔ´©Àû·®', now())
-;
 
 
 -- equ_group
 insert into equ_grp ("Code", "Name", "EquipmentType", "_created")
-values('PR-012', '±âÅ¸¼³ºñ±×·ì', 'etc', now())
+values('PR-012', 'ê¸°íƒ€ì„¤ë¹„ê·¸ë£¹', 'etc', now())
 ,('PR-015', 'PUMP', 'etc', now())
-,('PR-017', '¹èÀü¹İ', 'etc', now())
+,('PR-017', 'ë°°ì „ë°˜', 'etc', now())
 ,('PR-016', 'HEAT-EX', 'etc', now())
-,('PR-018', 'Àü¿øÅõÀÔ', 'etc', now())
+,('PR-018', 'ì „ì›íˆ¬ì…', 'etc', now())
 ;
 
 
 -- equ
---insert into equ("Code", "Name", "_created") values('test1', 'Å×½ºÆ®1', now()), ('test2', 'Å×½ºÆ®2', now());
+--insert into equ("Code", "Name", "_created") values('test1', 'í…ŒìŠ¤íŠ¸1', now()), ('test2', 'í…ŒìŠ¤íŠ¸2', now());
 
 --das_server
 
-insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values (1,'DAS_HPC1', 'DAS HPC#1Àü¿ë', '10.226.234.30', 'WIN', 'a', now());
-insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values(2, 'DAS_SMT3', 'DAS SMT#3Àü¿ë', '10.226.234.31', 'WIN', 'a', now());
+insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values (1,'DAS_HPC1', 'DAS HPC#1ì „ìš©', '10.226.234.30', 'WIN', 'a', now());
+insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values(2, 'DAS_SMT3', 'DAS SMT#3ì „ìš©', '10.226.234.31', 'WIN', 'a', now());
 alter SEQUENCE das_server_id_seq restart WITH 3;
 
 
@@ -131,98 +124,103 @@ alter SEQUENCE das_server_id_seq restart WITH 3;
 --insert into das_config("Name", "_created") values('das_test1', now()), ('das_test2', now());
 
 --site
-insert into site("Name", "Code", "_created") values('HLÅ¬·¹¹«ºê¼Ûµµ', 'hlklemove', now());
+insert into site("Name", "Code", "_created") values('HLí´ë ˆë¬´ë¸Œì†¡ë„', 'hlklemove', now());
 
 --factory
-insert into factory ("Code", "Name", "Site_id", "_created") values('f1', 'HLÅ¬·¹¹«ºê¼Ûµµ°øÀå', 1, now());
+insert into factory ("Code", "Name", "Site_id", "_created") values('f1', 'HLí´ë ˆë¬´ë¸Œì†¡ë„ê³µì¥', 1, now());
 
 
-/* ¸Ş´º°ü·Ã */
+/* ë©”ë‰´ê´€ë ¨ */
 truncate table menu_folder cascade;
 truncate table menu_item cascade;
 
---¸Ş´ºÆú´õ
+/* 25.01.03 ê¹€í•˜ëŠ˜ ìˆ˜ì •(CMMS ê´€ë ¨ ë©”ë‰´ ìƒì„±) */
+--ë©”ë‰´í´ë”
 INSERT INTO public.menu_folder (id, "FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
-    (1, '´ë½Ãº¸µå','inventory',100,NULL,'2024-11-25 15:00:19.159507+09','2024-11-25 15:00:33.069167+09',NULL,NULL,NULL),
-    (2, 'AAS°ü¸®','inventory',200,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
-    (3, '±âÁØÁ¤º¸','inventory',300,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
-    (4, '¼³ºñ°ü¸®','inventory',400,NULL,'2024-11-22 17:01:51.726933+09','2024-11-22 17:08:32.731659+09',NULL,NULL,NULL),
-    (5, '¼³ºñº¸Àü','inventory',500,NULL,'2024-11-22 17:01:59.691078+09','2024-11-22 17:08:46.342553+09',NULL,NULL,NULL),
-    (6, 'µ¥ÀÌÅÍºĞ¼®','inventory',600,NULL,'2024-11-22 17:02:09.507788+09','2024-11-22 17:08:53.90439+09',NULL,NULL,NULL),
-    (7, '¾÷¹«Áö¿ø','inventory',700,NULL,'2024-11-22 17:02:34.099485+09','2024-11-22 17:09:03.358122+09',NULL,NULL,NULL),
-    (8, '½Ã½ºÅÛ°ü¸®','inventory',800,NULL,'2024-11-22 17:02:44.44146+09','2024-11-22 17:09:10.325325+09',NULL,NULL,NULL);
+    (1, 'ëŒ€ì‹œë³´ë“œ','inventory',100,NULL,'2024-11-25 15:00:19.159507+09','2024-11-25 15:00:33.069167+09',NULL,NULL,NULL),
+    (2, 'AASê´€ë¦¬','inventory',200,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
+    (3, 'ê¸°ì¤€ì •ë³´','inventory',300,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
+    (4, 'ì„¤ë¹„ê´€ë¦¬','inventory',400,NULL,'2024-11-22 17:01:51.726933+09','2024-11-22 17:08:32.731659+09',NULL,NULL,NULL),
+    (5, 'ì„¤ë¹„ë³´ì „','inventory',500,NULL,'2024-11-22 17:01:59.691078+09','2024-11-22 17:08:46.342553+09',NULL,NULL,NULL),
+    (6, 'ë°ì´í„°ë¶„ì„','inventory',600,NULL,'2024-11-22 17:02:09.507788+09','2024-11-22 17:08:53.90439+09',NULL,NULL,NULL),
+    (7, 'ì—…ë¬´ì§€ì›','inventory',700,NULL,'2024-11-22 17:02:34.099485+09','2024-11-22 17:09:03.358122+09',NULL,NULL,NULL),
+    (8, 'ì‹œìŠ¤í…œì½”ë“œ','inventory',800,NULL,'2025-01-02 10:02:44.44146+09','2025-01-02 10:09:10.325325+09',NULL,NULL,NULL);
+    (9, 'ì‹œìŠ¤í…œê´€ë¦¬','inventory',900,NULL,'2024-11-22 17:02:44.44146+09','2024-11-22 17:09:10.325325+09',NULL,NULL,NULL);
+    (10, 'ìì¬ê´€ë ¨ì½”ë“œ','inventory',10,NULL,'2025-01-02 11:02:44.44146+09','2025-01-02 11:09:10.325325+09',NULL,NULL,8);
      
-    alter SEQUENCE menu_folder_id_seq restart WITH 9 ;
+    alter SEQUENCE menu_folder_id_seq restart WITH 11 ;
 
 
---¸Ş´º
+--ë©”ë‰´
 INSERT INTO public.menu_item ("MenuCode","MenuName","IconCSS","Url","Popup","_order","_status","_created","_modified","_creater_id","_modifier_id","MenuFolder_id") 
 VALUES
-     -- ´ë½Ãº¸µå
-     ('wm_dashboard','´ë½Ãº¸µå',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,1),
-     ('wm_storyboard','½ºÅä¸®º¸µå',NULL,'/gui/wm_storyboard','N',20,NULL,'2024-11-25 15:00:43.246192+09','2024-11-25 15:00:47.008002+09',3,3,1),
+     -- ëŒ€ì‹œë³´ë“œ
+     ('wm_dashboard','ëŒ€ì‹œë³´ë“œ',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,1),
+     ('wm_storyboard','ìŠ¤í† ë¦¬ë³´ë“œ',NULL,'/gui/wm_storyboard','N',20,NULL,'2024-11-25 15:00:43.246192+09','2024-11-25 15:00:47.008002+09',3,3,1),
 
      --AAS
-     ('wm_aas','AAS°ü¸®',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
-     ('wm_asset','ÀÚ»ê°ü¸®',NULL,'/gui/wm_dashboard','N',20,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
-     ('wm_aasx','aasx°ü¸®',NULL,'/gui/wm_dashboard','N',30,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
+     ('wm_aas','AASê´€ë¦¬',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
+     ('wm_asset','ìì‚°ê´€ë¦¬',NULL,'/gui/wm_dashboard','N',20,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
+     ('wm_aasx','aasxê´€ë¦¬',NULL,'/gui/wm_dashboard','N',30,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
 
-     --±âÁØÁ¤º¸
-     ('wm_factory','°øÀå',NULL,'/gui/wm_factory','N',10,NULL,'2024-11-22 17:07:52.512412+09','2024-11-22 17:07:58.799734+09',1,1,3),
-     ('wm_line','¶óÀÎ',NULL,'/gui/wm_line','N',20,NULL,'2024-11-22 17:04:35.779583+09','2024-11-22 17:07:58.810661+09',1,1,3),
-     ('wm_process','°øÁ¤',NULL,'/gui/wm_process','N',30,NULL,'2024-11-22 17:04:38.218271+09','2024-11-22 17:07:58.818437+09',1,1,3),
-     ('wm_material','Ç°¸ñÁ¤º¸',NULL,'/gui/wm_material','N',40,NULL,'2024-11-22 17:04:41.46544+09','2024-11-22 17:07:58.827905+09',1,1,3),
+     --ê¸°ì¤€ì •ë³´
+     ('wm_factory','ê³µì¥',NULL,'/gui/wm_factory','N',10,NULL,'2024-11-22 17:07:52.512412+09','2024-11-22 17:07:58.799734+09',1,1,3),
+     ('wm_line','ë¼ì¸',NULL,'/gui/wm_line','N',20,NULL,'2024-11-22 17:04:35.779583+09','2024-11-22 17:07:58.810661+09',1,1,3),
+     ('wm_process','ê³µì •',NULL,'/gui/wm_process','N',30,NULL,'2024-11-22 17:04:38.218271+09','2024-11-22 17:07:58.818437+09',1,1,3),
+     ('wm_material','í’ˆëª©ì •ë³´',NULL,'/gui/wm_material','N',40,NULL,'2024-11-22 17:04:41.46544+09','2024-11-22 17:07:58.827905+09',1,1,3),
      ('wm_bom','BOM',NULL,'/gui/wm_bom','N',50,NULL,'2024-11-22 17:04:44.062137+09','2024-11-22 17:07:58.835202+09',1,1,3),
-     ('wm_defect','ºÎÀûÇÕÁ¤º¸',NULL,'/gui/wm_defect','N',60,NULL,'2024-11-22 17:04:53.787407+09','2024-11-22 17:07:58.843538+09',1,1,3),
-     ('wm_shift','Á¶±³´ëÁ¤º¸',NULL,'/gui/wm_shift','N',70,NULL,'2024-11-22 17:04:56.656039+09','2024-11-22 17:07:58.849809+09',1,1,3),
-     ('wm_line_inactive','¶óÀÎºñ°¡µ¿Á¤º¸',NULL,'/gui/wm_line_inactive','N',80,NULL,'2024-11-22 17:05:00.230849+09','2024-11-22 17:07:58.858038+09',1,1,3),
-     ('wm_model_change','±âÁ¾º¯°æÁ¤º¸',NULL,'/gui/wm_model_change','N',90,NULL,'2024-11-22 17:05:06.581048+09','2024-11-22 17:07:58.864936+09',1,1,3),
+     ('wm_defect','ë¶€ì í•©ì •ë³´',NULL,'/gui/wm_defect','N',60,NULL,'2024-11-22 17:04:53.787407+09','2024-11-22 17:07:58.843538+09',1,1,3),
+     ('wm_shift','ì¡°êµëŒ€ì •ë³´',NULL,'/gui/wm_shift','N',70,NULL,'2024-11-22 17:04:56.656039+09','2024-11-22 17:07:58.849809+09',1,1,3),
+     ('wm_line_inactive','ë¼ì¸ë¹„ê°€ë™ì •ë³´',NULL,'/gui/wm_line_inactive','N',80,NULL,'2024-11-22 17:05:00.230849+09','2024-11-22 17:07:58.858038+09',1,1,3),
+     ('wm_model_change','ê¸°ì¢…ë³€ê²½ì •ë³´',NULL,'/gui/wm_model_change','N',90,NULL,'2024-11-22 17:05:06.581048+09','2024-11-22 17:07:58.864936+09',1,1,3),
 
-     --¼³ºñÁ¤º¸
-     ('wm_equip_group','¼³ºñ±×·ì',NULL,'/gui/wm_equip_group','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,4),
-     ('wm_equipment','¼³ºñ',NULL,'/gui/wm_equipment','N',20,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
-     ('wm_tag_group','ÅÂ±×±×·ì',NULL,'/gui/wm_tag_group','N',30,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
-     ('wm_tag_master','ÅÂ±×°ü¸®',NULL,'/gui/wm_tag_master','N',40,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+     --ì„¤ë¹„ì •ë³´
+     ('wm_equip_group','ì„¤ë¹„ê·¸ë£¹',NULL,'/gui/wm_equip_group','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,4),
+     ('wm_equipment','ì„¤ë¹„',NULL,'/gui/wm_equipment','N',20,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+     ('wm_tag_group','íƒœê·¸ê·¸ë£¹',NULL,'/gui/wm_tag_group','N',30,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+     ('wm_tag_master','íƒœê·¸ê´€ë¦¬',NULL,'/gui/wm_tag_master','N',40,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
      
-     --¼³ºñº¸Àü
+     --ì„¤ë¹„ë³´ì „
 
-    ('wm_pm_master','PM¸¶½ºÅÍ°ü¸®',NULL,'/gui/wm_pm_master','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_pm_schedule','PMÀÏÁ¤',NULL,'/gui/wm_pm_schedule','N',20,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_work_order','WO°ü¸®',NULL,'/gui/wm_work_order','N',30,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_pm_work_list','PMÀÛ¾÷¸ñ·ÏÁ¶È¸',NULL,'/gui/wm_pm_work_list','N',40,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_pm_result','PMÀÛ¾÷°á°úµî·Ï',NULL,'/gui/wm_pm_result','N',50,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_pm_result_list','PMÀÛ¾÷°á°úÁ¶È¸',NULL,'/gui/wm_pm_result_list','N',60,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_check_master','Á¡°Ë¸¶½ºÅÍ°ü¸®',NULL,'/gui/wm_check_master','N',70,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_check_schedule','Á¡°ËÀÏÁ¤°ü¸®',NULL,'/gui/wm_check_schedule','N',80,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_check_work_list','Á¡°ËÀÛ¾÷Á¶È¸',NULL,'/gui/wm_check_work_list','N',90,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_check_result','Á¡°ËÀÛ¾÷°á°úµî·Ï',NULL,'/gui/wm_check_result','N',100,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_check_result_list','Á¡°ËÀÛ¾÷°á°úÁ¶È¸',NULL,'/gui/wm_check_result_list','N',110,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_check_work_daily','ÀÏ»óÁ¡°Ë',NULL,'/gui/wm_check_work_daily','N',120,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-    ('wm_equ_grade','¼³ºñµî±Ş°ü¸®',NULL,'/gui/wm_equ_grade','N',130,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
-
-
-     -- µ¥ÀÌÅÍºĞ¼®
-     ('wm_tag_data_current','ÅÂ±×µ¥ÀÌÅÍÇöÈ²',NULL,'/gui/wm_tag_data_current','N',10,NULL,'2024-11-22 17:09:34.259863+09','2024-11-22 17:10:17.285547+09',1,1,6),
-     ('wm_tag_data_list','ÅÂ±×µ¥ÀÌÅÍÁ¶È¸',NULL,'/gui/wm_tag_data_list','N',20,NULL,'2024-11-22 17:09:39.061398+09','2024-11-22 17:10:17.296076+09',1,1,6),
-     ('wm_tag_summary','µ¥ÀÌÅÍÅë°è',NULL,'/gui/wm_tag_summary','N',30,NULL,'2024-11-22 17:10:03.213384+09','2024-11-22 17:10:17.304884+09',1,1,6),
-     ('wm_tag_trend','µ¥ÀÌÅÍÆ®·»µå',NULL,'/gui/wm_tag_trend','N',40,NULL,'2024-11-22 17:10:05.946882+09','2024-11-22 17:10:17.312142+09',1,1,6),
-     ('wm_tag_boxplot','»óÀÚ¼ö¿°±×¸²',NULL,'/gui/wm_tag_boxplot','N',50,NULL,'2024-11-22 17:09:41.707796+09','2024-11-22 17:10:17.320561+09',1,1,6),
-     ('wm_tag_histogram','È÷½ºÅä±×·¥',NULL,'/gui/wm_tag_histogram','N',60,NULL,'2024-11-22 17:09:50.213623+09','2024-11-22 17:10:17.328512+09',1,1,6),
-     ('wm_tag_scatter','»êÁ¡µµ',NULL,'/gui/wm_tag_scatter','N',70,NULL,'2024-11-22 17:09:59.972834+09','2024-11-22 17:10:17.336552+09',1,1,6),
-     ('wm_regression_a','»êÁ¡µµ-È¸±ÍºĞ¼®',NULL,'/gui/wm_regression_a','N',80,NULL,'2024-11-22 17:10:08.706509+09','2024-11-22 17:10:17.344432+09',1,1,6),
-
-     --¾÷¹«Áö¿ø
-     ('wm_calendar','Ä¶¸°´õ',NULL,'/gui/wm_calendar','N',10,NULL,'2024-11-22 17:03:46.144348+09','2024-11-22 17:03:55.082601+09',1,1,7),
-     ('wm_board','°øÁö»çÇ×',NULL,'/gui/wm_board','N',20,NULL,'2024-11-22 17:03:52.168896+09','2024-11-22 17:03:55.093085+09',1,1,7),
-
-     --½Ã½ºÅÛ°ü¸®
-     ('wm_user','»ç¿ëÀÚ',NULL,'/gui/wm_user','N',10,NULL,'2024-11-22 17:02:59.75001+09','2024-11-22 17:03:37.503066+09',1,1,8),
-     ('wm_user_group','»ç¿ëÀÚ±×·ì',NULL,'/gui/wm_user_group','N',20,NULL,'2024-11-22 17:03:05.113621+09','2024-11-22 17:03:37.51691+09',1,1,8),
-     ('wm_user_group_menu','¸Ş´º±ÇÇÑ',NULL,'/gui/wm_user_group_menu','N',30,NULL,'2024-11-22 17:03:10.558772+09','2024-11-22 17:03:37.52977+09',1,1,8),
-     ('wm_storyboard_config','½ºÅä¸®º¸µå¼³Á¤',NULL,'/gui/wm_storyboard_config','N',40,NULL,'2024-11-22 17:03:17.811259+09','2024-11-22 17:03:37.538322+09',1,1,8),
-     ('wm_login_log','·Î±×ÀÎ·Î±×',NULL,'/gui/wm_login_log','N',50,NULL,'2024-11-22 17:03:22.529364+09','2024-11-22 17:03:37.548868+09',1,1,8),
-     ('wm_menu_log','¸Ş´º·Î±×',NULL,'/gui/wm_menu_log','N',60,NULL,'2024-11-22 17:03:28.79165+09','2024-11-22 17:03:37.558648+09',1,1,8),
-     ('wm_system_log','½Ã½ºÅÛ·Î±×',NULL,'/gui/wm_system_log','N',70,NULL,'2024-11-22 17:03:34.6587+09','2024-11-22 17:03:37.56884+09',1,1,8);
+    ('wm_pm_master','PMë§ˆìŠ¤í„°ê´€ë¦¬',NULL,'/gui/wm_pm_master','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_schedule','PMì¼ì •',NULL,'/gui/wm_pm_schedule','N',20,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_work_order','WOê´€ë¦¬',NULL,'/gui/wm_work_order','N',30,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_work_list','PMì‘ì—…ëª©ë¡ì¡°íšŒ',NULL,'/gui/wm_pm_work_list','N',40,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_result','PMì‘ì—…ê²°ê³¼ë“±ë¡',NULL,'/gui/wm_pm_result','N',50,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_pm_result_list','PMì‘ì—…ê²°ê³¼ì¡°íšŒ',NULL,'/gui/wm_pm_result_list','N',60,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_master','ì ê²€ë§ˆìŠ¤í„°ê´€ë¦¬',NULL,'/gui/wm_check_master','N',70,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_schedule','ì ê²€ì¼ì •ê´€ë¦¬',NULL,'/gui/wm_check_schedule','N',80,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_work_list','ì ê²€ì‘ì—…ì¡°íšŒ',NULL,'/gui/wm_check_work_list','N',90,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_result','ì ê²€ì‘ì—…ê²°ê³¼ë“±ë¡',NULL,'/gui/wm_check_result','N',100,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_result_list','ì ê²€ì‘ì—…ê²°ê³¼ì¡°íšŒ',NULL,'/gui/wm_check_result_list','N',110,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_check_work_daily','ì¼ìƒì ê²€',NULL,'/gui/wm_check_work_daily','N',120,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+    ('wm_equ_grade','ì„¤ë¹„ë“±ê¸‰ê´€ë¦¬',NULL,'/gui/wm_equ_grade','N',130,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
 
 
+     -- ë°ì´í„°ë¶„ì„
+     ('wm_tag_data_current','íƒœê·¸ë°ì´í„°í˜„í™©',NULL,'/gui/wm_tag_data_current','N',10,NULL,'2024-11-22 17:09:34.259863+09','2024-11-22 17:10:17.285547+09',1,1,6),
+     ('wm_tag_data_list','íƒœê·¸ë°ì´í„°ì¡°íšŒ',NULL,'/gui/wm_tag_data_list','N',20,NULL,'2024-11-22 17:09:39.061398+09','2024-11-22 17:10:17.296076+09',1,1,6),
+     ('wm_tag_summary','ë°ì´í„°í†µê³„',NULL,'/gui/wm_tag_summary','N',30,NULL,'2024-11-22 17:10:03.213384+09','2024-11-22 17:10:17.304884+09',1,1,6),
+     ('wm_tag_trend','ë°ì´í„°íŠ¸ë Œë“œ',NULL,'/gui/wm_tag_trend','N',40,NULL,'2024-11-22 17:10:05.946882+09','2024-11-22 17:10:17.312142+09',1,1,6),
+     ('wm_tag_boxplot','ìƒììˆ˜ì—¼ê·¸ë¦¼',NULL,'/gui/wm_tag_boxplot','N',50,NULL,'2024-11-22 17:09:41.707796+09','2024-11-22 17:10:17.320561+09',1,1,6),
+     ('wm_tag_histogram','íˆìŠ¤í† ê·¸ë¨',NULL,'/gui/wm_tag_histogram','N',60,NULL,'2024-11-22 17:09:50.213623+09','2024-11-22 17:10:17.328512+09',1,1,6),
+     ('wm_tag_scatter','ì‚°ì ë„',NULL,'/gui/wm_tag_scatter','N',70,NULL,'2024-11-22 17:09:59.972834+09','2024-11-22 17:10:17.336552+09',1,1,6),
+     ('wm_regression_a','ì‚°ì ë„-íšŒê·€ë¶„ì„',NULL,'/gui/wm_regression_a','N',80,NULL,'2024-11-22 17:10:08.706509+09','2024-11-22 17:10:17.344432+09',1,1,6),
+
+     --ì—…ë¬´ì§€ì›
+     ('wm_calendar','ìº˜ë¦°ë”',NULL,'/gui/wm_calendar','N',10,NULL,'2024-11-22 17:03:46.144348+09','2024-11-22 17:03:55.082601+09',1,1,7),
+     ('wm_board','ê³µì§€ì‚¬í•­',NULL,'/gui/wm_board','N',20,NULL,'2024-11-22 17:03:52.168896+09','2024-11-22 17:03:55.093085+09',1,1,7),
+
+     --ì‹œìŠ¤í…œê´€ë¦¬
+     ('wm_user','ì‚¬ìš©ì',NULL,'/gui/wm_user','N',10,NULL,'2024-11-22 17:02:59.75001+09','2024-11-22 17:03:37.503066+09',1,1,8),
+     ('wm_user_group','ì‚¬ìš©ìê·¸ë£¹',NULL,'/gui/wm_user_group','N',20,NULL,'2024-11-22 17:03:05.113621+09','2024-11-22 17:03:37.51691+09',1,1,8),
+     ('wm_user_group_menu','ë©”ë‰´ê¶Œí•œ',NULL,'/gui/wm_user_group_menu','N',30,NULL,'2024-11-22 17:03:10.558772+09','2024-11-22 17:03:37.52977+09',1,1,8),
+     ('wm_storyboard_config','ìŠ¤í† ë¦¬ë³´ë“œì„¤ì •',NULL,'/gui/wm_storyboard_config','N',40,NULL,'2024-11-22 17:03:17.811259+09','2024-11-22 17:03:37.538322+09',1,1,8),
+     ('wm_login_log','ë¡œê·¸ì¸ë¡œê·¸',NULL,'/gui/wm_login_log','N',50,NULL,'2024-11-22 17:03:22.529364+09','2024-11-22 17:03:37.548868+09',1,1,8),
+     ('wm_menu_log','ë©”ë‰´ë¡œê·¸',NULL,'/gui/wm_menu_log','N',60,NULL,'2024-11-22 17:03:28.79165+09','2024-11-22 17:03:37.558648+09',1,1,8),
+     ('wm_system_log','ì‹œìŠ¤í…œë¡œê·¸',NULL,'/gui/wm_system_log','N',70,NULL,'2024-11-22 17:03:34.6587+09','2024-11-22 17:03:37.56884+09',1,1,8);
+
+     /* 25.01.03 ê¹€í•˜ëŠ˜ ì¶”ê°€ */
+     --ì‹œìŠ¤í…œì½”ë“œ
+     ('wm_supplier','ê³µê¸‰ì—…ì²´',NULL,'/gui/wm_supplier','N',10,NULL,'2025-01-03 11:05:01.287936+09','2025-01-03 11:57:31.125632+09',3,3,10);
 

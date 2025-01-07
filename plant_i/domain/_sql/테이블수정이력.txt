@@ -1,1 +1,25 @@
-2024.11.04 AbstractAuditModel ��� ����(�ʵ� ���� ��Ŵ)
+2024.11.04 AbstractAuditModel 사용 중지(필드 순서 엉킴)
+2025.01.06 Company 수정(업테 테이블 통합관리를 위한 필드 추가)
+    -- 작업자: 김하늘
+    -- 추가
+    Country = models.CharField('국가', max_length=50, null=True)
+    Local = models.CharField('지역명', max_length=50, null=True)
+    CompanyType = models.CharField('업체유형', max_length=30, null=True)
+    CEOName = models.CharField('대표이사', max_length=50, null=True)
+    ZipCode = models.CharField('우편번호', max_length=50, null=True)
+    FaxNumber = models.CharField('팩스번호', max_length=100, null=True)
+    BusinessType = models.CharField('업태', max_length=50, null=True)
+    BusinessItem = models.CharField('종목', max_length=50, null=True)
+    Homepage = models.CharField('홈페이지', max_length=100, null=True)
+    Manager = models.CharField('담당자1', max_length=50, null=True)
+    ManagerPhone = models.CharField('담당자2전화번호', max_length=50, null=True)
+    Manager2 = models.CharField('담당자2', max_length=50, null=True)
+    Manager2Phone = models.CharField('담당자2전화번호', max_length=50, null=True)
+    Description = models.CharField('비고', max_length=500, null=True)     # 기존 Remark 필드
+    _creater_nm = models.CharField('작성자명', max_length=10, null=True)
+    _modifier_nm = models.CharField('변경자명', max_length=10, null=True)
+
+    -- 삭제(CompanyType 관리로 인하여 불필요)
+    CustomerYn = models.CharField(max_length=1)
+    SupplierYn = models.CharField(max_length=1)
+

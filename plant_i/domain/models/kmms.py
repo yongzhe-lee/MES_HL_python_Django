@@ -1,9 +1,63 @@
 from tarfile import NUL
 from django.db import models
-from domain.models.definition import Equipment, Material, Unit
+from domain.models.definition import Equipment, Material, Site, Unit
 from domain.models.user import Depart
 from django.contrib.auth.models import User
 from domain.services.date import DateUtil
+
+# 25.01.02 김하늘 추가(PM에서만 사용하는 업체) 모델 생성 보류(db에서만 테스트)
+# class Supplier(models.Model):
+#     '''
+#     공급업체
+#     '''
+#     supplier_pk = models.AutoField(primary_key=True, db_column='supplier_pk')
+#     Code = models.CharField('공급업체코드', db_column='supplier_cd', max_length=50)
+#     Name = models.CharField('공급업체명', db_column='supplier_nm', max_length=100)
+#     CEOName = models.CharField('대표자명', db_column='ceo_nm', max_length=80, null=True)
+#     MainContactName = models.CharField('담당자1 이름', db_column='charger_nm', max_length=100, null=True)
+#     MainContactPhone = models.CharField('담당자1 연락처', db_column='charger_tel', max_length=20, null=True)
+#     SubContactName = models.CharField('담당자2 이름', db_column='charger2_nm', max_length=100, null=True)
+#     SubContactPhone = models.CharField('담당자2 연락처', db_column='charger2_tel', max_length=20, null=True)
+#     CompanyType = models.CharField('업체구분', db_column='comp_type', max_length=20, null=True)
+#     BusinessCategory = models.CharField('업종', db_column='business_class_nm', max_length=200)
+#     Description = models.CharField('비고', db_column='supplier_dsc', max_length=2000, null=True)
+#     Nation = models.CharField('국가', db_column='nation', max_length=30, null=True)
+#     Local = models.CharField('지역', db_column='local', max_length=30, null=True)
+#     ZipCode = models.CharField('우편번호', db_column='zip_code', max_length=30, null=True)
+#     Address1 = models.CharField('주소1', db_column='address1', max_length=200, null=True)
+#     Address2 = models.CharField('주소2', db_column='address2', max_length=200, null=True)
+#     Phone = models.CharField('전화번호', db_column='phone', max_length=30, null=True)
+#     Fax = models.CharField('팩스번호', db_column='fax', max_length=30, null=True)
+#     Homepage = models.CharField('홈페이지', db_column='homepage', max_length=100, null=True)
+#     Email = models.CharField('이메일주소', db_column='email_addr', max_length=100, null=True)
+#     Site = models.ForeignKey('Site', on_delete=models.DO_NOTHING, null=True, verbose_name='사이트')
+#     UseYN = models.CharField('사용여부', db_column='use_yn', max_length=1, default='Y')
+#     DeleteYN = models.CharField('삭제여부', db_column='del_yn', max_length=1, default='N')
+    
+#     _status = models.CharField('_status', max_length=10, null=True)
+#     _created    = models.DateTimeField('_created', auto_now_add=True)
+#     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+#     _creater_id = models.IntegerField('_creater_id', null=True)
+#     _modifier_id = models.IntegerField('_modifier_id', null=True)
+#     _creater_nm = models.CharField('작성자명', max_length=10, null=True)
+#     _modifier_nm = models.CharField('변경자명', max_length=10, null=True)
+    
+#     def set_audit(self, user):
+#         if self._creater_id is None:
+#             self._creater_id = user.id
+#             self._creater_nm = user.userprofile.Name
+#         self._modifier_id = user.id
+#         self._modifier_nm = user.userprofile.Name
+#         self._modified = DateUtil.get_current_datetime()
+#         return
+
+#     class Meta:
+#         db_table = 'supplier'
+#         verbose_name = '공급업체'
+#         unique_together = [
+#             ['Code', 'Site']
+#         ]        
+
 
 class JobClass(models.Model):
     '''
