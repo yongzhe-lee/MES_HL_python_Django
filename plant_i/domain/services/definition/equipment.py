@@ -98,7 +98,7 @@ class EquipmentService():
         '''
         if line_id:
             sql+=''' 
-            AND e."Line_id"=%(line_id)s
+            AND e."line_id"=%(line_id)s
             '''
         if group_id:
             sql+=''' 

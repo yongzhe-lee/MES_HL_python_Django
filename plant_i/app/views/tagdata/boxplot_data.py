@@ -1,7 +1,7 @@
 import numpy as np
 
 from configurations import settings
-from domain.models.mes import TagMaster
+from domain.models.definition import TagMaster
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 

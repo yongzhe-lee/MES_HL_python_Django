@@ -4,149 +4,141 @@
     .chart_border {
         border: 1px solid blue;
     }
+
+    .card-content {
+        display: flex;
+    }
+    #data_grid .k-grid-content tr {
+        height: 35px !important; /* 모든 행 높이를 강제 고정 */
+    }
+
 </style>
 {% endblock %}
 {% block content %}
-<div class="content_wrap">
-    <section class="section">
-
-        <div class="title_box ">
-            <div class="left_align">
-                <h3 data-labelCd="산점도 - 회귀분석">산점도 - 회귀분석</h3>
-            </div>
-            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
-            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
-        </div>
-
-        <div class="table_box search">
-        </div>
-    </section>
-
-    <section>
-        <div class="row">
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <div class="card-content">
             <div class="grid_box col-2" id="dataList">
-
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_t4" >데이터</span>
+                <div class="card-content">
+                    <div class="col-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">데이터</label>
+                            <div class="field-wrapper">
+                                <input id="txtDataLine" name="txtDataLine" />
                             </div>
-                            <input class="form-control2" type="number" id="txtDataLine" />
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_t4" data-labelCd="차수">차수</span>
+                    <div class="col-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">차수</label>
+                            <div class="field-wrapper">
+                                <select type="number" value="" id="cboEqu" name="cboEqu"></select>
                             </div>
-                            <select class="form-control2" type="number" value="" id="cboEqu" name="cboEqu" title="">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="h-630" data-ax5grid="data_grid"></div>
+                <div id="data_grid"></div>
             </div>
 
             <div class="col-10">
-                <div class="row">
-                    <div class="col-2">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_t9" >y2 소수점자릿수</span>
+                <div class="card-content">
+                    <div class="col-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">y2 소수점자릿수</label>
+                            <div class="field-wrapper">
+                                <input type="number" id="txtDigit" />
                             </div>
-                            <input class="form-control2" type="number" id="txtDigit" />
                         </div>
                     </div>
                     <div class="col-3">
-                        <span class="btn-default" id="r2"></span>
+                        <div class="form-item align-h">
+                            <label id="r2"></label>
+                        </div>
                     </div>
                     <div class="col-5">
-                        <span class="btn-default" id="equation"></span>
+                        <div class="form-item align-h">
+                            <label id="equation"></label>
+                        </div>
                     </div>
                 </div>
                 <form id="logChange">
-                    <div class="row">
+                    <div class="card-content">
                         <div class="col-1">
-                            <input type="checkbox" id="log"/>&nbsp;<span>Log 변환</span>
+                            <input type="checkbox" id="log"/>
                         </div>
                         <div class="col-2">
                             <span>y2 = a * log(y+b)</span>
                         </div>
-                        <div class="col-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" style="width:35px">a</span>
+                        <div class="col-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" style="width:35px">a</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="log_a" name="a"/>&nbsp;&nbsp;&nbsp;
                                 </div>
-                                <input type="number" id="log_a" name="a" style="width:50px"/>&nbsp;&nbsp;&nbsp;
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" style="width:35px">b</span>
+                                <label class="k-label k-form-label" style="width:35px">b</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="log_b" name="b"/>
                                 </div>
-                                <input type="number" id="log_b" name="b" style="width:50px"/>
                             </div>
                         </div>
                     </div>
                 </form>
                 <form id="powerChange">
-                    <div class="row">
+                    <div class="card-content">
                         <div class="col-1">
-                            <input type="checkbox" id="power"/>&nbsp;<span>Power 변환</span>
+                            <input type="checkbox" id="power"/>
                         </div>
                         <div class="col-2">
                             <span>y2 = a * (y+b) ^ c</span>
                         </div>
                         <div class="col-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" style="width:35px">a</span>
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" style="width:35px">a</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="power_a" name="a"/>&nbsp;&nbsp;&nbsp;
                                 </div>
-                                <input type="number" id="power_a" name="a" style="width:50px"/>&nbsp;&nbsp;&nbsp;
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" style="width:35px">b</span>
+                                <label class="k-label k-form-label" style="width:35px">b</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="power_b" name="b"/>&nbsp;&nbsp;&nbsp;
                                 </div>
-                                <input type="number" id="power_b" name="b" style="width:50px"/>&nbsp;&nbsp;&nbsp;
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" style="width:35px">c</span>
+                                <label class="k-label k-form-label" style="width:35px">c</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="power_c" name="c"/>
                                 </div>
-                                <input type="number" id="power_c" name="c" style="width:50px"/>
                             </div>
                         </div>
                         <div class="col-1">
-                            <button type="button" class="btn-default" id="btnChangeY">Y 변환</button>
+                            <button id="btnChangeY">Y 변환</button>
                         </div>
                         <div class="col-1">
-                            <button type="button" class="btn-default" id="btnCalcRegre"> 회귀식계산</button>
+                            <button id="btnCalcRegre"> 회귀식계산</button>
                         </div>
                     </div>
                 </form>
 
-                <div class="row">
-                    <div class="col-12" id="chart">
-
-                    </div>
-                    <div class="col-11" >
-                        <div class="input-group" >
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_md" data-labelCd="복붙">복붙</span>
+                <div>
+                    <div class="col-12" id="chart"></div>
+                    <div class="card-content">
+                        <div class="col-auto" >
+                            <div class="form-item align-h" >
+                                <label class="k-label k-form-label" data-labelCd="복붙">복붙</label>
+                                <div class="field-wrapper">
+                                    <textarea id="txtbox" name="txtbox"  value=""></textarea>
+                                </div>
                             </div>
-                            <textarea class="form-control2 h-26" id="txtbox" name="txtbox"  value=""></textarea>
                         </div>
-                    </div>
-                    <div class="col-1">
-                        <button type="button" class="btn-default" id="btnCtrl">붙여넣기</button>
+                        <div class="col-1">
+                            <button type="button" class="btn-default" id="btnCtrl">붙여넣기</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </div>
 <div id="chart_sample"></div>
-<div class="row" id="divChart">
+<div id="divChart">
 </div>
 
 {% endblock %}
@@ -166,37 +158,63 @@
 
         init() {
             let _this = this;
-            let dataConfig = {
-                target: $('[data-ax5grid="data_grid"]'),
-                frozenColumnIndex: 0, // 열 고정
-                frozenRowIndex: 0,    // 행 고정
-                showLineNumber: false, // 열의 번호 보이기 여부
-                showRowSelector: false,  // checkbox(선택) 보이기 여부
-                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
-                sortable: false, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
-                multiSort: false, // 다중 정렬 여부
-                header: {
-                    align: 'center',  // 헤더의 기본 정렬
-                    columnHeight: 30  // 헤더 높이
-                },
-                body: {
-                    columnHeight: 25, // body의 기본 높이
-                    onClick: function (e) {
 
-                    },
-                },
-                page: {
-                    display: true,  // 페이징 보이기 여부
-                    statusDisplay: true,
-                },
+            $("#data_grid").kendoGrid({
+                pageable: true,
+                sortable: true,
+                editable: true,
+                height: 700,
                 columns: [
-                    { key: 'x', label: '<span class="editable_clr">X</span>', width: 50, align: 'right', sortable: false, editor: { type: 'money' }, formatter: 'money' },
-                    { key: 'y', label: '<span class="editable_clr">Y</span>', width: 50, align: 'right', sortable: false, editor: { type: 'money' }, formatter: 'money' },
-                    { key: 'y2', label: 'Y2', width: 150, align: 'right' },
-                ]
-            };
+                    //{ field: "x", title: "<span class='editable_clr'>X</span>", width: 50, attributes: { class: "text-right" }, format: "{0:n0}", editor: this.defaultEditor },
+                    //{ field: "y", title: "<span class='editable_clr'>Y</span>", width: 50, attributes: { class: "text-right" }, format: "{0:n0}", editor: this.defaultEditor },
+                    {
+                        field: "x",
+                        title: "<span class='editable_clr'>X</span>",
+                        width: 50,
+                        attributes: { class: "text-right" },
+                        editor: function (container, options) {
+                            $('<input type="text" class="k-input" name="' + options.field + '" />')
+                                .appendTo(container)
+                                .on('blur', function () {
+                                    if (!$(this).val()) {
+                                        options.model.set(options.field, 0); // 빈 값일 경우 0으로 설정
+                                    }
+                                });
+                        }
+                    },
+                    {
+                        field: "y",
+                        title: "<span class='editable_clr'>Y</span>",
+                        width: 50,
+                        attributes: { class: "text-right" },
+                        editor: function (container, options) {
+                            $('<input type="text" class="k-input" name="' + options.field + '" />')
+                                .appendTo(container)
+                                .on('blur', function () {
+                                    if (!$(this).val()) {
+                                        options.model.set(options.field, 0); // 빈 값일 경우 0으로 설정
+                                    }
+                                });
+                        }
+                    },
+                    { field: "y2", title: "Y2", width: 150, attributes: { class: "text-right" }, editable: true }
+                ],
+                dataSource: {
+                    data: [],
+                    schema: {
+                        model: {
+                            id: "id", // 고유 식별자 필드가 없으면 추가
+                            fields: {
+                                x: { type: "number", defaultValue: 0 },
+                                y: { type: "number", defaultValue: 0 },
+                                y2: { type: "number", defaultValue: 0 }
+                            }
+                        }
+                    }
+                },
+            });
 
-            this.grid = new ax5.ui.grid(dataConfig);
+            this.grid = $("#data_grid").data("kendoGrid");
 
             this.options = {
                   series: [],
@@ -240,15 +258,12 @@
 
         //데이터 라인수 ++
         addData() {
-            let _this = this;
             let line_length = $("#txtDataLine").val();
-            let grid = this.grid.getList();
-            let grid_len = grid.length;
-            for (let i = 0; i < grid_len; i++) {
-                this.grid.removeRow("last");
-            }          
+            let dataSource = this.grid.dataSource;
+
+            dataSource.data([]);
             for (let i = 0; i < line_length; i++) {
-                this.grid.addRow($.extend({}, {}), "first");
+                dataSource.add({ x: null, y: null });
             }
 
         };
@@ -258,7 +273,7 @@
             let _this = this;
             this.grid.setData([]);  // grid 초기화
             let txtbox =$("#txtbox").val(); 
-            console.log('txtBox ', txtbox);
+            
             let line = txtbox.split('\n');
             for (let i = 0; i < line.length; i++) {
                 let xy = line[i].split('\t');
@@ -277,15 +292,17 @@
         changeY2(type) {
             let _this = this;
             let url = '/api/tagdata/regression_a?action=changeY2';
-            let grid_list = this.grid.getList();
-            let grid_len = grid_list.length;
+            let grid_data = this.grid.dataSource.data();
+            let grid_len = grid_data.length;
             let x_list = [];
             let y_list = [];
             let xy_list = [];
+
+            // 데이터 추출
             for (let i = 0; i < grid_len; i++) {
-                x_list.push(grid_list[i].x);
-                y_list.push(grid_list[i].y);
-                xy_list.push({'x':grid_list[i].x,'y':grid_list[i].y})
+                x_list.push(grid_data[i].x || 0); // x 값이 없는 경우 0으로 대체
+                y_list.push(grid_data[i].y || 0); // y 값이 없는 경우 0으로 대체
+                xy_list.push({ x: grid_data[i].x || 0, y: grid_data[i].y || 0 });
             }
 
             let data = {
@@ -295,46 +312,48 @@
                 'x_list': x_list,
                 'y_list': y_list,
                 'data_len': grid_len
-            }
-            if (type == 'log') {
+            };
+
+            if (type === 'log') {
                 data['a'] = $("#log_a").val();
                 data['b'] = $("#log_b").val();
                 data['c'] = '1';
-            } else if (type == 'power') {
+            } else if (type === 'power') {
                 data['a'] = $("#power_a").val();
                 data['b'] = $("#power_b").val();
                 data['c'] = $("#power_c").val();
             }
 
+            // 서버에 데이터 전송 및 결과 처리
             let result = AjaxUtil.getSyncData(url, data);
 
+            // y2 값 업데이트
             for (let i = 0; i < grid_len; i++) {
-            this.grid.setValue(i,'y2',result[0][i])
+                grid_data[i].set('y2', result[0][i]);
             }
-            console.log('chart ,', this.chart)
-            let newseries =
-            [
+
+            // 차트 업데이트
+            let newseries = [
                 {
                     name: "y2",
                     type: 'scatter',
                     data: result[1]
-                        
                 }
-            ]
+            ];
 
-            this.options.chart.type = 'scatter'
-            console.log('$("#txtDigit").val()', $("#txtDigit").val());
-            if ($("#txtDigit").val() != '') {
-                let digit = parseInt($("#txtDigit").val())
-                _this.options.yaxis= [
-                                                  {
-                                                    labels: {
-                                                      formatter: function(val) {
-                                                        return val.toFixed(digit);
-                                                      }
-                                                    }
-                                                  }
-                                                ]
+            this.options.chart.type = 'scatter';
+
+            if ($("#txtDigit").val() !== '') {
+                let digit = parseInt($("#txtDigit").val());
+                _this.options.yaxis = [
+                    {
+                        labels: {
+                            formatter: function (val) {
+                                return val.toFixed(digit);
+                            }
+                        }
+                    }
+                ]
             }
 
             this.chart.updateOptions(_this.options);
@@ -345,15 +364,16 @@
         calcRegre(type) {
             let _this = this;
             let url = '/api/tagdata/regression_a?action=calc_regre';
-            let grid_list = this.grid.getList();
-            let grid_len = grid_list.length;
-            let x_list =[] 
-            let y_list =[]
+            let grid_data = this.grid.dataSource.data(); // Kendo Grid의 데이터 가져오기
+            let grid_len = grid_data.length;
+            let x_list = [];
+            let y_list = [];
+
             for (let i = 0; i < grid_len; i++) {
-                x_list.push(grid_list[i].x)
-                y_list.push(grid_list[i].y)
-            }   
-            
+                x_list.push(grid_data[i].x || 0); // x 값 가져오기 (빈 값은 0으로 대체)
+                y_list.push(grid_data[i].y || 0); // y 값 가져오기 (빈 값은 0으로 대체)
+            }
+
             let data = {
                 'equ_order': $("#cboEqu").val(),
                 'decimal_digit': $("#txtDigit").val(),
@@ -361,59 +381,61 @@
                 'x_list': x_list,
                 'y_list': y_list,
                 'data_len': grid_len
-            }
-            if (type == 'log') {
+            };
+
+            if (type === 'log') {
                 data['a'] = $("#log_a").val();
                 data['b'] = $("#log_b").val();
                 data['c'] = '1';
-            } else if (type == 'power') {
+            } else if (type === 'power') {
                 data['a'] = $("#power_a").val();
                 data['b'] = $("#power_b").val();
                 data['c'] = $("#power_c").val();
             }
 
-            console.log('data' ,data)
+            console.log('data', data);
+
+            // 서버에 데이터 전송 및 결과 처리
             let result = AjaxUtil.getSyncData(url, data);
             console.log('calcRegre result', result);
 
             for (let i = 0; i < grid_len; i++) {
-            this.grid.setValue(i,'y2',result[0][i])
+                grid_data[i].set('y2', result[0][i]); // y2 값을 업데이트
             }
-            console.log('chart ,', this.chart)
+
             if ($("#txtDigit").val() != '') {
                 console.log('hhhhhhhhhhhhhhhhhhhhhh1111111')
                 let digit = parseInt($("#txtDigit").val())
-                _this.options.yaxis= [
-                                                  {
-                                                    labels: {
-                                                      formatter: function(val) {
-                                                        return val.toFixed(digit);
-                                                      }
-                                                    }
-                                                  }
-                                                ]
+                _this.options.yaxis = [
+                    {
+                        labels: {
+                            formatter: function (val) {
+                                return val.toFixed(digit);
+                            }
+                        }
+                    }
+                ]
             }
-            let newseries =
-            [
+
+            let newseries = [
                 {
                     name: 'y2',
                     type: 'scatter',
                     data: result[1]
-                    },
+                },
                 {
                     name: 'equations',
                     type: 'line',
                     data: result[2]
                 }
-            ]
-            this.options.chart.type = 'line'
+            ];
+
             this.chart.updateOptions(_this.options);
             this.chart.updateSeries(newseries);
-            $("#r2").html('r-square = '+result[4]);
+
+            $("#r2").html('r-square = ' + result[4]);
             $("#equation").html(result[3]);
         };
-
-
 
     }
 
@@ -422,7 +444,23 @@
     $(document).ready(function (e) {
         page = new chartRegression();
 
-        $('#txtDigit').val('3');
+        $("#log").kendoCheckBox({
+            label: "Log 변환",
+            checked: false
+        });
+
+        $("#power").kendoCheckBox({
+            label: "Power 변환",
+            checked: false
+        });
+
+        $("#txtDigit").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+            value: 3
+        });
+        $("#txtDigit").closest(".k-numerictextbox").css("width", "65px");
 
         // 데이터 행 추가
         $('#txtDataLine').change(function () {
@@ -430,120 +468,180 @@
         });
 
 
-        // y2 변환
-        $('#btnChangeY').click(function () {
+        $("#btnCalcRegre").kendoButton({
+            themeColor: 'base',
+            click: function (e) {
+                if ($('#log').prop("checked") && $('#power').prop("checked")) {  // log 변환, power 변환 둘다 체크시
+                    Alert.alert('', '변환 방법을 확인해주세요.');
+                    return;
 
-            if ($('#log').prop("checked") && $('#power').prop("checked")) {  // log 변환, power 변환 둘다 체크시
-                Alert.alert('', '변환 방법을 확인해주세요.');
-                return;
-                
-            } else if ($('#log').prop("checked")) {
+                } else if ($('#log').prop("checked")) {
 
-                if ($("#log_a").val() == '') {
-                    Alert.alert('', 'a값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#log_b").val() == '') {
-                    Alert.alert('', 'b값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#txtDigit").val()) {
-                    if ($("#txtDigit").val() < '0') {
-                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                    if ($("#log_a").val() == '') {
+                        Alert.alert('', 'a값을 채워주세요.', function () { });
                         return false;
                     }
-                }              
-
-                page.changeY2('log');
-
-            } else if ($('#power').prop("checked")) {
-                if ($("#power_a").val() == '') {
-                    Alert.alert('', 'a값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#power_b").val() == '') {
-                    Alert.alert('', 'b값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#power_c").val() == '') {
-                    Alert.alert('', 'c값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#txtDigit").val()) {
-                    if ($("#txtDigit").val() < '0') {
-                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                    if ($("#log_b").val() == '') {
+                        Alert.alert('', 'b값을 채워주세요.', function () { });
                         return false;
                     }
-                }     
-                page.changeY2('power');
+                    if ($("#txtDigit").val()) {
+                        if ($("#txtDigit").val() < '0') {
+                            Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                            return false;
+                        }
+                    }
 
-            } else {  // log 변환, power 변환 둘다 체크 안할시
+                    page.calcRegre('log');
+
+                } else if ($('#power').prop("checked")) {
+                    if ($("#power_a").val() == '') {
+                        Alert.alert('', 'a값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#power_b").val() == '') {
+                        Alert.alert('', 'b값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#power_c").val() == '') {
+                        Alert.alert('', 'c값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#txtDigit").val()) {
+                        if ($("#txtDigit").val() < '0') {
+                            Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                            return false;
+                        }
+                    }
+                    page.calcRegre('power');
+
+                } else {  // log 변환, power 변환 둘다 체크 안할시
+                    page.calcRegre('none');
+                }
+            }
+
+        });
+
+        $("#btnChangeY").kendoButton({
+            themeColor: 'base',
+            click: function () {
+                if ($('#log').prop("checked") && $('#power').prop("checked")) {  // log 변환, power 변환 둘다 체크시
+                    Alert.alert('', '변환 방법을 확인해주세요.');
+                    return;
+
+                } else if ($('#log').prop("checked")) {
+
+                    if ($("#log_a").val() == '') {
+                        Alert.alert('', 'a값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#log_b").val() == '') {
+                        Alert.alert('', 'b값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#txtDigit").val()) {
+                        if ($("#txtDigit").val() < '0') {
+                            Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                            return false;
+                        }
+                    }
+
+                    page.changeY2('log');
+
+                } else if ($('#power').prop("checked")) {
+                    if ($("#power_a").val() == '') {
+                        Alert.alert('', 'a값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#power_b").val() == '') {
+                        Alert.alert('', 'b값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#power_c").val() == '') {
+                        Alert.alert('', 'c값을 채워주세요.', function () { });
+                        return false;
+                    }
+                    if ($("#txtDigit").val()) {
+                        if ($("#txtDigit").val() < '0') {
+                            Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
+                            return false;
+                        }
+                    }
+                    page.changeY2('power');
+
+                } else {  // log 변환, power 변환 둘다 체크 안할시
                     page.changeY2('none');
+                }
             }
-
-
-
         });
 
-
-        $("#btnCalcRegre").click(function (e) {
-
-            if ($('#log').prop("checked") && $('#power').prop("checked")) {  // log 변환, power 변환 둘다 체크시
-                Alert.alert('', '변환 방법을 확인해주세요.');
-                return;
-
-            } else if ($('#log').prop("checked")) {
-
-                if ($("#log_a").val() == '') {
-                    Alert.alert('', 'a값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#log_b").val() == '') {
-                    Alert.alert('', 'b값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#txtDigit").val()) {
-                    if ($("#txtDigit").val() < '0') {
-                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
-                        return false;
-                    }
-                }
-                
-                page.calcRegre('log');
-
-            } else if ($('#power').prop("checked")) {
-                if ($("#power_a").val() == '') {
-                    Alert.alert('', 'a값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#power_b").val() == '') {
-                    Alert.alert('', 'b값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#power_c").val() == '') {
-                    Alert.alert('', 'c값을 채워주세요.', function () { });
-                    return false;
-                }
-                if ($("#txtDigit").val()) {
-                    if ($("#txtDigit").val() < '0') {
-                        Alert.alert('', '소수점 자릿수를 확인해주세요.', function () { });
-                        return false;
-                    }
-                }
-                page.calcRegre('power');
-
-            } else {  // log 변환, power 변환 둘다 체크 안할시
-                page.calcRegre('none');
+        $("#btnCtrl").kendoButton({
+            themeColor: 'base',
+            click: function (e) {
+                page.ctrlCctrlV();
             }
-
-
-        });
-
-        $("#btnCtrl").click(function (e) {
-            page.ctrlCctrlV();
         });
 
 
+        $("#cboEqu").kendoDropDownList({
+            dataTextField: "text",
+            dataValueField: "value",
+            dataSource: [
+                { text: "1", value: "1" },
+                { text: "2", value: "2" },
+                { text: "3", value: "3" },
+                { text: "4", value: "4" }
+            ],
+            value: "1"
+        });
+        $("#cboEqu").data("kendoDropDownList").list.css("width", "50px");
+
+        $("#txtDataLine").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+        });
+        $("#txtDataLine").closest(".k-numerictextbox").css("width", "60px");
+
+        $("#log_a").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+        });
+        $("#log_a").closest(".k-numerictextbox").css("width", "60px");
+
+        $("#log_b").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+        });
+        $("#log_b").closest(".k-numerictextbox").css("width", "60px");
+
+        $("#power_a").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+        });
+        $("#power_a").closest(".k-numerictextbox").css("width", "60px");
+
+        $("#power_b").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+        });
+        $("#power_b").closest(".k-numerictextbox").css("width", "60px");
+        
+        $("#power_c").kendoNumericTextBox({
+            format: "n0",
+            min: 0,
+            max: 1000,
+        });
+        $("#power_c").closest(".k-numerictextbox").css("width", "60px");
+
+        $("#txtbox").kendoTextArea({
+            rows: 1,
+            maxLength: 1000,
+        });
 
     })
 

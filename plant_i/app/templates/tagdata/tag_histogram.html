@@ -7,306 +7,257 @@
 </style>
 {% endblock %}
 {% block content %}
-<div class="content_wrap">
-    <section class="section">
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
 
-        <div class="title_box ">
-            <div class="left_align">
-                <h3 data-labelCd="히스토그램">히스토그램</h3>
-            </div>
-            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
-            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
-        </div>
-
-        <div class="table_box search" >
-            <div class="row">
-                <div class="col-12 col-md-4 col-xl-2">
-                    <div class="input-group" data-ax5picker="basic" id="srchDt">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text fit_box_sm" data-labelCd="일자">일자</span>
-                        </div>
-                        <input class="form-control2 tac" type="text" id="srchStartDt" name="srchStartDt">
-                        <span class="input-group-text fs-xl"><i class="fas fa-calendar-alt calendar_color" ></i></span>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-3 col-lg-2" >
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_sm" data-labelCd="시간">시간</span>
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select id="cboLine" name="cboLine"></select>
                             </div>
-                                <input type="text" id="timeStart" name="timeStart" class="timepicker" style="width: 30%;" />
-                                <span>~</span>
-                                <input type="text" id="timeEnd" name="timeEnd" class="timepicker" style="width: 30%;" />
                         </div>
-                </div>
-
-                <div class="col-5 col-md-3 col-lg-2" >
-                    <div class="input-group" >
-                        <div class="input-group-prepend">
-                            <!--<span class="input-group-text fit_box_sm">유형</span>--><!--placeholder="태그"-->
-                        </div>
-                        <select class="form-control2" id="cboTag" name="cboTag" multiple="multiple"  title="태그" >
-                        </select>
-
                     </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select id="cboEquip" name="cboEquip"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srchDt" data-labelCd="일자">일자</label>
+                            <div class="field-wrapper">
+                                <input id="srchDt" name="srchDt" type="date" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srchStartTime" data-labelCd="시간">시간</label>
+                            <div class="field-wrapper">
+                                <input id="srchStartTime" name="srchStartTime" />
+                            </div>
+                            <div class="field-wrapper">
+                                <input id="srchEndTime" name="srchEndTime" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboTagGroup" data-labelCd="태그그룹">태그그룹</label>
+                            <div class="field-wrapper">
+                                <select id="cboTagGroup" name="cboTagGroup"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
+                            <div class="field-wrapper">
+                                <select id="cboTag" name="cboTag"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+
                 </div>
-
-                <div class="col-1" >
-                        <button type="button" class="btn-default" id="btnSearch" title="조회"><i class="fas fa-search"></i></button>
-                </div> 
-
             </div>
+        </form>
+        <div class="content-ui-row" id="divChart">
         </div>
-        </section>
+    </div>
 </div>
-<div class="row" id="divChart">
-</div>
-
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/resource/apexcharts/apexcharts.3.26.min.js"></script>
 <script type="text/javascript">
-
     class chartHistogram {
-        constructor(chartId, title, data) {
-            //this.grid = null;
+
+        constructor() {
+            this.chartId = null;
+            this.title = null;
+            this.data = null;
             this.chart = null;
-            this.chartId = chartId;
-            this.title = title;
-            this.data = data;
             this.options = null;
+
             this.init();
         }
 
         init() {
             let _this = this;
-            let series_data = [];
-            let max = 0;
-            let categories = [];
-            _this.data.forEach(function (item, idx) {
-                categories.push(item.label);
-                series_data.push(item.count);
-                if (max < item.count)
-                    max = item.count;
+
+            // 일자, 시간
+            let today = CommonUtil.getYYYYMMDD();
+            $('#srchDt').kendoDatePicker({ format: 'yyyy-MM-dd', value: today });
+            $("#srchStartTime").kendoTimePicker({ format: 'HH:mm', dateInput: true, value: '09:00' });
+            $("#srchEndTime").kendoTimePicker({ format: 'HH:mm', dateInput: true, value: '18:00' });
+
+            // 태그 멀티셀렉트
+            let rows = AjaxUtil.getSelectDataWithNull('tag', '', null);
+            let dataSource = new kendo.data.DataSource({
+                data: rows,
+                sort: { field: "text", dir: "asc" }
             });
-            let series = [
-                {
-                    name: this.title,
-                    data: series_data,
-                },
-            ];
-            max = max + 1;
-            let tickAmount = 10;
-            if (max < 10) {
-                tickAmount = max;
-                //console.log('_this.options.yaxis[0].tickAmount', _this.options.yaxis[0].tickAmount);
-            }
+            //console.log("dataSource", dataSource);
 
-            this.options = {
-                series: series,
-                chart: {
-                    height: 550,
-                    width: '100%',
-                    type: "bar",
-                    dropShadow: {
-                        enabled: true,
-                        color: "#000",
-                        top: 18,
-                        left: 7,
-                        blur: 10,
-                        opacity: 0.2
-                    },
-                    toolbar: {
-                        show: false,    // 우측상단 버튼 출력여부
-                    },
-                    export: {
-                        csv: {
-                            filename: '히스토그램',
-                            columnDelimiter: ',',
-                            headerCategory: 'category',
-                            headerValue: 'value',
-                            dateFormatter(value) {
-                                return value;
-                            }
-                        }
+            $("#cboTag").kendoMultiSelect({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: dataSource,
+                filter: "contains",
+                downArrow: true,
+            });
+
+            // 라인, 설비
+            let line = $('#cboLine');
+            let equip = $('#cboEquip');
+            let tag_grp = $('#cboTagGroup');
+            let tag = $("#cboTag").data("kendoMultiSelect");
+
+            AjaxUtil.fillDropDownOptions(line, 'line', 'all', null);
+            line.change(function (e) {
+                AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null, null, null, line.val());
+            });
+
+            AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null);
+            equip.change(function (e) {
+                dataSource._data = AjaxUtil.getSelectDataWithNull('tag', '', equip.val(), tag_grp.val() ? tag_grp.val():null);
+                tag.setDataSource(dataSource);
+                //console.log(`$("#cboTag")`, $("#cboTag").data("kendoMultiSelect"));
+            });
+
+            AjaxUtil.fillDropDownOptions(tag_grp, 'tag_group', 'all', null);
+            // 태그 그룹이 선택되면, 해당하는 tag 목록만 반환
+            tag_grp.change(function (e) {
+                dataSource._data = AjaxUtil.getSelectDataWithNull('tag', '', equip.val() ? equip.val() : null, tag_grp.val());
+                tag.setDataSource(dataSource)
+            });
+
+            // 검색버튼
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    if ($("#cboTag").val() == '') {
+                        Alert.alert('', '태그를 선택해주세요.')
                     }
-                },
-                plotOptions: {
-                    bar: {
-                        columnWidth:'100%',
-                    }
-                },
-                colors: ["#77B6EA", "#545454", "#86E57F"],    //라인 색상
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    curve: 'straight',  // "smooth"
-                },
-                title: {
-                    text: this.title,
-                    align: "center"
-                },
-                grid: {
-                    show: true,
-                    borderColor: "#e7e7e7",
-                    row: {
-                        colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-                        opacity: 0.5
-                    }
-                },
-                markers: {
-                    size: 1
-                },
-              tooltip: {
-                //shared: true,
-                enabled: true,
-                theme: 'light',       //light, dark
-                x: {
-                    show: true,
-                    format: 'TT hh:mm:ss',
-                },
-                custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                    //console.log('w ', w);
-                    let color = ['#77B6EA', '#CC3D3D', '#FF5E00'];
-                    let lable = w.config.xaxis.categories[dataPointIndex];
-                    let value = series[seriesIndex][dataPointIndex];
-
-                    let s = '<div class="" style="left: 76.9766px; top: 140.609px;">' +
-                        '<div class="apexcharts-tooltip-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' + lable + '</div>' +
-                                    '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: ' + color[0] + '"></span>' +
-                                        '<div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
-                                            '<div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-value">' + value + '</span></div>' +
-                        '</div></div>';
-                    s += '</div>';
-                    
-                    return s;
-                  },
-              },
-                xaxis: {
-                    type: "category",
-                    categories: categories,
-                    tickAmount: tickAmount,
-                    lines: {
-                        show: true,
-                    },
-                    labels: {
-                        show: true,
-                        datetimeUTC: false,
-                        //format: 'dd/MM',
-                        formatter: function (value, timestamp) {
-                            return value;
-                        },
-                        //format: 'HH:mm',
-                        offsetX: 0,
-                        offsetY: 0,
-                        rotate: -55,
-                        rotateAlways: true,
-                            style: {
-                            colors: [],
-                            fontSize: '12px',
-                            fontFamily: 'Helvetica, Arial, sans-serif',
-                            fontWeight: 400,
-                            cssClass: 'apexcharts-xaxis-label',
-                            },
-                    },
-                    //tickPlacement: 'between',
-                    //floating: true
-                },
-                yaxis: {
-                    show: true,
-                    min: 0,
-                    max: max,
-                    //tickAmount: 2,
-                    decimalsInFloat: 0,
-                    forceNiceScale: true,
-                    title: {
-                      text: "빈도",
-                    },
-                    labels: {
-                        formatter: function (val) {
-                            return val;
-                            return val.toFixed(0);
-                        }
-                    }
-              },
-              annotations: {
-                  yaxis: [  ]
-                },
-            };
-            console.log('chart id', this.chartId);
-            this.chart = new ApexCharts(document.querySelector("#"+this.chartId), this.options);
-            this.chart.render();
-            console.log('chart rendered', this.chartId);
-        }
-
-    }
-
-    let chart_array = [];
-    
-    function searchDataBind() {
-        //let tags = $('#cboTag').val().join(';');
-        let start_date = $('#srchStartDt').val() + ' ' + $('#timeStart').val() + ':00';
-        let end_date = $('#srchStartDt').val() + ' ' + $('#timeEnd').val() + ':00';
-        let tag = $('#cboTag').val();
-        let tag_codes = tag == null ? '' : tag.join(';');
-        let url = '/api/tagdata/histogram_data?action=read';
-        let param = {
-            start_date: start_date,
-            end_date: end_date,
-            tag_codes: tag_codes
-        };
-        
-        let result = AjaxUtil.getSyncData(url, param);
-        console.log('api result', result);
-
-        if (result != null) {
-            chart_array.forEach(function (item, idx) {
-                if (item != null) {
-                     if (item.chart) {
-                        console.log('chart destroy', idx);
-                        item.chart.destroy();
-                        item.chart = null;
+                    else {
+                        _this.searchMainData();
                     }
                 }
             });
-            //if ($('div[id^=chart]')) $('div[id^=chart]').remove();
-            $('#divChart').empty();
-            //$('#cboTag').val().forEach(function (tag_code, idx) {
-            
-            result.forEach(function (tag_data, idx) {
-                //$('#divChart').append('<div id="chart' + idx + '" class="chart-canvas" style="border-top: ' + (idx == 0 ? 'none;' : 'double;padding-top:15px;') + ';"></div>');
-                //let html = '<div class="col-lg-4 col-md-6 col-sm-12"><div id="chart' + idx + '" class="chart-canvas" style="border-top: ' + (idx == 0 ? 'none;' : 'double;padding-top:15px;') + ';"></div></div>'
-                let html = '<div class="col-lg-4 col-md-6 col-sm-12"><div id="chart' + idx + '" class="chart_border"></div></div>'
-                $('#divChart').append(html);
-                chart_array[idx] = new chartHistogram('chart' + idx, tag_data.data_name, tag_data.histogram_data);
-
-            })
         }
 
-    }
+        loadData(chartId, title, data) {
+            let _this = this;
+            _this.chartId = chartId;
+            _this.title = title;
+            _this.data = [];
 
-    $(document).ready(function (e) {
-        $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
-        
-        AjaxUtil.fillSelectOptions($('#cboTag'), 'tag', '', false);  
-        $('select').select2({tags: true,});
-        $('select').attr("title",'태그');
-    
-        $('#srchDt').ax5DatePicker({ direction: 'top' });
-        $('#timeStart').timepicker({
-            show2400: true,
-            timeFormat: 'H:i',
-        }).val('09:00');
-        $('#timeEnd').timepicker({
-            show2400: true,
-            timeFormat: 'H:i'
-        }).val('18:00');
-        $("#btnSearch").click(function (e) { searchDataBind(); });
+            // series_data에 데이터 추가
+            data.forEach(function (item) {
+                _this.data.push({ label: item.label, count: item.count });
+            });
 
-    })
+            _this.loadChart();
+        }
+
+        loadChart() {
+            let _this = this;
+
+            let series_data = _this.data.map(item => item.count);
+            let categories = _this.data.map(item => item.label);
+
+            $("#" + _this.chartId).kendoChart({
+                title: {
+                    text: _this.title,
+                    align: "center"
+                },
+                series: [{
+                    type: "bar",
+                    data: series_data,
+                }],
+                categoryAxis: {
+                    categories: categories,
+                    labels: {
+                        rotation: -45
+                    }
+                },
+                valueAxis: {
+                    labels: {
+                        format: "{0}"
+                    },
+                    line: {
+                        visible: false
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    format: "{0}",
+                    template: "#= category #: #= value #"
+                }
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let start_date = $('#srchDt').val() + ' ' + $('#srchStartTime').val() + ':00';
+            let end_date = $('#srchDt').val() + ' ' + $('#srchEndTime').val() + ':00';
+            let tag_codes = $('#cboTag').val() == null ? '' : $('#cboTag').val().join(';');
+
+            let url = '/api/tagdata/histogram_data?action=read';
+            let param = {
+                start_date: start_date,
+                end_date: end_date,
+                tag_codes: tag_codes
+            };
+
+            let fnSuccess = function (result) {
+                $('#divChart').empty();
+
+                result.forEach(function (tag_data, idx) {
+                    let html = `<div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div id="chart${idx}" class="chart_border"></div>
+                                </div>`;
+
+                    $('#divChart').append(html);
+
+                    _this.loadData(`chart${idx}`, tag_data.data_name, tag_data.histogram_data);
+                });
+            };
+
+            AjaxUtil.postAsyncData(url, param, fnSuccess);
+        }
+
+    };
+
+    $(document).ready(function () {
+        let page = new chartHistogram();
+
+        // kendo chart 반응형 처리
+        $(window).resize(function () {
+            kendo.resize($("div.k-chart[data-role='chart']"));
+        });
+
+        page.searchMainData();
+    });
 
 </script>
 {% endblock %}

@@ -4,83 +4,95 @@ from domain.services.sql import DbUtil
 
 from domain.models.definition import Holiday
 from django.db import DatabaseError, transaction
+from domain.services.logging import LogWriter
+from domain.services.sql import DbUtil
+from domain.services.common import CommonUtil
+from domain.services.system import SystemService    # mes에서 가져온 것
+from django.db import IntegrityError
 
 def holiday(context):
     '''
-    /api/definition/holiday
-    
-    작성명 : 공휴일
-    작성자 : 김진욱
-    작성일 : 2024-09-05
-    비고 :
+    /api/definition/holiday   
 
-    -수정사항-
-    수정일             작업자     수정내용
-    2024-10-15         박상희     DelYn컬럼추가로 조회시 조건에 DelYn=N 추가
     '''
-    gparam = context.gparam
     posparam = context.posparam
+    gparam = context.gparam
     request = context.request
-    action = gparam.get('action')
+    user = request.user    
+    action = gparam.get('action', 'read')
+    systemService = SystemService()
 
     try:
-        if action == 'read':
-            sch_keyword = gparam.get('sch_keyword')
-    
-            sql = '''
-                select h.id as h_id
-                    , h.`Date` as holiday_date
-                    , h.UseYn as use_yn
-                    , h.FixedYn as fixed_yn
-                    , h.Remark as remark
-                    from holiday h 
-                    where 1=1
-                    and h.DelYn = 'N'
-            '''
-           
-            if sch_keyword:
-                sql += '''
-                    and h.Remark like concat('%%', %(sch_keyword)s, '%%')
-                '''
-            sql += '''
-                order by h.`Date` ;
-            '''
-    
-            dc = {}
-            dc['sch_keyword'] = sch_keyword
-    
-            result = DbUtil.get_rows(sql, dc)
-            
+        if action == 'read':            
+            keyword = gparam.get('keyword')
+            year = gparam.get('srch_year')
+            result = systemService.get_holiday_list(keyword, year)
 
-        elif action =='save':
-            id = posparam.get('h_id')
-            holiday_date = posparam.get('holiday_date')
-            use_yn = posparam.get('use_yn')
-            fixed_yn = posparam.get('fixed_yn')
-            remark = posparam.get('remark')
+        elif action == 'save':
+            # 데이터 저장 로직 수정
+            holiday_id = posparam.get('id')  # id 값을 가져옵니다. 없으면 None.
+            holiday = None
 
-            if id:
-                holiday = Holiday.objects.filter(id=id).first()
+            if holiday_id:
+                holiday = Holiday.objects.filter(id=holiday_id).first()
+                if not holiday:
+                    return {
+                        'success': False,
+                        'message': f"Record with id {holiday_id} does not exist."
+                    }
             else:
+                # 새 객체 생성
                 holiday = Holiday()
 
-            # transaction
-            with transaction.atomic():
-                holiday.Date = holiday_date
-                holiday.Remark = remark
-                holiday.UseYn = use_yn
-                holiday.FixedYn = fixed_yn
-                holiday.set_audit(request.user)
-                holiday.save()
+            NationCd = posparam.get('nation_cd', 'ko')  # 기본값을 빈 문자열로 설정
+            NameVal = posparam.get('name_val')
+            Repeatyn = posparam.get('repeat_yn')
+            Holidate = posparam.get('holidate')
 
-            result = {'success':True}
+            # 데이터 유효성 검사
+            if Repeatyn not in ['Y', 'N']:
+                raise ValueError("Invalid value for 'repeat_yn'. Must be 'Y' or 'N'.")
+            if len(Holidate) > 10:
+                raise ValueError("Invalid value for 'holidate'. Maximum length is 10.")
+            if not NameVal or len(NameVal) > 100:
+                raise ValueError("Invalid value for 'name_val'. Maximum length is 100.")
+            if not NationCd or len(NationCd) > 10:
+                raise ValueError("Invalid value for 'nation_cd'. Maximum length is 10.")
+
+            # 중복 데이터 확인
+            if holiday_id is None:
+                if Holiday.objects.filter(nation_cd=NationCd, holidate=Holidate, name_val=NameVal).exists():
+                    return {
+                        'success': False,
+                        'message': 'Duplicate entry: A record with the same nation_cd, holidate, and name_val already exists.'
+                    }
+
+
+            # 데이터 저장
+            holiday.nation_cd = NationCd
+            holiday.name_val = NameVal
+            holiday.repeat_yn = Repeatyn
+            holiday.holidate = Holidate
+            holiday.save()     
+            result = {'success': True}
 
         elif action == 'delete':
-            h_id = posparam.get('h_id')
-            h = Holiday.objects.filter(id=h_id).first()
-            h.DelYn = 'Y'
-            h.save()
-            result = {'success':True}
+            holiday_id = posparam.get('id')  # 삭제할 id 값
+
+            if not holiday_id:
+                return {'success': False, 'message': '삭제할 데이터의 ID가 전달되지 않았습니다.'}
+
+            # 데이터 삭제
+            try:
+                holiday = Holiday.objects.filter(id=holiday_id).first()
+                if holiday:
+                    holiday.delete()
+                    result = {'success': True, 'message': '삭제되었습니다.'}
+                else:
+                    result = {'success': False, 'message': f'ID {holiday_id}에 해당하는 데이터가 없습니다.'}
+            except Exception as ex:
+                LogWriter.add_dblog('error', 'holiday delete', ex)
+                result = {'success': False, 'message': str(ex)}
             
     except Exception as ex:
         source = '/api/definition/holiday, action:{}'.format(action)

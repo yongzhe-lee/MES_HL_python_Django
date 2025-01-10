@@ -92,7 +92,7 @@ def equipment(context):
             equipment.ProductionYear = posparam.get('ProductionYear') if posparam.get('ProductionYear') else None
             equipment.AssetYN = posparam.get('AssetYN')
             equipment.DurableYears = posparam.get('DurableYears') if posparam.get('DurableYears') else None
-            equipment.PowerWatt = posparam.get('PowerWatt')
+            equipment.PowerWatt = posparam.get('PowerWatt') if posparam.get('DurableYears') else None
             equipment.Voltage = posparam.get('Voltage')
             equipment.Manager = posparam.get('Manager')
             equipment.SupplierName = posparam.get('SupplierName')

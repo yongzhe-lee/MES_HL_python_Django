@@ -7,27 +7,21 @@ values
 
 alter SEQUENCE user_group_id_seq restart WITH 3;
 
-    
+ -- auth_user
+insert into auth_user(id, username, password, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined)
+values
+(1, 'yullin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs=', true, '','','yullin@yullin.com', true, true, now()),
+(2, 'dev', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs=', false, '개발자','','dev@yullin.com', true, true, now()),
+(3, 'admin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs=', false, '관리자','','admin@yullin.com', true, true, now())
+;
+alter SEQUENCE auth_user_id_seq restart WITH 4;
+   
 -- user_profile
 insert into user_profile("User_id", "Name", "UserGroup_id", lang_code, "_created", "_modified")
 values
-/* superuser 안 만들었을 경우 주석 해제 후 추가 */
-/* (1, '위존', null, 'ko-KR', now(), now() ), */
-(2,'개발자', 1, 'ko-KR', now(), now() )
-,(3,'관리자', 2, 'ko-KR', now(), now() )
-;
-
-
--- auth_user
-insert into auth_user(id, username, password, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined)
-values
-/* superuser 안 만들었을 경우 주석 해제 후 추가 */
-/* (1, 'yullin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
-, true, '','','yullin@yullin.com', true, true, now()), */ 
-(2, 'dev', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
-, false, '개발자','','dev@yullin.com', true, true, now())
-,(3, 'admin', 'pbkdf2_sha256$150000$kBud3jic1o9f$lfi+BlZbc3x7GVXbSdqn9hmfu2pRSWt8r4QPe2IiAcs='
-, false, '관리자','','admin@yullin.com', true, true, now())
+(1, '위존', null, 'ko-KR', now(), now() ), 
+(2,'개발자', 1, 'ko-KR', now(), now() ),
+(3,'관리자', 2, 'ko-KR', now(), now() )
 ;
 
 
@@ -98,8 +92,6 @@ values ('bom_type', 'manufacturing', '제조BOM', 'BOM구분', 1, now() )
 , ('story_board_type', 'menu', '메뉴', '스토리보드 항목구분', 1, now() )
 , ('story_board_type', 'hmi', 'HMI양식', '스토리보드 항목구분', 2, now() );
 
-
-
 -- equ_group
 insert into equ_grp ("Code", "Name", "EquipmentType", "_created")
 values('PR-012', '기타설비그룹', 'etc', now())
@@ -109,12 +101,17 @@ values('PR-012', '기타설비그룹', 'etc', now())
 ,('PR-018', '전원투입', 'etc', now())
 ;
 
+--라인정보
+alter SEQUENCE line_id_seq restart WITH 1 ;
+insert into line ("Code", "Name", _created) values('PCU-01-01', 'HPC#1' , now());
+insert into line ("Code", "Name", _created) values('SMT-03', 'SMT#3' , now());
+
 
 -- equ
 --insert into equ("Code", "Name", "_created") values('test1', '테스트1', now()), ('test2', '테스트2', now());
 
 --das_server
-
+alter SEQUENCE das_server_id_seq restart WITH 1;
 insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values (1,'DAS_HPC1', 'DAS HPC#1전용', '10.226.234.30', 'WIN', 'a', now());
 insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values(2, 'DAS_SMT3', 'DAS SMT#3전용', '10.226.234.31', 'WIN', 'a', now());
 alter SEQUENCE das_server_id_seq restart WITH 3;
@@ -131,24 +128,30 @@ insert into factory ("Code", "Name", "Site_id", "_created") values('f1', 'HL클�
 
 
 /* 메뉴관련 */
-truncate table menu_folder cascade;
 truncate table menu_item cascade;
+truncate table menu_folder cascade;
 
-/* 25.01.03 김하늘 수정(CMMS 관련 메뉴 생성) */
 --메뉴폴더
-INSERT INTO public.menu_folder (id, "FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
-    (1, '대시보드','inventory',100,NULL,'2024-11-25 15:00:19.159507+09','2024-11-25 15:00:33.069167+09',NULL,NULL,NULL),
-    (2, 'AAS관리','inventory',200,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
-    (3, '기준정보','inventory',300,NULL,'2024-11-22 17:01:44.576807+09','2024-11-22 17:08:24.517448+09',NULL,NULL,NULL),
-    (4, '설비관리','inventory',400,NULL,'2024-11-22 17:01:51.726933+09','2024-11-22 17:08:32.731659+09',NULL,NULL,NULL),
-    (5, '설비보전','inventory',500,NULL,'2024-11-22 17:01:59.691078+09','2024-11-22 17:08:46.342553+09',NULL,NULL,NULL),
-    (6, '데이터분석','inventory',600,NULL,'2024-11-22 17:02:09.507788+09','2024-11-22 17:08:53.90439+09',NULL,NULL,NULL),
-    (7, '업무지원','inventory',700,NULL,'2024-11-22 17:02:34.099485+09','2024-11-22 17:09:03.358122+09',NULL,NULL,NULL),
-    (8, '시스템코드','inventory',800,NULL,'2025-01-02 10:02:44.44146+09','2025-01-02 10:09:10.325325+09',NULL,NULL,NULL);
-    (9, '시스템관리','inventory',900,NULL,'2024-11-22 17:02:44.44146+09','2024-11-22 17:09:10.325325+09',NULL,NULL,NULL);
-    (10, '자재관련코드','inventory',10,NULL,'2025-01-02 11:02:44.44146+09','2025-01-02 11:09:10.325325+09',NULL,NULL,8);
-     
-    alter SEQUENCE menu_folder_id_seq restart WITH 11 ;
+alter SEQUENCE menu_folder_id_seq restart WITH 1 ;
+INSERT INTO public.menu_folder ("FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
+	 ('대시보드','inventory',100,NULL,'2024-11-25 15:00:19.159507+09',NULL,1,NULL,NULL),
+	 ('AAS관리','inventory',200,NULL,'2024-11-22 17:01:44.576807+09',NULL,1,NULL,NULL),
+	 ('기준정보','inventory',300,NULL,'2024-11-22 17:01:44.576807+09',NULL,1,NULL,NULL),
+	 ('설비관리','inventory',400,NULL,'2024-11-22 17:01:51.726933+09',NULL,1,NULL,NULL),
+ 	 ('작업지시(WO)','inventory',510,NULL,'2025-01-08 15:46:00.305887+09',NULL,1,NULL,NULL),
+ 	 ('작업이력','inventory',511,NULL,'2025-01-08 16:49:52.374771+09',NULL,1,NULL,5),
+	 ('예방정비(PM)','inventory',520,NULL,'2025-01-08 15:48:46.699764+09',NULL,1,NULL,NULL),
+	 ('예방점검(PI)','inventory',530,NULL,'2025-01-08 15:49:22.922632+09',NULL,1,NULL,NULL),
+	 ('데이터분석','inventory',600,NULL,'2024-11-22 17:02:09.507788+09',NULL,1,NULL,NULL),
+	 ('업무지원','inventory',700,NULL,'2024-11-22 17:02:34.099485+09',NULL,1,NULL,NULL),
+	 ('시스템코드','inventory',800,NULL,'2025-01-03 10:57:57.374248+09',NULL,1,NULL,NULL),
+	 ('시스템관리','inventory',900,NULL,'2024-11-22 17:02:44.44146+09',NULL,1,NULL,NULL),
+	 ('자재관련코드','inventory',910,NULL,'2025-01-03 11:00:24.452026+09',NULL,1,NULL,11),	 
+	 ('리포트 및 통계','inventory',1000,NULL,'2025-01-09 11:36:32.760762+09',NULL,1,NULL,NULL),
+	 ('설비통계','inventory',1100,NULL,'2025-01-09 11:41:20.63937+09',NULL,1,NULL,14),
+	 ('작업통계','inventory',1200,NULL,'2025-01-09 11:41:20.644402+09',NULL,1,NULL,14),
+	 ('PM통계','inventory',1300,NULL,'2025-01-09 11:41:20.649337+09',NULL,1,NULL,14),
+	 ('점검통계','inventory',1400,NULL,'2025-01-09 11:41:20.653906+09',NULL,1,NULL,14);
 
 
 --메뉴
@@ -164,24 +167,26 @@ VALUES
      ('wm_aasx','aasx관리',NULL,'/gui/wm_dashboard','N',30,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,2),
 
      --기준정보
-     ('wm_factory','공장',NULL,'/gui/wm_factory','N',10,NULL,'2024-11-22 17:07:52.512412+09','2024-11-22 17:07:58.799734+09',1,1,3),
-     ('wm_line','라인',NULL,'/gui/wm_line','N',20,NULL,'2024-11-22 17:04:35.779583+09','2024-11-22 17:07:58.810661+09',1,1,3),
-     ('wm_process','공정',NULL,'/gui/wm_process','N',30,NULL,'2024-11-22 17:04:38.218271+09','2024-11-22 17:07:58.818437+09',1,1,3),
-     ('wm_material','품목정보',NULL,'/gui/wm_material','N',40,NULL,'2024-11-22 17:04:41.46544+09','2024-11-22 17:07:58.827905+09',1,1,3),
-     ('wm_bom','BOM',NULL,'/gui/wm_bom','N',50,NULL,'2024-11-22 17:04:44.062137+09','2024-11-22 17:07:58.835202+09',1,1,3),
-     ('wm_defect','부적합정보',NULL,'/gui/wm_defect','N',60,NULL,'2024-11-22 17:04:53.787407+09','2024-11-22 17:07:58.843538+09',1,1,3),
-     ('wm_shift','조교대정보',NULL,'/gui/wm_shift','N',70,NULL,'2024-11-22 17:04:56.656039+09','2024-11-22 17:07:58.849809+09',1,1,3),
-     ('wm_line_inactive','라인비가동정보',NULL,'/gui/wm_line_inactive','N',80,NULL,'2024-11-22 17:05:00.230849+09','2024-11-22 17:07:58.858038+09',1,1,3),
-     ('wm_model_change','기종변경정보',NULL,'/gui/wm_model_change','N',90,NULL,'2024-11-22 17:05:06.581048+09','2024-11-22 17:07:58.864936+09',1,1,3),
+	 ('wm_factory','공장',NULL,'/gui/wm_factory','N',10,NULL,'2024-11-22 17:07:52.512412+09','2025-01-07 08:10:14.194118+09',1,3,3),
+	 ('wm_line','라인',NULL,'/gui/wm_line','N',20,NULL,'2024-11-22 17:04:35.779583+09','2025-01-07 08:10:14.20764+09',1,3,3),
+	 ('wm_process','공정',NULL,'/gui/wm_process','N',30,NULL,'2024-11-22 17:04:38.218271+09','2025-01-07 08:10:14.21957+09',1,3,3),
+	 ('wm_material','품목(자재)',NULL,'/gui/wm_material','N',40,NULL,'2024-11-22 17:04:41.46544+09','2025-01-07 08:10:14.227567+09',1,3,3),
+	 ('wm_bom','BOM',NULL,'/gui/wm_bom','N',50,NULL,'2024-11-22 17:04:44.062137+09','2025-01-07 08:10:14.233428+09',1,3,3),
+	 ('wm_defect','부적합정보',NULL,'/gui/wm_defect','N',60,NULL,'2024-11-22 17:04:53.787407+09','2025-01-07 08:10:14.241593+09',1,3,3),
+	 ('wm_shift','조교대정보',NULL,'/gui/wm_shift','N',70,NULL,'2024-11-22 17:04:56.656039+09','2025-01-07 08:10:14.250229+09',1,3,3),
+	 ('wm_line_inactive','라인비가동정보',NULL,'/gui/wm_line_inactive','N',80,NULL,'2024-11-22 17:05:00.230849+09','2025-01-07 08:10:14.264307+09',1,3,3),
+	 ('wm_model_change','기종변경정보',NULL,'/gui/wm_model_change','N',90,NULL,'2024-11-22 17:05:06.581048+09','2025-01-07 08:10:14.582905+09',1,3,3),
+	 ('wm_holiday','휴일 스케줄',NULL,'/gui/holiday','N',100,NULL,'2025-01-06 16:47:00.446304+09',NULL,1,NULL,3),
 
      --설비정보
-     ('wm_equip_group','설비그룹',NULL,'/gui/wm_equip_group','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,4),
-     ('wm_equipment','설비',NULL,'/gui/wm_equipment','N',20,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
-     ('wm_tag_group','태그그룹',NULL,'/gui/wm_tag_group','N',30,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
-     ('wm_tag_master','태그관리',NULL,'/gui/wm_tag_master','N',40,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
-     
+	 ('wm_equip_group','설비그룹',NULL,'/gui/wm_equip_group','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,4),
+	 ('wm_equipment','설비',NULL,'/gui/wm_equipment','N',20,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+	 ('wm_obsolete_equipment','불용 설비 목록',NULL,'/gui/wm_obsolete_equipment','N',30,NULL,'2025-01-09 11:17:48.420001+09',NULL,1,NULL,4),
+	 ('wm_facility_work_history','설비별 작업이력',NULL,'/gui/wm_facility_work_history_by','N',40,NULL,'2025-01-09 11:17:48.427957+09',NULL,1,NULL,4),
+	 ('wm_tag_group','태그그룹',NULL,'/gui/wm_tag_group','N',50,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+	 ('wm_tag_master','태그관리',NULL,'/gui/wm_tag_master','N',60,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
+/*     
      --설비보전
-
     ('wm_pm_master','PM마스터관리',NULL,'/gui/wm_pm_master','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
     ('wm_pm_schedule','PM일정',NULL,'/gui/wm_pm_schedule','N',20,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
     ('wm_work_order','WO관리',NULL,'/gui/wm_work_order','N',30,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
@@ -195,32 +200,96 @@ VALUES
     ('wm_check_result_list','점검작업결과조회',NULL,'/gui/wm_check_result_list','N',110,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
     ('wm_check_work_daily','일상점검',NULL,'/gui/wm_check_work_daily','N',120,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
     ('wm_equ_grade','설비등급관리',NULL,'/gui/wm_equ_grade','N',130,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
+*/
+     -- 작업지시(WO)
+	 ('wm_my_work_request','나의 작업요청',NULL,'/gui/wm_my_work_request','N',10,NULL,'2025-01-08 16:30:34.500902+09',NULL,1,NULL,5),
+	 ('wm_work_order_management','작업지시 관리',NULL,'/gui/wm_work_order_management','N',20,NULL,'2025-01-08 16:30:34.511169+09',NULL,1,NULL,5),
+	 ('wm_work_request_approval','작업요청 승인',NULL,'/gui/wm_work_request_approval','N',30,NULL,'2025-01-08 16:30:34.516291+09',NULL,1,NULL,5),
+	 ('wm_work_order_approval','작업지시 승인',NULL,'/gui/wm_work_order_approval','N',40,NULL,'2025-01-08 16:30:34.520756+09',NULL,1,NULL,5),
+	 ('wm_post_work_management','사후작업 관리',NULL,'/gui/wm_post_work_management','N',50,NULL,'2025-01-08 16:30:34.525007+09',NULL,1,NULL,5)，
+	 ('wm_wo_work_history_inquiry','WO 작업이력 조회',NULL,'/gui/wm_wo_work_history_inquiry','N',61,NULL,'2025-01-08 16:56:31.259465+09',NULL,1,NULL,6),
+	 ('wm_canceled_wo_list','취소된 WO 목록',NULL,'/gui/wm_canceled_wo_list','N',62,NULL,'2025-01-08 16:56:31.304711+09',NULL,1,NULL,6),
+	 ('wm_unprocessed_wo_list','미처리 WO 목록',NULL,'/gui/wm_unprocessed_wo_list','N',63,NULL,'2025-01-08 16:56:31.308835+09',NULL,1,NULL,6),
 
+     -- 예방정비(PM)
+	 ('wm_pm_master','PM 마스터',NULL,'/gui/wm_pm_master','N',10,NULL,'2025-01-08 16:33:20.65558+09',NULL,1,NULL,7),
+	 ('wm_pm_work_schedule','PM 작업일정',NULL,'/gui/wm_pm_work_schedule','N',20,NULL,'2025-01-08 16:33:20.66069+09',NULL,1,NULL,7),
+	 ('wm_wo_by_pm_master','PM 마스터별 WO',NULL,'/gui/wm_wo_by_pm_master','N',30,NULL,'2025-01-08 16:33:20.666031+09',NULL,1,NULL,7),
+	 ('wm_pm_schedule_creation_manual','PM 일정생성(수동)',NULL,'/gui/wm_pm_schedule_creation_manual','N',40,NULL,'2025-01-08 16:33:20.673071+09',NULL,1,NULL,7),
+
+     -- 예방점검(PI)
+	 ('wm_check_master','점검 마스터',NULL,'/gui/wm_check_master','N',10,NULL,'2025-01-08 16:36:44.489528+09',NULL,1,NULL,8),
+	 ('wm_inspection_work_schedule','점검 작업일정',NULL,'/gui/wm_inspection_work_schedule','N',20,NULL,'2025-01-08 16:36:44.5343+09',NULL,1,NULL,8),
+	 ('wm_check_inspection_results','점검 결과 조회',NULL,'/gui/wm_check_inspection_results','N',30,NULL,'2025-01-08 16:36:44.572622+09',NULL,1,NULL,8),
+	 ('wm_wo_issued_due_to_inspection_error','점검이상 발행WO',NULL,'/gui/wm_wo_issued_due_to_inspection_error','N',40,NULL,'2025-01-08 16:36:44.728519+09',NULL,1,NULL,8),
+	 ('wm_create_inspection_schedule_manual','점검 일정생성(수동)',NULL,'/gui/wm_create_inspection_schedule_manual','N',50,NULL,'2025-01-08 16:36:44.766997+09',NULL,1,NULL,8),
+	 ('wm_pi_wo_status','PI/WO 현황',NULL,'/gui/wm_pi_wo_status','N',60,NULL,'2025-01-08 16:36:44.816408+09',NULL,1,NULL,8),
 
      -- 데이터분석
-     ('wm_tag_data_current','태그데이터현황',NULL,'/gui/wm_tag_data_current','N',10,NULL,'2024-11-22 17:09:34.259863+09','2024-11-22 17:10:17.285547+09',1,1,6),
-     ('wm_tag_data_list','태그데이터조회',NULL,'/gui/wm_tag_data_list','N',20,NULL,'2024-11-22 17:09:39.061398+09','2024-11-22 17:10:17.296076+09',1,1,6),
-     ('wm_tag_summary','데이터통계',NULL,'/gui/wm_tag_summary','N',30,NULL,'2024-11-22 17:10:03.213384+09','2024-11-22 17:10:17.304884+09',1,1,6),
-     ('wm_tag_trend','데이터트렌드',NULL,'/gui/wm_tag_trend','N',40,NULL,'2024-11-22 17:10:05.946882+09','2024-11-22 17:10:17.312142+09',1,1,6),
-     ('wm_tag_boxplot','상자수염그림',NULL,'/gui/wm_tag_boxplot','N',50,NULL,'2024-11-22 17:09:41.707796+09','2024-11-22 17:10:17.320561+09',1,1,6),
-     ('wm_tag_histogram','히스토그램',NULL,'/gui/wm_tag_histogram','N',60,NULL,'2024-11-22 17:09:50.213623+09','2024-11-22 17:10:17.328512+09',1,1,6),
-     ('wm_tag_scatter','산점도',NULL,'/gui/wm_tag_scatter','N',70,NULL,'2024-11-22 17:09:59.972834+09','2024-11-22 17:10:17.336552+09',1,1,6),
-     ('wm_regression_a','산점도-회귀분석',NULL,'/gui/wm_regression_a','N',80,NULL,'2024-11-22 17:10:08.706509+09','2024-11-22 17:10:17.344432+09',1,1,6),
+	 ('wm_tag_data_current','태그데이터현황',NULL,'/gui/wm_tag_data_current','N',10,NULL,'2024-11-22 17:09:34.259863+09','2024-11-22 17:10:17.285547+09',1,1,9),
+	 ('wm_tag_data_list','태그데이터조회',NULL,'/gui/wm_tag_data_list','N',20,NULL,'2024-11-22 17:09:39.061398+09','2024-11-22 17:10:17.296076+09',1,1,9),
+	 ('wm_tag_summary','데이터통계',NULL,'/gui/wm_tag_summary','N',30,NULL,'2024-11-22 17:10:03.213384+09','2024-11-22 17:10:17.304884+09',1,1,9),
+	 ('wm_tag_trend','데이터트렌드',NULL,'/gui/wm_tag_trend','N',40,NULL,'2024-11-22 17:10:05.946882+09','2024-11-22 17:10:17.312142+09',1,1,9),
+	 ('wm_tag_boxplot','상자수염그림',NULL,'/gui/wm_tag_boxplot','N',50,NULL,'2024-11-22 17:09:41.707796+09','2024-11-22 17:10:17.320561+09',1,1,9),
+	 ('wm_tag_histogram','히스토그램',NULL,'/gui/wm_tag_histogram','N',60,NULL,'2024-11-22 17:09:50.213623+09','2024-11-22 17:10:17.328512+09',1,1,9),
+	 ('wm_tag_scatter','산점도',NULL,'/gui/wm_tag_scatter','N',70,NULL,'2024-11-22 17:09:59.972834+09','2024-11-22 17:10:17.336552+09',1,1,9),
+	 ('wm_regression_a','산점도-회귀분석',NULL,'/gui/wm_regression_a','N',80,NULL,'2024-11-22 17:10:08.706509+09','2024-11-22 17:10:17.344432+09',1,1,9),
 
      --업무지원
-     ('wm_calendar','캘린더',NULL,'/gui/wm_calendar','N',10,NULL,'2024-11-22 17:03:46.144348+09','2024-11-22 17:03:55.082601+09',1,1,7),
-     ('wm_board','공지사항',NULL,'/gui/wm_board','N',20,NULL,'2024-11-22 17:03:52.168896+09','2024-11-22 17:03:55.093085+09',1,1,7),
+	 ('wm_calendar','캘린더',NULL,'/gui/wm_calendar','N',10,NULL,'2024-11-22 17:03:46.144348+09','2024-11-22 17:03:55.082601+09',1,1,10),
+	 ('wm_board','공지사항',NULL,'/gui/wm_board','N',20,NULL,'2024-11-22 17:03:52.168896+09','2024-11-22 17:03:55.093085+09',1,1,10),
+
+     --시스템코드
+	 ('wm_code','기초코드',NULL,'/gui/wm_code','N',10,NULL,'2025-01-07 08:08:22.107538+09','2025-01-07 08:11:17.186402+09',3,3,11),
+	('wm_supplier','공급업체',NULL,'/gui/wm_supplier','N',10,NULL,'2025-01-03 11:05:01.287936+09','2025-01-03 11:57:31.125632+09',3,3,13),
 
      --시스템관리
-     ('wm_user','사용자',NULL,'/gui/wm_user','N',10,NULL,'2024-11-22 17:02:59.75001+09','2024-11-22 17:03:37.503066+09',1,1,8),
-     ('wm_user_group','사용자그룹',NULL,'/gui/wm_user_group','N',20,NULL,'2024-11-22 17:03:05.113621+09','2024-11-22 17:03:37.51691+09',1,1,8),
-     ('wm_user_group_menu','메뉴권한',NULL,'/gui/wm_user_group_menu','N',30,NULL,'2024-11-22 17:03:10.558772+09','2024-11-22 17:03:37.52977+09',1,1,8),
-     ('wm_storyboard_config','스토리보드설정',NULL,'/gui/wm_storyboard_config','N',40,NULL,'2024-11-22 17:03:17.811259+09','2024-11-22 17:03:37.538322+09',1,1,8),
-     ('wm_login_log','로그인로그',NULL,'/gui/wm_login_log','N',50,NULL,'2024-11-22 17:03:22.529364+09','2024-11-22 17:03:37.548868+09',1,1,8),
-     ('wm_menu_log','메뉴로그',NULL,'/gui/wm_menu_log','N',60,NULL,'2024-11-22 17:03:28.79165+09','2024-11-22 17:03:37.558648+09',1,1,8),
-     ('wm_system_log','시스템로그',NULL,'/gui/wm_system_log','N',70,NULL,'2024-11-22 17:03:34.6587+09','2024-11-22 17:03:37.56884+09',1,1,8);
+	 ('wm_user','사용자',NULL,'/gui/wm_user','N',10,NULL,'2024-11-22 17:02:59.75001+09','2024-12-23 12:19:53.226806+09',1,3,12),
+	 ('wm_user_group','사용자그룹',NULL,'/gui/wm_user_group','N',20,NULL,'2024-11-22 17:03:05.113621+09','2024-12-23 12:19:53.241914+09',1,3,12),
+	 ('wm_user_group_menu','메뉴권한',NULL,'/gui/wm_user_group_menu','N',30,NULL,'2024-11-22 17:03:10.558772+09','2024-12-23 12:19:53.268487+09',1,3,12),
+	 ('wm_depart','부서',NULL,'/gui/wm_depart','N',40,NULL,'2024-12-23 12:19:46.352763+09','2024-12-23 12:19:53.275487+09',3,3,12),
+	 ('wm_storyboard_config','스토리보드설정',NULL,'/gui/wm_storyboard_config','N',50,NULL,'2024-11-22 17:03:17.811259+09','2024-12-23 12:19:53.285883+09',1,3,12),
+	 ('wm_login_log','로그인로그',NULL,'/gui/wm_login_log','N',60,NULL,'2024-11-22 17:03:22.529364+09','2024-12-23 12:19:53.295048+09',1,3,12),
+	 ('wm_menu_log','메뉴로그',NULL,'/gui/wm_menu_log','N',70,NULL,'2024-11-22 17:03:28.79165+09','2024-12-23 12:19:53.302695+09',1,3,12),
+	 ('wm_system_log','시스템로그',NULL,'/gui/wm_system_log','N',80,NULL,'2024-11-22 17:03:34.6587+09','2024-12-23 12:19:53.310692+09',1,3,12),
 
-     /* 25.01.03 김하늘 추가 */
-     --시스템코드
-     ('wm_supplier','공급업체',NULL,'/gui/wm_supplier','N',10,NULL,'2025-01-03 11:05:01.287936+09','2025-01-03 11:57:31.125632+09',3,3,10);
+     --리포트 및 통계
+     ----설비통계
+	 ('wm_facility_monthly_status','설비별 월간 고장현황',NULL,'/gui/wm_facility_monthly_status','N',1101,NULL,'2025-01-09 13:17:55.713606+09',NULL,1,NULL,15),
+	 ('wm_monthly_maintenance_cost','설비별 월간 정비비용',NULL,'/gui/wm_monthly_maintenance_cost','N',1102,NULL,'2025-01-09 13:17:55.720707+09',NULL,1,NULL,15),
+	 ('wm_facility_treatment_status','기간별 불용처리 설비 현황',NULL,'/gui/wm_facility_treatment_status','N',1103,NULL,'2025-01-09 13:17:55.725443+09',NULL,1,NULL,15),
+	 ('wm_facility_mttr_mtbf','설비별 MTTR/MTBF',NULL,'/gui/wm_facility_mttr_mtbf','N',1104,NULL,'2025-01-09 13:17:55.733269+09',NULL,1,NULL,15),
+	 ('wm_category_equipment_status','카테고리별 설비 현황',NULL,'/gui/wm_category_equipment_status','N',1105,NULL,'2025-01-09 13:17:55.738518+09',NULL,1,NULL,15),
+	 ('wm_critical_equipment_status','중요도별 설비 고장 현황',NULL,'/gui/wm_critical_equipment_status','N',1106,NULL,'2025-01-09 13:17:55.742668+09',NULL,1,NULL,15),
+	 ('wm_facility_maintenance_cost','설비별 정비비용',NULL,'/gui/wm_facility_maintenance_cost','N',1107,NULL,'2025-01-09 13:17:55.748069+09',NULL,1,NULL,15),
+	 ('wm_facility_downtime','설비별 고장시간',NULL,'/gui/wm_facility_downtime','N',1108,NULL,'2025-01-09 13:17:55.75257+09',NULL,1,NULL,15),
+	 ('wm_facility_specifications','설비별 사양 목록',NULL,'/gui/wm_facility_specifications','N',1109,NULL,'2025-01-09 13:17:55.759948+09',NULL,1,NULL,15),
+	 ('wm_asset_valuation_statistics','자산평가 통계',NULL,'/gui/wm_asset_valuation_statistics','N',1110,NULL,'2025-01-09 13:17:55.76598+09',NULL,1,NULL,15),
+	 ('wm_asset_evaluation_report','자산평가 보고서',NULL,'/gui/wm_asset_evaluation_report','N',1111,NULL,'2025-01-09 13:17:55.770326+09',NULL,1,NULL,15),
+
+     ----작업통계
+	 ('wm_wo_dept_performance','부서별 기간별 WO 발행 실적',NULL,'/gui/wm_wo_dept_performance','N',1201,NULL,'2025-01-09 13:57:44.691621+09',NULL,1,NULL,16),
+	 ('wm_dept_work_costs','부서별 기간별 작업비용',NULL,'/gui/wm_dept_work_costs','N',1202,NULL,'2025-01-09 13:57:44.69963+09',NULL,1,NULL,16),
+	 ('wm_top_working_hours_wo','작업시간 상위 WO',NULL,'/gui/wm_top_working_hours_wo','N',1203,NULL,'2025-01-09 13:57:44.703792+09',NULL,1,NULL,16),
+	 ('wm_conservation_cost_status','보전비용 현황',NULL,'/gui/wm_conservation_cost_status','N',1204,NULL,'2025-01-09 13:57:44.708277+09',NULL,1,NULL,16),
+	 ('wm_top_wo_in_work_cost','작업비용 상위 WO',NULL,'/gui/wm_top_wo_in_work_cost','N',1205,NULL,'2025-01-09 13:57:44.712973+09',NULL,1,NULL,16),
+	 ('wm_outsourced_tasks_count','아웃소싱 작업건수',NULL,'/gui/wm_outsourced_tasks_count','N',1206,NULL,'2025-01-09 13:57:44.719247+09',NULL,1,NULL,16),
+	 ('wm_dept_pm_rate','부서별 예방 정비율',NULL,'/gui/wm_dept_pm_rate','N',1207,NULL,'2025-01-09 13:57:44.724097+09',NULL,1,NULL,16),
+	 ('wm_team_breakdown_costs','팀별 고장비용 현황',NULL,'/gui/wm_team_breakdown_costs','N',1208,NULL,'2025-01-09 13:57:44.730042+09',NULL,1,NULL,16),
+	 ('wm_dept_overdue_tasks','부서별 기간별 지연작업 목록',NULL,'/gui/wm_dept_overdue_tasks','N',1209,NULL,'2025-01-09 13:57:44.734652+09',NULL,1,NULL,16),
+	 ('wm_dept_task_compliance_rate','부서별 기간별 작업 준수율',NULL,'/gui/wm_dept_task_compliance_rate','N',1210,NULL,'2025-01-09 13:57:44.742667+09',NULL,1,NULL,16),
+	 ('wm_causes_of_each_failure_part','고장부위별 원인',NULL,'/gui/wm_causes_of_each_failure_part','N',1211,NULL,'2025-01-09 13:57:44.749717+09',NULL,1,NULL,16),
+	 ('wm_dept_work_request_stats','부서별 작업 요청 통계',NULL,'/gui/wm_dept_work_request_stats','N',1212,NULL,'2025-01-09 13:57:44.754036+09',NULL,1,NULL,16),
+	 ('wm_facility_material_usage_history','설비별 자재사용 이력',NULL,'/gui/wm_facility_material_usage_history','N',1213,NULL,'2025-01-09 13:57:44.758989+09',NULL,1,NULL,16),
+	 ('wm_summary_of_repairs_by_year','연도별 수선 Summary',NULL,'/gui/wm_summary_of_repairs_by_year','N',1214,NULL,'2025-01-09 13:57:44.763414+09',NULL,1,NULL,16),
+
+     ----PM통계
+	 ('wm_pm_status_by_category','카테고리별 PM현황',NULL,'/gui/wm_pm_status_by_category','N',1301,NULL,'2025-01-09 14:12:44.288526+09',NULL,1,NULL,17),
+	 ('wm_pm_wo_completion_rate','부서별 PM WO 완료율',NULL,'/gui/wm_pm_wo_completion_rate','N',1302,NULL,'2025-01-09 14:12:44.297038+09',NULL,1,NULL,17),
+
+     ----점검통계
+	 ('wm_facility_inspection_master','설비종류별 점검마스터',NULL,'/gui/wm_facility_inspection_master','N',1401,NULL,'2025-01-09 14:12:44.301445+09',NULL,1,NULL,18),
+	 ('wm_inspection_issues','점검결과 이상 설비목록',NULL,'/gui/wm_inspection_issues','N',1402,NULL,'2025-01-09 14:12:44.30806+09',NULL,1,NULL,18),
+	 ('wm_inspection_stats','점검 수행 통계',NULL,'/gui/wm_inspection_stats','N',1403,NULL,'2025-01-09 14:12:44.31242+09',NULL,1,NULL,18);
+
 

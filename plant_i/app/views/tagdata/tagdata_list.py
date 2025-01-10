@@ -1,60 +1,81 @@
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
-from configurations import settings
 from domain.services.system_definition.tag_data import TagDataService
+from domain.services.definition.tag import TagService
 
 def tagdata_list(context):
     '''
-    /api/maintenance/equipementtagdata
+    /api/tagdata/tagdata_list
     '''
-    items=[]
-    posparam = context.posparam
     gparam = context.gparam
+    posparam = context.posparam
     action = gparam.get('action', 'read')
 
     try:
         if action == 'read':
-            data_date = gparam.get('data_date', None)
-            start_time = gparam.get('start_time', None)
-            end_time = gparam.get('end_time', None)
-            tag_code = gparam.get('tag_code', None)
-            if settings.DBMS =='MSSQL' :
-                sql = ''' select td.tag_code as tag_code
-		        ,t.tag_name as tag_name
-		        ,Format(td.data_date, 'yyyy-MM-dd HH:mm:ss') as data_date
+            data_date = gparam.get('data_date', '')
+            start_time = gparam.get('start_time', '')
+            end_time = gparam.get('end_time', '')
+            line = gparam.get('line', '')
+            equipment = gparam.get('equipment', '')
+            tag_group = gparam.get('tag_group', '')
+            tag_code = gparam.get('tag_code', '')
+
+            sql = ''' 
+            SELECT
+                td.tag_code AS tag_code
+                , t.tag_name AS tag_name
+		        , TO_CHAR(td.data_date, 'yyyy-mm-dd hh24:mi:ss') AS data_date
                 , td.data_value
                 , td.data_char
-	            from tag_dat td
-                inner join tag t on t.tag_code = td.tag_code
-	            where 1=1
-                and td.tag_code = %(tag_code)s
-	            and td.data_date between %(date_from)s and %(date_to)s
-                order by td.tag_code, td.data_date 
+	        FROM 
+                tag_dat td
+            INNER JOIN 
+                tag t ON t.tag_code = td.tag_code
+            INNER JOIN
+                equ e ON e.id = t."Equipment_id"
+	        WHERE 1=1
+	            AND td.data_date BETWEEN %(date_from)s AND %(date_to)s
+            '''
+            if line:
+                sql += '''
+                AND e.line_id = %(line)s
                 '''
-            else :
-                sql = ''' select td.tag_code as tag_code
-		        ,t.tag_name as tag_name
-		        ,to_char(td.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_date
-                , td.data_value
-                , td.data_char
-	            from tag_dat td
-                inner join tag t on t.tag_code = td.tag_code
-	            where 1=1
-                and td.tag_code = %(tag_code)s
-	            and td.data_date between %(date_from)s and %(date_to)s
-                order by td.tag_code, td.data_date 
+            if equipment:
+                sql += '''
+                AND t."Equipment_id" = %(equipment)s
                 '''
+            if tag_group:
+                sql += '''
+                AND t.tag_group_id = %(tag_group)s
+                '''
+            if tag_code:
+                sql += '''
+                AND td.tag_code = %(tag_code)s
+                '''
+
+            sql += '''
+            ORDER BY td.tag_code, td.data_date 
+            '''
+
             dc = {}
             dc['date_from'] = data_date + ' ' + start_time
             dc['date_to'] =  data_date + ' ' + end_time
+            dc['line'] = line
+            dc['equipment'] = equipment
+            dc['tag_group'] = tag_group
             dc['tag_code'] = tag_code
             
-            items = DbUtil.get_rows(sql, dc)
+            result = DbUtil.get_rows(sql, dc)
+
+        elif action == 'tag_detail':
+            tag_code = gparam.get('tag_code')
+            result = TagService().get_tag_detail(tag_code)
 
     except Exception as ex:
-        source = 'tagdata_list : action-{}'.format(action)
+        source = '/api/tagdata/tagdata_list : action-{}'.format(action)
         LogWriter.add_dblog('error', source , ex)
-        raise ex
+        result = {'success':False}
 
-    return items
+    return result
 

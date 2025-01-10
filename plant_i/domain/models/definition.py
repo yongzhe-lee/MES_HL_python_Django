@@ -232,28 +232,14 @@ class Docuemnt(models.Model):
         
 class Holiday(models.Model):
     id = models.AutoField(primary_key=True)
-    Date = models.DateField()
-    UseYn = models.CharField(max_length=1, default='Y')
-    FixedYn = models.CharField(max_length=1, default='N')
-    Remark = models.CharField(max_length=300, blank=True, null=True)
-    DelYn = models.CharField(max_length=1, default='N')
-    
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created = models.DateTimeField('_created', auto_now_add=True)
-    _modified = models.DateTimeField('_modified', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-    
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
+    nation_cd = models.CharField('국가코드', max_length=10)  # 추가 필드
+    name_val = models.CharField('사용자정의휴일명', max_length=100)
+    repeat_yn = models.CharField('매년반복여부', max_length=1, default='N', blank=False, null=False)
+    holidate = models.CharField('사용자정의휴일일자', max_length=10)
+
     class Meta:
-        db_table = 'holiday'
-        verbose_name = '공휴일'
+        db_table = 'holiday_custom'
+        unique_together = [['nation_cd', 'holidate', 'name_val']]  # UNIQUE KEY 조합 반영
         
 class CustCol(models.Model):
     id = models.AutoField(primary_key=True)

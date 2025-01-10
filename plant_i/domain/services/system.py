@@ -275,17 +275,9 @@ class SystemService():
                     , M.isbookmark 
                     , M.popup
                     , M.path
-                FROM 
-                    M
-                WHERE 
-                    /* 25.01.03 김하늘 수정. */
-                    -- (보류)대메뉴 밑에 중메뉴만 있는 경우 대메뉴가 보이지 않는 관계로 조건 수정(대메뉴면 무조건 보이게)
-                    -- (sub_count > 1 OR depth = 1)
-                    sub_count > 1
-
-                ORDER BY 
-                    path, folder_order, _order
-                --order by folder_order, _order
+                FROM M
+                WHERE sub_count > 1 OR depth = 1
+                ORDER BY folder_order, _order
             '''
 
             dc ={}

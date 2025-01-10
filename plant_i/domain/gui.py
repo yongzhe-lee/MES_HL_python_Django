@@ -43,7 +43,7 @@ class GUIConfiguration():
         gui_dc['wm_material'] = cls.gui_item('품목정보', 'definition/material.html') #품목정보
         gui_dc['wm_bom'] = cls.gui_item('BOM', 'definition/bom.html') #BOM
         gui_dc['wm_company'] = cls.gui_item('업체', 'definition/company.html')#업체
-        #gui_dc['wm_holiday'] = cls.gui_item('공휴일', 'definition/holiday.html')#공휴일
+        gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'definition/holiday.html')#휴일 스케줄
         gui_dc['wm_defect'] = cls.gui_item('부적합정보', 'definition/defect.html') #부적합정보
         gui_dc['wm_shift'] = cls.gui_item('조교대정보', 'definition/shift.html')#조교대정보
         gui_dc['wm_line_inactive'] = cls.gui_item('비가동일정정보', 'definition/line_inactive.html')#비가동정보
@@ -58,19 +58,19 @@ class GUIConfiguration():
         gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')
 
         # 설비보전
-        gui_dc['wm_pm_master'] = cls.gui_item('PM마스터관리', 'kmms/pm/pm_master.html')
-        gui_dc['wm_pm_schedule'] = cls.gui_item('PM일정', 'kmms/pm/pm_schedule.html')
-        gui_dc['wm_work_order'] = cls.gui_item('WO관리', 'kmms/work_order.html')
-        gui_dc['wm_pm_work_list'] = cls.gui_item('PM작업목록조회', 'kmms/pm/pm_work_list.html')
-        gui_dc['wm_pm_result'] = cls.gui_item('PM작업결과등록', 'kmms/pm/pm_work_result.html')
-        gui_dc['wm_pm_result_list'] = cls.gui_item('PM작업결과조회', 'kmms/pm/pm_work_result_list.html')
-        gui_dc['wm_check_master'] = cls.gui_item('점검마스터관리', 'kmms/check/check_master.html')
-        gui_dc['wm_check_schedule'] = cls.gui_item('점검일정관리', 'kmms/check/check_schedule.html')
-        gui_dc['wm_check_work_list'] = cls.gui_item('점검작업조회', 'kmms/check/check_work_list.html')
-        gui_dc['wm_check_result'] = cls.gui_item('점검작업결과등록', 'kmms/check/check_result.html')
-        gui_dc['wm_check_result_list'] = cls.gui_item('점검작업결과조회', 'kmms/check/check_result_list.html')
-        gui_dc['wm_check_work_daily'] = cls.gui_item('일상점검', 'kmms/check/check_work_daily.html')
-        gui_dc['wm_equ_grade'] = cls.gui_item('설비등급관리', 'kmms/equ_grade.html') 
+        # gui_dc['wm_pm_master'] = cls.gui_item('PM마스터관리', 'kmms/pm/pm_master.html')
+        # gui_dc['wm_pm_schedule'] = cls.gui_item('PM일정', 'kmms/pm/pm_schedule.html')
+        # gui_dc['wm_work_order'] = cls.gui_item('WO관리', 'kmms/work_order.html')
+        # gui_dc['wm_pm_work_list'] = cls.gui_item('PM작업목록조회', 'kmms/pm/pm_work_list.html')
+        # gui_dc['wm_pm_result'] = cls.gui_item('PM작업결과등록', 'kmms/pm/pm_work_result.html')
+        # gui_dc['wm_pm_result_list'] = cls.gui_item('PM작업결과조회', 'kmms/pm/pm_work_result_list.html')
+        # gui_dc['wm_check_master'] = cls.gui_item('점검마스터관리', 'kmms/check/check_master.html')
+        # gui_dc['wm_check_schedule'] = cls.gui_item('점검일정관리', 'kmms/check/check_schedule.html')
+        # gui_dc['wm_check_work_list'] = cls.gui_item('점검작업조회', 'kmms/check/check_work_list.html')
+        # gui_dc['wm_check_result'] = cls.gui_item('점검작업결과등록', 'kmms/check/check_result.html')
+        # gui_dc['wm_check_result_list'] = cls.gui_item('점검작업결과조회', 'kmms/check/check_result_list.html')
+        # gui_dc['wm_check_work_daily'] = cls.gui_item('일상점검', 'kmms/check/check_work_daily.html')
+        # gui_dc['wm_equ_grade'] = cls.gui_item('설비등급관리', 'kmms/equ_grade.html') 
 
 
         # 업무지원
@@ -80,9 +80,9 @@ class GUIConfiguration():
         
         # 25.01.02 김하늘 추가
         # 시스템코드(대메뉴)
-        gui_dc['wm_code'] = cls.gui_item('기초코드', 'definition/code.html') #부적합정보
+        gui_dc['wm_code'] = cls.gui_item('기초코드', 'system_code/code.html') #부적합정보
         # 시스템코드 - 자재관련 코드(중메뉴)
-        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/supplier.html')# 공급업체
+        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'system_code/supplier.html')# 공급업체
 
 
         # 시스템관리
@@ -94,7 +94,7 @@ class GUIConfiguration():
         gui_dc['wm_login_log'] = cls.gui_item('로그인로그', 'system/login_log.html') # 로그인로그
         gui_dc['wm_menu_log'] = cls.gui_item('메뉴로그', 'system/menu_log.html') # 메뉴로그
         gui_dc['wm_system_log'] = cls.gui_item('시스템로그', 'system/system_log.html') # 시스템로그
-        gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'system/holiday.html')  
+        # gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'system/holiday.html')  
         
 
         #문서/게시판 관리

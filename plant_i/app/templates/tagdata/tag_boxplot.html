@@ -7,120 +7,109 @@
 </style>
 {% endblock %}
 {% block content %}
-<div class="content_wrap">
-    <section>
-
-        <div class="title_box ">
-            <div class="left_align">
-                <h3 data-labelCd="상자수염그림">상자수염그림</h3>
-            </div>
-
-                <button type="button" class="btn-default pull-right " id="btnHedaerSearch"><i class="fas fa-search"></i></button>
-                <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress"><i class="fa fa-compress"></i></button>
-        </div>
-
-    <div class="table_box search" >
-        <div class="row">
-
-                <div class="col-12 col-md-6 col-xl-2">
-                    <div class="input-group" data-ax5picker="basic" id="srchDt">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text fit_box_t4" data-labelCd="일자">일자</span>
-                        </div>
-                        <input class="form-control2 tac" type="text" id="srchStartDt" name="srchStartDt">
-                        <span class="input-group-text fs-xl"><i class="fas fa-calendar-alt calendar_color" ></i></span>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6  col-xl-3" >
-                    <div class="input-group" >
-                        <div class="input-group-prepend">
-                            <span class="input-group-text fit_box_t4" data-labelCd="시간">시간</span>
-                        </div>
-                            <div class="form-control2">
-                                <input class="tac timepicker" type="text"id="srchStartTm" name="srchStartTm"  />
-                                <span class="slow_sign">~</span>
-                                <input class="tac timepicker" type="text" id="srchEndTm" name="srchEndTm" />
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" data-labelCd="기간"> 기간</label>
+                            <div class="field-wrapper">
+                                <div id="srchDt">
+                                    <div class="input-group-append">
+                                        <input class="tac" type="text" id="srchDate" name="srchDate" />
+                                        <span class="input-group-text fs-xl">
+                                            <i class="fas fa-calendar-alt calendar_color"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
                     </div>
-                </div>
 
-
-            <div class="col-6 col-md-3 col-lg-2" >
-                <div class="input-group" >
-                    <div class="input-group-prepend">
-                        <!--<span class="input-group-text fit_box_sm">태그</span>-->
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" data-labelCd="시간">시간</label>
+                            <div class="field-wrapper">
+                                <input id="srchStartTm" name="srchStartTm" />
+                            </div>
+                            <div class="field-wrapper">
+                                <input id="srchEndTm" name="srchEndTm" />
+                            </div>
+                        </div>
                     </div>
-                    <select id="cboTag" name="cboTag" class="form-control2" multiple="multiple" title="태그"></select>
-
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                        <div class="form-item align-h">
+                            <div class="field-wrapper">
+                                <select id="cboTag" name="cboTag"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <input type="checkbox" id="chkOutlier" name="chkOutlier" />
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button class="btn-search" id="btnSearch" title="조회">조회</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-                <div class="col-5 col-xl-2 mt-5 tac" >
-                        <input type="checkbox" id="chkOutlier" name="chkOutlier" value="NOT" />
-                     Outlier 표시
-                </div>
-
-
-            <div class="col-1" >
-                    <button type="button" class="btn-default" id="btnSearch" title="조회"><i class="fas fa-search"></i></button>
-            </div> 
-
-        </div>
+        </form>
     </div>
-</section>
 </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div id="chart_multi" class="chart_border"></div>
-        </div>
+<div class="row">
+    <div class="col-lg-12">
+        <div id="chart_multi" class="chart_border"></div>
     </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <hr />
-        </div>
-    </div>
- <div class="row" id="divChart">
 </div>
-    <div class="row">
-        <div class="col-lg-4">
-            <div id="chart_0" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_1" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_2" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_3" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_4"></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_5" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_6" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_7" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_8" ></div>
-        </div>
-        <div class="col-lg-4" >
-            <div id="chart_9" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_10" ></div>
-        </div>
-        <div class="col-lg-4">
-            <div id="chart_11" ></div>
-        </div>
+<div class="row">
+    <div class="col-lg-12">
+        <hr />
     </div>
+</div>
+<div class="row" id="divChart">
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <div id="chart_0" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_1" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_2" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_3" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_4"></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_5" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_6" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_7" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_8" ></div>
+    </div>
+    <div class="col-lg-4" >
+        <div id="chart_9" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_10" ></div>
+    </div>
+    <div class="col-lg-4">
+        <div id="chart_11" ></div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -437,13 +426,13 @@
             
     function searchMainData() {
         //data['option'] = 2;
-        var start_date = $('#srchStartDt').val() + ' ' + $('#srchStartTm').val() + ':00';
-        var end_date = $('#srchStartDt').val() + ' ' + $('#srchEndTm').val() + ':00';
+        var start_date = $('#srchDate').val() + ' ' + $('#srchStartTm').val() + ':00';
+        var end_date = $('#srchDate').val() + ' ' + $('#srchEndTm').val() + ':00';
         var tag_codes = $('#cboTag').val() == null ? '' : $('#cboTag').val().join(';');
 
         let show_outlier = $('#chkOutlier').prop('checked');
 
-        console.log('main search', start_date, end_date, tag_codes);
+        console.log('main search', start_date, end_date, tag_codes, show_outlier);
         if (!tag_codes)
             return;
 
@@ -513,26 +502,40 @@
         page = new chartBoxplotMulti('sample', result);
 
 
-        $('#srchDt').ax5DatePicker({ direction: 'top' });
-        $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
-        
-        AjaxUtil.fillSelectOptions($('#cboTag'), 'tag', '', false);  
-        $('select').select2({ tags: true, });
+        $("#srchDate").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: new Date()
+        }); 
 
-        $('select').attr("title",'태그');
-    
-        $('#srchStartTm').timepicker({
-            show2400: true,
-            timeFormat: 'H:i',
-        }).val('09:00');
-        $('#srchEndTm').timepicker({
-            show2400: true,
-            timeFormat: 'H:i'
-        }).val('18:00');
+        $("#srchStartTm").kendoTimePicker({ dateInput: true, value: '09:00' });
+        $("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
 
-        $('#btnSearch').click(function () {
-            searchMainData();
+        let rows = AjaxUtil.getSelectDataWithNull('tag', '', null);
+        let tagList = new kendo.data.DataSource({
+            data: rows,
+            sort: { field: "text", dir: "asc" }
         });
+
+        $("#cboTag").kendoMultiSelect({
+            dataTextField: "text",
+            dataValueField: "value",
+            dataSource: tagList,
+            filter: "contains",
+            downArrow: true,
+        });
+
+        $('#chkOutlier').kendoCheckBox({
+            label: "Outlier 표시",
+        });
+
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                searchMainData();
+            }
+        });
+        searchMainData();
     });
 
 </script>

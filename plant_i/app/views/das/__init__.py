@@ -51,10 +51,12 @@ class DASDeviceView(View):
         for v in queryset:
             values = json.loads(v.Configuration)
             item = {
-                'pk':v.id,
-                'ID':v.Name,
-                'Description':v.Description,
-                'Values':values
+                'config_id': v.id,
+                'name':v.Name,
+                'device_type' : v.DeviceType,
+                'description':v.Description,
+                'equipment' : v.Equipment.Code,
+                'values':values
             }
             data.append(item)
 

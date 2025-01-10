@@ -1,7 +1,6 @@
 import numpy as np
 
-from configurations import settings
-from domain.models.mes import TagMaster
+from domain.models.definition import TagMaster
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 
@@ -9,9 +8,6 @@ from domain.services.system_definition.tag_data import TagDataService
 from domain.services.calculation.box_plot import BoxPlot
 from domain.services.calculation.regression import RegressionCalc
 from domain.services.calculation.histogram import HistogramCalc
-
-
-
 
 
 def histogram_data(context):
@@ -24,9 +20,9 @@ def histogram_data(context):
     
     try:
         if action =='read':
-            start_date = gparam.get('start_date', '')
-            end_date = gparam.get('end_date', '')
-            tag_codes = gparam.get('tag_codes', '')
+            start_date = posparam.get('start_date', '')
+            end_date = posparam.get('end_date', '')
+            tag_codes = posparam.get('tag_codes', '')
 
             tag_service = TagDataService()
             

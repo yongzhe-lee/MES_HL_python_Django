@@ -220,7 +220,7 @@ class ComboService(object):
         return items
 
 
-    # 24.11.08 김하늘 추가
+    # 24.11.08 김하늘 추가. 25.01.09 김하늘 수정(cond3 workcenter -> line)
     @classmethod
     def equipment(cls, cond1, cond2, cond3):
         q = Equipment.objects.all()
@@ -230,7 +230,7 @@ class ComboService(object):
         if cond2:
             q = q.filter(EquipmentGroup_id=cond2)
         if cond3:
-            q = q.filter(WorkCenter_id=cond3)
+            q = q.filter(Line_id=cond3)
 
         q = q.values('id', 'Name', 'Code').order_by('Name')
         items = [ {'value': entry['id'], 'text':entry['Name'], 'code':entry['Code']} for entry in q ]
@@ -248,7 +248,7 @@ class ComboService(object):
         if cond3:
             q = q.filter(DASConfig_id=cond3)
 
-        q = q.values('tag_code', 'tag_name').order_by('tag_name')
+        q = q.values('tag_code', 'tag_name').order_by('tag_code', 'tag_name')
         items = [ {'value': entry['tag_code'], 'text': entry['tag_code'] + '(' + entry['tag_name'] + ')'} for entry in q ]
         return items
 

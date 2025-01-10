@@ -947,12 +947,4 @@ class SFLog(models.Model):
             ['conectIp', 'logDt'],
         ]
 
-class HolidayOff(models.Model):
-    nation_cd = models.CharField('국가코드', max_length=10)  # 추가 필드
-    name_val = models.CharField('사용자정의휴일명', max_length=100)
-    repeat_yn = models.CharField('매년반복여부', max_length=1, default='N', blank=False, null=False)
-    holidate = models.CharField('사용자정의휴일일자', max_length=10)
 
-    class Meta:
-        db_table = 'holiday_custom'
-        unique_together = [['nation_cd', 'holidate', 'name_val']]  # UNIQUE KEY 조합 반영
