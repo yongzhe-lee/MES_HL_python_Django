@@ -139,7 +139,7 @@ def code(context):
                     code_grp_code = posparam.get('code_grp_code', '').strip()
                     code = posparam.get('code', '').strip()
                     name = posparam.get('name', '').strip()
-                    disp = posparam.get('disp')
+                    disp = CommonUtil.try_int(posparam.get('disp'))
                     attr1 = posparam.get('attr1')
                     attr2 = posparam.get('attr2')
                     attr3 = posparam.get('attr3')

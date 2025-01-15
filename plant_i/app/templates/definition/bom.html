@@ -1,0 +1,239 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="form-item align-h L-align-h">
+                            <label class="k-label k-form-label" for="cboBOMType" data-labelCd="BOM구분">BOM구분</label>
+                            <div class="field-wrapper">
+                                <input id="cboBOMType" name="cboBOMType" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="form-item align-h L-align-h">
+                            <label class="k-label k-form-label" for="cboMaterialType" data-labelCd="품목구분">품목구분</label>
+                            <div class="field-wrapper">
+                                <input id="cboMaterialType" name="cboMaterialType" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboMaterialGroup" data-labelCd="품목그룹">품목그룹</label>
+                            <div class="field-wrapper">
+                                <select id="cboMaterialGroup" name="cboMaterialGroup"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtMatName" data-labelCd="제품명">제품명</label>
+                            <div class="field-wrapper">
+                                <select id="txtMatName" name="txtMatName"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="not_past_flag" data-labelCd="최종">최종</label>
+                            <div class="field-wrapper">
+                                <input id="not_past_flag" name="not_past_flag" value="Y" type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="공정데이터">공정데이터</label>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="tag_data_grid"></div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class BOMPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/bom';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let tagDataGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'tag_code', title: '태그', width: 200 },
+                    { field: 'tag_name', title: '태그명', width: 200 },
+                    { field: 'data_value', title: '값', width: 150 },
+                    { field: 'data_char', title: '문자값', width: 150 },
+                    { field: 'data_date', title: '일시', width: 150 },
+                ],
+                change: function (e) {
+
+                },
+                dataBound: function (e) {
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#tag_data_grid"), tagDataGridOption);
+
+            //search form
+            let today = CommonUtil.getYYYYMMDD();
+            $("#srchDt").kendoDatePicker({
+                value: today,
+                format: "yyyy-MM-dd",
+                change: function () {
+                    _this.updateStartTimeLimits();
+                }
+            });
+            $("#srchStartTm").kendoTimePicker({
+                value: '09:00',
+                format: "HH:mm",
+                change: function () {
+                    _this.updateEndTimeLimits();
+                }
+            });
+            $("#srchEndTm").kendoTimePicker({
+                value: '18:00',
+                format: "HH:mm",
+            });
+
+            let line = $('#cboLine');
+            let equip = $('#cboEquip');
+            let tag_grp = $('#cboTagGroup');
+            let tag = $('#cboTag');
+
+            AjaxUtil.fillDropDownOptions(line, 'line', 'all', null);
+            // 라인이 선택되면, 해당하는 설비 목록만 반환
+            line.change(function (e) {
+                AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null, null, null, line.val());
+            });
+
+            AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null);
+            // 설비가 선택되면, 해당하는 tag 목록만 반환
+            equip.change(function (e) {
+                AjaxUtil.fillDropDownOptions(tag, 'tag', 'all', null, equip.val(), tag_grp.val() ? tag_grp.val() : null);
+            });
+
+            AjaxUtil.fillDropDownOptions(tag_grp, 'tag_group', 'all', null);
+            // 태그 그룹이 선택되면, 해당하는 tag 목록만 반환
+            tag_grp.change(function (e) {
+                AjaxUtil.fillDropDownOptions(tag, 'tag', 'all', null, equip.val() ? equip.val() : null, tag_grp.val());
+            });
+
+            AjaxUtil.fillDropDownOptions(tag, 'tag', 'all', null);
+            tag.change(function (e) {
+                if (tag.val() == '') {
+                    $('#tagForm')[0].reset();
+                }
+                else {
+                    _this.loadTagInfo(tag.val());
+                }
+            });
+
+            //detail form
+            $('#equipment_name').kendoTextBox({ readonly: true });
+            $('#round_digit').kendoTextBox({ readonly: true });
+            $('#lsl').kendoTextBox({ readonly: true });
+            $('#usl').kendoTextBox({ readonly: true });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    if ($('#cboTag').val()) {
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('', '태그를 선택해주세요.');
+                        return;
+                    }
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.grid.grid.saveExcel();
+                }
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                data_date: $("#srchDt").val(),
+                start_time: $("#srchStartTm").val(),
+                end_time: $("#srchEndTm").val(),
+                line: $('#cboLine').val(),
+                equipment: $('#cboEquip').val(),
+                tag_group: $('#cboTagGroup').val(),
+                tag_code: $('#cboTag').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new BOMPage();
+
+        page.searchMainData();
+
+    });
+
+</script>
+
+{% endblock %}

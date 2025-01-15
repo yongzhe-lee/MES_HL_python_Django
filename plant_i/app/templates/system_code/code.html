@@ -48,7 +48,7 @@
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label essential" for="grp_code" data-labelCd="그룹코드">그룹코드</label>
                                     <div class="field-wrapper">
-                                        <input id="grp_code" name="grp_code" data-msg="그룹코드를"></input>
+                                        <input id="grp_code" name="grp_code" data-msg="그룹코드를" />
                                     </div>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 col-lg-6">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label" for="grp_sys_yn" data-labelCd="시스템 여부">시스템 여부</label>
                                     <div class="field-wrapper">
@@ -71,7 +71,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 col-lg-6">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label" for="grp_use_yn" data-labelCd="사용 여부">사용 여부</label>
                                     <div class="field-wrapper">
@@ -238,10 +238,10 @@
             let codeTreeGridOption = {
                 height: "540px",
                 columns: [
-                    { title: "No.", template: rowNumberTemplate, width: 50, attributes: {style: 'text-align: center'}, editable: false },
-                    { field: "grp_name", title: "코드그룹명", width: 100, editable: false },
-                    { field: "grp_sys_yn", title: "시스템코드", width: 100, editable: false },
-                    { field: "grp_use_yn", title: "사용여부", width: 100, editable: false },
+                    { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 30 },
+                    { field: "grp_name", title: "코드그룹명", width: 100 },
+                    { field: "grp_sys_yn", title: "시스템", width: 40 },
+                    { field: "grp_use_yn", title: "사용여부", width: 50 },
                 ],
                 change: function (e) {
                     // _this.showDetail();
@@ -272,9 +272,7 @@
             // 코드 그리드
             let codeGridOption = {
                 height: "540px",
-                toolbar: [
-                    "columns"
-                ],
+                toolbar: ["columns"],
                 columnMenu: {
                     componentType: "classic",
                     autoSize: true,
@@ -393,9 +391,10 @@
             $('#attr1').kendoTextBox();
             $('#attr2').kendoTextBox();
             $('#attr3').kendoTextBox();
-            $('#disp').kendoNumericTextBox({
-                format: 'n0',
-            });
+            $('#disp').kendoTextBox({});    // 값이 제대로 안보임
+            //$('#disp').kendoNumericTextBox({
+            //    format: 'n0',
+            //});
             $('#remark').kendoTextArea({
                 rows: 3,
                 autosize: true,

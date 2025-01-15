@@ -71,10 +71,8 @@ def scatter_data(context):
                 #scatter_data[row['couple_code']].append([row['x_val'], row['y_val']])
                 scatter_data[row['couple_code']].append({'x':row['x_val'], 'y':row['y_val']})
             
-            # 25.01.09 김하늘 list 초기화 되지 않게 밖으로 꺼내봄
-            x_list = []
-            y_list = []
-            # line_data = []
+            # 25.01.09 김하늘 list 초기화 되지 않게 밖으로 꺼냄
+            #   --> 원복(쿼리에서 매분마다 group_by --> 분단위 데이터 평균이 나와야 하는데 data_date가 모두 동일해서 값이 1개씩만 생성된 거였음)
 
             for value in tag_code_couple:
                 xy_datas = scatter_data.get(value['couple_code'])
@@ -82,8 +80,8 @@ def scatter_data(context):
                 round_y = value['round_y']
                 min_data = 999999
                 max_data = -999999
-                # x_list = []
-                # y_list = []
+                x_list = []
+                y_list = []
                 line_data = []
 
                 for row in xy_datas:
@@ -104,41 +102,50 @@ def scatter_data(context):
                     max_data = max_data + abs(min_data) * 0.1
 
                 # 25.01.09 김하늘 수정
-                # 회귀분석 관련 변수 초기화
+                # 회귀분석 관련 변수 초기화 & try구문 사용
                 r2 = 1
                 p = 0
                 slope = None
                 intercept = None
                 first_equation = ''
 
-                # 회귀 분석은 전체 데이터를 사용
-                if len(x_list) > 1 and len(y_list) > 1:  # 최소 두 개 이상의 데이터가 있어야 회귀 가능
-                    fit = RegressionCalc.scipy_regression(x_list, y_list)
+                try:
+                    if len(x_list) > 1 and len(y_list) > 1:  # 최소 두 개 이상의 데이터가 있어야 회귀 가능
+                        fit = RegressionCalc.scipy_regression(x_list, y_list)
 
-                    r2 = fit.rvalue ** 2
-                    slope = fit.slope
-                    intercept = fit.intercept
-                    p = fit.pvalue
+                        r2 = fit.rvalue ** 2
+                        slope = fit.slope
+                        intercept = fit.intercept
+                        p = fit.pvalue
+                        # return 디버깅
+                        print(f"regression for {value['couple_code']}: r2 = {r2}, pvalue = {p}, slope = {slope}, intercept = {intercept}")
 
-                    round_y = 2
-                    round_x = 3
+                        round_y = 2
+                        round_x = 3
 
-                    first_equation = f"y = {round(slope, 4)}x + {round(intercept, round_y + 2)}"
-                    line_data = []
+                        first_equation = f"y = {round(slope, 4)}x + {round(intercept, round_y + 2)}"
+                        line_data = []
 
-                    if r2 > 0.5 and p <= 0.05:
-                        gap = (max_data - min_data) / 20
+                        if r2 > 0.5 and p <= 0.05:
+                            gap = (max_data - min_data) / 20
 
-                        x = min_data
-                        for index in range(1, 20):
-                            y = slope * x + intercept
-                            line_point = {
-                                'x': x,
-                                'y': y
-                            }
-                            x = round(min_data + gap * index, round_x + 2)
-                            line_data.append(line_point)
+                            x = min_data
+                            for index in range(1, 20):
+                                y = slope * x + intercept
+                                line_point = {
+                                    'x': x,
+                                    'y': y
+                                }
+                                x = round(min_data + gap * index, round_x + 2)
+                                line_data.append(line_point)
 
+                except Exception as ex:
+                    source = '/api/tagdata/scatter_data'
+                    print(f"Regression failed for {value['couple_code']}: {ex}")
+                    LogWriter.add_dblog('error', source, ex)
+                    raise ex
+
+                # 수정 전 기존 코드
                 # r2 = 1
                 # slope = None
                 # intercept = None

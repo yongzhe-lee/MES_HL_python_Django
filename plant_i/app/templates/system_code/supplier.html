@@ -91,7 +91,7 @@
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="comp_code" data-labelCd="업체구분">업체구분</label>
+                                <label class="k-label k-form-label" for="comp_type" data-labelCd="업체구분">업체구분</label>
                                 <div class="field-wrapper">
                                     <select id="comp_type" name="comp_type"></select>
                                 </div>
@@ -327,11 +327,6 @@
             });
 
             // searchForm
-            AjaxUtil.fillDropDownOptions($('#sch_comp_kind'), 'system_code', 'all', null, 'company_type');
-            $('#sch_comp_kind').change(function () {
-                _this.searchMainData();
-            })
-
             $('#sch_keyword').kendoTextBox({
                 placeholder: '업체명, 업체코드, 비고'
             });
@@ -343,7 +338,7 @@
             $('#comp_code').kendoTextBox();
             $('#comp_name').kendoTextBox();
             AjaxUtil.fillDropDownOptions($('#site_id'), 'site', 'choose', null);
-            AjaxUtil.fillDropDownOptions($('#comp_type'), 'system_code', 'choose', null, 'company_type');
+            AjaxUtil.fillDropDownOptions($('#comp_type'), 'user_code', 'choose', null, 'COMP_KIND');
             $('#business_type').kendoTextBox();
             $('#business_item').kendoTextBox();
             $('#ceo_name').kendoTextBox();
@@ -424,7 +419,7 @@
 
             let param = {
                 action: 'read',
-                sch_comp_type: 'purchase',
+                sch_comp_kind: 'S, CS', // 공급업체만 조회
                 sch_keyword: $('#sch_keyword').val(),
                 sch_use_yn: $('#sch_use_yn').val(),
             };

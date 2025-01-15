@@ -38,7 +38,11 @@ def boxplot_data(context):
             tag_data = {}
             for tag_code, value in items.items():
                 data_name = value['tag_name']
-                rows = value['data']
+                rows = value.get('data',[])
+                
+                if not rows:
+                    continue
+                
                 data = [ row['data_value'] for row in rows ]
                 #data.sort()
 

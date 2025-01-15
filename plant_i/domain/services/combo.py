@@ -7,7 +7,7 @@ from .sql import DbUtil
 from .logging import LogWriter
 
 from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory
-from domain.models.definition import CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup
+from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup
 from domain.models.system import  Unit 
 
 #from django.core.cache import cache
@@ -49,6 +49,7 @@ class ComboService(object):
             'tag': cls.tag,            
             'tag_group' : cls.tag_group,
             'unit': cls.unit,
+            'user_code': cls.user_code,
             'user_group': cls.user_group,
         }
         cls.__initialized__ = True
@@ -332,4 +333,36 @@ class ComboService(object):
     def site(cls, cond1, cond2, cond3):
         q = Site.objects.values('id', 'Code', 'Name').order_by('Name')
         items = [ {'value': item['id'],  'text': item['Code'] + '(' + item['Name'] + ')' } for item in q ]
+        return items
+
+    # 25.01.14 김하늘 추가
+    @classmethod
+    def user_code(cls, cond1, cond2, cond3):
+    # def user_code(cls, site_id, cond1, cond2, cond3): # 우린 아직 code에 site 반영X 추후 여쭤보고 진행
+        q = Code.objects.values('Code', 'Name')
+        # q = q.filter(Site_id=site_id)
+        if cond1:
+            if ',' in cond1:
+                cond1 = cond1.replace(' ', '')
+                cond_list = cond1.split(',')
+                q = q.filter(CodeGroupCode=cond_list)
+            else:
+                q = q.filter(CodeGroupCode=cond1)
+        if cond2:
+            if ',' in cond2:
+                cond2 = cond2.replace(' ', '')
+                cond_list = cond2.split(',')
+                q = q.filter(Code__in=cond_list)
+            else:
+                q = q.filter(Code=cond2)
+        if cond3:
+            if ',' in cond3:
+                cond3 = cond3.replace(' ', '')
+                cond_list = cond3.split(',')
+                q = q.exclude(Code__in=cond_list)
+            else:
+                q = q.exclude(Code=cond3)
+        q = q.filter(DelYn='N', UseYn='Y')
+        q = q.order_by('DispOrder', 'Name')
+        items = [ {'value': entry['Code'], 'text':entry['Name']} for entry in q ]
         return items

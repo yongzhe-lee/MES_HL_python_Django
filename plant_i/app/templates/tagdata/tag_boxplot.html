@@ -12,6 +12,23 @@
         <form class="search-form" id="searchForm">
             <div class="card-content search">
                 <div class="form-ui">
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select id="cboLine" name="cboLine"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select id="cboEquip" name="cboEquip"></select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" data-labelCd="기간"> 기간</label>
@@ -39,14 +56,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-6 col-md-3 col-xl-4">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
                             <div class="field-wrapper">
                                 <select id="cboTag" name="cboTag"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-2 col-md-2 col-xl-2">
                         <input type="checkbox" id="chkOutlier" name="chkOutlier" />
                     </div>
                     <div class="col-auto">
@@ -418,7 +436,7 @@
                     }
                 }
             };
-            console.log('options', _this.options)
+            //console.log('options', _this.options)
             this.chart = new ApexCharts(document.querySelector("#"+_this.chart_id), _this.options);
             this.chart.render();
         }
@@ -432,7 +450,7 @@
 
         let show_outlier = $('#chkOutlier').prop('checked');
 
-        console.log('main search', start_date, end_date, tag_codes, show_outlier);
+        //console.log('main search', start_date, end_date, tag_codes, show_outlier);
         if (!tag_codes)
             return;
 
@@ -456,7 +474,7 @@
         chart_list.forEach(function (item, idx) {
             if (item != null) {
                  if (item.chart) {
-                    console.log('chart destroy', idx);
+                    //console.log('chart destroy', idx);
                     item.chart.destroy();
                     item.chart = null;
                 }
@@ -465,7 +483,7 @@
         $('#divChart').empty();
 
         $.each(result, function (index, item) {
-            console.log('item', index, item);
+            //console.log('item', index, item);
             let html = '<div class="col-lg-4"><div id="chart' + index + '" class="chart_border"></div> </div> ';
             $('#divChart').append(html);
             let chart = null;
@@ -511,7 +529,7 @@
         $("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
 
         let rows = AjaxUtil.getSelectDataWithNull('tag', '', null);
-        let tagList = new kendo.data.DataSource({
+        let dataSource = new kendo.data.DataSource({
             data: rows,
             sort: { field: "text", dir: "asc" }
         });
@@ -519,9 +537,25 @@
         $("#cboTag").kendoMultiSelect({
             dataTextField: "text",
             dataValueField: "value",
-            dataSource: tagList,
+            dataSource: dataSource,
             filter: "contains",
             downArrow: true,
+        });
+
+        // 라인, 설비
+        let line = $('#cboLine');
+        let equip = $('#cboEquip');
+        let tag = $("#cboTag").data("kendoMultiSelect");
+
+        AjaxUtil.fillDropDownOptions(line, 'line', 'all', null);
+        line.change(function (e) {
+            AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null, null, null, line.val());
+        });
+
+        AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null);
+        equip.change(function (e) {
+            dataSource._data = AjaxUtil.getSelectDataWithNull('tag', '', equip.val());
+            tag.setDataSource(dataSource);
         });
 
         $('#chkOutlier').kendoCheckBox({

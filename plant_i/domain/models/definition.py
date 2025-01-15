@@ -746,3 +746,110 @@ class EquipAlarmHistory(models.Model):
             ['DataDate'],
         ]
 '''
+
+'''
+25.01.14 김하늘 BOM 관련 테이블 생성 보류(추후 SAP 데이터 조회만)
+'''
+# class BOM(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     Name = models.CharField('제목', max_length=200, null=True)
+#     Material = models.ForeignKey(Material, on_delete=models.DO_NOTHING)
+#     BOMType = models.CharField('BOM종류', max_length=20, default='manufacturing')
+#     OutputAmount = models.FloatField('산출량',  default=1)
+#     Version = models.CharField('버전', max_length=10, null=True, default='1')
+#     StartDate = models.DateTimeField('적용시작일',null=True)
+#     EndDate = models.DateTimeField('적용종료일', null=True, default='2100-12-31')
+
+#     _status = models.CharField('_status', max_length=10, null=True)
+#     _created    = models.DateTimeField('_created', auto_now_add=True)
+#     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+#     _creater_id = models.IntegerField('_creater_id', null=True)
+#     _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+#     def set_audit(self, user):
+#         if self._creater_id is None:
+#             self._creater_id = user.id
+#         self._modifier_id = user.id
+#         self._modified = DateUtil.get_current_datetime()
+#         return
+
+#     class Meta():
+#         db_table = 'bom'
+#         verbose_name = 'BOM헤더'
+#         unique_together = [
+#             ['Material','BOMType','StartDate'],
+#             ['Material','BOMType','Version'],
+#         ]
+#         index_together = [
+#             ['EndDate','StartDate'],
+#         ]
+
+
+# class BOMComponent(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     BOM = models.ForeignKey(BOM, on_delete=models.CASCADE)
+#     Material = models.ForeignKey(Material, on_delete=models.PROTECT)
+#     _order   = models.SmallIntegerField('순서', default=0, null=True)
+#     Amount = models.FloatField('소요량')
+#     Description	= models.CharField('비고', max_length=500, null=True)
+#     Portion = models.FloatField('배합비%', null=True)
+#     DesignAmount = models.FloatField('설계소요량', null=True)
+#     LossPro = models.FloatField('로스율%', null=True)
+#     AutoConsuYN	= models.CharField('자동투입YN', max_length=1, null=True)
+
+#     _status = models.CharField('_status', max_length=10, null=True)
+#     _created    = models.DateTimeField('_created', auto_now_add=True)
+#     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+#     _creater_id = models.IntegerField('_creater_id', null=True)
+#     _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+#     def set_audit(self, user):
+#         if self._creater_id is None:
+#             self._creater_id = user.id
+#         self._modifier_id = user.id
+#         self._modified = DateUtil.get_current_datetime()
+#         return
+
+#     class Meta():
+#         db_table = 'bom_comp'
+#         verbose_name = 'BOM구성'
+#         unique_together = [
+#             ['BOM','Material'],
+#         ]
+#         index_together = [
+#             ['Material'],
+#         ]
+
+
+# class BOMProcessComponent(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     Product = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='ProducedBomProcess')
+#     Process = models.ForeignKey(Process, on_delete=models.CASCADE)
+#     Material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='ConsumedBomProcess')
+#     Amount = models.FloatField('소요량', null=True)
+#     BOM = models.ForeignKey(BOM, on_delete=models.DO_NOTHING, null=True)
+#     # Routing = models.ForeignKey(Routing, on_delete=models.CASCADE, null=True)
+
+#     _status = models.CharField('_status', max_length=10, null=True)
+#     _created    = models.DateTimeField('_created', auto_now_add=True)
+#     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+#     _creater_id = models.IntegerField('_creater_id', null=True)
+#     _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+#     def set_audit(self, user):
+#         if self._creater_id is None:
+#             self._creater_id = user.id
+#         self._modifier_id = user.id
+#         self._modified = DateUtil.get_current_datetime()
+#         return
+
+#     class Meta():
+#         db_table = 'bom_proc_comp'
+#         verbose_name = 'BOM공정구성'
+#         # unique_together = [
+#         #     ['BOM', 'Process','Material', 'Routing'],
+#         # ]
+#         # index_together = [
+#         #     ['Product', 'Process'],
+#         #     ['Routing', 'BOM'], # routing field가 없어서 에러 발생하는 것
+#         # ]

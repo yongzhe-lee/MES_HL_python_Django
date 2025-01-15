@@ -19,9 +19,10 @@ def company(context):
     
     try:
         if action == 'read':
-            comp_type = gparam.get('sch_comp_type')
+            comp_kind = gparam.get('sch_comp_kind')
             keyword = gparam.get('sch_keyword')
             use_yn = gparam.get('filter[use_yn]')
+            comp_list = []
 
             sql = '''
             SELECT 
@@ -71,9 +72,12 @@ def company(context):
                 sql += '''
                 AND c."UseYn" = %(use_yn)s
                 '''
-            if comp_type: 
+            if comp_kind:
+                # 우선 이렇게. 추후에 코드 정리되면 다시 손볼 것
+                # ','로 나누고 각 항목의 공백 제거 후 Python 리스트로 변환
+                comp_list = [item.strip() for item in comp_kind.split(',')]
                 sql += '''
-                AND c."CompanyType" LIKE CONCAT('%%', %(comp_type)s, '%%')
+                AND c."CompanyType" = ANY(%(comp_list)s)
                 '''
             if keyword:
                 sql += '''
@@ -89,7 +93,7 @@ def company(context):
             '''
 
             dc = {}
-            dc['comp_type'] = comp_type
+            dc['comp_list'] = comp_list
             dc['keyword'] = keyword
             dc['use_yn'] = use_yn
             
