@@ -107,12 +107,13 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="Name" data-labelCd="설비위치">설비위치</label>
-                                <div class="field-wrapper">
-                                    <input id="Name" name="Name" data-msg="설비명을" />
-                                    <button id="btnModalOpen">추가</button>
-                                </div>
+                            <div class="input-container">
+                                <label for="설비위치">설비위치</label>
+                                <input type="text" id="설비위치" class="k-textbox" />
+                                <button id="addButton" class="k-button k-primary">
+                                    <span class="k-icon k-i-plus"></span>
+                                    추가
+                                </button>
                             </div>
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
@@ -672,6 +673,22 @@
         white-space: nowrap;
     }
 
+    .input-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;  /* 요소들 사이 간격 */
+    }
+    
+    .input-container label {
+        white-space: nowrap;  /* 라벨 텍스트 줄바꿈 방지 */
+        margin-bottom: 0;     /* 기본 마진 제거 */
+    }
+    
+    .input-container .k-textbox {
+        width: 200px;
+        flex: 0 0 auto;
+    }
+
 </style>
 
     {% verbatim %}
@@ -1047,6 +1064,22 @@
                     { locationCode: "TEST001", locationName: "테스트위치1", upperLocation: "상위1" },
                     { locationCode: "TEST002", locationName: "테스트위치2", upperLocation: "상위2" }
                 ]
+            }
+        });
+
+        // 켄도 버튼 초기화
+        $("#addButton").kendoButton({
+            icon: "plus",
+            themeColor: "primary",
+            click: function(e) {  // 클릭 이벤트 핸들러 추가
+                e.preventDefault();
+                $('.modal').fadeIn();  // 모달 표시
+                
+                // 기존의 다른 모달 관련 로직들...
+                if (page === null) {
+                    page = new Page();
+                }
+                page.초기화();
             }
         });
     });
