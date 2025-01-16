@@ -10,7 +10,6 @@
     <div class="content-ui-row">
         <form class="search-form" id="searchForm" onsubmit="return false;">
             <div class="card-content search">
-                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
                     <div class="col-auto">
                         <div class="form-item align-h L-form-item align-h">
@@ -24,7 +23,7 @@
                         <div class="form-item align-h L-form-item align-h">
                             <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부"></label>
                             <div class="field-wrapper">
-                                <input id="sch_use_yn" name="sch_use_yn" />
+                                <select id="sch_use_yn" name="sch_use_yn" ></select>
                             </div>
                         </div>
                     </div>
@@ -93,7 +92,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="comp_type" data-labelCd="업체구분">업체구분</label>
                                 <div class="field-wrapper">
-                                    <select id="comp_type" name="comp_type"></select>
+                                    <select id="comp_type" name="comp_type" data-msg="업체구분을"></select>
                                 </div>
                             </div>
                         </div>
@@ -272,8 +271,7 @@
                     }
                 },
                 columns: [
-                    /*{ title: 'No', template: function (dataItem) { return dataItem.index + 1; }, width: 50 },*/
-                    { title: 'No', template: rowNumberTemplate, width: 50 },
+                    { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
                     { field: 'comp_code', title: '업체코드', width: 80 },
                     { field: 'comp_name', title: '업체명', width: 100 },
                     { field: 'site_name', title: '사이트', width: 100 },
@@ -297,10 +295,18 @@
                     { field: 'desc', title: '비고', width: 100 },
                 ],
                 dataBound: function (e) {
+                    const grid = this;
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+
+                    // No. set
                     let items = this.items();
                     items.each(function (index) {
-                        $(this).find("td:first").html(index+1);
+                        $(this).find("td:first").html(index + 1);
                     });
+
+                    this.autoFitColumns();
                 },
                 /*dataBinding: function (e) {
                     //rowNo = (this.dataSource.page() - 1) * this.dataSource.pageSize();
@@ -330,8 +336,12 @@
             $('#sch_keyword').kendoTextBox({
                 placeholder: '업체명, 업체코드, 비고'
             });
-            $('#sch_use_yn').kendoSwitch({
-                checked: true
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'user_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
             });
 
             // form
@@ -401,17 +411,6 @@
 
             $('#btnDelete').prop('disabled', true);
 
-            // 이벤트핸들러 초기화
-            _this.initEventHandler();
-        }
-
-        initEventHandler() {
-            // 이벤트핸들러 초기화
-            let _this = this;
-
-            CommonUtil.bindEnterKey('#sch_keyword', function () {
-                _this.searchMainData();
-            });
         }
 
         searchMainData() {

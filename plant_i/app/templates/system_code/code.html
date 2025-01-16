@@ -62,7 +62,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label" for="grp_sys_yn" data-labelCd="시스템 여부">시스템 여부</label>
                                     <div class="field-wrapper">
@@ -71,7 +71,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label" for="grp_use_yn" data-labelCd="사용 여부">사용 여부</label>
                                     <div class="field-wrapper">
@@ -230,18 +230,23 @@
         init() {
             let _this = this;
 
-            let rowNumberTemplate = function (dataItem) {
-                return '<div>${dataItem.index + 1}</div>';
-            };
-
             // 그룹코드 그리드(tree)
             let codeTreeGridOption = {
                 height: "540px",
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
                 columns: [
-                    { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 30 },
+                    { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                    { field: "grp_code", title: "코드그룹", width: 100 },
                     { field: "grp_name", title: "코드그룹명", width: 100 },
-                    { field: "grp_sys_yn", title: "시스템", width: 40 },
-                    { field: "grp_use_yn", title: "사용여부", width: 50 },
+                    { field: "grp_sys_yn", title: "시스템코드", width: 50, attributes: { style: 'text-align: center' } },
+                    { field: "grp_use_yn", title: "사용여부", width: 50, attributes: { style: 'text-align: center' } },
                 ],
                 change: function (e) {
                     // _this.showDetail();
@@ -249,7 +254,7 @@
                     let selectedRow = kendoUtil.getGridSelectedRow($("#code_tree_grid"));
 
                     _this.showGroupDetail();
-                    _this.code_grp_code = selectedRow.grp_code;
+                    _this.code_grp_code = selectedRow.grp_code === "전체" ? "" : selectedRow.grp_code;
                     _this.searchCodeData();
                     _this.resetCodeData();
                 },
@@ -264,6 +269,8 @@
                         }
                         $(this).find("td:first").html(index); // index에 +1을 해주지 않는다.
                     });
+
+                    this.autoFitColumns();
                 }
             };
 
@@ -272,7 +279,6 @@
             // 코드 그리드
             let codeGridOption = {
                 height: "540px",
-                toolbar: ["columns"],
                 columnMenu: {
                     componentType: "classic",
                     autoSize: true,
@@ -283,7 +289,7 @@
                 },
                 columns: [
                     {
-                        title: 'No.', template: rowNumberTemplate, width: 50
+                        title: 'No.', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50
                         , headerAttributes: {
                             style: 'text-align: center;vertical-align: middle;'
                         }
@@ -304,9 +310,18 @@
                         }
                     },
                     {
-                        field: "remark", title: "코드설명", width: 100
+                        field: "remark", title: "비고", width: 100
                         , headerAttributes: {
                             style: 'text-align: center;vertical-align: middle;'
+                        }
+                    },
+                    {
+                        field: "disp", title: "순서", width: 80
+                        , headerAttributes: {
+                            style: 'text-align: center;vertical-align: middle;'
+                        }
+                        , attributes: {
+                            style: 'text-align: center'
                         }
                     },
                     {
@@ -336,6 +351,7 @@
                             style: 'text-align: center'
                         }
                     },
+
                 ],
                 change: function (e) {
                     const grid = this;
@@ -357,6 +373,8 @@
                     items.each(function (index) {
                         $(this).find("td:first").html(index + 1);
                     });
+
+                    this.autoFitColumns();
                 },
             };
 
@@ -469,8 +487,8 @@
             // "전체" 행 추가
             result.unshift({
                 id: 0,                    // 유일한 ID
-                grp_code: "",             // 그룹 코드 비워둠
-                grp_name: "전체",         // 표시할 이름
+                grp_code: "전체",    // 그룹 코드 비워둠
+                grp_name: null,         // 표시할 이름
                 grp_sys_yn: null,         // 추가 필드들 기본값 설정
                 grp_use_yn: null,
                 grp_remark: null
@@ -576,6 +594,7 @@
                 if (resp.success) {
                     Notify.success('코드가 저장되었습니다.');
                     _this.searchCodeData();
+                    _this.resetCodeData();
                 } else {
                     Alert.alert('error', resp.message);
                 }

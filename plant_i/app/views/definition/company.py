@@ -21,7 +21,7 @@ def company(context):
         if action == 'read':
             comp_kind = gparam.get('sch_comp_kind')
             keyword = gparam.get('sch_keyword')
-            use_yn = gparam.get('filter[use_yn]')
+            use_yn = gparam.get('sch_use_yn')
             comp_list = []
 
             sql = '''
@@ -82,9 +82,9 @@ def company(context):
             if keyword:
                 sql += '''
                 AND (
-                    c."Name" LIKE CONCAT('%%', %(keyword)s, '%%')
-                    OR c."Code" LIKE CONCAT('%%', %(keyword)s, '%%')
-                    OR c."Description" LIKE CONCAT('%%', %(keyword)s, '%%')
+                    UPPER(c."Name") LIKE CONCAT('%%', UPPER(%(keyword)s), '%%')
+                    OR UPPER(c."Code") LIKE CONCAT('%%', UPPER(%(keyword)s), '%%')
+                    OR UPPER(c."Description") LIKE CONCAT('%%', UPPER(%(keyword)s), '%%')
                 )
                 '''
             

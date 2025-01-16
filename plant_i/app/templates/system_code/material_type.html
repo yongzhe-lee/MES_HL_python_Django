@@ -5,23 +5,23 @@
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
-        <form class="search-form" id="searchForm">
+        <!-- enterkey 바인딩 시, 폼제출 되지 않도록 막기 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
             <div class="card-content search">
-                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_factory" data-labelCd="공장">공장</label>
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <select id="srch_factory" name="srch_factory"></select>
+                                <input id="sch_keyword" name="sch_keyword" />
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부"></label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="품목명, 품목코드, 자재그룹, 자재유형 "/>
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
                             </div>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="품목 정보">품목 정보</label></span>
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="품목유형 정보">품목유형 정보</label></span>
                     <span>
                     </span>
                     <span>
@@ -45,7 +45,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="material_grid"></div>
+                <div id="material_type_grid"></div>
             </div>
         </div>
         <div class="content-ui-row connect">
@@ -59,89 +59,83 @@
                     </span>
                 </div>
 
-                <form id="materialForm">
-                    <input type="hidden" id="material_id" name="material_id" />
+                <form id="materialTypeForm">
                     <div class="edit-form-ui">
-                        <div class="col-12 col-sm-6 col-md-4">
+                        <input type="hidden" id="id" name="id" />
+                        <input type="hidden" id="code_grp_code" name="code_grp_code" />
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="factory_id" data-labelCd="공장">공장</label>
+                                <label class="k-label k-form-label essential" for="code" data-labelCd="품목유형코드">품목유형코드</label>
                                 <div class="field-wrapper">
-                                    <select id="factory_id" name="factory_id"></select>
+                                    <input id="code" name="code" data-msg="코드를" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="material_name" data-labelCd="품목명">품목명</label>
+                                <label class="k-label k-form-label" for="name" data-labelCd="품목유형명">품목유형명</label>
                                 <div class="field-wrapper">
-                                    <input id="material_name" name="material_name" />
+                                    <input id="name" name="name" data-msg="코드명을" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="material_code" data-labelCd="품목코드">품목코드</label>
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용 여부">사용 여부</label>
                                 <div class="field-wrapper">
-                                    <input id="material_code" name="material_code" />
+                                    <input id="use_yn" name="use_yn" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="standard" data-labelCd="규격">규격</label>
+                                <label class="k-label k-form-label" for="attr1" data-labelCd="속성1">속성1</label>
                                 <div class="field-wrapper">
-                                    <input id="standard" name="standard" />
+                                    <input id="attr1" name="attr1" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="item_group" data-labelCd="자재그룹">자재그룹</label>
+                                <label class="k-label k-form-label" for="attr2" data-labelCd="속성2">속성2</label>
                                 <div class="field-wrapper">
-                                    <input id="item_group" name="item_group" />
+                                    <input id="attr2" name="attr2" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="item_type" data-labelCd="자재유형">자재유형</label>
+                                <label class="k-label k-form-label" for="attr3" data-labelCd="속성3">속성3</label>
                                 <div class="field-wrapper">
-                                    <input id="item_type" name="item_type" />
+                                    <input id="attr3" name="attr3" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-md-6">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="basic_unit" data-labelCd="기본단위">기본단위</label>
+                                <label class="k-label k-form-label" for="disp" data-labelCd="표시순서">표시순서</label>
                                 <div class="field-wrapper">
-                                    <input id="basic_unit" name="basic_unit" />
+                                    <input id="disp" name="disp" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+
+                        <div class="col-12">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="cycle_time" data-labelCd="c/t">c/t</label>
+                                <label class="k-label k-form-label" for="remark" data-labelCd="비고">비고</label>
                                 <div class="field-wrapper">
-                                    <input id="cycle_time" name="cycle_time" />
+                                    <input id="remark" name="remark" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="in_price" data-labelCd="입고금액">입고금액</label>
-                                <div class="field-wrapper">
-                                    <input id="in_price" name="in_price" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="out_price" data-labelCd="출고금액">출고금액</label>
-                                <div class="field-wrapper">
-                                    <input id="out_price" name="out_price" />
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </form>
             </div>
@@ -155,30 +149,36 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    class MaterialPage {
+    class MaterialTypePage {
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/definition/material';
-
+            this.baseUrl = '/api/definition/code';
+            this.codeGroup = 'MTRL_TYPE';
             this.init();
         }
 
         init() {
             let _this = this;
 
-            let materialGridOption = {
+            let materialTypeGridOption = {
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
                 columns: [
-                    { field: "factory_name", title: "공장", width: 100 },
-                    { field: "factory_code", title: "공장코드", width: 100 },
-                    { field: "material_name", title: "품목명", width: 100 },
-                    { field: "material_code", title: "품목코드", width: 100 },
-                    { field: "standard", title: "규격", width: 100 },
-                    { field: "item_group", title: "자재그룹", width: 100 },
-                    { field: "item_type", title: "자재유형", width: 100 },
-                    { field: "basic_unit", title: "기본단위", width: 100 },
-                    { field: "cycle_time", title: "c/t", width: 100 },
-                    { field: "in_price", title: "입고금액", width: 100 },
-                    { field: "out_price", title: "출고금액", width: 100 },
+                    { title: 'No.', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                    { field: "code", title: "품목유형코드", width: 100 },
+                    { field: "name", title: "품목유형명", width: 100 },
+                    { field: "remark", title: "비고", width: 100 },
+                    { field: "disp", title: "순서", width: 80, attributes: { style: 'text-align: center' } },
+                    { field: "attr1", title: "속성1", width: 100 },
+                    { field: "attr2", title: "속성2", width: 100 },
+                    { field: "attr3", title: "속성3", width: 100 },
+                    { field: "use_yn", title: "사용여부", width: 100, attributes: { style: 'text-align: center' } },
                 ],
                 // 클릭 이벤트
                 change: function (e) {
@@ -186,45 +186,47 @@
                 },
                 // 데이터 바인딩 이벤트
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        // 데이터 길이로 자동 컬럼 사이즈 조절
-                        this.autoFitColumn(i);
-                    };
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        $(this).find("td:first").html(index + 1);
+                    });
+
+                    this.autoFitColumns();
+
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#material_grid"), materialGridOption);
+            _this.grid = new Grid($("#material_type_grid"), materialTypeGridOption);
 
             //search form
-            AjaxUtil.fillDropDownOptions($('#srch_factory'), 'factory', 'choose', null);
-            $('#keyword').kendoTextBox();
-            $('#keyword').keypress(function (e) {
-                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
-                if (e.keyCode === 13) {
-                    e.preventDefault();
-                    _this.searchMainData();
-                }
+            $('#sch_keyword').kendoTextBox({
+                placeholder: "품목유형명, 품목유형코드, 설명" 
+            });
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'user_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
             });
 
             //detail form
-            AjaxUtil.fillDropDownOptions($('#factory_id'), 'factory', 'choose', null);
-            $('#material_name').kendoTextBox();
-            $('#material_code').kendoTextBox();
-            $('#standard').kendoTextBox();
-            $('#item_group').kendoTextBox();
-            //$('#item_type').kendoTextBox();
-            AjaxUtil.fillDropDownOptions($('#item_type'), 'user_code', 'choose', null, 'MTRL_CLASS');
-            $('#basic_unit').kendoTextBox();
-            $('#cycle_time').kendoNumericTextBox({
-                //format: 'n0'
+            $('#code').kendoTextBox();
+            $('#name').kendoTextBox();
+            $('#use_yn').kendoSwitch({
+                checked: true
             });
-            $('#in_price').kendoNumericTextBox({
-                format: 'c' //통화형식
-            });
-            $('#out_price').kendoNumericTextBox({
-                format: 'c' //통화형식
+            $('#attr1').kendoTextBox();
+            $('#attr2').kendoTextBox();
+            $('#attr3').kendoTextBox();
+            $('#disp').kendoTextBox({});
+            $('#remark').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
             });
 
             //form button
@@ -269,8 +271,9 @@
 
             let param = {
                 action: 'read',
-                srch_factory: $('#srch_factory').val(),
-                keyword: $('#keyword').val(),
+                code_grp_code: this.codeGroup,
+                sch_keyword: $('#sch_keyword').val(),
+                sch_use_yn: $('#sch_use_yn').val(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -280,8 +283,9 @@
 
         resetData() {
             let _this = this;
-            $("#material_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#materialForm'));
+            $("#material_type_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#materialTypeForm'));
+            $("#use_yn").data("kendoSwitch").check(true);
         }
 
         showDetail() {
@@ -289,16 +293,22 @@
             let data = _this.grid.getSelect();
             if (data.length > 0) {
                 let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#materialForm'));
-            //    $('#factory_id').data("kendoComboBox").value(selectData.factory_id);
+                FormUtil.BindDataForm(selectData, $('#materialTypeForm'));
             }
         }
 
         saveData() {
             let _this = this;
-            let data = FormUtil.extractForm($('#materialForm'));
+            let data = FormUtil.extractForm($('#materialTypeForm'));
 
-            if (checkForm($('#materialForm')) === false) return;
+            //console.log("data1", data, "this.codeGroup", this.codeGroup);
+
+            data.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            data.code_grp_code === "" ? data.code_grp_code = this.codeGroup : data.code_grp_code;   // insert의 경우 codeGroup이 없으므로 할당
+
+            //console.log("data2", data);
+
+            if (checkForm($('#materialTypeForm')) === false) return;
 
             let funcSucc = function (resp) {
                 if (resp.success) {
@@ -315,9 +325,12 @@
         deleteData() {
             let _this = this;
             let data = _this.grid.getSelect();
+
             if (data.length > 0) {
                 let selectData = data[0];
-                selectData = { material_id: selectData.material_id };
+
+                selectData = { id: selectData.id };
+
                 let funcSucc = function (resp) {
                     if (resp.success) {
                         Notify.success('삭제되었습니다.');
@@ -336,7 +349,7 @@
     let page = null;
 
     $(document).ready(function () {
-        page = new MaterialPage();
+        page = new MaterialTypePage();
         page.searchMainData();
     });
 

@@ -19,6 +19,8 @@ def code(context):
     try:
         if action == 'read':
             code_grp_code = gparam.get('code_grp_code')
+            keyword = gparam.get('sch_keyword')
+            use_yn = gparam.get('sch_use_yn')
 
             sql = '''
             SELECT
@@ -37,22 +39,34 @@ def code(context):
             INNER JOIN 
                 code_group cg ON c."CodeGroupCode" = cg."Code" 
             WHERE 1=1 
+                AND c."DelYn" = 'N'
             '''
-
             if code_grp_code:
                 sql += '''
                     AND UPPER(c."CodeGroupCode") = UPPER(%(code_grp_code)s)
                 '''
+            if keyword:
+                sql += ''' 
+                AND (
+                    UPPER(c."Code") LIKE CONCAT('%%', UPPER(%(keyword)s), '%%')
+                    OR UPPER(c."Name") LIKE CONCAT('%%', UPPER(%(keyword)s), '%%')
+                    OR UPPER(c."Remark") LIKE CONCAT('%%', UPPER(%(keyword)s), '%%')
+                ) 
+                '''
+            if use_yn:
+                sql +='''
+                AND c."UseYn" = %(use_yn)s
+                '''
 
             sql += '''
-                /* AND c."UseYn" = 'Y' */
-                AND c."DelYn" = 'N'
             ORDER BY 
-                c."DispOrder" IS NULL asc, c."DispOrder", c."Name";
+                c."DispOrder" IS NULL asc, c."DispOrder", c."Code";
             '''
 
             dc = {}
             dc['code_grp_code'] = code_grp_code
+            dc['keyword'] = keyword
+            dc['use_yn'] = use_yn
 
             items = DbUtil.get_rows(sql, dc)
 
@@ -73,7 +87,7 @@ def code(context):
                 /* AND cg."UseYn" = 'Y' */
                 AND cg."DelYn" = 'N'
             ORDER BY 
-                cg."Name";
+                cg."Code", cg."Name";
             '''
             items = DbUtil.get_rows(sql)
 
