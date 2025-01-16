@@ -432,7 +432,7 @@
 
                 <!-- 버튼 영역 -->
                 <div class="modal-footer">                   
-                    <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                    <button id="btnModalSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
                     <button id="closeModal" title="닫기"><i class="material-symbols-outlined">close</i>닫기</button>
                 </div>
             </div>
@@ -1005,78 +1005,96 @@
         }
     };
 
+    class LocationPage {
+        constructor() {
+            const modal = $("#modalWindow");
+            const openModalBtn = $("#btnModalOpen");      
+            const closeModalBtn = $("#closeModal");
+
+            let _that = modal;
+            this.baseUrl = '/api/definition/location';
+
+            // 모달 열기
+            openModalBtn.on("click", function (e) {
+                e.preventDefault();
+                modal.fadeIn();
+            });
+
+            // 모달 닫기 - 닫기 버튼 클릭
+            closeModalBtn.on("click", function () {
+                modal.fadeOut();
+            });
+
+            // 모달 닫기 - ESC 키 누를 때
+            $(document).on('keydown', function (e) {
+                if (e.keyCode === 27) { // ESC key
+                    modal.fadeOut();
+                }
+            });
+
+            // 모달 외부 클릭 시 닫기
+            $(window).on("click", function (e) {
+                if ($(e.target).is('.modal')) {
+                    modal.fadeOut();
+                }
+            });
+
+            // Yes/No 버튼 토글 기능
+            $('.btn-group .btn-toggle').on('click', function () {
+                const $btnGroup = $(this).closest('.btn-group');
+                $btnGroup.find('.btn-toggle').removeClass('active');
+                $(this).addClass('active');
+            });
+
+            // 그리드 초기화
+            $("#recentLocationsGrid").kendoGrid({
+                columns: [
+                    { field: "locationCode", title: "설비위치 코드" },
+                    { field: "locationName", title: "설비위치명" },
+                    { field: "upperLocation", title: "상위 설비위치" }
+                ],
+                height: 200,
+                scrollable: true,
+                sortable: true,
+                selectable: true,
+                dataSource: {
+                    data: [
+                        { locationCode: "TEST001", locationName: "테스트위치1", upperLocation: "상위1" },
+                        { locationCode: "TEST002", locationName: "테스트위치2", upperLocation: "상위2" }
+                    ]
+                }
+            });
+
+            // 모달 외부 클릭 이벤트 방지
+            $('.modal').on('click', function (e) {
+                if ($(e.target).hasClass('modal')) {
+                    e.stopPropagation(); // 이벤트 전파 중지
+                    return false; // 기본 동작 방지
+                }
+            });
+
+            // 기존 코드 유지
+            $("#설비위치").kendoTextBox();
+
+
+            // 설비위치 정보 저장
+            $('#btnModalSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    alert(111)
+                    //_this.saveData();
+                }
+            });
+        }
+    };
+
     let page = null;
 
     $(document).ready(function () {
         page = new EquipmentPage();
+        modal = new LocationPage();
 
         page.searchMainData();
-
-        const modal = $("#modalWindow");
-        const openModalBtn = $("#btnModalOpen");
-        const closeModalBtn = $("#closeModal");
-
-        // 모달 열기
-        openModalBtn.on("click", function (e) {
-            e.preventDefault();
-            modal.fadeIn();
-        });
-
-        // 모달 닫기 - 닫기 버튼 클릭
-        closeModalBtn.on("click", function () {
-            modal.fadeOut();
-        });
-
-        // 모달 닫기 - ESC 키 누를 때
-        $(document).on('keydown', function(e) {
-            if (e.keyCode === 27) { // ESC key
-                modal.fadeOut();
-            }
-        });
-
-        // 모달 외부 클릭 시 닫기
-        $(window).on("click", function (e) {
-            if ($(e.target).is('.modal')) {
-                modal.fadeOut();
-            }
-        });
-
-        // Yes/No 버튼 토글 기능
-        $('.btn-group .btn-toggle').on('click', function() {
-            const $btnGroup = $(this).closest('.btn-group');
-            $btnGroup.find('.btn-toggle').removeClass('active');
-            $(this).addClass('active');
-        });
-
-        // 그리드 초기화
-        $("#recentLocationsGrid").kendoGrid({
-            columns: [
-                { field: "locationCode", title: "설비위치 코드" },
-                { field: "locationName", title: "설비위치명" },
-                { field: "upperLocation", title: "상위 설비위치" }
-            ],
-            height: 200,
-            scrollable: true,
-            sortable: true,
-            selectable: true,
-            dataSource: {
-                data: [
-                    { locationCode: "TEST001", locationName: "테스트위치1", upperLocation: "상위1" },
-                    { locationCode: "TEST002", locationName: "테스트위치2", upperLocation: "상위2" }
-                ]
-            }
-        });
-
-        // 모달 외부 클릭 이벤트 방지
-        $('.modal').on('click', function(e) {
-            if ($(e.target).hasClass('modal')) {
-                e.stopPropagation(); // 이벤트 전파 중지
-                return false; // 기본 동작 방지
-            }
-        });
-
-        // 기존 코드 유지
-        $("#설비위치").kendoTextBox();
         
         $("#addButton").kendoButton({
             icon: "plus",
