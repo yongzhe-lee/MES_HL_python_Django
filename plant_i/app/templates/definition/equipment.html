@@ -376,7 +376,7 @@
                             <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" />
                         </div>
                         <div class="form-group col-6">
-                            <label>위치명</label>
+                            <label>위치명<span class="required">*</span></label>
                             <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" />
                         </div>
                     </div>
@@ -390,7 +390,7 @@
                             </select>
                         </div>
                         <div class="form-group col-6">
-                            <label>상태</label>
+                            <label>상태<span class="required">*</span></label>
                             <select class="form-control">
                                 <option>작동중</option>
                                 <option>정지</option>
@@ -1067,15 +1067,23 @@
             }
         });
 
-        // 켄도 버튼 초기화
+        // 모달 외부 클릭 이벤트 방지
+        $('.modal').on('click', function(e) {
+            if ($(e.target).hasClass('modal')) {
+                e.stopPropagation(); // 이벤트 전파 중지
+                return false; // 기본 동작 방지
+            }
+        });
+
+        // 기존 코드 유지
+        $("#설비위치").kendoTextBox();
+        
         $("#addButton").kendoButton({
             icon: "plus",
             themeColor: "primary",
-            click: function(e) {  // 클릭 이벤트 핸들러 추가
+            click: function(e) {
                 e.preventDefault();
-                $('.modal').fadeIn();  // 모달 표시
-                
-                // 기존의 다른 모달 관련 로직들...
+                $('.modal').fadeIn();
                 if (page === null) {
                     page = new Page();
                 }
