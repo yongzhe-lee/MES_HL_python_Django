@@ -366,8 +366,7 @@
         </div>
         <div id="modalWindow" class="modal">
             <div class="modal-content">
-                <h4>설비위치 정보 등록</h4>
-                
+                <h4 style="font-weight: bold;">설비위치 정보 등록</h4>                
                 <div class="form-section">
                     <!-- 입력 폼 영역 -->
                     <div class="form-row">
@@ -1013,6 +1012,15 @@
 
     class LocationPage {
         constructor() {
+
+            this.grid = null;            
+            this.baseUrl = '/api/definition/location';
+
+            this.init();
+        }
+        
+        init(){
+            
             const modal = $("#modalWindow");
             const openModalBtn = $("#btnModalOpen");      
             const closeModalBtn = $("#closeModal");
@@ -1081,15 +1089,7 @@
 
             // 기존 코드 유지
             $("#설비위치").kendoTextBox();
-
-
-            
-            $('#btnModalSave').kendoButton({
-                themeColor: "info",
-                click: function () {
-
-                }
-            });
+ 
 
             // 닫기 버튼만 켄도 버튼으로 초기화
             $("#closeButton").kendoButton({
@@ -1106,12 +1106,47 @@
                 icon: "save",
                 themeColor: "primary",
                 click: function (e) {
-                    e.preventDefault();
-       
+                    e.preventDefault(); 
+
                     alert(111)
-                    //_this.saveData();
+                    // _that.saveDataLo();
                 }
             });
+        }
+
+        saveDataLo() {
+            
+            let _that = this;
+            // let data = FormUtil.extractForm($('#equipmentForm'));
+            // data.OperationRateYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
+            // data.AssetYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            // let Code = $('#Code').val();
+            // let Name = $('#Name').val();
+
+            // if (!Code) {
+            //     Alert.alert('', '설비코드를 입력해주세요.');
+            //     return;
+            // } else if (!Name) {
+            //     Alert.alert('', '설비명을 입력해주세요.');
+            //     return;
+            // }
+
+            // if ($('#PurchaseCost').val() < 0) {
+            //     Alert.alert('', '구매금액을 확인해 주세요.');
+            //     return;
+            // }
+
+            // let funcSucc = function (resp) {
+            //     if (resp.success) {
+            //         Notify.success('저장되었습니다.');
+            //         _this.searchMainData();
+            //     } else {
+            //         Alert.alert('error', resp.message);
+            //     }
+            // };
+
+            // AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
         }
     };
 
