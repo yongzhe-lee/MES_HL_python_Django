@@ -423,6 +423,42 @@ class Equipment(models.Model): #, part1_fields.ElementLevelType):
         #    ('WorkCenter'),
         #]
 
+class Location(models.Model):
+    id  = models.AutoField(primary_key=True)
+    LocCd = models.CharField('위치코드', max_length=30)    
+    LocNm = models.CharField('위치명', max_length=100)
+    UpLocPk = models.IntegerField('상위위치PK', null =True)
+    LocStatus	= models.CharField('상태', max_length=500)
+    PlantYN = models.CharField('공장여부', max_length=1, null=True)
+    BuildingYN = models.CharField('건물여부', max_length=1, null=True)
+    SpshopYN = models.CharField('보전자재창고여부', max_length=1, null=True)
+    OutOrder = models.SmallIntegerField('순서', null=True)
+    UseYN = models.CharField('사용여부', max_length=1, null=True)
+    DelYN = models.CharField('삭제여부', max_length=1, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+    
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta():
+        db_table = 'location'
+        verbose_name = '설비위치'
+        verbose_name_plural = 'location'
+        default_related_name = 'location'
+
+        unique_together = [
+            ['LocCd'],
+            ['LocNm'],
+        ]
+   
+
 
 #class EquipmentProperty(AbstractAuditModel):
 #    id          = models.AutoField(primary_key=True)
