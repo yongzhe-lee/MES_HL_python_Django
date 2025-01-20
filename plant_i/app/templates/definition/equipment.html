@@ -977,6 +977,8 @@
         constructor() {
             this.grid = null;
             this.baseUrl = '/api/definition/location';
+            this.saveLocation = this.saveLocation.bind(this);
+            this.resetForm = this.resetForm.bind(this);
             this.init();
         }
 
@@ -1064,8 +1066,7 @@
         }
 
         saveLocation() {
-            debugger;
-            // 폼 데이터 수집
+            const self = this;
             const locationData = {
                 locationCode: $("#locationCode").val(),
                 locationName: $("#locationName").val(),
@@ -1076,7 +1077,6 @@
                 spshopYn: $(".btn-toggle.active[data-group='보전재재고여부']").data("value") === "Y" ? "Y" : "N"
             };
 
-            // 필수 값 검증
             if (!locationData.locationCode) {
                 Alert.alert('', '위치코드를 입력해주세요.');
                 $("#locationCode").focus();
@@ -1089,23 +1089,12 @@
                 return;
             }
             
-            let funcSucc = function (resp) {
+            const funcSucc = function(resp) {
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
-                    
-                    // 그리드 새로고침
-                    if (this.grid) {
-                        this.grid.dataSource.read();
-                    }
-                    
-                    // 설비위치 입력란에 선택된 위치 설정
-                    $("#Location").val(locationData.locationCode);
-                    
-                    // 모달창 닫기
+                    self.resetForm();
                     $("#modalWindow").fadeOut();
-                    
-                    // 폼 초기화
-                    this.resetForm();
+                    self.refreshGrid();
                 } else {
                     Alert.alert('error', resp.message);
                 }
@@ -1115,15 +1104,36 @@
         }
 
         resetForm() {
-            // 폼 초기화
+            alert(22);
+            // 입력 필드 초기화
             $("#locationCode").val('');
             $("#locationName").val('');
             $("#parentLocationCode").val('');
-            $("#locStatus").val('');
             
-            // Y/N 버튼 초기화
+            // 상태 드롭다운 초기화 (첫 번째 항목 '사용' 선택)
+            const locStatusDropDown = $("#locStatus").data("kendoDropDownList");
+            if (locStatusDropDown) {
+                locStatusDropDown.value("Y");
+            }
+
+            // 모든 Y/N 버튼 초기화 (모두 Y로 설정)
             $(".btn-toggle").removeClass('active');
-            $(".btn-toggle[data-value='Y']").addClass('active');
+            $("[data-value='Y']").addClass('active');
+
+            // 각 버튼 그룹의 Y 버튼 활성화
+            $("[data-group='공장여부'] [data-value='Y']").addClass('active');
+            $("[data-group='건물여부'] [data-value='Y']").addClass('active');
+            $("[data-group='보전재재고여부'] [data-value='Y']").addClass('active');
+
+            // 유효성 검사 메시지 초기화
+            $(".error-message").remove();
+            $(".is-invalid").removeClass("is-invalid");
+        }
+
+        refreshGrid() {
+            if (this.grid) {
+                this.grid.dataSource.read();
+            }
         }
     }
 
