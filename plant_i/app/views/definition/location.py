@@ -31,9 +31,10 @@ def location(context):
             location_code = posparam.get('locationCode')
             location_name = posparam.get('locationName')
             upper_location = posparam.get('upperLocation')
-            plant_yn = posparam.get('plantYn')
-            building_yn = posparam.get('buildingYn')
-            spshop_yn = posparam.get('spshopYn')
+            loc_status = posparam.get('locStatus')
+            plant_yn = posparam.get('plantYn', 'N')
+            building_yn = posparam.get('buildingYn', 'N')
+            spshop_yn = posparam.get('spshopYn', 'N')
 
             # 중복 체크 (수정 시에는 자기 자신 제외)
             if id:
@@ -62,9 +63,10 @@ def location(context):
             location.loc_cd = location_code
             location.loc_nm = location_name
             location.up_loc_pk = upper_location
-            location.plant_yn = plant_yn
-            location.building_yn = building_yn
-            location.spshop_yn = spshop_yn
+            location.loc_status = loc_status
+            location.plant_yn = 'Y' if plant_yn == 'Y' else 'N'
+            location.building_yn = 'Y' if building_yn == 'Y' else 'N'
+            location.spshop_yn = 'Y' if spshop_yn == 'Y' else 'N'
 
             # 감사 정보 설정
             location.set_audit(user)

@@ -269,7 +269,10 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="Status" data-labelCd="설비상태">설비상태</label>
                                 <div class="field-wrapper">
-                                    <select id="Status" name="Status"></select>
+                                    <select id="Status" name="Status">
+                                        <option value="Y">사용</option>
+                                        <option value="N">미사용</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -387,9 +390,10 @@
                         </div>
                         <div class="form-group col-6">
                             <label>상태</label>
-                            <select class="form-control" id="status" name="status">
-                                <option>작동중</option>
-                                <option>정지</option>
+                            <select class="form-control" id="locStatus" name="locStatus">
+                                <option value="A">작동중</option>
+                                <option value="B">정지</option>
+                                <option value="C">보수</option>
                             </select>
                         </div>
                     </div>
@@ -1060,11 +1064,13 @@
         }
 
         saveLocation() {
+            debugger;
             // 폼 데이터 수집
             const locationData = {
                 locationCode: $("#locationCode").val(),
                 locationName: $("#locationName").val(),
                 upperLocation: $("#parentLocationCode").val(),
+                locStatus: $("#locStatus").val(),
                 plantYn: $(".btn-toggle.active[data-group='공장여부']").data("value") === "Y" ? "Y" : "N",
                 buildingYn: $(".btn-toggle.active[data-group='건물여부']").data("value") === "Y" ? "Y" : "N",
                 spshopYn: $(".btn-toggle.active[data-group='보전재재고여부']").data("value") === "Y" ? "Y" : "N"
@@ -1113,6 +1119,7 @@
             $("#locationCode").val('');
             $("#locationName").val('');
             $("#parentLocationCode").val('');
+            $("#locStatus").val('');
             
             // Y/N 버튼 초기화
             $(".btn-toggle").removeClass('active');
