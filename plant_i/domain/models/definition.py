@@ -358,6 +358,38 @@ class EquipmentGroup(models.Model):
             ['Name'],
         ]
 
+class Location(models.Model):
+    id = models.AutoField(primary_key=True)
+    loc_cd = models.CharField('위치코드', max_length=30, validators=[space_check],)
+    loc_nm = models.CharField('위치명', max_length=100, default='None')
+    up_loc_pk = models.CharField('상위위치', max_length=30)
+    loc_status = models.CharField('상태', max_length=10)
+
+    plant_yn = models.CharField('공장여부', max_length=1, null=True)
+    building_yn = models.CharField('건물여부', max_length=1, null=True)
+    spshop_yn = models.CharField('보전자재창고여부', max_length=1, null=True)
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+    
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta():
+        db_table = 'location'
+        verbose_name = '설비위치'
+        unique_together = [
+            ['loc_cd'],
+            ['loc_nm'],
+        ]
+
 
 class Equipment(models.Model): #, part1_fields.ElementLevelType):
     id  = models.AutoField(primary_key=True)
