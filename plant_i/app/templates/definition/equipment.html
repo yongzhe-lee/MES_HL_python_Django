@@ -630,6 +630,20 @@
     background-color: #0d6efd !important;
     color: white !important;
 }
+
+/* 설비위치 입력란 스타일 */
+#Location {
+    width: 208px !important;
+    height: 28px !important;
+}
+
+/* 추가 버튼 스타일 */
+#btnModalOpen {
+    width: 70px !important;
+    height: 28px !important;
+    padding: 4px 8px !important;
+    margin-left: 8px !important;
+}
 </style>
 
     {% verbatim %}
@@ -857,6 +871,14 @@
                 }
             });
 
+            // 설비위치 입력란 초기화 - 원래대로 복구
+            $("#Location").kendoTextBox();
+
+            // 추가 버튼 초기화 - 원래대로 복구
+            $("#btnModalOpen").kendoButton({
+                icon: "plus",
+                themeColor: "base"
+            });
         }
 
         searchMainData() {
