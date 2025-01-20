@@ -108,10 +108,10 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="Name" data-labelCd="설비위치">설비위치</label>
+                                <label class="k-label k-form-label essential" for="Location" data-labelCd="설비위치">설비위치</label>
                                 <div class="field-wrapper">
-                                    <input id="Name" name="Name" data-msg="설비명을" />
-                                    <button id="btnModalOpen">추가</button>
+                                    <input id="Location" name="Location" data-msg="설비위치를" style="width: calc(100% - 80px);" />
+                                    <button id="btnModalOpen" style="width: 70px;">추가</button>
                                 </div>
                             </div>
                         </div>
@@ -682,6 +682,17 @@
         white-space: nowrap;
     }
 
+    .field-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    #btnModalOpen.k-button {
+        min-width: 70px;
+        padding: 4px 8px;
+    }
+
 </style>
 
     {% verbatim %}
@@ -1048,6 +1059,17 @@
                 const $btnGroup = $(this).closest('.btn-group');
                 $btnGroup.find('.btn-toggle').removeClass('active');
                 $(this).addClass('active');
+            });
+
+            // 추가 버튼 Kendo 초기화
+            $("#btnModalOpen").kendoButton({
+                icon: "plus",
+                themeColor: "base",
+                size: "small",
+                click: (e) => {
+                    e.preventDefault();
+                    $("#modalWindow").fadeIn();
+                }
             });
         }
 
