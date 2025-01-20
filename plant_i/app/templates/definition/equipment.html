@@ -957,12 +957,6 @@
             this.initModal();
             this.initButtons();
             this.initGrid();
-            this.initInputs();
-        }
-
-        initInputs() {
-            // Location input을 kendoTextBox로 초기화
-            $("#Location").kendoTextBox();
         }
 
         initModal() {
@@ -981,16 +975,9 @@
                 modal.fadeOut();
             });
 
-            // 모달 닫기 - ESC 키 누를 때
+            // ESC 키 누를 때 모달 닫기
             $(document).on('keydown', (e) => {
                 if (e.keyCode === 27) { // ESC key
-                    modal.fadeOut();
-                }
-            });
-
-            // 모달 외부 클릭 시 닫기
-            $(window).on("click", (e) => {
-                if ($(e.target).is('.modal')) {
                     modal.fadeOut();
                 }
             });
