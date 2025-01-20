@@ -997,68 +997,89 @@
             }
         }
     };
+    
+    class LocationPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/location';
+            this.init();
+        }
+
+        init() {
+            this.initModal();
+            this.initButtons();
+            this.initGrid();
+        }
+
+        initModal() {
+            const modal = $("#modalWindow");
+            const openModalBtn = $("#btnModalOpen");
+            const closeModalBtn = $("#closeModal");
+
+            // 모달 열기
+            openModalBtn.on("click", (e) => {
+                e.preventDefault();
+                modal.fadeIn();
+            });
+
+            // 모달 닫기 - 닫기 버튼 클릭
+            closeModalBtn.on("click", () => {
+                modal.fadeOut();
+            });
+
+            // 모달 닫기 - ESC 키 누를 때
+            $(document).on('keydown', (e) => {
+                if (e.keyCode === 27) { // ESC key
+                    modal.fadeOut();
+                }
+            });
+
+            // 모달 외부 클릭 시 닫기
+            $(window).on("click", (e) => {
+                if ($(e.target).is('.modal')) {
+                    modal.fadeOut();
+                }
+            });
+        }
+
+        initButtons() {
+            // Yes/No 버튼 토글 기능
+            $('.btn-group .btn-toggle').on('click', function() {
+                const $btnGroup = $(this).closest('.btn-group');
+                $btnGroup.find('.btn-toggle').removeClass('active');
+                $(this).addClass('active');
+            });
+        }
+
+        initGrid() {
+            // 그리드 초기화
+            $("#recentLocationsGrid").kendoGrid({
+                columns: [
+                    { field: "locationCode", title: "설비위치 코드" },
+                    { field: "locationName", title: "설비위치명" },
+                    { field: "upperLocation", title: "상위 설비위치" }
+                ],
+                height: 200,
+                scrollable: true,
+                sortable: true,
+                selectable: true,
+                dataSource: {
+                    data: [
+                        { locationCode: "TEST001", locationName: "테스트위치1", upperLocation: "상위1" },
+                        { locationCode: "TEST002", locationName: "테스트위치2", upperLocation: "상위2" }
+                    ]
+                }
+            });
+        }
+    }       
 
     let page = null;
+    let locationPage = null;
 
     $(document).ready(function () {
         page = new EquipmentPage();
-
+        locationPage = new LocationPage();
         page.searchMainData();
-
-        const modal = $("#modalWindow");
-        const openModalBtn = $("#btnModalOpen");
-        const closeModalBtn = $("#closeModal");
-
-        // 모달 열기
-        openModalBtn.on("click", function (e) {
-            e.preventDefault();
-            modal.fadeIn();
-        });
-
-        // 모달 닫기 - 닫기 버튼 클릭
-        closeModalBtn.on("click", function () {
-            modal.fadeOut();
-        });
-
-        // 모달 닫기 - ESC 키 누를 때
-        $(document).on('keydown', function(e) {
-            if (e.keyCode === 27) { // ESC key
-                modal.fadeOut();
-            }
-        });
-
-        // 모달 외부 클릭 시 닫기
-        $(window).on("click", function (e) {
-            if ($(e.target).is('.modal')) {
-                modal.fadeOut();
-            }
-        });
-
-        // Yes/No 버튼 토글 기능
-        $('.btn-group .btn-toggle').on('click', function() {
-            const $btnGroup = $(this).closest('.btn-group');
-            $btnGroup.find('.btn-toggle').removeClass('active');
-            $(this).addClass('active');
-        });
-
-        // 그리드 초기화
-        $("#recentLocationsGrid").kendoGrid({
-            columns: [
-                { field: "locationCode", title: "설비위치 코드" },
-                { field: "locationName", title: "설비위치명" },
-                { field: "upperLocation", title: "상위 설비위치" }
-            ],
-            height: 200,
-            scrollable: true,
-            sortable: true,
-            selectable: true,
-            dataSource: {
-                data: [
-                    { locationCode: "TEST001", locationName: "테스트위치1", upperLocation: "상위1" },
-                    { locationCode: "TEST002", locationName: "테스트위치2", upperLocation: "상위2" }
-                ]
-            }
-        });
     });
 
 </script>
