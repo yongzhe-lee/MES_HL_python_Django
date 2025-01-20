@@ -110,7 +110,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="Location" data-labelCd="설비위치">설비위치</label>
                                 <div class="field-wrapper">
-                                    <input id="Location" name="Location" data-msg="설비위치를" style="width: calc(100% - 80px);" />
+                                    <input id="Location" name="Location" data-msg="설비위치를" />
                                     <button id="btnModalOpen" style="width: 70px;">추가</button>
                                 </div>
                             </div>
@@ -324,28 +324,28 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="DisposalReason" data-labelCd="폐기사유">폐기사유</label>
+                            <div class="form-item full-width">
+                                <label class="k-label k-form-label" for="DiscardReason">폐기사유</label>
                                 <div class="field-wrapper">
-                                    <textarea id="DisposalReason" name="DisposalReason"></textarea>
+                                    <textarea id="DiscardReason" name="DiscardReason"></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 설명란 -->
                         <div class="col-12">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
+                            <div class="form-item full-width">
+                                <label class="k-label k-form-label" for="Description">설명</label>
                                 <div class="field-wrapper">
                                     <textarea id="Description" name="Description"></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="AttentionRemark" data-labelCd="주의사항">주의사항</label>
+                            <div class="form-item full-width">
+                                <label class="k-label k-form-label" for="Precautions">주의사항</label>
                                 <div class="field-wrapper">
-                                    <textarea id="AttentionRemark" name="AttentionRemark"></textarea>
+                                    <textarea id="Precautions" name="Precautions"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -693,6 +693,152 @@
         padding: 4px 8px;
     }
 
+    .k-textbox {
+        width: calc(100% - 80px) !important;
+    }
+
+    /* 수정된 스타일 */
+    .k-datepicker,
+    .k-datepicker .k-picker-wrap,
+    .k-datepicker .k-dateinput,
+    .k-datepicker .k-dateinput-wrap,
+    .k-datepicker input,
+    .k-combobox,
+    .k-dropdown,
+    .k-textbox {
+        width: 208px !important;
+    }
+
+    /* 달력 팝업 스타일 */
+    .k-calendar-container {
+        padding: 8px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        background: #ffffff !important;
+    }
+
+    .k-calendar .k-calendar-header {
+        padding: 8px 12px !important;
+        background: #ffffff !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+    }
+
+    .k-calendar .k-calendar-thead {
+        background: #ffffff !important;
+    }
+
+    .k-calendar .k-calendar-thead th {
+        padding: 8px 0 !important;
+        font-weight: 600 !important;
+        color: #666 !important;
+    }
+
+    .k-calendar .k-calendar-td {
+        padding: 2px !important;
+    }
+
+    .k-calendar .k-calendar-td .k-link {
+        border-radius: 50% !important;
+        width: 32px !important;
+        height: 32px !important;
+        line-height: 32px !important;
+        padding: 0 !important;
+        color: #333 !important;
+    }
+
+    .k-calendar .k-calendar-td.k-today .k-link {
+        background-color: #f0f7ff !important;
+        color: #0d6efd !important;
+        font-weight: bold !important;
+    }
+
+    .k-calendar .k-calendar-td.k-selected .k-link {
+        background-color: #0d6efd !important;
+        color: white !important;
+        font-weight: normal !important;
+    }
+
+    .k-calendar .k-calendar-td .k-link:hover {
+        background-color: #f5f5f5 !important;
+    }
+
+    .k-calendar .k-calendar-nav {
+        padding: 4px !important;
+    }
+
+    .k-calendar-nav .k-button {
+        border-radius: 4px !important;
+        padding: 4px 8px !important;
+    }
+
+    .k-calendar-nav .k-button:hover {
+        background-color: #f5f5f5 !important;
+    }
+
+    .k-calendar .k-footer {
+        padding: 8px !important;
+        border-top: 1px solid #f0f0f0 !important;
+    }
+
+    .k-calendar .k-calendar-td.k-other-month .k-link {
+        color: #ccc !important;
+    }
+
+    .k-datepicker .k-picker-wrap {
+        border-radius: 4px !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .k-datepicker .k-picker-wrap:hover {
+        border-color: #80bdff !important;
+    }
+
+    .k-datepicker .k-picker-wrap.k-state-focused {
+        border-color: #80bdff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    }
+
+    /* 좌우 대칭 정렬을 위한 스타일 */
+    .form-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .k-label.k-form-label {
+        width: 100px !important;
+        text-align: right;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    .field-wrapper {
+        flex: 1;
+        max-width: 208px;
+    }
+
+    /* 전체 너비 입력란을 위한 새로운 스타일 */
+    .form-item.full-width {
+        width: 100%;
+    }
+
+    .form-item.full-width .field-wrapper {
+        max-width: none;
+        width: 100%;
+    }
+
+    .form-item.full-width .k-textbox,
+    .form-item.full-width .k-textarea {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* 텍스트영역 높이 조정 */
+    .k-textarea {
+        min-height: 80px !important;
+    }
+
 </style>
 
     {% verbatim %}
@@ -851,12 +997,12 @@
             $('#ASTelNumber').kendoMaskedTextBox({
                 mask: '(000) 0000-0000' // 전화번호 포맷
             }); // AS전화번호
-            $('#DisposalReason').kendoTextArea({
+            $('#DiscardReason').kendoTextArea({
                 rows: 3,
                 autosize: true,
                 maxLength: 500,
             });
-            $('#AttentionRemark').kendoTextArea({
+            $('#Precautions').kendoTextArea({
                 rows: 3,
                 autosize: true,
                 maxLength: 500,
@@ -1020,6 +1166,12 @@
             this.initModal();
             this.initButtons();
             this.initGrid();
+            this.initInputs();
+        }
+
+        initInputs() {
+            // Location input을 kendoTextBox로 초기화
+            $("#Location").kendoTextBox();
         }
 
         initModal() {
