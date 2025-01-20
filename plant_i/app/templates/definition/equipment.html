@@ -971,7 +971,8 @@
 
     class LocationPage {
         constructor() {
-            this.grid = null;            
+            this.grid = null;
+            this.baseUrl = '/api/definition/location';
             this.init();
         }
 
@@ -1028,23 +1029,28 @@
 
         initGrid() {
             // 그리드 초기화
-            $("#recentLocationsGrid").kendoGrid({
+            this.grid = $("#recentLocationsGrid").kendoGrid({
                 columns: [
-                    { field: "locationCode", title: "설비위치 코드" },
-                    { field: "locationName", title: "설비위치명" },
-                    { field: "upperLocation", title: "상위 설비위치" }
+                    { field: "loc_cd", title: "설비위치 코드", width: "30%" },
+                    { field: "loc_nm", title: "설비위치명", width: "35%" },
+                    { field: "up_loc_pk", title: "상위 설비위치", width: "35%" }
                 ],
                 height: 200,
                 scrollable: true,
                 sortable: true,
                 selectable: true,
                 dataSource: {
-                    data: [
-                        { locationCode: "TEST001", locationName: "테스트위치1", upperLocation: "상위1" },
-                        { locationCode: "TEST002", locationName: "테스트위치2", upperLocation: "상위2" }
-                    ]
+                    transport: {
+                        read: {
+                            url: this.baseUrl + "?action=read",
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        data: "data"
+                    }
                 }
-            });
+            }).data("kendoGrid");
         }
 
         initSaveButton() {
@@ -1059,21 +1065,20 @@
                 locationCode: $("#locationCode").val(),
                 locationName: $("#locationName").val(),
                 upperLocation: $("#parentLocationCode").val(),
-                locStatus: $("#status").val(),
-                useYn: $(".btn-toggle.active[data-group='공장여부']").data("value") === "Y" ? "Y" : "N",
+                plantYn: $(".btn-toggle.active[data-group='공장여부']").data("value") === "Y" ? "Y" : "N",
                 buildingYn: $(".btn-toggle.active[data-group='건물여부']").data("value") === "Y" ? "Y" : "N",
                 spshopYn: $(".btn-toggle.active[data-group='보전재재고여부']").data("value") === "Y" ? "Y" : "N"
             };
 
             // 필수 값 검증
             if (!locationData.locationCode) {
-                alert("위치코드를 입력해주세요.");
+                Alert.alert('', '위치코드를 입력해주세요.');
                 $("#locationCode").focus();
                 return;
             }
 
             if (!locationData.locationName) {
-                alert("위치명을 입력해주세요.");
+                Alert.alert('', '위치명을 입력해주세요.');
                 $("#locationName").focus();
                 return;
             }
@@ -1081,19 +1086,37 @@
             let funcSucc = function (resp) {
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
+                    
+                    // 그리드 새로고침
+                    if (this.grid) {
+                        this.grid.dataSource.read();
+                    }
+                    
+                    // 설비위치 입력란에 선택된 위치 설정
+                    $("#Location").val(locationData.locationCode);
+                    
+                    // 모달창 닫기
+                    $("#modalWindow").fadeOut();
+                    
+                    // 폼 초기화
+                    this.resetForm();
                 } else {
                     Alert.alert('error', resp.message);
                 }
             };
 
-            AjaxUtil.postAsyncData('/api/definition/location' + '?action=save', locationData, funcSucc);
-
+            AjaxUtil.postAsyncData(this.baseUrl + '?action=save', locationData, funcSucc);
         }
 
-        refreshGrid() {
-            if (this.grid) {
-                this.grid.dataSource.read();
-            }
+        resetForm() {
+            // 폼 초기화
+            $("#locationCode").val('');
+            $("#locationName").val('');
+            $("#parentLocationCode").val('');
+            
+            // Y/N 버튼 초기화
+            $(".btn-toggle").removeClass('active');
+            $(".btn-toggle[data-value='Y']").addClass('active');
         }
     }
 

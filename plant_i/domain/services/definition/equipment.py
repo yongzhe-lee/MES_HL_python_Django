@@ -319,3 +319,19 @@ class EquipmentService():
             raise ex
 
         return items
+
+    def get_location_list():
+        items = []     
+        dic_param = {}
+
+        sql = ''' 
+            select * from "location" order by "_created" desc
+        '''     
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error','EquipmentService.get_equipment_list', ex)
+            raise ex
+
+        return items

@@ -21,11 +21,7 @@ def location(context):
     location_service = EquipmentService()
 
     if action=='read':
-        equipment_line = gparam.get('line', None)
-        equipment_group = gparam.get('group', None)
-        equipment = gparam.get('equipment', None)
-
-        items = location_service.get_equipment_list(equipment_line, equipment_group, equipment)
+        items = location_service.get_location_list()
 
     elif action=='save':
         try:
