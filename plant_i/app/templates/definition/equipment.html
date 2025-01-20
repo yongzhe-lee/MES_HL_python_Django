@@ -1107,26 +1107,17 @@
             // 입력 필드 초기화
             $("#locationCode").val('');
             $("#locationName").val('');
-            $("#parentLocationCode").val('');
-            
-            // 상태 드롭다운 초기화 (첫 번째 항목 '사용' 선택)
-            const locStatusDropDown = $("#locStatus").data("kendoDropDownList");
-            if (locStatusDropDown) {
-                locStatusDropDown.value("Y");
-            }
+            $("#parentLocationCode").val('');         
+            $("#locStatus").data("kendoDropDownList").value("A");  // locStatus를 'A'로 초기화
 
-            // 모든 Y/N 버튼 초기화 (모두 Y로 설정)
+            // Y/N 버튼 초기화
             $(".btn-toggle").removeClass('active');
-            $("[data-value='Y']").addClass('active');
-
-            // 각 버튼 그룹의 Y 버튼 활성화
             $("[data-group='공장여부'] [data-value='Y']").addClass('active');
             $("[data-group='건물여부'] [data-value='Y']").addClass('active');
             $("[data-group='보전재재고여부'] [data-value='Y']").addClass('active');
 
-            // 유효성 검사 메시지 초기화
-            $(".error-message").remove();
-            $(".is-invalid").removeClass("is-invalid");
+            //$("#modalWindow").modal('hide');
+            self.refreshGrid();   
         }
 
         refreshGrid() {
