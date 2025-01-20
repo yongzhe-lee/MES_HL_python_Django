@@ -157,6 +157,8 @@ class GUIConfiguration():
         '''
         apiPermissionMap = {};
 
+        apiPermissionMap['das/config'] = ['wm_das_config']
+
 
         # files
         apiPermissionMap['files/bom_download'] = ['wm_bom']

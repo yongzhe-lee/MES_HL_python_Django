@@ -1,3 +1,19 @@
+
+---- TRUNCATE TABLE 명령으로 모든 테이블 삭제
+DO $$
+DECLARE
+    table_name text;
+BEGIN
+    FOR table_name IN
+        SELECT tablename
+        FROM pg_tables
+        WHERE schemaname = 'plant_i'
+    LOOP
+        EXECUTE format('TRUNCATE TABLE %I RESTART IDENTITY CASCADE', table_name);
+    END LOOP;
+END $$;
+
+
 -- 기초 데이터 insert 구문
 -- user_group
 insert into user_group(id, "Code", "Name", "Disabled", "_created")
@@ -114,7 +130,6 @@ insert into line ("Code", "Name", _created) values('SMT-03', 'SMT#3' , now());
 alter SEQUENCE das_server_id_seq restart WITH 1;
 insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values (1,'DAS_HPC1', 'DAS HPC#1전용', '10.226.234.30', 'WIN', 'a', now());
 insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_created") values(2, 'DAS_SMT3', 'DAS SMT#3전용', '10.226.234.31', 'WIN', 'a', now());
-alter SEQUENCE das_server_id_seq restart WITH 3;
 
 
 -- das_config
@@ -128,12 +143,11 @@ insert into factory ("Code", "Name", "Site_id", "_created") values('f1', 'HL클�
 
 
 /* 메뉴관련 */
-truncate table menu_item cascade;
 truncate table menu_folder cascade;
 
 --메뉴폴더
 alter SEQUENCE menu_folder_id_seq restart WITH 1 ;
-INSERT INTO public.menu_folder ("FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
+INSERT INTO menu_folder ("FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
 	 ('대시보드','inventory',100,NULL,'2024-11-25 15:00:19.159507+09',NULL,1,NULL,NULL),
 	 ('AAS관리','inventory',200,NULL,'2024-11-22 17:01:44.576807+09',NULL,1,NULL,NULL),
 	 ('기준정보','inventory',300,NULL,'2024-11-22 17:01:44.576807+09',NULL,1,NULL,NULL),
@@ -155,7 +169,8 @@ INSERT INTO public.menu_folder ("FolderName","IconCSS","_order","_status","_crea
 
 
 --메뉴
-INSERT INTO public.menu_item ("MenuCode","MenuName","IconCSS","Url","Popup","_order","_status","_created","_modified","_creater_id","_modifier_id","MenuFolder_id") 
+truncate table menu_item cascade;
+INSERT INTO menu_item ("MenuCode","MenuName","IconCSS","Url","Popup","_order","_status","_created","_modified","_creater_id","_modifier_id","MenuFolder_id") 
 VALUES
      -- 대시보드
      ('wm_dashboard','대시보드',NULL,'/gui/wm_dashboard','N',10,NULL,'2024-11-25 15:00:40.379979+09','2024-11-25 15:00:46.99748+09',3,3,1),
@@ -206,7 +221,7 @@ VALUES
 	 ('wm_work_order_management','작업지시 관리',NULL,'/gui/wm_work_order_management','N',20,NULL,'2025-01-08 16:30:34.511169+09',NULL,1,NULL,5),
 	 ('wm_work_request_approval','작업요청 승인',NULL,'/gui/wm_work_request_approval','N',30,NULL,'2025-01-08 16:30:34.516291+09',NULL,1,NULL,5),
 	 ('wm_work_order_approval','작업지시 승인',NULL,'/gui/wm_work_order_approval','N',40,NULL,'2025-01-08 16:30:34.520756+09',NULL,1,NULL,5),
-	 ('wm_post_work_management','사후작업 관리',NULL,'/gui/wm_post_work_management','N',50,NULL,'2025-01-08 16:30:34.525007+09',NULL,1,NULL,5)，
+	 ('wm_post_work_management','사후작업 관리',NULL,'/gui/wm_post_work_management','N',50,NULL,'2025-01-08 16:30:34.525007+09',NULL,1,NULL,5),
 	 ('wm_wo_work_history_inquiry','WO 작업이력 조회',NULL,'/gui/wm_wo_work_history_inquiry','N',61,NULL,'2025-01-08 16:56:31.259465+09',NULL,1,NULL,6),
 	 ('wm_canceled_wo_list','취소된 WO 목록',NULL,'/gui/wm_canceled_wo_list','N',62,NULL,'2025-01-08 16:56:31.304711+09',NULL,1,NULL,6),
 	 ('wm_unprocessed_wo_list','미처리 WO 목록',NULL,'/gui/wm_unprocessed_wo_list','N',63,NULL,'2025-01-08 16:56:31.308835+09',NULL,1,NULL,6),
@@ -242,7 +257,7 @@ VALUES
      --시스템코드
 	 ('wm_code','기초코드',NULL,'/gui/wm_code','N',10,NULL,'2025-01-07 08:08:22.107538+09','2025-01-07 08:11:17.186402+09',3,3,11),
 	('wm_supplier','공급업체',NULL,'/gui/wm_supplier','N',10,NULL,'2025-01-03 11:05:01.287936+09','2025-01-03 11:57:31.125632+09',3,3,13),
-
+--
      --시스템관리
 	 ('wm_user','사용자',NULL,'/gui/wm_user','N',10,NULL,'2024-11-22 17:02:59.75001+09','2024-12-23 12:19:53.226806+09',1,3,12),
 	 ('wm_user_group','사용자그룹',NULL,'/gui/wm_user_group','N',20,NULL,'2024-11-22 17:03:05.113621+09','2024-12-23 12:19:53.241914+09',1,3,12),
@@ -253,8 +268,8 @@ VALUES
 	 ('wm_menu_log','메뉴로그',NULL,'/gui/wm_menu_log','N',70,NULL,'2024-11-22 17:03:28.79165+09','2024-12-23 12:19:53.302695+09',1,3,12),
 	 ('wm_system_log','시스템로그',NULL,'/gui/wm_system_log','N',80,NULL,'2024-11-22 17:03:34.6587+09','2024-12-23 12:19:53.310692+09',1,3,12),
 
-     --리포트 및 통계
-     ----설비통계
+--     리포트 및 통계
+     --설비통계
 	 ('wm_facility_monthly_status','설비별 월간 고장현황',NULL,'/gui/wm_facility_monthly_status','N',1101,NULL,'2025-01-09 13:17:55.713606+09',NULL,1,NULL,15),
 	 ('wm_monthly_maintenance_cost','설비별 월간 정비비용',NULL,'/gui/wm_monthly_maintenance_cost','N',1102,NULL,'2025-01-09 13:17:55.720707+09',NULL,1,NULL,15),
 	 ('wm_facility_treatment_status','기간별 불용처리 설비 현황',NULL,'/gui/wm_facility_treatment_status','N',1103,NULL,'2025-01-09 13:17:55.725443+09',NULL,1,NULL,15),
@@ -267,7 +282,7 @@ VALUES
 	 ('wm_asset_valuation_statistics','자산평가 통계',NULL,'/gui/wm_asset_valuation_statistics','N',1110,NULL,'2025-01-09 13:17:55.76598+09',NULL,1,NULL,15),
 	 ('wm_asset_evaluation_report','자산평가 보고서',NULL,'/gui/wm_asset_evaluation_report','N',1111,NULL,'2025-01-09 13:17:55.770326+09',NULL,1,NULL,15),
 
-     ----작업통계
+     --작업통계
 	 ('wm_wo_dept_performance','부서별 기간별 WO 발행 실적',NULL,'/gui/wm_wo_dept_performance','N',1201,NULL,'2025-01-09 13:57:44.691621+09',NULL,1,NULL,16),
 	 ('wm_dept_work_costs','부서별 기간별 작업비용',NULL,'/gui/wm_dept_work_costs','N',1202,NULL,'2025-01-09 13:57:44.69963+09',NULL,1,NULL,16),
 	 ('wm_top_working_hours_wo','작업시간 상위 WO',NULL,'/gui/wm_top_working_hours_wo','N',1203,NULL,'2025-01-09 13:57:44.703792+09',NULL,1,NULL,16),
@@ -283,13 +298,59 @@ VALUES
 	 ('wm_facility_material_usage_history','설비별 자재사용 이력',NULL,'/gui/wm_facility_material_usage_history','N',1213,NULL,'2025-01-09 13:57:44.758989+09',NULL,1,NULL,16),
 	 ('wm_summary_of_repairs_by_year','연도별 수선 Summary',NULL,'/gui/wm_summary_of_repairs_by_year','N',1214,NULL,'2025-01-09 13:57:44.763414+09',NULL,1,NULL,16),
 
-     ----PM통계
+     --PM통계
 	 ('wm_pm_status_by_category','카테고리별 PM현황',NULL,'/gui/wm_pm_status_by_category','N',1301,NULL,'2025-01-09 14:12:44.288526+09',NULL,1,NULL,17),
 	 ('wm_pm_wo_completion_rate','부서별 PM WO 완료율',NULL,'/gui/wm_pm_wo_completion_rate','N',1302,NULL,'2025-01-09 14:12:44.297038+09',NULL,1,NULL,17),
 
-     ----점검통계
+     --점검통계
 	 ('wm_facility_inspection_master','설비종류별 점검마스터',NULL,'/gui/wm_facility_inspection_master','N',1401,NULL,'2025-01-09 14:12:44.301445+09',NULL,1,NULL,18),
 	 ('wm_inspection_issues','점검결과 이상 설비목록',NULL,'/gui/wm_inspection_issues','N',1402,NULL,'2025-01-09 14:12:44.30806+09',NULL,1,NULL,18),
 	 ('wm_inspection_stats','점검 수행 통계',NULL,'/gui/wm_inspection_stats','N',1403,NULL,'2025-01-09 14:12:44.31242+09',NULL,1,NULL,18);
 
 
+
+--유저코드(code)
+insert into code("CodeGroupCode", "Code", "Name", "Remark", "DispOrder", "UseYn", "DelYn", "_created") 
+values 
+	-- 그룹코드: COMP_TYPE (업체유형)
+	('COMP_TYPE', 'CLIENT', '고객사', '고객&공급사', 1, 'Y', 'N', NOW())
+	,('COMP_TYPE', 'SUPPLIER',	 '공급사', '공급사', 2, 'Y', 'N', NOW())
+	,('COMP_TYPE', 'EX_SUPPLIER', '외주사', '외주사', 3, 'Y', 'N', NOW())	
+
+	-- 그룹코드: COMP_KIND (업체구분)
+	,('COMP_KIND', 'CS',	'ClientSupplier', '고객&공급사', 1, 'Y', 'N', NOW())
+	,('COMP_KIND', 'C',	'Client', '고객사', 2, 'Y', 'N', NOW())
+	,('COMP_KIND', 'S',	'Supplier', '공급사', 3, 'Y', 'N', NOW())
+	,('COMP_KIND', 'ES',	'ex_supplier', '외주사', 4, 'Y', 'N', NOW())
+
+	-- 그룹코드: MTRL_TYPE (자재종류)
+	,('MTRL_TYPE','MA','공압','공압 실린더, 공압 밸브, 진공패드, 에어 유닛 등',1,'Y','N',now())
+	,('MTRL_TYPE','MH','유압','유압 실린더, 유압 밸브, 유압 필터, 유압 유닛 등',2,'Y','N',now())
+	,('MTRL_TYPE','ME','기계요소','베어링, 메탈, 패킹, 부싱, 가이드 등',3,'Y', 'N',now())
+	,('MTRL_TYPE','MT','동력 기기 / 전달','각종 감속기, 펌프 및 동력 전달에 필요한 벨트, 체인, 기어, 풀리 등',4,'Y', 'N',now())
+	,('MTRL_TYPE','MS','특수제작','기성품이 아닌 맞춤형으로 모델명이 없는 제작품(롤, 로터, 임펠러 등)',5,'Y', 'N',now())
+	,('MTRL_TYPE','EM','모터','AC 모터, DC 모터, 서보 모터, 벡터 모터, 토르크 모터, 기어드 모터 등 ',6,'Y', 'N',now())
+	,('MTRL_TYPE','EC','모터 제어 / 주변기기','인버터, DC 제어반, 벡터 제어반, 서보 제어반, 토르크 제어반 등',7,'Y', 'N',now())
+	,('MTRL_TYPE','ES','센서 부품','일반 엔코더, 레벨, 근접 센서, 포토 센서 등',8,'Y', 'N',now())
+	,('MTRL_TYPE','EI','계장 부품','RTD, TIC, 히터, 로드셀, 계량기, 인디게이터, 레벨 등',9,'Y', 'N',now())
+	,('MTRL_TYPE','EE','전기 부품','차단기, 릴레이, M/C, EOCR, 퓨즈, S/W, 경광등 등',10,'Y', 'N',now())
+	,('MTRL_TYPE','EP','PLC / HMI / 제어 부품','PLC, 터치판넬, 전력조정기, K-TRON, 타이머 등',11,'Y', 'N',now())
+	,('MTRL_TYPE','ET','정보 / 통신 / 영상 / 방송 부품','마이크, 앰프, HDMI, 소리통, 인터폰 등',12,'Y', 'N',now())
+	,('MTRL_TYPE','UU','배관 기기','각종 밸브, 게이지, 트랩 등',13,'Y', 'N',now())
+	
+	-- 그룹코드: STOR_TYPE (창고구분)
+	,('STOR_TYPE', 'PRODCUT',	'제품창고', '창고구분', 1, 'Y', 'N', NOW()) 
+	,('STOR_TYPE', 'SEMI',	'반제품창고', '창고구분', 2, 'Y', 'N', NOW())
+	,('STOR_TYPE', 'MATERIAL',	'자재창고', '창고구분', 3, 'Y', 'N', NOW())
+	,('STOR_TYPE', 'DEFECT', '부적합품창고', '창고구분', 4, 'Y', 'N', NOW())
+	,('STOR_TYPE', 'PROCESS',	'공정창고', '창고구분', 5, 'Y', 'N', NOW())
+	,('STOR_TYPE', 'SCRAP',	'스크랩창고', '창고구분', 6, 'Y', 'N', NOW())
+
+	-- 그룹코드: STOR_LOC_ADDR
+	,('STOR_LOC_ADDR', 'A010101', 'A셀1랙1단1열', '로케이션(A-Z), 랙(01-99), 단(01-99), 열(01-99)', 1, 'Y', 'N', NOW()) 
+	,('STOR_LOC_ADDR', 'A010102', 'A셀1랙1단2열', '로케이션(A-Z), 랙(01-99), 단(01-99), 열(01-99)', 2, 'Y', 'N', NOW())
+
+	-- 그룹코드: USE_YN
+	,('USE_YN', 'Y', '사용', '', 1, 'Y', 'N', NOW()) 
+	,('USE_YN', 'N', '미사용', '', 2, 'Y', 'N', NOW())
+	;
