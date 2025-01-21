@@ -1066,17 +1066,19 @@
         }
 
         saveLocation() {
-            const self = this;
             const locationData = {
                 locationCode: $("#locationCode").val(),
                 locationName: $("#locationName").val(),
                 upperLocation: $("#parentLocationCode").val(),
                 locStatus: $("#locStatus").val(),
-                plantYn: $(".btn-toggle.active[data-group='공장여부']").data("value") === "Y" ? "Y" : "N",
-                buildingYn: $(".btn-toggle.active[data-group='건물여부']").data("value") === "Y" ? "Y" : "N",
-                spshopYn: $(".btn-toggle.active[data-group='보전재재고여부']").data("value") === "Y" ? "Y" : "N"
+                plantYn: $(".btn-toggle.active[data-group='공장여부']").data("value") === "Yes" ? "Y" : "N",
+                buildingYn: $(".btn-toggle.active[data-group='건물여부']").data("value") === "Yes" ? "Y" : "N",
+                spshopYn: $(".btn-toggle.active[data-group='보전재재고여부']").data("value") === "Yes" ? "Y" : "N"
             };
 
+            console.log('전송할 데이터:', locationData); // 데이터 확인용
+
+            // 필수 값 검증
             if (!locationData.locationCode) {
                 Alert.alert('', '위치코드를 입력해주세요.');
                 $("#locationCode").focus();
@@ -1089,11 +1091,32 @@
                 return;
             }
             
+            const self = this;
             const funcSucc = function(resp) {
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
-                    self.resetForm();
-                    $("#modalWindow").fadeOut();
+                    
+                    // 입력란 초기화
+                    $("#locationCode").val('');
+                    $("#locationName").val('');
+                    $("#parentLocationCode").val('');
+                    
+                    // locStatus 초기화 - select(0)으로 변경
+                    const locStatusDropDown = $("#locStatus").data("kendoDropDownList");
+                    if (locStatusDropDown) {
+                        locStatusDropDown.select(0);
+                    }
+                    
+                    // Y/N 버튼 초기화
+                    $(".btn-toggle[data-group='공장여부']").removeClass('active');
+                    $(".btn-toggle[data-group='건물여부']").removeClass('active');
+                    $(".btn-toggle[data-group='보전재재고여부']").removeClass('active');
+                    
+                    $(".btn-toggle[data-group='공장여부'][data-value='Y']").addClass('active');
+                    $(".btn-toggle[data-group='건물여부'][data-value='Y']").addClass('active');
+                    $(".btn-toggle[data-group='보전재재고여부'][data-value='Y']").addClass('active');
+
+                    $("#modalWindow").modal('hide');
                     self.refreshGrid();
                 } else {
                     Alert.alert('error', resp.message);
@@ -1107,17 +1130,22 @@
             // 입력 필드 초기화
             $("#locationCode").val('');
             $("#locationName").val('');
-            $("#parentLocationCode").val('');         
-            $("#locStatus").data("kendoDropDownList").value("A");  // locStatus를 'A'로 초기화
-
+            $("#parentLocationCode").val('');
+            
+            // locStatus 초기화
+            const locStatusDropDown = $("#locStatus").data("kendoDropDownList");
+            if (locStatusDropDown) {
+                locStatusDropDown.select(0);
+            }
+            
             // Y/N 버튼 초기화
-            $(".btn-toggle").removeClass('active');
-            $("[data-group='공장여부'] [data-value='Y']").addClass('active');
-            $("[data-group='건물여부'] [data-value='Y']").addClass('active');
-            $("[data-group='보전재재고여부'] [data-value='Y']").addClass('active');
-
-            //$("#modalWindow").modal('hide');
-            self.refreshGrid();   
+            $(".btn-toggle[data-group='공장여부']").removeClass('active');
+            $(".btn-toggle[data-group='건물여부']").removeClass('active');
+            $(".btn-toggle[data-group='보전재재고여부']").removeClass('active');
+            
+            $(".btn-toggle[data-group='공장여부'][data-value='Y']").addClass('active');
+            $(".btn-toggle[data-group='건물여부'][data-value='Y']").addClass('active');
+            $(".btn-toggle[data-group='보전재재고여부'][data-value='Y']").addClass('active');
         }
 
         refreshGrid() {
