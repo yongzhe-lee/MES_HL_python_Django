@@ -426,7 +426,7 @@ class Equipment(models.Model): #, part1_fields.ElementLevelType):
     DisposalReason = models.CharField('폐기사유', max_length=100, null=True) 
     OperationRateYN = models.CharField('가동률표시YN', max_length=1, null=True) 
     Status = models.CharField('설비상태', max_length=10, null=True, default='normal')
-    LocPk = models.SmallIntegerField('위치PK', max_length=4, null=True)
+    loc_pk = models.SmallIntegerField('위치PK', max_length=4, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)

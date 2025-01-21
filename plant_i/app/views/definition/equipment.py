@@ -100,7 +100,7 @@ def equipment(context):
             equipment.DisposalDate = posparam.get('DisposalDate') if posparam.get('DisposalDate') else None
             equipment.DisposalReason = posparam.get('DisposalReason')
             equipment.OperationRateYN = posparam.get('OperationRateYN')
-            equipment.LocPk = posparam.get('loc_pk')
+            equipment.loc_pk = posparam.get('loc_pk')
             equipment.set_audit(user)
 
             equipment.save()
