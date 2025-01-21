@@ -320,18 +320,17 @@ class EquipmentService():
 
         return items
 
-    def get_location_list():
-        items = []     
-        dic_param = {}
+    def get_location_list(self):
+        items = []
 
         sql = ''' 
             select * from "location" order by "_created" desc
         '''     
 
         try:
-            items = DbUtil.get_rows(sql, dic_param)
+            items = DbUtil.get_rows(sql)
         except Exception as ex:
-            LogWriter.add_dblog('error','EquipmentService.get_equipment_list', ex)
+            LogWriter.add_dblog('error','EquipmentService.get_location_list', ex)
             raise ex
 
         return items

@@ -983,6 +983,7 @@
         }
 
         init() {
+            
             this.initModal();
             this.initButtons();
             this.initGrid();
@@ -1034,35 +1035,76 @@
         }
 
         initGrid() {
+
             // 그리드 초기화
             this.grid = $("#recentLocationsGrid").kendoGrid({
                 columns: [
-                    { field: "loc_cd", title: "설비위치 코드", width: "30%" },
-                    { field: "loc_nm", title: "설비위치명", width: "35%" },
-                    { field: "up_loc_pk", title: "상위 설비위치", width: "35%" }
+                    { field: 'loc_cd', title: '설비위치 코드', width: 100 },
+                    { field: 'loc_nm', title: '설비위치명', width: 150 },
+                    { field: 'up_loc_pk', title: '상위 설비위치', width: 150 },
                 ],
-                height: 200,
-                scrollable: true,
-                sortable: true,
-                selectable: true,
                 dataSource: {
                     transport: {
-                        read: {
-                            url: this.baseUrl + "?action=read",
-                            dataType: "json"
+                        read: function (options) {
+                            $.ajax({
+                                url: "/api/definition/location?action=read",
+                                type: "GET",
+                                success: function (result) {
+                                    options.success(result);
+                                }
+                            });
                         }
-                    },
-                    schema: {
-                        data: "data"
                     }
                 }
             }).data("kendoGrid");
+
+
+            //// 그리드 초기화
+            //let locationGridOption = {
+            //    toolbar: [
+            //        "columns"
+            //    ],
+            //    columnMenu: {
+            //        componentType: "classic",
+            //        autoSize: true,
+            //        clearAllFilters: true,
+            //        columns: {
+            //            sort: "asc",
+            //        }
+            //    },
+            //    columns: [               
+            //        { field: 'loc_cd', title: '설비위치 코드', width: 100 },
+            //        { field: 'loc_nm', title: '설비위치명', width: 150 }, 
+            //        { field: 'up_loc_pk', title: '상위 설비위치', width: 150 },
+            //    ],
+            //    dataBound: function (e) {
+            //        for (var i = 0; i < this.columns.length; i++) {
+            //            this.autoFitColumn(i);
+            //        };
+
+            //        // grid 데이터 개수 표시
+            //        kendoUtil.showGridRowCount(this.element);
+            //    },
+            //    height: "200px"
+            //};
+            //this.grid = new Grid($("#recentLocationsGrid"), locationGridOption);
         }
 
         initSaveButton() {
             $("#saveBtn").on("click", () => {
                 this.saveLocation();
             });
+        }
+
+        searchLocationData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+            };       
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
         }
 
         saveLocation() {
@@ -1123,7 +1165,7 @@
                 }
             };
 
-            AjaxUtil.postAsyncData(this.baseUrl + '?action=save', locationData, funcSucc);
+            AjaxUtil.postAsyncData('/api/definition/location' + '?action=save', locationData, funcSucc);
         }
 
         resetForm() {            
@@ -1162,6 +1204,7 @@
         page = new EquipmentPage();
         locationPage = new LocationPage();
         page.searchMainData();
+        locationPage.searchLocationData();
     });
 
 </script>

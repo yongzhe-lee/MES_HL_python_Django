@@ -11,7 +11,7 @@ def location(context):
     /api/definition/location
     '''
 
-    items = []
+    result = []
     gparam = context.gparam;
     posparam = context.posparam
     action = gparam.get('action', 'read')    
@@ -20,11 +20,12 @@ def location(context):
 
     location_service = EquipmentService()
 
-    if action=='read':
-        items = location_service.get_location_list()
+    try:
+        if action=='read':       
+            result = location_service.get_location_list()
 
-    elif action=='save':
-        try:
+        elif action=='save':
+        
             id = posparam.get('id')  # id 값 가져오기
             
             # 입력 데이터 가져오기
@@ -71,8 +72,12 @@ def location(context):
             # 감사 정보 설정
             location.set_audit(user)
             location.save()
+            result = {'success' : True}
 
-            return {'success': True, 'message': '저장되었습니다.', 'id': location.id}
+    except Exception as ex:
+        source = '/api/definition/location, action:{}'.format(action)
+        LogWriter.add_dblog('error', source, ex)
+        result = {'success':False}
+        
+    return result
 
-        except Exception as e:
-            return {'success': False, 'message': str(e)}
