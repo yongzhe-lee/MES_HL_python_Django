@@ -56,12 +56,6 @@ def equipment(context):
                 check_name = name.first()
 
             else:
-                #{'id': '', 'EquipmentGroup_id': '1', 'Code': 'equip-1', 'Name': '설비1', 'ManageNumber': 'ㅁㄴㄻㄴ', 'WorkCenter_id': '2', 
-                #'Model': 'ㅁㄴㅇㄹ', 'Maker': 'ㄴ', 'SerialNumber': 'ㅁㄴㄻㄴ', 'ProductionYear': '', 'PurchaseYear': '', 
-                #'InstallDate': 'ㄴ', 'SupplierName': 'ㄴㄴ', 
-                #'PurchaseCost': 'ㅁㄴㅇㄹ', 'OperationRateYN': 'Y', 'DisposalDate': 'ㅇㅁㄴㅇㄻ', 'Manager': 'ㅁ', 
-                #'Description': 'ㅁㄴㅇㄻㄴㅇㄻㄴㅇㄻㄴㅇㄻㄴㅇㄻㄴㅇㄹ', 
-                #'csrfmiddlewaretoken': 'xJwIk4wgZG9Gv3tllsxNHec3BBOAWi21dyjjtlUaFO7NJcimoJvawsoMsm01gn8t'}
                 equipment = Equipment()
 
                 check_code = Equipment.objects.filter(Code=code).first()
@@ -106,6 +100,7 @@ def equipment(context):
             equipment.DisposalDate = posparam.get('DisposalDate') if posparam.get('DisposalDate') else None
             equipment.DisposalReason = posparam.get('DisposalReason')
             equipment.OperationRateYN = posparam.get('OperationRateYN')
+            equipment.LocPk = posparam.get('loc_pk')
             equipment.set_audit(user)
 
             equipment.save()
