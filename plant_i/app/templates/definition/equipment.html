@@ -110,6 +110,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="Location" data-labelCd="설비위치">설비위치</label>
                                 <div class="field-wrapper">
+                                    <input type="hidden" id="loc_pk" />
                                     <input id="Location" name="Location" data-msg="설비위치를" />
                                     <button id="btnModalOpen" style="width: 70px;">추가</button>
                                 </div>
@@ -987,7 +988,7 @@
             this.initModal();
             this.initButtons();
             this.initGrid();
-            this.initSaveButton();
+            this.initSaveButton();        
         }
 
         initModal() {
@@ -1043,6 +1044,7 @@
                     { field: 'loc_nm', title: '설비위치명', width: 150 },
                     { field: 'up_loc_pk', title: '상위 설비위치', width: 150 },
                 ],
+                selectable: true,            
                 dataSource: {
                     transport: {
                         read: function (options) {
@@ -1058,36 +1060,28 @@
                 }
             }).data("kendoGrid");
 
+            // 더블클릭 이벤트를 별도로 바인딩
+            $("#recentLocationsGrid tbody").on("dblclick", "tr", function (e) {
+                //const selectedItem = self.grid.dataItem($(this));
 
-            //// 그리드 초기화
-            //let locationGridOption = {
-            //    toolbar: [
-            //        "columns"
-            //    ],
-            //    columnMenu: {
-            //        componentType: "classic",
-            //        autoSize: true,
-            //        clearAllFilters: true,
-            //        columns: {
-            //            sort: "asc",
-            //        }
-            //    },
-            //    columns: [               
-            //        { field: 'loc_cd', title: '설비위치 코드', width: 100 },
-            //        { field: 'loc_nm', title: '설비위치명', width: 150 }, 
-            //        { field: 'up_loc_pk', title: '상위 설비위치', width: 150 },
-            //    ],
-            //    dataBound: function (e) {
-            //        for (var i = 0; i < this.columns.length; i++) {
-            //            this.autoFitColumn(i);
-            //        };
+                const grid = $("#recentLocationsGrid").data("kendoGrid");
+                const dataItem = grid.dataItem(this);
 
-            //        // grid 데이터 개수 표시
-            //        kendoUtil.showGridRowCount(this.element);
-            //    },
-            //    height: "200px"
-            //};
-            //this.grid = new Grid($("#recentLocationsGrid"), locationGridOption);
+                if (dataItem) {
+                    const locPkElement = document.getElementById("loc_pk");
+                    const locationElement = document.getElementById("Location");
+
+                    if (locPkElement && locationElement) {
+                        locPkElement.value = dataItem.loc_cd;
+                        locationElement.value = dataItem.loc_nm;
+                        $("#modalWindow").fadeOut();  // 모달 창 닫기
+                    } else {
+                        alert("필요한 HTML 요소(loc_pk 또는 Location)가 페이지에 없습니다.");
+                    }
+                }
+
+            });
+
         }
 
         initSaveButton() {
