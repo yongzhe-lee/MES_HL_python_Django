@@ -119,6 +119,15 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Depart_id" data-labelCd="관리부서">관리부서</label>
+                                <div class="field-wrapper">
+                                    <select id="Depart_id" name="Depart_id"></select>
+                                    <button id="btnModalOpenDept" style="width: 70px;"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="MESCode" data-labelCd="MES설비코드">MES설비코드</label>
                                 <div class="field-wrapper">
                                     <input id="MESCode" name="MESCode" />
@@ -278,15 +287,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="Depart_id" data-labelCd="관리부서">관리부서</label>
-                                <div class="field-wrapper">
-                                    <select id="Depart_id" name="Depart_id"></select>
-                                    <button id="btnModalOpenDept" style="width: 70px;"></button>
-                                </div>
-                            </div>
-                        </div>
+
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="Manager" data-labelCd="관리책임자">관리책임자</label>
@@ -657,8 +658,20 @@
             padding: 8px !important;
         }
 
-        .k-grid-header {
-            background-color: #f5f5f5;
+        /* 데이터 없음 메시지 스타일 */
+        .k-grid .k-grid-norecords {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .k-grid .k-grid-norecords-template {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .k-grid .k-grid-norecords td {
+            border: none !important;
+            background: transparent !important;
         }
 
         .k-grid-content {
