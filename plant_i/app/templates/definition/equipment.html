@@ -401,25 +401,22 @@
 
                     <!-- Yes/No 버튼 그룹 -->
                     <div class="form-row yn-buttons-row">
-                        <div class="yn-button-group">
-                            <label>공장여부</label>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-toggle" data-value="Yes" id="factoryYN" name="factoryYN">Yes</button>
-                                <button type="button" class="btn btn-toggle active" data-value="No" id="factoryYN" name="factoryYN">No</button>
+                        <div class="yn-button-group">                       
+                            <label class="k-label k-form-label" for="factoryYN" >공장여부</label>
+                            <div class="field-wrapper">
+                                <input type="checkbox" id="factoryYN" />                    
                             </div>
                         </div>
-                        <div class="yn-button-group">
-                            <label>건물여부</label>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-toggle" data-value="Yes" id="buildingYN" name="buildingYN">Yes</button>
-                                <button type="button" class="btn btn-toggle active" data-value="No" id="buildingYN" name="buildingYN">No</button>
+                        <div class="yn-button-group">                        
+                            <label class="k-label k-form-label" for="buildingYN">건물여부</label>
+                            <div class="field-wrapper">
+                                <input type="checkbox" id="buildingYN" />
                             </div>
                         </div>
-                        <div class="yn-button-group">
-                            <label>보전재재고여부</label>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-toggle" data-value="Yes" id="stockYN" name="stockYN">Yes</button>
-                                <button type="button" class="btn btn-toggle active" data-value="No" id="stockYN" name="stockYN">No</button>
+                        <div class="yn-button-group">                         
+                            <label class="k-label k-form-label" for="stockYN">보전재재고여부</label>
+                            <div class="field-wrapper">
+                                <input type="checkbox" id="stockYN" />
                             </div>
                         </div>
                     </div>
@@ -1017,11 +1014,9 @@
 
         initButtons() {
             // Yes/No 버튼 토글 기능
-            $('.btn-group .btn-toggle').on('click', function () {
-                const $btnGroup = $(this).closest('.btn-group');
-                $btnGroup.find('.btn-toggle').removeClass('active');
-                $(this).addClass('active');
-            });
+            $("#factoryYN").kendoSwitch();
+            $("#buildingYN").kendoSwitch();
+            $("#stockYN").kendoSwitch();
 
             // 추가 버튼 Kendo 초기화
             $("#btnModalOpen").kendoButton({
@@ -1107,9 +1102,9 @@
                 locationName: $("#locationName").val(),
                 upperLocation: $("#parentLocationCode").val(),
                 locStatus: $("#locStatus").val(),
-                plantYn: $(".btn-toggle.active[data-group='공장여부']").data("value") === "Yes" ? "Y" : "N",
-                buildingYn: $(".btn-toggle.active[data-group='건물여부']").data("value") === "Yes" ? "Y" : "N",
-                spshopYn: $(".btn-toggle.active[data-group='보전재재고여부']").data("value") === "Yes" ? "Y" : "N"
+                plantYn: $("#factoryYN").data("kendoSwitch").value() ? "Y" : "N",
+                buildingYn: $("#buildingYN").data("kendoSwitch").value() ? "Y" : "N",
+                spshopYn: $("#stockYN").data("kendoSwitch").value() ? "Y" : "N"
             };
 
             console.log('전송할 데이터:', locationData); // 데이터 확인용
@@ -1142,15 +1137,6 @@
                     if (locStatusDropDown) {
                         locStatusDropDown.select(0);
                     }
-                    
-                    // Y/N 버튼 초기화
-                    $(".btn-toggle[data-group='공장여부']").removeClass('active');
-                    $(".btn-toggle[data-group='건물여부']").removeClass('active');
-                    $(".btn-toggle[data-group='보전재재고여부']").removeClass('active');
-                    
-                    $(".btn-toggle[data-group='공장여부'][data-value='Y']").addClass('active');
-                    $(".btn-toggle[data-group='건물여부'][data-value='Y']").addClass('active');
-                    $(".btn-toggle[data-group='보전재재고여부'][data-value='Y']").addClass('active');
 
                     $("#modalWindow").modal('hide');
                     self.refreshGrid();
@@ -1173,15 +1159,7 @@
             if (locStatusDropDown) {
                 locStatusDropDown.select(0);
             }
-            
-            // Y/N 버튼 초기화
-            $(".btn-toggle[data-group='공장여부']").removeClass('active');
-            $(".btn-toggle[data-group='건물여부']").removeClass('active');
-            $(".btn-toggle[data-group='보전재재고여부']").removeClass('active');
-            
-            $(".btn-toggle[data-group='공장여부'][data-value='Y']").addClass('active');
-            $(".btn-toggle[data-group='건물여부'][data-value='Y']").addClass('active');
-            $(".btn-toggle[data-group='보전재재고여부'][data-value='Y']").addClass('active');
+         
         }
 
         refreshGrid() {
