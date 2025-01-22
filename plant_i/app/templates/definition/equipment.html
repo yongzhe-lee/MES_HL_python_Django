@@ -280,9 +280,10 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="Depart_id" data-labelCd="관리부서">관리부서</label>
+                                <label class="k-label k-form-label essential" for="Depart_id" data-labelCd="관리부서">관리부서</label>
                                 <div class="field-wrapper">
                                     <select id="Depart_id" name="Depart_id"></select>
+                                    <button id="btnModalOpenDept" style="width: 70px;"></button>
                                 </div>
                             </div>
                         </div>
@@ -441,26 +442,28 @@
                 <h4>설비 위치변경 이력</h4>
                 <!-- 그리드 영역 -->
                 <div class="grid-section">
-                    <div id="locHistGrid">
-                        <div class="swing-table-responsive col-md-12" style="max-height: 340px;">
-                            <table id="tblequipLocHist" class="swing-table swing-table-bordered swing-table-striped pb-0 mb-0">
-                                <thead><tr style="padding-right: 17px;"><th width="4%" rowspan="2" class="text-center vt-m">NO</th> <th width="34%" colspan="2" class="text-center">변경전</th> <th width="34%" colspan="2" class="text-center">변경후</th> <th width="15%" rowspan="2" class="text-center vt-m">변경일자</th> <th width="9%" rowspan="2" class="text-center vt-m">변경자명</th></tr> <tr style="padding-right: 17px;"><th width="22%" class="text-center">상위위치</th> <th width="12%" class="text-center">위치</th> <th width="22%" class="text-center">상위위치</th> <th width="12%" class="text-center">위치</th></tr></thead>
-                                <tbody style="overflow: auto;">
-                                    <tr class="subs_no_row">
-                                        <td colspan="8">
-                                            조회된 데이터가 없습니다.
-
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div id="locHistGrid">                        
                     </div>
                 </div>
                 <!-- 버튼 영역 -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="closeModalHist">닫기</button>
-                </div>                
+                </div>
+            </div>
+        </div>
+
+        <div id="modalWindowDept" class="modal">
+            <div class="modal-content">
+                <h4>설비 부서변경 이력</h4>
+                <!-- 그리드 영역 -->
+                <div class="grid-section">
+                    <div id="locDeptGrid">                        
+                    </div>
+                </div>
+                <!-- 버튼 영역 -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeModalDept">닫기</button>
+                </div>
             </div>
         </div>
     </div>
@@ -715,6 +718,14 @@
             padding: 4px 8px !important;
             margin-left: 8px !important;
         }
+
+        #btnModalOpenDept {
+            width: 70px !important;
+            height: 28px !important;
+            padding: 4px 8px !important;
+            margin-left: 8px !important;
+        }
+
     </style>
 
     {% verbatim %}
@@ -956,6 +967,12 @@
                     themeColor: "base"
                 });
 
+                $("#btnModalOpenDept").kendoButton({
+                    icon: "search",
+                    themeColor: "base"
+                });
+                
+
             }
 
             searchMainData() {
@@ -1060,14 +1077,17 @@
                 this.initGrid();
                 this.initSaveButton();
                 this.initializeHistoryGrid();
+                this.initializeDeptGrid();
             }
 
             initModal() {
                 const modal = $("#modalWindow");
                 const modalHist = $("#modalWindowHist");
+                const modalDept = $("#modalWindowDept");
 
                 const closeModalBtn = $("#closeModal");
                 const closeModalHistBtn = $("#closeModalHist");
+                const closeModalDeptBtn = $("#closeModalDept");
 
                 //// 모달 열기
                 //openModalBtn.on("click", (e) => {
@@ -1081,6 +1101,9 @@
                 });
                 closeModalHistBtn.on("click", () => {
                     modalHist.fadeOut();
+                });
+                closeModalDeptBtn.on("click", () => {
+                    modalDept.fadeOut();
                 });
 
                 // ESC 키 누를 때 모달 닫기
@@ -1115,6 +1138,16 @@
                     click: (e) => {
                         e.preventDefault();
                         $("#modalWindowHist").fadeIn();
+                    }
+                });
+
+                $("#btnModalOpenDept").kendoButton({
+                    icon: "search",
+                    themeColor: "base",
+                    size: "small",
+                    click: (e) => {
+                        e.preventDefault();
+                        $("#modalWindowDept").fadeIn();
                     }
                 });
             }
@@ -1171,7 +1204,7 @@
             }
 
             initializeHistoryGrid() {
-                $("#tblequipLocHist").kendoGrid({
+                $("#locHistGrid").kendoGrid({
                     columns: [
                         { field: "no", title: "NO", width: "6%", attributes: { class: "text-center" } },
                         {
@@ -1190,6 +1223,42 @@
                         },
                         { field: "changeDate", title: "변경일자", width: "17%", attributes: { class: "text-center" } },
                         { field: "changer", title: "변경자명", width: "15%", attributes: { class: "text-center" } }
+                    ],
+                    height: 340,
+                    scrollable: true,
+                    sortable: true,
+                    noRecords: true,
+                    messages: {
+                        noRecords: "조회된 데이터가 없습니다."
+                    },
+                    dataSource: {
+                        data: []
+                    }
+                });
+            }
+
+            initializeDeptGrid() {
+                $("#locDeptGrid").kendoGrid({
+                    columns: [
+                        { field: "no", title: "NO", width: "5%", attributes: { class: "text-center" } },
+                        {
+                            title: "변경전",
+                            columns: [
+                                { field: "beforeDept", title: "사업부", width: "15%", attributes: { class: "text-center" } },
+                                { field: "beforeTeam", title: "팀", width: "15%", attributes: { class: "text-center" } },
+                                { field: "beforePart", title: "반", width: "15%", attributes: { class: "text-center" } }
+                            ]
+                        },
+                        {
+                            title: "변경후",
+                            columns: [
+                                { field: "afterDept", title: "사업부", width: "15%", attributes: { class: "text-center" } },
+                                { field: "afterTeam", title: "팀", width: "15%", attributes: { class: "text-center" } },
+                                { field: "afterPart", title: "반", width: "15%", attributes: { class: "text-center" } }
+                            ]
+                        },
+                        { field: "changeDate", title: "변경일자", width: "15%", attributes: { class: "text-center" } },
+                        { field: "changer", title: "변경자명", width: "10%", attributes: { class: "text-center" } }
                     ],
                     height: 340,
                     scrollable: true,
