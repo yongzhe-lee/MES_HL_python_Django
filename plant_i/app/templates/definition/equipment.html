@@ -635,13 +635,39 @@
         }
 
         #locHistGrid {
-            height: 200px;
-            border: 1px solid #ddd;
+            border: none;
         }
 
-        #recentLocationsGrid {
-            height: 200px;
-            border: 1px solid #ddd;
+        .k-grid {
+            border: 1px solid #e0e0e0;
+        }
+
+        .k-grid th {
+            background-color: #f5f5f5 !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            border-right: 1px solid #e0e0e0 !important;
+            padding: 8px !important;
+        }
+
+        .k-grid td {
+            border-right: 1px solid #e0e0e0 !important;
+            padding: 8px !important;
+        }
+
+        .k-grid-header {
+            background-color: #f5f5f5;
+        }
+
+        .k-grid-content {
+            overflow-y: auto;
+        }
+
+        .k-grid .k-grid-header th.k-header {
+            vertical-align: middle;
+        }
+
+        .k-grid .k-grid-content td {
+            vertical-align: middle;
         }
 
         /* 달력 스타일 */
@@ -1033,6 +1059,7 @@
                 this.initButtons();
                 this.initGrid();
                 this.initSaveButton();
+                this.initializeHistoryGrid();
             }
 
             initModal() {
@@ -1141,6 +1168,40 @@
 
                 });
 
+            }
+
+            initializeHistoryGrid() {
+                $("#tblequipLocHist").kendoGrid({
+                    columns: [
+                        { field: "no", title: "NO", width: "6%", attributes: { class: "text-center" } },
+                        {
+                            title: "변경전",
+                            columns: [
+                                { field: "beforeUpperLoc", title: "상위위치", width: "18%", attributes: { class: "text-center" } },
+                                { field: "beforeLoc", title: "위치", width: "13%", attributes: { class: "text-center" } }
+                            ]
+                        },
+                        {
+                            title: "변경후",
+                            columns: [
+                                { field: "afterUpperLoc", title: "상위위치", width: "18%", attributes: { class: "text-center" } },
+                                { field: "afterLoc", title: "위치", width: "13%", attributes: { class: "text-center" } }
+                            ]
+                        },
+                        { field: "changeDate", title: "변경일자", width: "17%", attributes: { class: "text-center" } },
+                        { field: "changer", title: "변경자명", width: "15%", attributes: { class: "text-center" } }
+                    ],
+                    height: 340,
+                    scrollable: true,
+                    sortable: true,
+                    noRecords: true,
+                    messages: {
+                        noRecords: "조회된 데이터가 없습니다."
+                    },
+                    dataSource: {
+                        data: []
+                    }
+                });
             }
 
             initSaveButton() {
