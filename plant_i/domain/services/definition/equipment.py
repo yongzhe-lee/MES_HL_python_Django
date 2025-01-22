@@ -85,6 +85,7 @@ class EquipmentService():
             , e."DisposalReason" AS "DisposalReason"
             , e."OperationRateYN" AS "OperationRateYN"
             , e."Status" AS "Status"
+            , e."loc_pk" AS "loc_pk"
             , to_char(e._created ,'yyyy-MM-dd HH:mm') AS _created 
         FROM 
             equ e
