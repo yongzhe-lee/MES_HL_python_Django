@@ -128,6 +128,24 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="import_rank" data-labelCd="설비중요도">설비중요도</label>
+                                <div class="field-wrapper">
+                                    <select id="import_rank" name="import_rank">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="process" data-labelCd="프로세스">프로세스</label>
+                                <div class="field-wrapper">
+                                    <select id="process" name="process">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="MESCode" data-labelCd="MES설비코드">MES설비코드</label>
                                 <div class="field-wrapper">
                                     <input id="MESCode" name="MESCode" />
@@ -281,8 +299,6 @@
                                 <label class="k-label k-form-label" for="Status" data-labelCd="설비상태">설비상태</label>
                                 <div class="field-wrapper">
                                     <select id="Status" name="Status">
-                                        <option value="Y">사용</option>
-                                        <option value="N">미사용</option>
                                     </select>
                                 </div>
                             </div>
@@ -888,6 +904,27 @@
                         { text: '정상', value: 'normal' },
                         { text: '고장', value: 'fault' },
                         { text: '유지보수', value: 'maintenance' }
+                    ],
+                    optionLabel: '선택',
+                    dataTextField: 'text',
+                    dataValueField: 'value'
+                });
+                $('#import_rank').kendoDropDownList({
+                    // 예시구문.
+                    dataSource: [
+                        { text: 'A급', value: 'A' },
+                        { text: 'B급', value: 'B' },
+                        { text: 'C급', value: 'C' },
+                        { text: 'D급', value: 'D' },
+                        { text: 'S급', value: 'S' },
+                    ],
+                    optionLabel: '선택',
+                    dataTextField: 'text',
+                    dataValueField: 'value'
+                });
+                $('#process').kendoDropDownList({
+                    // 예시구문.
+                    dataSource: [
                     ],
                     optionLabel: '선택',
                     dataTextField: 'text',
