@@ -1038,6 +1038,10 @@
                     { field: 'loc_cd', title: '설비위치 코드', width: 100 },
                     { field: 'loc_nm', title: '설비위치명', width: 150 },
                     { field: 'up_loc_pk', title: '상위 설비위치', width: 150 },
+                    { field: 'loc_status', title: '상태', width: 100 },
+                    { field: 'plant_yn', title: '공장여부', width: 100 },
+                    { field: 'building_yn', title: '건물여부', width: 100 },
+                    { field: 'spshop_yn', title: '보전재재고여부', width: 100 },
                 ],
                 selectable: true,            
                 dataSource: {
@@ -1057,8 +1061,6 @@
 
             // 더블클릭 이벤트를 별도로 바인딩
             $("#recentLocationsGrid tbody").on("dblclick", "tr", function (e) {
-                //const selectedItem = self.grid.dataItem($(this));
-
                 const grid = $("#recentLocationsGrid").data("kendoGrid");
                 const dataItem = grid.dataItem(this);
 
@@ -1127,16 +1129,28 @@
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
                     
-                    // 입력란 초기화
+                    // 입력 필드 초기화
                     $("#locationCode").val('');
                     $("#locationName").val('');
                     $("#parentLocationCode").val('');
-                    
-                    // locStatus 초기화 - select(0)으로 변경
-                    const locStatusDropDown = $("#locStatus").data("kendoDropDownList");
-                    if (locStatusDropDown) {
-                        locStatusDropDown.select(0);
-                    }
+
+                    // locStatus 초기화
+                    $("#locStatus").kendoDropDownList({
+                        dataSource: [
+                            { text: "작동중", value: "A" },
+                            { text: "정지", value: "B" },
+                            { text: "보수", value: "C" }
+                        ],
+                        dataTextField: "text",
+                        dataValueField: "value",
+                        dataBound: function () {
+                            this.select(0); // 초기화 후 select 호출
+                        }
+                    });
+
+                    $("#factoryYN").data("kendoSwitch").value(false);
+                    $("#buildingYN").data("kendoSwitch").value(false);
+                    $("#stockYN").data("kendoSwitch").value(false);
 
                     $("#modalWindow").modal('hide');
                     self.refreshGrid();
@@ -1155,11 +1169,28 @@
             $("#parentLocationCode").val('');
             
             // locStatus 초기화
-            const locStatusDropDown = $("#locStatus").data("kendoDropDownList");
-            if (locStatusDropDown) {
-                locStatusDropDown.select(0);
-            }
-         
+            $("#locStatus").kendoDropDownList({           
+                dataSource: [
+                    { text: "작동중", value: "A" },
+                    { text: "정지", value: "B" },
+                    { text: "보수", value: "C" }
+                ],
+                dataTextField: "text",
+                dataValueField: "value",
+                dataBound: function () {
+                    this.select(0); // 초기화 후 select 호출
+                }
+            });
+
+            $("#factoryYN").kendoSwitch({
+                checked: false // 기본값: 체크 해제
+            });
+            $("#buildingYN").kendoSwitch({
+                checked: false // 기본값: 체크 해제
+            });
+            $("#stockYN").kendoSwitch({
+                checked: false // 기본값: 체크 해제
+            });
         }
 
         refreshGrid() {
