@@ -45259,7 +45259,12 @@ kendo-card-footer {
 .k-grid .k-cell-inner .k-header-column-menu,
 .k-grid .k-cell-inner .k-grid-header-menu {
     position: static;
-    margin-inline-end: var(--kendo-spacing-1, 0.25rem);
+    /* 
+        25.01.23 김하늘 수정
+        grid header sorting 아이콘 뒤에 여백 생기는 issue 수정
+
+        margin-inline-end: var(--kendo-spacing-1, 0.25rem);
+    */    
 }
 
 .k-grid .k-group-col,
@@ -46079,7 +46084,12 @@ div.k-grid-norecords {
 .k-grid-md .k-grid-header .k-grid-header-menu {
     padding: var(--kendo-spacing-1, 0.25rem);
     width: calc( calc( var(--kendo-line-height, normal) * 1em ) + calc( var(--kendo-spacing-1, 0.25rem) * 2 ) + 2px);
-    height: calc( calc( var(--kendo-line-height, normal) * 1em ) + calc( var(--kendo-spacing-1, 0.25rem) * 2 ) + 2px);
+    /*
+        25.01.23 김하늘 수정
+        sorting 아이콘 height이 부족해서 여백 생기는 issue. 더해주는 픽셀을 2px -> 5px로 수정
+        height: calc( calc( var(--kendo-line-height, normal) * 1em ) + calc( var(--kendo-spacing-1, 0.25rem) * 2 ) + 2px);
+    */
+    height: calc( calc( var(--kendo-line-height, normal) * 1em ) + calc( var(--kendo-spacing-1, 0.25rem) * 2 ) + 5px);
     bottom: calc( var(--kendo-spacing-2, 0.5rem) + calc( 1.4285714286 * 1em)/2 - calc( calc( var(--kendo-line-height, normal) * 1em ) + calc( var(--kendo-spacing-1, 0.25rem) * 2 ))/2);
 }
 

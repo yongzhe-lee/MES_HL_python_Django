@@ -6,7 +6,7 @@ from domain.services.system import SystemService
 
 def config(context):
     '''
-    /api/das/config?action=das_config
+    /api/das/config?action=das_config&equ_id=1
     '''
 
     gparam = context.gparam
@@ -20,7 +20,16 @@ def config(context):
     dic_filepath["3"] = "03_hpc1.ict.json"
     dic_filepath["4"] = "04_hpc1.coatload.json"
     dic_filepath["5"] = "05_hpc1.pcbrev.json"
-    dic_filepath["16"] = "16_hpc1.pinchk.json"
+    dic_filepath["6"] = "06_hpc1.curing.json"
+    dic_filepath["7"] = "07_hpc1.frobackload.json"
+    dic_filepath["8"] = "08_hpc1.uh.load.json"
+    dic_filepath["9"] = "09_hpc1.tim.json"
+    dic_filepath["10"] = "10_hpc1.lh.load.json"
+    dic_filepath["11"] = "11_hpc1.scrwt.json"
+    dic_filepath["12"] = "12_hpc1.fclip.json"
+    dic_filepath["13"] = "13_hpc1.eol.json"
+    dic_filepath["15"] = "15_hpc1.pinchk.json"
+    dic_filepath["16"] = "16_hpc1.brackassm.json"
     dic_filepath["17"] = "17_smt3.load.json"
     dic_filepath["18"] = "18_smt3.unload.json"
 

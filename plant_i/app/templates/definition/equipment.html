@@ -111,18 +111,10 @@
                                 <label class="k-label k-form-label essential" for="Location" data-labelCd="설비위치">설비위치</label>
                                 <div class="field-wrapper">
                                     <input type="hidden" id="loc_pk" name="loc_pk" />
+                                    <input type="hidden" id="equip_loc_bef" name="equip_loc_bef" />
                                     <input id="Location" name="Location" data-msg="설비위치를" />
                                     <button id="btnModalOpen" style="width: 70px;"></button>
                                     <button id="btnModalOpenHist" style="width: 70px;"></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="Depart_id" data-labelCd="관리부서">관리부서</label>
-                                <div class="field-wrapper">
-                                    <select id="Depart_id" name="Depart_id"></select>
-                                    <button id="btnModalOpenDept" style="width: 70px;"></button>
                                 </div>
                             </div>
                         </div>
@@ -264,6 +256,15 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Depart_id" data-labelCd="관리부서">관리부서</label>
+                                <div class="field-wrapper">
+                                    <select id="Depart_id" name="Depart_id"></select>
+                                    <button id="btnModalOpenDept" style="width: 70px;"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="AssetYN" data-labelCd="자산여부">자산여부</label>
                                 <div class="field-wrapper">
                                     <input id="AssetYN" name="AssetYN" />
@@ -386,7 +387,7 @@
 
             </div>
         </div>
-    </div>    
+    </div>
 
     {% verbatim %}
     {% endverbatim %}
@@ -395,6 +396,8 @@
     {% block scripts %}
     {% include 'common/file_upload.html' %}
     {% include '../popup/modalEquLoc.html' %}
+    {% include '../popup/modalEquLocHist.html' %}
+    {% include '../popup/modalEquDeptHist.html' %}
 
     <script type="text/javascript">
         class EquipmentPage {
@@ -426,6 +429,7 @@
                         { field: 'group_name', title: '설비그룹', width: 150 },
                         { field: 'Code', title: '설비코드', width: 150 },
                         { field: 'Name', title: '설비명', width: 200 },
+                        { field: 'Location', title: '설비위치', width: 150 },
                         { field: 'MESCode', title: 'MES코드', width: 150 },
                         { field: 'SAPCode', title: 'SAP코드', width: 150 },
                         { field: 'Description', title: '설명', width: 250 },
@@ -654,6 +658,17 @@
                     themeColor: "base"
                 });
 
+                // 추가 버튼 Kendo 초기화
+                $("#btnModalOpenHist").kendoButton({
+                    icon: "search",
+                    themeColor: "base",
+                    size: "small",
+                    click: (e) => {
+                        e.preventDefault();
+                        $("#modalWindowHist").fadeIn();
+                    }
+                });
+
 
             }
 
@@ -747,7 +762,7 @@
         let page = null;
 
         $(document).ready(function () {
-            page = new EquipmentPage();     
+            page = new EquipmentPage();
             page.searchMainData();
         });
 

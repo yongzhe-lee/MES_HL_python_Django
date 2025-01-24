@@ -6,21 +6,20 @@
     <div class="content-ui-row">
         <form class="search-form" id="searchForm">
             <div class="card-content search">
-                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
-                    <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                    <div class="col-12 col-md-6 col-lg-3">
                         <div class="form-item align-h L-align-h">
-                            <label class="k-label k-form-label" for="sch_tag_group_id" data-labelCd="태그그룹">태그그룹</label>
+                            <label class="k-label k-form-label" for="sch_tag_group" data-labelCd="태그그룹">태그그룹</label>
                             <div class="field-wrapper">
-                                <select id="sch_tag_group_id" name="sch_tag_group_id"></select>
+                                <select id="sch_tag_group" name="sch_tag_group"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                    <div class="col-12 col-md-6 col-lg-3">
                         <div class="form-item align-h L-align-h">
-                            <label class="k-label k-form-label" for="sch_equip_id" data-labelCd="설비명">설비명</label>
+                            <label class="k-label k-form-label" for="sch_equipment" data-labelCd="설비명">설비명</label>
                             <div class="field-wrapper">
-                                <select id="sch_equip_id" name="sch_equip_id"></select>
+                                <select id="sch_equipment" name="sch_equipment"></select>
                             </div>
                         </div>
                     </div>
@@ -73,7 +72,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="tag_code" data-labelCd="태그코드">태그코드</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_code" name="tag_code" />
+                                    <input id="tag_code" name="tag_code"  data-msg="태그코드를"/>
                                 </div>
                             </div>
                         </div>
@@ -81,7 +80,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="tag_name" data-labelCd="태그명">태그명</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_name" name="tag_name" />
+                                    <input id="tag_name" name="tag_name" data-msg="태그명을"/>
                                 </div>
                             </div>
                         </div>
@@ -89,7 +88,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="tag_group_id" data-labelCd="태그그룹">태그그룹</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_group_id" name="tag_group_id" />
+                                    <select id="tag_group_id" name="tag_group_id" ></select>
                                 </div>
                             </div>
                         </div>
@@ -97,7 +96,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="equipment_id" data-labelCd="설비명">설비명</label>
                                 <div class="field-wrapper">
-                                    <input id="equipment_id" name="equipment_id" />
+                                    <select id="equipment_id" name="equipment_id" ></select>
                                 </div>
                             </div>
                         </div>
@@ -105,7 +104,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="DASconfig_id" data-labelCd="DAS설정">DAS설정</label>
                                 <div class="field-wrapper">
-                                    <input id="DASconfig_id" name="DASconfig_id" />
+                                    <select id="DASconfig_id" name="DASconfig_id" ></select>
                                 </div>
                             </div>
                         </div>
@@ -182,9 +181,17 @@
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
+
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        if (index < 1) {
+                            index = "-"; // 전체 행의 No
+                        }
+                        $(this).find("td:first").html(index); // index에 +1을 해주지 않는다.
+                    });
+
+                    this.autoFitColumns();
 
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element); 
@@ -195,8 +202,8 @@
 
             //search form
             //combo 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
-            AjaxUtil.fillDropDownOptions($('#sch_tag_group_id'), 'tag_group', 'all', null);
-            AjaxUtil.fillDropDownOptions($('#sch_equip_id'), 'equipment', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#sch_tag_group'), 'tag_group', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#sch_equipment'), 'equipment', 'all', null);
             $('#sch_keyword').kendoTextBox({
                 placeholder: '태그명, 태그코드'
             });
@@ -260,9 +267,9 @@
 
             let param = {
                 action: 'read',
-                tag_group_id: $('#sch_tag_group_id').val(),
-                equipment_id: $('#sch_equip_id').val(),
-                keyword: $('#sch_keyword').val(),
+                sch_tag_group: $('#sch_tag_group').val(),
+                sch_equipment: $('#sch_equipment').val(),
+                sch_keyword: $('#sch_keyword').val(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -284,15 +291,14 @@
                 console.log("selectData:\n", selectData);
 
                 $('#tag_id').val(selectData.tag_code);
-                $('#tag_group_id').data("kendoDropDownList").value(selectData.tag_group_id);
-                $('#equipment_id').data("kendoDropDownList").value(selectData.equipment_id);
-                $('#DASconfig_id').data("kendoDropDownList").value(selectData.DASconfig_id);
              }
         }
 
         saveData() {
             let _this = this;
             let data = FormUtil.extractForm($('#tagForm'));
+
+            if (checkForm($('#tagForm')) === false) return;
 
             let funcSucc = function (resp) {
                 if (resp.success) {

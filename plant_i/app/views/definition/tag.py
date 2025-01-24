@@ -15,9 +15,10 @@ def tag(context):
 
     try:
         if action == 'read':
-            tag_group_id = gparam.get('tag_group_id')
-            equipment_id = gparam.get('equipment_id')
-            keyword = gparam.get('keyword')
+            tag_group_id = gparam.get('sch_tag_group')
+            equipment_id = gparam.get('sch_equipment')
+            keyword = gparam.get('sch_keyword')
+            ai_yn = gparam.get('ai_yn')
 
             sql = ''' 
             SELECT 
@@ -58,6 +59,11 @@ def tag(context):
                     OR UPPER(t.tag_name) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                 )
                 '''
+            if ai_yn == 'Y':
+                # 임시(조건 변경 필요)
+                sql+='''
+                    and e."Code" in ('EQ_A_PRESS_2','EQ_B_ETC_5')
+                '''
             sql += '''ORDER BY t.tag_name desc'''
 
             dc = {}
@@ -69,8 +75,6 @@ def tag(context):
             
         elif action == 'save':
             id = posparam.get('tag_id') 
-            # id = tag_code이고 tag_code를 받는데 id가 따로 필요한가..? 
-            # tag_code를 수정할 때 필요(새로 생성이 아닌 수정이므로, 기존 코드로 접근하여 수정)
             tag_code = posparam.get('tag_code')
             tag_name = posparam.get('tag_name')
             tag_group_id = posparam.get('tag_group_id')

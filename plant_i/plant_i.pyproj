@@ -39,6 +39,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\forms.py" />
+    <Compile Include="app\views\ai\defect_inspection.py" />
+    <Compile Include="app\views\ai\learning_data_from_tag.py" />
+    <Compile Include="app\views\ai\predictive_conversation.py" />
+    <Compile Include="app\views\ai\learning_data.py" />
+    <Compile Include="app\views\ai\__init__.py" />
     <Compile Include="app\views\das\config.py">
       <SubType>Code</SubType>
     </Compile>
@@ -50,6 +55,10 @@
     <Compile Include="app\views\system\das_config.py" />
     <Compile Include="app\views\system\depart.py" />
     <Compile Include="app\views\system\menu_log.py" />
+    <Compile Include="domain\models\da.py" />
+    <Compile Include="domain\services\calculation\data_analysis.py" />
+    <Compile Include="domain\services\ai\data_processing.py" />
+    <Compile Include="domain\services\ai\image_data_learning.py" />
     <Compile Include="domain\services\calculation\box_plot.py" />
     <Compile Include="domain\services\calculation\histogram.py" />
     <Compile Include="domain\services\calculation\regression.py" />
@@ -211,6 +220,7 @@
     <Folder Include="app\templates\kmms\" />
     <Folder Include="app\templates\kmms\check\" />
     <Folder Include="app\templates\kmms\pm\" />
+    <Folder Include="app\templates\ai\" />
     <Folder Include="app\templates\system_code\" />
     <Folder Include="app\templates\sample_page\" />
     <Folder Include="app\templates\popup\" />
@@ -241,6 +251,7 @@
     <Folder Include="app\views\definition\" />
     <Folder Include="app\views\kmms\" />
     <Folder Include="app\views\das\" />
+    <Folder Include="app\views\ai\" />
     <Folder Include="app\views\popup\" />
     <Folder Include="app\views\system\" />
     <Folder Include="app\views\tagdata\" />
@@ -253,6 +264,7 @@
     <Folder Include="domain\services\file\" />
     <Folder Include="domain\services\das\" />
     <Folder Include="domain\services\calculation\" />
+    <Folder Include="domain\services\ai\" />
     <Folder Include="domain\services\system_definition\" />
     <Folder Include="domain\_sql\" />
     <Folder Include="domain\services\" />
@@ -263,9 +275,11 @@
     <Folder Include="domain\_sql\views\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\favicon.ico" />
     <Content Include="app\static\app\fonts\GowunBatang-Regular.ttf" />
     <Content Include="app\static\app\fonts\NanumGothic-Regular.ttf" />
     <Content Include="app\static\css\animate.css" />
+    <Content Include="app\static\css\css2.css" />
     <Content Include="app\static\css\fontawesome.css" />
     <Content Include="app\static\css\ionicons.min.css" />
     <Content Include="app\static\css\main.css" />
@@ -294,6 +308,13 @@
     <Content Include="app\static\css\webfonts\ionicons.woff" />
     <Content Include="app\static\css\webfonts\ionicons.woff2" />
     <Content Include="app\static\css\WZ.UI.css" />
+    <Content Include="app\static\font\kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsI.woff2" />
+    <Content Include="app\static\img\error_403.png" />
+    <Content Include="app\static\img\error_404.png" />
+    <Content Include="app\static\img\error_500.png" />
+    <Content Include="app\static\img\error_bottom_img.png" />
+    <Content Include="app\static\img\favicon.ico" />
+    <Content Include="app\static\img\favicon_24.ico" />
     <Content Include="app\static\img\klemove_ci.png" />
     <Content Include="app\static\img\login-backimg.jpg" />
     <Content Include="app\static\img\logo.svg" />
@@ -318,6 +339,7 @@
     <Content Include="app\static\resource\grid.js" />
     <Content Include="app\static\resource\frmCheck.js" />
     <Content Include="app\static\resource\jquery\jquery-3.7.1.min.js" />
+    <Content Include="app\static\resource\jszip.min.js" />
     <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\countries-sales.geo.json" />
     <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\country-customers.json" />
     <Content Include="app\static\resource\kendo_ui\apptemplates\dashboard\content\customers.json" />
@@ -817,6 +839,12 @@
     <Content Include="app\templates\401.html" />
     <Content Include="app\templates\403.html" />
     <Content Include="app\templates\404.html" />
+    <Content Include="app\templates\ai\learning_data_from_tag.html" />
+    <Content Include="app\templates\ai\predictive_conservation.html" />
+    <Content Include="app\templates\ai\learning_data_info.html" />
+    <Content Include="app\templates\ai\tag.html" />
+    <Content Include="app\templates\ai\tagdata_list.html" />
+    <Content Include="app\templates\ai\tag_group.html" />
     <Content Include="app\templates\app\index_spa.html" />
     <Content Include="app\templates\app\system.js" />
     <Content Include="app\templates\common\file_upload.html" />
@@ -825,9 +853,11 @@
     <Content Include="app\templates\definition\bom_참고.html" />
     <Content Include="app\templates\definition\bom.html" />
     <Content Include="app\templates\definition\defect_type.html" />
+    <Content Include="app\templates\popup\modalEquDeptHist.html" />
+    <Content Include="app\templates\popup\modalEquLocHist.html" />
     <Content Include="app\templates\popup\modalEquLoc.html" />
     <Content Include="app\templates\system_code\code.html" />
-    <Content Include="app\templates\system_code\material_location.html" />
+    <Content Include="app\templates\system_code\store_location.html" />
     <Content Include="app\templates\system_code\material_type.html" />
     <Content Include="app\templates\system_code\supplier.html" />
     <Content Include="app\templates\definition\equipment.html" />
@@ -903,7 +933,16 @@
     <Content Include="domain\_sql\das_config\03_hpc1.ict.json" />
     <Content Include="domain\_sql\das_config\04_hpc1.coatload.json" />
     <Content Include="domain\_sql\das_config\05_hpc1.pcbrev.json" />
-    <Content Include="domain\_sql\das_config\16_hpc1.pinchk.json" />
+    <Content Include="domain\_sql\das_config\06_hpc1.curing.json" />
+    <Content Include="domain\_sql\das_config\07_hpc1.frobackload.json" />
+    <Content Include="domain\_sql\das_config\09_hpc1.tim.json" />
+    <Content Include="domain\_sql\das_config\08_hpc1.uh.load.json" />
+    <Content Include="domain\_sql\das_config\10_hpc1.lh.load.json" />
+    <Content Include="domain\_sql\das_config\11_hpc1.scrwt.json" />
+    <Content Include="domain\_sql\das_config\12_hpc1.fclip.json" />
+    <Content Include="domain\_sql\das_config\13_hpc1.eol.json" />
+    <Content Include="domain\_sql\das_config\15_hpc1.pinchk.json" />
+    <Content Include="domain\_sql\das_config\16_hpc1.brackassm.json" />
     <Content Include="domain\_sql\das_config\17_smt3.load.json" />
     <Content Include="domain\_sql\das_config\18_smt3.unload.json" />
     <Content Include="domain\_sql\function\fn_code_name.txt" />

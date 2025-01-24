@@ -2,7 +2,8 @@ import json
 
 from django.db import transaction
 from domain.models.definition import Equipment
-# from domain.models.haccp2 import EquipHistory
+from domain.models.definition import EquipLocHist
+from domain.models.definition import EquipDeptHist
 from domain.services.definition.equipment import EquipmentService
 # from domain.services.file import FileService
 from domain.services.logging import LogWriter
@@ -40,6 +41,8 @@ def equipment(context):
         code = posparam.get('Code')
         name = posparam.get('Name')
         equipment = None
+        locHist = None #설비 위치 변경이력
+        deptHist = None #설비 관리부서 변경이력
         eh_content = ''
         today = DateUtil.get_today()
 
@@ -54,6 +57,26 @@ def equipment(context):
                 name = Equipment.objects.filter(Name=name)
                 name = name.exclude(pk=id)
                 check_name = name.first()
+
+                # 기존 설비위치가 변경 되었을 때
+                locHist = EquipLocHist()
+                locHist.equip_pk = posparam.get('id')
+                locHist.equip_loc_bef = posparam.get('equip_loc_bef')
+                locHist.equip_loc_aft = posparam.get('loc_pk')    
+                locHist.set_audit(user)
+
+                locHist.save()
+
+                items = {'success': True, 'equip_loc_hist_pk': locHist.equip_loc_hist_pk}
+
+                # 기존 관리부서가 변경 되었을 때
+                deptHist = EquipDeptHist()
+                deptHist.equip_pk = posparam.get('id')
+                # deptHist.equip_dept_bef = posparam.get('equip_loc_bef')
+                # deptHist.equip_dept_aft = posparam.get('Location')
+                deptHist.set_audit(user)
+
+                deptHist.save()
 
             else:
                 equipment = Equipment()

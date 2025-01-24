@@ -13,7 +13,7 @@
     <!-- Animation CSS  -->
     <link rel="stylesheet" href="/static/css/animate.css">
     <!-- Icon CSS -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/static/css/css2.css?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="/static/css/material-icons.css">
     <!-- Package Styel CSS -->
     <link rel="stylesheet" href="/static/css/WZ.UI.css?v=240906">
@@ -33,7 +33,7 @@
     <div class="ux-aside menu-mode">
         <div class="header-fixed">
             <div class="ux-top">
-                
+
                 <a href="/"><img src="../../static/img/klemove_ci.png" class="d-logo" style="width:100%" title="임시로고" /><span id="sim">심볼</span></a>
                 <!--
                 <a href="/"><img src="../../static/img/logo.svg" class="d-logo" style="width:98px" title="임시로고" /><span id="sim">심볼</span></a>
@@ -84,12 +84,12 @@
                         <li>
                             {{userinfo.username}}
                             <ul>
-                                <li><a href="#" id="infoSetting">개인정보 수정</a></li>
-                                <li><a href="#" id="langSetting">다국어 설정</a></li>
+                                <li><a href="#" id="infoSetting"><i class="material-symbols-outlined">edit_square</i>개인정보 수정</a></li>
+                                <li><a href="#" id="langSetting"><i class="material-symbols-outlined">language</i>다국어 설정</a></li>
                                 <li>
                                     <form method="post" action="{% url 'logout' %}" id="logout">
                                         {% csrf_token %}
-                                        <a href="#" onclick="document.getElementById('logout').submit()">로그아웃</a>
+                                        <a href="#" onclick="document.getElementById('logout').submit()"><i class="material-symbols-outlined">output</i>로그아웃</a>
                                     </form>
                                 </li>
                             </ul>
@@ -372,7 +372,7 @@
             selectTab('tab_home');
         }
 
-        function closeTabs(curTab='') {
+        function closeTabs(curTab = '') {
             var tabIds = Object.keys(tabs);
             for (var i = 0; i < tabIds.length; i++) {
                 if (tabIds[i] !== curTab) {
@@ -425,11 +425,11 @@
                 select: function (e) {
                     var act = $(e.item).attr("act");
 
-                    if (act == 'popup'){
-                        
-                    } else if(act == 'cur_close'){
+                    if (act == 'popup') {
+
+                    } else if (act == 'cur_close') {
                         removeTab(e.target.id);
-                    } else if (act == 'all_close'){
+                    } else if (act == 'all_close') {
                         $.each(tabs, function (key, value) {
                             if (key !== 'tab_home') {
                                 tabs[key].iframe.remove();  // 해당 iframe 삭제
@@ -448,7 +448,7 @@
                             selectTab(e.target.id);  // 다른 탭 선택
                         });
                     } else {
-                    
+
                     }
                 }
             });

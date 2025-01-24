@@ -15,8 +15,8 @@ def tag_group(context):
 
     try:
         if action == 'read':
-            tag_group_id = gparam.get('tag_group_id')
-            tag_group_name = gparam.get('tag_group_name')
+            tag_group_id = gparam.get('sch_tag_group')
+            keyword = gparam.get('sch_keyword')
   
             sql = '''
             SELECT 
@@ -29,19 +29,22 @@ def tag_group(context):
             '''
             if tag_group_id:
                 sql += '''
-                /* AND UPPER(tg."Code") LIKE CONCAT('%%',UPPER(%(tag_group_code)s),'%%') */
                 AND tg.tag_group_id = %(tag_group_id)s
                 '''
-            if tag_group_name:
+            if keyword:
                 sql += '''
-                AND UPPER(tg."Name") LIKE CONCAT('%%',UPPER(%(tag_group_name)s),'%%')
+                AND (
+                    UPPER(tg."Name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+                    OR UPPER(tg."Code") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+                    OR UPPER(tg."Description") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+                    )
                 '''
 
             sql += '''ORDER BY tg."Code" desc'''
 
             dc = {}
             dc['tag_group_id'] = tag_group_id
-            dc['tag_group_name'] = tag_group_name
+            dc['keyword'] = keyword
         
             result = DbUtil.get_rows(sql, dc)   
             

@@ -1,30 +1,25 @@
 {% extends "app/layout.html" %}
-
 {% block css %}
-<style>
-</style>
 {% endblock %}
-
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
         <form class="search-form" id="searchForm">
             <div class="card-content search">
-                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                    <div class="col-12 col-md-4 col-xl-3">
                         <div class="form-item align-h L-align-h">
-                            <label class="k-label k-form-label" for="srch_tag_group_id" data-labelCd="태그그룹 코드">태그그룹 코드</label>
+                            <label class="k-label k-form-label" for="srch_tag_group" data-labelCd="태그그룹 코드">태그그룹 코드</label>
                             <div class="field-wrapper">
-                                <select id="srch_tag_group_id" name="srch_tag_group_id"></select>
+                                <select id="srch_tag_group" name="srch_tag_group"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                    <div class="col-12 col-md-4 col-xl-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_tag_group_name" data-labelCd="태그그룹명">태그그룹명</label>
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="srch_tag_group_name" name="srch_tag_group_name" />
+                                <input id="sch_keyword" name="sch_keyword" />
                             </div>
                         </div>
                     </div>
@@ -42,8 +37,6 @@
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
                         <label data-labelCd="태그그룹">태그그룹</label>
-                    </span>
-                    <span>
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
@@ -71,7 +64,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="tag_group_code" data-labelCd="태그그룹코드">태그그룹코드</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_group_code" name="tag_group_code" />
+                                    <input id="tag_group_code" name="tag_group_code" data-msg="태그그룹코드를"/>
                                 </div>
                             </div>
                         </div>
@@ -79,7 +72,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="tag_group_name" data-labelCd="태그그룹명">태그그룹명</label>
                                 <div class="field-wrapper">
-                                    <input id="tag_group_name" name="tag_group_name" />
+                                    <input id="tag_group_name" name="tag_group_name" data-msg="태그그룹명을"/>
                                 </div>
                             </div>
                         </div>
@@ -127,7 +120,7 @@
                     }
                 },
                 columns: [
-                    { field: "tag_group_id", title: "tag_group_id", hidden: true },
+                    { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
                     { field: "tag_group_code", title: "태그그룹코드", width: 100 },
                     { field: "tag_group_name", title: "태그그룹명", width: 100 },
                     { field: "description", title: "비고", width: 100 },
@@ -136,9 +129,17 @@
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
+
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        if (index < 1) {
+                            index = "-"; // 전체 행의 No
+                        }
+                        $(this).find("td:first").html(index); // index에 +1을 해주지 않는다.
+                    });
+
+                    this.autoFitColumns();
 
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element); 
@@ -149,9 +150,9 @@
 
             //search form
             //combo 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
-            AjaxUtil.fillDropDownOptions($('#srch_tag_group_id'), 'tag_group', 'all', null);
-            $('#srch_tag_group_name').kendoTextBox();
-            $('#srch_tag_group_name').keypress(function(e) {
+            AjaxUtil.fillDropDownOptions($('#srch_tag_group'), 'tag_group', 'all', null);
+            $('#sch_keyword').kendoTextBox();
+            $('#sch_keyword').keypress(function(e) {
                 // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
                 if (e.keyCode === 13) {     
                     e.preventDefault(); 
@@ -211,8 +212,8 @@
 
             let param = {
                 action: 'read',
-                tag_group_id: $('#srch_tag_group_id').val(),
-                tag_group_name: $('#srch_tag_group_name').val(),
+                srch_tag_group: $('#srch_tag_group').val(),
+                sch_keyword: $('#sch_keyword').val(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -237,6 +238,8 @@
         saveData() {
             let _this = this;
             let data = FormUtil.extractForm($('#tagGroupForm'));
+
+            if (checkForm($('#tagGroupForm')) === false) return;
 
             let funcSucc = function (resp) {
                 if (resp.success) {

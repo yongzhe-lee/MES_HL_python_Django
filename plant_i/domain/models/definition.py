@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from pyexpat import model
 from tabnanny import verbose
 from django.db import models
 from domain.services.date import DateUtil
@@ -426,7 +428,7 @@ class Equipment(models.Model): #, part1_fields.ElementLevelType):
     DisposalReason = models.CharField('폐기사유', max_length=100, null=True) 
     OperationRateYN = models.CharField('가동률표시YN', max_length=1, null=True) 
     Status = models.CharField('설비상태', max_length=10, null=True, default='normal')
-    loc_pk = models.SmallIntegerField('위치PK', max_length=4, null=True)
+    loc_pk = models.SmallIntegerField('위치PK', null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -454,6 +456,57 @@ class Equipment(models.Model): #, part1_fields.ElementLevelType):
         #index_together = [
         #    ('WorkCenter'),
         #]
+
+class EquipLocHist(models.Model):
+    equip_loc_hist_pk = models.AutoField(primary_key=True)  # Primary Key
+    equip_pk = models.IntegerField('설비PK')  # Foreign Key reference
+    equip_loc_bef = models.IntegerField('변경전 설비위치')  # Previous location
+    equip_loc_aft = models.IntegerField('변경후 설비위치')  # New location
+
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _creator_name = models.CharField('_creator_name', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id        
+        self._created = DateUtil.get_current_datetime()
+        self._creator_name = user.username  # username 저장
+        return
+
+    class Meta:
+        db_table = 'equip_loc_hist'  # Table name        
+        verbose_name = '설비위치이력'
+
+        unique_together = [
+            ['equip_loc_hist_pk'],
+        ]
+
+class EquipDeptHist(models.Model):
+    equip_dept_hist_pk = models.AutoField(primary_key=True)  # Primary Key
+    equip_pk = models.IntegerField('설비PK')  # Foreign Key reference (to be connected manually if needed)
+    equip_dept_bef = models.IntegerField('변경전 관리부서')  # Previous department
+    equip_dept_aft = models.IntegerField('변경후 관리부서')  # New department
+
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _creator_name = models.CharField('_creator_name', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id        
+        self._created = DateUtil.get_current_datetime()
+        self._creator_name = user.username  # username 저장
+        return
+
+    class Meta:
+        db_table = 'equip_dept_hist'  # Table name
+        verbose_name = '설비부서이력'  # Readable name in admin
+        verbose_name_plural = '설비부서이력들'  # Plural name in admin
+
+        unique_together = [
+            ['equip_dept_hist_pk'],  # Ensuring uniqueness for primary key (redundant with primary_key=True)
+        ]
 
 
 #class EquipmentProperty(AbstractAuditModel):

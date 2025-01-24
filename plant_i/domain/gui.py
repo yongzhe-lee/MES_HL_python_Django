@@ -79,12 +79,12 @@ class GUIConfiguration():
 
         
         # 25.01.02 김하늘 추가
-        # 시스템 코드 -> 코드관리(대메뉴)
+        # 시스템코드(대메뉴) -> 코드관리(명칭 변경)
         gui_dc['wm_code'] = cls.gui_item('기초코드', 'system_code/code.html') #부적합정보
         # 코드관리 - 자재관련 코드(중메뉴)
         gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'system_code/supplier.html')# 공급업체
         gui_dc['wm_material_type'] = cls.gui_item('품목유형', 'system_code/material_type.html')# 품목유형(코드)
-        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'system_code/material_type.html')# 보관위치 주소(코드)
+        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'system_code/store_location.html')# 보관위치 주소(코드)
 
 
         # 시스템관리
@@ -115,6 +115,13 @@ class GUIConfiguration():
         gui_dc['wm_tag_trend'] = cls.gui_item('데이터트렌드', 'tagdata/tag_trend.html')
         gui_dc['wm_regression_a'] = cls.gui_item('산점도-회귀분석', 'tagdata/regression_a.html')
 
+        # AI    25.01.20 김하늘 추가
+        gui_dc['wm_ai_tag_group'] = cls.gui_item('AI시스템 운영관리', 'ai/tag_group.html')
+        gui_dc['wm_ai_tag'] = cls.gui_item('AI시스템 참조데이터 관리', 'ai/tag.html')
+        gui_dc['wm_ai_tagdata_list'] = cls.gui_item('AI시스템 IF 확인', 'ai/tagdata_list.html')
+        gui_dc['wm_predictive_conservation'] = cls.gui_item('예지보전 알람', 'ai/predictive_conservation.html')
+        gui_dc['wm_learning_data_info'] = cls.gui_item('학습데이터 정보', 'ai/learning_data_info.html')
+        gui_dc['wm_learning_data_from_tag'] = cls.gui_item('학습데이터 정보(태그)', 'ai/learning_data_from_tag.html')
 
         return gui_dc
  

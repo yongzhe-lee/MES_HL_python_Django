@@ -30,6 +30,7 @@ class ComboService(object):
             'company': cls.company,
             'das_config' : cls.das_config,
             'das_server' : cls.das_server,
+            'device_type' : cls.device_type,
             'depart': cls.depart,
             'equipment' : cls.equipment,
             'equipment_group' : cls.equipment_group,
@@ -77,6 +78,16 @@ class ComboService(object):
     def company(cls, cond1, cond2, cond3):
         q = Company.objects.values('id','Name').filter(DelYn = 'N', UseYn = 'Y')
         items = [{'value': item['id'], 'text': item['Name']} for item in q]
+        return items
+
+    @classmethod
+    def device_type(cls, cond1, cond2, cond3):
+        items =[
+            { 'value':'modbus_tcp', 'text':'modbus-tcp' },
+            { "value" : "melsec_tcp", "text" : "미쯔비시 melsec-tcp" },
+            { "value" : "mewtocol_tcp", "text" : "파라소닉 mewtocol" },
+            { 'value':'excel-custom', 'text':'excel-custom' },
+        ]
         return items
     
 

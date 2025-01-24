@@ -1,18 +1,31 @@
- create view v_menu_folder as (
-	 with recursive tree(_level, folder_id, folder_name, icon, folder_order, p_folder_id, path)
-	 as (
-	 select 1 as _level, id as folder_id, "FolderName" as folder_name, "IconCSS" as icon , "_order" as folder_order
-	 , "Parent_id" as p_folder_id
-	 , array[a._order] as path
-	 from menu_folder a 
-	 where "Parent_id" is null 
-	 union all 
-	 select p._level + 1, f.id as folder_id, f."FolderName" as folder_name, f."IconCSS" , f."_order" , p.folder_id 
-	 , array_append(p.path, f._order)
-	 from tree p
-	 inner join menu_folder f on f."Parent_id"  = p.folder_id 
-	 )
-	 select *
-	 from tree
-	 order by path
- )
+CREATE OR REPLACE VIEW v_menu_folder
+AS WITH RECURSIVE tree(_level, folder_id, folder_name, icon, folder_order, p_folder_id, path) AS (
+         SELECT 1 AS _level,
+            a.id AS folder_id,
+            a."FolderName" AS folder_name,
+            a."IconCSS" AS icon,
+            a._order AS folder_order,
+            a."Parent_id" AS p_folder_id,
+            ARRAY[a._order] AS path
+           FROM menu_folder a
+          WHERE a."Parent_id" IS NULL
+        UNION ALL
+         SELECT p._level + 1,
+            f.id AS folder_id,
+            f."FolderName" AS folder_name,
+            f."IconCSS",
+            f._order,
+            p.folder_id,
+            array_append(p.path, f._order) AS array_append
+           FROM tree p
+             JOIN menu_folder f ON f."Parent_id" = p.folder_id
+        )
+ SELECT tree._level,
+    tree.folder_id,
+    tree.folder_name,
+    tree.icon,
+    tree.folder_order,
+    tree.p_folder_id,
+    tree.path
+   FROM tree
+  ORDER BY tree.path;

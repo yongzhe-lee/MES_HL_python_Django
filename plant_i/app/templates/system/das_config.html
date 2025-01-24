@@ -3,157 +3,170 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="content_wrap">
-    <section class="section">
-        <div class="title_box ">
-            <div class="left_align">
-                <h3 data-labelCd="데이터 수집 설정">데이터 수집 설정</h3>
+    <div class="content-ui-row">
+        <div class="card-content search">
+
+            <div class="form-ui">
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="srch_log_type" data-labelCd="서버">서버</label>
+                        <div class="field-wrapper">
+                            <select id="cboDASServer" name="cboDASServer"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="srch_log_type" data-labelCd="설비">섧비</label>
+                        <div class="field-wrapper">
+                            <select id="cboEquipment" name="cboEquipment"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-auto">
+                    <div class="card-group-btn search">
+                        <button id="btnSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+
             </div>
-            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
-            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
         </div>
-        <div class="table_box search">
-            <form id="searchForm" autocomplete="off">
-                <div class="row">
-                    <div class="col-6 col-lg-3 col-xl-2" >
-                        <div class="input-group" >
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_sm" data-labelCd="서버">서버</span>
-                            </div>
-                            <select class="form-control2" id="cboDASServer" name="cboDASServer" ></select>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3 col-xl-2" >
-                        <div class="input-group" >
-                            <div class="input-group-prepend">
-                                <span class="input-group-text fit_box_sm" data-labelCd="설비">설비</span>
-                            </div>
-                            <select class="form-control2" id="cboEquipment" name="cboEquipment" ></select>
-                        </div>
-                    </div>
-                    <div class="col-1" >
-                        <button type="button" class="btn-default" id="btnSearch" title="조회"><i class="fas fa-search"></i></button>
-                    </div> 
-                </div>
-            </form>
-        </div>
-    </section>
+    </div>
 
-    <div class="row">
-        <div class="col-12 col-xl-8 col-lg-8 col-md-12 ">
-            <section >
-                <div class="grid_box" >
-                    <div class="title_box">
-                        <span class="right_align rpt" data-labelCd="데이터 수집 설정">데이터 수집 설정</span>
-                        <button type="button" class="btn-default" id="btnExcel" title="엑셀 다운로드"><i class="fas fa-file-excel"></i></button>
-                        <button type="button" class="btn-default" id="btnGridSetting" style="visibility:hidden"><i class="fas fa-cog"></i> Setting</button>
-                    </div>
-                    <div class="h-620" data-ax5grid="dasconfig-grid" ></div>
-                </div>
-            </section>
-        </div>
+    <div class="content-ui-row connect">
+        <div class="card-content grid">
 
-        <div class="col-12 col-xl-4 col-lg-4 col-md-12">
-            <section >
-                <div class="title_box mb-2">
-                    <span class="right_align rpt"data-labelCd="설정 상세 정보">설정 상세 정보</span>
-                    <button type="button" class="btn-default" id="btnNew" name="btnNew"><i class="fas fa-plus"></i></button>
-                    <button type="button" class="btn-danger y_write_auth" id="btnDelete" style="float:none"><i class="fas fa-trash"></i></button>
-                    <button type="button" class="btn-default y_write_auth" id="btnSave" style="float:none"><i class="fas fa-save"></i></button>
-                </div>
-                <form id="configForm">
+            <div class="card-group-btn">
+                <span class="info-text">
+                <i class="material-symbols-outlined">list_alt</i>
+                <label data-labelCd="시스템 로그 내역">시스템 로그 내역</label>
+                </span>
+                <span>
+                    <button id="btnExcel">Excel</button>
+                </span>
+            </div>
+
+            <div id="config_grid"></div>
+        </div>
+    </div>
+
+
+    <div class="content-ui-row connect">
+        <div class="card-content edit">
+            <div class="card-group-btn">
+                <span class="info-text"><i class="material-symbols-outlined">list_alt</i> <label data-labelCd="설정 상세 정보">설정 상세 정보</label></span>
+                <span>
+                    <button id="btnNew"><i class="material-symbols-outlined">refresh</i>신규</button>
+                    <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                    <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                </span>
+            </div>
+           
+
+            <form id="configForm">
+                <div class="edit-form-ui">
                     <input type="hidden" id="id" name="id" />
-                    <div class="table_box sub">
-                        <div class="row">
-                            <div class="col-6" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="서버">서버</span>
-                                    </div>
-                                    <select class="form-control2" id="Server_id" name="Server_id" ></select>
-                                </div>
+
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="Server_id" data-labelCd="서버">서버</label>
+                            <div class="field-wrapper">
+                                <select id="Server_id" name="Server_id"></select>
                             </div>
 
-                            <div class="col-6" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="설비">설비</span>
-                                    </div>
-                                    <select class="form-control2" id="Equipment_id" name="Equipment_id" ></select>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
 
-                            <div class="col-6" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="설정명">설정명</span>
-                                    </div>
-                                    <input class="form-control2" id="Name" name="Name" />
-                                </div>
-                            </div>
-
-                            <div class="col-6" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="설정파일명">설정파일명</span>
-                                    </div>
-                                    <input class="form-control2" id="ConfigFileName" name="ConfigFileName" />
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="처리모듈명">처리모듈명</span>
-                                    </div>
-                                    <input class="form-control2" id="Handler" name="Handler" />
-                                </div>
-                            </div>
-
-                            <div class="col-6" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="장치구분">장치구분</span>
-                                    </div>
-                                    <select class="form-control2" id="DeviceType" name="DeviceType" ></select>
-                                </div>
-                            </div>
-
-                            <div class="col-6" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_md" data-labelCd="TOPIC명">TOPIC명</span>
-                                    </div>
-                                    <input class="form-control2" id="Topic" name="Topic" />
-                                </div>
-                            </div>
-                            <div class="col-6" >
-                                    <input type="checkbox" id="is_active" name="is_active" value="Y" />
-                               수집 활성화
-                            </div>
-
-                            <div class="col-12" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_area" data-labelCd="설명">설명</span>
-                                    </div>
-                                    <textarea  class="form-control2 " id="Description" name="Description" ></textarea>
-
-                                </div>
-                            </div>
-                            <div class="col-12" >
-                                <div class="input-group" >
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text fit_box_config" data-labelCd="설정(JSON)">설정(JSON)</span>
-                                        
-                                    </div>
-                                    <textarea class="form-control2" id="Configuration" name="Configuration" style="height:390px;" ></textarea>
-                                </div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="Equipment_id" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select id="Equipment_id" name="Equipment_id"></select>
                             </div>
                         </div>
                     </div>
-                </form>
-            </section>
+
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="Name" data-labelCd="설정명">설정명</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="Name" name="Name" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="ConfigFileName" data-labelCd="설정파일명">설정파일명</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="ConfigFileName" name="ConfigFileName" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Handler" data-labelCd="처리모듈명">처리모듈명</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="Handler" name="Handler" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="DeviceType" data-labelCd="장치구분">장치구분</label>
+                            <div class="field-wrapper">
+                                <select id="DeviceType" name="DeviceType"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Topic" data-labelCd="TOPIC">TOPIC</label>
+                            <div class="field-wrapper">
+                                <input id="Topic" name="Topic" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label " for="is_active" data-labelCd="수집활성화">수집활성화</label>
+                            <div class="field-wrapper">
+                                <input type="checkbox" id="is_active" name="is_active" value="Y" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-12">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
+                        <div class="field-wrapper">
+                            <textarea id="Description" name="Description"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="Configuration" data-labelCd="설정(JSON)">설정(JSON)</label>
+                        <div class="field-wrapper">
+                            <textarea id="Configuration" name="Configuration"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
         </div>
     </div>
 </div>
@@ -173,72 +186,71 @@
 
         init() {
             let _this = this;
-            let config = {
-                target: $('[data-ax5grid="dasconfig-grid"]'),
-                sortable: true,
-                frozenColumnIndex: 0, // 열 고정
-                frozenRowIndex: 0,    // 행 고정
-                showLineNumber: false, // 열의 번호 보이기 여부
-                showRowSelector: false,  // checkbox(선택) 보이기 여부
-                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
-                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
-                multiSort: true, // 다중 정렬 여부
-                header: {
-                    align: 'center',  // 헤더의 기본 정렬
-                    columnHeight: 38  // 헤더 높이
-                },
-                body: {
-                    columnHeight: 25, // body의 기본 높이
-                    onClick: function (e) {
-                        //e.colIndex
-                        //e.dindex
-                        //c.value
-                        //e.column
-                        //e.item
-                        //e.list
-                        _this.grid.select(this.dindex);
-                        _this.showDetail(e.item.id);
-                    },
-                },
-                page: {
-                    display: true,  // 페이징 보이기 여부
-                    statusDisplay: true,
+
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
                 },
                 columns: [
-                    { key: 'server_name', label: '서버', width: 100, align: 'center', sortable: false },
-                    { key: 'equipment_name', label: '설비', width: 150, align: 'left', sortable: false },
-                    { key: 'Name', label: '설정명', width: 180, align: 'left', sortable: false },
-                    { key: 'DeviceType', label: '수집구분', width: 100, align: 'left', sortable: false },
-                    {
-                        key: 'is_active', label: '활성화', width: 100, align: 'center', sortable: false,
-                        formatter: function () {
-                            if (this.value=='Y') {
-                                return '<span>수집중</span>';
-                            } else {
-                                return '<span>비활성</span>';
-                            }
-                        }
-                    },
-                    { key: 'Description', label: '설명', width: 220, align: 'left', sortable: false },
-                    { key: 'created', label: '생성일', width: 150, align: 'center', sortable: false },
-                ]
+                    // 차후 수정
+                    { field: "server_name", title: "서버", width: 100 },
+                    { field: "equipment_name", title: "설비", width: 150 },
+                    { field: "Name", title: "설정명", width: 200 },
+                    { field: "DeviceType", title: "수집구분", width: 100 },
+                    { field: "is_active", title: "활성화", width: 100 },
+                    { field: "Description", title: "설명", width: 200 },
+                    { field: "created", title: "생성일", width: 120 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+                },
+                height: 680
             };
+            _this.grid = new Grid($("#config_grid"), gridOption);
 
-            this.grid = new ax5.ui.grid(config);
-            this.grid_config = config; 
-
-            AjaxUtil.fillSelectOptions($('#cboDASServer'), 'das_server', 'all', false);
-            AjaxUtil.fillSelectOptions($('#cboEquipment'), 'equipment', 'all', false);
+            AjaxUtil.fillDropDownOptions($('#cboDASServer'), 'das_server', 'all', null);            
+            AjaxUtil.fillDropDownOptions($('#cboEquipment'), 'equipment', 'all', false);
 
             this.initForm();
         }
 
         initForm() {
 
-            AjaxUtil.fillSelectOptions($('#Server_id'), 'das_server', '', false);
-            AjaxUtil.fillSelectOptions($('#Equipment_id'), 'equipment', 'choose', false);
-            AjaxUtil.fillSelectOptions($('#DeviceType'), 'device_type', '', false);           
+            AjaxUtil.fillDropDownOptions($('#Server_id'), 'das_server', '', false);
+            AjaxUtil.fillDropDownOptions($('#Equipment_id'), 'equipment', 'choose', false);
+            AjaxUtil.fillDropDownOptions($('#DeviceType'), 'device_type', '', false);         
 
+
+            $('#Name').kendoTextBox();
+            $('#Topic').kendoTextBox();
+            $('#Handler').kendoTextBox();
+            $('#ConfigFileName').kendoTextBox();
+
+            $('#Description').kendoTextArea({
+                rows: 4,
+                maxLength: 200,
+                placeholder: ""
+            });
+
+            
+            $('#Configuration').kendoTextArea({
+                rows: 30,
+                placeholder: ""
+            });
         }
 
         setButtonDisable(_boolnew, _boolsave, _booldel) {
@@ -247,21 +259,32 @@
             $('[id=btnDelete]').prop('disabled', _booldel);
         }
 
-        showDetail(idx) {
+        showDetail() {
             let _this = this;
+            let datas = _this.grid.getSelect();
+            
+
+            let idx = datas[0].id;
+            console.log(idx);
+
             let param = { 'id': idx, "action": 'detail' };
             let url = '/api/system/das_config';
             let result = AjaxUtil.getSyncData(url, param);
             if (result != null) {
                 //FormUtil.BindDataForm(result, $('#configForm'));
-                $('#id').val(result.id)
-                $('#Server_id').val(result.Server_id)
-                $('#Equipment_id').val(result.Equipment_id)
-                $('#Name').val(result.Name)
-                $('#ConfigFileName').val(result.ConfigFileName)
-                $('#Handler').val(result.Handler)
-                $('#DeviceType').val(result.DeviceType)
-                $('#Topic').val(result.Topic)
+
+
+                $('#id').val(result.id);
+                $('#Server_id').data("kendoDropDownList").value(result.Server_id);
+                $('#Equipment_id').data("kendoDropDownList").value(result.Equipment_id);
+
+                $('#Name').val(result.Name);
+                $('#ConfigFileName').val(result.ConfigFileName);
+                $('#Handler').val(result.Handler);
+
+                $('#DeviceType').data("kendoDropDownList").value(result.DeviceType);
+
+                $('#Topic').val( result.Topic);
 
 
                 if (result.is_active=='Y') {
@@ -279,35 +302,26 @@
                 $('#Description').val(result.Description);
             }
 
-            page.setButtonDisable(false, false, false);
+            this.setButtonDisable(false, false, false);
         }
 
         searchMainData() {
             let _this = this;
-
             let url = '/api/system/das_config';
 
             let data = {
                 'server': $('#cboDASServer').val(),
                 'equipment': $('#cboEquipment').val(),
-                //'equipment': $('#keyword').val(),
                 'action' : 'read'
             };
 
             let result = AjaxUtil.getSyncData(url, data);
             if (result != null) {
-                let recordsTotal = result.length;
-                _this.grid.setData({
-                    list: result,
-                    page: {
-                        display: true,
-                        totalElements: recordsTotal,
-                    }
-                });
+                _this.grid.setData(result);
             }
 
             this.resetForm();
-            page.setButtonDisable(false, true, true);
+            this.setButtonDisable(false, true, true);
         }//searchMainData
 
         saveData() {
@@ -393,38 +407,34 @@
         }
     }
 
-    let page = null;
+    
 
     $(document).ready(function (e) {
-        page = new DASConfigPage();
+        let page = new DASConfigPage();
+
+
         $('#btnSearch').click(function (ex) {
             page.searchMainData();
         });
 
 
-        $('#btnNew').click(function (e) {
-            page.resetForm();
-            page.setButtonDisable(true, false, true);
-
-
-            //$('#configForm').reset();
-
+        $('#btnNew').kendoButton({
+            themeColor: "base", click: function () {
+                page.resetForm();
+                page.setButtonDisable(true, false, true);
+            }
         });
-
-        $('#btnSave').click(function (e) {
-            Alert.confirm('', 
-                '저장하시겠습니까?',
-                function () { page.saveData() },
-                function () { }
-            );
+        $('#btnSave').kendoButton({
+            themeColor: "info",
+            click: function () {
+                Alert.confirm("저장확인", "저장하시겠습니까?", function () { page.saveData(); });                
+            }
         });
-
-        $('#btnDelete').click(function (e) {
-            Alert.confirm('', 
-                '삭제하시겠습니까?',
-                function () { page.deleteData() },
-                function () { }
-            );
+        $('#btnDelete').kendoButton({
+            themeColor: "error",
+            click: function () {
+                page.deleteData();
+            }
         });
 
         $('#Configuration').on('keydown', function (e) {
@@ -440,9 +450,10 @@
             page.exportExcel();
         });
 
+        /*
 		//그리드 컬럼 설정
         page.popColSetting = new popColSetting();
-        let columns = page.popColSetting.loadColumnData(gui.gui_code, gui.template_key, 'grid',  page.grid);
+        let columns = page.popColSetting.loadColumnData(gui.gui_code, gui.template_key, 'grid', page.grid);
 		
         if (userinfo.group_code == 'admin') {
             $('#btnGridSetting').css('visibility','visible');  
@@ -453,8 +464,9 @@
             let fix_cols = page.grid_config.frozenColumnIndex;
             page.popColSetting.show(gui.gui_code, gui.template_key, 'grid', page.grid_config.columns, page.grid, { 'order_fix':false,  'fix_cols' : fix_cols });
         });	
-        page.searchMainData();
+        */
 
+        page.searchMainData();
         $('#configForm').find('#Topic').val(gui.device_topic);
 
     });

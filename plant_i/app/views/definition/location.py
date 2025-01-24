@@ -74,6 +74,9 @@ def location(context):
             location.save()
             result = {'success' : True}
 
+        elif action=='read_loc_hist':
+            result = location_service.get_equip_loc_hist()
+
     except Exception as ex:
         source = '/api/definition/location, action:{}'.format(action)
         LogWriter.add_dblog('error', source, ex)

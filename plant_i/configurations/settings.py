@@ -31,15 +31,15 @@ ALLOWED_HOSTS = ["*"]
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
 INSTALLED_APPS = [
-    'app',
-    # Add your apps here to enable them
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'domain',
+    'app',                                      # 사용자가 만든 앱 이름
+    # Add your apps here to enable them         
+    'django.contrib.admin',                     # Django 관리(admin) 사이트
+    'django.contrib.auth',                      # 인증(authentication) 시스템 (사용자, 권한 관리)
+    'django.contrib.contenttypes',              # 콘텐츠 타입 시스템 (데이터베이스 모델을 처리)
+    'django.contrib.sessions',                  # 세션 관리
+    'django.contrib.messages',                  # 메시징 프레임워크 (알림 등)
+    'django.contrib.staticfiles',               # 정적 파일 관리 (CSS, JS 등)
+    'domain',                                   # 사용자가 만든 domain 앱
 ]
 
 # Middleware framework
@@ -101,7 +101,8 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DBMS_HOST = '10.6.3.250'
+DBMS_HOST = '10.6.3.250'      # 개발
+# DBMS_HOST = '10.226.236.34'   # 배포
 # DBMS_HOST = 'localhost'
 
 DBMS = 'POSTGRESQL'

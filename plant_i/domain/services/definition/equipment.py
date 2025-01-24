@@ -65,6 +65,7 @@ class EquipmentService():
             , e."ManageNumber" AS "ManageNumber"
             , e."SerialNumber" AS "SerialNumber"
             , e."Depart_id" AS "Depart_id"
+            , e."Depart_id" AS "equip_dept_bef"
             , d."Name" AS "depart_Name"
             , e."ProductionYear" AS "ProductionYear"
             , e."AssetYN" AS "AssetYN"
@@ -86,6 +87,8 @@ class EquipmentService():
             , e."OperationRateYN" AS "OperationRateYN"
             , e."Status" AS "Status"
             , e."loc_pk" AS "loc_pk"
+            , e."loc_pk" AS "equip_loc_bef"
+            , lo."loc_nm" AS "Location"
             , to_char(e._created ,'yyyy-MM-dd HH:mm') AS _created 
         FROM 
             equ e
@@ -95,6 +98,8 @@ class EquipmentService():
             equ_grp eg ON e."EquipmentGroup_id" = eg.id
         LEFT JOIN 
             dept d ON e."Depart_id" = d.id
+        LEFT JOIN 
+            "location" lo on e.loc_pk = lo.id 
         WHERE 1 = 1  
         '''
         if line_id:
@@ -141,11 +146,10 @@ class EquipmentService():
             , e."Status"
             , e."EquipmentGroup_id"
             , eg."Name" as group_name
-            , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created 
-        from 
-            equ e
-        left join 
-            equ_grp eg on e."EquipmentGroup_id" =eg.id                    
+            , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created        
+         from equ e
+            left join equ_grp eg on e."EquipmentGroup_id" =eg.id         
+        
         where 
             e.id = %(id)s
         '''
@@ -326,6 +330,29 @@ class EquipmentService():
 
         sql = ''' 
             select * from "location" order by "_created" desc
+        '''     
+
+        try:
+            items = DbUtil.get_rows(sql)
+        except Exception as ex:
+            LogWriter.add_dblog('error','EquipmentService.get_location_list', ex)
+            raise ex
+
+        return items
+
+    def get_equip_loc_hist(self):
+        items = []
+
+        sql = ''' 
+            SELECT 
+	            equip_loc_hist_pk, equip_pk
+	            , equip_loc_bef, b.loc_nm as beforeLoc
+	            , equip_loc_aft, b.loc_nm as afterLoc
+	            , a."_created" as changeDate, a."_creator_name" as changer
+            FROM equip_loc_hist a
+                left join "location" b on a.equip_loc_bef = b.id
+                left join "location" c on a.equip_loc_aft = c.id
+
         '''     
 
         try:
