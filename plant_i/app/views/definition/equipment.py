@@ -30,9 +30,18 @@ def equipment(context):
 
         items = equipment_service.get_equipment_list(equipment_line, equipment_group, equipment)
 
+    if action=='read_obs':
+        dept_name = gparam.get('dept_name', None)
+        equipment = gparam.get('equipment', None)
+
+        items = equipment_service.get_equip_obsolete_list(dept_name, equipment)
+
     elif action=='detail':
         id = gparam.get('id', None)
         items = equipment_service.get_equipment_detail(id)
+
+    elif action=='read_dept_hist':
+        items = equipment_service.get_equip_dept_hist()
 
     elif action=='save':
         posparam = context.posparam
@@ -48,7 +57,7 @@ def equipment(context):
 
         try:
             if id:
-                equipment = Equipment.objects.get(id=id)
+                equipment = Equipment.objects.get(id=id)          
 
                 q = Equipment.objects.filter(Code=code)
                 q = q.exclude(pk=id)
@@ -56,27 +65,7 @@ def equipment(context):
 
                 name = Equipment.objects.filter(Name=name)
                 name = name.exclude(pk=id)
-                check_name = name.first()
-
-                # 기존 설비위치가 변경 되었을 때
-                locHist = EquipLocHist()
-                locHist.equip_pk = posparam.get('id')
-                locHist.equip_loc_bef = posparam.get('equip_loc_bef')
-                locHist.equip_loc_aft = posparam.get('loc_pk')    
-                locHist.set_audit(user)
-
-                locHist.save()
-
-                items = {'success': True, 'equip_loc_hist_pk': locHist.equip_loc_hist_pk}
-
-                # 기존 관리부서가 변경 되었을 때
-                deptHist = EquipDeptHist()
-                deptHist.equip_pk = posparam.get('id')
-                # deptHist.equip_dept_bef = posparam.get('equip_loc_bef')
-                # deptHist.equip_dept_aft = posparam.get('Location')
-                deptHist.set_audit(user)
-
-                deptHist.save()
+                check_name = name.first()             
 
             else:
                 equipment = Equipment()
@@ -127,6 +116,30 @@ def equipment(context):
             equipment.set_audit(user)
 
             equipment.save()
+
+            #이미 등록된 설비에서만
+            if id:
+                # equipment = Equipment.objects.get(id=id)
+
+                # 기존 설비위치가 변경 되었을 때
+                locHist = EquipLocHist()
+                locHist.equip_pk = equipment.id
+                locHist.equip_loc_bef = posparam.get('equip_loc_bef')
+                locHist.equip_loc_aft = posparam.get('loc_pk')
+
+                if locHist.equip_loc_bef != "" and locHist.equip_loc_bef != locHist.equip_loc_aft :
+                    locHist.set_audit(user)
+                    locHist.save()                
+
+                # 기존 관리부서가 변경 되었을 때
+                deptHist = EquipDeptHist()
+                deptHist.equip_pk = equipment.id
+                deptHist.equip_dept_bef = posparam.get('equip_dept_bef')
+                deptHist.equip_dept_aft = posparam.get('Depart_id')
+
+                if deptHist.equip_dept_bef != "" and deptHist.equip_dept_bef != deptHist.equip_dept_aft:
+                    deptHist.set_audit(user)
+                    deptHist.save()
 
             items = {'success': True, 'id': equipment.id}
 

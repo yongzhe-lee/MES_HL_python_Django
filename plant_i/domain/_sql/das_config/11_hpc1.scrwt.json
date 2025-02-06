@@ -1,0 +1,1090 @@
+{
+  "result": {
+    "items": [
+      {
+        "config_id": 11,
+        "name": "HPC#1 스크류체결 PLC데이터수집건",
+        "description": "미쯔비시",
+        "equipment": "hpc1.scrwt",
+        "device_type": "melsec_tcp",
+        "host": "10.226.234.60",
+        "port": 5002,
+        "dbms_key": "default",
+        "topic": "dt_hpc1.scrwt",
+        "schedule": {
+          "trigger_type": "cron_expression",
+          "cron_expression": "1/5 * * * * *"
+        },
+        "actions": [
+          {
+            "action": "read",
+            "address": "X400",
+            "quantity": 3,
+            "fields": [
+              {
+                "tag": "hpc1.scrwt.op.mode",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X401",
+                "value_index": 1
+              },
+              {
+                "tag": "hpc1.scrwt.au.op",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X403",
+                "value_index": 3
+              },
+              {
+                "tag": "hpc1.scrwt.au.stop",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X404",
+                "value_index": 4
+              },
+              {
+                "tag": "hpc1.scrwt.emer.stop",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X405",
+                "value_index": 5
+              },
+              {
+                "tag": "hpc1.scrwt.door1",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40B",
+                "value_index": 11
+              },
+              {
+                "tag": "hpc1.scrwt.door2",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40C",
+                "value_index": 12
+              },
+              {
+                "tag": "hpc1.scrwt.door3",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40D",
+                "value_index": 13
+              },
+              {
+                "tag": "hpc1.scrwt.door4",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40E",
+                "value_index": 14
+              },
+              {
+                "tag": "hpc1.scrwt.door5",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40F",
+                "value_index": 15
+              },
+              {
+                "tag": "hpc1.scrwt.air.press",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X41F",
+                "value_index": 31
+              },
+              {
+                "tag": "hpc1.scrwt.prod.detect",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X423",
+                "value_index": 35
+              }
+
+            ]
+          },
+          {
+            "action": "read",
+            "address": "Y41D",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.scrwt.lamp.g",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41D",
+                "value_index": 0
+              },
+              {
+                "tag": "hpc1.scrwt.lamp.y",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41E",
+                "value_index": 1
+              },
+              {
+                "tag": "hpc1.scrwt.lamp.r",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41F",
+                "value_index": 2
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D0100",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.scrwt.prod.info",
+                "data_type": "number",
+                "persist_mode": "database",
+                "address": "D0100",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D0302",
+            "quantity": 5,
+            "fields": [
+              {
+                "tag": "hpc1.scrwt.use.cnt",
+                "data_type": "number",
+                "persist_mode": "database",
+                "address": "D0302",
+                "value_index": 0
+              },
+              {
+                "tag": "hpc1.scrwt.remain.cnt",
+                "data_type": "number",
+                "persist_mode": "database",
+                "address": "D0304",
+                "value_index": 2
+              },
+              {
+                "tag": "hpc1.scrwt.usg.lim.cnt",
+                "data_type": "number",
+                "persist_mode": "database",
+                "address": "D0306",
+                "value_index": 4
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D9000",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.scrwt.ct",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "D9000",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D9020",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.scrwt.ht.ct",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "D9020",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read_alarm",
+            "address": "D2000",
+            "tag": "hpc1.scrwt.alm.cnt",
+            "items": [
+              {
+                "address": "F0000",
+                "quantity": 3,
+                "fields": [
+                  {
+                    "tag": "hpc1.scrwt.alm.F0000",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0001",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0002",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0010",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0011",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0012",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0013",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 13
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0020",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 20
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0021",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 21
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0022",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 22
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0025",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 25
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0030",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 30
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0031",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 31
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0032",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 32
+                  }                
+                ]
+              },
+              {
+                "address": "F0080",
+                "quantity": 1,
+                "fields": [
+                  {
+                    "tag": "hpc1.scrwt.alm.F0080",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0081",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0082",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  }
+                ]
+              },
+              {
+                "address": "F0100",
+                "quantity": 6,
+                "fields": [
+                  {
+                    "tag": "hpc1.scrwt.alm.F0100",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0101",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0102",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0103",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 3
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0104",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 4
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0105",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 5
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0106",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 6
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0107",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 7
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0110",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0111",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0112",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0113",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 13
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0114",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 14
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0115",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 15
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0116",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 16
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0117",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 17
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0120",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 20
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0121",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 21
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0122",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 22
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0123",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 23
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0124",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 24
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0125",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 25
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0126",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 26
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0127",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 27
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0130",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 30
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0131",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 31
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0132",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 32
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0133",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 33
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0134",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 34
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0135",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 35
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0136",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 36
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0137",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 37
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0150",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 50
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0151",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 51
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0152",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 52
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0153",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 53
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0154",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 54
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0155",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 55
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0156",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 56
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0159",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 59
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0160",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 60
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0161",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 61
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0162",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 62
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0165",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 65
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0167",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 67
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0168",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 67
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0169",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 67
+                  },
+
+                  {
+                    "tag": "hpc1.scrwt.alm.F0170",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 70
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0171",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 71
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0172",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 72
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0173",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 73
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0174",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 74
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0175",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 75
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0180",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 80
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0181",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 81
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0182",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 82
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0183",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 83
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0184",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 84
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0185",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 85
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0186",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 86
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0187",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 87
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0188",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 88
+                  }
+                ]
+              },
+              {
+                "address": "F0190",
+                "quantity": 1,
+                "fields": [
+                  {
+                    "tag": "hpc1.scrwt.alm.F0190",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0192",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  }
+                ]
+              },
+              {
+                "address": "F0200",
+                "quantity": 6,
+                "fields": [
+                  {
+                    "tag": "hpc1.scrwt.alm.F0200",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0201",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0202",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0203",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 3
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0204",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 4
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0205",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 5
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0206",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 6
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0207",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 7
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0210",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0211",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0212",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0213",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 13
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0214",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 14
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0215",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 15
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0216",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 16
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0217",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 17
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0220",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 20
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0221",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 21
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0222",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 22
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0223",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 23
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0224",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 24
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0225",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 25
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0226",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 26
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0227",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 27
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0250",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 50
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0251",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 51
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0252",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 52
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0253",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 53
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0254",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 54
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0255",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 55
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0256",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 56
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0257",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 57
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0258",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 58
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0259",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 59
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0260",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 60
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0261",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 61
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0262",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 62
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0270",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 70
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0271",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 71
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0272",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 72
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0273",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 73
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0274",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 74
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0275",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 75
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0280",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 80
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0281",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 81
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0282",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 82
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0283",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 83
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0284",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 84
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0285",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 85
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0290",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 90
+                  }
+                ]
+              },
+              {
+                "address": "F0350",
+                "quantity": 1,
+                "fields": [
+                  {
+                    "tag": "hpc1.scrwt.alm.F0350",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0351",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0352",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0353",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 3
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0354",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 4
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0355",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 5
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0360",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0361",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.scrwt.alm.F0362",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  }
+                ]
+              }              
+            ]
+          }
+        ]
+      }
+    ]        
+  }
+}

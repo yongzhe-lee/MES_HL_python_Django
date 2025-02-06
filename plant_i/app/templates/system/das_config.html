@@ -12,7 +12,7 @@
 
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="srch_log_type" data-labelCd="서버">서버</label>
+                        <label class="k-label k-form-label" for="cboDASServer" data-labelCd="서버">서버</label>
                         <div class="field-wrapper">
                             <select id="cboDASServer" name="cboDASServer"></select>
                         </div>
@@ -21,7 +21,7 @@
 
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="srch_log_type" data-labelCd="설비">섧비</label>
+                        <label class="k-label k-form-label" for="cboEquipment" data-labelCd="설비">섧비</label>
                         <div class="field-wrapper">
                             <select id="cboEquipment" name="cboEquipment"></select>
                         </div>
@@ -402,16 +402,18 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            var targetview = this.grid;
-            targetview.exportExcel('데이터수집설정내역.xls');
+            let gridData = $('#config_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "das_config.xlsx";
+            });
+            gridData.saveAsExcel();
         }
     }
 
-    
+     
+    let page = new DASConfigPage();
 
-    $(document).ready(function (e) {
-        let page = new DASConfigPage();
-
+    $(document).ready(function (e) {  
 
         $('#btnSearch').click(function (ex) {
             page.searchMainData();
@@ -446,8 +448,12 @@
         });
 
         // 엑셀 다운로드
-        $('#btnExcel').on('click', function () {
-            page.exportExcel();
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                page.exportExcel();
+            }
         });
 
         /*

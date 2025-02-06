@@ -163,14 +163,12 @@
                     componentType: "classic",
                     autoSize: true,
                     clearAllFilters: true,
-                    columns: {
-                        sort: "asc",
-                    }
                 },
                 columns: [
-                    { field: 'tag_code', title: '태그', width: 200 },
-                    { field: 'tag_name', title: '태그명', width: 200 },
+                    { field: 'id', title: '번호', width: 100 , hidden:true},
                     { field: 'tag_group_name', title: '태그그룹명', width: 150 },
+                    { field: 'tag_code', title: '태그', width: 200 },
+                    { field: 'tag_name', title: '태그명', width: 200 },                    
                     { field: 'equipment_name', title: '설비명', width: 150 },
                     { field: 'DASconfig_name', title: 'DAS설정', width: 150 },
                     { field: 'round_digit', title: '소수점자리수', width: 150 },
@@ -181,15 +179,6 @@
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-
-                    // No. set
-                    let items = this.items();
-                    items.each(function (index) {
-                        if (index < 1) {
-                            index = "-"; // 전체 행의 No
-                        }
-                        $(this).find("td:first").html(index); // index에 +1을 해주지 않는다.
-                    });
 
                     this.autoFitColumns();
 
@@ -238,7 +227,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    _this.grid.grid.saveExcel();
+                    _this.exportExcel();
                 }
             });
 
@@ -288,7 +277,7 @@
             if (data.length > 0) {
                 let selectData = data[0];
                 FormUtil.BindDataForm(selectData, $('#tagForm')); 
-                console.log("selectData:\n", selectData);
+
 
                 $('#tag_id').val(selectData.tag_code);
              }
@@ -333,6 +322,15 @@
                 };
                 AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
             }
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#tag_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "tag.xlsx";
+            });
+            gridData.saveAsExcel();
         }
     };
 

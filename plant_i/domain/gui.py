@@ -36,6 +36,12 @@ class GUIConfiguration():
         gui_dc['wm_dashboard'] = cls.gui_item('대시보드', 'dashboard/main_dash.html')#대시보드
         gui_dc['wm_storyboard'] = cls.gui_item('스토리보드', 'dashboard/storyboard.html')#스토리보드
 
+        # AAS 관련 메뉴   -> AAS조회,  Asset조회, AASX관리
+        gui_dc['wm_aas'] = cls.gui_item('AAS조회', 'aas/aas.html')
+        gui_dc['wm_asset'] = cls.gui_item('Asset조회', 'aas/asset.html')
+        gui_dc['wm_aasx'] = cls.gui_item('AASX관리', 'aas/aasx.html')
+
+
         #기준정보
         gui_dc['wm_factory'] = cls.gui_item('공장', 'definition/factory.html')#라인정보
         gui_dc['wm_line'] = cls.gui_item('라인', 'definition/line.html')#라인정보
@@ -53,13 +59,26 @@ class GUIConfiguration():
         # 설비관리
         gui_dc['wm_equip_group'] = cls.gui_item('설비그룹', 'definition/equip_group.html')
         gui_dc['wm_equipment'] = cls.gui_item('설비', 'definition/equipment.html')
+        gui_dc['wm_equip_obsolete'] = cls.gui_item('불용설비목록', 'definition/equip_obsolete.html')
+        gui_dc['wm_equip_work_hist'] = cls.gui_item('설비별작업이력', 'definition/equip_work_hist.html')
         gui_dc['wm_tag_group'] = cls.gui_item('태그그룹', 'definition/tag_group.html')
         gui_dc['wm_tag_master'] = cls.gui_item('태그정보', 'definition/tag.html')
         gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')
 
+        # KMMS
+        #작업지시
+        gui_dc['wm_my_work_request'] = cls.gui_item('나의작업요청', 'kmms/wo/my_work_request.html')
+        gui_dc['wm_work_order_management'] = cls.gui_item('작업지시관리', 'kmms/wo/work_order_management.html')
+        gui_dc['wm_work_request_approval'] = cls.gui_item('작업요청승인', 'kmms/wo/work_request_approval.html')
+        gui_dc['wm_work_order_approval'] = cls.gui_item('작업지시승인', 'kmms/wo/work_order_approval.html')
+        gui_dc['wm_post_work_management'] = cls.gui_item('사후작업관리', 'kmms/wo/post_work_management.html')
+
+        #예방정비
+        gui_dc['wm_pm_master'] = cls.gui_item('PM마스터관리', 'kmms/pm/pm_master.html')
+        gui_dc['wm_pm_schedule'] = cls.gui_item('PM일정', 'kmms/pm/pm_schedule.html')
+
         # 설비보전
-        # gui_dc['wm_pm_master'] = cls.gui_item('PM마스터관리', 'kmms/pm/pm_master.html')
-        # gui_dc['wm_pm_schedule'] = cls.gui_item('PM일정', 'kmms/pm/pm_schedule.html')
+        
         # gui_dc['wm_work_order'] = cls.gui_item('WO관리', 'kmms/work_order.html')
         # gui_dc['wm_pm_work_list'] = cls.gui_item('PM작업목록조회', 'kmms/pm/pm_work_list.html')
         # gui_dc['wm_pm_result'] = cls.gui_item('PM작업결과등록', 'kmms/pm/pm_work_result.html')

@@ -1,0 +1,28 @@
+
+
+
+CREATE OR REPLACE FUNCTION fn_lang_text(v_item_pk int, v_cate_code varchar(20), v_lang_code VARCHAR(10))
+RETURNS VARCHAR(500)
+LANGUAGE plpgsql
+AS $function$
+DECLARE
+    v_text VARCHAR(500) DEFAULT NULL;
+BEGIN
+    BEGIN
+        select
+            lt.text into v_text 
+        from lang_item li 
+        inner join lang_text lt on li.lang_item_pk = lt.lang_item_pk 
+        where 
+        li.category=v_cate_code
+        and li.lang_item_pk = v_item_pk
+        and lt.language = v_lang_code;
+
+        RETURN v_text;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN NULL;
+    END;
+END;
+$function$;

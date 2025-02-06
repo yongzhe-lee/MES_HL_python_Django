@@ -46,23 +46,29 @@ def line(context):
 
         elif action == 'save':
             id = posparam.get('id')
-            name = posparam.get('name')
-            code = posparam.get('code')
+            name = posparam.get('Name')
+            code = posparam.get('Code')
             description = posparam.get('description')
 
             line = None
-            if id:
-                line = Line.objects.filter(id=id).first()
-            else:
-                line = Line()
-            line.Name = name
-            line.Code = code
-            line.Description = description
-            line.set_audit(request.user)
-            # line.Site_id = 1  # site 필드 없음
-            line.save()
+            try:
 
-            result = { 'success':True }
+                if id:
+                    line = Line.objects.filter(id=id).first()
+                else:
+                    line = Line()
+
+                line.Name = name
+                line.Code = code
+                line.Description = description
+                line.set_audit(request.user)                
+                line.save()
+
+                result = { 'success':True }
+            except Exception as ex:
+                source = 'api/definition/factory, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
 
         elif action == 'delete':
             id = posparam.get('id')

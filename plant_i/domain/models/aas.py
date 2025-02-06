@@ -1,5 +1,3 @@
-import pytz
-from datetime import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -299,7 +297,10 @@ class DBSpecificAssetId(models.Model):
     semanticId = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, related_name='specificAssetId_semanticId', db_column='semantic_id', null=True)
     externalSubject = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, related_name='specificAssetId_externalSubject', db_column='external_subject_id', null=True)
     supplementalSemanticIds = models.ManyToManyField(DBReference, through=SpecificAssetIdSupplementalSemanticId, related_name='specificAssetId_supplementalSemanticId', related_query_name='specificAssetId_supplementalSemanticId')
+
     #AssetInformations = models.ManyToManyRel(DBAssetInformation, related_name='assetinformation_specificassetids')
+    AssetInformation = models.ForeignKey(DBAssetInformation, on_delete=models.DO_NOTHING, null=True, db_column='asset_pk')
+
     
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)

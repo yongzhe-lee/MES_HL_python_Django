@@ -1,0 +1,595 @@
+{
+  "result": {
+    "items": [
+      {
+        "config_id": 16,
+        "name": "HPC#1 팬클립 PLC데이터수집건",
+        "description": "미쯔비시",
+        "equipment": "hpc1.brackassm",
+        "device_type": "melsec_tcp",
+        "host": "10.226.234.64",
+        "port": 5002,
+        "dbms_key": "default",
+        "topic": "dt_hpc1.brackassm",
+        "schedule": {
+          "trigger_type": "cron_expression",
+          "cron_expression": "1/5 * * * * *"
+        },
+        "actions": [
+          {
+            "action": "read",
+            "address": "X400",
+            "quantity": 6,
+            "fields": [
+              {
+                "tag": "hpc1.brackassm.op.mode",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X401",
+                "value_index": 1
+              },
+              {
+                "tag": "hpc1.brackassm.au.op",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X403",
+                "value_index": 3
+              },
+              {
+                "tag": "hpc1.brackassm.au.stop",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X404",
+                "value_index": 4
+              },
+              {
+                "tag": "hpc1.brackassm.emer.stop",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X405",
+                "value_index": 5
+              },
+              {
+                "tag": "hpc1.brackassm.door1",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X408",
+                "value_index": 8
+              },
+              {
+                "tag": "hpc1.brackassm.door2",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X409",
+                "value_index": 9
+              },             
+              {
+                "tag": "hpc1.brackassm.scrw.prod.detect",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X423",
+                "value_index": 35
+              },
+              {
+                "tag": "hpc1.brackassm.hck.prod.detect",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X463",
+                "value_index": 63
+              }
+            ]
+          },         
+          {
+            "action": "read",
+            "address": "Y41D",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.brackassm.lamp.g",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41D",
+                "value_index": 0
+              },
+              {
+                "tag": "hpc1.brackassm.lamp.y",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41E",
+                "value_index": 1
+              },
+              {
+                "tag": "hpc1.brackassm.lamp.r",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41F",
+                "value_index": 2
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D0100",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.brackassm.prod.info",
+                "data_type": "number",
+                "persist_mode": "database",
+                "address": "D0100",
+                "value_index": 0
+              }
+            ]
+          },          
+          {
+            "action": "read",
+            "address": "D9000",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.brackassm.scrw.ct",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "D9000",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D9020",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.brackassm.hc.ct",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "D9020",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read_alarm",
+            "address": "D2000",
+            "tag": "hpc1.brackassm.alm.cnt",
+            "items": [
+              {
+                "address": "F0000",
+                "quantity": 2,
+                "fields": [
+                  {
+                    "tag": "hpc1.brackassm.alm.F0000",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0002",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0010",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0011",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },              
+                  {
+                    "tag": "hpc1.brackassm.alm.F0020",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 20
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0021",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 21
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0022",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 22
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0025",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 25
+                  }
+                ]
+              },
+              {
+                "address": "F0080",
+                "quantity": 1,
+                "fields": [
+                  {
+                    "tag": "hpc1.brackassm.alm.F0080",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0081",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  }
+                ]
+              },
+              {
+                "address": "F0100",
+                "quantity": 6,
+                "fields": [
+                  {
+                    "tag": "hpc1.brackassm.alm.F0100",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0101",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0102",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0103",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 3
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0110",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0111",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0150",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 50
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0151",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 51
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0152",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 52
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0155",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 55
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0160",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 60
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0161",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 61
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0170",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 70
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0171",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 71
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0172",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 72
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0173",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 73
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0175",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 75
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0176",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 76
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0177",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 77
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0178",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 78
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0180",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 80
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0181",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 81
+                  }
+                ]
+              },             
+              {
+                "address": "F0200",
+                "quantity": 6,
+                "fields": [
+                  {
+                    "tag": "hpc1.brackassm.alm.F0200",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0201",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 1
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0202",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0203",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 3
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0204",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 4
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0205",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 5
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0206",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 6
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0207",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 7
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0210",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0211",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0212",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0213",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 13
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0214",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 14
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0215",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 15
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0216",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 16
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0217",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 17
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0220",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 20
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0221",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 21
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0222",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 22
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0223",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 23
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0224",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 24
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0225",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 25
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0226",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 26
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0227",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 27
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0250",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 50
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0251",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 51
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0252",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 52
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0260",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 60
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0261",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 61
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0262",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 62
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0265",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 65
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0267",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 67
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0268",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 68
+                  },                  
+                  {
+                    "tag": "hpc1.brackassm.alm.F0270",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 70
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0271",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 71
+                  },
+                  {
+                    "tag": "hpc1.brackassm.alm.F0290",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 90
+                  }
+                ]
+              }          
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

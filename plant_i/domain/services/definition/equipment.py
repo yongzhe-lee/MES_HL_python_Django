@@ -123,6 +123,49 @@ class EquipmentService():
 
         return items
 
+    def get_equip_obsolete_list(self, dept_name, equipment):
+        items = []
+        dic_param = {'dept_name':dept_name, 'equipment':equipment}
+
+        sql = ''' 
+        SELECT 
+            e.id
+            , e."Code" AS "Code" 
+            , e."Name" AS "Name"              
+            , e."Description" AS "Description"
+            , e."loc_pk" AS "loc_pk"
+            , lo."loc_nm" AS "Location"
+            , e."Status" AS "Status"
+            , e."disposed_type" AS "disposed_type"
+            , e."Depart_id" AS "Depart_id"
+            , to_char(e."DisposalDate",'yyyy-mm-dd') AS "DisposalDate"
+            , to_char(e._created ,'yyyy-MM-dd HH:mm') AS _created 
+        FROM 
+            equ e       
+        LEFT JOIN 
+            dept d ON e."Depart_id" = d.id
+        LEFT JOIN 
+            "location" lo on e.loc_pk = lo.id 
+        WHERE 1 = 1  and e."DisposalDate" is not null
+        '''
+        
+        if dept_name:
+            sql+='''            
+            AND UPPER(d."Name") LIKE CONCAT('%%',UPPER(%(dept_name)s),'%%')
+            '''
+        if equipment:
+            sql+=''' 
+            AND UPPER(e."Name") LIKE CONCAT('%%',UPPER(%(equipment)s),'%%')
+            '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error','EquipmentService.get_equip_obsolete_list', ex)
+            raise ex
+
+        return items
+
     def get_equipment_detail(self, id):
         sql = ''' 
         select 
@@ -352,6 +395,28 @@ class EquipmentService():
             FROM equip_loc_hist a
                 left join "location" b on a.equip_loc_bef = b.id
                 left join "location" c on a.equip_loc_aft = c.id
+
+        '''     
+
+        try:
+            items = DbUtil.get_rows(sql)
+        except Exception as ex:
+            LogWriter.add_dblog('error','EquipmentService.get_location_list', ex)
+            raise ex
+
+        return items
+
+    def get_equip_dept_hist(self):
+        items = []
+
+        sql = ''' 
+            select equip_dept_hist_pk, equip_pk
+	            ,equip_dept_bef, b."Name" as beforeDept
+	            ,equip_dept_aft, c."Name" as afterDept
+	            , a."_created" as changeDate, a."_creator_name" as changer
+            from equip_dept_hist a
+    	        left join dept b on a.equip_dept_bef = b.id
+    	        left join dept c on a.equip_dept_aft = c.id 
 
         '''     
 

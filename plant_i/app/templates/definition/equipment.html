@@ -214,7 +214,7 @@
                         </div>
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="PurchaseCost" data-labelCd="구매금액(원)">구매금액(원)</label>
+                                <label class="k-label k-form-label essential" for="PurchaseCost" data-labelCd="구매금액(원)">구매금액(원)</label>
                                 <div class="field-wrapper">
                                     <input id="PurchaseCost" name="PurchaseCost" type="number" />
                                 </div>
@@ -258,6 +258,8 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="Depart_id" data-labelCd="관리부서">관리부서</label>
                                 <div class="field-wrapper">
+                                    <input type="hidden" id="equip_dept_bef" name="equip_dept_bef" />
+                                    <input type="hidden" id="equip_dept_pk" name="equip_dept_pk" />
                                     <select id="Depart_id" name="Depart_id"></select>
                                     <button id="btnModalOpenDept" style="width: 70px;"></button>
                                 </div>
@@ -616,8 +618,8 @@
                 $('#btnExcel').kendoButton({
                     icon: "file-excel",
                     themeColor: "success",
-                    click: function () {
-                        _this.grid.grid.saveExcel();
+                    click: function () {                        
+                        page.exportExcel();
                     }
                 });
 
@@ -658,7 +660,6 @@
                     themeColor: "base"
                 });
 
-                // 추가 버튼 Kendo 초기화
                 $("#btnModalOpenHist").kendoButton({
                     icon: "search",
                     themeColor: "base",
@@ -669,6 +670,15 @@
                     }
                 });
 
+                $("#btnModalOpenDept").kendoButton({
+                    icon: "search",
+                    themeColor: "base",
+                    size: "small",
+                    click: (e) => {
+                        e.preventDefault();
+                        $("#modalWindowDept").fadeIn();
+                    }
+                });
 
             }
 
@@ -710,6 +720,8 @@
 
                 let Code = $('#Code').val();
                 let Name = $('#Name').val();
+                let loc_pk = $('#loc_pk').val();
+                let Depart_id = $('#Depart_id').val();
 
                 if (!Code) {
                     Alert.alert('', '설비코드를 입력해주세요.');
@@ -719,6 +731,14 @@
                     return;
                 }
 
+                if (!loc_pk) {
+                    Alert.alert('', '설비위치를 입력해주세요.');
+                    return;
+                } else if (!Depart_id) {
+                    Alert.alert('', '관리부서를 선택해주세요.');
+                    return;
+                }                
+
                 if ($('#PurchaseCost').val() < 0) {
                     Alert.alert('', '구매금액을 확인해 주세요.');
                     return;
@@ -727,6 +747,7 @@
                 let funcSucc = function (resp) {
                     if (resp.success) {
                         Notify.success('저장되었습니다.');
+                        _this.resetData();
                         _this.searchMainData();
                     } else {
                         Alert.alert('error', resp.message);
@@ -757,12 +778,21 @@
                     AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
                 }
             }
+
+            // 엑셀 다운로드
+            exportExcel() {
+                let gridData = $('#equipment_grid').data("kendoGrid");
+                gridData.bind("excelExport", function (e) {
+                    e.workbook.fileName = "equipment.xlsx";
+                });
+                gridData.saveAsExcel();
+            }
         };
 
         let page = null;
+        page = new EquipmentPage();
 
-        $(document).ready(function () {
-            page = new EquipmentPage();
+        $(document).ready(function () {            
             page.searchMainData();
         });
 

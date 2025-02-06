@@ -1,0 +1,71 @@
+
+<div id="modalWindow" class="modal">
+    <div class="modal-content">
+        <h3>PM 마스터 등록</h3>
+
+
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="saveBtn">저장</button>
+            <button type="button" class="btn btn-secondary" id="closeModal">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let PmMasterPage = null;
+    class PmMasterPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/kmms/pm_master';
+            
+            this.resetForm = this.resetForm.bind(this);
+            this.init();
+        }
+
+        init() {
+            this.initModal();
+            this.initButtons();
+            this.initGrid();
+            this.initSaveButton();
+        }
+
+        initModal() {
+            const modal = $("#modalWindow");
+            const closeModalBtn = $("#closeModal");
+
+            // 모달 닫기 - 닫기 버튼 클릭
+            closeModalBtn.on("click", () => {
+                modal.fadeOut();
+            }); 
+
+            // ESC 키 누를 때 모달 닫기
+            $(document).on('keydown', (e) => {
+                if (e.keyCode === 27) { // ESC key
+                    modal.fadeOut();
+                }
+            });
+        }
+
+        initButtons() {
+
+        }
+
+        initGrid() {
+        }
+
+        initSaveButton() {
+        }
+
+        resetForm() {
+
+        }
+
+    }
+
+    pmMasterPage = new PmMasterPage();
+    $(document).ready(function () {
+        locationPage.searchLocationData();
+    });
+
+</script>

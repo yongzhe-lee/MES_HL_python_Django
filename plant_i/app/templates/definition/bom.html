@@ -202,7 +202,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    _this.grid.grid.saveExcel();
+                    page.exportExcel();
                 }
             });
         }
@@ -224,15 +224,15 @@
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
         }
+    }
 
-    let page = null;
 
     $(document).ready(function () {
-        page = new BOMPage();
-
+        let page = new BOMPage();
         page.searchMainData();
+     });
 
-    });
+
 
 </script>
 

@@ -1,0 +1,773 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+
+    <section class="section">
+        <div class="title_box">
+            <div class="left-align">
+                <h3>데이터 분석</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="grid_box">
+            <div class="title_box">
+                <span class="right_align rpt" data-labelCd="데이터수집정보">데이터수집정보</span>
+                <button type="button" class="btn-default" id="btnTagDataList" data-labelCd="태그선택조회">태그선택조회</button>
+            </div>
+            <div class="h-250" data-ax5grid="tag_data_grid"></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="title_box">
+            <span class="right_align rpt" data-labelCd="상세정보">상세정보</span>
+        </div>
+
+        <div class="tabs" data-tab="tabWrap">
+            <div class="title_box">
+                <div class="left_align">
+                    <ul class="tab_links">
+                        <li><a href="#" class="tab" id="tabs_statistical_value" data-tablink="#tab_statistical_value" data-labelCd="변수통계값">변수통계값</a></li>
+                        <li><a href="#" class="tab" id="tabs_num_dist" data-tablink="#tab_num_dist" data-labelCd="수치형분포확인">수치형분포확인</a></li>
+                        <li><a href="#" class="tab" id="tabs_cat_dist" data-tablink="#tab_cat_dist" data-labelCd="범주형분포확인">범주형분포확인</a></li>
+                        <li><a href="#" class="tab" id="tabs_preprocessing" data-tablink="#tab_preprocessing" data-labelCd="전처리">전처리</a></li>
+                        <li><a href="#" class="tab" id="tabs_heatmap" data-tablink="#tabs_heatmap_tab" data-labelCd="상관관계히트맵">상관관계히트맵</a></li>
+                        <li><a href="#" class="tab" id="tabs_settingXy" data-tablink="#tabs_settingXy_tab" data-labelCd="XY지정">XY지정</a></li>
+                        <li><a href="#" class="tab" id="tabs_scatterPlot" data-tablink="#tabs_scatterPlot_tab" data-labelCd="산점도">산점도</a></li>
+                        <li><a href="#" class="tab" id="tabs_correlation" data-tablink="#tabs_correlation_tab" data-labelCd="상관관계값조회">상관관계값조회</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tab_content">
+                <div class="tab" id="tab_statistical_value">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <div class="title_box">
+                                <button type="button" class="btn-default" id="btnStatList">조회</button>
+                            </div>
+                            <div class="h-400" data-ax5grid="statistical_value_grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab" id="tab_num_dist">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <div class="title_box">
+                                <button type="button" class="btn-default" id="btnNumDist">조회</button>
+                                * 수치형 특성에 대해서 히스토그램과 상자수염그림을 그려 분포를 봅니다.
+                                <br /> 변수 개수, 데이터 개수가 많은 경우 시간이 오래 걸릴 수 있습니다.
+                            </div>
+                            <div><img id="imgNumDistChart" style="width:100%" /></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--추후개발-->
+                <div class="tab" id="tab_cat_dist">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <div class="title_box">
+                                <button type="button" class="btn-default" id="btnCatDist">조회</button>
+                                * 범주형 변수를 선택한 후 조회 버튼을 클릭하면  데이터의 값별 분포 수를 보여 줍니다.
+                                <br /> 변수 개수, 데이터 개수가 많은 경우 시간이 오래 걸릴 수 있습니다.
+                            </div>
+                            <div><img id="imgCatDistChart" style="width:100%" /></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab" id="tab_preprocessing">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <button type="button" class="btn-default" id="btnPreProc">조회</button>
+                            <button type="button" class="btn-default" id="btnsaveDsCol">결측치,이상치제거</button>
+                            * 변수별로 데이터 전처리를 시행합니다.<br /> 결측치의 처리방안을 지정하고 이상치를 제거하기 위해서 상, 하한값을 지정한 후 결측치,이상치 제거 버튼을 클릭합니다.
+                            <div class="h-400" data-ax5grid="preprocessing_grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab" id="tabs_heatmap_tab">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <button type="button" class="btn-default" id="btnHeatmap">조회</button>
+                            * 수치형 데이터들끼리 상관관계를 히트맵 형태로 표시합니다.
+                            <div><img id="imgHeatmap" style="width:100%" /></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab" id="tabs_settingXy_tab">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <button type="button" class="btn-default" id="btnDsXYColList">조회</button>
+                            <button type="button" class="btn-default" id="btnsaveDsColXY">XY저장</button>
+                            * 변수들에 대해서 상관관계 분석을 위해 X변수, Y변수를 지정합니다.
+                            <br /> Y변수는 목표, 상태 값 등이고 X변수는 Y변수에 영향을 미치는 변수입니다.
+                            <div class="h-400" data-ax5grid="settingXy-grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab" id="tabs_scatterPlot_tab">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <button type="button" class="btn-default" id="btnDsScatterChart">조회</button>
+                            * X변수와 Y변수에 대해서 산점도를 그려 표시합니다.
+                            <div><img id="imgScatter" style="width:100%" /></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab" id="tabs_correlation_tab">
+                    <div class="tab_con_box">
+                        <div class="grid_box">
+                            <button type="button" class="btn-default" id="btnCorrSheet">조회</button>
+                            * Y변수와 X변수의 계산된 회귀식의 계수값을 표시합니다.
+                            <div class="h-400" data-ax5grid="corr_grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </section>
+</div>
+
+
+{% verbatim %}
+<script type="text/x-tmpl" id="popTagTemplate">
+    <div class="content_wrap popup">
+        <section class="pt-2">
+            <div class="table_box search">
+                <div class="row">
+
+                    <div class="col-6">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-commonCd="설비">설비</span>
+                            </div>
+                                <select class="form-control2" id='cboEqu' name="cboEqu" ></select>
+                        </div>
+                    </div>
+
+                    <div class="col-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-commonCd="테그명">테그명</span>
+                            </div>
+                                <input class="form-control2" type="text" id="keywordTag" name="keywordTag" />
+                        </div>
+                    </div>
+
+                    <div class="col-1" >
+                            <button type="button" class="btn-default" id="btnPopSearch" title="조회"><i class="fas fa-search"></i></button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="grid_box">
+                <div class="row">
+                    <div class="col-5">
+                        <div class="h-300" data-ax5grid="pop-tag-grid"></div>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="btn-default" id="btnAddTag" title="추가"><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="col-5">
+                        <div class="h-300" data-ax5grid="pop-select-tag-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="popup_button_group bottom">
+                <div class="left_align">
+                    <button type="button" class="btn-popup" id="btnSearchTagData" ><span>선택완료</span></button>
+                    <button type="button" class="btn-popup" id="modal-close-button"><span>닫기</span></button>
+                </div>
+            </div>
+        </section>
+    </div>
+</script>
+
+<script type="text/x-tmpl" id="dsDataTemplate">
+    <div class="content_wrap popup">
+        <section class="pt-2">
+            <form id="dsDataForm">
+                <input type="hidden" id="id" name="id" value="{%=o.id%}">
+                <div class="table_box sub" id="detail_box">
+                    <div class="row">
+
+                        <div class="col-6 offset-md-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text fit_box_t4">제목</span>
+                                </div>
+                                 <input class="form-control2" type="text" name="Name" value="{%=o.Name%}"  />
+                            </div>
+                        </div>
+                        <div class="col-6 offset-md-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text fit_box_t4">비고</span>
+                                </div>
+                                 <input class="form-control2" type="text" name="Description" value="{%=o.Description%}"  />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+
+        <div class="grid_box" id='file_upload1'></div>
+
+       </section>
+
+        <section class="section">
+            <div class="popup_button_group bottom">
+                <div class="left_align">
+                <button type="button" class="btn-popup" id="btnSaveDsData" ><span>저장</span></button>
+                <button type="button" class="btn-popup" id="modal-close-button"><span>닫기</span></button>
+
+                </div>
+            </div>
+        </section>
+    </div>
+</script>
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+{% include '../common/columns_setting.html' %}
+{% include '../common/ax5_uploader.html' %}
+
+<script type="text/javascript">
+
+    class LearningDataPage {
+
+        constructor() {
+            this.baseUrl = '/api/ai/learning_data_from_tag';
+
+            this.tag_list = [];
+
+            this.tag_data_grid = null;
+            this.statistical_value_grid = null;
+            this.preprocessing_grid = null;
+
+            this.ds_xy_set_grid = null;
+            this.scatterPlotGrid = null;
+            this.corr_grid = null;
+            this.regressionGrid = null;
+
+            //업로더
+            this.uploader = null;
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let StatValueconfig = {
+                target: $('[data-ax5grid=statistical_value_grid]'),
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',
+                    columnHeight: 38
+                },
+                body: {
+                    columnHeight: 25
+                },
+                page: {
+                    display: true,
+                    statusDisplay: true
+                },
+                columns: [
+                    { key: "index", label: "인덱스", width: 50, align: "right" },
+                    { key: "val_name", label: "변수명", width: 150, align: "left" },
+                    { key: "data_cnt", label: "데이터개수", width: 80, align: "right" },
+                    { key: "missing_cnt", label: "결측치개수", width: 80, align: "right" },
+                    { key: "category_cnt", label: "범주개수", width: 80, align: "right" },
+                    { key: "average", label: "평균", width: 100, align: "right" },
+                    { key: "standard_deviation", label: "표준편차", width: 100, align: "right" },
+                    { key: "q1", label: "Q1", width: 100, align: "right" },
+                    { key: "q2", label: "Q2", width: 100, align: "right" },
+                    { key: "q3", label: "Q3", width: 100, align: "right" },
+                ]
+            };
+            this.statistical_value_grid = new ax5.ui.grid(StatValueconfig);
+
+            let preProcConfig = {
+                target: $('[data-ax5grid=preprocessing_grid]'),
+                frozenColumnIndex: 2, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',
+                    columnHeight: 38
+                },
+                body: {
+                    columnHeight: 25,
+                    onClick: function (e) {
+                        _this.preprocessing_grid.select(e.dindex);
+                        //if (e.column.key == 'X' || e.column.key == 'Y') {
+                        //    let new_value = e.value;
+                        //    if (new_value)
+                        //        new_value = '';
+                        //    else
+                        //        new_value = e.column.key;
+                        //     console.log('onclick new_value', new_value);
+                        //    //_this.ds_col_grid2.setValue(e.dindex, e.colIndex, new_value);
+                        //    this.item[e.column.key] = new_value;
+                        //    _this.ds_col_grid2.repaint();
+                        //}
+                    },
+                },
+                page: {
+                    display: true,
+                    statusDisplay: true
+                },
+                columns: [
+                    { key: "VarIndex", label: "인덱스", width: 80, align: "right" },
+                    { key: "VarName", label: "변수명", width: 150, align: "left" },
+                    {
+                        key: "X", label: "X변수", width: 80, align: "center",
+                        editor: { type: 'checkbox' }
+                    },
+                    {
+                        key: "Y", label: "Y변수", width: 80, align: "center",
+                        editor: { type: 'checkbox' }
+                    },
+                    { key: "DataCount", label: "데이터개수", width: 80, align: "right" },
+                    { key: "MissingCount", label: "결측치개수", width: 80, align: "right" },
+                    { key: "CategoryCount", label: "범주개수", width: 80, align: "right" },
+                    { key: "Mean", label: "평균", width: 80, align: "right" },
+                    { key: "Std", label: "표준편차", width: 80, align: "right" },
+                    { key: "Q1", label: "Q1", width: 80, align: "right" },
+                    { key: "Q2", label: "Q2", width: 80, align: "right" },
+                    { key: "Q3", label: "Q3", width: 80, align: "right" },
+                    {
+                        key: "MissingValProcess", label: "결측치처리", width: 100, align: "center",
+                        formatter: function () {
+                            return _this.mission_option_dc[this.value];
+                        },
+                        editor: {
+                            type: 'select',
+                            config: {
+                                columnKeys: { optionValue: 'code', optionText: 'name' },
+                                options: _this.mission_proc_options,
+                            }
+                        }
+                    },
+                    {
+                        key: "DropOutLow", label: "제거이상치하한", width: 80, align: "right",
+                        editor: { type: 'number' }
+                    },
+                    {
+                        key: "DropOutUpper", label: "제거이상치상한", width: 80, align: "right",
+                        editor: { type: 'number' }
+                    }
+                ]
+            };
+
+            this.preprocessing_grid = new ax5.ui.grid(preProcConfig);
+
+            //let settingXy = {
+            //    target: $('[data-ax5grid=settingXy-grid]'),
+            //    frozenColumnIndex: 0, // 열 고정
+            //    frozenRowIndex: 0,    // 행 고정
+            //    showLineNumber: false, // 열의 번호 보이기 여부
+            //    showRowSelector: false,  // checkbox(선택) 보이기 여부
+            //    multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+            //    sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+            //    multiSort: true, // 다중 정렬 여부
+            //    header: {
+            //        align: 'center',
+            //        columnHeight: 38
+            //    },
+            //    body: {
+            //        columnHeight: 25
+            //    },
+            //    page: {
+            //        display: true,
+            //        statusDisplay: true
+            //    },
+            //    columns: [
+            //        { key: "VarIndex", label: "인덱스", width: 80, align: "right" },
+            //        { key: "VarName", label: "변수명", width: 150, align: "left" },
+            //        {
+            //            key: "X", label: "X변수", width: 80, align: "center",
+            //            editor: { type: 'checkbox' }
+            //        },
+            //        {
+            //            key: "Y", label: "Y변수", width: 80, align: "center",
+            //            editor: { type: 'checkbox' }
+            //        },
+            //        { key: "DataCount", label: "데이터개수", width: 80, align: "right" },
+            //        { key: "MissingCount", label: "결측치개수", width: 80, align: "right" },
+            //        { key: "CategoryCount", label: "범주개수", width: 80, align: "right" },
+            //        { key: "Mean", label: "평균", width: 80, align: "right" },
+            //        { key: "Std", label: "표준편차", width: 80, align: "right" },
+            //        { key: "Q1", label: "Q1", width: 80, align: "right" },
+            //        { key: "Q2", label: "Q2", width: 80, align: "right" },
+            //        { key: "Q3", label: "Q3", width: 80, align: "right" },
+            //        {
+            //            key: "MissingValProcess", label: "결측치처리", width: 100, align: "center",
+            //            formatter: function () {
+            //                return _this.mission_option_dc[this.value];
+            //            },
+            //            editor: {
+            //                type: 'select',
+            //                config: {
+            //                    columnKeys: { optionValue: 'code', optionText: 'name' },
+            //                    options: _this.mission_proc_options,
+            //                }
+            //            }
+            //        },
+            //        {
+            //            key: "DropOutLow", label: "제거이상치하한", width: 80, align: "right",
+            //            editor: { type: 'number' }
+            //        },
+            //        {
+            //            key: "DropOutUpper", label: "제거이상치상한", width: 80, align: "right",
+            //            editor: { type: 'number' }
+            //        }
+            //    ]
+            //};
+
+            //let corr_grid_config = {
+            //    target: $('[data-ax5grid=corr_grid]'),
+            //    frozenColumnIndex: 0, // 열 고정
+            //    frozenRowIndex: 0,    // 행 고정
+            //    showLineNumber: false, // 열의 번호 보이기 여부
+            //    showRowSelector: false,  // checkbox(선택) 보이기 여부
+            //    multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+            //    sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+            //    multiSort: true, // 다중 정렬 여부
+            //    header: {
+            //        align: 'center',
+            //        columnHeight: 38
+            //    },
+            //    body: {
+            //        columnHeight: 25,
+            //        mergeCells: ['YVarName'],
+            //    },
+            //    page: {
+            //        display: true,
+            //        statusDisplay: true
+            //    },
+            //    columns: [
+            //        { key: "YVarName", label: "Y변수", width: 150, align: "left" },
+            //        { key: "data_type", label: "구분", width: 80, align: "left" },
+            //        { key: "intercept_", label: "절편", width: 80, align: "right" },
+            //    ]
+            //};
+
+            //this.statistical_value_grid = new ax5.ui.grid(ds_rows_config);
+            //this.ds_col_grid = new ax5.ui.grid(ds_col_config);
+            //this.ds_col_grid2 = new ax5.ui.grid(ds_col_config2);
+            //this.ds_xy_set_grid = new ax5.ui.grid(settingXy);
+            //this.corr_grid = new ax5.ui.grid(corr_grid_config);
+
+
+        }
+
+        showSelectTagPopup() {
+            let _this = this;
+            let content = tmpl('popTagTemplate', {});
+            let $content = $(content);
+            let pop_tag_grid = null;
+            let pop_tag_grid2 = null;
+
+            let modalContainer;
+            modalContainer = new PopupDraggable('태그선택');
+            modalContainer.open({ width: 500, height: 450, $content });
+
+            AjaxUtil.fillSelectOptions($('#cboEqu'), 'equipment', 'all', false);
+
+            let popConfig = {
+                target: $content.find('[data-ax5grid="pop-tag-grid"]'),
+                sortable: true,
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 25  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+                        pop_tag_grid.select(this.dindex);
+                    },
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'tag_name', label: '태그명', width: 120, align: 'left', },
+                ],
+            };
+
+            pop_tag_grid = new ax5.ui.grid(popConfig);
+
+            let popConfig2 = {
+                target: $content.find('[data-ax5grid="pop-select-tag-grid"]'),
+                sortable: true,
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 25  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 30, // body의 기본 높이
+                    onClick: function (e) {
+                        pop_tag_grid2.select(this.dindex);
+                    },
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'tag_name', label: '태그명', width: 120, align: 'left', },
+                    {
+                        key: 'remove', label: '제외', width: 50, align: 'center',
+                        formatter: function () {
+                            return '<button type="button" class="btn-danger" id="btnRemove" style="width:100%;height:1.7em;font-size:1em;padding:0;margin:0"> X </button>';
+                        }
+                    }
+                ],
+            };
+
+            pop_tag_grid2 = new ax5.ui.grid(popConfig2);
+            pop_tag_grid2.setData(_this.tag_list);
+
+            let getTagInfo = function () {
+                let param = {
+                    action: 'tag_list',
+                    equ_id: $content.find('#cboEqu').val(),
+                    keyword: $content.find('#keywordTag').val()
+                }
+
+                let succFunc = function (resp) {
+                    pop_tag_grid.setData(resp);
+                };
+
+                AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+            };
+
+            //태그추가
+            $content.find('#btnAddTag').on('click', function () {
+                let selectData = pop_tag_grid.getList('selected');
+                if (selectData.length > 0) {
+                    _this.addTag(pop_tag_grid2, selectData[0]);
+                }
+            });
+
+            //태그조회
+            $content.find('#btnPopSearch').on('click', function () {
+                getTagInfo();
+            });
+            $content.find('#cboEqu').on('change', function () {
+                getTagInfo();
+            });
+
+            //태그데이터조회
+            $content.find('#btnSearchTagData').on('click', function () {
+                let selectTags = pop_tag_grid2.getList();
+
+                if (selectTags.length > 0) {
+                    if (_this.tag_list.length > 0) {
+                        Alert.confirm('', '기존태그조회된이력이있습니다.\n 새로선택한태그로 조회하시겠습니까?'
+                            , function () {
+                                _this.tag_list = selectTags;
+                                modalContainer.close();
+                                _this.searchTagData();
+                            }
+                            , function () { return; })
+                    } else {
+                        _this.tag_list = selectTags;
+                        modalContainer.close();
+                        _this.searchTagData();
+                    }
+                } else {
+                    Alert.alert('', '선택된 태그가 없습니다.\n 태그를 추가하세요.');
+                }
+            });
+
+            $content.find('[data-ax5grid="pop-select-tag-grid"]').on('click', '#btnRemove', function (e) {
+                let selectRow = pop_tag_grid2.getList('selected')[0];
+
+                pop_tag_grid2.removeRow(selectRow.__index);
+            });
+        }
+
+        addTag(target, rowdata) {
+            let filterData = target.getList().filter(data => data.tag_code == rowdata.tag_code);
+            if (filterData.length == 0) {
+                target.addRow(rowdata);
+            } else {
+
+            }
+        }
+
+        searchTagData() {
+            let _this = this;
+            let colList = [];
+            let tagCodes = '';
+
+            _this.tag_list.forEach(function (item) {
+                tagCodes += item.tag_code + ','
+            });
+
+            let param = {
+                action: 'read_tag_data',
+                tag_codes: tagCodes,
+            }
+
+            _this.tag_list.forEach(function (item, index) {
+                let col = { key: item.tag_code, label: item.tag_name, width: 80, align: 'right' };
+                colList.push(col);
+            });
+
+            let tagDataConfig = {
+                target: $('[data-ax5grid="tag_data_grid"]'),
+                sortable: true,
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 25  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+                        _this.tag_data_grid.select(this.dindex);
+                    },
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'date_val', label: '수집시간', width: 140, align: 'left', },
+                ],
+            };
+            tagDataConfig.columns = tagDataConfig.columns.concat(colList);
+
+            _this.tag_data_grid = new ax5.ui.grid(tagDataConfig);
+
+            let succFunc = function (resp) {
+                _this.tag_data_grid.setData(resp);
+            }
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+        }
+
+        getStatisticalValue() {
+            let _this = this;
+            let tagCodes = '';
+
+            _this.tag_list.forEach(function (item) {
+                tagCodes += item.tag_code + ','
+            });
+
+            let param = {
+                action: 'get_statistical_value',
+                tag_codes: tagCodes
+            }
+
+            let succFunc = function (resp) {
+                let retData = JSON.parse(resp);
+                _this.statistical_value_grid.setData(retData);
+            };
+
+            if (_this.tag_list.length > 0) {
+                AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+            }
+        }
+
+        showNumDistChart() {
+            let _this = this;
+            let url = _this.baseUrl;
+            let tagCodes = '';
+
+            _this.tag_list.forEach(function (item) {
+                tagCodes += item.tag_code + ','
+            });
+
+            let param = {
+                action: 'get_numcol_boxhist',
+                tag_codes: tagCodes,
+            };
+
+            let succFunc = function (resp) {
+                if (resp.success) {
+                    $('#imgNumDistChart').attr('src', resp.chart_url);
+                }
+            }
+
+            if (_this.tag_list.length > 0) {
+                AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+            }
+        }
+    }
+
+    let page = null;
+
+    $(document).ready(function (e) {
+
+        page = new LearningDataPage();
+
+        $('#btnTagDataList').on('click', function () {
+            page.showSelectTagPopup();
+        });
+
+        $('#btnStatList').on('click', function () {
+            page.getStatisticalValue();
+        });
+
+        $('#btnNumDist').on('click', function () {
+            page.showNumDistChart();
+        });
+    })
+
+
+</script>
+
+{% endblock %}
+

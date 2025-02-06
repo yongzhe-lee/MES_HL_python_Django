@@ -5,7 +5,6 @@ Definition of urls for qm_lims.
 from datetime import datetime
 from django.urls import path, re_path
 from django.contrib import admin
-#from django.contrib.auth.views import LoginView, LogoutView
 from app.views.account import AccountLoginView, AccountLogoutView
 from app import forms
 from app.views.das import DASDeviceView
@@ -14,6 +13,8 @@ from app.views.extra import ExtraDefinitionView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.generic.base import RedirectView
 
+# aas관련
+from app.views.aas import AASDefaultRenderer
 
 urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico'))),
@@ -22,6 +23,10 @@ urlpatterns = [
     path('login/', AccountLoginView.as_view(next='/'), name='login'),
     path('logout/', AccountLogoutView.as_view(next='/login'), name='logout'),
 
+    # aas 관련
+    path('aas/swagger', AASDefaultRenderer.swagger , name='aas_swagger'),
+
+    # DAS에서 호출하는 API
     path('api/das_device', DASDeviceView.as_view(), name='das'), # DAS에서 호출한다, 인증관련 이슈
 
     path('test/', SystemDefaultRenderer.test, name='test'),
@@ -40,5 +45,4 @@ urlpatterns = [
     
     # 사용자정의 api 호출
     path('extra/<str:task>/<str:key>', ExtraDefinitionView.as_view(), name='extra'),
-
 ]

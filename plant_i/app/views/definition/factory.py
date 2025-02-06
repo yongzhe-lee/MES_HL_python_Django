@@ -42,30 +42,36 @@ def factory(context):
             result = DbUtil.get_rows(sql, dc)
 
         elif action == 'save':
-            factory_id = posparam.get('factory_id')
+            id = posparam.get('factory_id')
             factory_name = posparam.get('factory_name')
-            factory_code = posparam.get('factory_code')
-            # description = posparam.get('description')
+            factory_code = posparam.get('factory_code')            
 
             factory = None
-            if factory_id:
-                factory = Factory.objects.filter(id=factory_id).first()
-            else:
-                factory = Factory()
-            factory.Name = factory_name
-            factory.Code = factory_code
-            # factory.Description = description
-            factory.set_audit(request.user)
-            factory.Site_id = 1
-            factory.save()
 
-            result = { 'success':True }
+            try:
+                if id:
+                    factory = Factory.objects.get(id=id)
+
+                else:
+                    factory = Factory()                
+
+                factory.Name = factory_name
+                factory.Code = factory_code            
+
+                factory.set_audit(request.user)
+                factory.Site_id = 1
+                factory.save()
+
+                result = { 'success':True }
+
+            except Exception as ex:
+                source = 'api/definition/factory, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
 
         elif action == 'delete':
-            factory_id = posparam.get('factory_id')
-            factory = Factory.objects.filter(id=factory_id).first()
-            factory.set_audit(context.request.user)
-            factory.save()            
+            id = posparam.get('id')
+            Factory.objects.filter(pk=id).delete()        
             result = { 'success':True }
 
     except Exception as ex:

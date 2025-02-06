@@ -24,7 +24,7 @@ def process(context):
     try:
         if action =='read':
             
-            keyword = gparam.get('sch_keyword')
+            keyword = gparam.get('keyword')
 
             sql = '''
             SELECT 
@@ -39,7 +39,9 @@ def process(context):
             '''
             if keyword:
                 sql += ''' 
-                AND (p."Name" LIKE %(keyword)s OR u."Code" LIKE %(keyword)s) 
+                AND (p."Name" LIKE CONCAT('%%', %(keyword)s, '%%')
+                    OR p."Code" LIKE CONCAT('%%', %(keyword)s, '%%')
+                )
                 '''
 
             sql += '''
@@ -80,32 +82,12 @@ def process(context):
             process_type = posparam.get('process_type')
             description = posparam.get('description')
 
-            # 중복검사
-            check_name = Process.objects.filter(Name = process_name)
-            check_code = Process.objects.filter(Code = process_code)
-
-            if id:
-                check_name = check_name.exclude(id = id)
-                check_code = check_code.exclude(id = id)
-
-            check_name = check_name.first()
-            check_code = check_code.first()
-
-            if check_name:
-                result = {'success' : False, 'message' : '중복된 이름이 존재합니다.'}
-                return result
-
-            if check_code:
-                result = {'success' : False, 'message' : '중복된 코드가 존재합니다.'}
-                return result
-
-            if id:
-                proc = Process.objects.filter(id = id).first()
-            else:
-                proc = Process()
-
-            # transaction
-            with transaction.atomic():
+            try:
+                if id:
+                    proc = Process.objects.filter(id = id).first()
+                else:
+                    proc = Process()
+      
                 proc.Name = process_name
                 proc.Code = process_code
                 proc.ProcessType = process_type
@@ -113,17 +95,16 @@ def process(context):
                 proc.set_audit(request.user)
                 proc.save()
 
-            result = {'success' : True}
+                result = {'success' : True}
+
+            except Exception as ex:
+                source = 'api/definition/process, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
 
         elif action == 'delete':
             id = posparam.get('id')
-
-            if id:
-                proc = Process.objects.filter(id = id).first()
-                proc.DelYN = 'Y'
-                proc.UseYN = 'N'
-                proc.save()
-
+            Process.objects.filter(pk = id).delete()            
             result = {'success' : True}
 
     except Exception as ex:

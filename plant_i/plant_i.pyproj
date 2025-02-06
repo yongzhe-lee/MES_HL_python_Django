@@ -39,6 +39,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\forms.py" />
+    <Compile Include="app\views\aas\aasgui.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\aas\shells.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\aas\asset.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\aas\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\ai\defect_inspection.py" />
     <Compile Include="app\views\ai\learning_data_from_tag.py" />
     <Compile Include="app\views\ai\predictive_conversation.py" />
@@ -51,11 +63,16 @@
     <Compile Include="app\views\definition\bom.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
+    <Compile Include="app\views\kmms\pi_master.py" />
+    <Compile Include="app\views\kmms\wo_master.py" />
     <Compile Include="app\views\kmms\pm_master.py" />
     <Compile Include="app\views\system\das_config.py" />
     <Compile Include="app\views\system\depart.py" />
     <Compile Include="app\views\system\menu_log.py" />
     <Compile Include="domain\models\da.py" />
+    <Compile Include="domain\services\aas\shells.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\calculation\data_analysis.py" />
     <Compile Include="domain\services\ai\data_processing.py" />
     <Compile Include="domain\services\ai\image_data_learning.py" />
@@ -170,6 +187,8 @@
     <Compile Include="domain\services\file\attach_file.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="domain\services\kmms\pm_master.py" />
+    <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
     <Compile Include="domain\services\setup\__init__.py">
       <SubType>Code</SubType>
@@ -219,8 +238,11 @@
     <Folder Include="app\templates\definition\" />
     <Folder Include="app\templates\kmms\" />
     <Folder Include="app\templates\kmms\check\" />
+    <Folder Include="app\templates\kmms\pi\" />
+    <Folder Include="app\templates\kmms\wo\" />
     <Folder Include="app\templates\kmms\pm\" />
     <Folder Include="app\templates\ai\" />
+    <Folder Include="app\templates\aas\" />
     <Folder Include="app\templates\system_code\" />
     <Folder Include="app\templates\sample_page\" />
     <Folder Include="app\templates\popup\" />
@@ -252,6 +274,7 @@
     <Folder Include="app\views\kmms\" />
     <Folder Include="app\views\das\" />
     <Folder Include="app\views\ai\" />
+    <Folder Include="app\views\aas\" />
     <Folder Include="app\views\popup\" />
     <Folder Include="app\views\system\" />
     <Folder Include="app\views\tagdata\" />
@@ -265,12 +288,15 @@
     <Folder Include="domain\services\das\" />
     <Folder Include="domain\services\calculation\" />
     <Folder Include="domain\services\ai\" />
+    <Folder Include="domain\services\kmms\" />
+    <Folder Include="domain\services\aas\" />
     <Folder Include="domain\services\system_definition\" />
     <Folder Include="domain\_sql\" />
     <Folder Include="domain\services\" />
     <Folder Include="domain\services\setup\" />
     <Folder Include="domain\_sql\function\" />
     <Folder Include="domain\_sql\das_config\" />
+    <Folder Include="domain\_sql\aas\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
   </ItemGroup>
@@ -308,6 +334,7 @@
     <Content Include="app\static\css\webfonts\ionicons.woff" />
     <Content Include="app\static\css\webfonts\ionicons.woff2" />
     <Content Include="app\static\css\WZ.UI.css" />
+    <Content Include="app\static\img\kl-ci.png" />
     <Content Include="app\static\font\kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsI.woff2" />
     <Content Include="app\static\img\error_403.png" />
     <Content Include="app\static\img\error_404.png" />
@@ -839,6 +866,12 @@
     <Content Include="app\templates\401.html" />
     <Content Include="app\templates\403.html" />
     <Content Include="app\templates\404.html" />
+    <Content Include="app\templates\aas\aas.html">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="app\templates\aas\aasx.html" />
+    <Content Include="app\templates\aas\asset.html" />
+    <Content Include="app\templates\aas\swagger.html" />
     <Content Include="app\templates\ai\learning_data_from_tag.html" />
     <Content Include="app\templates\ai\predictive_conservation.html" />
     <Content Include="app\templates\ai\learning_data_info.html" />
@@ -853,7 +886,17 @@
     <Content Include="app\templates\definition\bom_참고.html" />
     <Content Include="app\templates\definition\bom.html" />
     <Content Include="app\templates\definition\defect_type.html" />
+    <Content Include="app\templates\definition\equip_work_hist.html" />
+    <Content Include="app\templates\definition\equip_obsolete.html" />
+    <Content Include="app\templates\definition\model_change.html" />
+    <Content Include="app\templates\definition\line_inactive.html" />
+    <Content Include="app\templates\kmms\wo\work_order_management.html" />
+    <Content Include="app\templates\kmms\wo\work_request_approval.html" />
+    <Content Include="app\templates\kmms\wo\work_order_approval.html" />
+    <Content Include="app\templates\kmms\wo\post_work_management.html" />
+    <Content Include="app\templates\kmms\wo\my_work_request.html" />
     <Content Include="app\templates\popup\modalEquDeptHist.html" />
+    <Content Include="app\templates\popup\pm_master.html" />
     <Content Include="app\templates\popup\modalEquLocHist.html" />
     <Content Include="app\templates\popup\modalEquLoc.html" />
     <Content Include="app\templates\system_code\code.html" />
@@ -928,6 +971,9 @@
     <Content Include="app\templates\tagdata\tag_statistics.html" />
     <Content Include="app\templates\tagdata\tag_sync_trend.html" />
     <Content Include="app\templates\tagdata\tag_trend.html" />
+    <Content Include="domain\_sql\aas\specificAssetId.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\das_config\01_hpc1.load.json" />
     <Content Include="domain\_sql\das_config\02_hpc1.flash.json" />
     <Content Include="domain\_sql\das_config\03_hpc1.ict.json" />
@@ -946,6 +992,7 @@
     <Content Include="domain\_sql\das_config\17_smt3.load.json" />
     <Content Include="domain\_sql\das_config\18_smt3.unload.json" />
     <Content Include="domain\_sql\function\fn_code_name.txt" />
+    <Content Include="domain\_sql\function\fn_lang_text.txt" />
     <Content Include="domain\_sql\partition\em_tag_dat.txt" />
     <Content Include="domain\_sql\partition\tag_dat.txt" />
     <Content Include="domain\_sql\01.기초데이터.txt" />

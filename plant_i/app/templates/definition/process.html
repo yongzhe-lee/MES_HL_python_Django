@@ -10,9 +10,9 @@
                 <div class="form-ui">
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="sch_keyword">검색어</label>
+                            <label class="k-label k-form-label" for="keyword">검색어</label>
                             <div class="field-wrapper">
-                                <input id="sch_keyword" name="sch_keyword" placeholder="공정명, 공정코드" />
+                                <input id="keyword" name="keyword" placeholder="공정명, 공정코드" />
                             </div>
                         </div>
                     </div>
@@ -41,11 +41,11 @@
 
             <div class="card-content edit">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
                     <span>
-                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
-                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
-                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
                     </span>
                 </div>
 
@@ -138,9 +138,11 @@
             _this.grid = new Grid($('#process_grid'), gridOption);
 
             // searchForm
-            $('#sch_keyword').kendoTextBox({});
-            $('#sch_keyword').keypress(function (e) {
+            $('#keyword').kendoTextBox({});
+            $('#keyword').keypress(function (e) {
                 if (e.keyCode == 13) {
+                    // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                    e.preventDefault();
                     _this.searchMainData();
                 }
             })
@@ -163,137 +165,110 @@
             $('#process_code').kendoTextBox({});
             $('#process_type').kendoTextBox({});
             $('#description').kendoTextBox({});
-            //$('#remark').kendoTextArea({
-            //    rows: 4,
-            //    autosize: true,
-            //    maxLength: 500, // 글자수
-            //    size: "large"
-            //});
-            $("#use_yn").kendoSwitch({
-                checked: false
-            });
 
             // detailForm btns
             $('#btnClear').kendoButton({
                 themeColor: "base",
                 click: function () {
-                    _this.resetForm();
-                    $('#btnSave').prop('disabled', false);
+                    _this.resetData();
                 }
             });
             $('#btnSave').kendoButton({
                 themeColor: "info",
                 click: function () {
-                    Alert.confirm('저장하시겠습니까?', function () {
-                        _this.saveData()
-                    });
+                    _this.saveData()
                 }
             });
             $('#btnDelete').kendoButton({
                 themeColor: "error",
                 click: function () {
-                    Alert.confirm('삭제하시겠습니까?', function () {
-                        _this.deleteData()
-                    });
+                    _this.deleteData()
                 }
             });
 
         }
 
-        setButtonState() {
-            let _this = this;
-            let process_id = $('#process_id').val();
-
-            $('#btnSave').prop('disabled', true);
-            $('#btnDelete').prop('disabled', true);
-
-            if (process_id) {
-                $('#btnSave').prop('disabled', false);
-                $('#btnDelete').prop('disabled', false);
-            } else {
-                $('#btnSave').prop('disabled', true);
-                $('#btnDelete').prop('disabled', true);
-            }
-
-        }
-
         searchMainData() {
             let _this = this;
-
-            let data = FormUtil.extractForm($('#searchForm'));
-            data['action'] = 'read'
-
-            let result = AjaxUtil.getSyncData(_this.baseUrl, data);
-
-            if (result) {
-                _this.grid.setData(result);
-            }
-
-            _this.resetForm();
-        }
-
-        resetForm() {
-            let _this = this;
-            FormUtil.resetForm($('#detailForm'));
-            _this.setButtonState();
-        }
-
-        showDetail(id) {
-            let _this = this;
-            let data = {
-                'action': 'detail',
-                'id': id
+            let param = {
+                action: 'read',
+                keyword: $('#keyword').val(),
             };
+            
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, data);
+        resetData() {
+            let _this = this;
+            $("#process_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#detailForm'));            
+        }
 
-            if (result) {
-                FormUtil.BindDataForm(result, $('#detailForm'));
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
             }
-
-            _this.setButtonState();
         }
 
         saveData() {
-            let _this = this;
-            let url = _this.baseUrl + '?action=save';
+            let _this = this;            
             let data = FormUtil.extractForm($('#detailForm'));
 
             //필수 입력값 체크
-            if (checkForm($('#detailForm')) === false) return;
+            //if (checkForm($('#detailForm')) === false) return;
+            let Code = $('#process_code').val();
+            let Name = $('#process_name').val();
+
+            if (!Code) {
+                Alert.alert('', '공정코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '공정명을 입력해주세요.');
+                return;
+            }
 
             let fnSuccess = function (res) {
                 if (res.success) {
                     Notify.success('저장되었습니다');
+                    _this.resetData();
                     _this.searchMainData();
                 } else {
                     Alert.alert('', res.message);
                 }
             }
-            AjaxUtil.postAsyncData(url, data, fnSuccess);
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, fnSuccess);
         }
 
         deleteData() {
-            let _this = this;
-            let url = _this.baseUrl + '?action=delete';
-            let id = $('#detailForm').find('#process_id').val();
-            let data = { 'id': id };
-
-            let fnSuccess = function (res) {
-                if (res.success) {
-                    Notify.success('삭제되었습니다');
-                    _this.searchMainData();
-                } else {
-                    Alert.alert('', res.message);
+            let _this = this;        
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];                
+                let param = {
+                    id: selectData.process_id,
                 }
+                
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
             }
-            AjaxUtil.postAsyncData(url, data, fnSuccess);
         }
     }
     
+    let page = new ProcessPage();
 
-    $(document).ready(function () {
-        let page = new ProcessPage();
+    $(document).ready(function () {        
         page.searchMainData();
     })
 

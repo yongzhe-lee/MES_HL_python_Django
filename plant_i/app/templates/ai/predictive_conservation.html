@@ -1,0 +1,664 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content_wrap">
+    <section>
+
+        <div class="title_box ">
+            <div class="left_align">
+                <h3 data-labelCd="예지보전 알람">예지보전 알람</h3>
+            </div>
+            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
+            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
+        </div>
+
+        <div class="table_box search">
+            <form id="searchForm">
+                <div class="row">
+                    <div class="col-12 col-md-4 col-xl-2">
+                        <div class="input-group" data-ax5picker="basic" id="srchDt">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="일자">일자</span>
+                            </div>
+                            <input class="form-control2 tac" type="text" id="srchStartDt" name="srchStartDt">
+                            <span class="input-group-text fs-xl"><i class="fas fa-calendar-alt calendar_color"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-5 col-lg-4 col-xl-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_t4" data-labelCd="시간">시간</span>
+                            </div>
+                            <div class="form-control2">
+                                <input class="tac timepicker" type="text" id="srchStartTm" name="srchStartTm" />
+                                <span class="slow_sign">~</span>
+                                <input class="tac timepicker" type="text" id="srchEndTm" name="srchEndTm" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-1">
+                        <button type="button" class="btn-default" id="btnSearch"><i class="fas fa-search"></i>차트조회</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section>
+        <div class="row">
+            <div class="col-5">
+                <div class="grid_box">
+                    <div class="title_box">
+                        <span class="right_align rpt" style="font-size: 15px; font-weight: bold; padding-top: 0;" data-labelCd="수집데이터 목록">수집데이터 목록</span>
+                        <!--<button type="button" class="btn-default" id="btnExcel"><i class="fas fa-file-excel"></i></button>-->
+                    </div>
+                    <div class="h-250" data-ax5grid="equ_data_grid"></div>
+                </div>
+                <div class="grid_box">
+                    <div class="title_box">
+                        <div class="input-group" style="width:60%;">
+                            <button type="button" class="btn-default" id="btnLearningAll">전체데이터학습</button>&ensp;&ensp;
+                            <button type="button" class="btn-default" id="btnPredCons">예측알람값 조회</button>&ensp;&ensp;
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" data-labelCd="정확도">정확도</span>
+                            </div>
+                            <input class="form-control2 tar" id="accuracy" name="accuracy" readonly />
+                        </div>
+                    </div>
+                    <div style="height:229px;" data-ax5grid="future_prediction_grid"></div>
+                </div>
+            </div>
+            <div class="col-7">
+                <div class="title_box">
+                    <span class="right_align" style="font-size: 15px; font-weight: bold; margin-bottom: 11px;" data-labelCd="데이터 트렌드">데이터 트렌드</span>
+                </div>
+                <div class="table_box sub">
+                    <div class="row" id="divChart">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display:inline-block; width:45%;">
+
+        </div>
+        <div style="display:inline-block; width:54%;">
+
+        </div>
+    </section>
+</div>
+    {% endblock %}
+
+    {% block scripts %}
+<script src="/static/resource/apexcharts/apexcharts.3.26.min.js"></script>
+    {% include '../common/columns_setting.html' %}
+<script type="text/javascript">
+    class predictConservPage {
+        constructor() {
+            this.grid = null;
+            this.predGrid = null;
+            this.baseUrl = '/api/ai/predictive_conversation';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let config = {
+                target: $('[data-ax5grid="equ_data_grid"]'),
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: false, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 25  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+                        _this.grid.select(this.dindex);
+
+                        drawChart(e.item.tag_code);
+                    }
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'tag_name', label: '태그명', width: 100, align: 'left' },
+                    { key: 'last_value', label: '최근수집값', width: 100, align: 'right' },
+                    { key: 'last_date', label: '최근수집일시', width: 180, align: 'center' },
+                ]
+            };
+
+            this.grid = new ax5.ui.grid(config);
+            this.grid_config = config;
+
+            let predConfig = {
+                target: $('[data-ax5grid="future_prediction_grid"]'),
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: false, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 25  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+                    }
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'future_time', label: '시간(초 후)', width: 100, align: 'left' },
+                    { key: 'predictive_val', label: '예측값', width: 100, align: 'right' },
+                ]
+            };
+
+            this.predGrid = new ax5.ui.grid(predConfig);
+        }
+
+        exportExcel() {
+            var targetview = this.grid;
+            // 현재 html코드로 데이터 만들어 확장자만 xls로 변경해주고 있음
+            targetview.exportExcel('공정데이터 조회.xls');
+        }
+
+        searchMainData() {
+            let _this = this;               //조회조건 변경 필요
+
+            let param = {
+                'action': 'read_tag_data',
+            };
+
+            let res = AjaxUtil.getSyncData(_this.baseUrl, param);
+            if (res) {
+                let recordsTotal = res.length;
+                _this.grid.setData({
+                    list: res,
+                    page: {
+                        display: true,
+                        totalElements: recordsTotal,
+                    }
+                });
+            }
+        }
+
+        getFuturePredictiveData(allYn = 'N') {
+            let _this = this;               //조회조건 변경 필요
+
+            let param = {
+                'action': 'get_predictive_data',
+                'all_yn': allYn,
+            };
+
+            let succFunc = function (res) {
+                if (res.success) {
+                    _this.predGrid.setData({
+                        list: res.predict_list,
+                        page: {
+                            display: true,
+                            totalElements: res.predict_list.length,
+                        }
+                    });
+
+                    $('#accuracy').val(res.accuracy);
+                }
+            }
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+        }
+
+        learningData() {
+            let _this = this;
+            let param = {
+                action: 'learning_data'
+            };
+
+            let succFunc = function (resp) {
+                if (resp.success) {
+                    Notify.success('전체학습을 시작했습니다.');
+                }
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+        }
+    }
+
+    class chartTrend {
+        constructor(chartId, title, lsl, usl, show_brush, series_data) {
+            this.chartId = chartId;
+            this.title = title;
+            this.lsl = lsl ? lsl : null;
+            this.usl = usl ? usl : null;
+            this.show_brush = show_brush;
+            this.series_data = series_data ? series_data : [];
+            //this.grid = null;
+            this.chart = null;
+            this.options = null;
+
+            this.brushChart = null;
+            this.brushOptions = null;
+            this.lsl_annot = {
+                key: 'lsl',
+                y: this.lsl,
+                strokeDashArray: 0,
+                borderColor: '#0100FF',
+                borderWidth: 1,
+                fillColor: '#0100FF',
+                opacity: 1,
+                label: {
+                    borderColor: '#0100FF',
+                    borderWidth: 1,
+                    borderRadius: 1,
+                    style: {
+                        color: '#fff',
+                        background: '#0100FF',
+                        fontSize: '12px',
+                        fontWeight: 300,
+                    },
+                    text: 'LSL : ' + this.lsl,
+                }
+            };
+            this.usl_annot = {
+                key: 'usl',
+                y: this.usl,
+                strokeDashArray: 0,
+                borderColor: '#FF0000',
+                borderWidth: 1,
+                fillColor: '#FF0000',
+                opacity: 1,
+                label: {
+                    borderColor: '#FF0000',
+                    borderWidth: 1,
+                    borderRadius: 1,
+                    style: {
+                        color: '#fff',
+                        background: '#FF0000',
+                        fontSize: '12px',
+                        fontWeight: 300,
+                    },
+                    text: 'USL : ' + this.usl,
+                }
+            };
+            this.init();
+        }
+
+        calcMinMaxY() {
+
+            let new_array = [];
+            console.log('this.series_data', this.series_data);
+            let data = this.series_data[0].data;
+
+            //lsl, usl 그냥 push할 경우 min값이 자동으로 0 이되기 때문에 값이 있을경우 push
+            if (this.lsl != null) {
+                new_array.push(this.lsl);
+            }
+            if (this.usl != null) {
+                new_array.push(this.usl);
+            }
+
+            data.forEach(function (item, index) {
+                new_array.push(item[1]);
+            });
+
+            let maxY = Math.max(...new_array);
+            let minY = Math.min(...new_array);
+
+            return { min: minY, max: maxY };
+        }
+
+        overPoint() {
+
+            let data = this.series_data[0].data;
+            let overY_array = [];
+            let usl = this.usl;
+            let lsl = this.lsl;
+
+            data.forEach(function (item, index) {
+                console.log('forEach 돌리기');
+                if (item[1] > usl || item[1] < lsl) {
+                    overY_array.push(item[1]);
+                }
+            });
+
+            console.log('overY_array', overY_array);
+
+            return overY_array;
+        }
+
+        init() {
+            let _this = this;
+
+            let calcedMinMax = this.calcMinMaxY();
+            let overPoint = this.overPoint();
+
+            this.options = {
+                series: this.series_data,
+                chart: {
+                    id: this.chartId,
+                    group: 'syncchart',
+                    height: 250,
+                    width: '100%',
+                    type: "line",
+                    toolbar: {
+                        show: true,    // 우측상단 버튼 출력여부
+                    },
+                    export: {
+                        csv: {
+                            filename: '데이터트렌드',
+                            columnDelimiter: ',',
+                            headerCategory: 'category',
+                            headerValue: 'value',
+                            dateFormatter(timestamp) {
+                                return new Date(timestamp).toDateString()
+                            }
+                        }
+                    }
+                },
+                colors: ["#77B6EA", "#545454", "#86E57F"],    //라인 색상
+
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'straight',  // "smooth"
+                },
+                title: {
+                    text: _this.title,
+                    align: "center"
+                },
+                grid: {
+                    borderColor: "#e7e7e7",
+                    row: {
+                        colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+                        opacity: 0.5
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    theme: 'light',       //light, dark
+                    x: {
+                        show: true,
+                        format: 'TT hh:mm:ss',
+                    },
+                    custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                        let color = ['#77B6EA', '#CC3D3D', '#FF5E00'];
+                        let time = new Date(w.config.series[0].data[dataPointIndex][0]).toLocaleTimeString();
+                        let item_name = w.config.title.text.replace(' ', '<br/>');
+                        let value = series[seriesIndex][dataPointIndex];
+                        let s = '<div class="" style="left: 76.9766px; top: 140.609px;">' +
+                            '<div class="apexcharts-tooltip-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' + time + '</div>' +
+                            '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: ' + color[1] + '"></span>' +
+                            '<div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                            '<div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-label">' + item_name + ': </span><span class="apexcharts-tooltip-text-value">' + value + '</span></div>' +
+                            '</div></div>';
+                        s += '</div>';
+                        return s;
+                    },
+                },
+                xaxis: {
+                    type: "datetime",
+                    tickAmount: 10,
+                    labels: {
+                        show: true,
+                        datetimeUTC: false,
+                        formatter: function (value, timestamp) {
+                            return new Date(value).toLocaleTimeString();
+                        },
+                        datetimeFormatter: {
+                            year: 'yyyy',
+                            month: "MMM 'yy",
+                            day: 'dd MMM',
+                            hour: 'HH:mm',
+                        },
+                        offsetX: 0,
+                        offsetY: 0,
+                        rotate: -55,
+                        rotateAlways: true,
+                        style: {
+                            colors: [],
+                            fontSize: '12px',
+                            fontFamily: 'Helvetica, Arial, sans-serif',
+                            fontWeight: 400,
+                            cssClass: 'apexcharts-xaxis-label',
+                        },
+                    },
+                },
+                yaxis: {
+                    //forceNiceScale: true,
+                    min: calcedMinMax.min * 0.9,
+                    max: calcedMinMax.max * 1.1,
+                },
+                annotations: {
+                    yaxis: [],
+
+                    points: [{
+
+                        //x: new Date('01 Dec 2017').getTime(),
+                        y: overPoint.overY_array,
+                        marker: {
+                            size: 8,
+                            fillColor: '#fff',
+                            strokeColor: 'red',
+                            radius: 2,
+                            cssClass: 'apexcharts-custom-class'
+                        },
+                        label: {
+                            borderColor: '#FF4560',
+                            offsetY: 0,
+                            style: {
+                                color: '#fff',
+                                background: '#FF4560',
+                            },
+
+                            text: 'Point Annotation',
+                        }
+                    }]
+                },
+            };
+            if (this.lsl != null)
+                this.options.annotations.yaxis.push(this.lsl_annot);
+            if (this.usl != null)
+                this.options.annotations.yaxis.push(this.usl_annot);
+
+            this.brushOptions = {
+                series: this.series_data,
+                chart: {
+                    id: 'brush' + this.chartId,
+                    height: 200,
+                    width: '100%',
+                    type: 'area',
+                    brush: {
+                        target: this.chartId,
+                        enabled: true,
+                        autoScaleYaxis: false
+                    },
+                    selection: {
+                        enabled: true,
+                    },
+                },
+                colors: ['#008FFB'],
+
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        opacityFrom: 0.91,
+                        opacityTo: 0.1,
+                    }
+                },
+
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: true,
+                        datetimeUTC: false,
+                        format: 'HH:mm',
+                        offsetX: 0,
+                        offsetY: 0,
+                        rotate: 0,
+                        rotateAlways: true,
+                        style: {
+                            colors: [],
+                            fontSize: '12px',
+                            fontFamily: 'Helvetica, Arial, sans-serif',
+                            fontWeight: 400,
+                            cssClass: 'apexcharts-xaxis-label',
+                        },
+                    },
+                    tooltip: {
+                        enabled: true,
+                        followCursor: true,
+                    }
+                },
+                yaxis: {
+                    tickAmount: 2,
+                },
+                tooltip: {
+                    enabled: true,
+                    theme: 'light',       //light, dark
+                    x: {
+                        show: true,
+                        format: 'TT hh:mm:ss',
+                    },
+                },
+            };
+
+            //brush만 보이게
+            this.chart = new ApexCharts(document.querySelector("#" + this.chartId), this.options);
+            this.chart.render();
+            //if (this.show_brush) {
+            this.brushChart = new ApexCharts(document.querySelector("#brush" + this.chartId), this.brushOptions);
+            this.brushChart.render();
+            //}
+        }
+    }
+
+    let chartPage = [];
+
+    function drawChart(tag_code) {
+        let start_date = $('#srchStartDt').val() + ' ' + $('#srchStartTm').val() + ':00';
+        let end_date = $('#srchStartDt').val() + ' ' + $('#srchEndTm').val() + ':00';
+
+        let show_brush = true;
+
+        let url = '/api/tagdata/tag_trend?action=read';
+        let param = {
+            start_time: start_date,
+            end_time: end_date,
+            tag_codes: tag_code
+        };
+        let fnSuccess = function (result) {
+            console.log('result', result);
+            if (chartPage != null) {
+
+                if (chartPage.chart) {
+                    chartPage.chart.destroy();
+                    chartPage.chart = null;
+                }
+
+                if (chartPage.brush_chart) {
+                    chartPage.brushChart.destroy();
+                    chartPage.brushChart = null;
+                }
+            }
+
+            $('#divChart').empty();
+
+
+            let tag_data = result[tag_code];
+
+            let data = tag_data.data;
+            let series_data = [];
+            let html = '<div class="col-lg-12" ><div id="chart" class="chart_border"></div>';
+
+            if (show_brush) html += '<div id="brushchart" class="chart_border"></div>';
+            html += "</div>";
+
+            $('#divChart').append(html);
+
+            if (data) {
+                data.forEach(function (item, index) {
+                    series_data.push([Date.parse(item.data_time), item.data_value]);
+                });
+            }
+
+            let series = [
+                {
+                    name: tag_data.tag_name,
+                    data: series_data
+                },
+            ];
+
+            chartPage = new chartTrend('chart', tag_data.tag_name, tag_data.lsl, tag_data.usl, show_brush, series);
+        };
+
+        AjaxUtil.postAsyncData(url, param, fnSuccess);
+    }
+
+    let page = null;
+
+    $(document).ready(function (e) {
+        page = new predictConservPage();
+
+        $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
+        //$('select').select2();
+        $('#srchDt').ax5DatePicker({ direction: 'top' });
+        $('#srchStartTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i',
+        }).val('09:00');
+        $('#srchEndTm').timepicker({
+            show2400: true,
+            timeFormat: 'H:i'
+        }).val('18:00');
+        // 트랜드차트검색
+        $('#btnSearch').click(function (e) {
+            let selectData = page.grid.getList('selected');
+            if (selectData.length > 0) {
+                drawChart(selectData[0].tag_code);
+            } else {
+                drawChart('T001');
+            }
+        });
+        $('#btnLearningAll').click(function () {
+            page.learningData();
+        });
+        //예측값 결과조회
+        $('#btnPredCons').click(function () {
+            page.getFuturePredictiveData();
+        });
+        // 엑셀
+        $('#btnExcel').on('click', function () {
+            page.exportExcel();
+        });
+        //그리드 컬럼 설정
+        //page.popColSetting = new popColSetting();
+        //let columns = page.popColSetting.loadColumnData(gui.gui_code, gui.template_key, 'grid',  page.grid);
+
+        //if (userinfo.group_code == 'admin') {
+        //    $('#btnGridSetting').css('visibility','visible');
+        //}
+
+        //$('#btnGridSetting').click(function (e) {
+        //    let _this = this;
+        //    let fix_cols = page.grid_config.frozenColumnIndex;
+        //    console.log('fix_cols', fix_cols);
+        //    page.popColSetting.show(gui.gui_code, gui.template_key, 'grid', page.grid_config.columns, page.grid, { 'order_fix':false,  'fix_cols' : fix_cols });
+        //});
+        page.searchMainData();
+    })
+</script>
+    {% endblock %}

@@ -71,15 +71,7 @@
                                     <input id="factory_code" name="factory_code" />
                                 </div>
                             </div>
-                        </div>
-                        <!--<div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
-                                <div class="field-wrapper">
-                                    <input id="description" name="description" />
-                                </div>
-                            </div>
-                        </div>-->
+                        </div>                     
                     </div>
                 </form>
             </div>
@@ -104,33 +96,16 @@
         init() {
             let _this = this;
 
-            let gridOption = {
-                //height: 450,
-                //toolbar: [
-                //    "columns"
-                //],
-                //columnMenu: {
-                //    componentType: "classic",
-                //    autoSize: true,
-                //    clearAllFilters: true,
-                //    columns: {
-                //        sort: "asc",
-                //    }
-                //},
+            let gridOption = {               
                 columns: [
                     { field: "factory_code", title: "공장코드", width: 100 },
-                    { field: "factory_name", title: "공장명", width: 150 },
-                    //{ field: "description", title: "비고", width: 200 },
+                    { field: "factory_name", title: "공장명", width: 150 },                    
 
                 ],
                 change: function (e) {
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    //for (var i = 0; i < this.columns.length; i++) {
-                    //    this.autoFitColumn(i);
-                    //};
-
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
                 },
@@ -144,12 +119,6 @@
             //form
             $('#factory_name').kendoTextBox();
             $('#factory_code').kendoTextBox();
-            //$('#description').kendoTextArea({
-            //    rows: 4,
-            //    maxLength: 200,
-            //    placeholder: ""
-            //});
-            
 
             //form button
             $('#btnSearch').kendoButton({
@@ -164,7 +133,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    _this.grid.grid.saveExcel();
+                    page.exportExcel();
                 }
             });
 
@@ -179,9 +148,9 @@
                     _this.saveData();
                 }
             });
-            $('#btnDelete').kendoButton({
+            $('#btnDelete').kendoButton({                
                 themeColor: "error",
-                click: function () {
+                click: function () {                    
                     _this.deleteData();
                 }
             });
@@ -189,8 +158,8 @@
         }
 
         searchMainData() {
+            console.log('searchMainData');
             let _this = this;
-
             let param = {
                 action: 'read',
                 prod_type: $('#srch_prod_type').val(),
@@ -220,25 +189,40 @@
             let _this = this;
             let data = FormUtil.extractForm($('#factoryForm'));
 
+            let Code = $('#factory_code').val();
+            let Name = $('#factory_name').val();
+
+            if (!Code) {
+                Alert.alert('', '공장코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '공장명을 입력해주세요.');
+                return;
+            }
 
             let funcSucc = function (resp) {
                 if (resp.success) {
                     $('#factory_id').val(resp.factory_id);
                     Notify.success('저장되었습니다.');
+                    //초기화
+                    _this.resetData();
                     _this.searchMainData();
+                    
                 } else {
                     Alert.alert('error', resp.message);
                 }
-            };
-
+            };            
             AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
         }
 
-        deleteData() {
+        deleteData() {            
             let _this = this;
             let data = _this.grid.getSelect();
             if (data.length > 0) {
                 let selectData = data[0];
+                let param = {
+                    id: selectData.factory_id
+                };
                 let funcSucc = function (resp) {
                     if (resp.success) {
                         Notify.success('삭제되었습니다.');
@@ -247,16 +231,25 @@
                     } else {
                         Alert.alert('error', resp.message);
                     }
-                };
-                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', selectData, funcSthisucc);
+                };                
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
             }
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#factory_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "factory.xlsx";
+            });
+            gridData.saveAsExcel();
         }
 
     };
    
+    let page = new FactoryPage();
 
-    $(document).ready(function () {
-        let page = new FactoryPage();
+    $(document).ready(function () {        
         page.searchMainData();
     });
 

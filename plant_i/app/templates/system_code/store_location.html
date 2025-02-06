@@ -1,0 +1,358 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+{# 25.01.20 김하늘 생성 #}
+{# 기존 CMMS에는 보관위치주소 테이블이 별도로 존재.KMMS에서는 자재 마스터 외 자재 관련 업무는 관리하지 않는 관계로, 해당 메뉴는 유저 코드에서 관리하도록 변경함 #}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- enterkey 바인딩 시, 폼제출 되지 않도록 막기 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부"></label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="보관위치 주소">보관위치 주소</label></span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="store_location_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                    <span>
+                        <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="storeLocationForm">
+                    <div class="edit-form-ui">
+                        <input type="hidden" id="id" name="id" />
+                        <input type="hidden" id="code_grp_code" name="code_grp_code" />
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="code" data-labelCd="보관위치코드">보관위치코드</label>
+                                <div class="field-wrapper">
+                                    <input id="code" name="code" data-msg="코드를" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="name" data-labelCd="보관위치명">보관위치명</label>
+                                <div class="field-wrapper">
+                                    <input id="name" name="name" data-msg="코드명을" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="attr1" data-labelCd="속성1">속성1</label>
+                                <div class="field-wrapper">
+                                    <input id="attr1" name="attr1" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="attr2" data-labelCd="속성2">속성2</label>
+                                <div class="field-wrapper">
+                                    <input id="attr2" name="attr2" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="attr3" data-labelCd="속성3">속성3</label>
+                                <div class="field-wrapper">
+                                    <input id="attr3" name="attr3" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="disp" data-labelCd="표시순서">표시순서</label>
+                                <div class="field-wrapper">
+                                    <input id="disp" name="disp" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remark" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="remark" name="remark" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class StoreLocationPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/code';
+            this.codeGroup = 'STOR_LOC_ADDR';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let materialTypeGridOption = {
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { title: 'No.', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                    { field: "code", title: "보관위치코드", width: 100 },
+                    { field: "name", title: "보관위치명", width: 100 },
+                    { field: "remark", title: "비고", width: 100 },
+                    { field: "disp", title: "순서", width: 80, attributes: { style: 'text-align: center' } },
+                    { field: "attr1", title: "속성1", width: 100 },
+                    { field: "attr2", title: "속성2", width: 100 },
+                    { field: "attr3", title: "속성3", width: 100 },
+                    { field: "use_yn", title: "사용여부", width: 100, attributes: { style: 'text-align: center' } },
+                ],
+                // 클릭 이벤트
+                change: function (e) {
+                    _this.showDetail();
+                },
+                // 데이터 바인딩 이벤트
+                dataBound: function (e) {
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        $(this).find("td:first").html(index + 1);
+                    });
+
+                    this.autoFitColumns();
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#store_location_grid"), materialTypeGridOption);
+
+            //search form
+            $('#sch_keyword').kendoTextBox({
+                placeholder: "보관위치명, 보관위치코드, 설명"
+            });
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'user_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
+            });
+
+            //detail form
+            $('#code').kendoTextBox();
+            $('#name').kendoTextBox();
+            $('#use_yn').kendoSwitch({
+                checked: true
+            });
+            $('#attr1').kendoTextBox();
+            $('#attr2').kendoTextBox();
+            $('#attr3').kendoTextBox();
+            $('#disp').kendoTextBox({});
+            $('#remark').kendoTextArea({
+                rows: 3,
+                autosize: true,
+                maxLength: 500,
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                code_grp_code: this.codeGroup,
+                sch_keyword: $('#sch_keyword').val(),
+                sch_use_yn: $('#sch_use_yn').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+
+        }
+
+        resetData() {
+            let _this = this;
+            $("#store_location_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#storeLocationForm'));
+            $("#use_yn").data("kendoSwitch").check(true);
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#storeLocationForm'));
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#storeLocationForm'));
+
+            //console.log("data1", data, "this.codeGroup", this.codeGroup);
+
+            data.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            data.code_grp_code === "" ? data.code_grp_code = this.codeGroup : data.code_grp_code;   // insert의 경우 codeGroup이 없으므로 할당
+
+            //console.log("data2", data);
+
+            if (checkForm($('#storeLocationForm')) === false) return;
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('저장되었습니다.');
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+
+            if (data.length > 0) {
+                let selectData = data[0];
+
+                selectData = { id: selectData.id };
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', selectData, funcSucc);
+            }
+        }
+
+    };
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new StoreLocationPage();
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

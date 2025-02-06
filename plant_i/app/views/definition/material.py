@@ -110,33 +110,12 @@ def material(context):
             in_price = CommonUtil.blank_to_none(posparam.get('in_price'))
             out_price = CommonUtil.blank_to_none(posparam.get('out_price'))
 
-            # 중복검사
-            check_code = Material.objects.filter(Code = material_code)
-            check_name = Material.objects.filter(Name = material_name)
-
-            if id:
-                check_name = check_name.exclude(id = id)
-                check_code = check_code.exclude(id = id)
-
-            check_code = check_code.first()
-            check_name = check_name.first()
-
-            
-            if check_code:
-                result = {'success' : False, 'message' : '중복된 코드가 존재합니다.'}
-                return result
-
-            if check_name:
-                result = {'success' : False, 'message' : '중복된 이름이 존재합니다.'}
-                return result
-
-            if id:
-                material = Material.objects.filter(id = id).first()
-            else:
-                material = Material()
-
-            # transaction
-            with transaction.atomic():
+            try:
+                if id:
+                    material = Material.objects.filter(id = id).first()
+                else:
+                    material = Material()
+                
                 material.Factory_id = factory_id
                 material.Code = material_code
                 material.Name = material_name
@@ -150,7 +129,12 @@ def material(context):
                 material.set_audit(request.user)
                 material.save()
 
-            result = {'success' : True}
+                result = {'success' : True}
+
+            except Exception as ex:
+                source = 'api/definition/material, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
 
         elif action == 'delete':
             id = posparam.get('material_id')

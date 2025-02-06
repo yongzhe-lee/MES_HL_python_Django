@@ -1,0 +1,251 @@
+
+
+<div id="modalWindowHist" class="modal">
+    <div class="modal-content">
+        <h4>설비 위치변경 이력</h4>
+        <!-- 그리드 영역 -->
+        <div class="grid-section">
+            <div id="locHistGrid">
+            </div>
+        </div>
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeModalHist">닫기</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 모달 스타일 */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 20px;
+        max-width: 800px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        margin-bottom: 20px;
+    }
+
+    .modal-body {
+        margin-bottom: 20px;
+    }
+
+    .modal-footer {
+        text-align: right;
+        gap: 10px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .required {
+        color: #ff0000;
+        margin-left: 4px;
+    }
+
+    /* 그리드 섹션 */
+    .grid-section {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+
+    .recent-locations {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+
+    .recent-locations h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    #locHistGrid {
+        border: none;
+    }
+
+    .k-grid {
+        border: 1px solid #e0e0e0;
+    }
+
+    .k-grid th {
+        background-color: #f5f5f5 !important;
+        border-bottom: 1px solid #e0e0e0 !important;
+        border-right: 1px solid #e0e0e0 !important;
+        padding: 8px !important;
+    }
+
+    .k-grid td {
+        border-right: 1px solid #e0e0e0 !important;
+        padding: 8px !important;
+    }
+
+    /* 데이터 없음 메시지 스타일 */
+    .k-grid .k-grid-norecords {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .k-grid .k-grid-norecords-template {
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .k-grid .k-grid-norecords td {
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .k-grid-content {
+        overflow-y: auto;
+    }
+
+    .k-grid .k-grid-header th.k-header {
+        vertical-align: middle;
+    }
+
+    .k-grid .k-grid-content td {
+        vertical-align: middle;
+    }
+
+    /* 추가 버튼 스타일 */
+    #btnModalOpenHist {
+        width: 70px !important;
+        height: 28px !important;
+        padding: 4px 8px !important;
+        margin-left: 8px !important;
+    }
+</style>
+
+<script type="text/javascript">
+    class EquipLocHist {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/location';
+            this.init();
+        }
+
+        init() {
+            const modalHist = $("#modalWindowHist");
+            const closeModalHistBtn = $("#closeModalHist");
+
+            // 모달 닫기 - 닫기 버튼 클릭    
+            closeModalHistBtn.on("click", () => {
+                modalHist.fadeOut();
+            });
+
+            // Kendo 버튼 초기화
+            $("#btnModalOpenHist").kendoButton({
+                icon: "search",
+                themeColor: "base",
+                size: "small",
+                click: (e) => {
+                    e.preventDefault();
+                    this.getList();  // 모달 열 때 데이터 조회
+                    modalHist.fadeIn();
+                }
+            });
+
+            this.initGrid();
+        }
+
+        initGrid() {
+            this.grid = $("#locHistGrid").kendoGrid({
+                dataSource: [],
+                columns: [
+                    { field: "equip_loc_hist_pk", title: "no", width: "6%" },
+                    {
+                        title: "변경전",
+                        columns: [                            
+                            { field: "beforeloc", title: "위치", width: "13%" }
+                        ]
+                    },
+                    {
+                        title: "변경후",
+                        columns: [                            
+                            { field: "afterloc", title: "위치", width: "13%" }
+                        ]
+                    },
+                    { field: "changedate", title: "변경일자", width: "17%" },
+                    { field: "changer", title: "변경자명", width: "15%" }
+                ],
+                height: 340,
+                scrollable: true,
+                sortable: true,
+                noRecords: true,
+                messages: {
+                    noRecords: "조회된 데이터가 없습니다."
+                }
+            }).data("kendoGrid");
+        }
+
+        getList() {
+            const self = this;
+            $.ajax({
+                url: this.baseUrl,
+                type: "GET",
+                data: { action: 'read_loc_hist' },
+                success: function(response) {
+                    console.log('서버 응답:', response);  // 데이터 구조 확인용 로그
+                    
+                    // 응답 데이터 구조에 따라 적절히 처리
+                    let gridData = [];
+                    if (response && response.data) {
+                        gridData = response.data;
+                    } else if (Array.isArray(response)) {
+                        gridData = response;
+                    }
+
+                    if (self.grid) {
+                        self.grid.setDataSource(new kendo.data.DataSource({
+                            data: gridData,
+                            schema: {
+                                model: {
+                                    fields: {
+                                        equip_loc_hist_pk: { type: "number" },
+                                        beforeloc: { type: "string" },
+                                        afterloc: { type: "string" },
+                                        changedate: { type: "string" },
+                                        changer: { type: "string" }
+                                    }
+                                }
+                            }
+                        }));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("데이터 조회 실패:", error);
+                    console.log('에러 상세:', xhr.responseText);  // 에러 상세 확인
+                }
+            });
+        }
+    }
+
+    // 전역 변수 초기화 및 인스턴스 생성
+    let equipLocHist = null;
+    $(document).ready(function () {        
+        equipLocHist = new EquipLocHist();
+    });
+</script>

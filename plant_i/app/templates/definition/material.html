@@ -166,10 +166,12 @@
         init() {
             let _this = this;
 
+            kendo.culture("ko-KR")
+
             let materialGridOption = {
                 columns: [
                     { field: "factory_name", title: "공장", width: 100 },
-                    { field: "factory_code", title: "공장코드", width: 100 },
+                    { field: "factory_code", title: "공장코드", width: 100, hidden:true },
                     { field: "material_name", title: "품목명", width: 100 },
                     { field: "material_code", title: "품목코드", width: 100 },
                     { field: "standard", title: "규격", width: 100 },
@@ -177,8 +179,8 @@
                     { field: "item_type", title: "자재유형", width: 100 },
                     { field: "basic_unit", title: "기본단위", width: 100 },
                     { field: "cycle_time", title: "c/t", width: 100 },
-                    { field: "in_price", title: "입고금액", width: 100 },
-                    { field: "out_price", title: "출고금액", width: 100 },
+                    { field: "in_price", title: "입고금액", width: 100, format: "{0:c}",type: "number" },
+                    { field: "out_price", title: "출고금액", width: 100, format: "{0:c}", type: "number" },
                 ],
                 // 클릭 이벤트
                 change: function (e) {
@@ -214,8 +216,8 @@
             $('#material_code').kendoTextBox();
             $('#standard').kendoTextBox();
             $('#item_group').kendoTextBox();
-            //$('#item_type').kendoTextBox();
-            AjaxUtil.fillDropDownOptions($('#item_type'), 'user_code', 'choose', null, 'MTRL_CLASS');
+            
+            AjaxUtil.fillDropDownOptions($('#item_type'), 'user_code', 'choose', null, 'MTRL_TYPE');
             $('#basic_unit').kendoTextBox();
             $('#cycle_time').kendoNumericTextBox({
                 //format: 'n0'
@@ -240,7 +242,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    _this.grid.grid.saveExcel();
+                    page.exportExcel();
                 }
             });
 
@@ -289,8 +291,7 @@
             let data = _this.grid.getSelect();
             if (data.length > 0) {
                 let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#materialForm'));
-            //    $('#factory_id').data("kendoComboBox").value(selectData.factory_id);
+                FormUtil.BindDataForm(selectData, $('#materialForm'));            
             }
         }
 
@@ -298,11 +299,22 @@
             let _this = this;
             let data = FormUtil.extractForm($('#materialForm'));
 
-            if (checkForm($('#materialForm')) === false) return;
+            //if (checkForm($('#materialForm')) === false) return;
+            let Code = $('#material_code').val();
+            let Name = $('#material_name').val();
+
+            if (!Code) {
+                Alert.alert('', '품목코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '품목명을 입력해주세요.');
+                return;
+            }
 
             let funcSucc = function (resp) {
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
+                    _this.resetData();
                     _this.searchMainData();
                 } else {
                     Alert.alert('error', resp.message);
@@ -331,12 +343,20 @@
             }
         }
 
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#material_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "material.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
     };
 
     let page = null;
 
+    page = new MaterialPage();
     $(document).ready(function () {
-        page = new MaterialPage();
         page.searchMainData();
     });
 

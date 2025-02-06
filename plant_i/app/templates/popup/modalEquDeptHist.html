@@ -1,0 +1,396 @@
+<div id="modalWindowDept" class="modal">
+    <div class="modal-content">
+        <h4>설비 부서변경 이력</h4>
+        <!-- 그리드 영역 -->
+        <div class="grid-section">
+            <div id="locDeptGrid">
+            </div>
+        </div>
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeModalDept">닫기</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 공통 레이아웃 */
+    .form-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .k-label.k-form-label {
+        width: 100px !important;
+        text-align: right;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    .field-wrapper {
+        flex: 1;
+        max-width: 208px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    /* 입력 필드 공통 */
+    .k-textbox,
+    .k-combobox,
+    .k-dropdown,
+    .k-datepicker,
+    .k-datepicker .k-picker-wrap,
+    .k-datepicker input {
+        width: 208px !important;
+    }
+
+    /* 전체 너비 입력란 */
+    .form-item.full-width .field-wrapper {
+        max-width: none;
+    }
+
+    .form-item.full-width .k-textbox,
+    .form-item.full-width .k-textarea {
+        width: 100% !important;
+        min-height: 80px !important;
+    }
+
+    /* 모달 스타일 */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 20px;
+        max-width: 800px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        margin-bottom: 20px;
+    }
+
+    .modal-body {
+        margin-bottom: 20px;
+    }
+
+    .modal-footer {
+        text-align: right;
+        gap: 10px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* 모달 내부 폼 스타일 */
+    .form-section {
+        padding: 20px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        flex: 1;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+    .required {
+        color: #ff0000;
+        margin-left: 4px;
+    }
+
+    /* Yes/No 버튼 그룹 */
+    .yn-buttons-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .yn-button-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 4px;
+    }
+
+    .btn-toggle {
+        padding: 4px 12px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-toggle.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+    /* 그리드 섹션 */
+    .grid-section {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+
+    .recent-locations {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+
+        .recent-locations h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+    #recentLocationsGrid {
+        height: 200px;
+        border: 1px solid #ddd;
+    }
+
+    #locHistGrid {
+        border: none;
+    }
+
+    .k-grid {
+        border: 1px solid #e0e0e0;
+    }
+
+        .k-grid th {
+            background-color: #f5f5f5 !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            border-right: 1px solid #e0e0e0 !important;
+            padding: 8px !important;
+        }
+
+        .k-grid td {
+            border-right: 1px solid #e0e0e0 !important;
+            padding: 8px !important;
+        }
+
+        /* 데이터 없음 메시지 스타일 */
+        .k-grid .k-grid-norecords {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .k-grid .k-grid-norecords-template {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .k-grid .k-grid-norecords td {
+            border: none !important;
+            background: transparent !important;
+        }
+
+    .k-grid-content {
+        overflow-y: auto;
+    }
+
+    .k-grid .k-grid-header th.k-header {
+        vertical-align: middle;
+    }
+
+    .k-grid .k-grid-content td {
+        vertical-align: middle;
+    }
+
+    /* 달력 스타일 */
+    .k-calendar-container {
+        padding: 8px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+        background: #ffffff !important;
+    }
+
+    .k-calendar .k-calendar-td .k-link {
+        border-radius: 50% !important;
+        width: 32px !important;
+        height: 32px !important;
+        line-height: 32px !important;
+    }
+
+    .k-calendar .k-calendar-td.k-today .k-link {
+        background-color: #f0f7ff !important;
+        color: #0d6efd !important;
+    }
+
+    .k-calendar .k-calendar-td.k-selected .k-link {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+
+    /* 설비위치 입력란 스타일 */
+    #Location {
+        width: 208px !important;
+        height: 28px !important;
+    }
+
+    /* 추가 버튼 스타일 */
+    #btnModalOpen {
+        width: 70px !important;
+        height: 28px !important;
+        padding: 4px 8px !important;
+        margin-left: 8px !important;
+    }
+    /* 추가 버튼 스타일 */
+    #btnModalOpenHist {
+        width: 70px !important;
+        height: 28px !important;
+        padding: 4px 8px !important;
+        margin-left: 8px !important;
+    }
+
+    #btnModalOpenDept {
+        width: 70px !important;
+        height: 28px !important;
+        padding: 4px 8px !important;
+        margin-left: 8px !important;
+    }
+</style>
+
+<script type="text/javascript">    
+    class EquipDeptHist {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/equipment';  
+            this.init();
+        }
+
+        init() { 
+            const modalDept = $("#modalWindowDept");   
+            const closeModalDeptBtn = $("#closeModalDept");
+
+            // 모달 닫기 - 닫기 버튼 클릭 
+            closeModalDeptBtn.on("click", () => {
+                modalDept.fadeOut();
+            });   
+
+            // Kendo 버튼 초기화
+            $("#btnModalOpenDept").kendoButton({
+                icon: "search",
+                themeColor: "base",
+                size: "small",
+                click: (e) => {
+                    e.preventDefault();
+                    this.getList();  // 모달 열 때 데이터 조회
+                    modalDept.fadeIn();
+                }
+            });
+
+            this.initGrid();
+        }
+
+        initGrid() {
+            this.grid = $("#locDeptGrid").kendoGrid({
+                columns: [
+                    { field: "equip_dept_hist_pk", title: "NO", width: "6%" },
+                    {
+                        title: "변경전",
+                        columns: [                            
+                            { field: "beforedept", title: "부서", width: "13%" }
+                        ]
+                    },
+                    {
+                        title: "변경후",
+                        columns: [                            
+                            { field: "afterdept", title: "부서", width: "13%" }
+                        ]
+                    },
+                    { field: "changedate", title: "변경일자", width: "17%" },
+                    { field: "changer", title: "변경자명", width: "15%" }
+                ],
+                height: 340,
+                scrollable: true,
+                sortable: true,
+                noRecords: true,
+                messages: {
+                    noRecords: "조회된 데이터가 없습니다."
+                }
+            }).data("kendoGrid");
+        }
+
+        getList() {
+            const self = this;
+            $.ajax({
+                url: this.baseUrl,
+                type: "GET",
+                data: { action: 'read_dept_hist' },
+                success: function (response) {
+                    console.log('서버 응답:', response);  // 데이터 구조 확인용 로그
+
+                    // 응답 데이터 구조에 따라 적절히 처리
+                    let gridData = [];
+                    if (response && response.data) {
+                        gridData = response.data;
+                    } else if (Array.isArray(response)) {
+                        gridData = response;
+                    }
+
+                    if (self.grid) {
+                        self.grid.setDataSource(new kendo.data.DataSource({
+                            data: gridData,
+                            schema: {
+                                model: {
+                                    fields: {
+                                        equip_dept_hist_pk: { type: "number" },
+                                        beforedept: { type: "string" },
+                                        afterdept: { type: "string" },
+                                        changedate: { type: "string" },
+                                        changer: { type: "string" }
+                                    }
+                                }
+                            }
+                        }));
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("데이터 조회 실패:", error);
+                    console.log('에러 상세:', xhr.responseText);  // 에러 상세 확인
+                }
+            });
+        }
+    }
+
+    let equipDeptHist = null;
+    $(document).ready(function () {
+        equipDeptHist = new EquipDeptHist();
+    });
+
+</script>

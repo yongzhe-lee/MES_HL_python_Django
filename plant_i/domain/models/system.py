@@ -106,12 +106,6 @@ class Factory(models.Model):
     class Meta():
         db_table = 'factory'
         verbose_name = '공장'
-        unique_together = [
-            ['Site'],
-            ['Code'],
-            ['Name'],
-        ]
-
 
 class Unit(models.Model):
     id = models.AutoField(primary_key=True)

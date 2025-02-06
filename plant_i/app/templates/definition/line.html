@@ -115,8 +115,8 @@
                 //    }
                 //},
                 columns: [
-                    { field: "Name", title: "제품종류명", width: 100 },
-                    { field: "Code", title: "제품종류코드", width: 100 },
+                    { field: "Name", title: "라인명", width: 100 },
+                    { field: "Code", title: "라인코드", width: 100 },
                     { field: "Description", title: "비고", width: 100 },
                 ],
                 change: function (e) {
@@ -165,7 +165,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    _this.grid.grid.saveExcel();
+                    page.exportExcel();
                 }
             });
 
@@ -220,31 +220,39 @@
             let _this = this;
             let data = FormUtil.extractForm($('#lineForm'));
 
+            let Code = $('#Code').val();
+            let Name = $('#Name').val();
+
+            if (!Code) {
+                Alert.alert('', '라인코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '라인명을 입력해주세요.');
+                return;
+            }
+
             let funcSucc = function (resp) {
                 if (resp.success) {
                     $('#id').val(resp.id);
                     Notify.success('저장되었습니다.');
+                    _this.resetData();
                     _this.searchMainData();
                 } else {
                     Alert.alert('error', resp.message);
                 }
-            };
-            console.log(data)
+            };            
             AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
         }
 
         deleteData() {
             let _this = this;
             let data = _this.grid.getSelect();
-
             if (data.length > 0) {
                 let selectData = data[0];
-
                 let param = {
                     id: selectData.id,
                 }
-
-                console.log("selectData", selectData)
+                
                 let funcSucc = function (resp) {
                     if (resp.success) {
                         Notify.success('삭제되었습니다.');
@@ -258,10 +266,19 @@
             }
         }
 
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#line_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "line.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
     };
 
-    $(document).ready(function () {
-        let page = new LinePage();
+    let page = new LinePage();
+
+    $(document).ready(function () {        
         page.searchMainData();
     });
 
