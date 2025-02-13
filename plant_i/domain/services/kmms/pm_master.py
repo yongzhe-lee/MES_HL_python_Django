@@ -7,9 +7,9 @@ class PMService():
     def __init__(self):
         return
 
-    def get_pm_master_list(self, keyword):
+    def get_pm_master_list(self, keyword, equDept, equLoc, pmDept, isMyTask, isLegal):
         items = []
-        dic_param = {'keyword': keyword}
+        dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'isMyTask': isMyTask,'isLegal': isLegal}
 
         sql = ''' 
          SELECT 
@@ -33,6 +33,29 @@ class PMService():
         if keyword:
             sql += ''' 
             AND a."pm_name" like CONCAT('%%', %(keyword)s, '%%')
+            '''
+        if equDept:
+            sql += ''' 
+            AND a."pm_name" like CONCAT('%%', %(equDept)s, '%%')
+            '''
+        if equLoc:
+            sql += ''' 
+            AND a."pm_name" like CONCAT('%%', %(equLoc)s, '%%')
+            '''
+        if pmDept:
+            sql += ''' 
+            AND a."pm_name" like CONCAT('%%', %(pmDept)s, '%%')
+            '''
+        if isMyTask:
+            sql += ''' 
+            AND a."pm_name" like CONCAT('%%', %(isMyTask)s, '%%')
+            '''
+        if isLegal:
+            sql += ''' 
+            AND a."pm_name" like CONCAT('%%', %(isLegal)s, '%%')
+            '''
+        sql += ''' 
+            ORDER BY a.pm_no
             '''
 
         try:
