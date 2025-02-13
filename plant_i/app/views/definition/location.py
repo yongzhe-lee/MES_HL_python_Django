@@ -93,7 +93,7 @@ def location(context):
 
             try:
                 # DB에서 부서 정보 조회
-                locations = Location.objects.filter(_status='Active').values('id', 'loc_nm', 'up_loc_pk')
+                locations = Location.objects.values('id', 'loc_nm', 'up_loc_pk')
                 print("📌 부서 데이터 확인:", list(locations))  # 🚀 로그 추가
 
                 # 트리 구조 변환
