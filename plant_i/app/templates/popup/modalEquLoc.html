@@ -4,55 +4,55 @@
         <h3>설비위치 정보 등록</h3>
 
         <div class="form-section">
-            <!-- 입력 폼 영역 -->
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label>위치코드<span class="required">*</span></label>
-                    <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="locationCode" name="locationCode" />
-                </div>
-                <div class="form-group col-6">
-                    <label>위치명<span class="required">*</span></label>
-                    <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="locationName" name="locationName" />
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label>상위위치</label>
-                    <input type="text" class="form-control" placeholder="선택하세요" id="parentLocationCode" name="parentLocationCode" />
-                </div>
-                <div class="form-group col-6">
-                    <label>상태</label>
-                    <select class="form-control" id="locStatus" name="locStatus">
-                        <option value="A">작동중</option>
-                        <option value="B">정지</option>
-                        <option value="C">보수</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Yes/No 버튼 그룹 -->
-            <div class="form-row yn-buttons-row">
-                <div class="yn-button-group">
-                    <label class="k-label k-form-label" for="factoryYN">공장여부</label>
-                    <div class="field-wrapper">
-                        <input type="checkbox" id="factoryYN" />
+            <div class="bg-box">
+                <!-- 입력 폼 영역 -->
+                <div class="form-row mb--2">
+                    <div class="form-group col-6">
+                        <label>위치코드<span class="required">*</span></label>
+                        <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="locationCode" name="locationCode" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label>위치명<span class="required">*</span></label>
+                        <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="locationName" name="locationName" />
                     </div>
                 </div>
-                <div class="yn-button-group">
-                    <label class="k-label k-form-label" for="buildingYN">건물여부</label>
-                    <div class="field-wrapper">
-                        <input type="checkbox" id="buildingYN" />
+
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label>상위위치</label>
+                        <input type="text" class="form-control" placeholder="선택하세요" id="parentLocationCode" name="parentLocationCode" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label>상태</label>
+                        <select class="form-control" id="locStatus" name="locStatus">
+                            <option value="A">작동중</option>
+                            <option value="B">정지</option>
+                            <option value="C">보수</option>
+                        </select>
                     </div>
                 </div>
-                <div class="yn-button-group">
-                    <label class="k-label k-form-label" for="stockYN">보전재재고여부</label>
-                    <div class="field-wrapper">
-                        <input type="checkbox" id="stockYN" />
+                <!-- Yes/No 버튼 그룹 -->
+                <div class="form-row yn-buttons-row">
+                    <div class="yn-button-group">
+                        <label class="k-label k-form-label" for="factoryYN">공장여부</label>
+                        <div class="field-wrapper">
+                            <input type="checkbox" id="factoryYN" />
+                        </div>
+                    </div>
+                    <div class="yn-button-group">
+                        <label class="k-label k-form-label" for="buildingYN">건물여부</label>
+                        <div class="field-wrapper">
+                            <input type="checkbox" id="buildingYN" />
+                        </div>
+                    </div>
+                    <div class="yn-button-group">
+                        <label class="k-label k-form-label" for="stockYN">보전재재고여부</label>
+                        <div class="field-wrapper">
+                            <input type="checkbox" id="stockYN" />
+                        </div>
                     </div>
                 </div>
             </div>
-
             <!-- 그리드 영역 -->
             <div class="grid-section">
                 <h4>최근 등록된 설비위치</h4>
@@ -63,7 +63,7 @@
         <!-- 버튼 영역 -->
         <div class="modal-footer">
             <button type="button" class="btn btn-primary" id="saveBtn">저장</button>
-            <button type="button" class="btn btn-secondary" id="closeModal">닫기</button>
+            <button type="button" class="btn btn-close" id="closeModal">닫기</button>
         </div>
     </div>
 </div>
@@ -88,7 +88,7 @@
         flex: 1;
         max-width: 208px;
         display: flex;
-        gap: 10px;
+        gap: 0px;
         align-items: center;
     }
 
@@ -99,7 +99,7 @@
     .k-datepicker,
     .k-datepicker .k-picker-wrap,
     .k-datepicker input {
-        width: 208px !important;
+        width: 215px !important;
     }
 
     /* 전체 너비 입력란 */
