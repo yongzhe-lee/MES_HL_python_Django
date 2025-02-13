@@ -322,6 +322,15 @@
             });
 
 
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
         }
 
         searchMainData() {
@@ -329,11 +338,14 @@
 
             let param = {
                 action: 'read',
-                line: $('#srch_equ_line').val(),
-                group: $('#srch_equ_grp').val(),
-                equipment: $('#srch_equ_name').val(),
+                keyword: $('#keyword').val(),
+                equDept: $('#srch_dept').val(),
+                equLoc: $('#srch_location').val(),
+                pmDept: $('#pm_dept').val(),
+                isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
+                isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
             };
-
+            console.log("📌 [DEBUG:searchMainData] 조회 파라미터:", param);
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
         }
