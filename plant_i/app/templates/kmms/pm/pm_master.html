@@ -1,5 +1,54 @@
 {% extends "app/layout.html" %}
 {% block css %}
+<style>
+.checkbox-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: flex-start;
+    margin: 2px 0;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    margin: 0;
+    margin-right: 4px;
+    margin-top: 2px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+    background-color: #2196F3;
+    border-color: #2196F3;
+}
+
+.checkbox-item input[type="checkbox"]:checked:after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0;
+    width: 5px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-item label {
+    font-size: 12px;
+    line-height: 16px;
+    cursor: pointer;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -43,17 +92,15 @@
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <div class="field-wrapper">
-                                <input type="checkbox" id="chk_my_task" name="chk_my_task" class="k-checkbox" />
-                                <label class="k-checkbox-label" for="chk_my_task">나의 담당건</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <div class="field-wrapper">
-                                <input type="checkbox" id="chk_legal" name="chk_legal" class="k-checkbox" />
-                                <label class="k-checkbox-label" for="chk_legal">법정관리설비</label>
+                            <div class="checkbox-container">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="chk_my_task" name="chk_my_task">
+                                    <label for="chk_my_task">나의 담당건</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="chk_legal" name="chk_legal">
+                                    <label for="chk_legal">법정관리설비</label>
+                                </div>
                             </div>
                         </div>
                     </div>
