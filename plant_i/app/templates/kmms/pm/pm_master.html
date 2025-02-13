@@ -1,53 +1,72 @@
 {% extends "app/layout.html" %}
 {% block css %}
 <style>
-.checkbox-container {
-    display: flex;
-    flex-direction: column;
-}
+    .checkbox-container {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
 
-.checkbox-item {
-    display: flex;
-    align-items: flex-start;
-    margin: 2px 0;
-}
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
 
-.checkbox-item input[type="checkbox"] {
-    width: 13px;
-    height: 13px;
-    margin: 0;
-    margin-right: 4px;
-    margin-top: 2px;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    position: relative;
-}
+        .checkbox-item input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: #007bff;
+            cursor: pointer;
+            appearance: none;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+            background-color: white;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.checkbox-item input[type="checkbox"]:checked {
-    background-color: #2196F3;
-    border-color: #2196F3;
-}
+            .checkbox-item input[type="checkbox"]:checked {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
 
-.checkbox-item input[type="checkbox"]:checked:after {
-    content: '';
-    position: absolute;
-    left: 3px;
-    top: 0;
-    width: 5px;
-    height: 8px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
+            .checkbox-item input[type="checkbox"]::after {
+                content: "✔";
+                font-size: 12px;
+                color: white;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: none;
+            }
 
-.checkbox-item label {
-    font-size: 12px;
-    line-height: 16px;
-    cursor: pointer;
-}
+            .checkbox-item input[type="checkbox"]:checked::after {
+                display: block;
+            }
+
+            .checkbox-item input[type="checkbox"]:focus {
+                outline: none;
+                box-shadow: none;
+            }
+
+        .checkbox-item label {
+            font-size: 13px;
+            color: #333;
+            font-weight: normal;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            color: #007bff !important;
+            font-weight: bold;
+        }
 </style>
 {% endblock %}
 
