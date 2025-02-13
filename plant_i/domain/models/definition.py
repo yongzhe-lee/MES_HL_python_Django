@@ -364,7 +364,7 @@ class Location(models.Model):
     id = models.AutoField(primary_key=True)
     loc_cd = models.CharField('위치코드', max_length=30, validators=[space_check],)
     loc_nm = models.CharField('위치명', max_length=100, default='None')
-    up_loc_pk = models.IntegerField('상위위치', null=True)
+    up_loc_pk = models.CharField('상위위치', max_length=30)
     loc_status = models.CharField('상태', max_length=10)
 
     plant_yn = models.CharField('공장여부', max_length=1, null=True)
