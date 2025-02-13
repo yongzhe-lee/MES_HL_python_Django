@@ -7,7 +7,7 @@ from io import BytesIO
 from configurations import settings
 
 from domain.models.system import AttachFile
-from domain.models.da import DsData, DsColumn, DsDataTable
+from domain.models.da import DsModel, DsModelColumn, DsModelData
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 

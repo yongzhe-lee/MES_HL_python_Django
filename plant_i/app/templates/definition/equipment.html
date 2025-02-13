@@ -547,19 +547,9 @@
                     dataTextField: 'text',
                     dataValueField: 'value'
                 });
-                $('#import_rank').kendoDropDownList({
-                    // 예시구문.
-                    dataSource: [
-                        { text: 'A급', value: 'A' },
-                        { text: 'B급', value: 'B' },
-                        { text: 'C급', value: 'C' },
-                        { text: 'D급', value: 'D' },
-                        { text: 'S급', value: 'S' },
-                    ],
-                    optionLabel: '선택',
-                    dataTextField: 'text',
-                    dataValueField: 'value'
-                });
+
+                AjaxUtil.fillDropDownOptions($('#import_rank'), 'user_code', 'choose', null, 'IMPORT_RANK'); //설비중요도
+                
                 $('#process').kendoDropDownList({
                     // 예시구문.
                     dataSource: [
@@ -629,6 +619,7 @@
                     }
                 });
                 $('#btnSave').kendoButton({
+                    icon: "k-i-save",
                     themeColor: "info",
                     click: function () {
                         _this.saveData();

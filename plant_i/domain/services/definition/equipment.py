@@ -166,6 +166,55 @@ class EquipmentService():
 
         return items
 
+    def get_equip_modal(self, keyword, depart_id):
+        items = []
+        dic_param = {'keyword':keyword, 'depart_id':depart_id}
+
+        sql = ''' 
+        SELECT 
+            e.id
+            , e."Code" AS "Code" 
+            , e."Name" AS "Name"              
+            , e."Description" AS "Description"            
+            , lo."loc_nm" AS "Location"
+            , e."Status" AS "Status"            
+            , e."Depart_id" AS "Depart_id"
+            , to_char(e."DisposalDate",'yyyy-mm-dd') AS "DisposalDate"
+            , to_char(e._created ,'yyyy-MM-dd HH:mm') AS _created 
+            --, ec."remark" as "EquipCategory"
+            , 11 as "EquipCategory"
+            , e."ManageNumber"
+        FROM 
+            equ e       
+        LEFT JOIN 
+            dept d ON e."Depart_id" = d.id
+        LEFT JOIN 
+            "location" lo on e.loc_pk = lo.id 
+        --left join 
+            --"equip_category" ec on ec."equip_category_id" = e."equip_category_id"
+        WHERE 1 = 1
+        '''
+        
+        if keyword:
+            sql+=''' 
+                AND (UPPER(e."Name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+        	        or UPPER(e."Code") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+        	        or UPPER(e."ManageNumber") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+        )
+            '''
+        if depart_id:
+            sql+=''' 
+            AND UPPER(d.id) LIKE CONCAT('%%',UPPER(%(depart_id)s),'%%')
+            '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error','EquipmentService.get_equip_modal', ex)
+            raise ex
+
+        return items
+
     def get_equipment_detail(self, id):
         sql = ''' 
         select 
@@ -187,12 +236,16 @@ class EquipmentService():
             , e."DisposalDate"
             , e."OperationRateYN"
             , e."Status"
+            , e."import_rank_pk"
+            , e."environ_equip_yn"
+            , e."loc_pk"
+            , loc."loc_nm"
             , e."EquipmentGroup_id"
             , eg."Name" as group_name
             , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created        
          from equ e
             left join equ_grp eg on e."EquipmentGroup_id" =eg.id         
-        
+            left join "location" loc on e.loc_pk = loc.id
         where 
             e.id = %(id)s
         '''

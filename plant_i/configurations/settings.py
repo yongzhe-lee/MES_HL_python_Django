@@ -101,9 +101,9 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DBMS_HOST = '10.6.3.250'      # 개발
+DBMS_HOST = '10.6.3.250'      # 개발
 # DBMS_HOST = '10.226.236.34'   # 배포
-DBMS_HOST = 'localhost'
+# DBMS_HOST = 'localhost'
 
 DBMS = 'POSTGRESQL'
 DATABASES = {

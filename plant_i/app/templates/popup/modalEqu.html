@@ -1,0 +1,381 @@
+<!-- 손자 모달 (설비 선택) - 부모 모달의 자식이 아닌 최상위 div에 배치 -->
+<div id="modalEqu" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>설비선택</h4>
+            <button type="button" class="close" id="closeModalEqu">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- 검색 영역 -->
+            <div class="search-area">
+                <div class="search-label">검색키워드</div>
+                <input type="text" class="form-control" id="keyword_equ" name="keyword_equ" placeholder="설비코드, 설비명, 자산번호 입력">
+                <div class="search-label">관리부서</div>
+                <select class="form-control" id="srch_dept" name="srch_dept">
+                    <option value="">선택하세요</option>
+                </select>
+                <button type="button" class="btn-search" id="btnSearchEqu" name="btnSearchEqu">검색</button>
+            </div>   
+
+            <!-- 그리드 영역 -->
+            <div id="equipment_grid"></div>
+
+            <!-- 선택된 설비 영역 -->
+            <div class="bottom-area">
+                <div class="selected-equipment">
+                    <label>선택된 설비</label>
+                    <input type="hidden" id="selectedEquPK" name="selectedEquPK">
+                    <input type="text" id="selectedEquName" name="selectedEquName" readonly>           
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn-confirm" id="btnConfirmEqu">확인</button>
+                    <button type="button" class="btn-cancel" id="btnCancelEqu">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 부모 모달 (자식 모달) 스타일 유지 */
+    #modalPmMaster {
+        z-index: 1001;
+        display: none;
+    }
+
+    /* 손자 모달은 부모 모달보다 높은 z-index를 설정하고 독립적으로 배치 */
+    #modalEqu {
+        display: none;
+        position: absolute; /* ✅ fixed → absolute 변경 */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 900px;
+        max-width: 95%;
+        background: #fff;
+        z-index: 1001 !important; /* ✅ 손자 모달의 z-index를 부모보다 1 높게 설정 */
+        border-radius: 8px;
+        box-shadow: none !important; /* ✅ 그림자 완전히 제거 */
+        max-height: 85vh;
+        overflow: hidden;
+    }
+
+    /* 손자 모달 내부 컨텐츠 스타일 */
+    #modalEqu .modal-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding-bottom: 0 !important; /* ✅ 모달 내부 불필요한 패딩 제거 */
+    }
+
+    #modalEqu .modal-body {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        max-height: 75vh; /* ✅ 최대 높이 설정 */
+        overflow: hidden; /* ✅ 내부에서만 스크롤 유지 */
+        padding: 0 !important; /* ✅ 내부 여백 제거 */
+        margin: 0 !important; /* ✅ 모든 margin 제거 */
+    }
+
+    #equipment_grid {
+        flex-grow: 1; /* ✅ 남는 공간을 채우도록 설정 */
+        overflow-y: auto; /* ✅ 내부에서만 스크롤 */
+        min-height: 200px; /* ✅ 최소 높이 설정 */
+    }
+
+    .grid-area {
+        flex-grow: 1;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .paging-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* 검색 영역 스타일 */
+    .search-area {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .search-label {
+        font-size: 13px;
+        color: #333;
+        white-space: nowrap;
+    }
+
+    .search-area input,
+    .search-area select {
+        height: 28px;
+        border: 1px solid #ccc;
+        padding: 0 8px;
+    }
+
+    .search-area input {
+        flex: 2;
+    }
+
+    .search-area select {
+        flex: 1;
+    }
+
+    .bottom-area {
+        flex-shrink: 0; /* ✅ 버튼이 밀려 내려가지 않도록 설정 */
+        padding: 10px;
+        background: white;
+        display: flex;
+        justify-content: space-between; /* ✅ 좌우 정렬 */
+        align-items: center;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 4px;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .selected-equipment {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .selected-equipment label {
+        font-size: 13px;
+        color: #333;
+    }
+
+    .selected-equipment input {
+        flex: 1;
+        height: 28px;
+        border: 1px solid #ccc;
+        padding: 0 8px;
+        background-color: #f5f5f5;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 4px;
+        margin: 0 !important; /* ✅ 버튼 아래쪽 여백 완전히 제거 */
+        padding: 0 !important; /* ✅ 내부 패딩 제거 */
+    }
+
+    .button-group button {
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+    }
+
+    .btn-confirm {
+        background: #1e4f88 !important;
+        color: white;
+        border: none !important;
+    }
+
+    .tab-menu {
+        display: flex;
+        border-bottom: 2px solid #1e4f88;
+        margin: 10px 0;
+    }
+
+    .tab-menu .tab {
+        padding: 8px 20px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: #666;
+    }
+
+    .tab-menu .tab.active {
+        background: #1e4f88;
+        color: white;
+    }
+</style>
+
+<script type="text/javascript">
+
+    class EquipmentPage {
+        constructor() {
+            this.grid = null;         
+            this.baseUrl = '/api/definition/equipment';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let equipmentGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    // 기본 정보                  
+                    { field: 'Code', title: '설비코드', width: 100 },
+                    { field: 'Name', title: '설비명', width: 150 },
+                    { field: 'Status', title: '설비상태', width: 80 },
+                    { field: 'EquipCategory', title: '카테고리', width: 100 },
+                    { field: 'Location', title: '설비위치', width: 100 },                    
+                    { field: 'DepartName', title: '관리부서', width: 100 },
+                    { field: 'ManageNumber', title: '관리번호', width: 100 },
+                    { field: 'import_rank_pk', title: '중요도등급', width: 100, hidden: true },
+                    { field: 'environ_equip_yn', title: '환경설비여부', width: 100, hidden: true },
+                ],
+
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        //this.autoFitColumn(i);
+                    };
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "440px",
+                scrollable: true, // ✅ 내부에서만 스크롤 유지
+            };
+            _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+
+            this.initButton();
+
+        }
+
+        initButton() {
+
+            $("#btnConfirmEqu").kendoButton({
+                icon: "k-i-check", // 확인 아이콘 (✔️)
+                themeColor: "base"
+            });
+
+            $("#btnCancelEqu").kendoButton({
+                icon: "cancel", // 취소 아이콘 (❌)
+                themeColor: "base"
+            });
+
+
+            // 검색 버튼을 kendo 버튼으로 변경
+            $("#btnSearchEqu").kendoButton({
+                themeColor: "primary",
+                icon: "search",
+                click: () => {
+                    this.getEquData();
+                }
+            });
+        }
+
+
+        getEquData() {
+            let _this = this;
+            let param = {
+                action: 'read_modal',    
+                keyword: $('#keyword_equ').val(),
+                depart_id: $('#srch_dept').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#equipment_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#equipmentForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];                
+                console.log("selectData:\n", selectData);             
+                $('#selectedEquPK').val(selectData.id);
+                $('#selectedEquName').val(selectData.Name);      
+
+            }
+        }
+    };
+
+    let equiPage = null;
+    pageEquModal = new EquipmentPage();
+
+    $(document).ready(function () {
+        // 부모 모달 제어
+        $("#closeModalPmMaster").on("click", function () {
+            $("#modalPmMaster").fadeOut();
+        });
+
+        // 자식 모달을 띄울 때 손자 모달 자동 표시되지 않도록 설정
+        $("#selectEquipment").on("click", function (e) {
+            e.preventDefault();
+            $("#modalEqu").fadeIn();
+            pageEquModal.getEquData(); // ✅ 손자 모달을 열 때 실행
+        });
+
+        // 손자 모달 닫기
+        $("#btnCancelEqu, #closeModalEqu").on("click", function (e) {
+            e.preventDefault();
+            $("#modalEqu").fadeOut();
+            reset();
+        });
+
+        function reset() {
+            $("#selectedEquPK").val('');
+            $("#selectedEquName").val('');
+        }
+
+        // 손자 모달 선택 확인 버튼
+        $("#btnConfirmEqu").on("click", function () {    
+            const selectedEquID = $('#selectedEquPK').val();
+            const selectedEquName = $('#selectedEquName').val();
+            if (!selectedEquID || !selectedEquName) {
+                alert('설비를 선택해주세요.');
+                return;
+            }
+
+            let param = {
+                action: 'detail',
+                id: $('#selectedEquPK').val(),
+            };
+            
+            let result = AjaxUtil.getSyncData('/api/definition/equipment', param);
+
+            // 부모 창의 입력 필드에 값 설정            
+            $('#equ_code').val(result.Code);
+            $('#equ_name').val(result.Name);
+            $('#equ_loc_pk').val(result.id);
+            $('#equ_loc').val(result.loc_nm);
+            $('#equ_status').val(result.Status);
+            $('#equ_import').val(result.import_rank_pk);
+            $('#equ_env_yn').val(result.environ_equip_yn);
+         
+            $("#modalEqu").fadeOut();
+
+            reset();
+        });
+    });
+</script>

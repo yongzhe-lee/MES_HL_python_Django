@@ -4,15 +4,10 @@ from .system import space_check
 from django.contrib.postgres.fields import JSONField
 
 
-class DsData(models.Model):
-    id = models.AutoField(primary_key=True)
-    Name = models.CharField('제목', max_length=50)
-    Parent = models.ForeignKey('self', verbose_name='부모id', related_name='Children', on_delete=models.PROTECT, null=True)
-    Description = models.TextField('비고', null=True)
-    Type = models.CharField('구분', max_length=50, null=True)
-    SourceName = models.CharField('데이터출처', max_length=50, null=True)
-    DcData = JSONField('컬럼별데이터dictionarydata', null=True)
-    DcText = models.TextField('컬럼별데이터', null=True)
+class DsMaster(models.Model):
+    id = models.AutoField(primary_key=True) # verbose_name = '모델마스터번호'. char일 가능성. 그럼 유니크 키도 모델마스터 번호가 될 수도.
+    Name = models.CharField('모델명', max_length=50)
+    Type = models.CharField('모델유형', max_length=50, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -28,8 +23,39 @@ class DsData(models.Model):
         return
 
     class Meta():
-        db_table = 'ds_data'
-        verbose_name = '분석데이터'
+        db_table = 'ds_master'
+        verbose_name = '모델마스터'
+        unique_together  = [
+            ['Name'],
+        ]
+
+
+class DsModel(models.Model):
+    id = models.AutoField(primary_key=True)
+    Name = models.CharField('모델명', max_length=50)
+    Description = models.TextField('비고', null=True)
+    Type = models.CharField('구분', max_length=50, null=True)
+    SourceName = models.CharField('데이터출처', max_length=50, null=True)
+    Version = models.CharField('버전', max_length=50, null=True, default='1')
+    FilePath = models.CharField('모델파일경로', max_length=500, null=True)
+    DsMaster = models.ForeignKey(DsMaster, verbose_name='모델마스터번호', on_delete=models.DO_NOTHING, null=True) # 신규추가
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta():
+        db_table = 'ds_model'
+        verbose_name = '모델'
         index_together = [
             ['_created', 'Name', 'Type'],
             ['Name', '_created'],
@@ -37,12 +63,12 @@ class DsData(models.Model):
         ]
 
 
-class DsColumn(models.Model):
+class DsModelColumn(models.Model):
     id = models.AutoField(primary_key=True)
-    DsData = models.ForeignKey(DsData, verbose_name='분석데이터id', on_delete=models.PROTECT)
+    DsModel = models.ForeignKey(DsModel, verbose_name='모델id', on_delete=models.DO_NOTHING, null=True) # 신규추가
     VarIndex = models.IntegerField('변수순서')
     VarName = models.CharField('변수명', max_length=100)
-    #VarType = models.CharField('변수유형', max_length=20)
+    VarType = models.CharField('변수유형', max_length=20)
     DataCount = models.IntegerField('데이터개수', null=True)
     MissingCount = models.IntegerField('결측치개수', null=True)
     CategoryCount = models.IntegerField('범주개수', null=True)
@@ -71,21 +97,21 @@ class DsColumn(models.Model):
         return
 
     class Meta():
-        db_table = 'ds_col'
-        verbose_name = '데이터변수'
+        db_table = 'ds_model_col'
+        verbose_name = '모델태그'
         index_together = [
-            ['DsData','VarIndex'],
+            ['DsModel','VarIndex'],
         ]
         unique_together = [
-            ['DsData','VarName'],
+            ['DsModel','VarName'],
         ]
 
 
-class DsDataTable(models.Model):
-    ''' 분석데이터결과
+class DsModelData(models.Model):
+    ''' 모델학습데이터
     '''
     id = models.AutoField(primary_key=True)
-    DsData = models.ForeignKey(DsData, verbose_name='분석데이터id', on_delete=models.PROTECT)
+    DsModel = models.ForeignKey(DsModel, verbose_name='모델id', on_delete=models.DO_NOTHING, null=True) # 신규추가
     RowIndex = models.IntegerField('로인덱스')
     Code = models.CharField('속성코드', max_length=50)
     Type = models.CharField('속성유형', max_length=50, null=True)
@@ -108,21 +134,22 @@ class DsDataTable(models.Model):
         return
 
     class Meta():
-        db_table = 'ds_data_table'
-        verbose_name = '분석데이터결과'
+        db_table = 'ds_model_data'
+        verbose_name = '모델학습데이터'
         unique_together = [
-            ('DsData', 'RowIndex', 'Code'),
+            ('DsModel', 'RowIndex', 'Code'),
         ]
 
 
-class DsVarCorrelation(models.Model):
+class DsTagCorrelation(models.Model):
     id = models.AutoField(primary_key=True)
-    DsData = models.ForeignKey(DsData, verbose_name='분석데이터id', on_delete=models.PROTECT)
+    DsModel = models.ForeignKey(DsModel, verbose_name='모델id', on_delete=models.DO_NOTHING, null=True) # 신규추가
     XVarName = models.CharField('X변수', max_length=100)
     YVarName = models.CharField('Y변수', max_length=100)
     r = models.FloatField('R값', null=True)
     MultiLinearCoef = models.FloatField('다항회귀계수', null=True)
     RegressionEquation = models.CharField('회귀식', max_length=100, null=True)
+    AlgorithmType = models.CharField('알고리즘종류', max_length=100, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -138,8 +165,8 @@ class DsVarCorrelation(models.Model):
         return
 
     class Meta():
-        db_table = 'ds_var_corr'
-        verbose_name = '데이터변수'
+        db_table = 'ds_tag_corr'
+        verbose_name = '모델태그상관관계'
 
 
 class LpProblem(models.Model):

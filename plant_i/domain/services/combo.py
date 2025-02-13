@@ -9,6 +9,7 @@ from .logging import LogWriter
 from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory
 from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup
 from domain.models.system import  Unit 
+from django.contrib.auth.models import User
 
 #from django.core.cache import cache
 
@@ -38,6 +39,7 @@ class ComboService(object):
             'factory' : cls.factory,
             'item_group' : cls.item_group,
             'item_type' : cls.item_type,
+            'language' : cls.language,
             'line' : cls.line,
             'log_type' : cls.log_type,
             'material' : cls.material,
@@ -52,6 +54,7 @@ class ComboService(object):
             'unit': cls.unit,
             'user_code': cls.user_code,
             'user_group': cls.user_group,
+            'auth_user': cls.auth_user,
         }
         cls.__initialized__ = True
 
@@ -238,7 +241,7 @@ class ComboService(object):
         q = Equipment.objects.all()
 
         if cond1:
-            q = q.filter(EquipmentGroup__Type=cond1)
+            q = q.filter(EquipmentGroup__EquipmentType=cond1)
         if cond2:
             q = q.filter(EquipmentGroup_id=cond2)
         if cond3:
@@ -320,6 +323,12 @@ class ComboService(object):
         items = [ {'value': item['ItemType'], 'text':item['ItemType']} for item in q ]
         return items
 
+    @classmethod
+    def language(cls, cond1, cond2, cond3):
+        items =[
+            {'value': 'ko-KR', 'text':'한글'},
+            {'value': 'en-US', 'text':'English'},
+        ]
 
     # 24.12.16 김하늘 추가
     @classmethod
@@ -376,4 +385,25 @@ class ComboService(object):
         q = q.filter(DelYn='N', UseYn='Y')
         q = q.order_by('DispOrder', 'Name')
         items = [ {'value': entry['Code'], 'text':entry['Name']} for entry in q ]
+        return items
+
+    @classmethod
+    def auth_user(cls, cond1, cond2, cond3):
+        """
+        콤보박스 데이터 조회 (auth_user 테이블 사용)
+        """
+        q = User.objects.filter(
+            is_active=True
+        ).values(
+            'id',
+            'username',
+            'first_name'
+        ).order_by('first_name')
+
+        items = [
+            {
+                'value': item['id'],
+                'text': f"{item['first_name']}"
+            } for item in q
+        ]
         return items

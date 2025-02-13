@@ -1,5 +1,6 @@
 from asyncio.windows_events import NULL
 import math
+from winreg import KEY_WOW64_32KEY
 import numpy as np
 import pandas as pd
 import json
@@ -12,9 +13,9 @@ import plotly
 from sklearn.linear_model import LinearRegression
 
 from configurations import settings
-from domain.models.da import DsData, DsColumn, DsVarCorrelation
+from domain.models.da import DsModel, DsModelColumn, DsTagCorrelation
 from domain.models.system import AttachFile
-from domain.models.da import DsDataTable
+from domain.models.da import DsModelData
 from domain.services.logging import LogWriter
 from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
@@ -324,8 +325,8 @@ def learning_data(context):
             ##############################################################################
             
             # 24.08.08 김하늘 추가 data 불러오기(다른 메서드에서 카피)
-            dd_id = gparam.get('dd_id')
-            daService = DaService('ds_data', dd_id)
+            md_id = gparam.get('md_id')
+            daService = DaService('ds_data', md_id)
             num_components = gparam.get('num_components')
             data = daService.read_table_data()
             
@@ -360,8 +361,8 @@ def learning_data(context):
             # # 시각화 함수 호출하여 pca 결과 확인
             # visualize(pca_final, X, X_pca, X_new)
             
-            dd_id = gparam.get('dd_id')
-            daService = DaService('ds_data', dd_id)
+            md_id = gparam.get('md_id')
+            daService = DaService('ds_data', md_id)
             num_components = gparam.get('num_components')
             data = daService.read_table_data()
 
@@ -447,7 +448,7 @@ def learning_data(context):
             
         ''' 데이터파일저장 : save_ds_data
             데이터파일목록조회 : ds_data_list
-            로데이터조회 : ds_rows_list
+            row데이터조회 : ds_rows_list
             데이터파일내용조회 : ds_data_info. prop_data 없으면 csv파일 읽기.
             파일에서 데이터 읽어서 DB저장   make_db_from_file
             DB에서 읽어서 컬럼정보 만들고 저장 make_col_info
@@ -461,38 +462,84 @@ def learning_data(context):
             데이터산점도조회 : ds_col_scatter
             상관관계값조회 : ds_var_corr_sheet
             회귀분석식 조회 : ds_y_regression_list
-
+            /* 25.02.10 김하늘 추가 */
+            모델마스터조회: ds_master_list
         '''
+        # 25.02.10 김하늘 추가
+        if action == "ds_master_list":
+            model_type = gparam.get('model_type')
+            keyword = gparam.get('keyword')
+
+            sql = '''
+            SELECT
+                mm.id AS master_id
+                , mm."Name" AS master_name
+                , mm."Type" AS type
+                , md.id
+                , md."Name" AS model_name
+                , md."Version" AS ver
+                , md."Description" AS description
+                , md."SourceName" AS source_name
+                , md."FilePath" AS file_path
+                , tc."AlgorithmType" AS algorithm_type
+                , md."_created"
+            FROM
+                ds_master mm
+            LEFT OUTER JOIN
+                ds_model md ON md."DsMaster_id" = mm.id
+            LEFT OUTER JOIN
+                ds_tag_corr tc ON tc."DsModel_id" = md.id
+            WHERE 1=1
+            '''
+            if model_type:
+                sql += '''
+                AND UPPER(mm."Type") = UPPER(%(model_type)s)
+                '''
+            if keyword:
+                sql +='''
+                AND (
+                    UPPER(mm."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(mm."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                )
+                '''
+            sql += '''ORDER BY mm."Type", mm."Name" desc'''
+
+            dc = {}
+            dc['model_type'] = model_type
+            dc['keyword'] = keyword
+        
+            items = DbUtil.get_rows(sql, dc)  
+
         if action == 'save_ds_data':
-            dd_id = posparam.get('id')
+            md_id = posparam.get('id')
             Name = posparam.get('Name')
             Description = posparam.get('Description')
             Type = posparam.get('Type')
             new_file_id = posparam.get('fileId')
-            dd_id = CommonUtil.try_int(dd_id)
+            md_id = CommonUtil.try_int(md_id)
             
             #fileService = FileService()
 
             old_file_id = -1
-            if dd_id:
-                #rows = fileService.get_attach_file(self, 'ds_data', dd_id, attach_name='basic')
+            if md_id:
+                #rows = fileService.get_attach_file(self, 'ds_data', md_id, attach_name='basic')
                 #if len(rows) > 0: 
                 #    old_file_id = row[0]['id']
-                dd = DsData.objects.get(id=dd_id)
+                dd = DsData.objects.get(id=md_id)
             else:
                 dd = DsData()
             dd.Name = Name
             dd.Description = Description
             dd.Type = Type
             dd.save()
-            dd_id = dd.id
+            md_id = dd.id
 
-            daService = DaService('ds_data', dd_id)
+            daService = DaService('ds_data', md_id)
  
             if new_file_id:
                 # fileService = FileService()
                 fileService = AttachFileService()
-                fileService.updateDataPk(new_file_id, dd_id)
+                fileService.updateDataPk(new_file_id, md_id)
                 #if new_file_id != old_file_id:
                 #    df = daService.read_csv2()
 
@@ -510,7 +557,7 @@ def learning_data(context):
                 #        for i in range(row_count):
                 #            pd = PropertyData()
                 #            pd.TableName = 'ds_data'
-                #            pd.DataPk = dd_id 
+                #            pd.DataPk = md_id 
                 #            pd.Type = str(i)
                 #            pd.Code = column
                 #            pd.Char1 = data[i]
@@ -541,7 +588,7 @@ def learning_data(context):
 	                , count(case when dc."X" = 1 then 1 end) as x_count
 	                , count(case when dc."Y" = 1 then 1 end) as y_count
 	            from A 
-	            inner join ds_col dc on dc."DsData_id" = A.id
+	            inner join ds_col dc on dc."DsModel_id" = A.id
 	            group by a.id
             ), F as (
 	            select 
@@ -573,14 +620,19 @@ def learning_data(context):
         elif action == 'ds_rows_list':
             '''
             '''
-            dd_id = gparam.get('dd_id')
-            sql = ''' select dc.id, dc."VarIndex", dc."VarName"
-            from ds_col dc
-            where dc."DsData_id" = %(dd_id)s
-            order by dc."VarIndex"  
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+
+            sql = ''' 
+            SELECT 
+                dc.id
+                , dc."VarIndex"
+                , dc."VarName"
+            FROM ds_model_col dc
+            WHERE dc."DsModel_id" = %(md_id)s
+            ORDER BY dc."VarIndex"  
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
 
             xrows = DbUtil.get_rows(sql, dc)
 
@@ -589,13 +641,13 @@ def learning_data(context):
                 var_name = x['VarName']
                 sql += ''' 
                 ,min(case when dt."Code" = \'''' + var_name + '''\' then dt."Char1" end) as x''' + str(i+1)
-            sql += ''' from ds_data_table dt 
-            where dt."DsData_id" = %(dd_id)s
+            sql += ''' from ds_model_data dt 
+            where dt."DsModel_id" = %(md_id)s
             group by dt."RowIndex"
             order by dt."RowIndex"
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
 
             rows = DbUtil.get_rows(sql, dc)
             items = {
@@ -607,17 +659,17 @@ def learning_data(context):
         elif action == 'ds_data_info':
             ''' 
             '''
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
             sql = ''' select dd.id, dd."Name", dd."Description"
             , dd."Type", dd._created
             , (select id as file_id from attach_file af 
 		            where af."DataPk" = dd.id 
 		            and af."TableName" = 'ds_data' order by id desc limit 1) as file_id
             from ds_data dd
-            where dd.id = %(dd_id)s
+            where dd.id = %(md_id)s
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
             row = DbUtil.get_row(sql, dc)
 
             return row
@@ -626,26 +678,26 @@ def learning_data(context):
         elif action == 'make_db_from_file':
             ''' prop_data 없으면 csv파일 읽어서 prop_data에 저장하고 변수컬럼 저장.
             '''
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
             sql = ''' select dd.id, dd."Name", dd."Description"
             , dd."Type", dd._created
             , (select id as file_id from attach_file af 
 		            where af."DataPk" = dd.id 
 		            and af."TableName" = 'ds_data' order by id desc limit 1) as file_id
             from ds_data dd
-            where dd.id = %(dd_id)s
+            where dd.id = %(md_id)s
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
             row = DbUtil.get_row(sql, dc)
 
             file_id = row['file_id']
             if not file_id:
                 return {'success':False, 'message':'파일없음' }
 
-            daService = DaService('ds_data', dd_id)
+            daService = DaService('ds_data', md_id)
 
-            #q = DsDataTable.objects.filter(DsData_id=dd_id)
+            #q = DsDataTable.objects.filter(DsModel_id=md_id)
             #pd = q.first()
             #if pd:
             #    df = daService.read_table_data()
@@ -664,15 +716,15 @@ def learning_data(context):
         elif action == 'cate_col_list':
             ''' 컬럼정보를 읽는다.
             '''
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
             sql = ''' select dc.id, dc."VarName" as value, dc."VarName" as text
             from ds_col dc
-            where dc."DsData_id" = %(dd_id)s
+            where dc."DsModel_id" = %(md_id)s
             and dc."CategoryCount" > 0
             order by dc."VarIndex"  
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
 
             items = DbUtil.get_rows(sql, dc)
 
@@ -682,9 +734,9 @@ def learning_data(context):
         elif action == 'make_col_info':
             ''' table 데이터 읽어서 컬럼정보를 만들어서 저장한다.
             '''
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
 
-            daService = DaService('ds_data', dd_id)
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
             daService.make_col_info(df)
 
@@ -693,27 +745,27 @@ def learning_data(context):
         elif action == 'ds_col_list':
             '''
             '''
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
             sql = ''' select dc.id, dc."VarIndex", dc."VarName"
             , dc."DataCount", dc."MissingCount", dc."CategoryCount" 
             , dc."Mean" 
             , dc."Std" , dc."Q1" , dc."Q2" , dc."Q3" 
             , dc."MissingValProcess" , dc."DropOutLow" , dc."DropOutUpper" , dc."X" ,dc."Y" 
             from ds_col dc
-            where dc."DsData_id" = %(dd_id)s
+            where dc."DsModel_id" = %(md_id)s
             order by dc."VarIndex"  
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
 
             items = DbUtil.get_rows(sql, dc)
          
         elif action == 'save_ds_col_preprocess':
-            dd_id = posparam.get('dd_id')
+            md_id = posparam.get('md_id')
             Q = posparam.get('Q')
             #Q = json.loads(Q)
             
-            daService = DaService('ds_data', dd_id)
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
 
             for item in Q:
@@ -722,7 +774,7 @@ def learning_data(context):
                 DropOutLow = CommonUtil.try_float(item['DropOutLow'])
                 DropOutUpper = CommonUtil.try_float(item['DropOutUpper'])
 
-                q = DsColumn.objects.filter(DsData_id=dd_id)
+                q = DsColumn.objects.filter(DsModel_id=md_id)
                 q = q.filter(VarIndex=item['VarIndex'])
                 dc = q.first()
                 dc.MissingValProcess = MissingValProcess
@@ -751,42 +803,42 @@ def learning_data(context):
             '''
             sql = ''' delete 
 	        from ds_data_table
-	        where "DsData_id"  = %(dd_id)s
+	        where "DsModel_id"  = %(md_id)s
 	        and "RowIndex" in (
 		        select distinct "RowIndex"
 		        from ds_data_table dt
-		        where "DsData_id" = %(dd_id)s
+		        where "DsModel_id" = %(md_id)s
 		        and "Code" in (
 			        select "VarName" 
 			        from ds_col dc
-			        where "DsData_id" = %(dd_id)s
+			        where "DsModel_id" = %(md_id)s
 			        and "MissingValProcess" = 'drop'
 		        )
 		        and "Char1" is null
 	        )
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
             ret = DbUtil.execute(sql, dc)
 
             ''' with A as (
-	            select dc."DsData_id" as dd_id, "VarName", case "MissingValProcess" when 'mean' then "Mean" when 'median' then "Q2" end new_val
+	            select dc."DsModel_id" as md_id, "VarName", case "MissingValProcess" when 'mean' then "Mean" when 'median' then "Q2" end new_val
 	            from ds_col dc
-	            where "DsData_id" = %(dd_id)s
+	            where "DsModel_id" = %(md_id)s
 	            and "MissingValProcess" in ('mean', 'median')
             )
             update ds_data_table 
             set "Char1" = A.new_val
             , "Number1" = A.new_val
             from A
-            where ds_data_table."DsData_id" = A.dd_id 
+            where ds_data_table."DsModel_id" = A.md_id 
             and ds_data_table."Code" = A."VarName"
             and ds_data_table."Char1" is null
             and A.new_val is not null 
             '''
 
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
             ret = DbUtil.execute(sql, dc)
 
             daService.make_col_info(df)
@@ -799,8 +851,8 @@ def learning_data(context):
             import matplotlib.pyplot as plt
             #from matplotlib.figure import Figure
 
-            dd_id = gparam.get('dd_id')
-            daService = DaService('ds_data', dd_id)
+            md_id = gparam.get('md_id')
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
 
             num_df = df.select_dtypes(include=['int64','float64'])
@@ -879,9 +931,9 @@ def learning_data(context):
             import seaborn as sns
             #from matplotlib.figure import Figure
 
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
             variables = gparam.get('variables')
-            daService = DaService('ds_data', dd_id)
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
             
             cate=[]
@@ -926,8 +978,8 @@ def learning_data(context):
             import seaborn as sns
             #from matplotlib.figure import Figure
 
-            dd_id = gparam.get('dd_id')
-            daService = DaService('ds_data', dd_id)
+            md_id = gparam.get('md_id')
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
 
             #num_df = df.select_dtypes(include=['int64','float64'])
@@ -948,17 +1000,17 @@ def learning_data(context):
         elif action == 'save_ds_col_xy':
             '''
             '''
-            dd_id = posparam.get('dd_id')
+            md_id = posparam.get('md_id')
             Q = posparam.get('Q')
             #Q = json.loads(Q)
 
-            daService = DaService('ds_data', dd_id)
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
 
             x_cols = []
             y_cols = []
             for item in Q:
-                q = DsColumn.objects.filter(DsData_id=dd_id)
+                q = DsColumn.objects.filter(DsModel_id=md_id)
                 q = q.filter(VarIndex=item['VarIndex'])
                 dc = q.first()
                 dc.X = 1 if item['X'] else None
@@ -976,7 +1028,7 @@ def learning_data(context):
             multilinear = LinearRegression()
 
             #corr = df[x_cols + y_cols].corr()
-            q = DsVarCorrelation.objects.filter(DsData_id=dd_id)
+            q = DsVarCorrelation.objects.filter(DsModel_id=md_id)
             q.delete()
 
             for y in y_cols:
@@ -985,7 +1037,7 @@ def learning_data(context):
                 beta_i_list = multilinear.coef_
 
                 cr = DsVarCorrelation()
-                cr.DsData_id = dd_id
+                cr.DsModel_id = md_id
                 cr.YVarName = y
                 cr.XVarName = 'intercept_'
                 cr.MultiLinearCoef = beta_0
@@ -997,7 +1049,7 @@ def learning_data(context):
                     except Exception as e:
                         corr = None
                     cr = DsVarCorrelation()
-                    cr.DsData_id = dd_id
+                    cr.DsModel_id = md_id
                     cr.XVarName = x
                     cr.YVarName = y
                     cr.r = corr
@@ -1021,8 +1073,8 @@ def learning_data(context):
             '''
             import seaborn as sns
 
-            dd_id = gparam.get('dd_id')
-            daService = DaService('ds_data', dd_id)
+            md_id = gparam.get('md_id')
+            daService = DaService('ds_data', md_id)
             df = daService.read_table_data()
 
             #num_df = df.select_dtypes(include=['int64','float64'])
@@ -1071,16 +1123,16 @@ def learning_data(context):
                 cell 2: 다중회귀식
 
             '''
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
 
             sql = ''' select dc.id, dc."VarIndex", dc."VarName"
             from ds_col dc
-            where dc."DsData_id" = %(dd_id)s
+            where dc."DsModel_id" = %(md_id)s
             and dc."X" = 1
             order by dc."VarIndex"  
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
 
             xrows = DbUtil.get_rows(sql, dc)
 
@@ -1090,7 +1142,7 @@ def learning_data(context):
                 sql += ''' 
                 ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc.r end)::text as x''' + str(i+1)
             sql += ''' from ds_var_corr vc 
-            where vc."DsData_id" = %(dd_id)s
+            where vc."DsModel_id" = %(md_id)s
             group by vc."YVarName" 
             union all
             select vc."YVarName", 2 as grp_idx, '단일회귀식' as data_type
@@ -1100,7 +1152,7 @@ def learning_data(context):
                 sql += ''' 
                 ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc."RegressionEquation" end) as x''' + str(i+1)
             sql += ''' from ds_var_corr vc 
-            where vc."DsData_id" = %(dd_id)s
+            where vc."DsModel_id" = %(md_id)s
             group by vc."YVarName" 
             union all
             select vc."YVarName", 3 as grp_idx, '다중회귀식계수' as data_type
@@ -1110,12 +1162,12 @@ def learning_data(context):
                 sql += ''' 
                 ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc."MultiLinearCoef" end)::text as x''' + str(i+1)
             sql += ''' from ds_var_corr vc 
-            where vc."DsData_id" = %(dd_id)s
+            where vc."DsModel_id" = %(md_id)s
             group by vc."YVarName" 
             order by 1, 2
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
             rows = DbUtil.get_rows(sql, dc)
             
             items = {
@@ -1126,16 +1178,16 @@ def learning_data(context):
 
         elif action == 'ds_y_regression_list':
 
-            dd_id = gparam.get('dd_id')
+            md_id = gparam.get('md_id')
 
             sql = ''' select dc.id, dc."VarIndex", dc."VarName"
             from ds_col dc
-            where dc."DsData_id" = %(dd_id)s
+            where dc."DsModel_id" = %(md_id)s
             and dc."X" = 1
             order by dc."VarIndex"  
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
 
             xrows = DbUtil.get_rows(sql, dc)
 
@@ -1145,20 +1197,20 @@ def learning_data(context):
                 sql += ''' 
                 ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc."RegressionEquation" end) as re''' + str(i)
             sql += ''' from ds_var_corr vc 
-            where vc."DsData_id" = %(dd_id)s
+            where vc."DsModel_id" = %(md_id)s
             group by vc."YVarName" 
             '''
             dc = {}
-            dc['dd_id'] = dd_id
+            dc['md_id'] = md_id
             rows = DbUtil.get_rows(sql, dc)    
             
             items = rows
         
     except Exception as ex:
-        source = 'learning_data : action-{}'.format(action)
+        source = '/api/ai/learning_data, action:{}'.format(action)
         LogWriter.add_dblog('error', source , ex)
-        # 24.07.16 김하늘 에러 로그 확인
-        print('error: ', ex)
-        raise ex
-    
+        # # 24.07.16 김하늘 에러 로그 확인
+        # print('error: ', ex)
+        items = {'success':False}
+
     return items

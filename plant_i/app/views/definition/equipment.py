@@ -30,11 +30,17 @@ def equipment(context):
 
         items = equipment_service.get_equipment_list(equipment_line, equipment_group, equipment)
 
-    if action=='read_obs':
+    elif action=='read_obs':
         dept_name = gparam.get('dept_name', None)
         equipment = gparam.get('equipment', None)
 
         items = equipment_service.get_equip_obsolete_list(dept_name, equipment)
+
+    elif action=='read_modal':
+        keyword = gparam.get('keyword', None)
+        depart_id = gparam.get('depart_id', None)
+
+        items = equipment_service.get_equip_modal(keyword, depart_id)
 
     elif action=='detail':
         id = gparam.get('id', None)

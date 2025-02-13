@@ -59,7 +59,7 @@
                     </div>
                     <div class="col-auto">
                         <div class="card-group-btn search">
-                            <button id="btnSearch" class="btn-search">조회</button>
+                            <button id="btnSearch" name="btnSearch" class="btn-search">조회</button>
                         </div>
                     </div>
                 </div>
@@ -93,6 +93,9 @@
 
 {% block scripts %}
 
+{% include '../../popup/modalPmMaster.html'%}
+{% include '../../popup/modalEqu.html'%}
+{% include '../../popup/modalPmCopy.html'%}
 {% include 'common/file_upload.html' %}
 
 <script type="text/javascript">
@@ -126,8 +129,7 @@
                     { field: 'pm_name', title: 'PM명', width: 200 },
                     { field: 'equ_code', title: '설비코드', width: 120 },
                     { field: 'equ_name', title: '설비명', width: 150 },
-                    { field: 'priority', title: '중요도', width: 80 },
-                    { field: 'work_time', title: '작업시간', width: 100 },
+                    { field: 'priority', title: '중요도', width: 80 },                    
                     { field: 'exec_dept', title: '실행부서', width: 100 },
                     { field: 'manage_dept', title: '관리부서', width: 100 },
                     { field: 'equ_location', title: '설비위치', width: 120 },
@@ -149,46 +151,99 @@
             _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
 
             $('#keyword').kendoTextBox();
-            AjaxUtil.fillDropDownOptions($('#srch_location'), 'depart', 'choose', null);
+            //AjaxUtil.fillDropDownOptions($('#srch_location'), 'depart', 'choose', null);
+
+            $("#srch_location").kendoDropDownTree({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/api/definition/location?action=loc_tree",
+                            type: "GET",
+                            dataType: "json"
+                        }
+                    },
+                    //서버에서 받은 JSON 데이터를 가공하는 역할
+                    schema: {
+                        data: function (response) {
+                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
+                        },
+                        model: {
+                            id: "id",
+                            text: "text",
+                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
+                        }
+                    }
+                },
+                dataTextField: "text",
+                dataValueField: "id",
+                placeholder: "부서를 선택하세요",
+                height: 400
+            });
 
             $("#srch_dept").kendoDropDownTree({
                 dataSource: {
                     transport: {
                         read: {
-                            url: "/api/system/depart",
+                            url: "/api/system/depart?action=depart_tree",
                             type: "GET",
-                            data: { action: "read_tree" }
+                            dataType: "json"
                         }
                     },
+                    //서버에서 받은 JSON 데이터를 가공하는 역할
+                    schema: {
+                        data: function (response) {
+                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
+                        },
+                        model: {
+                            id: "id",
+                            text: "text",
+                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
+                        }
+                    }
                 },
-                autoBind: true,
-                placeholder: "선택하세요",
-                dataTextField: "indent_dept_nm",
-                dataValueField: "dept_cd",
-            }).data("kendoDropDownTree").dataSource.read();
+                dataTextField: "text",
+                dataValueField: "id",
+                placeholder: "부서를 선택하세요",
+                height: 400
+            });
 
             $("#srch_dept_type").kendoDropDownTree({
                 dataSource: {
                     transport: {
                         read: {
-                            url: "/api/system/depart",
+                            url: "/api/system/depart?action=depart_tree",
                             type: "GET",
-                            data: { action: "read_tree" }
+                            dataType: "json"
                         }
                     },
+                    //서버에서 받은 JSON 데이터를 가공하는 역할
+                    schema: {
+                        data: function (response) {
+                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
+                        },
+                        model: {
+                            id: "id",
+                            text: "text",
+                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
+                        }
+                    }
                 },
-                autoBind: true,
-                placeholder: "선택하세요",
-                dataTextField: "indent_dept_nm",
-                dataValueField: "dept_cd",
-            }).data("kendoDropDownTree").dataSource.read();
+                dataTextField: "text",
+                dataValueField: "id",
+                placeholder: "부서를 선택하세요",
+                height: 400
+            });            
 
             $('#btnAdd').kendoButton({
                 icon: "pencil",
                 themeColor: "blue",
                 spriteCssClass: "k-icon k-foo",
-                click: function () {
-
+                click: function (e) {
+                    e.preventDefault();
+                    $("#modalPmMaster").fadeIn();
                 }
             });
 
@@ -241,6 +296,7 @@
 
     $(document).ready(function () {
         page.searchMainData();
+
     });
 
 </script>

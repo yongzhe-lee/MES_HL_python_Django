@@ -48,17 +48,7 @@ def holiday(context):
             NameVal = posparam.get('name_val')
             Repeatyn = posparam.get('repeat_yn')
             Holidate = posparam.get('holidate')
-
-            # 데이터 유효성 검사
-            if Repeatyn not in ['Y', 'N']:
-                raise ValueError("Invalid value for 'repeat_yn'. Must be 'Y' or 'N'.")
-            if len(Holidate) > 10:
-                raise ValueError("Invalid value for 'holidate'. Maximum length is 10.")
-            if not NameVal or len(NameVal) > 100:
-                raise ValueError("Invalid value for 'name_val'. Maximum length is 100.")
-            if not NationCd or len(NationCd) > 10:
-                raise ValueError("Invalid value for 'nation_cd'. Maximum length is 10.")
-
+      
             # 중복 데이터 확인
             if holiday_id is None:
                 if Holiday.objects.filter(nation_cd=NationCd, holidate=Holidate, name_val=NameVal).exists():

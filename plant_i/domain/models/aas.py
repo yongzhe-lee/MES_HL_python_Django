@@ -15,6 +15,8 @@ AssetKindChoices = [
     ('Instance','Instance')
 ]
 
+'''
+# 사용안함, JSON필드로 대체함
 class LanguageItem(models.Model):
     lang_item_pk = models.AutoField(primary_key=True, db_column='lang_item_pk')
     category = models.CharField(max_length=50)
@@ -61,6 +63,7 @@ class LanguageText(models.Model):
 
     class Meta:
         db_table = 'lang_text'
+'''
 
 
 class DBResource(models.Model):
@@ -435,8 +438,13 @@ class DBSubmodelElement(models.Model):
     semancticId = models.ForeignKey(DBReference, related_name='submodelelement_semancticId',db_column='semanctic_id', on_delete = models.DO_NOTHING)
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=SubmodelelementEmbeddedDataSpecifications, related_name='submodelelement_embeddedDataSpecifications', related_query_name='submodelelement_embeddedDataSpecifications')
     Extensions= models.ManyToManyField(DBExtension, through=SubmodelElementExtensions, related_name='submodelelement_extensions', related_query_name='submodelelement_extensions')
-    displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodelelement_displayName')
-    description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodelelement_description')
+
+
+    #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodelelement_displayName')
+    #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodelelement_description')
+    displayName = models.JSONField(null=True);
+    description = models.JSONField(null=True);
+
 
     Submodel = models.ForeignKey('DBSubmodel', on_delete=models.DO_NOTHING, null=True, db_column='sm_pk')
 
@@ -465,7 +473,9 @@ class DBDataElement(models.Model):
 class DBMultiLanguageProperty(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
     valueId = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='multiLanguageProperty_valueId_reference')
-    value = models.ForeignKey(LanguageItem, on_delete=models.DO_NOTHING, null=True, related_name='multiLanguageProperty_value_languageItem')
+    #value = models.ForeignKey(LanguageItem, on_delete=models.DO_NOTHING, null=True, related_name='multiLanguageProperty_value_languageItem')
+    value = models.JSONField(null=True);
+
 
     class Meta:
         db_table = 'multilang_prpt_element'
@@ -594,8 +604,13 @@ class DBSubmodel(models.Model):
     Qualifiers= models.ManyToManyField(DBQualifier, through=SubmodelQualifiers, related_name='submodel_qualifiers', related_query_name = 'submodel_qualifiers')
     EmbeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=SubmodelEmbeddedDataSpecifications, related_name='submodel_embeddedDataSpecifications', related_query_name='submodel_dataspecs')
     Extensions = models.ManyToManyField(DBExtension, through=SubmodelExtensions, related_name='submodel_extensions', related_query_name='submodel_extensions')
-    displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodel_displayName')
-    description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodel_description')
+
+    #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodel_displayName')
+    #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodel_description')
+
+    displayName = models.JSONField(null=True);
+    description = models.JSONField(null=True);
+
     
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -674,10 +689,15 @@ class DBAssetAdministrationShell(models.Model) :
     derivedFrom = models.ForeignKey('self', db_column='base_aas_pk', on_delete=models.CASCADE, null=True, related_name='aas_derivedFrom')
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=AASDataSpecification, related_name='aas_dataspecs', related_query_name='aas_dataspecs')
     Extensions = models.ManyToManyField(DBExtension, through=AASExtensions, related_name='aas_extensions', related_query_name='aas_extensions')
-    displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_displayName')
-    dispaly_name : MultiLanguageTextType = None
 
-    description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_description')
+    #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_displayName')
+    #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_description')
+
+    displayName = models.JSONField(null=True);
+    description = models.JSONField(null=True);
+
+    #dispaly_name : MultiLanguageTextType = None   
+
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)

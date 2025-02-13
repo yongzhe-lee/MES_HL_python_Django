@@ -1,9 +1,9 @@
-
 from domain.gui import GUIConfiguration
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 from domain.models.user import Depart
 from domain.services.common import CommonUtil
+from django.http import JsonResponse
 
 
 def depart(context):
@@ -156,105 +156,36 @@ def depart(context):
             
             result = { 'success': True }
 
-        elif action == 'read_tree':            
-            sql = '''
-            WITH RECURSIVE dc2 AS (
-                SELECT DISTINCT t1.id,
-                       NULL::bigint AS "UpDept_id",
-                       t1."Name",
-                       CONCAT('', t1."Name") AS indent_dept_nm,
-                       1 AS level,
-                       ARRAY[t1.id] AS path_info,
-                       t1."Code",
-                       CAST('' AS TEXT) AS up_dept_cd,
-                       CAST('' AS TEXT) AS up_dept_nm,
-                       t1."Site_id"
-                FROM public.dept t1
-                WHERE t1.id IN (
-                    SELECT DISTINCT rootdept.id
-                    FROM public.dept rootdept
-                    LEFT OUTER JOIN public.dept rootUpdept ON rootdept."UpDept_id" = rootUpdept.id
-                    WHERE rootdept."DelYN" = 'N' 
-                      AND rootdept."UseYN" = 'Y'
-                      AND rootdept."Site_id" = '1'
-                      AND COALESCE(rootUpdept."Site_id", 0) != '1'
-                )
-                AND t1."DelYN" = 'N' 
-                AND t1."UseYN" = 'Y'
-    
-                UNION ALL
-    
-                SELECT DISTINCT t2.id,
-                       t2."UpDept_id",
-                       t2."Name",
-                       CONCAT(RPAD('', s.level * 2, '　'), t2."Name") AS indent_dept_nm,
-                       s.level + 1,
-                       s.path_info || t2.id,
-                       t2."Code",
-                       s."Code" AS up_dept_cd,
-                       s."Name" AS up_dept_nm,
-                       t2."Site_id"
-                FROM public.dept t2
-                JOIN dc2 s ON s.id = t2."UpDept_id"
-                WHERE t2."DelYN" = 'N' 
-                  AND t2."UseYN" = 'Y'
-                  AND t2."Site_id" = '1'
-            ), x AS (
-                SELECT DISTINCT dc2.id,
-                       dc2."UpDept_id",
-                       dc2."Name",
-                       dc."Code",
-                       dc2.indent_dept_nm,
-                       dc2.up_dept_cd,
-                       dc2.up_dept_nm,
-                       dc2.level,
-                       dc."DelYN",
-                       dc."UseYN",
-                       TO_CHAR(dc."_created", 'YYYY-MM-DD HH24:MI') AS insert_ts,
-                       dc."_creater_id",
-                       TO_CHAR(dc."_modified", 'YYYY-MM-DD HH24:MI') AS update_ts,
-                       dc."_modifier_id",
-                       (SELECT COUNT(*) FROM public.dept WHERE "UpDept_id" = dc2.id AND "DelYN" = 'N' AND "Site_id" = '1') AS sub_count,
-                       (SELECT COUNT(*) FROM public.dept WHERE "UpDept_id" = dc2.id AND "DelYN" = 'N' AND "Site_id" = '1') AS sub_item_count,
-                       dc2.path_info,
-                       dc2."Site_id",
-                       ARRAY_TO_STRING(dc2.path_info, ',') AS path_info_str -- 🔹 추가
-                FROM dc2
-                JOIN public.dept dc ON dc.id = dc2.id
-                WHERE dc."DelYN" = 'N'
-                  AND dc."UseYN" = 'Y'
-            )
+        elif action == 'depart_tree':
+            def build_tree(nodes, parent_id=None):
+                tree = []
+                for node in nodes:
+                    if node["UpDept_id"] == parent_id:
+                        children = build_tree(nodes, node["id"])
+                        tree.append({
+                            "id": node["id"],
+                            "text": node["Name"],
+                            "items": children if children else []
+                        })
+                return tree
 
-            SELECT DISTINCT x.id AS dept_pk,
-                   x."UpDept_id" AS up_dept_pk,
-                   CASE WHEN 'N' = 'Y' AND x.sub_item_count >= 0 THEN x."Name" || ' (' || CAST(x.sub_item_count AS INTEGER) || ')' ELSE x."Name" END AS dept_nm,
-                   x."Code" AS dept_cd,
-                   x.indent_dept_nm,
-                   x.up_dept_cd,
-                   x.up_dept_nm,
-                   x.level AS lev,
-                   x."DelYN",
-                   x."UseYN",
-                   x.insert_ts,
-                   x."_creater_id" AS inserter_id,
-                   x.update_ts,
-                   x."_modifier_id" AS updater_id,
-                   CAST(x.sub_count AS INTEGER) AS sub_count,
-                   CAST(x.sub_item_count AS INTEGER) AS sub_item_count,
-                   ARRAY_TO_STRING(x.path_info, ',') AS path_info,
-                   x.path_info_str -- 🔹 추가
-            FROM x
-            WHERE x.id IN (
-                SELECT DISTINCT UNNEST(x.path_info)
-                FROM x
-                WHERE x."Site_id" = '1'
-            )
-            ORDER BY x.path_info_str; -- 🔹 `SELECT` 리스트에 있는 값으로 정렬
+            try:
+                # DB에서 부서 정보 조회
+                departments = Depart.objects.filter(UseYN='Y', DelYN='N').values('id', 'Name', 'UpDept_id')
+                print("📌 부서 데이터 확인:", list(departments))  # 🚀 로그 추가
 
-            '''            
+                # 트리 구조 변환
+                department_tree = build_tree(list(departments))
 
-            result = DbUtil.get_rows(sql)
+                # ✅ `{ "items": [...] }` 형식으로 반환
+                result = {"items": department_tree}
 
+            except Exception as e:
+                print("🚨 서버 오류 발생:", str(e))  # 🚀 콘솔에 오류 로그 출력
+                result = {"error": str(e)}
+
+        else:
+            result = {'error': 'Invalid action'}
 
     except Exception as ex:
         source = 'dept : action-{}'.format(action)
@@ -262,5 +193,9 @@ def depart(context):
         raise ex
 
     return result
+
+
+
+
 
 

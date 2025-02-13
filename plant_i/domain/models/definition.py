@@ -392,7 +392,6 @@ class Location(models.Model):
             ['loc_nm'],
         ]
 
-
 class Equipment(models.Model): #, part1_fields.ElementLevelType):
     id  = models.AutoField(primary_key=True)
     Code = models.CharField('설비코드', max_length=50, validators=[space_check])
@@ -430,7 +429,6 @@ class Equipment(models.Model): #, part1_fields.ElementLevelType):
     OperationRateYN = models.CharField('가동률표시YN', max_length=1, null=True) 
     Status = models.CharField('설비상태', max_length=10, null=True, default='normal')
     loc_pk = models.SmallIntegerField('위치PK', null=True)
-    
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -509,6 +507,25 @@ class EquipDeptHist(models.Model):
         unique_together = [
             ['equip_dept_hist_pk'],  # Ensuring uniqueness for primary key (redundant with primary_key=True)
         ]
+
+class EquipCategory(models.Model):
+    equip_category_id = models.CharField(max_length=2, primary_key=True)
+    equip_category_desc = models.CharField(max_length=50)
+    remark = models.CharField(max_length=100, null=True, blank=True)
+    use_yn = models.CharField(max_length=1, default='Y')
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    class Meta:
+        db_table = 'equip_category'
+        managed = False
+
+    def __str__(self):
+        return self.equip_category_desc
 
 
 #class EquipmentProperty(AbstractAuditModel):

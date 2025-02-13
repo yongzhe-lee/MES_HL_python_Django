@@ -31,41 +31,50 @@ def aasgui(context) :
             keyword = gparam.get('keyword')
 
             sql ='''
+
             with recursive aas_tree as (
             select 
             a.aas_pk 
             , 0 as parent_pk
-            , fn_lang_text(a.disp_name_pk, 'displayName', %(lang_code)) as disp_name
+            , a.id
+            , a.id_short
+            , a."displayName"
             , 'aas' as gubun
             , a."_created" 
             , 0 as lvl
+            , (select count(*) from specific_asset where specific_asset.asset_pk= ai.asset_pk) as asset_count
             from aas a   
             left join asset_info ai on a.asset_pk = ai.asset_pk 
-            left join specific_asset sa on sa.asset_pk = ai.asset_pk
             union all 
             select
              aatt.aas_pk
-             , aatt.aas_pk as parent_pk 
-             , fn_lang_text(sb.disp_name_pk, 'displayName', %(lang_code)) as disp_name
+             , aatt.aas_pk as parent_pk
+             , sb.id
+             , sb.id_short
+             , sb."displayName"
              , 'submodel' as gubun
-              , sb."_created"
-             , 1 as lvl 
+             , sb."_created"
+             , 1 as lvl
+             , null as asset_count
             from submodel sb
             inner join aas_tree aatt on sb.aas_pk = aatt.aas_pk
             )
-            select 
-            aas_tree.aas_pk 
+            select
+            aas_tree.aas_pk
+            , aas_tree.id
+            , aas_tree.id_short
             , aas_tree.parent_pk
-            , aas_tree.disp_name 
+            , aas_tree."displayName" 
             , aas_tree.gubun 
             , aas_tree."_created" 
             , aas_tree.lvl
+            , aas_tree.asset_count
             from aas_tree
             where 1=1
             '''
             if keyword:
                 sql += '''
-                and UPPER(aas_tree.disp_name) like CONCAT('%%', UPPER(%(keyword)s), '%%')
+                and (aas_tree."displayName"->>'text' like '%aaa%')
                 '''
 
 

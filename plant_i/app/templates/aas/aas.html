@@ -13,13 +13,13 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="이름" />
+                                <input id="keyword" name="keyword" placeholder="Display Name" />
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="card-group-btn search">
-                            <button id="btnSearch" class="btn-search">조회</button>
+                            <button id="btnSearch" class="btn-search" data-labelCd="Search">조회</button>
                         </div>
                     </div>
                 </div>
@@ -29,9 +29,7 @@
             <div class="card-content grid">
                 <div class="card-group-btn">
                     <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="AAS목록">AAS목록</label></span>
-                    <span>
-                    </span>
-
+                    <span></span>
                 </div>
                 <div id="aas_grid"></div>
             </div>
@@ -50,30 +48,92 @@
                 <form id="lineForm">
                     <input type="hidden" id="id" name="id" />
                     <div class="edit-form-ui">
+
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="Name" data-labelCd="라인명">라인명</label>
+                                <label class="k-label k-form-label essential" for="id_short" data-labelCd="ID Short">ID Short</label>
                                 <div class="field-wrapper">
-                                    <input id="Name" name="Name" />
+                                    <input id="id_short" name="id_short" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="id" data-labelCd="id">id</label>
+                                <div class="field-wrapper">
+                                    <input id="id" name="id" />
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="Code" data-labelCd="라인코드">라인코드</label>
+                                <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display Name">Display Name</label>
                                 <div class="field-wrapper">
-                                    <input id="Code" name="Code" />
+                                    <select id="language" name="language">
+                                        <option value="ko-KR">한글</option>
+                                        <option value="en-US">English</option>
+                                    </select>
+                                    <input id="text" name="text" /><button id="btnAddDisplayName">추가</button>
+                                    <div id="displayName_grid"></div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <input id="description" name="description" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <hr style="width:100%;" />
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="asset_kind" data-labelCd="Asset Kind">Asset Kind</label>
+                                <div class="field-wrapper">
+                                    <select id="asset_kind" name="asset_kind">
+                                        <option value="Instance">Instance</option>
+                                        <option value="Type">Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="globalAssetId" data-labelCd="Grobal Asset ID">Grobal Asset ID</label>
+                                <div class="field-wrapper">
+                                    <input id="globalAssetId" name="globalAssetId" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="globalAssetId" data-labelCd="Specific Asset IDs">Specific Asset IDs</label>
+                                <div class="field-wrapper">
+                                    <input id="text" name="text" /><button id="btnAddDisplayName">추가</button>
+                                    <div id="specificAsssetIds_grid"></div>
+
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="Description" data-labelCd="비고">비고</label>
+                                <label class="k-label k-form-label essential" for="version" data-labelCd="Ver/Rev">Ver/Rev</label>
                                 <div class="field-wrapper">
-                                    <input id="Description" name="Description" />
+                                    <input id="version" name="version" placeholder="version" />
+                                    <input id="revision" name="revision" placeholder="revision" />
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                 </form>
             </div>
@@ -90,7 +150,7 @@
     class LinePage {
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/aas/shells';
+            this.baseUrl = '/api/aas/aasgui';
 
             this.init();
         }
@@ -112,27 +172,57 @@
                 //    }
                 //},
                 columns: [
-                    { field: "Name", title: "모델구분", width: 100 },
-                    { field: "Code", title: "Category", width: 100 },
+                    { field: "category", title: "Category", width: 80 },
                     { field: "id_short", title: "id(short)", width: 100 },
                     { field: "id", title: "id", width: 100 },
+                    { field: "displayName", title: "Display name", width: 200 },
                     { field: "created", title: "Created", width: 100 },
-                    { field: "version", title: "Version/Revision", width: 100 },
+                    { field: "ver_rev", title: "Version/Revision", width: 100 },
                     { field: "aasx", title: "Download aasx", width: 100 },
                 ],
                 change: function (e) {
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    //for (var i = 0; i < this.columns.length; i++) {
-                    //    this.autoFitColumn(i);
-                    //};
-                    // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
                 },
                 height: "540px"
             };
             _this.grid = new Grid($("#aas_grid"), gridOption);
+
+
+            let option2 = {
+                columns: [
+                    { field: "category", title: "언어", width: 80 },
+                    { field: "id_short", title: "이름", width: 100 },
+                ],
+                change: function (e) {
+
+                },
+                dataBound: function (e) {
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "200px"
+            };
+            _this.displayNameGrid = new Grid($("#displayName_grid"), option2);
+
+
+
+            let option3 = {
+                columns: [
+                    { field: "name", title: "Name", width: 80 },
+                    { field: "value", title: "Value", width: 100 },
+                ],
+                change: function (e) {
+
+                },
+                dataBound: function (e) {
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "200px"
+            };
+            _this.displayNameGrid = new Grid($("#specificAsssetIds_grid"), option3);
+
 
             //search form
             $('#keyword').kendoTextBox();

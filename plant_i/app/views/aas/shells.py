@@ -1,5 +1,4 @@
 
-from turtle import pos
 from unicodedata import category
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
@@ -10,7 +9,7 @@ from domain.models.aas import DBAssetAdministrationShell
 
 def shells(context) :
     '''
-    «•¡ÿ ¿⁄ªÍ ∞¸∏Æ Ω© ∏Ò∑œ ¡∂»∏
+    ÌëúÏ§Ä ÏûêÏÇ∞ Í¥ÄÎ¶¨ Ïâò Î™©Î°ù Ï°∞Ìöå
     /api/aas/shells
 
     '''
@@ -30,34 +29,49 @@ def shells(context) :
             keyword = gparam.get('keyword')
 
             sql ='''
-            with tt as (
-            select
-            li.lang_item_pk 
-            , lt.language
-            , lt.text as displayname 
-            , li.category 
-            , li."StringType" 
-            from lang_item li 
-            inner join lang_text lt on li.lang_item_pk = lt.lang_item_pk 
-            where li.category='displayName'
-            limit 1
-            )
+
+            with recursive aas_tree as (
             select 
             a.aas_pk 
-            , a.id as aas_id
-            , a.category 
-            , a.disp_name_pk 
-            , tt.displayname
-            , a.base_aas_pk 
-            from aas a 
-            left join tt on tt.lang_item_pk = a.disp_name_pk 
+            , 0 as parent_pk
+            , a.id
+            , a.id_short
+            , a."displayName"
+            , 'aas' as gubun
+            , a."_created" 
+            , 0 as lvl
+            from aas a   
             left join asset_info ai on a.asset_pk = ai.asset_pk 
-            left join specific_asset sa on sa.asset_pk = ai.asset_pk 
+            left join specific_asset sa on sa.asset_pk = ai.asset_pk
+            union all 
+            select
+             aatt.aas_pk
+             , aatt.aas_pk as parent_pk
+             , sb.id
+             , sb.id_short
+             , sb."displayName"
+             , 'submodel' as gubun
+             , sb."_created"
+             , 1 as lvl 
+            from submodel sb
+            inner join aas_tree aatt on sb.aas_pk = aatt.aas_pk
+            )
+            select
+            aas_tree.aas_pk
+            , aas_tree.id
+            , aas_tree.id_short
+            , aas_tree.parent_pk
+            , aas_tree."displayName" 
+            , aas_tree.gubun 
+            , aas_tree."_created" 
+            , aas_tree.lvl
+            from aas_tree
+            where 1=1
             '''
             if keyword:
                 sql += '''
                 where 
-                OR UPPER(tt.displayname) like CONCAT('%%', UPPER(%(keyword)s), '%%')
+                OR UPPER(tt.displayName) like CONCAT('%%', UPPER(%(keyword)s), '%%')
                 '''
 
 
@@ -70,33 +84,28 @@ def shells(context) :
 
            #asset_kind = posparam.get("asset_kind")
            #asset_type = posparam.get("asset_type")
-
+           id = posparam.get('id')
+           id_short = posparam.get('id_short')
            category = posparam.get('category')
            description = posparam.get('description')
-           id_short = posparam.get('id_short')
-           aas_id = posparam.get('aas_id')
-           asset_pk = posparam.get('asset_pk')
-           disp_name_pk = posparam.get('disp_name_pk')
-           desc_pk = posparam.get('desc_pk')
+
+           displayName = posparam.get('displpayName')
+           description = posparam.get('description')
 
            aas = DBAssetAdministrationShell()
            aas.category = category
-           aas.displayName.id = disp_name_pk
-           if desc_pk:
-               aas.description.id = desc_pk
-
+           aas.displayName = {}
+           aas.description = {}
            aas.set_audit(user)
 
            aas.save()
 
 
-
-
-    except Exception as e:
-        LogWriter.error('Error: %s' % str(e))
-        result['message'] = str(e)
+    except Exception as ex:
+        source = '/api/aas/shells'
+        LogWriter.add_dblog('error', source, ex)
+        result['message'] = str(ex)
         result['success'] = False
-
 
     return result
 

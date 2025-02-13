@@ -135,6 +135,7 @@ class GUIConfiguration():
         gui_dc['wm_regression_a'] = cls.gui_item('산점도-회귀분석', 'tagdata/regression_a.html')
 
         # AI    25.01.20 김하늘 추가
+        gui_dc['wm_ai_model'] = cls.gui_item('모델 관리', 'ai/model.html')
         gui_dc['wm_ai_tag_group'] = cls.gui_item('AI시스템 운영관리', 'ai/tag_group.html')
         gui_dc['wm_ai_tag'] = cls.gui_item('AI시스템 참조데이터 관리', 'ai/tag.html')
         gui_dc['wm_ai_tagdata_list'] = cls.gui_item('AI시스템 IF 확인', 'ai/tagdata_list.html')

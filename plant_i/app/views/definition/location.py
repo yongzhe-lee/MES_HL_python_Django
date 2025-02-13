@@ -5,6 +5,7 @@ from domain.models.definition import Location
 from domain.services.definition.equipment import EquipmentService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
+from django.http import JsonResponse
 
 def location(context):
     '''
@@ -76,6 +77,37 @@ def location(context):
 
         elif action=='read_loc_hist':
             result = location_service.get_equip_loc_hist()
+
+        elif action == 'loc_tree':
+            def build_tree(nodes, parent_id=None):
+                tree = []
+                for node in nodes:
+                    if node["up_loc_pk"] == parent_id:  # ✅ 상위 위치(부모 ID) 비교
+                        children = build_tree(nodes, node["id"])  # ✅ 재귀 호출로 하위 노드 검색
+                        tree.append({
+                            "id": node["id"],       # ✅ 위치 PK
+                            "text": node["loc_nm"], # ✅ 위치 이름 (DropDownTree에서 표시)
+                            "items": children if children else []  # ✅ 하위 항목 없으면 빈 배열 반환
+                        })
+                return tree
+
+            try:
+                # DB에서 부서 정보 조회
+                locations = Location.objects.filter(_status='Active').values('id', 'loc_nm', 'up_loc_pk')
+                print("📌 부서 데이터 확인:", list(locations))  # 🚀 로그 추가
+
+                # 트리 구조 변환
+                loc_tree = build_tree(list(locations))
+
+                # ✅ `{ "items": [...] }` 형식으로 반환
+                result = {"items": loc_tree}
+
+            except Exception as e:
+                print("🚨 서버 오류 발생:", str(e))  # 🚀 콘솔에 오류 로그 출력
+                result = {"error": str(e)}
+
+        else:
+            result = {'error': 'Invalid action'}
 
     except Exception as ex:
         source = '/api/definition/location, action:{}'.format(action)
