@@ -16,19 +16,19 @@ class PMService():
              a.pm_no , a.pm_name 
              , e."Code" as equ_code, e."Name" as equ_name
              , e.import_rank_pk
-             , d."Name" as exec_dept
-             , d2."Name" as manage_dept
+             , mng."Name" as manage_dept
+             , exc."Name" as exec_dept             
              , l.loc_nm as equ_location
              , au.first_name as pm_manager
              , a.pm_type 
              , a.cycle_type 
          FROM pm a
  	        left join equ e on a.equ_id = e.id 
- 	        left join dept d on a.dept_id  = d.id
- 	        left join dept d2 on e."Depart_id"  = d2.id
+ 	        left join dept mng on e."Depart_id"  = mng.id
+ 	        left join dept exc on a.dept_id  = exc.id 	        
  	        left join "location" l on e.loc_pk = l.id 
  	        left join auth_user au on a.pm_user_id  = au.id  	
-         WHERE 1 = 1  
+         WHERE 1 = 1 
         '''
         if keyword:
             sql += ''' 
@@ -36,23 +36,23 @@ class PMService():
             '''
         if equDept:
             sql += ''' 
-            AND a."pm_name" like CONCAT('%%', %(equDept)s, '%%')
+            AND mng.id = %(equDept)s
             '''
         if equLoc:
             sql += ''' 
-            AND a."pm_name" like CONCAT('%%', %(equLoc)s, '%%')
+            AND l.id = %(equLoc)s
             '''
         if pmDept:
             sql += ''' 
-            AND a."pm_name" like CONCAT('%%', %(pmDept)s, '%%')
+            AND exc.id = %(pmDept)s
             '''
         if isMyTask:
             sql += ''' 
-            AND a."pm_name" like CONCAT('%%', %(isMyTask)s, '%%')
+            AND a."pm_user_id" = %(isMyTask)s
             '''
         if isLegal:
             sql += ''' 
-            AND a."pm_name" like CONCAT('%%', %(isLegal)s, '%%')
+            AND e."environ_equip_yn" = %(isLegal)s
             '''
         sql += ''' 
             ORDER BY a.pm_no

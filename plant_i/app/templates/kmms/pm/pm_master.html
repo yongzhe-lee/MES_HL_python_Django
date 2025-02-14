@@ -335,13 +335,13 @@
 
         searchMainData() {
             let _this = this;
-
+            
             let param = {
                 action: 'read',
                 keyword: $('#keyword').val(),
-                equDept: $('#srch_dept').val(),
-                equLoc: $('#srch_location').val(),
-                pmDept: $('#pm_dept').val(),
+                equDept: $("#srch_dept").data("kendoDropDownTree").value(),
+                equLoc: $('#srch_location').data("kendoDropDownTree").value(),
+                pmDept: $("#srch_dept_type").data("kendoDropDownTree").value(),
                 isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
                 isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
             };

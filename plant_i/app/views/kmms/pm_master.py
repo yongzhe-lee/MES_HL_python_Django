@@ -24,9 +24,14 @@ def pm_master(context):
     pm_master_service = PMService()
 
     if action=='read':
-        keyword = gparam.get('keyword', None)       
+        keyword = gparam.get('keyword', None)  
+        equDept = gparam.get('equDept', None)
+        equLoc = gparam.get('equLoc', None)
+        pmDept = gparam.get('pmDept', None)
+        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
+        isLegal = gparam.get('isLegal', None)
         
-        items = pm_master_service.get_pm_master_list(keyword)
+        items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, isMyTask, isLegal)
 
     elif action=='detail':
         id = gparam.get('id', None)
