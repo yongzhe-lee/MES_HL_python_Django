@@ -1,6 +1,41 @@
 {% extends "app/layout.html" %}
 {% block css %}
-<style>   
+<style>
+    .pm-link {
+        color: #007bff; /* 파란색 */
+        text-decoration: underline; /* 밑줄 추가 */
+        cursor: pointer; /* 마우스 오버 시 클릭 가능하게 */
+        font-weight: bold; /* 굵게 표시 */
+    }
+
+    .pm-link:hover {
+        color: #0056b3; /* 마우스 오버 시 색상 변경 */
+        text-decoration: none; /* 밑줄 제거 */
+    }
+
+    /* PM명 컬럼 스타일 */
+    .pm-highlight {
+        background-color: #fff3cd !important; /* 연한 노란색 */
+        color: #d9534f !important; /* 진한 빨간색 */
+        font-weight: bold !important;
+        text-decoration: underline !important;
+        padding: 3px 8px !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
+    }
+
+    /* 마우스 오버 시 색상 변화 */
+    .pm-highlight:hover {
+        background-color: #ffecb5 !important;
+        color: #c9302c !important;
+        text-decoration: none !important;
+    }
+
+    /* 아이콘과 함께 정렬 */
+    .pm-highlight::before {
+        content: "📌"; /* 고정핀 아이콘 */
+        margin-right: 5px;
+    }
 
     .checkbox-container {
         display: flex;
@@ -238,8 +273,14 @@
                     }
                 },
                 columns: [
-                    { field: 'pm_no', title: 'PM 번호', width: 100 },
-                    { field: 'pm_name', title: 'PM명', width: 200 },
+                    { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
+                    { field: 'pm_no', title: 'PM 번호', width: 150 },
+                    {
+                        field: "pm_name",
+                        title: "PM명",
+                        width: 200,
+                        template: '<a href="javascript:void(0);" class="pm-link" data-pm-pk="#=pm_pk#">#=pm_name#</a>'
+                    },       
                     { field: 'equ_code', title: '설비코드', width: 120 },
                     { field: 'equ_name', title: '설비명', width: 150 },
                     { field: 'priority', title: '중요도', width: 80 },                    
@@ -255,16 +296,17 @@
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
+                    $(".pm-link").off("click").on("click", function (e) {
+                        e.preventDefault();
+                        let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기                        
+                        page.showPmMasterModal(pmPk);
+                    });
                 },
                 height: "540px"
             };
             _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
 
             $('#keyword').kendoTextBox();
-            //AjaxUtil.fillDropDownOptions($('#srch_location'), 'depart', 'choose', null);
 
             $("#srch_location").kendoDropDownTree({
                 dataSource: {
@@ -277,8 +319,7 @@
                     },
                     //서버에서 받은 JSON 데이터를 가공하는 역할
                     schema: {
-                        data: function (response) {
-                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                        data: function (response) {                            
                             return response.items || [];  // ✅ 'items' 안의 데이터만 반환
                         },
                         model: {
@@ -305,8 +346,7 @@
                     },
                     //서버에서 받은 JSON 데이터를 가공하는 역할
                     schema: {
-                        data: function (response) {
-                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                        data: function (response) {                            
                             return response.items || [];  // ✅ 'items' 안의 데이터만 반환
                         },
                         model: {
@@ -333,8 +373,7 @@
                     },
                     //서버에서 받은 JSON 데이터를 가공하는 역할
                     schema: {
-                        data: function (response) {
-                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                        data: function (response) {                            
                             return response.items || [];  // ✅ 'items' 안의 데이터만 반환
                         },
                         model: {
@@ -380,6 +419,44 @@
 
         }
 
+        /**
+     * PM명 클릭 시 모달 창 열기
+     */
+        showPmMasterModal(pmId) {
+            let _this = this;
+            let param = {
+                action: 'detail',
+                id: pmId,
+            };
+
+            // PM 상세 정보를 가져오는 API 호출
+            let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
+           
+            console.log("📌 [DEBUG] API 응답 데이터:", pmData);
+            
+            if (pmData) {
+                $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
+                $("#pm_pk").val(pmData.pm_pk);
+                $("#pmNumber").val(pmData.pm_no);
+                $("#pmName").val(pmData.pm_name);
+                $("#pmType").val(pmData.pm_type);
+                $("#maintenanceTime").val(pmData.maintenance_time);
+                $("#executionDept").data("kendoDropDownTree").value(pmData.exec_dept);
+                $("#pmManager").val(pmData.pm_manager);
+                $("#work_text").val(pmData.work_text);
+
+                $("#equ_code").val(pmData.equ_code);
+                $("#equ_name").val(pmData.equ_name);
+                $("#equ_loc").val(pmData.equ_location);
+                $("#equ_import").val(pmData.priority);
+                $("#equ_status").val(pmData.equ_status);
+                $("#equ_env_yn").val(pmData.equ_env_yn);
+            } else {
+                alert("PM 정보를 불러오지 못했습니다.");
+            }
+        }
+
+
         searchMainData() {
             let _this = this;
             
@@ -392,7 +469,7 @@
                 isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
                 isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
             };
-            console.log("📌 [DEBUG:searchMainData] 조회 파라미터:", param);
+            
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
         }

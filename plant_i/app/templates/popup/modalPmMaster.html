@@ -65,6 +65,7 @@
                 <div class="tab-content">
                     <!-- 계획 탭 컨텐츠 -->
                     <form id="pmMasterForm">
+                        <input type="hidden" id="pm_pk" name="pm_pk">
                         <div class="plan-content">
                             <div class="form-row">
                                 <div class="form-group">
@@ -862,9 +863,9 @@
         saveData() {            
             let _this = this;
             let data = FormUtil.extractForm($('#pmMasterForm'));
-            data.pm_type = $("#pmType").val();  // pmType 값 명시적 추가
+            data.pm_type = $("#pmType").data("kendoDropDown").value();  // pmType 값 명시적 추가
             data.dept_id = $("#executionDept").data("kendoDropDownTree").value();
-            data.pmManager = $("#pmManager").val();
+            data.pmManager = $("#pmManager").data("kendoDropDown").value();
             data.equ_id = $("#equ_loc_pk").val();
             
   

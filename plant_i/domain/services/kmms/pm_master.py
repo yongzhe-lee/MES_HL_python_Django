@@ -13,21 +13,25 @@ class PMService():
 
         sql = ''' 
          SELECT 
-             a.pm_no , a.pm_name 
+               a.pm_pk
+             , a.pm_no , a.pm_name 
+             , e.id as equ_id
              , e."Code" as equ_code, e."Name" as equ_name
              , e.import_rank_pk
+             , e."Depart_id" as mng_dept_id
              , mng."Name" as manage_dept
-             , exc."Name" as exec_dept             
+             , exc.id
+             , exc."Name" as exec_dept 
              , l.loc_nm as equ_location
-             , au.first_name as pm_manager
+             , au.id as pm_manager
              , a.pm_type 
              , a.cycle_type 
          FROM pm a
- 	        left join equ e on a.equ_id = e.id 
- 	        left join dept mng on e."Depart_id"  = mng.id
- 	        left join dept exc on a.dept_id  = exc.id 	        
- 	        left join "location" l on e.loc_pk = l.id 
- 	        left join auth_user au on a.pm_user_id  = au.id  	
+ 	        inner join equ e on a.equ_id = e.id 
+ 	        inner join dept mng on e."Depart_id"  = mng.id
+ 	        inner join dept exc on a.dept_id  = exc.id 	     
+            inner join auth_user au on a.pm_user_id  = au.id  	
+ 	        left join "location" l on e.loc_pk = l.id  	        
          WHERE 1 = 1 
         '''
         if keyword:
@@ -69,22 +73,27 @@ class PMService():
     def get_pm_master_detail(self, id):
         sql = ''' 
         SELECT 
-            pm_pk 
-            , pm_no 
-            , pm_name
-            , pm_type 
-            , work_expect_hr 
-            , pm.dept_id
-            , d."Name" as dept_name
-            , pm.pm_user_id
-            , au.first_name 
-            , work_text
-        FROM pm
-            left join auth_user au on pm."_creater_id" = au.id 
-            left join dept d ON pm."dept_id" = d.id
-            left join equ e on pm.equ_id = e.id
-        WHERE
-            pm.pm_pk = %(id)s
+               a.pm_pk
+             , a.pm_no , a.pm_name 
+             , e.id as equ_id
+             , e."Code" as equ_code, e."Name" as equ_name
+             , e.import_rank_pk
+             , e."Depart_id" as mng_dept_id
+             , mng."Name" as manage_dept
+             , exc.id
+             , exc."Name" as exec_dept          
+             , l.loc_nm as equ_location
+             , au.id as pm_manager
+             , a.pm_type 
+             , a.cycle_type 
+         FROM pm a
+ 	        inner join equ e on a.equ_id = e.id 
+ 	        inner join dept mng on e."Depart_id"  = mng.id
+ 	        inner join dept exc on a.dept_id  = exc.id 	     
+            inner join auth_user au on a.pm_user_id  = au.id  	
+ 	        left join "location" l on e.loc_pk = l.id  	        
+         WHERE 
+            a.pm_pk = %(id)s
         '''
         data = {}
         try:
