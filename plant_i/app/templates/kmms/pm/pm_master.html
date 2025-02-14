@@ -74,7 +74,7 @@
         background-color: #f8f9fa;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         width: 100%;
     }
 
@@ -85,28 +85,48 @@
         width: 100%;
     }
 
-    .search-item {
+    .search-label-item {
+        width: 200px;
+    }
+
+    .search-label-wide {
+        width: 300px;
+    }
+
+    .search-input-item {
+        width: 200px;
+    }
+
+    .search-input-wide {
+        width: 300px;
+    }
+
+    .checkbox-wrapper {
+        margin-left: auto;
+    }
+
+    .checkbox-button-wrapper {
         display: flex;
         align-items: center;
-        gap: 8px;
-    }
-
-    .search-item.flex-grow {
-        flex-grow: 1;
-    }
-
-    .search-label {
-        white-space: nowrap;
-        min-width: 60px;
-    }
-
-    .button-wrapper {
+        gap: 15px;
         margin-left: auto;
     }
 
     .k-button.k-primary {
         padding: 4px 12px;
         min-width: 80px;
+    }
+
+    .checkbox-item.no-margin {
+        margin-left: 10px;
+    }
+
+    .flex-spacer {
+        flex: 1;
+    }
+
+    .button-wrapper {
+        margin-left: auto;
     }
 </style>
 {% endblock %}
@@ -115,38 +135,43 @@
 <div class="content-wrap">
     <div class="content-ui-row">
         <div class="search-panel">
-            <!-- 첫 번째 줄 -->
+            <!-- 첫 번째 줄 - 라벨들 -->
             <div class="search-row">
-                <div class="search-item">
-                    <label class="search-label">검색어</label>
-                    <input id="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 200px;" />
+                <div class="search-label-item search-label-wide">
+                    <label>검색키워드</label>
                 </div>
-                <div class="search-item">
-                    <label class="search-label">관리부서</label>
-                    <select id="srch_dept" style="width: 200px;"></select>
-                </div>                
-                <div class="search-item flex-grow">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="chk_my_task">
-                        <label for="chk_my_task">나의 담당건</label>
-                    </div>
+                <div class="search-label-item">
+                    <label>관리부서</label>
                 </div>
+                <div class="search-label-item">
+                    <label>설비위치</label>
+                </div>
+                <div class="search-label-item">
+                    <label>실행 부서</label>
+                </div>
+                <div class="checkbox-item no-margin">
+                    <input type="checkbox" id="chk_my_task">
+                    <label for="chk_my_task">나의 담당건</label>
+                </div>
+                <div class="flex-spacer"></div>
             </div>
-            <!-- 두 번째 줄 -->
+            <!-- 두 번째 줄 - 입력 필드들 -->
             <div class="search-row">
-                <div class="search-item">
-                    <label class="search-label">설비위치</label>
+                <div class="search-input-item search-input-wide">
+                    <input id="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
+                </div>
+                <div class="search-input-item">
+                    <select id="srch_dept" style="width: 200px;"></select>
+                </div>
+                <div class="search-input-item">
                     <select id="srch_location" style="width: 200px;"></select>
                 </div>
-                <div class="search-item">
-                    <label class="search-label">실행 부서</label>
+                <div class="search-input-item">
                     <select id="srch_dept_type" style="width: 200px;"></select>
                 </div>
-                <div class="search-item flex-grow">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="chk_legal">
-                        <label for="chk_legal">법정관리설비</label>
-                    </div>
+                <div class="checkbox-item no-margin">
+                    <input type="checkbox" id="chk_legal">
+                    <label for="chk_legal">법정관리설비</label>
                 </div>
                 <div class="button-wrapper">
                     <button id="btnSearch" class="k-button k-primary">조회</button>
