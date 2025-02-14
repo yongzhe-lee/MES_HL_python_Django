@@ -307,87 +307,10 @@
             _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
 
             $('#keyword').kendoTextBox();
-
-            $("#srch_location").kendoDropDownTree({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "/api/definition/location?action=loc_tree",
-                            type: "GET",
-                            dataType: "json"
-                        }
-                    },
-                    //서버에서 받은 JSON 데이터를 가공하는 역할
-                    schema: {
-                        data: function (response) {                            
-                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
-                        },
-                        model: {
-                            id: "id",
-                            text: "text",
-                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
-                        }
-                    }
-                },
-                dataTextField: "text",
-                dataValueField: "id",
-                placeholder: "설비위치를 선택하세요",
-                height: 400
-            });
-
-            $("#srch_dept").kendoDropDownTree({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "/api/system/depart?action=depart_tree",
-                            type: "GET",
-                            dataType: "json"
-                        }
-                    },
-                    //서버에서 받은 JSON 데이터를 가공하는 역할
-                    schema: {
-                        data: function (response) {                            
-                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
-                        },
-                        model: {
-                            id: "id",
-                            text: "text",
-                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
-                        }
-                    }
-                },
-                dataTextField: "text",
-                dataValueField: "id",
-                placeholder: "부서를 선택하세요",
-                height: 400
-            });
-
-            $("#srch_dept_type").kendoDropDownTree({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "/api/system/depart?action=depart_tree",
-                            type: "GET",
-                            dataType: "json"
-                        }
-                    },
-                    //서버에서 받은 JSON 데이터를 가공하는 역할
-                    schema: {
-                        data: function (response) {                            
-                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
-                        },
-                        model: {
-                            id: "id",
-                            text: "text",
-                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
-                        }
-                    }
-                },
-                dataTextField: "text",
-                dataValueField: "id",
-                placeholder: "부서를 선택하세요",
-                height: 400
-            });            
+            
+            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "location", "choose");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "choose");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "choose");  
 
             $('#btnAdd').kendoButton({
                 icon: "pencil",

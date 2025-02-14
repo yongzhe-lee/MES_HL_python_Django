@@ -1305,6 +1305,47 @@ let AjaxUtil = {
 
     },
 
+    fillDropDownTreeOptions: function ($combo, $combo_type, null_option) {
+        let _url = '';
+        switch ($combo_type)
+        {
+            case 'depart':
+                _url = '/api/system/depart?action=depart_tree';
+                break;
+            case 'location':
+                _url = '/api/definition/location?action=loc_tree';
+                break;
+            default:
+                break;
+        }
+        $combo.kendoDropDownTree({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: _url,
+                        type: "GET",
+                        dataType: "json"
+                    }
+                },
+                //서버에서 받은 JSON 데이터를 가공하는 역할
+                schema: {
+                    data: function (response) {
+                        return response.items || [];  // ✅ 'items' 안의 데이터만 반환
+                    },
+                    model: {
+                        id: "id",
+                        text: "text",
+                        children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
+                    }
+                }
+            },
+            dataTextField: "text",
+            dataValueField: "id",
+            placeholder: null_option == 'choose' ? i18n.getCommonText('선택') : i18n.getCommonText('전체'),
+            height: 400
+        });
+    },
+
 };
 // kendo 공통 모듈화
 var kendoUtil = {
