@@ -1,6 +1,23 @@
 {% extends "app/layout.html" %}
 {% block css %}
 <style>
+    .search-form .field-wrapper {
+        min-width: 150px; /* 최소 너비 설정 */
+        flex-grow: 1;
+    }
+
+    .form-ui {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* 컬럼 크기 자동 조정 */
+        gap: 10px;
+    }
+
+    input[type="text"],
+    select {
+        min-width: 150px !important; /* 최소 크기 설정 */
+        max-width: 100%; /* 부모 요소보다 커지지 않도록 설정 */
+    }
+
     .checkbox-container {
         display: flex;
         flex-direction: column;
@@ -13,60 +30,60 @@
         gap: 6px;
     }
 
-        .checkbox-item input[type="checkbox"] {
-            width: 14px;
-            height: 14px;
-            accent-color: #007bff;
-            cursor: pointer;
-            appearance: none;
-            border: 2px solid #ccc;
-            border-radius: 3px;
-            background-color: white;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .checkbox-item input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        accent-color: #007bff;
+        cursor: pointer;
+        appearance: none;
+        border: 2px solid #ccc;
+        border-radius: 3px;
+        background-color: white;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-            .checkbox-item input[type="checkbox"]:checked {
-                background-color: #007bff;
-                border-color: #007bff;
-            }
+    .checkbox-item input[type="checkbox"]:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
 
-            .checkbox-item input[type="checkbox"]::after {
-                content: "✔";
-                font-size: 12px;
-                color: white;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                display: none;
-            }
+    .checkbox-item input[type="checkbox"]::after {
+        content: "✔";
+        font-size: 12px;
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+    }
 
-            .checkbox-item input[type="checkbox"]:checked::after {
-                display: block;
-            }
+    .checkbox-item input[type="checkbox"]:checked::after {
+        display: block;
+    }
 
-            .checkbox-item input[type="checkbox"]:focus {
-                outline: none;
-                box-shadow: none;
-            }
+    .checkbox-item input[type="checkbox"]:focus {
+        outline: none;
+        box-shadow: none;
+    }
 
-        .checkbox-item label {
-            font-size: 13px;
-            color: #333;
-            font-weight: normal;
-            cursor: pointer;
-            transition: color 0.2s ease-in-out;
-            display: flex;
-            align-items: center;
-        }
+    .checkbox-item label {
+        font-size: 13px;
+        color: #333;
+        font-weight: normal;
+        cursor: pointer;
+        transition: color 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+    }
 
-        .checkbox-item input[type="checkbox"]:checked + label {
-            color: #007bff !important;
-            font-weight: bold;
-        }
+    .checkbox-item input[type="checkbox"]:checked + label {
+        color: #007bff !important;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
