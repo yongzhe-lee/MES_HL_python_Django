@@ -788,7 +788,34 @@
             const modal = $("#modalPmMaster");
 
             AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
-            AjaxUtil.fillDropDownOptions($('#executionDept'), 'depart', 'choose', null);   
+            
+            $("#executionDept").kendoDropDownTree({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/api/system/depart?action=depart_tree",
+                            type: "GET",
+                            dataType: "json"
+                        }
+                    },
+                    //서버에서 받은 JSON 데이터를 가공하는 역할
+                    schema: {
+                        data: function (response) {
+                            console.log("📌 [DEBUG] API 응답 데이터:", response);
+                            return response.items || [];  // ✅ 'items' 안의 데이터만 반환
+                        },
+                        model: {
+                            id: "id",
+                            text: "text",
+                            children: "items"  // ✅ DropDownTree가 items를 하위 항목으로 인식
+                        }
+                    }
+                },
+                dataTextField: "text",
+                dataValueField: "id",
+                placeholder: "부서를 선택하세요",
+                height: 400
+            });
             AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);            
 
             $('#selectEquipment').kendoButton({
@@ -836,7 +863,7 @@
             let _this = this;
             let data = FormUtil.extractForm($('#pmMasterForm'));
             data.pm_type = $("#pmType").val();  // pmType 값 명시적 추가
-            data.dept_id = $("#executionDept").val();
+            data.dept_id = $("#executionDept").data("kendoDropDownTree").value();
             data.pmManager = $("#pmManager").val();
             data.equ_id = $("#equ_loc_pk").val();
             
