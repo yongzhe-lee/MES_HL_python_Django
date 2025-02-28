@@ -1,218 +1,120 @@
 {% extends "app/layout.html" %}
 {% block css %}
 <style>
-    .pm-link {
-        color: #007bff; /* 파란색 */
-        text-decoration: underline; /* 밑줄 추가 */
-        cursor: pointer; /* 마우스 오버 시 클릭 가능하게 */
-        font-weight: bold; /* 굵게 표시 */
+    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
+    #searchFormContent {
+        overflow: hidden;
+        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
+        transition: height 0.3s ease-in-out;
     }
 
-    .pm-link:hover {
-        color: #0056b3; /* 마우스 오버 시 색상 변경 */
-        text-decoration: none; /* 밑줄 제거 */
+    /* ✅ 검색 폼이 펼쳐진 상태 */
+    .search-expanded {
+        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
     }
 
-    /* PM명 컬럼 스타일 */
-    .pm-highlight {
-        background-color: #fff3cd !important; /* 연한 노란색 */
-        color: #d9534f !important; /* 진한 빨간색 */
-        font-weight: bold !important;
-        text-decoration: underline !important;
-        padding: 3px 8px !important;
-        border-radius: 4px !important;
-        display: inline-block !important;
-    }
-
-    /* 마우스 오버 시 색상 변화 */
-    .pm-highlight:hover {
-        background-color: #ffecb5 !important;
-        color: #c9302c !important;
-        text-decoration: none !important;
-    }
-
-    /* 아이콘과 함께 정렬 */
-    .pm-highlight::before {
-        content: "📌"; /* 고정핀 아이콘 */
-        margin-right: 5px;
-    }
-
-    .checkbox-container {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-        width: 14px;
-        height: 14px;
-        accent-color: #007bff;
+    /* ✅ 접기/펼치기 버튼 스타일 */
+    #toggleSearchBtn {
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: transparent;
         cursor: pointer;
-        appearance: none;
-        border: 2px solid #ccc;
-        border-radius: 3px;
-        background-color: white;
         position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
-    .checkbox-item input[type="checkbox"]:checked {
-        background-color: #007bff;
-        border-color: #007bff;
+    #toggleSearchBtn::before {
+    content: "▼";
+    color: #0d6efd;
+    font-size: 20px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s ease;  /* ✅ 애니메이션 적용 */
     }
 
-    .checkbox-item input[type="checkbox"]::after {
-        content: "✔";
-        font-size: 12px;
-        color: white;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        display: none;
+    #toggleSearchBtn.expanded::before {
+        content: "▲";
     }
 
-    .checkbox-item input[type="checkbox"]:checked::after {
-        display: block;
-    }
 
-    .checkbox-item input[type="checkbox"]:focus {
-        outline: none;
-        box-shadow: none;
-    }
-
-    .checkbox-item label {
-        font-size: 13px;
-        color: #333;
-        font-weight: normal;
-        cursor: pointer;
-        transition: color 0.2s ease-in-out;
-        display: flex;
-        align-items: center;
-    }
-
-    .checkbox-item input[type="checkbox"]:checked + label {
-        color: #007bff !important;
-        font-weight: bold;
-    }
-
-    .search-panel {
-        padding: 10px;
-        background-color: #f8f9fa;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .search-row {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        width: 100%;
-    }
-
-    .search-label-item {
-        width: 200px;
-    }
-
-    .search-label-wide {
-        width: 300px;
-    }
-
-    .search-input-item {
-        width: 200px;
-    }
-
-    .search-input-wide {
-        width: 300px;
-    }
-
-    .checkbox-wrapper {
-        margin-left: auto;
-    }
-
-    .checkbox-button-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-left: auto;
-    }
-
-    .k-button.k-primary {
-        padding: 4px 12px;
-        min-width: 80px;
-    }
-
-    .checkbox-item.no-margin {
-        margin-left: 10px;
-    }
-
-    .flex-spacer {
-        flex: 1;
-    }
-
-    .button-wrapper {
-        margin-left: auto;
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
-        <div class="search-panel">
-            <!-- 첫 번째 줄 - 라벨들 -->
-            <div class="search-row">
-                <div class="search-label-item search-label-wide">
-                    <label>검색키워드</label>
+        <form id="searchForm" class="search-form">
+            <div class="card-content search">
+                <div class="form-ui-header">
+                    <div id="toggleSearchBtn"></div> <!-- ✅ 삼각형 화살표 버튼 -->
                 </div>
-                <div class="search-label-item">
-                    <label>관리부서</label>
+                <div class="form-ui" id="searchFormContent">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">검색키워드</label>
+                            <input id="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">관리부서</label>
+                            <select id="srch_dept" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">설비위치</label>
+                            <select id="srch_location" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">실행 부서</label>
+                            <select id="srch_dept_type" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">PM유형</label>
+                            <select id="serchPmType" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">적용여부</label>
+                            <select id="srchApplyYn" style="width: 200px;">                               
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">주기단위</label>
+                            <select id="srchPeriodUnit" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">다음 주기일</label>
+                            <div id="srch_date_range"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
+                            <input id="chk_my_task" name="chk_my_task">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="chk_legal">법정관리설비</label>
+                            <input id="chk_legal" name="chk_legal">
+                        </div>
+                    </div>                 
                 </div>
-                <div class="search-label-item">
-                    <label>설비위치</label>
-                </div>
-                <div class="search-label-item">
-                    <label>실행 부서</label>
-                </div>
-                <div class="checkbox-item no-margin">
-                    <input type="checkbox" id="chk_my_task">
-                    <label for="chk_my_task">나의 담당건</label>
-                </div>
-                <div class="flex-spacer"></div>
             </div>
-            <!-- 두 번째 줄 - 입력 필드들 -->
-            <div class="search-row">
-                <div class="search-input-item search-input-wide">
-                    <input id="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
-                </div>
-                <div class="search-input-item">
-                    <select id="srch_dept" style="width: 200px;"></select>
-                </div>
-                <div class="search-input-item">
-                    <select id="srch_location" style="width: 200px;"></select>
-                </div>
-                <div class="search-input-item">
-                    <select id="srch_dept_type" style="width: 200px;"></select>
-                </div>
-                <div class="checkbox-item no-margin">
-                    <input type="checkbox" id="chk_legal">
-                    <label for="chk_legal">법정관리설비</label>
-                </div>
-                <div class="button-wrapper">
-                    <button id="btnSearch" class="k-button k-primary">조회</button>
-                </div>
-            </div>
-        </div>
+        </form>
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
@@ -224,7 +126,8 @@
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
-                        <button id="btnAdd">등록</button>
+                        <button id="btnAdd" style="visibility: hidden;">등록</button>
+                        <button id="btnSearch" style="visibility: hidden;">조회</button>
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
@@ -244,6 +147,8 @@
 {% include '../../popup/modalPmMaster.html'%}
 {% include '../../popup/modalEqu.html'%}
 {% include '../../popup/modalPmCopy.html'%}
+{% include '../../popup/modalOccupations.html'%}
+{% include '../../popup/modalMaterials.html'%}
 {% include 'common/file_upload.html' %}
 
 <script type="text/javascript">
@@ -279,11 +184,11 @@
                         field: "pm_name",
                         title: "PM명",
                         width: 200,
-                        template: '<a href="javascript:void(0);" class="pm-link" data-pm-pk="#=pm_pk#">#=pm_name#</a>'
-                    },       
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_name#</a>'
+                    },
                     { field: 'equ_code', title: '설비코드', width: 120 },
                     { field: 'equ_name', title: '설비명', width: 150 },
-                    { field: 'priority', title: '중요도', width: 80 },                    
+                    { field: 'priority', title: '중요도', width: 80 },
                     { field: 'exec_dept', title: '실행부서', width: 100 },
                     { field: 'manage_dept', title: '관리부서', width: 100 },
                     { field: 'equ_location', title: '설비위치', width: 120 },
@@ -296,9 +201,9 @@
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    $(".pm-link").off("click").on("click", function (e) {
+                    $(".grid-column-link").off("click").on("click", function (e) {
                         e.preventDefault();
-                        let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기                        
+                        let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기
                         page.showPmMasterModal(pmPk);
                     });
                 },
@@ -307,19 +212,33 @@
             _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
 
             $('#keyword').kendoTextBox();
-            
-            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "location", "choose");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "choose");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "choose");  
 
-            $('#btnAdd').kendoButton({
-                icon: "pencil",
-                themeColor: "blue",
-                spriteCssClass: "k-icon k-foo",
-                click: function (e) {
-                    e.preventDefault();
-                    $("#modalPmMaster").fadeIn();
-                }
+            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "location", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "select");
+
+            AjaxUtil.fillDropDownOptions($('#serchPmType'), 'user_code', 'choose', null, 'PM_TYPE');
+
+            $("#srchApplyYn").kendoDropDownList({
+                dataSource: [
+                    { text: "전체", value: "" },
+                    { text: "적용", value: "Y" },
+                    { text: "미적용", value: "N" },
+                ],
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $("#srchPeriodUnit").kendoDropDownList({
+                dataSource: [
+                    { text: "선택", value: "" },
+                    { text: "년", value: "Y" },
+                    { text: "월", value: "M" },                    
+                    { text: "주", value: "W" },
+                    { text: "일", value: "D" },                                   
+                ],
+                dataTextField: "text",
+                dataValueField: "value"
             });
 
             $('#btnExcel').kendoButton({
@@ -330,16 +249,49 @@
                 }
             });
 
+            $('#chk_my_task').kendoSwitch({
+                checked: false
+            });
+
+            $('#chk_legal').kendoSwitch({
+                checked: false
+            });
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_date",
+                endField: "end_date"
+            });
+
+            $('#btnAdd').kendoButton({
+                icon: "k-i-pencil",
+                themeColor: "info",     // info 테마 사용
+                fillMode: "outline",    // outline 스타일로 변경
+                click: function (e) {
+                    e.preventDefault();
+                    $("#modalPmMaster").fadeIn();
+                }
+            }).css('visibility','visible');
 
             //form button
             $('#btnSearch').kendoButton({
                 icon: "search",
-                themeColor: "base",
+                themeColor: "info",     // info 테마 사용
+                fillMode: "outline",    // outline 스타일로 변경
+                content: "조회",
                 click: function () {
                     _this.searchMainData();
                 }
-            });
-
+            }).css('visibility', 'visible');
         }
 
         /**
@@ -354,47 +306,150 @@
 
             // PM 상세 정보를 가져오는 API 호출
             let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
-           
-            console.log("📌 [DEBUG] API 응답 데이터:", pmData);
-            
-            if (pmData) {
-                $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
-                $("#pm_pk").val(pmData.pm_pk);
-                $("#pmNumber").val(pmData.pm_no);
-                $("#pmName").val(pmData.pm_name);
-                $("#pmType").val(pmData.pm_type);
-                $("#maintenanceTime").val(pmData.maintenance_time);
-                $("#executionDept").data("kendoDropDownTree").value(pmData.exec_dept);
-                $("#pmManager").val(pmData.pm_manager);
-                $("#work_text").val(pmData.work_text);
 
-                $("#equ_code").val(pmData.equ_code);
-                $("#equ_name").val(pmData.equ_name);
-                $("#equ_loc").val(pmData.equ_location);
-                $("#equ_import").val(pmData.priority);
-                $("#equ_status").val(pmData.equ_status);
-                $("#equ_env_yn").val(pmData.equ_env_yn);
-            } else {
-                alert("PM 정보를 불러오지 못했습니다.");
+            console.log("📌 [DEBUG] API 응답 데이터:", pmData);
+
+
+            $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
+            $("#equ_id").val(pmData.equ_id);
+            $("#pm_pk").val(pmData.pm_pk);
+            $("#pmNumber").val(pmData.pm_no);
+            $("#pmName").val(pmData.pm_name);
+            $("#pmType").val(pmData.pm_type);
+
+            // 정비시간 설정 - 여러 방법 시도
+            let maintenanceTime = $("#maintenanceTime");
+            // 방법 3: setTimeout으로 지연 설정
+            setTimeout(() => {
+                maintenanceTime.val(pmData.work_expect_hr);
+                if (numericBox) {
+                    numericBox.value(pmData.work_expect_hr);
+                }
+            }, 100);
+
+            // 실행부서 설정
+            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
+            if (execDeptDropdown) {
+                // 데이터 소스 로드 완료 후 값 설정
+                execDeptDropdown.one("dataBound", function () {
+                    execDeptDropdown.value(pmData.exec_dept);
+                    execDeptDropdown.trigger("change");
+
+                    // 값이 설정되지 않은 경우 text로 시도
+                    if (!execDeptDropdown.value()) {
+                        execDeptDropdown.text(pmData.exec_dept);
+                    }
+                });
+                // 데이터 소스 새로고침
+                execDeptDropdown.dataSource.read();
             }
+
+            // PM 담당자 설정 - 여러 방법 시도
+            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
+            if (pmManagerDropdown) {
+                // 드롭다운 리스트가 초기화되어 있는 경우
+                pmManagerDropdown.value(pmData.pm_manager);
+                pmManagerDropdown.trigger('change');
+            } else {
+                // 일반 입력필드인 경우
+                $("#pmManager").val(pmData.pm_manager);
+            }
+            $("#work_text").val(pmData.work_text);
+
+            $("#equ_code").val(pmData.equ_code);
+            $("#equ_name").val(pmData.equ_name);
+            $("#equ_loc").val(pmData.equ_location);
+            $("#equ_import").val(pmData.priority);
+            $("#equ_status").val(pmData.equ_status);
+            $("#equ_env_yn").val(pmData.equ_env_yn);
+
+            // PM 유형 설정
+            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
+            if (pmTypeDropdown) {
+                // 데이터 소스 로드 완료 후 값 설정
+                pmTypeDropdown.one("dataBound", function () {
+                    pmTypeDropdown.value(pmData.pm_type);
+                    pmTypeDropdown.trigger("change");
+
+                    // 값이 설정되지 않은 경우 text로 시도
+                    if (!pmTypeDropdown.value()) {
+                        pmTypeDropdown.text(pmData.pm_type);
+                    }
+                });
+
+                // 데이터 소스 새로고침
+                pmTypeDropdown.dataSource.read();
+            }
+
+            // 정비시간 설정
+            console.log("정비시간 데이터:", pmData.work_expect_hour); // DB 컬럼명으로 수정
+
+            let maintenanceTimeInput = $("#maintenanceTime");
+            if (maintenanceTimeInput.length > 0) {
+                // kendoNumericTextBox인 경우
+                let numericTextBox = maintenanceTimeInput.data("kendoNumericTextBox");
+                if (numericTextBox) {
+                    numericTextBox.value(pmData.work_expect_hour);
+                    numericTextBox.trigger("change");
+                } else {
+                    // 일반 input인 경우
+                    maintenanceTimeInput.val(pmData.work_expect_hour);
+                }
+            }
+
         }
 
 
         searchMainData() {
             let _this = this;
-            
-            let param = {
-                action: 'read',
-                keyword: $('#keyword').val(),
-                equDept: $("#srch_dept").data("kendoDropDownTree").value(),
-                equLoc: $('#srch_location').data("kendoDropDownTree").value(),
-                pmDept: $("#srch_dept_type").data("kendoDropDownTree").value(),
-                isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
-                isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
-            };
-            
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+
+            try {
+                // 날짜 데이터 처리
+                let startDate = '';
+                let endDate = '';
+                let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+                
+                if (dateRangePicker) {
+                    let range = dateRangePicker.range();
+                    if (range) {
+                        startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                        endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                    }
+                }
+
+                // 안전한 컴포넌트 값 가져오기
+                const getComponentValue = (selector, type) => {
+                    try {
+                        const component = $(selector).data(type);
+                        return component ? component.value() : '';
+                    } catch (e) {
+                        console.warn(`Failed to get value for ${selector}`, e);
+                        return '';
+                    }
+                };
+debugger
+                let param = {
+                    action: 'read',
+                    keyword: $('#keyword').val() || '',
+                    equDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
+                    equLoc: getComponentValue("#srch_location", "kendoDropDownTree"),
+                    pmDept: getComponentValue("#srch_dept_type", "kendoDropDownTree"),
+                    pmType: getComponentValue("#serchPmType", "kendoDropDownList"),
+                    applyYn: getComponentValue("#srchApplyYn", "kendoDropDownList"),
+                    periodUnit: getComponentValue("#srchPeriodUnit", "kendoDropDownList"),
+                    sDay: startDate,
+                    eday: endDate,
+                    isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
+                    isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
+                };
+
+                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                if (result) {
+                    _this.grid.setData(result);
+                }
+            } catch (error) {
+                console.error('Error in searchMainData:', error);
+            }
         }
 
         resetData() {
@@ -421,6 +476,22 @@
 
     $(document).ready(function () {
         page.searchMainData();
+
+        // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
+        $("#searchFormContent").removeClass("search-expanded");
+
+        // ✅ 버튼 클릭 시 동작
+        $(document).on("click", "#toggleSearchBtn", function () {
+            let searchForm = $("#searchFormContent");
+
+            if (searchForm.hasClass("search-expanded")) {
+                searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
+                $("#toggleSearchBtn").removeClass("expanded");  // 🔹 expanded 클래스 제거
+            } else {
+                searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
+                $("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
+            }
+        });
 
     });
 

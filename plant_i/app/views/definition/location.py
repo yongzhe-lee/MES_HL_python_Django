@@ -32,7 +32,15 @@ def location(context):
             # 입력 데이터 가져오기
             location_code = posparam.get('locationCode')
             location_name = posparam.get('locationName')
-            upper_location = posparam.get('upperLocation')
+            up_loc_pk = posparam.get('upperLocation')
+
+            # 빈 문자열이거나 공백만 있는 경우 None으로 변경
+            if up_loc_pk is None or up_loc_pk.strip() == "":
+                up_loc_pk = None
+            else:
+                up_loc_pk = int(up_loc_pk)  # 숫자로 변환
+
+
             loc_status = posparam.get('locStatus')
             plant_yn = posparam.get('plantYn', 'N')
             building_yn = posparam.get('buildingYn', 'N')
@@ -64,7 +72,7 @@ def location(context):
             # 데이터 설정
             location.loc_cd = location_code
             location.loc_nm = location_name
-            location.up_loc_pk = upper_location
+            location.up_loc_pk = up_loc_pk
             location.loc_status = loc_status
             location.plant_yn = 'Y' if plant_yn == 'Y' else 'N'
             location.building_yn = 'Y' if building_yn == 'Y' else 'N'

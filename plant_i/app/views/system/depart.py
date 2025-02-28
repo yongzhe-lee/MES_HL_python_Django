@@ -172,7 +172,7 @@ def depart(context):
             try:
                 # DB에서 부서 정보 조회
                 departments = Depart.objects.filter(UseYN='Y', DelYN='N').values('id', 'Name', 'UpDept_id')
-                print("📌 부서 데이터 확인:", list(departments))  # 🚀 로그 추가
+                #print("📌 부서 데이터 확인:", list(departments))  # 🚀 로그 추가
 
                 # 트리 구조 변환
                 department_tree = build_tree(list(departments))

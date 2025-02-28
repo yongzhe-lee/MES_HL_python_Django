@@ -10,7 +10,7 @@
 
     /*  공통 스타일 */
     html, body { width:100%; height:100%}
-    html, body, button  { font-family:'malgun gothic', Arial, Helvetica, sans-serif; font-size:13px; color:#373737; margin:0; padding:0; }
+    html, body, button  { font-family:Pretendard,'malgun gothic''malgun gothic', Arial, Helvetica, sans-serif; font-size:13px; color:#373737; margin:0; padding:0; !important;}
     div { padding: 0}
     ul, li, ol, dl, dt, dd {margin:0; padding:0; list-style:none}
     h1, h2, h3, h4, h5, h6 { margin:0; padding:0; line-height:20px}
@@ -19,36 +19,52 @@
     button { border-radius: 3px !important; padding: .375rem .775rem !important;}
     #wrap { width:100%; height:100%; margin:0; padding:0;}
     
-    
-    .error-wrap { 
-        position:absolute;
-        margin-top:7%;
-        left: 32.5%;
-        width: 35%;
-    }
-    .error-box {
-        float:left;
-    }
-    .error-title {
-        display:inline-block;
-        float:left;
-        margin-left:20px;
-    }
-    .error-title h1 {
-        font-size:50px;
-        margin-top:20%;
-        color:#253042;
-        letter-spacing:-0.0375em;
-    }
-    .error-title span {
-        margin-top:30px;
-        padding:20px 0;
-        display:block;
-        font-size:13px;
-        color:#253042;
-        font-weight:600;
-        letter-spacing:-0.0375em;
-    }
+    /*에러박스 수정 이가영*/
+        .error-wrap {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column; /* 세로 정렬 */
+            align-items: center; /* 중앙 정렬 */
+            text-align: center; /* 텍스트 중앙 정렬 */
+            width: 35%;
+        }
+
+        .error-box {
+            display: flex;
+            justify-content: center; /* 이미지 중앙 정렬 */
+            width: 100%;
+        }
+
+            .error-box img {
+                width: 270px; /* 이미지 크기 조정 */
+                height: auto;
+            }
+
+        .error-title {
+            display: inline-block;
+            float: left;
+            margin-left: 20px;
+        }
+
+            .error-title h1 {
+                font-size: 35px;
+                margin-top: 10%;
+                color: #40c0f1;
+                letter-spacing: -0.0375em;
+            }
+
+            .error-title span {
+                margin-top: 5px;
+                padding: 20px 0;
+                display: block;
+                font-size: 15px;
+                color: #253042;
+                font-weight: 600;
+                letter-spacing: -0.0375em;
+            }
     .error-bottom {
         position:absolute;
         width:100%;
@@ -71,30 +87,30 @@
 </head>
 
 <body >
-<div id="wrap">
-    
-    <div class="error-wrap">
-        <div class="error-box">
-            <img src="/static/img/error_404.png" alt="에러이미지"/>
-        </div>
-        <div class="error-title">
-            <h1>404 Error</h1>
-            <span>찾으시는 파일이 없습니다. 다시 한번 확인해주세요.</span>
-            <span></span>
-            <!--
+    <div id="wrap">
+
+        <div class="error-wrap">
+            <div class="error-box">
+                <img src="/static/img/error_404.png" alt="에러이미지" />
+            </div>
+            <div class="error-title">
+                <h1>404 Error</h1>
+                <span>찾으시는 파일이 없습니다. 다시 한번 확인해주세요.</span>
+                <span></span>
+                <!--
             <button class="error-before-btn">이전페이지</button>
             -->
-        </div>
-    
-    </div>
+            </div>
 
-    <div class="error-bottom-img"><img src="/static/img/error_bottom_img.png" alt="하단 조리도구 이미지" /></div>
-    <div class="error-bottom">
+        </div>
+
+        <!--<div class="error-bottom-img"><img src="/static/img/error_bottom_img.png" alt="하단 조리도구 이미지" /></div>-->
+        <div class="error-bottom">
             <div class="row">
                 ({{message}})
             </div>
+        </div>
     </div>
-</div>
 
 
 </body>

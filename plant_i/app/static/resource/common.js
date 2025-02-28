@@ -677,6 +677,17 @@ let FormUtil = {
                             kendoCombo.value(value);
                         }
                     }
+                } else if ($frmCtl.attr("data-role") === "dropdowntree") {
+                    let kendoCombo = $frmCtl.data("kendoDropDownTree");
+                    if (kendoCombo) {
+                        if (kendoCombo.dataSource.data().length === 0) {
+                            kendoCombo.one("dataBound", function () {
+                                kendoCombo.value(value);
+                            });
+                        } else {
+                            kendoCombo.value(value);
+                        }
+                    }
                 } else {
                     // 일반 SELECT 요소인 경우에만 val() 사용
                     $frmCtl.val(value);
@@ -1341,7 +1352,7 @@ let AjaxUtil = {
             },
             dataTextField: "text",
             dataValueField: "id",
-            placeholder: null_option == 'choose' ? i18n.getCommonText('선택') : i18n.getCommonText('전체'),
+            placeholder: null_option == 'select' ? i18n.getCommonText('선택') : i18n.getCommonText('전체'),
             height: 400
         });
     },

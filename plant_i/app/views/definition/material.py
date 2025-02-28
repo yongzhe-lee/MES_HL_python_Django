@@ -3,6 +3,7 @@ from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.definition import Material
 from django.db import transaction
+from domain.services.definition.material import MaterialService
 
 def material(context):
     '''
@@ -20,6 +21,8 @@ def material(context):
     gparam = context.gparam
     posparam = context.posparam
     request = context.request
+
+    material_service = MaterialService()
     
     action = gparam.get('action', 'read')
     try:
@@ -74,7 +77,14 @@ def material(context):
             dc['keyword'] = keyword
             
             result = DbUtil.get_rows(sql, dc)
-        
+
+        if action =='read_modal':
+
+            keyword = gparam.get('keyword')            
+            ItemType = gparam.get('ItemType')   
+            Supplier = gparam.get('Supplier')
+
+            result = material_service.get_material_modal(keyword, ItemType, Supplier)        
 
         # elif action == 'detail':
         #     id = gparam.get('id')

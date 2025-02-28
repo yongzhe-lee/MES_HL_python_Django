@@ -300,6 +300,8 @@ def learning_data(context):
     gparam = context.gparam
     request = context.request
     action = gparam.get('action', 'read')
+    user = context.request.user
+
     # data_svc = DataProcessingService()    # 임시 주석(데이터 가져와야 해서 필요했던 것)
 
     try:
@@ -446,10 +448,10 @@ def learning_data(context):
             items = {'success':True}
             
             
-        ''' 데이터파일저장 : save_ds_data
+        ''' 데이터파일저장 : save_ds_model
             데이터파일목록조회 : ds_data_list
             row데이터조회 : ds_rows_list
-            데이터파일내용조회 : ds_data_info. prop_data 없으면 csv파일 읽기.
+            데이터파일내용조회 : ds_model_info. prop_data 없으면 csv파일 읽기.
             파일에서 데이터 읽어서 DB저장   make_db_from_file
             DB에서 읽어서 컬럼정보 만들고 저장 make_col_info
             cate_col_list
@@ -463,106 +465,190 @@ def learning_data(context):
             상관관계값조회 : ds_var_corr_sheet
             회귀분석식 조회 : ds_y_regression_list
             /* 25.02.10 김하늘 추가 */
-            모델마스터조회: ds_master_list
+            모델마스터조회: ds_model_tree_list
         '''
         # 25.02.10 김하늘 추가
-        if action == "ds_master_list":
-            model_type = gparam.get('model_type')
+        if action == "ds_model_tree_list":
+            master_type = gparam.get('master_type')
             keyword = gparam.get('keyword')
 
             sql = '''
+            WITH A AS (
+                SELECT md.id, md."Name" AS name, md."Description" AS description, md."Type" AS type, md._created
+                FROM ds_model md
+            ),
+            B AS (
+                SELECT A.id,
+                       COUNT(dmc.*) AS var_count
+                FROM A
+                INNER JOIN ds_model_col dmc ON dmc."DsModel_id" = A.id
+                GROUP BY A.id
+            ),
+            F AS (
+                SELECT A.id, af.id AS file_id, af."FileName" AS file_name
+                FROM A
+                INNER JOIN attach_file af ON af."DataPk" = A.id 
+                AND af."TableName" = 'ds_model'
+            )
             SELECT
-                mm.id AS master_id
-                , mm."Name" AS master_name
-                , mm."Type" AS type
-                , md.id
-                , md."Name" AS model_name
-                , md."Version" AS ver
-                , md."Description" AS description
-                , md."SourceName" AS source_name
-                , md."FilePath" AS file_path
-                , tc."AlgorithmType" AS algorithm_type
-                , md."_created"
-            FROM
-                ds_master mm
-            LEFT OUTER JOIN
-                ds_model md ON md."DsMaster_id" = mm.id
-            LEFT OUTER JOIN
-                ds_tag_corr tc ON tc."DsModel_id" = md.id
+                CONCAT('M_', mm.id) AS tree_id,
+                NULL AS tree_master_id,
+                mm.id AS master_id,    
+                NULL AS model_id, 
+                mm."Name" AS name,
+                mm."Type" AS type,
+                NULL AS source,
+                NULL AS ver,
+                NULL AS description,
+                NULL AS file_path,
+                NULL AS algorithm_type,
+                mm."_created" AS _created,
+                NULL AS var_count,  -- ds_master에는 var_count 없음
+                NULL AS file_name,  -- ds_master에는 file_name 없음
+                NULL AS file_id     -- ds_master에는 file_id 없음
+            FROM ds_master mm
+            UNION ALL
+            SELECT
+                CONCAT('C_', md.id) AS tree_id,
+                CONCAT('M_', md."DsMaster_id") AS tree_master_id,
+                md."DsMaster_id" AS master_id,
+                md.id AS model_id,
+                md."Name" AS name,
+                md."Type" AS type,
+                md."SourceName" AS source,
+                md."Version" AS ver,
+                md."Description" AS description,
+                md."FilePath" AS file_path,
+                tc."AlgorithmType" AS algorithm_type,
+                md."_created" AS _created,
+                B.var_count AS var_count,  -- 변수 개수 추가
+                F.file_name AS file_name,  -- 파일명 추가
+                F.file_id AS file_id
+            FROM ds_model md
+            LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
+            LEFT JOIN B ON B.id = md.id  -- 변수 개수 조인 (ds_model_col 반영)
+            LEFT JOIN F ON F.id = md.id  -- 파일명 조인
             WHERE 1=1
             '''
-            if model_type:
+
+            # sql = '''
+            # SELECT
+            #     mm.id AS id, 
+            #     NULL AS parent_id,
+            #     mm."Name" AS name,
+            #     mm."Type" AS type,
+            #     NULL AS source,
+            #     NULL AS ver,
+            #     NULL AS description,
+            #     NULL AS file_path,
+            #     NULL AS algorithm_type,
+            #     mm."_created" AS _created
+            # FROM ds_master mm
+
+            # UNION ALL
+
+            # SELECT
+            #     md.id AS id,
+            #     md."DsMaster_id" AS parent_id,
+            #     md."Name" AS name,
+            #     md."Type" AS type,
+            #     md."SourceName" AS source,
+            #     md."Version" AS ver,
+            #     md."Description" AS description,
+            #     md."FilePath" AS file_path,
+            #     tc."AlgorithmType" AS algorithm_type,
+            #     md."_created" AS _created
+            # FROM ds_model md
+            # LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
+            # WHERE 1=1
+            # '''
+            if master_type:
                 sql += '''
-                AND UPPER(mm."Type") = UPPER(%(model_type)s)
+                AND UPPER(type) = UPPER(%(master_type)s)
                 '''
             if keyword:
-                sql +='''
-                AND (
-                    UPPER(mm."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-                    OR UPPER(mm."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                sql += '''
+                (
+                    UPPER(name) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(type) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                 )
                 '''
-            sql += '''ORDER BY mm."Type", mm."Name" desc'''
+            sql += '''
+            ORDER BY tree_master_id NULLS FIRST, name ASC;
+            '''
+
+            # sql = '''
+            # SELECT
+            #     mm.id AS master_id
+            #     , mm."Name" AS master_name
+            #     , mm."Type" AS master_type
+            #     , mm."_created"
+            #     , COALESCE(md.id, mm.id) AS id
+            #     , md."Name" AS name
+            #     , md."Type" AS type
+            #     , md."SourceName" AS source
+            #     , md."Version" AS ver
+            #     , md."Description" AS description
+            #     , md."FilePath" AS file_path
+            #     , tc."AlgorithmType" AS algorithm_type
+            #     , md."_created" AS model_created
+            # FROM
+            #     ds_master mm                
+            # LEFT OUTER JOIN
+            #     ds_model md ON md."DsMaster_id" = mm.id
+            # LEFT OUTER JOIN
+            #     ds_tag_corr tc ON tc."DsModel_id" = md.id
+            # WHERE 1=1
+            # '''
+            # if master_type:
+            #     sql += '''
+            #     AND UPPER(mm."Type") = UPPER(%(master_type)s)
+            #     '''
+            # if keyword:
+            #     sql +='''
+            #     AND (
+            #         UPPER(mm."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+            #         OR UPPER(mm."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+            #     )
+            #     '''
+            # sql += '''ORDER BY mm."Type", mm."Name", md."Name" desc'''
 
             dc = {}
-            dc['model_type'] = model_type
+            dc['master_type'] = master_type
             dc['keyword'] = keyword
         
             items = DbUtil.get_rows(sql, dc)  
 
-        if action == 'save_ds_data':
-            md_id = posparam.get('id')
+        if action == 'save_ds_model':
+            # md_id = posparam.get('id')
+            mm_id = CommonUtil.try_int(posparam.get('mm_id'))
+            md_id = CommonUtil.try_int(posparam.get('id'))
             Name = posparam.get('Name')
             Description = posparam.get('Description')
             Type = posparam.get('Type')
             new_file_id = posparam.get('fileId')
-            md_id = CommonUtil.try_int(md_id)
             
-            #fileService = FileService()
-
             old_file_id = -1
-            if md_id:
-                #rows = fileService.get_attach_file(self, 'ds_data', md_id, attach_name='basic')
-                #if len(rows) > 0: 
-                #    old_file_id = row[0]['id']
-                dd = DsData.objects.get(id=md_id)
-            else:
-                dd = DsData()
-            dd.Name = Name
-            dd.Description = Description
-            dd.Type = Type
-            dd.save()
-            md_id = dd.id
 
-            daService = DaService('ds_data', md_id)
- 
+            if md_id:
+                md = DsModel.objects.get(id=md_id)
+            else:
+                md = DsModel()
+            md.Name = Name
+            md.Description = Description
+            md.Type = Type
+            md.DsMaster_id = mm_id
+            md.set_audit(user)
+            md.save()
+            md_id = md.id
+
+            # set table_name, data_pk
+            daService = DaService('ds_model', md_id)
+
+            # attach_file의 dataPk를 업데이트
             if new_file_id:
-                # fileService = FileService()
                 fileService = AttachFileService()
                 fileService.updateDataPk(new_file_id, md_id)
-                #if new_file_id != old_file_id:
-                #    df = daService.read_csv2()
-
-                #    row = fileService.get_attach_file_detail(self, file_id)
-                #    #TableName = row.get('TableName')
-                #    #AttachName = row.get('AttachName')
-                #    PhysicFileName = row.get('PhysicFileName')
-                #    #FileName = row.get('FileName')
-                #    file_name = settings.FILE_UPLOAD_PATH + 'ds_data\\' + PhysicFileName
-
-                #    df = pd.read_csv(file_name)
-                #    row_count = df.shape[0]
-                #    for column in df.columns:
-                #        col_data = df[column]
-                #        for i in range(row_count):
-                #            pd = PropertyData()
-                #            pd.TableName = 'ds_data'
-                #            pd.DataPk = md_id 
-                #            pd.Type = str(i)
-                #            pd.Code = column
-                #            pd.Char1 = data[i]
-                #            pd.Number1 = CommonUtil.try_float(col_data[i])
-                #            pd.save()
  
             items = {'success': True}
 
@@ -579,7 +665,7 @@ def learning_data(context):
                     , dd."Description" as description
                     , dd."Type" as type
                     , dd._created
-	            from ds_data dd
+	            from ds_model dd
 	            where 1 = 1
             ), B as (
 	            select 
@@ -588,7 +674,7 @@ def learning_data(context):
 	                , count(case when dc."X" = 1 then 1 end) as x_count
 	                , count(case when dc."Y" = 1 then 1 end) as y_count
 	            from A 
-	            inner join ds_col dc on dc."DsModel_id" = A.id
+	            inner join ds_model_col dc on dc."DsModel_id" = A.id
 	            group by a.id
             ), F as (
 	            select 
@@ -624,27 +710,30 @@ def learning_data(context):
 
             sql = ''' 
             SELECT 
-                dc.id
-                , dc."VarIndex"
-                , dc."VarName"
-            FROM ds_model_col dc
-            WHERE dc."DsModel_id" = %(md_id)s
-            ORDER BY dc."VarIndex"  
+                mc.id
+                , mc."VarIndex"
+                , mc."VarName"
+            FROM ds_model_col mc
+            WHERE mc."DsModel_id" = %(md_id)s
+            ORDER BY mc."VarIndex"  
             '''
             dc = {}
             dc['md_id'] = md_id
 
             xrows = DbUtil.get_rows(sql, dc)
 
-            sql = ''' select dt."RowIndex" '''
+            sql = ''' SELECT dt."RowIndex" '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
                 sql += ''' 
-                ,min(case when dt."Code" = \'''' + var_name + '''\' then dt."Char1" end) as x''' + str(i+1)
-            sql += ''' from ds_model_data dt 
-            where dt."DsModel_id" = %(md_id)s
-            group by dt."RowIndex"
-            order by dt."RowIndex"
+                , MIN(CASE 
+                    WHEN dt."Code" = \'''' + var_name + '''\' 
+                    THEN dt."Char1" 
+                    END) AS col_''' + str(i+1)
+            sql += ''' FROM ds_model_data dt
+            WHERE dt."DsModel_id" = %(md_id)s
+            GROUP BY dt."RowIndex"
+            ORDER BY dt."RowIndex"
             '''
             dc = {}
             dc['md_id'] = md_id
@@ -656,17 +745,24 @@ def learning_data(context):
                 'rows': rows
             }
 
-        elif action == 'ds_data_info':
+        elif action == 'ds_model_info':
             ''' 
             '''
             md_id = gparam.get('md_id')
-            sql = ''' select dd.id, dd."Name", dd."Description"
-            , dd."Type", dd._created
-            , (select id as file_id from attach_file af 
-		            where af."DataPk" = dd.id 
-		            and af."TableName" = 'ds_data' order by id desc limit 1) as file_id
-            from ds_data dd
-            where dd.id = %(md_id)s
+            sql = ''' 
+            select 
+                md.id
+                , md."Name"
+                , md."Description"
+                , md."Type"
+                , md._created
+                , (select id as file_id 
+                    from attach_file af 
+		            where af."DataPk" = md.id 
+		            and af."TableName" = 'ds_model' 
+                    order by id desc limit 1) as file_id
+            from ds_model md
+            where md.id = %(md_id)s
             '''
             dc = {}
             dc['md_id'] = md_id
@@ -678,14 +774,21 @@ def learning_data(context):
         elif action == 'make_db_from_file':
             ''' prop_data 없으면 csv파일 읽어서 prop_data에 저장하고 변수컬럼 저장.
             '''
-            md_id = gparam.get('md_id')
-            sql = ''' select dd.id, dd."Name", dd."Description"
-            , dd."Type", dd._created
-            , (select id as file_id from attach_file af 
-		            where af."DataPk" = dd.id 
-		            and af."TableName" = 'ds_data' order by id desc limit 1) as file_id
-            from ds_data dd
-            where dd.id = %(md_id)s
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            # md_id = gparam.get('md_id')
+            sql = ''' 
+            SELECT 
+                md.id
+                , md."Name"
+                , md."Description"
+                , md."Type"
+                , md._created
+                , (SELECT id as file_id 
+                    FROM attach_file af
+                    WHERE af."DataPk" = md.id 
+		            AND af."TableName" = 'ds_model' order by id desc limit 1) as file_id
+            FROM ds_model md
+            WHERE md.id = %(md_id)s
             '''
             dc = {}
             dc['md_id'] = md_id
@@ -695,7 +798,7 @@ def learning_data(context):
             if not file_id:
                 return {'success':False, 'message':'파일없음' }
 
-            daService = DaService('ds_data', md_id)
+            daService = DaService('ds_model', md_id)
 
             #q = DsDataTable.objects.filter(DsModel_id=md_id)
             #pd = q.first()
@@ -730,13 +833,14 @@ def learning_data(context):
 
             return items
 
-
+        # 우선 사용 보류. 
         elif action == 'make_col_info':
             ''' table 데이터 읽어서 컬럼정보를 만들어서 저장한다.
             '''
-            md_id = gparam.get('md_id')
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            #md_id = gparam.get('md_id')
 
-            daService = DaService('ds_data', md_id)
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
             daService.make_col_info(df)
 
@@ -745,15 +849,28 @@ def learning_data(context):
         elif action == 'ds_col_list':
             '''
             '''
-            md_id = gparam.get('md_id')
-            sql = ''' select dc.id, dc."VarIndex", dc."VarName"
-            , dc."DataCount", dc."MissingCount", dc."CategoryCount" 
-            , dc."Mean" 
-            , dc."Std" , dc."Q1" , dc."Q2" , dc."Q3" 
-            , dc."MissingValProcess" , dc."DropOutLow" , dc."DropOutUpper" , dc."X" ,dc."Y" 
-            from ds_col dc
-            where dc."DsModel_id" = %(md_id)s
-            order by dc."VarIndex"  
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            sql = ''' 
+            SELECT 
+                mc.id
+                , mc."VarIndex"
+                , mc."VarName"
+                , mc."DataCount"
+                , mc."MissingCount"
+                , mc."CategoryCount" 
+                , mc."Mean" 
+                , mc."Std"
+                , mc."Q1"
+                , mc."Q2"
+                , mc."Q3" 
+                , mc."MissingValProcess"
+                , mc."DropOutLow"
+                , mc."DropOutUpper"
+                , mc."X"
+                , mc."Y" 
+            FROM ds_model_col mc
+            WHERE mc."DsModel_id" = %(md_id)s
+            ORDER BY mc."VarIndex"  
             '''
             dc = {}
             dc['md_id'] = md_id
@@ -765,7 +882,7 @@ def learning_data(context):
             Q = posparam.get('Q')
             #Q = json.loads(Q)
             
-            daService = DaService('ds_data', md_id)
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
             for item in Q:
@@ -774,67 +891,109 @@ def learning_data(context):
                 DropOutLow = CommonUtil.try_float(item['DropOutLow'])
                 DropOutUpper = CommonUtil.try_float(item['DropOutUpper'])
 
-                q = DsColumn.objects.filter(DsModel_id=md_id)
-                q = q.filter(VarIndex=item['VarIndex'])
+                q = DsModelColumn.objects.filter(DsModel_id=md_id, VarIndex=item['VarIndex'])
                 dc = q.first()
-                dc.MissingValProcess = MissingValProcess
-                dc.DropOutLow = DropOutLow
-                dc.DropOutUpper = DropOutUpper
-                dc.save()
+                if dc:
+                    dc.MissingValProcess = MissingValProcess
+                    dc.DropOutLow = DropOutLow
+                    dc.DropOutUpper = DropOutUpper
+                    dc.save()
 
-                #결측치 대체
+                # q = DsModelColumn.objects.filter(DsModel_id=md_id)
+                # q = q.filter(VarIndex=item['VarIndex'])
+                # dc = q.first()
+                # dc.MissingValProcess = MissingValProcess
+                # dc.DropOutLow = DropOutLow
+                # dc.DropOutUpper = DropOutUpper
+                # dc.save()
+
+                # 결측치 처리
                 if MissingValProcess == 'drop':
-                    #df[VarName].dropna(axis=1, inplace=True)
                     df[VarName].dropna(inplace=True)
                 elif MissingValProcess == 'mean':
                     df[VarName].fillna(df[VarName].mean(), inplace=True)
                 elif MissingValProcess == 'median':
                     df[VarName].fillna(df[VarName].median(), inplace=True)
                 elif MissingValProcess == 'mode':
-                    df[VarName].fillna(df[VarName].mode(), inplace=True)
+                    # mode()의 return이 배열일 수 있음(최빈값이 여러개)
+                    mode_value = df[VarName].mode()
+                    df[VarName].fillna(mode_value[0] if not mode_value.empty else None, inplace=True)
+
+                # #결측치 대체
+                # if MissingValProcess == 'drop':
+                #     #df[VarName].dropna(axis=1, inplace=True)
+                #     df[VarName].dropna(inplace=True)
+                # elif MissingValProcess == 'mean':
+                #     df[VarName].fillna(df[VarName].mean(), inplace=True)
+                # elif MissingValProcess == 'median':
+                #     df[VarName].fillna(df[VarName].median(), inplace=True)
+                # elif MissingValProcess == 'mode':
+                #     df[VarName].fillna(df[VarName].mode(), inplace=True)
 
                 #이상치 제거
                 if DropOutLow:
-                    df = df[df[VarName <= DropOutLow]]
+                    df = df[df[VarName] >= DropOutLow]  # ⬅ `VarName`을 컬럼처럼 사용해야 함
                 if DropOutUpper:
-                    df = df[df[VarName >= DropOutUpper]]
-            ''' ds_data_table delete, update
+                    df = df[df[VarName] <= DropOutUpper]
 
-            '''
-            sql = ''' delete 
-	        from ds_data_table
-	        where "DsModel_id"  = %(md_id)s
-	        and "RowIndex" in (
-		        select distinct "RowIndex"
-		        from ds_data_table dt
-		        where "DsModel_id" = %(md_id)s
-		        and "Code" in (
-			        select "VarName" 
-			        from ds_col dc
-			        where "DsModel_id" = %(md_id)s
-			        and "MissingValProcess" = 'drop'
-		        )
-		        and "Char1" is null
-	        )
+                # if DropOutLow:
+                #     df = df[df[VarName <= DropOutLow]]
+                # if DropOutUpper:
+                #     df = df[df[VarName >= DropOutUpper]]
+ 
+            # ds_model_data delete, update
+            sql = ''' 
+            DELETE 
+	        FROM ds_model_data
+	        WHERE "DsModel_id"  = %(md_id)s
+	            AND "RowIndex" IN (
+		            SELECT DISTINCT "RowIndex"
+		            FROM ds_model_data dt
+		            WHERE "DsModel_id" = %(md_id)s
+		            AND "Code" IN (
+			            SELECT "VarName" 
+			            FROM ds_model_col mc
+			            WHERE "DsModel_id" = %(md_id)s
+			                AND "MissingValProcess" = 'drop'
+		            )
+		            -- AND "Char1" IS NULL  -- Char1 값이 nan이나 NaN인 경우 업데이트 안됨
+                    AND (dt."Char1" IS NULL OR UPPER(dt."Char1") IN ('NAN', ''))
+	            )
             '''
             dc = {}
             dc['md_id'] = md_id
             ret = DbUtil.execute(sql, dc)
 
-            ''' with A as (
-	            select dc."DsModel_id" as md_id, "VarName", case "MissingValProcess" when 'mean' then "Mean" when 'median' then "Q2" end new_val
-	            from ds_col dc
-	            where "DsModel_id" = %(md_id)s
-	            and "MissingValProcess" in ('mean', 'median')
+            sql = '''
+            WITH A AS (
+	            SELECT 
+                    mc."DsModel_id" AS md_id
+                    , "VarName"
+                    , (CASE "MissingValProcess" 
+                        WHEN 'mean' THEN "Mean" 
+                        WHEN 'median' THEN "Q2" 
+                        END) new_val
+	            FROM ds_model_col mc
+	            WHERE "DsModel_id" = %(md_id)s
+	                AND "MissingValProcess" IN ('mean', 'median')
             )
-            update ds_data_table 
-            set "Char1" = A.new_val
-            , "Number1" = A.new_val
-            from A
-            where ds_data_table."DsModel_id" = A.md_id 
-            and ds_data_table."Code" = A."VarName"
-            and ds_data_table."Char1" is null
-            and A.new_val is not null 
+            UPDATE ds_model_data 
+            SET 
+                "Char1" = CASE 
+                            WHEN (UPPER(ds_model_data."Char1") IN ('NAN', '') OR ds_model_data."Char1" IS NULL)
+                            THEN CAST(A.new_val AS TEXT)
+                            ELSE ds_model_data."Char1"
+                          END,
+                "Number1" = CASE 
+                            WHEN (ds_model_data."Number1" IS NULL OR ds_model_data."Number1" = 'NaN'::float) 
+                            THEN A.new_val
+                            ELSE ds_model_data."Number1"
+                          END
+            FROM A
+            WHERE ds_model_data."DsModel_id" = A.md_id 
+                AND ds_model_data."Code" = A."VarName"
+                -- AND ds_model_data."Char1" IS NULL   -- Char1 값이 nan이나 NaN인 경우 업데이트 안됨
+                AND A.new_val IS NOT NULL 
             '''
 
             dc = {}

@@ -55,7 +55,7 @@ class DASDeviceView(View):
             item["description"] = v.Description
             item["device_type"] = v.DeviceType
             item["equipment"] = v.Equipment.Code
-            if item["topic"] is None:
+            if "topic" not in item:
                 item["topic"] = v.Topic
 
             data.append(item)

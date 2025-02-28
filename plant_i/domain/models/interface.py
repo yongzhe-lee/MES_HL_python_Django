@@ -22,10 +22,11 @@ class IFSapMaterial(models.Model):
     stab_matkl = models.CharField('자재그룹', max_length=9, null=True)
     stab_mtart = models.CharField('자재유형', max_length=15, null=True)
     stab_meins = models.CharField('기본단위', max_length=4, null=True)
-    stab_atype = models.CharField('품목유형', max_length=15, null=True)
-    cycle_time = models.CharField('c/t', max_length=10, null=True)
-    in_price = models.CharField('입고금액', max_length=20, null=True)
-    out_price = models.CharField('출고고금액', max_length=20, null=True)
+    stab_atype = models.CharField('품목유형코드', max_length=15, null=True)
+    stab_bkbez = models.CharField('품목유형명', max_length=15, null=True)
+    stab_zctime = models.DecimalField('C/T', max_digits=5, decimal_places=1, null=True)
+    stab_price = models.DecimalField('자재마스터단가', max_digits=11, decimal_places=2, null=True)
+    stab_peinh = models.DecimalField('가격단위', max_digits=5, decimal_places=0, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -49,29 +50,21 @@ class IFSapMaterial(models.Model):
 
 class IFSapBOM(models.Model):
 
-    '''
-    STAB_WERKS	char(4)	플랜트
-    STAB_MATNR	char(18)	상위자재
-    STAB_BMENG	decimal(13.3)	기준수량
-    STAB_IDNRK	char(18)	구성부품
-    STAB_MNGLG	decimal(13.3)	구성부품수량
-    STAB_MEINS	char(4)	단위
-    STAB_STUFE	char(5)	BOM레벨
-    STAB_DATUV	char(8)	효력시작일
-    STAB_DATAB	char(8)	효력종료일
-
-    '''
-
+   
     id  = models.AutoField(primary_key=True)
     stab_werks = models.CharField('플랜트', max_length=4)
     stab_matnr = models.CharField('상위자재', max_length=18)
+    stab_revlv = models.CharField('REVISION번호', max_length=2, null=True)
     stab_bmeng = models.DecimalField('기준수량', max_digits=13, decimal_places=3)
-    stab_idnrk = models.CharField('구성부품', max_length=18)
+    stab_idnrk = models.CharField('구성부품코드', max_length=18)
     stab_mnglg = models.DecimalField('구성부품수량', max_digits=13, decimal_places=3)
     stab_meins = models.CharField('단위', max_length=4)
     stab_stufe = models.CharField('BOM레벨', max_length=5)
     stab_datuv = models.CharField('효력시작일', max_length=8)
     stab_datab = models.CharField('효력종료일', max_length=8)
+    stab_aennr = models.CharField('ECN번호', max_length=12, null=True)
+    stab_bklas = models.CharField('품목유형코드', max_length=4, null=True)
+    stab_bkbez = models.CharField('품목유형명', max_length=25, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -110,10 +103,16 @@ class IFSapMaterialStock(models.Model):
     stab_matnr = models.CharField('자재', max_length=18)
     stab_maktx = models.CharField('품명', max_length=40)
     stab_lgort = models.CharField('저장위치', max_length=4)
-    stab_labst = models.DecimalField('가용재고', max_digits=13, decimal_places=3)
-    stab_insme = models.DecimalField('품질재고', max_digits=13, decimal_places=3)
-    stab_speme = models.DecimalField('보류재고', max_digits=13, decimal_places=3)
+    stab_lgobe = models.CharField('저장위치', max_length=16, null=True)
+    stab_labst = models.DecimalField('가용재고', max_digits=13, decimal_places=3, null=True)
+    stab_insme = models.DecimalField('품질재고', max_digits=13, decimal_places=3, null=True)
+    stab_speme = models.DecimalField('보류재고', max_digits=13, decimal_places=3, null=True)
+    stab_mslbq = models.DecimalField('외주재고', max_digits=13, decimal_places=3, null=True)
+    stab_mkolq = models.DecimalField('벤더 Consignment', max_digits=13, decimal_places=3, null=True)
+    stab_mskuq = models.DecimalField('고객  Consignment', max_digits=13, decimal_places=3, null=True)
     stab_meins = models.CharField('단위', max_length=4)
+    stab_bklas = models.CharField('품목유형코드', max_length=4,  null=True)
+    stab_bkbez = models.CharField('품목유형명', max_length=25, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -134,6 +133,39 @@ class IFSapMaterialStock(models.Model):
         unique_together = [
           
         ]
+
+
+class IFSapPcbRandomNumber(models.Model):
+    id = models.AutoField(primary_key=True)
+    stab_mblnr = models.CharField('입고번호', max_length=10)
+    stab_zeile = models.CharField('아이템번호', max_length=4)
+    stab_matnr = models.CharField('자재번호', max_length=18)
+    stab_maktx = models.CharField('품명', max_length=40)
+    stab_menge = models.DecimalField('입고수량', max_digits=13, decimal_places=3)
+    stab_abqty = models.DecimalField('난수별수량', max_digits=13, decimal_places=3)
+    stab_meins = models.CharField('단위', max_length=4)
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+    
+    class Meta():
+        db_table = 'if_sap_pcb_ran'
+        verbose_name = 'PCB난수별입고번호'
+        unique_together = [
+          
+        ]
+
+
 
 
 class IFMesLine(models.Model):
@@ -563,3 +595,23 @@ class IFVanReceivingInspectionResult(models.Model):
         verbose_name = 'VAN PCB 수입검사결과 인터페이스'
         unique_together = [
         ]
+
+
+class if_log(models.Model):
+
+    id = models.BigAutoField(primary_key=True)
+    task = models.CharField('인터페이스업무데이터구분', max_length=50, null =True)
+    method = models.CharField('인터페이스방법', max_length=50, null =True)
+    contents = models.TextField('인터페이스내용', null =True)
+    equ_cd = models.CharField('설비코드', max_length=20, null =True)
+    mat_cd = models.CharField('품목코드', max_length=50, null =True)
+    rev_no = models.CharField('REVISION번호', max_length=2, null =True)
+    is_success  = models.CharField(' success yn', max_length=1, default="Y")
+    log_date = models.DateTimeField('로그일시', auto_now_add=True)
+
+    class Meta():
+        db_table = 'if_log'
+        verbose_name = '인터페이스 이력 로그'
+        unique_together = [
+        ]
+

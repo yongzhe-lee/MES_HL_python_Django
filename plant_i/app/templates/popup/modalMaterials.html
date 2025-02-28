@@ -1,0 +1,251 @@
+<div id="modalMaterials" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>자재 선택</h4>
+        </div>
+
+        <div class="modal-body">
+            <!-- 검색 영역 -->
+            <div class="search-section">
+                <div class="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>검색키워드</label>
+                            <input type="text" class="form-control" id="searchMaterialKeyword" name="searchMaterialKeyword">
+                        </div>
+                        <div class="form-group">
+                            <label>자재종류</label>                            
+                            <select class="form-control" id="srch_item_type" name="srch_item_type">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>공급업체</label>
+                            <input type="text" class="form-control" id="searchSupplier" name="searchSupplier">
+                        </div>
+                        <div class="form-group search-button-group">
+                            <button type="button" class="btn btn-search" id="btnSearchMaterial">
+                                <i class="fas fa-search"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 그리드 영역 -->
+            <div class="grid-section">                
+                <div id="materialGrid"></div>
+            </div>
+        </div>
+
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="btnConfirmMaterial">확인</button>
+            <button type="button" class="btn-close" id="btnCloseMaterial">닫기</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    #modalMaterials {
+        z-index: 1001 !important; /* 부모 모달보다 위에 표시 */
+    }
+
+    #modalMaterials .modal-content {
+        width: 80%;
+        max-width: 1000px;
+        height: 600px;
+    }
+
+    .search-section {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .search-form .form-row {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .search-form .form-group {
+        flex: 1;
+    }
+
+    .search-form .search-button-group {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .grid-section {
+        height: calc(100% - 150px);
+        overflow: hidden;
+    }
+
+    #materialGrid {
+        height: 100%;
+    }
+
+</style>
+
+<script>
+    class MaterialSelector {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/material';
+            this.selectedItems = [];
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let materialGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "material_code", title: "자재코드", width: "100px" },
+                    { field: "material_name", title: "자재명", width: "150px" },
+                    { field: "item_type", title: "자재종류", width: "150px" },
+                    { field: "supplier_pk", title: "공급업체", width: "150px" },
+                    { field: "basic_unit", title: "단위", width: "80px" },
+                    { field: "in_price", title: "매입단가", width: "100px" },                    
+                ],
+                dataBound: function (e) {
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "100%",
+                scrollable: true, // ✅ 내부에서만 스크롤 유지
+                selectable: "multiple, row",
+                pageable: {
+                    refresh: true,
+                    pageSizes: [10, 20, 50],
+                    buttonCount: 5
+                },
+            };
+            _this.grid = new Grid($("#materialGrid"), materialGridOption);
+
+            this.initEvents();
+            
+
+            $("#btnConfirmMaterial").kendoButton({
+                icon: "k-i-check",
+                themeColor: "base",
+                click: function (e) {
+                    e.preventDefault();                   
+                }
+            });
+
+            $("#btnCloseMaterial").kendoButton({
+                themeColor: "primary",
+            });
+            
+            AjaxUtil.fillDropDownOptions($('#srch_item_type'), 'user_code', 'choose', null, 'MTRL_TYPE'); 
+
+        }
+
+        initEvents() {
+            // 검색 버튼을 kendo 버튼으로 변경
+            $("#btnSearchMaterial").kendoButton({
+                themeColor: "primary",
+                icon: "search",
+                click: () => {
+                    this.getMaterialData();
+                }
+            });            
+
+            $("#btnConfirmMaterial").on("click", () => {
+                const selectedItems = this.grid.select();
+                if (selectedItems.length === 0) {
+                    Alert.alert('', '자재를 선택해주세요.');
+                    return;
+                }
+
+                this.selectedItems = [];
+                selectedItems.each((idx, row) => {
+                    const dataItem = this.grid.dataItem(row);
+                    this.selectedItems.push(dataItem);
+                });
+
+                // 선택된 자재 정보를 부모 모달에 전달
+                this.addMaterialsToParent();
+                $("#modalMaterials").fadeOut();
+            });
+
+            $("#btnCloseMaterial").on("click", () => {
+                $("#modalMaterials").fadeOut();
+            });
+
+            // 검색 필드 엔터 키 이벤트
+            $(".search-form input").on("keypress", (e) => {
+                if (e.which === 13) {
+                    this.grid.dataSource.read();
+                }
+            });
+        }
+
+        getMaterialData() {            
+            let _this = this;
+            let param = {
+                action: 'read_modal',
+                keyword: $('#searchMaterialKeyword').val(),
+                ItemType: $('#srch_item_type').data("kendoDropDownList").value(),
+                Supplier: $('#searchSupplier').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        addMaterialsToParent() {
+            const tbody = $('#materialTable tbody');
+            tbody.find('.no-data').remove();
+
+            this.selectedItems.forEach(item => {
+                // 이미 추가된 자재인지 확인
+                const exists = tbody.find(`tr[data-code="${item.material_code}"]`).length > 0;
+                if (!exists) {
+                    const newRow = `
+                        <tr data-code="${item.material_code}">
+                            <td>${item.material_code}</td>
+                            <td>${item.material_name}</td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm text-end" 
+                                       min="0" step="1" placeholder="수량 입력"/>
+                            </td>
+                            <td>${item.unit}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(newRow);
+                }
+            });
+        }
+    }
+
+    // 모달이 처음 로드될 때 MaterialSelector 인스턴스 생성
+    let pageMaterialModal = null;
+    pageMaterialModal = new MaterialSelector();
+
+    $(document).ready(() => {        
+        // 자식 모달을 띄울 때 손자 모달 자동 표시되지 않도록 설정
+        $("#selectMaterial").on("click", function (e) {
+            e.preventDefault();
+            $("#modalMaterials").fadeIn();
+            pageMaterialModal.getMaterialData(); // ✅ 손자 모달을 열 때 실행
+        });
+    });
+</script>

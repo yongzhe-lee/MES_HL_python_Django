@@ -1,14 +1,12 @@
 import datetime
 from domain import init_once
-
 from configurations import settings
 from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
-
-from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory
+from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory, Unit
 from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup
-from domain.models.system import  Unit 
+from domain.models.kmms import JobClass
 from django.contrib.auth.models import User
 
 #from django.core.cache import cache
@@ -55,6 +53,7 @@ class ComboService(object):
             'user_code': cls.user_code,
             'user_group': cls.user_group,
             'auth_user': cls.auth_user,
+            'job_class': cls.job_class,
         }
         cls.__initialized__ = True
 
@@ -406,4 +405,10 @@ class ComboService(object):
                 'text': f"{item['first_name']}"
             } for item in q
         ]
+        return items
+
+    @classmethod
+    def job_class(cls, cond1, cond2, cond3):
+        query = JobClass.objects.values('job_class_pk', 'Name').order_by('Name')
+        items = [ {'value': entry['job_class_pk'], 'text':entry['Name']} for entry in query ]
         return items

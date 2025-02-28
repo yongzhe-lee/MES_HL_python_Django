@@ -35,9 +35,9 @@ class DsModel(models.Model):
     Name = models.CharField('모델명', max_length=50)
     Description = models.TextField('비고', null=True)
     Type = models.CharField('구분', max_length=50, null=True)
-    SourceName = models.CharField('데이터출처', max_length=50, null=True)
+    # SourceName = models.CharField('데이터출처', max_length=50, null=True) # 설계 변경
     Version = models.CharField('버전', max_length=50, null=True, default='1')
-    FilePath = models.CharField('모델파일경로', max_length=500, null=True)
+    # FilePath = models.CharField('모델파일경로', max_length=500, null=True)
     DsMaster = models.ForeignKey(DsMaster, verbose_name='모델마스터번호', on_delete=models.DO_NOTHING, null=True) # 신규추가
 
     _status = models.CharField('_status', max_length=10, null=True)

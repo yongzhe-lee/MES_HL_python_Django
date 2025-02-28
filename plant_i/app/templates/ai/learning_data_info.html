@@ -222,6 +222,7 @@
                                         <span>
                                             <button id="btnExcelMerged">Excel</button>
                                             <button id="btnSaveMerged" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                                            <!-- 삭제 기능 우선 보류. -->
                                             <button id="btnDeleteMerged" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
                                         </span>
                                     </div>
@@ -268,11 +269,13 @@
                                 <label data-labelCd="데이터 상세정보">데이터 상세정보</label>
                             </span>
                             <span>
-                                <button id="btnNewData" title="csv업로드">csv업로드</button>
-                                <!--<button id="btnSearchData" title="조회"><i class="material-symbols-outlined">search</i>조회</button>-->
+                                <button id="btnNewData" title="csv등록">csv등록</button>
+                                <button id="btnEditData" title="수정">수정</button>
+                                <!-- 삭제 기능 우선 보류. -->
+                                <!--<button id="btnEditData" title="삭제">삭제</button>-->
                             </span>
                         </div>
-                        <div id="data_grid"></div>
+                        <div id="data_detail_grid"></div>
                     </div>
 
                     <!-- Tab3: 변수통계값 -->
@@ -283,8 +286,8 @@
                                 <label data-labelCd="변수통계값">변수통계값</label>
                             </span>
                             <span>
-                                <button id="btnSearchCol" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                                <button id="btnMakeColInfo" title="컬럼정보생성">컬럼정보생성</button>
+                                <!--<button id="btnSearchCol" title="조회"><i class="material-symbols-outlined">search</i>조회</button>-->
+                                <!--<button id="btnMakeColInfo" title="컬럼정보생성">컬럼정보생성</button>-->
                             </span>
                         </div>
                         <div id="ds_col_grid"></div>
@@ -326,8 +329,8 @@
                                 <label data-labelCd="전처리">전처리</label>
                             </span>
                             <span>
-                                <button id="btnSearchPreprocess" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                                <button id="btnSavePreprocess" title="결측치/이상치제거">결측치/이상치제거</button>
+                                <!--<button id="btnSearchPreprocess" title="조회"><i class="material-symbols-outlined">search</i>조회</button>-->
+                                <button id="btnSavePreprocess" title="결측치/이상치 제거"><i class="material-symbols-outlined">delete</i>결측치/이상치 제거</button>
                             </span>
                         </div>
                         <div id="ds_col_grid2"></div>
@@ -355,8 +358,7 @@
                                 <label data-labelCd="XY 지정">XY 지정</label>
                             </span>
                             <span>
-                                <button id="btnSearchXY" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                                <button id="btnSaveXY" title="XY저장">XY저장</button>
+                                <button id="btnSaveXY" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
                             </span>
                         </div>
                         <div id="settingXy_grid"></div>
@@ -425,37 +427,63 @@
         </div>
     </div>
 </div>
-{% endblock %}
 {% verbatim %}
 <script type="text/x-kendo-template" id="fileUploadTemplate">
     <div class="content_wrap popup">
-        <div class="card-content popup">
-            <form id="popupForm" class="search-form">
-                <!-- kendo 첨부파일 -->
-                <div class="plain-content">
-                    <div class="card-group-btn">
-                        <span class="info-text"><i class="material-symbols-outlined">attach_file</i><label data-labelCd="데이터 csv파일">데이터 csv파일</label></span>
-                    </div>
-                    <form id="fileForm">
-                        <div class="form-item align-v">
+        <div class="card-content edit">
+            <form id="dsDataForm" class="search-form">
+                <div class="form-ui">
+                    <input type="hidden" id="id" name="id">
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="Name" data-labelCd="모델명">모델명</label>
                             <div class="field-wrapper">
-                                <div id="da_file_area" name="da_file_area"></div>
+                                <input type="text" id="Name" name="Name" data-msg="모델명을" />
                             </div>
                         </div>
-                    </form>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Type" data-labelCd="구분">구분</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="Type" name="Type" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Description" data-labelCd="비고">비고</label>
+                            <div class="field-wrapper">
+                                <textarea id="Description" name="Description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- kendo 첨부파일 -->
+            <div class="card-group-btn k-mt-5">
+                <span class="info-text"><i class="material-symbols-outlined">attach_file</i><label data-labelCd="첨부된 데이터(csv)">첨부된 데이터(csv)</label></span>
+            </div>
+            <form id="fileForm">
+                <div class="form-item align-v">
+                    <div class="field-wrapper">
+                        <div id="da_file_area" name="da_file_area"></div>
+                    </div>
                 </div>
             </form>
             <div class="card-group-btn" style="margin-top:10px">
                 <span></span>
                 <span>
-                    <button id="btnSaveMenuItem" class="btn-save">저장</button>
-                    <button id="modal-close-button" class="btn-cancel">닫기</button>
+                    <button id="btnSaveModalData"><i class="material-symbols-outlined">save</i>저장</button>
+                    <button id="btnCloseModal" class="btn-cancel">닫기</button>
                 </span>
             </div>
         </div>
     </div>
 </script>
 {% endverbatim %}
+{% endblock %}
+
 {% block scripts %}
 {% include 'common/file_upload.html' %}
 <script type="text/javascript">
@@ -463,6 +491,11 @@
         constructor() {
             this.baseUrl = '/api/ai/learning_data';
             this.modelGrid = null;
+            this.mm_id = null; // model master_id
+            this.md_id = null; // model_id
+
+            // FileUploadPage 인스턴스를 전역으로 선언
+            window.fileUploaderInstance = null;
 
             // mission_proc_options를 선언 (옵션 배열)
             this.mission_proc_options = [
@@ -470,7 +503,7 @@
                 { code: 'drop', name: '제거' },
                 { code: 'mean', name: '평균' },
                 { code: 'median', name: '중간값' },
-                { code: 'mode', name: 'mode' }
+                { code: 'mode', name: '최빈값' }
             ];
             // mission_option_dc도 생성 (코드별 이름 매핑)
             this.mission_option_dc = {};
@@ -484,11 +517,13 @@
         init() {
             this.initUIComponents();
             this.initGrids();
+            //this.searchMainData();
             this.initTabStrip();
-            this.searchMainData();
         }
 
         initUIComponents() {
+            let _this = this;
+
             // model search form
             AjaxUtil.fillDropDownOptions($('#cboModelType'), 'user_code', 'all', null, 'MODEL_TYPE')
             $('#sch_keyword').kendoTextBox({ placeholder: '모델명, 설명' });
@@ -498,21 +533,21 @@
             });
 
             // tab1 form
-            this.setupDropdowns({
+            _this.setupDropdowns({
                 lineId: null,
                 equipId: 'cboEquip',
                 tagGroupId: 'cboTagGroup',
                 tagId: 'cboTag',
                 mtrlId: null
             });
-            this.setupDropdowns({
+            _this.setupDropdowns({
                 lineId: 'cboLineMES',
                 equipId: 'cboEquipMES',
                 tagGroupId: null,
                 tagId: null,
                 mtrlId: 'cboMtrlMES'
             });
-            this.setupDropdowns({
+            _this.setupDropdowns({
                 lineId: 'cboLineQMS',
                 equipId: 'cboEquipQMS',
                 tagGroupId: null,
@@ -549,19 +584,74 @@
 
             // 조회
             // 설비 태그 폼의 조회 버튼 바인딩
-            this.bindSearchButton("#btnSearchTag", "#searchTagForm", "#tag_grid", "read");
+            _this.bindSearchButton("#btnSearchTag", "#searchTagForm", "#tag_grid", "read");
             // MES 데이터 폼의 조회 버튼 바인딩
-            this.bindSearchButton("#btnSearchMES", "#searchMesForm", "#mes_tag_grid", "read");
+            _this.bindSearchButton("#btnSearchMES", "#searchMesForm", "#mes_tag_grid", "read");
             // QMS 데이터 폼의 조회 버튼 바인딩
-            this.bindSearchButton("#btnSearchQMS", "#searchQmsForm", "#qms_tag_grid", "read");
+            _this.bindSearchButton("#btnSearchQMS", "#searchQmsForm", "#qms_tag_grid", "read");
             // 최종 태그 집합 조회 버튼이 있다면
-            this.bindSearchButton("#btnSearchMerged", "#searchMergedForm", "#merged_tag_grid", "read");
+            _this.bindSearchButton("#btnSearchMerged", "#searchMergedForm", "#merged_tag_grid", "read");
 
-            //tab2 버튼
+
+            // tab2
+            // csv기반 모델 등록
             kendoUtil.bindButton('#btnNewData', 'file-excel', 'success', () => {
-                this.openDataUploadPopup();
+
+                if (_this.mm_id) {
+                    if (_this.md_id) {
+                        Alert.confirm("info",
+                            "이미 등록된 파일이 존재합니다. 수정하시겠습니까?",
+                            function () {
+                                let data = _this.getDsInfo();
+                                _this.openDataUploadPopup(data);
+                            },
+                            function () { }
+                        );
+                    } else {
+                        // csv 데이터 업로드 = 모델 생성으로 고정
+                        _this.openDataUploadPopup();
+                    }
+                } else {
+                    Alert.alert('info', '목록에서 데이터를 업로드 할 모델마스터를 선택해 주세요.');
+                }
             });
+
+            // 모델 수정
+            kendoUtil.bindButton('#btnEditData', null, 'info', () => {
+                //if (this.mm_id) {
+                if (_this.md_id) {
+                    let data = _this.getDsInfo();
+                    _this.openDataUploadPopup(data);
+                } else {
+                    Alert.alert('error', '목록에서 데이터를 수정할 모델을 선택해 주세요.');
+                }
+            });
+
+            //tab6
+            kendoUtil.bindButton('#btnSavePreprocess', null, 'error', () => {
+                Alert.confirm('', '결측치 및 이상치를 제거하시겠습니까?', () => {
+                    _this.saveDsCol();
+                });
+            });
+
+            //tab7
+            $('#x_all_check').on('click', function () {
+                let checked = $(this).prop('checked');
+                $('input[name="chkbx_x"]').prop('checked', checked);
+            });
+            $('#y_all_check').on('click', function () {
+                let checked = $(this).prop('checked');
+                $('input[name="chkbx_y"]').prop('checked', checked);
+            })
+
+            kendoUtil.bindButton('#btnSaveXY', null, 'success', () => {
+                Alert.confirm('', '지정한 X, Y변수를 저장하시겠습니까??', () => {
+                    _this.saveDsColXY();
+                });
+            });
+            
         }
+
 
         // 드롭다운 선택 사항에 따른 이벤트 핸들링
         setupDropdowns(config) {
@@ -621,8 +711,8 @@
 
         initGrids() {
             // 모델 목록 그리드 초기화
-            let gridOptions = this.getGridOptions('model_grid');
-            this.modelGrid = new Grid($("#model_grid"), gridOptions);
+            this.modelGrid = new TreeGrid($('#model_grid'), this.getGridOptions('model_grid'));
+            this.searchMainData();
         }
 
         getGridOptions(gridName) {
@@ -635,33 +725,37 @@
 
             // gridName에 따른 특정 옵션 (columns 설정)
             let specificOption;
+            let noDataMessage = "<div style='position: absolute; top: 0; left: 0; width: 100%; padding:10px; text-align:left;'> 태그를 조합하거나 CSV 파일을 업로드하여 AI 모델을 생성하세요. 데이터가 등록되면 기본 모델이 생성되며, 이후 과정에 따라 알고리즘과 모델 정보가 자동으로 업데이트됩니다.</div>";
 
             switch (gridName) {
 
                 case 'model_grid':
                     specificOption = {
                         pageable: false,
+                        columnMenu: {
+                            componentType: "classic",
+                            autoSize: true,
+                            clearAllFilters: true,
+                            columns: { sort: "asc" }
+                        },
                         columns: [
-                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            { field: 'type', title: '모델유형', width: 100 },
-                            { field: 'master_name', title: '모델마스터명', width: 150 },
-                            { field: 'model_name', title: '모델명', width: 150 },
-                            { field: 'ver', title: 'Version', width: 100 },
+                            // number 쓰면 tree구조 고장남
+                            //{ title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                            { field: 'id', hidden: true },
+                            { field: 'name', title: '모델명', width: 120 },
+                            { field: 'type', title: '유형', width: 50 },
+                            { field: 'ver', title: 'Ver', width: 50 },
                             { field: 'description', title: '설명', width: 150 },
                             //{ field: 'cycle', title: '모델생성주기', width: 100 },
-                            { field: 'source_name', title: '원본파일명', width: 100 },
-                            { field: 'file_path', title: '모델파일경로', width: 150 },
-                            { field: 'algorithm_type', title: 'ML(알고리즘)', width: 150 },
-                            { field: '_created', title: '등록일', width: 100 }
+                            { field: 'var_count', title: '변수개수', width: 60 },
+                            { field: 'file_name', title: '원본파일명', width: 150 },
+                            { field: 'algorithm_type', title: 'ML(알고리즘)', width: 100 },
+                            //{ field: '_created', title: '등록일', width: 100 }
                         ],
                         change: function (e) {
-                            //_this.showDetail();
-
-                            // 모델 그리드의 change 이벤트에서 현재 활성 탭이 "데이터" 탭(예: 인덱스 1)일 때만 showDetail 호출
-                            let tabstrip = $("#tabstrip").data("kendoTabStrip");
-                            let activeTabIndex = tabstrip.select().index();
-                            if (activeTabIndex === 1) {
-                                _this.showDetail();
+                            let activeTab = $("#tabstrip").data("kendoTabStrip").select().index();
+                            if (_this.getSelectedModel(activeTab, activeTab === 0 ? false : true)) {
+                                _this.loadGridByTab(activeTab); // 현재 탭의 데이터만 갱신
                             }
                         },
                         height: "300px"
@@ -723,24 +817,25 @@
                     };
                     break;
 
-                case 'data_grid':
+                case 'data_detail_grid':
                     specificOption = {
-                        pageable: false,
+                        //pageable: false,
+                        pageable: {
+                            refresh: true,  // 새로고침 버튼 추가
+                            pageSizes: [10, 20, 50, 100, "all"],  // 선택 가능한 페이지 크기
+                            buttonCount: 5  // 페이지네이션 버튼 개수
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            pageSize: 50,  // 기본 페이지 크기
+                            serverPaging: false,  // 서버 페이징 비활성화 (클라이언트 페이징만 사용)
+                            data: []  // 초기 데이터 비워두기
+                        }),
                         columns: [
-                            //{ title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            //{ field: 'type', title: '구분', width: 100 },
-                            //{ field: 'name', title: '제목', width: 200 },
-                            //{ field: 'description', title: '비고', width: 150 },
-                            //{ field: '_created', title: '등록일', width: 150 },
-                            //{ field: 'var_count', title: '변수개수', width: 150 },
-                            //{ field: 'x_count', title: 'X개수', width: 100 },
-                            //{ field: 'y_count', title: 'Y개수', width: 100 },
-                            //{ field: 'file_name', title: '파일명', width: 100 },
-                            //{ field: 'file_id', title: 'file_id', width: 100 }
+                            // file에 따라 달라지므로 동적으로 생성
                         ],
                         height: "300px",
                         noRecords: {
-                            template: "<div style='position: absolute; top: 0; left: 0; width: 100%; padding:10px; text-align:left;'>데이터가 없습니다. 태그를 선택하여 데이터 테이블을 생성하거나 CSV 파일을 첨부하여 데이터를 업로드 하세요.</div>"
+                            template: noDataMessage
                         }
                     };
                     break;
@@ -760,18 +855,22 @@
                             { field: 'Q2', title: 'Q2', width: 100 },
                             { field: 'Q3', title: 'Q3', width: 100 }
                         ],
-                        height: "300px"
+                        height: "300px",
+                        noRecords: {
+                            template: noDataMessage
+                        }
                     };
                     break;
 
                 case 'ds_col_grid2':
                     specificOption = {
                         pageable: false,
+                        editable: true,  // 편집 가능하도록 설정(콤보박스용)
                         columns: [
                             { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            { field: 'VarName', title: '변수명', width: 150 },
-                            { field: 'DataCount', title: '데이터개수', width: 100 },
-                            { field: 'MissingCount', title: '결측치개수', width: 100 },
+                            { field: 'VarName', title: '변수명', width: 150, editable: false },
+                            { field: 'DataCount', title: '데이터수', width: 80 },
+                            { field: 'MissingCount', title: '결측치수', width: 80 },
                             { field: 'CategoryCount', title: '범주개수', width: 80 },
                             { field: 'Mean', title: '평균', width: 80 },
                             { field: 'Std', title: '표준편차', width: 80 },
@@ -779,78 +878,191 @@
                             { field: 'Q2', title: 'Q2', width: 80 },
                             { field: 'Q3', title: 'Q3', width: 80 },
                             {
-                                field: "MissingValProcess", title: "결측치처리", width: 100, attributes: { style: "text-align: center" },
-                                // formatter: Ax5의 formatter를 Kendo template으로 변환
-                                template: function () {
-                                    return _this.mission_option_dc[this.value];
+                                field: "MissingValProcess",
+                                title: "결측치처리",
+                                width: 120,
+                                attributes: { style: "text-align: center" },
+                                template: function (dataItem) {
+                                    let selectedOption = _this.mission_proc_options.find(opt => opt.code === dataItem.MissingValProcess);
+                                    return selectedOption ? selectedOption.name : "처리 방법 선택";
                                 },
-                                // editor: Kendo UI의 custom editor (DropDownList)
-                                editor: {
-                                    type: 'select',
-                                    config: {
-                                        columnKeys: { optionValue: 'code', optionText: 'name' },
-                                        options: _this.mission_proc_options,
-                                    }
+                                editor: function (container, options) {
+                                    $('<select name="' + options.field + '"></select>')
+                                        .appendTo(container)
+                                        .kendoDropDownList({
+                                            dataSource: _this.mission_proc_options,
+                                            dataTextField: "name",
+                                            dataValueField: "code",
+                                            value: options.model.MissingValProcess,
+                                            change: function (e) {
+                                                options.model.set("MissingValProcess", e.sender.value());
+                                            }
+                                        });
                                 }
                             },
-                            { field: "DropOutLow", title: "이상치하한", width: 100, attributes: { style: "text-align: right" }, editor: "numerictextbox" },
-                            { field: "DropOutUpper", title: "이상치상한", width: 100, attributes: { style: "text-align: right" }, editor: "numerictextbox" }
+                            {
+                                field: "DropOutLow",
+                                title: "이상치하한",
+                                width: 100,
+                                attributes: { style: "text-align: center" },
+                                template: function (dataItem) {
+                                    return dataItem.DropOutLow !== null && dataItem.DropOutLow !== undefined ? dataItem.DropOutLow : "입력";
+                                },
+                                editor: function (container, options) {
+                                    $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "n2",
+                                            decimals: 2,
+                                            step: 0.01,
+                                            value: options.model[options.field] || null,
+                                            change: function (e) {
+                                                let newValue = e.sender.value();
+                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
+                                            }
+                                        });
+                                }
+                            },
+                            {
+                                field: "DropOutUpper",
+                                title: "이상치상한",
+                                width: 100,
+                                attributes: { style: "text-align: center" },
+                                template: function (dataItem) {
+                                    return dataItem.DropOutUpper !== null && dataItem.DropOutUpper !== undefined ? dataItem.DropOutUpper : "입력";
+                                },
+                                editor: function (container, options) {
+                                    $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "n2",
+                                            decimals: 2,
+                                            step: 0.01,
+                                            value: options.model[options.field] || null,
+                                            change: function (e) {
+                                                let newValue = e.sender.value();
+                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
+                                            }
+                                        });
+                                }
+                            }
                         ],
-                        height: "300px"
+                        height: "300px",
+                        noRecords: {
+                            template: noDataMessage
+                        }
                     };
                     break;
 
                 case 'settingXy_grid':
                     specificOption = {
                         pageable: false,
+                        editable: true,  // 편집 가능하도록 설정(콤보박스용)
                         columns: [
-                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            { field: 'VarName', title: '변수명', width: 150 },
+                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' }, editable: true },
+                            { field: 'VarName', title: '변수명', width: 150, editable: true },
                             {
-                                field: 'X', title: 'X변수', width: 80, attributes: { style: "text-align: center" },
+                                field: 'X',
+                                width: 80,
+                                headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="x_all_check"/> <label for="x_all_check">X변수</label>',
+                                attributes: { style: "text-align: center" },
                                 // 단순 체크박스 에디터: 편집 시 체크박스 생성
-                                editor: function (container, options) {
-                                    $('<input type="checkbox" data-bind="checked:' + options.field + '"/>').appendTo(container);
-                                },
-                                // 템플릿: 읽기 전용 시 체크박스 표시
-                                template: '<input type="checkbox" #= X ? "checked=checked" : "" # disabled="disabled" />'
-                            },
-                            {
-                                field: 'Y', title: 'Y변수', width: 80, attributes: { style: "text-align: center" },
-                                // 단순 체크박스 에디터: 편집 시 체크박스 생성
-                                editor: function (container, options) {
-                                    $('<input type="checkbox" data-bind="checked:' + options.field + '"/>').appendTo(container);
-                                },
-                                // 템플릿: 읽기 전용 시 체크박스 표시
-                                template: '<input type="checkbox" #= X ? "checked=checked" : "" # disabled="disabled" />'
-                            },
-                            { field: 'DataCount', title: '데이터개수', width: 100 },
-                            { field: 'MissingCount', title: '결측치개수', width: 100 },
-                            { field: 'CategoryCount', title: '범주개수', width: 80 },
-                            { field: 'Mean', title: '평균', width: 80 },
-                            { field: 'Std', title: '표준편차', width: 80 },
-                            { field: 'Q1', title: 'Q1', width: 80 },
-                            { field: 'Q2', title: 'Q2', width: 80 },
-                            { field: 'Q3', title: 'Q3', width: 80 },
-                            {
-                                field: "MissingValProcess", title: "결측치처리", width: 100, attributes: { style: "text-align: center" },
-                                // formatter: Ax5의 formatter를 Kendo template으로 변환
-                                template: function () {
-                                    return _this.mission_option_dc[this.value];
-                                },
-                                // editor: Kendo UI의 custom editor (DropDownList)
-                                editor: {
-                                    type: 'select',
-                                    config: {
-                                        columnKeys: { optionValue: 'code', optionText: 'name' },
-                                        options: _this.mission_proc_options,
-                                    }
+                                template: function (item) {
+                                    return '<input name="chkbx_x" type="checkbox"' + (item.X == 1 ? 'checked="checked"' : '') + 'class="chkbx k-checkbox k-checkbox-md k-rounded-md" />';
                                 }
                             },
-                            { field: "DropOutLow", title: "이상치하한", width: 100, attributes: { style: "text-align: right" }, editor: "numerictextbox" },
-                            { field: "DropOutUpper", title: "이상치상한", width: 100, attributes: { style: "text-align: right" }, editor: "numerictextbox" }
+                            {
+                                field: 'Y',
+                                width: 80,
+                                attributes: { style: "text-align: center" },
+                                headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="y_all_check"/> <label for="y_all_check">Y변수</label>',
+                                // 단순 체크박스 에디터: 편집 시 체크박스 생성
+                                template: function (item) {
+                                    return '<input name="chkbx_y" type="checkbox"' + (item.Y == 1 ? 'checked="checked"' : '') + 'class="chkbx k-checkbox k-checkbox-md k-rounded-md" />';
+                                }
+                            },
+                            { field: 'DataCount', title: '데이터개수', width: 100, editable: true },
+                            { field: 'MissingCount', title: '결측치개수', width: 100, editable: true },
+                            { field: 'CategoryCount', title: '범주개수', width: 80, editable: true },
+                            { field: 'Mean', title: '평균', width: 80, editable: true },
+                            { field: 'Std', title: '표준편차', width: 80, editable: true },
+                            { field: 'Q1', title: 'Q1', width: 80, editable: true },
+                            { field: 'Q2', title: 'Q2', width: 80, editable: true },
+                            { field: 'Q3', title: 'Q3', width: 80, editable: true },
+                            {
+                                field: "MissingValProcess",
+                                title: "결측치처리",
+                                width: 120,
+                                attributes: { style: "text-align: center" },
+                                template: function (dataItem) {
+                                    let selectedOption = _this.mission_proc_options.find(opt => opt.code === dataItem.MissingValProcess);
+                                    return selectedOption ? selectedOption.name : "처리 방법 선택";
+                                },
+                                editor: function (container, options) {
+                                    $('<select name="' + options.field + '"></select>')
+                                        .appendTo(container)
+                                        .kendoDropDownList({
+                                            dataSource: _this.mission_proc_options,
+                                            dataTextField: "name",
+                                            dataValueField: "code",
+                                            value: options.model.MissingValProcess,
+                                            change: function (e) {
+                                                options.model.set("MissingValProcess", e.sender.value());
+                                            }
+                                        });
+                                }
+                            },
+                            {
+                                field: "DropOutLow",
+                                title: "이상치하한",
+                                width: 100,
+                                attributes: { style: "text-align: center" },
+                                template: function (dataItem) {
+                                    return dataItem.DropOutLow !== null && dataItem.DropOutLow !== undefined ? dataItem.DropOutLow : "입력";
+                                },
+                                editor: function (container, options) {
+                                    $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "n2",
+                                            decimals: 2,
+                                            step: 0.01,
+                                            value: options.model[options.field] || null,
+                                            change: function (e) {
+                                                let newValue = e.sender.value();
+                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
+                                            }
+                                        });
+                                }
+                            },
+                            {
+                                field: "DropOutUpper",
+                                title: "이상치상한",
+                                width: 100,
+                                attributes: { style: "text-align: center" },
+                                template: function (dataItem) {
+                                    return dataItem.DropOutUpper !== null && dataItem.DropOutUpper !== undefined ? dataItem.DropOutUpper : "입력";
+                                },
+                                editor: function (container, options) {
+                                    $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "n2",
+                                            decimals: 2,
+                                            step: 0.01,
+                                            value: options.model[options.field] || null,
+                                            change: function (e) {
+                                                let newValue = e.sender.value();
+                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
+                                            }
+                                        });
+                                }
+                            }
                         ],
-                        height: "300px"
+                        height: "300px",
+                        noRecords: {
+                            template: noDataMessage
+                        }
                     };
                     break;
 
@@ -863,7 +1075,10 @@
                             { field: 'data_type', title: '구분', width: 80 },
                             { field: 'intercept_', title: '절편', width: 80 }
                         ],
-                        height: "300px"
+                        height: "300px",
+                        noRecords: {
+                            template: noDataMessage
+                        }
                     };
                     break;
                 // 필요시 다른 탭(그리드) 옵션 추가 가능
@@ -876,14 +1091,17 @@
 
             let gridOptions = specificOption;
 
-            // dataBound를 맨 마지막에 할당
-            gridOptions.dataBound = function (e) {
-                let items = this.items();
-                items.each(function (index) {
-                    $(this).find("td:first").html(index + 1);
-                });
-                kendoUtil.showGridRowCount(this.element);
-            };
+            if (!gridOptions.dataBound) {
+                // dataBound를 따로 설정하지 않은 그리드는 공통사항을 할당
+                gridOptions.dataBound = function (e) {
+                    let items = this.items();
+                    items.each(function (index) {
+                        $(this).find("td:first").html(index + 1);
+                    });
+
+                    kendoUtil.showGridRowCount(this.element);
+                };
+            }
 
             console.log("gridOptions", gridOptions);
 
@@ -907,16 +1125,19 @@
             // 탭 인덱스에 따라 해당 탭의 컨테이너를 갱신 또는 초기화
             switch (tabIndex) {
                 case 0:
-                    this.renderGrid("tag_grid", "tag");
-                    this.renderGrid("mes_tag_grid", "mes");
-                    this.renderGrid("qms_tag_grid", "qms");
-                    this.renderGrid("merged_tag_grid", "merged_tag");
+                    // 페이지 최초 로드 시에 모델 선택 alert 방지
+                    if (this.getSelectedModel(tabIndex, false)) {
+                        this.renderGrid("tag_grid", "tag");
+                        this.renderGrid("mes_tag_grid", "mes");
+                        this.renderGrid("qms_tag_grid", "qms");
+                        this.renderGrid("merged_tag_grid", "merged_tag");
+                    }
                     break;
                 case 1:
-                    this.renderGrid("data_grid", "ds_rows_list");
+                    this.renderGrid("data_detail_grid", "ds_rows_list");
                     break;
                 case 2:
-                    this.renderGrid("ds_col_grid");
+                    this.renderGrid("ds_col_grid", "ds_col_list");
                     break;
                 case 3:
                     $("#num_dist_container").data("kendoChart") && $("#num_dist_container").data("kendoChart").refresh();
@@ -925,13 +1146,13 @@
                     $("#cat_dist_container").data("kendoChart") && $("#cat_dist_container").data("kendoChart").refresh();
                     break;
                 case 5:
-                    this.renderGrid("ds_col_grid2");
+                    this.renderGrid("ds_col_grid2", "ds_col_list");
                     break;
                 case 6:
                     $("#heatmap_container").data("kendoChart") && $("#heatmap_container").data("kendoChart").refresh();
                     break;
                 case 7:
-                    this.renderGrid("settingXy_grid");
+                    this.renderGrid("settingXy_grid", "ds_col_list");
                     break;
                 case 8:
                     $("#scatter_container").data("kendoChart") && $("#scatter_container").data("kendoChart").refresh();
@@ -950,13 +1171,48 @@
             }
         }
 
+        getSelectedModel(tabIndex, showAlert = true) {
+            let _this = this;
+            let data = _this.modelGrid.getSelect();
+
+            if (!data || data.length === 0) {
+                if (showAlert && tabIndex !== 0) {
+                    Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
+                }
+                return null;
+            }
+
+            let selectData = data[0];
+            _this.mm_id = selectData.master_id;
+            _this.md_id = selectData.model_id;
+
+            console.log("선택된 모델:", selectData);
+
+            return selectData;
+        }
+
+
         renderGrid(gridId, action) {
             let _this = this; // 현재 클래스 인스턴스 참조
 
+            let selectModel = _this.getSelectedModel();
+            if (!selectModel) return;
+
             // 그리드 인스턴스가 이미 존재하면 refresh, 없으면 생성
             let grid = $("#" + gridId).data("kendoGrid");
+
             if (grid) {
-                grid.refresh();
+                //grid.autoFitColumns();
+                if (grid.dataSource.options.pageSize) {
+                    // 기존 그리드가 있고, pageable 설정이 있으면 첫 페이지로 이동
+                    grid.dataSource.query({
+                        page: 1, // 첫 페이지로 이동
+                        pageSize: 50
+                    });
+                }
+
+                //grid.dataSource.read(); // 데이터를 새로 불러옴
+
             } else {
                 let options = this.getGridOptions(gridId);
                 new Grid($("#" + gridId), options);
@@ -972,64 +1228,136 @@
             let _this = this;
             let param = Object.assign({ action: action }, extraParam || {});
 
-            AjaxUtil.getAsyncData(_this.baseUrl, param, function (result) {
-                let gridInstance = $("#" + gridId).data("kendoGrid");
-                if (gridInstance) {
-                    if (result.xrows) {
+            let gridInstance = $("#" + gridId).data("kendoGrid");
+
+            let succFunc = function (result) {
+                console.log("result", result);
+                // xrows(컬럼)를 백엔드에서 보내주는 경우(데이터마다 colunmn이 달라지는 경우)
+                if (result.xrows) {
+                    if (result.xrows.length > 0) {
                         var dynamicColumns = result.xrows.map(function (item, index) {
                             return {
-                                field: item.VarName,          // 필드 이름 (백엔드에서 보내는 컬럼명)
+                                field: 'col_' + (index + 1),          // x + 변수순서
+                                //field: item.VarName,        // 필드 이름 (백엔드에서 보내는 컬럼명)
                                 title: item.VarName,          // 제목 (화면에 표시될 텍스트)
                                 width: item.width || 100,     // 백엔드에서 제공된 width가 없으면 기본값 100px 사용
                             };
                         });
+                        // No. 이유는 알 수 없지만 첫번째 컬럼의 값이 row의 index로 바인딩되는 에러 발생(id 아님!)
+                        // 이참에 그냥 index컬럼을 만들어버림
+                        dynamicColumns.unshift({
+                            "title": "No",
+                            "width": 50
+                        });
+                        //console.log("dynamicColumns", dynamicColumns);
                         gridInstance.setOptions({ columns: dynamicColumns });
                         gridInstance.dataSource.data(result.rows);
+                        //console.log("gridInstance.dataSource.data", gridInstance.dataSource.data());
                     } else {
-                        gridInstance.dataSource.data(result);
+                        // xrows는 있지만 빈 배열 일 때. 컬럼&데이터 초기화하여 noDataMessage 표시
+                        gridInstance.setOptions({
+                            columns: [],
+                            dataSource: []
+                        });
                     }
+                } else {
+                    // 일반적인 grid 데이터일 때
+                    gridInstance.dataSource.data(result);
                 }
-            });
+
+                //if (gridInstance.dataSource.options.pageSize) {
+                //    // 기존 그리드가 있고, pageable 설정이 있으면 첫 페이지로 이동
+                //    gridInstance.dataSource.query({
+                //        page: 1, // 첫 페이지로 이동
+                //        pageSize: 50
+                //    });
+                //}
+
+                gridInstance.autoFitColumns();
+            }
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
         }
 
-        // DataSciencePage 클래스 내부에 추가
-        openDataUploadPopup() {
+        // csv file 업로드 popup
+        openDataUploadPopup(data) {
             let _this = this;
             let templateHtml = $('#fileUploadTemplate').html();
             let $popup = $(templateHtml);
             // 브라우저 너비의 50%를 팝업 너비로 설정
             let windowWidth = window.innerWidth * 0.5;
+            let title = 'csv data 기반 모델 생성';
+
+            let $form = $popup.find('#dsDataForm');
+
+            if (data) {
+                title = 'csv data 기반 모델 수정';
+                FormUtil.BindDataForm(data, $form);
+            }
 
             $popup.kendoWindow({
                 width: `${windowWidth}px`,  // 가변적인 너비 설정
                 height: "auto",
-                title: 'csv파일 업로드(Data Table)',
+                title: title,
                 visible: false,
                 actions: ["Close"],
-                close: () => { /* 팝업 닫을 때 필요한 로직 */ }
+                close: function () {
+                    /* 팝업 닫을 때 필요한 로직 */
+                    // 조건 넣으면 좋을 거 같긴 한데. 만약 file_item이 null이 아니면
+                    // 업로드된 파일의 데이터를 table로 이식.
+                    // 필수 param: md_id(또는 mm_id), name, (이하 선택) type, description
+                    //_this.saveDsModel();
+
+                    // 팝업 닫을 때 destroy --> destroy하지 않으면 다시 open했을 때 file영역이 렌더링 되지 않음
+                    this.destroy();
+                }
             });
 
-            console.log("$popup", $popup);
-
-            //$popup.data("kendoWindow").center().open();
             $popup.data("kendoWindow").center().open();
 
-            // 첨부파일
-            this.upload_csv = new FileUploadPage($('#da_file_area'), {
-                placeholder: 'DRAG & DROP', // 업로드 박스 안내문
-                extensions: ['.jpg', '.png', '.xlsx', 'pdf'], // 허용 가능 확장자
-                tableName: 'test_request', // ** 변경 필요 **
-                attachName: 'attach_doc',
-                others: 'doc',
-                dataPk: 3, // ** 변경 필요 **
+            // 📌 기존 업로더 유지 (이미 존재하면 새로 생성하지 않음)
+
+            window.fileUploaderInstance = new FileUploadPage($('#da_file_area'), {
+                placeholder: '',
+                extensions: ['.csv'],       // 확장자
+                tableName: 'ds_model',      // 테이블명
+                attachName: 'attach_data',
+                others: 'ai\\learning_data',// path
+                dataPk: data? data.id : -1,               // 해당 테이블의 dataPk
                 height: '100px',
                 width: '100%',
-                maxFilesCount: 5,
-                maxFileSize: 2000, // mb 기준
-                allowedDuple: true // 중복허용
+                maxFilesCount: 1,           // 최대 파일 개수
+                maxFileSize: 2000,          // 최대 용량
+                allowedDuple: true
             });
 
-            $popup.find('#modal-close-button').kendoButton({
+            console.log(" window.fileUploaderInstance", window.fileUploaderInstance);
+
+            $popup.find('#Name').kendoTextBox();
+            $popup.find('#Type').kendoTextBox();
+            $popup.find('#Description').kendoTextArea({
+                rows: 2,
+                maxLength: 200,
+                placeholder: ""
+            });
+
+            $popup.find('#btnSaveModalData').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    Alert.confirm("",
+                        "저장하시겠습니까?",
+                        function () {
+                            const fileIds = _this.getUploadedFileIds();
+                            _this.saveDsModel($form, $popup.data("kendoWindow"), fileIds);
+                            _this.makeDbFromFile();
+                            _this.renderGrid("data_detail_grid", "ds_rows_list");
+                        },
+                        function () { }
+                    );
+                }
+            });
+
+            $popup.find('#btnCloseModal').kendoButton({
                 themeColor: "base",
                 click: function () {
                     $popup.data('kendoWindow').close();
@@ -1037,29 +1365,173 @@
             });
         }
 
+        // 업로드된 fileId 가져오기
+        getUploadedFileIds() {
+            if (window.fileUploaderInstance) {
+                // 📌 업로드된 모든 파일의 fileId를 가져옴
+                const fileIds = Object.values(window.fileUploaderInstance.fileMap).map(file => file.id);
+                console.log("업로드된 fileId 목록:", fileIds);
+                return fileIds;
+            } else {
+                console.log("파일 업로더가 초기화되지 않음");
+                return [];
+            }
+        }
+
+        getDsInfo() {
+            let _this = this;
+            let url = _this.baseUrl;
+            let param = {
+                action: 'ds_model_info',
+                md_id: _this.md_id,
+            };
+
+            let result = AjaxUtil.getSyncData(url, param);
+            return result
+        }
+
+        makeDbFromFile() {
+            let _this = this;
+            let url = _this.baseUrl;
+            let param = {
+                action: 'make_db_from_file',
+                md_id: _this.md_id,
+            };
+
+            let result = AjaxUtil.getSyncData(url, param);
+            console.log('makeDbFromFile url, param, result', url, param, result);
+            if (result.success) {
+                console.log('DB생성.');
+            }
+        }
+
         searchMainData() {
             let _this = this;
             let param = {
-                action: 'ds_master_list',
-                model_type: $('#cboModelType').val(),
+                action: 'ds_model_tree_list',
+                master_type: $('#cboModelType').val(),
                 keyword: $('#sch_keyword').val()
             };
-            AjaxUtil.getAsyncData(_this.baseUrl, param, function (result) {
-                _this.modelGrid.setData(result);
-            });
+
+            let succFunc = function (result) {
+                console.log("result", result);
+
+                //let options = {
+                //    id: 'id',
+                //    parentId: 'parent_id',
+                //    fields: {
+                //        id: { type: "number" }, // TreeGrid용 고유 ID
+                //        parent_id: { type: "number", nullable: true }, // TreeGrid용 부모 ID
+                //    }
+                //}
+
+                // table union 과정에서 id의 고유성이 보장되지 않을 수 있어서 tree용 id를 생성해줌
+                // id와 parentId가 동일하면 오류 발생
+                let options = {
+                    id: 'tree_id',
+                    parentId: 'tree_master_id',
+                    fields: {
+                        tree_id: { field: "tree_id", type:"string" }, // TreeGrid용 고유 ID
+                        tree_master_id: { field: "tree_master_id", type:"string", nullable: true }, // TreeGrid용 부모 ID
+                    }
+                }
+
+                //console.log("options", options);
+                _this.modelGrid.setTreeDataSource(result, options);
+
+                console.log("✅ 현재 DataSource 데이터 확인:", _this.modelGrid.getData());
+
+                //console.log("_this.modelGrid", _this.modelGrid);
+
+                //_this.modelGrid.grid.refresh();
+                //_this.modelGrid.grid.dataSource.read();
+
+                // _this.modelGrid.expandAll();
+                // 잡았다 요놈. 여기서 아래 에러 발생
+                //Uncaught NotFoundError: Failed to execute 'replaceChild' on 'Node': The node to be replaced is not a child of this node.
+
+            };
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+            //AjaxUtil.getAsyncData(_this.baseUrl, param, function (result) {
+            //    _this.modelGrid.setData(result);
+            //});
         }
 
-        showDetail() {
-            let data = this.modelGrid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
+        //showModelData() {
+        //    let _this = this;
+        //    let data = _this.modelGrid.getSelect();
 
-                this.md_id = selectData.id;
+        //    if (!data || data.length === 0) {
+        //        Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
+        //    } else {
+        //        let selectData = data[0];
 
-                console.log("selectData", selectData);
+        //        _this.mm_id = selectData.master_id;
+        //        _this.md_id = selectData.model_id;
 
-                this.renderGrid("data_grid", "ds_rows_list");
+        //        console.log("selectData", selectData);
+
+        //        // 현재 활성 탭이 "데이터" 탭(예: 인덱스 1)일 때만 grid rendering
+        //        let tabstrip = $("#tabstrip").data("kendoTabStrip");
+        //        let activeTabIndex = tabstrip.select().index();
+        //        if (activeTabIndex === 1) {
+        //            //_this.renderGrid("data_list_grid", "ds_data_list");
+        //            _this.renderGrid("data_detail_grid", "ds_rows_list");
+        //        }
+        //    }
+        //}
+
+        saveDsCol() {
+            let _this = this;
+
+            let url = _this.baseUrl + '?action=save_ds_col_preprocess';
+
+            let grid_data = $('#ds_col_grid2').data("kendoGrid").dataSource.data();
+            console.log('save_ds_col_preprocess grid_data', grid_data);
+
+            let data = {
+                md_id: _this.md_id,
+                Q: JSON.stringify(grid_data),
+            };
+
+            let fnSuccess = function () {
+                Notify.success('저장되었습니다');
+                _this.renderGrid("ds_col_grid2", "ds_col_list");
             }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        saveDsColXY() {
+            let _this = this;
+
+            //let _this = this;
+            let url = _this.baseUrl + '?action=save_ds_col_xy';
+
+            let grid_data = $('#settingXy_grid').data("kendoGrid").dataSource.data();
+            console.log('grid_data', grid_data);
+
+            grid_data.forEach(function (item, index) {
+                if (item.X == 'true' || item.X == 1)
+                    item.X = 1;
+                else
+                    item.X = 0;
+                if (item.Y == 'true' || item.Y == 1)
+                    item.Y = 1;
+                else
+                    item.Y = 0;
+            });
+            let data = {
+                md_id: _this.md_id,
+                Q: JSON.stringify(grid_data),
+            };
+
+            let fnSuccess = function () {
+                Notify.success('저장되었습니다');
+                _this.renderGrid("settingXy_grid", "ds_col_list");
+            }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
         }
 
         saveData() {
@@ -1073,6 +1545,30 @@
                     Alert.alert('error', resp.message);
                 }
             });
+        }
+
+        saveDsModel($form, modalContainer, fileIds) {
+            let _this = this;
+
+            let url = _this.baseUrl + '?action=save_ds_model';
+            let data = FormUtil.extractForm($form);
+            data['mm_id'] = _this.mm_id;
+            data['fileId'] = fileIds[0];
+
+            console.log('$form data', data);
+
+            if (checkForm($form) === false) return;
+
+            let fnSuccess = function () {
+                modalContainer.close();
+                Notify.success('저장되었습니다');
+                //_this.showDsDataList();
+                //_this.showModelData();
+                //_this.renderGrid("data_detail_grid", "ds_rows_list");
+                _this.searchMainData();
+            }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
         }
 
         deleteData() {
@@ -1094,7 +1590,7 @@
     let page = new DataSciencePage();
 
     $(document).ready(function () {
-        page.searchMainData();
+        //page.searchMainData();
     });
 </script>
 {% endblock %}

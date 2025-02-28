@@ -82,7 +82,7 @@ class AttachFileService():
         
         sql = '''
          update attach_file
-         set DataPk = %(DataPk)s
+         set "DataPk" = %(DataPk)s
          where id in ( %(fileId)s )
          '''
 

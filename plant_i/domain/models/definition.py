@@ -1,4 +1,4 @@
-from asyncio.windows_events import NULL
+
 from pyexpat import model
 from tabnanny import verbose
 from django.db import models
@@ -429,6 +429,25 @@ class Equipment(models.Model): #, part1_fields.ElementLevelType):
     OperationRateYN = models.CharField('가동률표시YN', max_length=1, null=True) 
     Status = models.CharField('설비상태', max_length=10, null=True, default='normal')
     loc_pk = models.SmallIntegerField('위치PK', null=True)
+    equip_category_id = models.CharField('설비분류', max_length=2, null=True)
+    up_equip_pk = models.IntegerField('상위설비PK', null=True)
+    site_id = models.IntegerField('사이트ID', null=True)
+    equip_class_path= models.CharField('설비계층경로', max_length=100, null=True)
+    equip_class_desc= models.CharField('설비계층설명', max_length=100, null=True)
+    asset_nos= models.CharField('자산번호', max_length=100, null=True)
+    warranty_dt= models.DateField('보증기간', null=True)
+    buy_cost= models.FloatField('구매가격', null=True)
+    photo_file_grp_cd= models.CharField('사진파일그룹코드', max_length=50, null=True)
+    doc_file_grp_cd= models.CharField('문서파일그룹코드', max_length=50, null=True)
+    import_rank_pk= models.IntegerField('중요도등급PK', null=True)
+    environ_equip_yn= models.CharField('환경설비여부', max_length=1, null=True)
+    ccenter_cd= models.CharField('코스트센터코드', max_length=50, null=True)
+    breakdown_dt= models.DateField('고장일', null=True)
+    del_yn= models.CharField('삭제여부', max_length=1, default='N')
+    process_cd= models.CharField('공정코드', max_length=50, null=True)
+    system_cd= models.CharField('시스템코드', max_length=50, null=True)
+    first_asset_status= models.CharField('최초자산상태', max_length=10, null=True)
+    disposed_type= models.CharField('폐기유형', max_length=10, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -519,31 +538,17 @@ class EquipCategory(models.Model):
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
+    
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
 
-    class Meta:
+    class Meta():
         db_table = 'equip_category'
-        managed = False
-
-    def __str__(self):
-        return self.equip_category_desc
-
-
-#class EquipmentProperty(AbstractAuditModel):
-#    id          = models.AutoField(primary_key=True)
-#    Code = models.CharField('Code', max_length=50, validators=[space_check])
-#    Name = models.CharField('Name', max_length=100, default='None')
-#    Owner = models.ForeignKey(Equipment, on_delete=models.CASCADE)
-#    Parent = models.ForeignKey('self', verbose_name='Parent', related_name='Children', on_delete=models.CASCADE, null=True)
-#    Value = models.TextField('Value', null=True, db_column='Value')
-#    class Meta():
-#        db_table = 'equ_pro'
-#        verbose_name = '사용자그룹'
-#        unique_together = [
-#            ('Owner', 'Code','Parent'),
-#            ('Owner', 'Name','Parent')
-#        ]
-   
-
+        verbose_name = '설비 카테고리' 
 
 class DASServer(models.Model):
     id = models.AutoField(primary_key=True)
@@ -781,7 +786,8 @@ class Material(models.Model):
     ItemType = models.CharField('품목유형', max_length=15, null=True)
     CycleTime = models.DecimalField('c/t', decimal_places=3, max_digits=10, null=True)
     in_price = models.DecimalField('입고금액',decimal_places=3, max_digits=10, null=True)
-    out_price = models.DecimalField('출고금액', decimal_places=3, max_digits=10, null=True)
+    out_price = models.DecimalField('출고금액', decimal_places=3, max_digits=10, null=True)    
+    supplier_pk = models.IntegerField('공급업체PK', null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -796,7 +802,6 @@ class Material(models.Model):
         self._modified = DateUtil.get_current_datetime()
         return
 
-
     class Meta():
         db_table = 'material'
         verbose_name = '품목정보'
@@ -804,13 +809,9 @@ class Material(models.Model):
             ['Code'],
             ['Name'],
         ]
- 
-
-'''
-데이터수집의 복잡성으로 주석처리함
 
 class EquipAlarm(models.Model):    
-    alarm_code = models.CharField('알람코드', db_column='equ_alarm_cd' , max_length=50, primary_key=True, null=False)
+    alarm_code = models.CharField('알람코드', db_column='alarm_cd' , max_length=50, primary_key=True, null=False)
     Equipment = models.ForeignKey(Equipment, db_column='Equipment_id', on_delete=models.DO_NOTHING)    
     Name = models.CharField('알람명', db_column='alarm_nm' , max_length=100)
     AlarmNumber = models.CharField('알람식별번호', db_column='alarm_num' ,max_length=50, null=True)    
@@ -838,18 +839,19 @@ class EquipAlarm(models.Model):
 
 class EquipAlarmHistory(models.Model):
     id  = models.BigAutoField(primary_key=True)
-    alarm_code =  models.CharField('알람코드', db_column='equ_alarm_cd' , max_length=50)
-    Detail = models.TextField('알람추가내용', db_column='detail', null=True)
-    DataDate = models.DateTimeField('발생일시')
+    alarm_code =  models.CharField('알람코드', db_column='alarm_cd' , max_length=50)
+    details = models.TextField('알람발생상세내용', db_column='details', null=True)
+    data_date = models.DateTimeField('발생일시')
+    _created    = models.DateTimeField('_created', auto_now_add=True)
 
     class Meta():
         db_table = 'equ_alarm_hist'
         verbose_name = '설비알람이력'
         index_together = [ 
-            ['alarm_code','DataDate'],
-            ['DataDate'],
+            ['alarm_code','data_date'],
+            ['data_date'],
         ]
-'''
+
 
 '''
 25.01.14 김하늘 BOM 관련 테이블 생성 보류(추후 SAP 데이터 조회만)

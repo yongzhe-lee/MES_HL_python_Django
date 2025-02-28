@@ -26,6 +26,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>설비코드</label>
+                            <input type="hidden" id="equ_id" name="equ_id" />
                             <input type="text" class="form-control" id="equ_code" name="equ_code" readonly>
                         </div>
                         <div class="form-group">
@@ -61,7 +62,7 @@
                     <button class="active">계획</button>
                     <button>작업 인력/자재</button>
                     <button>PM WO 목록</button>
-                </div>                
+                </div>
                 <div class="tab-content">
                     <!-- 계획 탭 컨텐츠 -->
                     <form id="pmMasterForm">
@@ -93,7 +94,6 @@
                                 <div class="form-group">
                                     <label>실행부서 <span class="required">*</span></label>
                                     <select class="form-control" id="executionDept" name="executionDept">
-                                        <option value="">선택하세요</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -113,18 +113,29 @@
                     <!-- 작업 인력/자재 탭 컨텐츠 -->
                     <div id="pmWorkerMaterialContent" class="work-content" style="display: none;">
                         <div class="work-section">
-                            <div class="section-header">
-                                <h5>작업담당자중</h5>
-                                <button class="btn btn-sm btn-primary" id="addWorker">작품 등록</button>
+                            <div class="edit-form-ui">
+                                <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                                    <div class="form-item align-h">
+                                        <label class="k-label k-form-label" for="selJobClass">작업담당직종</label>
+                                        <div class="field-wrapper">
+                                            <select id="selJobClass" name="selJobClass" class="form-control">
+                                                <option value="">직종을 선택하세요</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <button class="btn btn-sm btn-primary" id="addOccupations" name="addOccupations">직종 등록</button>
+                                </div>
                             </div>
                             <div class="grid">
-                                <table class="table">
+                                <table class="table" id="jobClassTable">
                                     <thead>
-                                        <tr>
-                                            <th>순번</th>
-                                            <th>직종 *</th>
-                                            <th>예상작업시간</th>
-                                            <th>삭제</th>
+                                        <tr style="border-top: 2px solid #343a40;">
+                                            <th width="10%">순번</th>
+                                            <th width="40%">직종 *</th>
+                                            <th width="40%">예상작업시간</th>
+                                            <th width="10%">삭제</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -139,12 +150,12 @@
                         <div class="material-section">
                             <div class="section-header">
                                 <h5>필요자재</h5>
-                                <button class="btn btn-sm btn-primary" id="addMaterial">자재선택</button>
+                                <button class="btn btn-sm btn-primary" id="selectMaterial" name="selectMaterial">자재선택</button>
                             </div>
                             <div class="grid">
                                 <table class="table">
                                     <thead>
-                                        <tr>
+                                        <tr style="border-top: 2px solid #343a40;">
                                             <th>자재코드</th>
                                             <th>자재명</th>
                                             <th>예상소요량</th>
@@ -166,7 +177,7 @@
                         <div class="grid">
                             <table class="table">
                                 <thead>
-                                    <tr>
+                                    <tr style="border-top: 2px solid #343a40;">
                                         <th>WO번호</th>
                                         <th>WO생성일</th>
                                         <th>WO상태</th>
@@ -198,71 +209,33 @@
 
         <!-- 버튼 영역 -->
         <div class="modal-footer">
-            <button type="button" class="btn btn-save" id="saveBtn">저장</button>
-            <button type="button" class="btn btn-close" id="closePmModal">닫기</button>
+            <button type="button" class="btn-save" id="saveBtn">저장</button>
+            <button type="button" class="btn-close" id="closePmModal">닫기</button>
         </div>
     </div>
 </div>
 
 <style>
-    /* 모달 스타일 */
-    .modal {
-        background: none !important; /* ✅ 배경 흐림 효과 제거 */
-        backdrop-filter: none !important; /* ✅ 블러 효과 제거 */
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
+    /* 설비선택, PM복사 버튼 스타일 */
+    .modal .btn-equipment, .btn-copy {
+        background: #1e4f88 !important;
+        color: white !important;
+        border: none !important;
     }
 
-    .modal-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        width: 95%;
-        max-width: 1400px;
-        height: 800px;
-        border-radius: 5px;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
+    .modal .btn-equipment:hover, .btn-copy:hover {
+        background-color: #2980b9;
     }
 
-    .modal-header {
-        background-color: #34495e;
+    /* 작업 등록, 자재선택, 저장, 닫기 버튼 스타일 */
+    .modal .btn-primary, #addOccupations, #selectMaterial {
+        background-color: #3498db;
+        border: none;
         color: white;
-        padding: 15px 20px;
-        margin: -20px -20px 20px -20px;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
     }
 
-        .modal-header h4 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-    .modal-body {
-        flex: 1;
-        overflow-y: auto;
-        padding: 0 20px;
-    }
-
-    .modal-footer {
-        padding: 15px 20px;
-        text-align: right;
-        border-top: 1px solid #dee2e6;
+    .modal .btn-primary:hover, #addOccupations:hover, #selectMaterial:hover {
+        background-color: #2980b9;
     }
 
     .section {
@@ -371,7 +344,6 @@
         }
 
         .table th {
-            background-color: #f8f9fa;
             font-size: 13px;
             font-weight: 600;
             color: #2c3e50;
@@ -558,36 +530,7 @@
         border-left: 1px solid #ddd;
         border-top: 1px solid #ddd;
         transform: rotate(45deg);
-    }
-
-    /* 버튼 스타일 */
-    .modal-footer .btn {
-        padding: 6px 20px;
-        font-size: 13px;
-        margin-left: 10px;
-    }
-
-    .btn-save {
-        background-color: white;
-        border: 1px solid #0d6efd;
-        color: #0d6efd;
-    }
-
-        .btn-save:hover {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-    .btn-close {
-        background-color: white;
-        border: 1px solid #6c757d;
-        color: #6c757d;
-    }
-
-        .btn-close:hover {
-            background-color: #6c757d;
-            color: white;
-        }
+    }    
 
     /* 툴팁 아이콘 스타일 */
     .tooltip-icon {
@@ -628,68 +571,6 @@
             border-top-color: #2c3e50;
             margin-bottom: -12px;
         }
-
-    /* 버튼 그룹 스타일 */
-    .button-group {
-        display: flex;
-        gap: 4px;
-    }
-
-    /* 버튼 기본 스타일 */
-    .btn {
-        padding: 6px 12px;
-        font-size: 13px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        border-radius: 4px;
-        transition: all 0.2s ease-in-out;
-    }
-
-    /* 설비선택, PM복사 버튼 스타일 */
-    .btn-equipment, .btn-copy {
-        background: #1e4f88 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-        .btn-equipment:hover, .btn-copy:hover {
-            background-color: #2980b9;
-        }
-
-    /* 작업 등록, 자재선택, 저장, 닫기 버튼 스타일 */
-    .btn-primary, .btn-save, .btn-close, #addWorker, #addMaterial {
-        background-color: #3498db;
-        border: none;
-        color: white;
-    }
-
-        .btn-primary:hover, .btn-save:hover, .btn-close:hover, #addWorker:hover, #addMaterial:hover {
-            background-color: #2980b9;
-        }
-
-    /* 버튼 그룹 스타일 */
-    .button-group {
-        display: flex;
-        gap: 4px;
-    }
-
-    /* 모달 푸터 스타일 */
-    .modal-footer {
-        padding: 15px 20px;
-        text-align: right;
-        border-top: 1px solid #dee2e6;
-    }
-
-        .modal-footer .btn {
-            margin-left: 10px;
-        }
-
-    /* 아이콘 스타일 */
-    .btn i {
-        font-size: 12px;
-    }
 
     /* 탭 스타일 */
     .nav-tabs {
@@ -750,26 +631,47 @@
         margin-bottom: 20px;
     }
 
-    #pmMasterTabs button {
-        padding: 10px 20px;
-        margin-right: 5px;
-        border: 1px solid #ddd;
-        background: #f5f5f5;
+        #pmMasterTabs button {
+            padding: 10px 20px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+            background: #f5f5f5;
+            cursor: pointer;
+        }
+
+            #pmMasterTabs button.active {
+                background: #007bff;
+                color: white;
+                border-color: #0056b3;
+            }
+
+            #pmMasterTabs button:hover {
+                background: #e9ecef;
+            }
+
+            #pmMasterTabs button.active:hover {
+                background: #0056b3;
+            }
+
+    /* 직종 테이블 관련 스타일 추가 */
+    #jobClassTable .btn-delete {
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 18px;
         cursor: pointer;
+        padding: 0 5px;
     }
 
-    #pmMasterTabs button.active {
-        background: #007bff;
-        color: white;
-        border-color: #0056b3;
-    }
+        #jobClassTable .btn-delete:hover {
+            color: #c82333;
+        }
 
-    #pmMasterTabs button:hover {
-        background: #e9ecef;
-    }
-
-    #pmMasterTabs button.active:hover {
-        background: #0056b3;
+    #jobClassTable input[type="number"] {
+        width: 100%;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
     }
 </style>
 
@@ -784,13 +686,13 @@
             this.init();
         }
 
-        init() {      
+        init() {
             let _this = this;
             const modal = $("#modalPmMaster");
 
             AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
-            AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "choose");            
-            AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);            
+            AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
+            AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);
 
             $('#selectEquipment').kendoButton({
                 themeColor: "base",
@@ -809,6 +711,24 @@
                 }
             });
 
+            $('#addOccupations').kendoButton({
+                themeColor: "base",
+                icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+                click: function (e) {
+                    e.preventDefault();
+                    $("#modalOccupations").fadeIn();
+                }
+            });
+
+            $('#selectMaterial').kendoButton({
+                themeColor: "base",
+                icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+                click: function (e) {
+                    e.preventDefault();
+                    $("#modalMaterials").fadeIn();
+                }
+            });
+
             // ESC 키 누를 때 모달 닫기
             $(document).on('keydown', (e) => {
                 if (e.keyCode === 27) { // ESC key
@@ -819,7 +739,7 @@
             $("#saveBtn").kendoButton({
                 icon: "k-i-save",
                 click: function (e) {
-                    e.preventDefault();
+                    e.preventDefault();                    
                     _this.saveData();
                 }
             });
@@ -831,17 +751,19 @@
                     modal.fadeOut();
                 }
             });
-        }       
 
-        saveData() {            
+            AjaxUtil.fillDropDownOptions($('#selJobClass'), 'job_class', 'choose', null);
+
+        }
+
+        saveData() {
             let _this = this;
             let data = FormUtil.extractForm($('#pmMasterForm'));
-            data.pm_type = $("#pmType").data("kendoDropDown").value();  // pmType 값 명시적 추가
+            data.pm_type = $("#pmType").val();  // pmType 값 명시적 추가
             data.dept_id = $("#executionDept").data("kendoDropDownTree").value();
-            data.pmManager = $("#pmManager").data("kendoDropDown").value();
-            data.equ_id = $("#equ_loc_pk").val();
+            data.pmManager = $("#pmManager").val();
+            data.equ_id = $("#equ_id").val();
             
-  
             let Name = $('#pmName').val();
             if (!Name) {
                 Alert.alert('', 'PM명을 입력해주세요.');
@@ -849,7 +771,7 @@
             }
 
             let funcSucc = function (resp) {
-                if (resp.success) {                    
+                if (resp.success) {
                     Notify.success('저장되었습니다.');
                     _this.resetData();
 
@@ -860,7 +782,7 @@
                     Alert.alert('error', resp.message);
                 }
             };
-            
+
             AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
             $("#modalPmMaster").fadeOut();
         }
@@ -886,6 +808,25 @@
         }
     }
 
+    function deleteRow(btn) {
+        const tr = $(btn).closest('tr');
+        tr.remove();
+
+        // 모든 행이 삭제되었을 때 no-data 행 추가
+        if ($('tbody tr').length === 0) {
+            $('tbody').append(`
+            <tr class="no-data">
+                <td colspan="4">조회된 데이터가 없습니다.</td>
+            </tr>
+        `);
+        }
+
+        // 순번 재정렬
+        $('tbody tr:not(.no-data)').each((index, tr) => {
+            $(tr).find('td:first').text(index + 1);
+        });
+    }
+
     pmMasterPage = new PmMaster();
     $(document).ready(function () {
         // 탭 클릭 이벤트 처리
@@ -900,7 +841,7 @@
 
             // 탭 내용 전환
             var tabName = $(this).text().trim();
-            switch(tabName) {
+            switch (tabName) {
                 case '계획':
                     $('#pmMasterForm').show();
                     break;
@@ -927,5 +868,68 @@
                 $(this).val($(this).val().substring(0, maxLength));
             }
         });
+
+        let rowCount = 0;
+
+        $('#selJobClass').on('change', function () {
+            const selectedValue = $(this).val();
+            if (!selectedValue) return;
+
+            const selectedText = $(this).find('option:selected').text();
+
+            // 이미 존재하는 직종인지 확인
+            const exists = $('#jobClassTable tbody tr').not('.no-data').toArray().some(tr =>
+                $(tr).find('td:nth-child(2)').text() === selectedText
+            );
+
+            if (exists) {
+                Alert.alert('', '이미 추가된 직종입니다.');
+                $(this).val('');
+                return;
+            }
+
+            // no-data 행 제거
+            $('#jobClassTable .no-data').remove();
+
+            // 현재 행 수 계산
+            rowCount = $('#jobClassTable tbody tr').length + 1;
+
+            const newRow = `
+                <tr data-value="${selectedValue}">
+                    <td>${rowCount}</td>
+                    <td>${selectedText}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm text-end"
+                               min="0" step="0.5" placeholder="시간 입력"/>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
+                    </td>
+                </tr>
+            `;
+
+            $('#jobClassTable tbody').append(newRow);
+            $(this).val(''); // 선택 초기화
+        });
     });
+
+    // 직종 행 삭제 함수
+    function deleteJobClassRow(btn) {
+        const tbody = $('#jobClassTable tbody');
+        $(btn).closest('tr').remove();
+
+        // 모든 행이 삭제되었을 때 no-data 행 추가
+        if (tbody.children().length === 0) {
+            tbody.append(`
+                <tr class="no-data">
+                    <td colspan="4">조회된 데이터가 없습니다.</td>
+                </tr>
+            `);
+        } else {
+            // 순번 재정렬
+            tbody.find('tr').not('.no-data').each((index, tr) => {
+                $(tr).find('td:first').text(index + 1);
+            });
+        }
+    }
 </script>

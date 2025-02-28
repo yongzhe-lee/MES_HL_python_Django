@@ -1,0 +1,257 @@
+<div id="modalOccupations" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>직종 등록</h4>
+        </div>
+        <div class="modal-body">
+            <form id="occForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>직종명 <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="occuName" name="occuName" placeholder="20자 이하로 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label>인건비(시급)</label>
+                        <input type="number" class="form-control" id="maintenanceTime" name="maintenanceTime">
+                    </div>
+                </div>
+            </form>
+            <!-- 그리드 영역 -->
+            <div class="grid-section">
+                <h4>최근 등록된 설비위치</h4>
+                <div id="occupations_grid"></div>
+            </div>
+        </div>
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="saveOccuBtn">저장</button>
+            <button type="button" class="btn-close" id="closeOccuModal">닫기</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 손자 모달 크기 조정 (데이터가 많아도 여유롭게 보이도록 확대) */
+    #modalOccupations {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 750px;
+        max-width: 95%;
+        height: 500px;
+        max-height: 85vh;     
+        z-index: 1003; /* 부모 모달보다 높은 값 */
+        background: none !important;  /* 배경 완전 제거 */
+        box-shadow: none !important;  /* 바깥쪽 그림자 완전 제거 */
+        border: none !important;      /* 테두리 제거 */
+        overflow: hidden !important; /* 모달 전체의 스크롤바 제거 */
+    }
+
+    /* 손자 모달 내부 컨텐츠 */
+    #modalOccupations .modal-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;  /* 모달 컨텐츠에만 그림자 효과 적용 */
+        background-color: white !important;  /* 컨텐츠 영역만 흰색 배경 유지 */
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        overflow: hidden !important;
+    }
+
+    /* 모달 배경 오버레이(어두운 부분) 제거 */
+    .modal-backdrop {
+        display: none !important;
+        background: none !important;
+        opacity: 0 !important;  /* 완전히 투명하게 설정 */
+    }   
+
+    /* 입력 필드 정렬 */
+    #modalOccupations .form-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    #modalOccupations .form-group {
+        flex: 1;
+    }
+
+    /* 라벨 스타일 */
+    #modalOccupations label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* 필수 입력 항목 강조 */
+    #modalOccupations .required {
+        color: #e74c3c;
+        font-weight: bold;
+        margin-left: 3px;
+    }
+
+    /* 입력 필드 스타일 */
+    #modalOccupations .form-control {
+        font-size: 14px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+    }
+
+    /* 테이블 스타일 */
+    #modalOccupations .grid-section {
+        margin-top: 20px;
+        flex: 1;
+        overflow: hidden !important;
+        height: calc(100% - 100px); /* 상단 폼 영역을 제외한 나머지 높이 */
+    }
+
+    #occupations_grid {
+        height: auto !important;
+        overflow-y: hidden !important; /* 내부 스크롤 제거 */
+    }
+
+        #occupations_grid th,
+        #occupations_grid td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        #occupations_grid th {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+    /* 모달 하단 버튼 영역 */
+    #modalOccupations .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    #modalOccupations .modal-body {
+        overflow-y: hidden !important; /* 스크롤 제거 */
+    }
+
+</style>
+
+<script type="text/javascript">
+    class OccuMaster {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/kmms/job_class';
+            this.modal = $("#modalOccupations"); // 모달 변수 저장
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            // ✅ Kendo UI 없이 일반 jQuery click 이벤트로 닫기 버튼 제어
+            $("#closeOccuModal").off("click").on("click", function () {
+                console.log("닫기 버튼 클릭됨!"); // 디버깅 로그 확인
+                _this.modal.fadeOut();
+            });
+
+            // ✅ Kendo Grid 초기화 (유지)
+            this.grid = $("#occupations_grid").kendoGrid({
+                columns: [
+                    { field: 'job_class_nm', title: '직종명', width: 150 },
+                    { field: 'wage_cost', title: '인건비(시급)', width: 100 },
+                ],
+                selectable: true,
+                scrollable: false, // ✅ 스크롤 제거
+                dataSource: {
+                    transport: {
+                        read: function (options) {
+                            $.ajax({
+                                url: "/api/kmms/job_class?action=read",
+                                type: "GET",
+                                success: function (result) {
+                                    options.success(result);
+                                }
+                            });
+                        }
+                    }
+                }
+            }).data("kendoGrid");
+
+            // ✅ 저장 버튼 이벤트
+            $("#saveOccuBtn").kendoButton({                
+                icon: "k-i-save",
+                click: function (e) {                    
+                    e.preventDefault();
+                    _this.saveData();
+                }
+            });
+
+            // ✅ ESC 키 입력 시 모달 닫기
+            $(document).off("keydown").on("keydown", function (e) {
+                if (e.keyCode === 27 && _this.modal.is(":visible")) {
+                    console.log("ESC 키 입력됨!"); // 디버깅 로그 확인
+                    _this.modal.fadeOut();
+                }
+            });
+
+            // ✅ 모달 외부 클릭 시 닫기
+            $(document).off("click").on("click", function (e) {
+                if (!$(e.target).closest(".modal-content").length && _this.modal.is(":visible")) {
+                    console.log("모달 외부 클릭됨!"); // 디버깅 로그 확인
+                    _this.modal.fadeOut();
+                }
+            });
+        }
+
+        saveData() {
+            let _this = this;      
+            let data = FormUtil.extractForm($('#occForm'));        
+ 
+            let Name = $('#occuName').val();
+            if (!Name) {
+                Alert.alert('', '직종명을 입력해주세요.');
+                return;
+            }
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('저장되었습니다.');
+                    _this.resetData();
+                    // ✅ 최신 데이터 갱신 (occupations_grid 리프레시)
+                    _this.refreshOccupationsGrid(); 
+
+                    // 부모 페이지의 그리드 갱신
+                    page.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+            _this.modal.fadeOut();
+        }
+
+        refreshOccupationsGrid() {
+            this.grid.dataSource.read(); // ✅ 최신 데이터 불러오기
+            this.grid.refresh(); // ✅ 화면 갱신
+        }
+
+        resetData() {
+            FormUtil.resetForm($('#occForm'));
+        }
+    }
+
+    // ✅ 인스턴스 생성 (이제 $(document).ready() 필요 없음!)
+    let occuMaster = new OccuMaster();
+
+</script>

@@ -12,8 +12,7 @@
                 <div class="search-label">검색키워드</div>
                 <input type="text" class="form-control" id="keyword_equ" name="keyword_equ" placeholder="설비코드, 설비명, 자산번호 입력">
                 <div class="search-label">관리부서</div>
-                <select class="form-control" id="srch_dept" name="srch_dept">
-                    <option value="">선택하세요</option>
+                <select class="form-control" id="srch_equ_dept" name="srch_dept">                    
                 </select>
                 <button type="button" class="btn-search" id="btnSearchEqu" name="btnSearchEqu">검색</button>
             </div>   
@@ -28,9 +27,9 @@
                     <input type="hidden" id="selectedEquPK" name="selectedEquPK">
                     <input type="text" id="selectedEquName" name="selectedEquName" readonly>           
                 </div>
-                <div class="button-group">
-                    <button type="button" class="btn-confirm" id="btnConfirmEqu">확인</button>
-                    <button type="button" class="btn-cancel" id="btnCancelEqu">취소</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn-save" id="btnConfirmEqu">확인</button>
+                    <button type="button" class="btn-close" id="btnCancelEqu">취소</button>
                 </div>
             </div>
         </div>
@@ -50,7 +49,9 @@
         position: absolute; /* ✅ fixed → absolute 변경 */
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
+        /* transform: translate(-50%, -50%); *//* transform 사용하면 흐릿하게 보임 */
+        margin-top: -42.5vh; /* 전체 높이의 절반 */
+        margin-left: -450px; /* 전체 너비의 절반 */
         width: 900px;
         max-width: 95%;
         background: #fff;
@@ -102,49 +103,30 @@
     }
 
     /* 검색 영역 스타일 */
-    .search-area {
+    #modalEqu .search-area {
         display: flex;
         align-items: center;
         gap: 8px;
         margin-bottom: 10px;
+        padding: 10px;
     }
 
-    .search-label {
+    #modalEqu .search-label {
         font-size: 13px;
         color: #333;
         white-space: nowrap;
+        min-width: 70px;
     }
 
-    .search-area input,
-    .search-area select {
+    #modalEqu .search-area input,
+    #modalEqu .search-area select {
         height: 28px;
         border: 1px solid #ccc;
         padding: 0 8px;
     }
 
-    .search-area input {
-        flex: 2;
-    }
-
-    .search-area select {
-        flex: 1;
-    }
-
-    .bottom-area {
-        flex-shrink: 0; /* ✅ 버튼이 밀려 내려가지 않도록 설정 */
-        padding: 10px;
-        background: white;
-        display: flex;
-        justify-content: space-between; /* ✅ 좌우 정렬 */
-        align-items: center;
-    }
-
-    .button-group {
-        display: flex;
-        justify-content: flex-end;
-        gap: 4px;
-        margin: 0 !important;
-        padding: 0 !important;
+    #modalEqu .search-area input {
+        width: 350px;
     }
 
     .selected-equipment {
@@ -165,21 +147,6 @@
         border: 1px solid #ccc;
         padding: 0 8px;
         background-color: #f5f5f5;
-    }
-
-    .button-group {
-        display: flex;
-        justify-content: flex-end;
-        gap: 4px;
-        margin: 0 !important; /* ✅ 버튼 아래쪽 여백 완전히 제거 */
-        padding: 0 !important; /* ✅ 내부 패딩 제거 */
-    }
-
-    .button-group button {
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        background: white;
-        cursor: pointer;
     }
 
     .btn-confirm {
@@ -286,6 +253,9 @@
                     this.getEquData();
                 }
             });
+
+            AjaxUtil.fillDropDownTreeOptions($("#srch_equ_dept"), "depart", "select");  
+            
         }
 
 
@@ -294,7 +264,7 @@
             let param = {
                 action: 'read_modal',    
                 keyword: $('#keyword_equ').val(),
-                depart_id: $('#srch_dept').val(),
+                depart_id: $('#srch_equ_dept').data("kendoDropDownTree").value(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);

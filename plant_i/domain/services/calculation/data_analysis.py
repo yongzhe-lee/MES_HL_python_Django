@@ -51,7 +51,7 @@ class DaService(object):
             col_data = df[column]
             for i in range(row_count):
                 data = col_data[i]
-                dt = DsDataTable()
+                dt = DsModelData()
                 dt.DsData_id = self.data_pk
                 dt.Type = str(i)
                 dt.Code = column
@@ -65,34 +65,40 @@ class DaService(object):
     def read_csv2(self):
         ''' 첨부된 csv 파일 읽고 DsDataTable에 저장. df 리턴
         '''
-        dd_id = self.data_pk
+        md_id = self.data_pk
 
-        sql = ''' select id
-        , "TableName"
-        , "DataPk"
-        , "AttachName"
-        , "FileIndex"
-        , "FileName"
-        , "PhysicFileName"
-        , "ExtName"
-        , "FilePath"
-        , "_created"
-        , "FileSize"
-        from attach_file 
-        where "TableName" = %(table_name)s
-        and "DataPk" = %(data_pk)s
-        order by id desc 
+        sql = ''' 
+        SELECT 
+            id
+            , "TableName"
+            , "DataPk"
+            , "AttachName"
+            , "FileIndex"
+            , "FileName"
+            , "PhysicFileName"
+            , "ExtName"
+            , "FilePath"
+            , "_created"
+            , "FileSize"
+        FROM attach_file 
+        WHERE "TableName" = %(table_name)s
+        AND "DataPk" = %(data_pk)s
+        ORDER BY id DESC 
         '''
         dc = {}
         dc['table_name'] = self.table_name
-        dc['data_pk'] = dd_id
+        dc['data_pk'] = md_id
         row = DbUtil.get_row(sql, dc)
         if not row:
             return
 
         PhysicFileName = row.get('PhysicFileName')
         #FileName = row.get('FileName')
-        file_name = settings.FILE_UPLOAD_PATH + 'ds_data\\' + PhysicFileName
+
+        # 25.02.21 김하늘 수정
+        # file_name = settings.FILE_UPLOAD_PATH + 'ds_data\\' + PhysicFileName
+        file_name = settings.FILE_UPLOAD_PATH + 'ai\\learning_data\\' + PhysicFileName
+
         df = pd.read_csv(file_name)
         #dcData = df.to_dict()
 
@@ -107,25 +113,43 @@ class DaService(object):
 
         row_count = df.shape[0]
         for column in df.columns:
-            sql = ''' select 1 from ds_col where "DsData_id" = 4
-            and "VarName" = %(code)s
+            sql = ''' SELECT 1 FROM ds_model_col WHERE "DsModel_id" = %(md_id)s
+            AND "VarName" = %(code)s
             '''
             dc = {}
+            dc['md_id'] = md_id
             dc['code'] = column
             row = DbUtil.get_row(sql, dc)
             if row:
                 continue
 
             col_data = df[column]
+            # 기존에 있는 데이터 조회
+            existing_rows = set(DsModelData.objects.filter(DsModel_id=md_id).values_list('RowIndex', 'Code'))
+
             for i in range(row_count):
                 data = col_data[i]
-                dt = DsDataTable()
-                dt.DsData_id = dd_id
+                if (i, column) in existing_rows:
+                    continue  # 이미 있는 경우 건너뛰기
+
+                dt = DsModelData()
+                dt.DsModel_id = md_id
                 dt.RowIndex = i
                 dt.Code = column
                 dt.Char1 = data
                 dt.Number1 = CommonUtil.try_float(data)
                 dt.save()
+
+            # for i in range(row_count):
+            #     data = col_data[i]
+            #     dt = DsModelData()
+            #     dt.DsModel_id = md_id
+            #     dt.RowIndex = i
+            #     dt.Code = column
+            #     dt.Char1 = data
+            #     dt.Number1 = CommonUtil.try_float(data)
+            #     dt.save()
+
         return df
 
     def read_table_data(self):
@@ -138,12 +162,17 @@ class DaService(object):
         #    df = pd.DataFrame(dcData)
         #return df
 
-        sql = ''' select "RowIndex", "Code", "Number1", "Char1"
-        , count(*) over (partition by "RowIndex") as g_cnt
-        , row_number() over (partition by "RowIndex" order by id) as g_idx
-        from ds_data_table
-        where "DsData_id" = %(data_pk)s
-        order by "RowIndex"
+        sql = ''' 
+        SELECT 
+            "RowIndex"
+            , "Code"
+            , "Number1"
+            , "Char1"
+            , COUNT(*) OVER (PARTITION BY "RowIndex") AS g_cnt
+            , ROW_NUMBER() OVER (PARTITION BY "RowIndex" ORDER BY id) AS g_idx
+        FROM ds_model_data
+        WHERE "DsModel_id" = %(data_pk)s
+        ORDER BY "RowIndex"
         '''
         dc = {}
         dc['table_name'] = self.table_name
@@ -173,10 +202,10 @@ class DaService(object):
         return df
 
     def make_col_info(self, df):
-        dd_id = self.data_pk
+        md_id = self.data_pk
         row_count = df.shape[0]
 
-        q = DsColumn.objects.filter(DsData_id=dd_id)
+        q = DsModelColumn.objects.filter(DsModel_id=md_id)
         q.delete()
 
         try:
@@ -185,49 +214,29 @@ class DaService(object):
                 col = df[key]
                 MissingCount = row_count - col.count()
 
-                dc = DsColumn()
-                dc.DsData_id = dd_id
+                dc = DsModelColumn()
+                dc.DsModel_id = md_id
                 dc.VarIndex = index
                 dc.VarName = key
                 dc.DataCount = row_count
                 dc.MissingCount = MissingCount
-                min, max, median, std = None, None, None, None
+                min, max, median, mean, std = None, None, None, None, None
                 Q1, Q2, Q3 = None, None, None
+
+                # NaN을 None으로 변환하는 함수
+                def safe_value(value):
+                    return None if pd.isna(value) else value
 
                 dtype = str(dtypes[key])
 
                 if dtype in ['int64', 'float64']:
-                    try:
-                        max = col.max()
-                    except:
-                        max = None
-                    try:
-                        min = col.min()
-                    except:
-                        min = None
-                    try:
-                        median = col.median()
-                    except:
-                        median = None
-                    try:
-                        mean = col.mean()
-                    except:
-                        mean = None
-                    try:
-                        std = col.std()
-                    except:
-                        std = None
-                    #skew = col.skew()
-                    #mad = col.mad()
-                    try:
-                        Q1 = col.quantile(0.25)
-                    except:
-                        Q1 = None
-                    try:
-                        Q3 = col.quantile(0.75)
-                    except:
-                        Q3 = None
-                    dc.Mean = CommonUtil.try_float( mean )
+                    median = safe_value(col.median())
+                    mean = safe_value(col.mean())
+                    std = safe_value(col.std())
+                    Q1 = safe_value(col.quantile(0.25))
+                    Q3 = safe_value(col.quantile(0.75))
+
+                    dc.Mean = CommonUtil.try_float(mean)
                     dc.Std = CommonUtil.try_float(std)
                     dc.Q1 = CommonUtil.try_float(Q1)
                     dc.Q2 = CommonUtil.try_float(median)

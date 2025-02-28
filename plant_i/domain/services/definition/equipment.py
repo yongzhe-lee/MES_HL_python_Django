@@ -240,6 +240,7 @@ class EquipmentService():
             , e."environ_equip_yn"
             , e."loc_pk"
             , loc."loc_nm"
+            , e."Depart_id"
             , e."EquipmentGroup_id"
             , eg."Name" as group_name
             , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created        

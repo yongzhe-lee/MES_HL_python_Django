@@ -523,7 +523,7 @@
                 });
                 $('#DisposalDate').kendoDatePicker({ format: 'yyyy-MM-dd' });
                 $('#Manager').kendoTextBox();
-                AjaxUtil.fillDropDownTreeOptions($('#Depart_id'), 'depart', 'choose'); // 관리부서 드롭다운                
+                AjaxUtil.fillDropDownTreeOptions($('#Depart_id'), 'depart', 'select'); // 관리부서 드롭다운                
                 $('#Usage').kendoTextBox(); // 용도
                 $('#Standard').kendoTextBox(); // 규격
                 $('#AssetYN').kendoSwitch({
@@ -618,8 +618,7 @@
                         _this.resetData();
                     }
                 });
-                $('#btnSave').kendoButton({
-                    icon: "k-i-save",
+                $('#btnSave').kendoButton({                    
                     themeColor: "info",
                     click: function () {
                         _this.saveData();
@@ -690,6 +689,8 @@
             resetData() {
                 let _this = this;
                 $("#equipment_grid").data('kendoGrid').refresh();
+                $("#Depart_id").data('kendoDropDownTree').value('select');
+                
                 FormUtil.resetForm($('#equipmentForm'));
             }
 
@@ -708,12 +709,15 @@
                 let data = FormUtil.extractForm($('#equipmentForm'));
                 data.OperationRateYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
                 data.AssetYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
+          
+                let departDropDown = $("#Depart_id").data("kendoDropDownTree");
+                data.Depart_id = departDropDown.value();                
 
                 let Code = $('#Code').val();
                 let Name = $('#Name').val();
                 let loc_pk = $('#loc_pk').val();
-                let Depart_id = $('#Depart_id').val();
-
+                let Depart_id = data.Depart_id;
+                
                 if (!Code) {
                     Alert.alert('', '설비코드를 입력해주세요.');
                     return;

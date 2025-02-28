@@ -39,7 +39,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\forms.py" />
-    <Compile Include="app\routes.py" />
+    <Compile Include="app\startup\mqtt.py" />
+    <Compile Include="app\startup\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\aas\aasgui.py">
       <SubType>Code</SubType>
     </Compile>
@@ -65,6 +68,9 @@
     <Compile Include="app\views\definition\bom.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
+    <Compile Include="app\views\kmms\job_class.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\kmms\pi_master.py" />
     <Compile Include="app\views\kmms\wo_master.py" />
     <Compile Include="app\views\kmms\pm_master.py" />
@@ -85,9 +91,13 @@
     <Compile Include="app\views\definition\calendar.py" />
     <Compile Include="app\views\definition\notice.py" />
     <Compile Include="app\views\definition\code.py" />
+    <Compile Include="domain\services\das\protocol\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\definition\board.py" />
     <Compile Include="domain\services\definition\bom.py" />
     <Compile Include="domain\services\definition\defect_type.py" />
+    <Compile Include="domain\services\definition\material.py" />
     <Compile Include="domain\services\definition\meeting_calendar.py" />
     <Compile Include="app\tests.py" />
     <Compile Include="app\views\account.py" />
@@ -189,9 +199,11 @@
     <Compile Include="domain\services\file\attach_file.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="domain\services\kmms\pi_master.py" />
     <Compile Include="domain\services\kmms\pm_master.py" />
     <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
+    <Compile Include="domain\services\mqtt.py" />
     <Compile Include="domain\services\setup\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -207,6 +219,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="app\startup\" />
     <Folder Include="app\static\app\js\" />
     <Folder Include="app\static\css\webfonts\" />
     <Folder Include="app\static\resource\apexcharts\" />
@@ -240,7 +253,6 @@
     <Folder Include="app\templates\definition\" />
     <Folder Include="app\templates\kmms\" />
     <Folder Include="app\templates\kmms\check\" />
-    <Folder Include="app\templates\kmms\pi\" />
     <Folder Include="app\templates\kmms\wo\" />
     <Folder Include="app\templates\kmms\pm\" />
     <Folder Include="app\templates\ai\" />
@@ -285,6 +297,7 @@
     <Folder Include="domain\" />
     <Folder Include="domain\migrations\" />
     <Folder Include="domain\models\" />
+    <Folder Include="domain\services\das\protocol\" />
     <Folder Include="domain\services\definition\" />
     <Folder Include="domain\services\file\" />
     <Folder Include="domain\services\das\" />
@@ -342,7 +355,6 @@
     <Content Include="app\static\img\error_403.png" />
     <Content Include="app\static\img\error_404.png" />
     <Content Include="app\static\img\error_500.png" />
-    <Content Include="app\static\img\error_bottom_img.png" />
     <Content Include="app\static\img\favicon.ico" />
     <Content Include="app\static\img\favicon_24.ico" />
     <Content Include="app\static\img\klemove_ci.png" />
@@ -899,11 +911,12 @@
     <Content Include="app\templates\kmms\wo\work_order_approval.html" />
     <Content Include="app\templates\kmms\wo\post_work_management.html" />
     <Content Include="app\templates\kmms\wo\my_work_request.html" />
+    <Content Include="app\templates\popup\modalMaterials.html" />
     <Content Include="app\templates\popup\modalPmCopy.html" />
     <Content Include="app\templates\popup\modalEqu.html" />
     <Content Include="app\templates\popup\modalEquDeptHist.html" />
+    <Content Include="app\templates\popup\modalOccupations.html" />
     <Content Include="app\templates\popup\modalPmMaster.html" />
-    <Content Include="app\templates\popup\pm_master.html" />
     <Content Include="app\templates\popup\modalEquLocHist.html" />
     <Content Include="app\templates\popup\modalEquLoc.html" />
     <Content Include="app\templates\system_code\code.html" />

@@ -1,7 +1,8 @@
 from django.db import transaction
 from domain.models.definition import Equipment
+from domain.models.user import Depart
 from domain.services.sql import DbUtil
-from domain.models.kmms import PreventiveMaintenace
+from domain.models.kmms import PreventiveMaintenace, User
 from domain.services.kmms.pm_master import PMService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
@@ -28,10 +29,15 @@ def pm_master(context):
         equDept = gparam.get('equDept', None)
         equLoc = gparam.get('equLoc', None)
         pmDept = gparam.get('pmDept', None)
+        pmType = gparam.get('pmType', None)
+        applyYn = gparam.get('applyYn', None)
+        periodUnit = gparam.get('periodUnit', None)
+        sDay = gparam.get('sDay', None)
+        eday = gparam.get('eday', None)
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
         isLegal = gparam.get('isLegal', None)
         
-        items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, isMyTask, isLegal)
+        items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, periodUnit, sDay, eday, isMyTask, isLegal)
 
     elif action=='detail':
         id = gparam.get('id', None)
@@ -69,12 +75,15 @@ def pm_master(context):
             pm.Name = posparam.get('pmName')
             pm.PMType = posparam.get('pmType')
             pm.WorkText = posparam.get('work_text')
-            pm.maintenanceTime = posparam.get('maintenanceTime')
-            pm.dept_id = posparam.get('dept_id')
-            pm.pm_user_id = posparam.get('pmManager')            
-            # pm.equ_id = int(posparam.get('equ_id', 0))  # 기본값 0을 설정하여 NULL 방지
+            
+            maintenance_time = posparam.get('maintenanceTime')
+            if maintenance_time:
+                pm.WorkExpectHour = int(maintenance_time)  # 숫자형으로 변환
+            else:
+                pm.WorkExpectHour = None  # 기본값 설정
 
-            # 파라미터 가져오기
+            dept_id = posparam.get('dept_id')
+            pm_user_id = posparam.get('pmManager')
             equ_id = posparam.get('equ_id')
     
             # 설비 필수값 체크
@@ -82,6 +91,24 @@ def pm_master(context):
                 return JsonResponse({
                     'result': False,
                     'message': '설비를 선택해주세요.'
+                })
+
+            # Depart 객체 가져오기
+            try:
+                depart = Depart.objects.get(id=dept_id)
+            except Depart.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'Depart with id {dept_id} does not exist.'
+                })
+
+            # User 객체 가져오기
+            try:
+                user_id = User.objects.get(id=pm_user_id)
+            except User.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'User with id {pm_user_id} does not exist.'
                 })
 
             # Equipment 객체 가져오기
@@ -93,6 +120,8 @@ def pm_master(context):
                     'message': f'Equipment with id {equ_id} does not exist.'
                 })
 
+            pm.Depart = depart
+            pm.PMUser= user_id
             pm.Equipment = equipment
 
             pm.UseYN = 'Y'
@@ -140,3 +169,4 @@ def generate_pm_number():
     
     pm_no = f"{prefix}{new_sequence}"
     return pm_no
+

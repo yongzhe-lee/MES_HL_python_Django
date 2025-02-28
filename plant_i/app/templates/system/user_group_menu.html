@@ -1,8 +1,6 @@
 {% extends "app/layout.html" %}
 
 {% block css %}
-<style>
-</style>
 {% endblock %}
 
 {% block content %}
@@ -202,17 +200,36 @@
             //데이터입력체크루틴 누락
             //_this.grid.sel
 
-            Alert.confirm('', '저장하시겠습니까?', function () {
-                let fnSuccess = function (res) {
-                    Notify.success('저장되었습니다'); // Notification
-                    _this.searchMainData();
+            //Alert.confirm('', '저장하시겠습니까?', function () {
+            //    let fnSuccess = function (res) {
+            //        Notify.success('저장되었습니다'); // Notification
+            //        _this.searchMainData();
 
-                    // 헤더 체크박스 상태 리셋
-                    $('#r_all_check').prop('checked', false);
-                    $('#w_all_check').prop('checked', false);                    
-                };
-                AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, fnSuccess);
-            }, function () { });
+            //        // 헤더 체크박스 상태 리셋
+            //        $('#r_all_check').prop('checked', false);
+            //        $('#w_all_check').prop('checked', false);                    
+            //    };
+            //    AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, fnSuccess);
+            //}, function () { });
+
+            $("<div>저장하시겠습니까?</div>").kendoDialog({
+                width: "300px",
+                title: false,
+                closable: false,
+                modal: true,
+                actions: [
+                    { text: 'OK', primary: true, action: function() {
+                        let fnSuccess = function (res) {
+                            Notify.success('저장되었습니다');
+                            _this.searchMainData();
+                            $('#r_all_check').prop('checked', false);
+                            $('#w_all_check').prop('checked', false);
+                        };
+                        AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, fnSuccess);
+                    }},
+                    { text: 'Cancel' }
+                ],                
+            }).data("kendoDialog").open();
         }
     };
 

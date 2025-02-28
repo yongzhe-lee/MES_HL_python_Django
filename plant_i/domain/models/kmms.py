@@ -105,8 +105,8 @@ class PreventiveMaintenace(models.Model):
     Name = models.CharField('PM명', db_column='pm_name', max_length=100)
     PMSortNo = models.SmallIntegerField("PM번호소팅", db_column='pm_sort_no', null=True)
     Equipment = models.ForeignKey(Equipment, db_column='equ_id', on_delete=models.DO_NOTHING)
-    Depart =  models.ForeignKey(Depart, db_column='dept_id', on_delete=models.DO_NOTHING, null=True)
-    PMUser = models.ForeignKey(User, db_column='pm_user_id',  on_delete=models.DO_NOTHING, null=True)
+    Depart =  models.ForeignKey(Depart, db_column='dept_id', on_delete=models.DO_NOTHING)
+    PMUser = models.ForeignKey(User, db_column='pm_user_id',  on_delete=models.DO_NOTHING)
     CycleType = models.CharField('주기단위', db_column='cycle_type' , max_length=100, null=True)
     CyclePerNumber = models.IntegerField('PM주기별번호', db_column='per_number', null=True)
     ScheduleStartDate = models.DateField('주기시작일', db_column='sch_start_dt', null=True)
@@ -266,8 +266,17 @@ class CheckMaster(models.Model):
             ['check_no']
         ]
 
-    
+class CheckEquip(models.Model):
+    '''
+    점검별 설비
+    '''
+    chk_mast_pk = models.OneToOneField(CheckMaster, primary_key=True, db_column='chk_mast_pk', on_delete=models.DO_NOTHING, help_text="점검 마스터 기본키 (CheckMaster와 1:1 관계)")
+    Equipment = models.ForeignKey(Equipment, db_column='equip_pk', on_delete=models.DO_NOTHING,help_text="설비 기본키 (Equipment와 N:1 관계)")
 
+    class Meta:
+        db_table = 'chk_equip'
+        verbose_name = '점검별 설비'
+        verbose_name_plural = '점검별 설비 매칭테이블'
 
 class CheckItem(models.Model):
     '''
