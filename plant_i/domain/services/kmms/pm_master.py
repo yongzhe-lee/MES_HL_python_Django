@@ -7,32 +7,32 @@ class PMService():
     def __init__(self):
         return
 
-    def get_pm_master_list(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, periodUnit, sDay, eday, isMyTask, isLegal):
+    def get_pm_master_list(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal):
         items = []
-        dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'pmType': pmType,'applyYn': applyYn,'periodUnit': periodUnit,'sDay': sDay,'eday': eday,'isMyTask': isMyTask,'isLegal': isLegal}
+        dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'pmType': pmType,'applyYn': applyYn,'cycleType': cycleType,'sDay': sDay,'eday': eday,'isMyTask': isMyTask,'isLegal': isLegal}
 
         sql = ''' 
          SELECT 
                a.pm_pk
              , a.pm_no , a.pm_name 
-             , e.id as equ_id
-             , e."Code" as equ_code, e."Name" as equ_name
-             , e.import_rank_pk
-             , e."Depart_id" as mng_dept_id
-             , mng."Name" as manage_dept
-             , exc.id
-             , exc."Name" as exec_dept 
+             , ve.equ_id
+             , ve.equ_code, ve.equ_name
+             , ve.import_rank_pk
+             , ve.mng_dept_id
+             , ve.mng_dept_nm
+             , d.id
+             , d."Name" as exec_dept 
+             , ve.loc_id
              , l.loc_nm as equ_location
              , au.id as pm_manager
              , a.pm_type 
              , a.cycle_type 
          FROM pm a
- 	        inner join equ e on a.equ_id = e.id 
- 	        inner join dept mng on e."Depart_id"  = mng.id
- 	        inner join dept exc on a.dept_id  = exc.id 	     
+ 	        inner join v_equipment ve on a.equ_id = ve.equ_id        
+ 	        inner join dept d on a.dept_id  = d.id 	     
             inner join auth_user au on a.pm_user_id  = au.id  	
- 	        left join "location" l on e.loc_pk = l.id  	        
-         WHERE 1 = 1 
+ 	        inner join "location" l on ve.loc_id = l.id  	        
+         WHERE 1 = 1
         '''
         if keyword:
             sql += ''' 
@@ -40,30 +40,29 @@ class PMService():
             '''
         if equDept:
             sql += ''' 
-            AND mng.id = %(equDept)s
+            AND ve.mng_dept_id = %(equDept)s
             '''
         if equLoc:
             sql += ''' 
-            AND l.id = %(equLoc)s
+            AND ve.loc_id = %(equLoc)s
             '''
         if pmDept:
             sql += ''' 
-            AND exc.id = %(pmDept)s
+            AND a.dept_id = %(pmDept)s
             '''
-        # if pmType:
-        #     sql += ''' 
-        #     AND exc.id = %(pmType)s
-        #     '''
+        if pmType:
+            sql += ''' 
+            AND a.pm_type = %(pmType)s
+            '''
+        if applyYn:
+            sql += ''' 
+            AND a.use_yn = %(applyYn)s
+            '''
 
-        # if applyYn:
-        #     sql += ''' 
-        #     AND exc.id = %(applyYn)s
-        #     '''
-
-        # if periodUnit:
-        #     sql += ''' 
-        #     AND exc.id = %(periodUnit)s
-        #     '''
+        if cycleType:
+            sql += ''' 
+            AND a.cycle_type = %(cycleType)s
+            '''
 
         # if sDay:
         #     sql += ''' 
@@ -81,7 +80,7 @@ class PMService():
             '''
         if isLegal:
             sql += ''' 
-            AND e."environ_equip_yn" = %(isLegal)s
+            AND ve."environ_equip_yn" = %(isLegal)s
             '''
         sql += ''' 
             ORDER BY a.pm_no

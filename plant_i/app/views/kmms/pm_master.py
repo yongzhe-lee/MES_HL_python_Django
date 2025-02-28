@@ -31,13 +31,13 @@ def pm_master(context):
         pmDept = gparam.get('pmDept', None)
         pmType = gparam.get('pmType', None)
         applyYn = gparam.get('applyYn', None)
-        periodUnit = gparam.get('periodUnit', None)
+        cycleType = gparam.get('cycleType', None)
         sDay = gparam.get('sDay', None)
         eday = gparam.get('eday', None)
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
         isLegal = gparam.get('isLegal', None)
         
-        items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, periodUnit, sDay, eday, isMyTask, isLegal)
+        items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
 
     elif action=='detail':
         id = gparam.get('id', None)

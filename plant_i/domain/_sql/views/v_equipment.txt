@@ -1,0 +1,18 @@
+-- 설비뷰, (위치, 부서포함)
+
+CREATE OR REPLACE VIEW public.v_equipment
+AS SELECT e.id AS equ_id,
+    e."Code" AS equ_code,
+    e."Name" AS equ_name,
+    e.import_rank_pk,
+    e.del_yn,
+    e.environ_equip_yn,
+    e."AssetYN",
+    e."Depart_id" AS mng_dept_id,
+    mng."Name" AS mng_dept_nm,
+    e.loc_pk AS loc_id,
+    l.loc_nm
+   FROM equ e
+     JOIN dept mng ON e."Depart_id" = mng.id
+     JOIN location l ON e.loc_pk = l.id
+  WHERE e.del_yn::text = 'N'::text;

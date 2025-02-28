@@ -70,7 +70,7 @@
                         <div class="plan-content">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>PM 번호 <span class="required">*</span></label>
+                                    <label>PM번호</label>
                                     <input type="text" class="form-control" id="pmNumber" name="pmNumber" placeholder="PM번호는 자동으로 생성됩니다" readonly>
                                 </div>
                                 <div class="form-group">
@@ -78,16 +78,47 @@
                                     <input type="text" class="form-control" id="pmName" name="pmName" placeholder="100자 이하로 입력하세요">
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>PM유형 <span class="required">*</span></label>
-                                    <select class="form-control" id="pmType" name="pmType">
-                                        <option value="">PM유형을 선택하세요</option>
-                                    </select>
+                            <div class="form-row" style="display: flex; width: 100%;">
+                                <!-- 왼쪽 고정 영역 -->
+                                <div style="display: flex; gap: 20px; width: 350px; min-width: 350px;">
+                                    <div class="form-group" style="width: 200px; min-width: 200px;">
+                                        <label>PM유형 <span class="required">*</span></label>
+                                        <select class="form-control" id="pmType" name="pmType">
+                                            <option value="">PM유형을 선택하세요</option>
+                                            <option value="TBM">TBM</option>
+                                            <option value="CBM">CBM</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="width: 120px; min-width: 120px;">
+                                        <label style="white-space: nowrap;">정비소요시간(시)</label>
+                                        <input type="number" class="form-control" id="maintenanceTime" name="maintenanceTime" style="text-align: right; padding-right: 20px;" />
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>정비소요시간(시)</label>
-                                    <input type="number" class="form-control" id="maintenanceTime" name="maintenanceTime">
+
+                                <!-- 오른쪽 cycleInfo 영역 -->
+                                <div id="cycleInfo" style="display: none; flex: 1; margin-left: 20px;">
+                                    <div style="display: flex; gap: 20px;">
+                                        <!-- 주기시작일 -->
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            <label>주기시작일 <span class="required">*</span></label>
+                                            <div class="field-wrapper">
+                                                <input type="date" id="schedStartDt" name="schedStartDt" />                                                
+                                            </div>
+                                        </div>
+                                        <!-- 주기단위 -->
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            <label>주기단위 <span class="required">*</span></label>
+                                            <select class="form-control" id="cycleType" name="cycleType" style="width: 260px;">
+                                            </select>
+                                        </div>
+                                        <div style="width: 120px;">
+                                            <label>반복 <span class="required">*</span></label>
+                                            <div style="display: flex; align-items: center;">
+                                                <input id="perNumber" name="perNumber" type="number" class="form-control" style="width: 80px;" />
+                                                <span style="margin-left: 5px;">매</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -216,6 +247,7 @@
 </div>
 
 <style>
+
     /* 설비선택, PM복사 버튼 스타일 */
     .modal .btn-equipment, .btn-copy {
         background: #1e4f88 !important;
@@ -223,9 +255,9 @@
         border: none !important;
     }
 
-    .modal .btn-equipment:hover, .btn-copy:hover {
-        background-color: #2980b9;
-    }
+        .modal .btn-equipment:hover, .btn-copy:hover {
+            background-color: #2980b9;
+        }
 
     /* 작업 등록, 자재선택, 저장, 닫기 버튼 스타일 */
     .modal .btn-primary, #addOccupations, #selectMaterial {
@@ -234,9 +266,9 @@
         color: white;
     }
 
-    .modal .btn-primary:hover, #addOccupations:hover, #selectMaterial:hover {
-        background-color: #2980b9;
-    }
+        .modal .btn-primary:hover, #addOccupations:hover, #selectMaterial:hover {
+            background-color: #2980b9;
+        }
 
     .section {
         background: #fff;
@@ -530,7 +562,7 @@
         border-left: 1px solid #ddd;
         border-top: 1px solid #ddd;
         transform: rotate(45deg);
-    }    
+    }
 
     /* 툴팁 아이콘 스타일 */
     .tooltip-icon {
@@ -693,6 +725,13 @@
             AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
             AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
             AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+
+            let today = CommonUtil.getYYYYMMDD();
+            $("#schedStartDt").kendoDatePicker({
+                value: today,
+                format: "yyyy-MM-dd",
+            });
 
             $('#selectEquipment').kendoButton({
                 themeColor: "base",
@@ -739,7 +778,7 @@
             $("#saveBtn").kendoButton({
                 icon: "k-i-save",
                 click: function (e) {
-                    e.preventDefault();                    
+                    e.preventDefault();
                     _this.saveData();
                 }
             });
@@ -763,7 +802,7 @@
             data.dept_id = $("#executionDept").data("kendoDropDownTree").value();
             data.pmManager = $("#pmManager").val();
             data.equ_id = $("#equ_id").val();
-            
+
             let Name = $('#pmName').val();
             if (!Name) {
                 Alert.alert('', 'PM명을 입력해주세요.');
@@ -829,6 +868,17 @@
 
     pmMasterPage = new PmMaster();
     $(document).ready(function () {
+
+        // pmType 선택 이벤트 핸들러 추가
+        $('#pmType').on('change', function () {
+            const selectedValue = $(this).val();
+            if (selectedValue === 'PM_TYPE_TBM') {
+                $('#cycleInfo').show();
+            } else {
+                $('#cycleInfo').hide();
+            }
+        });
+
         // 탭 클릭 이벤트 처리
         $('.tab-group button').on('click', function () {
             // 모든 탭에서 active 클래스 제거
