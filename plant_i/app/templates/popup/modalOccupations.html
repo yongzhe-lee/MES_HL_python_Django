@@ -158,12 +158,6 @@
         init() {
             let _this = this;
 
-            // ✅ Kendo UI 없이 일반 jQuery click 이벤트로 닫기 버튼 제어
-            $("#closeOccuModal").off("click").on("click", function () {
-                console.log("닫기 버튼 클릭됨!"); // 디버깅 로그 확인
-                _this.modal.fadeOut();
-            });
-
             // ✅ Kendo Grid 초기화 (유지)
             this.grid = $("#occupations_grid").kendoGrid({
                 columns: [
@@ -196,12 +190,11 @@
                 }
             });
 
-            // ✅ ESC 키 입력 시 모달 닫기
-            $(document).off("keydown").on("keydown", function (e) {
-                if (e.keyCode === 27 && _this.modal.is(":visible")) {
-                    console.log("ESC 키 입력됨!"); // 디버깅 로그 확인
-                    _this.modal.fadeOut();
-                }
+			$("#closeOccuModal").kendoButton({				
+				click: function (e) {
+                    e.preventDefault();
+					_this.modal.fadeOut();
+				}
             });
 
             // ✅ 모달 외부 클릭 시 닫기

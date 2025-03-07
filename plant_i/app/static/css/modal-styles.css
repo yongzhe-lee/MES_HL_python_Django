@@ -10,6 +10,7 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 9999;
+    overflow: hidden !important; /* ✅ 모달 바깥쪽 스크롤 제거 */
 }
 
 /*모달 기본 레이아웃*/
@@ -37,7 +38,7 @@
     background-color: #34495e;
     color: white;
     padding: 15px 20px;
-    margin: -20px -20px 20px -20px;
+    margin: -10px -10px 10px -10px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     display: flex;
@@ -58,6 +59,27 @@
     box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+    padding: 10px !important; /* 기존 값보다 줄여서 내부 간격 최소화 */
+    box-shadow: none !important; /* ✅ 그림자 완전 제거 */
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+}
+
+.modal-content-900-600 {
+    max-width: 900px;
+    height: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    width: 95%;
+    border-radius: 5px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
     padding: 20px;
     box-shadow: none !important; /* ✅ 그림자 완전 제거 */
     -webkit-box-shadow: none !important;
@@ -72,18 +94,21 @@
 
 .modal-body {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: hidden;
+    margin: 0px !important;
+    padding: 5px 10px !important; /* 내부 패딩을 최소화 */
 }
 
 /* 모달 푸터 스타일 */
 .modal-footer {
     padding: 15px 20px;
     text-align: right;
-    border-top: 1px solid #dee2e6;
+    border-top: 0px solid #dee2e6;
 }
 
 /* 버튼 스타일 */
 .modal-footer .btn {
+    margin: 0 20px;
     padding: 6px 20px;
     font-size: 13px;
     margin-left: 10px;
@@ -120,11 +145,11 @@
     padding-bottom: 0;
 }
 
-
 /* 그리드 공통 */
-.modal .grid-section {
-    margin: 5px 0;
+.modal .grid-section { 
     height: 100%;
+    margin-bottom: 0px !important;
+    padding-bottom: 0px !important;
 }
 
 .modal .grid-section h4 {
@@ -166,21 +191,41 @@
     transition: all 0.2s ease-in-out;
 }
 
-.modal .btn-search {
-    background: #1e4f88;
-    color: white;
-    border: none;
+.btn-search {
+    background-color: white !important;
+    color: #00a9ff !important;
+    border: 1px solid #00a9ff !important;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 60px;
+    height: 28px;
+    line-height: 1;
 }
 
-.modal .btn-save {
+.btn-search:hover {
     background-color: white;
-    border: 1px solid #0d6efd;
-    color: #0d6efd;
+    color: #00a9ff;
+    border: 1px solid #00a9ff;
+}
+
+/* 저장 버튼 스타일 */
+.modal .btn-save {
+    background: #ECF5FF !important;
+    color: #409EFF !important;
+    border-color: #B3D8FF !important;
+    border: 1px solid #00a9ff !important;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 40px;
+    height: 28px;
+    line-height: 1;
 }
 
 .modal .btn-save:hover {
-    background-color: #0d6efd;
-    color: white;
+    background-color: #C2DFFF !important;
+    border-color: #0054e0 !important;
 }
 
 .modal .btn-confirm {
@@ -237,9 +282,61 @@
     background: transparent;
     border: 1px solid #ffffff;
     color: #ffffff !important;
-    버튼 텍스트 색상 강제 지정 font-size: 12px;
+    font-size: 12px;
     border-radius: 3px;
     cursor: pointer;
-    text-shadow: none; /* 텍스트 선명도 보장 */
+    text-shadow: none;
 }
+
+/* Kendo 버튼 스타일 */
+.modal .k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base {
+    background: #ECF5FF !important;
+    color: #409EFF !important;
+    border-color: #B3D8FF !important;
+    border: 1px solid #00a9ff !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    min-width: 40px !important;
+    height: 28px !important;
+    line-height: 1 !important;
+}
+
+.modal .k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base:hover {
+    background-color: #C2DFFF !important;
+    border-color: #0054e0 !important;
+}
+
+/* 모든 모달 내 select 요소의 높이를 30px로 통일 */
+.modal select {
+    height: 28px !important; /* ✅ 드롭다운 높이를 30px로 고정 */
+    font-size: 14px !important; /* ✅ 텍스트 크기 조정 */
+    padding: 4px 8px !important; /* ✅ 내부 여백 최적화 */
+    background-color: var(--kendo-color-base, #f5f5f5);
+}
+
+/* 입력 필드도 동일한 높이 적용 */
+.modal .input-common,
+.modal input[type="text"],
+.modal input[type="number"],
+.modal input[type="date"],
+.modal .form-control {
+    height: 28px !important; /* ✅ 모든 입력 필드 높이 30px로 조정 */
+    font-size: 14px !important;
+    padding: 2px 8px !important;
+    display: flex !important; /* ✅ flex를 사용해 내부 요소 중앙 정렬 */
+    align-items: center !important; /* ✅ 텍스트 수직 중앙 정렬 */
+}
+
+.modal .k-grid-content th{
+    text-align: center;
+}
+
+/* ✅ Kendo Grid의 기본 마진 제거 */
+.modal .k-grid {
+    margin: 0px !important; /* 불필요한 여백 제거 */
+    padding: 0px !important;
+}
+
+
 

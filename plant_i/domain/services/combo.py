@@ -54,6 +54,7 @@ class ComboService(object):
             'user_group': cls.user_group,
             'auth_user': cls.auth_user,
             'job_class': cls.job_class,
+            'code': cls.code,
         }
         cls.__initialized__ = True
 
@@ -411,4 +412,33 @@ class ComboService(object):
     def job_class(cls, cond1, cond2, cond3):
         query = JobClass.objects.values('job_class_pk', 'Name').order_by('Name')
         items = [ {'value': entry['job_class_pk'], 'text':entry['Name']} for entry in query ]
+        return items
+
+    @classmethod
+    def code (cls, cond1, cond2, cond3):        
+        q = Code.objects.values('Code', 'Name')        
+        if cond1:
+            if ',' in cond1:
+                cond1 = cond1.replace(' ', '')
+                cond_list = cond1.split(',')
+                q = q.filter(CodeGroupCode=cond_list)
+            else:
+                q = q.filter(CodeGroupCode=cond1)
+        if cond2:
+            if ',' in cond2:
+                cond2 = cond2.replace(' ', '')
+                cond_list = cond2.split(',')
+                q = q.filter(Code__in=cond_list)
+            else:
+                q = q.filter(Code=cond2)
+        if cond3:
+            if ',' in cond3:
+                cond3 = cond3.replace(' ', '')
+                cond_list = cond3.split(',')
+                q = q.exclude(Code__in=cond_list)
+            else:
+                q = q.exclude(Code=cond3)
+        q = q.filter(DelYn='N', UseYn='Y')
+        q = q.order_by('DispOrder', 'Name')
+        items = [ {'value': entry['Code'], 'text':entry['Name']} for entry in q ]
         return items

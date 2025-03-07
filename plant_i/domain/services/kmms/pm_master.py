@@ -17,21 +17,40 @@ class PMService():
              , a.pm_no , a.pm_name 
              , ve.equ_id
              , ve.equ_code, ve.equ_name
-             , ve.import_rank_pk
+             , ve.import_rank
              , ve.mng_dept_id
              , ve.mng_dept_nm
              , d.id
              , d."Name" as exec_dept 
              , ve.loc_id
              , l.loc_nm as equ_location
-             , au.id as pm_manager
-             , a.pm_type 
-             , a.cycle_type 
+             , au.first_name as pm_manager
+             , c."Name" as pm_type 
+             , c2."Name" as cycle_type 
          FROM pm a
- 	        inner join v_equipment ve on a.equ_id = ve.equ_id        
+ 	        inner join (
+                 SELECT e.id AS equ_id,
+                    e."Code" AS equ_code,
+                    e."Name" AS equ_name,
+                    c."Name" AS import_rank,
+                    e.del_yn,
+                    case when e.environ_equip_yn = 'Y' then 'Y' else 'N' end environ_equip_yn,
+                    e."AssetYN",
+                    e."Depart_id" AS mng_dept_id,
+                    mng."Name" AS mng_dept_nm,
+                    e.loc_pk AS loc_id,
+                    l.loc_nm
+                   FROM equ e
+                     JOIN dept mng ON e."Depart_id" = mng.id
+                     JOIN location l ON e.loc_pk = l.id
+                     LEFT JOIN code c ON c."Code"::text = e.import_rank::text AND c."CodeGroupCode"::text = 'IMPORT_RANK'::text
+                  WHERE e.del_yn::text = 'N'::text
+             ) ve on a.equ_id = ve.equ_id        
  	        inner join dept d on a.dept_id  = d.id 	     
             inner join auth_user au on a.pm_user_id  = au.id  	
  	        inner join "location" l on ve.loc_id = l.id  	        
+            left join code c on a.pm_type = c."Code" and c."CodeGroupCode" = 'PM_TYPE'
+			left join code c2 on a.cycle_type = c2."Code" and c2."CodeGroupCode" = 'CYCLE_TYPE'
          WHERE 1 = 1
         '''
         if keyword:
@@ -101,7 +120,7 @@ class PMService():
              , a.pm_no , a.pm_name 
              , e.id as equ_id
              , e."Code" as equ_code, e."Name" as equ_name
-             , e.import_rank_pk
+             , c."Name" as import_rank
              , e."Depart_id" as mng_dept_id
              , mng."Name" as manage_dept
              , exc.id
@@ -111,12 +130,19 @@ class PMService():
              , a.work_expect_hr
              , a.pm_type 
              , a.cycle_type 
+             , c2."Name" as "Status"
+             , a.per_number
+             , a.work_text
+             , case when environ_equip_yn = 'Y' then 'Y' else 'N' end environ_equip_yn
+             , a.sch_start_dt
          FROM pm a
  	        inner join equ e on a.equ_id = e.id 
  	        inner join dept mng on e."Depart_id"  = mng.id
  	        inner join dept exc on a.dept_id  = exc.id 	     
             inner join auth_user au on a.pm_user_id  = au.id  	
- 	        left join "location" l on e.loc_pk = l.id  	        
+ 	        left join "location" l on e.loc_pk = l.id  	    
+            left join code c on e.import_rank = c."Code" and c."CodeGroupCode" = 'IMPORT_RANK'
+            left join code c2 on e."Status" = c2."Code" and c2."CodeGroupCode" = 'EQU_STATUS'
          WHERE 
             a.pm_pk = %(id)s
         '''

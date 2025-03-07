@@ -2,7 +2,7 @@ from django.db import transaction
 from domain.models.definition import Equipment
 from domain.models.user import Depart
 from domain.services.sql import DbUtil
-from domain.models.kmms import PreventiveMaintenace, User
+from domain.models.kmms import PreventiveMaintenance, User
 from domain.services.kmms.pm_master import PMService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
@@ -57,7 +57,7 @@ def pm_master(context):
         try:
 
             if pm_pk:
-                pm = PreventiveMaintenace.objects.filter(pm_pk=pm_pk).first()
+                pm = PreventiveMaintenance.objects.filter(pm_pk=pm_pk).first()
                 if not pm:
                     return JsonResponse({
                         'result': False,
@@ -65,7 +65,7 @@ def pm_master(context):
                     })
             else:
                 # 새 객체 생성
-                pm = PreventiveMaintenace()
+                pm = PreventiveMaintenance()
 
             # 파라미터 가져오기
             pm_no = generate_pm_number()
@@ -73,14 +73,20 @@ def pm_master(context):
             # 데이터 저장
             pm.pm_no = pm_no
             pm.Name = posparam.get('pmName')
-            pm.PMType = posparam.get('pmType')
+            pm.PMType = posparam.get('pmType')            
             pm.WorkText = posparam.get('work_text')
+            pm.schedStartDt = posparam.get('sched_start_dt')
             
             maintenance_time = posparam.get('maintenanceTime')
             if maintenance_time:
                 pm.WorkExpectHour = int(maintenance_time)  # 숫자형으로 변환
             else:
                 pm.WorkExpectHour = None  # 기본값 설정
+
+            if pm.PMType == 'PM_TYPE_TBM':  # 주기유형이 주기일 경우
+                pm.ScheduleStartDate = posparam.get('sched_start_dt')
+                pm.CycleType = posparam.get('cycleType')
+                pm.CyclePerNumber = posparam.get('per_number')
 
             dept_id = posparam.get('dept_id')
             pm_user_id = posparam.get('pmManager')
@@ -154,7 +160,7 @@ def generate_pm_number():
     prefix = f"PM-{today}-"
     
     # 오늘 날짜의 마지막 PM 번호 조회
-    today_max_pm = PreventiveMaintenace.objects.filter(
+    today_max_pm = PreventiveMaintenance.objects.filter(
         pm_no__startswith=prefix,
         DeleteYN='N'  # 삭제되지 않은 데이터만
     ).order_by('-pm_no').first()

@@ -71,7 +71,7 @@ class PIService():
              , a.pm_no , a.pm_name 
              , e.id as equ_id
              , e."Code" as equ_code, e."Name" as equ_name
-             , e.import_rank_pk
+             , e.import_rank
              , e."Depart_id" as mng_dept_id
              , mng."Name" as manage_dept
              , exc.id

@@ -74,8 +74,8 @@ class GUIConfiguration():
         gui_dc['wm_post_work_management'] = cls.gui_item('사후작업관리', 'kmms/wo/post_work_management.html')
 
         #예방정비
-        gui_dc['wm_pm_master'] = cls.gui_item('PM마스터관리', 'kmms/pm/pm_master.html')
-        gui_dc['wm_pm_schedule'] = cls.gui_item('PM일정', 'kmms/pm/pm_schedule.html')
+        gui_dc['wm_pm_master'] = cls.gui_item('PM 마스터', 'kmms/pm/pm_master.html')
+        gui_dc['wm_pm_schedule'] = cls.gui_item('PM 작업일정', 'kmms/pm/pm_schedule.html')
 
         # 설비보전
         

@@ -15,7 +15,7 @@
                         </div>
                         <div class="form-group">
                             <label>자재종류</label>                            
-                            <select class="form-control" id="srch_item_type" name="srch_item_type">
+                            <select id="srch_item_type" name="srch_item_type">
                             </select>
                         </div>
                         <div class="form-group">
@@ -148,7 +148,11 @@
             });
 
             $("#btnCloseMaterial").kendoButton({
-                themeColor: "primary",
+                themeColor: "base",
+				click: function (e) {
+                    e.preventDefault();
+					$("#modalMaterials").fadeOut();
+				}
             });
             
             AjaxUtil.fillDropDownOptions($('#srch_item_type'), 'user_code', 'choose', null, 'MTRL_TYPE'); 
@@ -180,10 +184,6 @@
 
                 // 선택된 자재 정보를 부모 모달에 전달
                 this.addMaterialsToParent();
-                $("#modalMaterials").fadeOut();
-            });
-
-            $("#btnCloseMaterial").on("click", () => {
                 $("#modalMaterials").fadeOut();
             });
 

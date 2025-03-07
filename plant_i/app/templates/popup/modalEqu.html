@@ -12,7 +12,7 @@
                 <div class="search-label">검색키워드</div>
                 <input type="text" class="form-control" id="keyword_equ" name="keyword_equ" placeholder="설비코드, 설비명, 자산번호 입력">
                 <div class="search-label">관리부서</div>
-                <select class="form-control" id="srch_equ_dept" name="srch_dept">                    
+                <select id="srch_equ_dept" name="srch_dept">                    
                 </select>
                 <button type="button" class="btn-search" id="btnSearchEqu" name="btnSearchEqu">검색</button>
             </div>   
@@ -208,7 +208,7 @@
                     { field: 'Location', title: '설비위치', width: 100 },                    
                     { field: 'DepartName', title: '관리부서', width: 100 },
                     { field: 'ManageNumber', title: '관리번호', width: 100 },
-                    { field: 'import_rank_pk', title: '중요도등급', width: 100, hidden: true },
+                    { field: 'import_rank', title: '중요도등급', width: 100, hidden: true },
                     { field: 'environ_equip_yn', title: '환경설비여부', width: 100, hidden: true },
                 ],
 
@@ -334,13 +334,14 @@
             
             let result = AjaxUtil.getSyncData('/api/definition/equipment', param);
 
-            // 부모 창의 입력 필드에 값 설정            
+            // 부모 창의 입력 필드에 값 설정   
+			$('#equ_id').val(result.id);
             $('#equ_code').val(result.Code);
             $('#equ_name').val(result.Name);
             $('#equ_loc_pk').val(result.id);
             $('#equ_loc').val(result.loc_nm);
             $('#equ_status').val(result.Status);
-            $('#equ_import').val(result.import_rank_pk);
+            $('#equ_import').val(result.import_rank);
             $('#equ_env_yn').val(result.environ_equip_yn);
          
             $("#modalEqu").fadeOut();

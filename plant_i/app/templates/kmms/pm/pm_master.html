@@ -38,7 +38,6 @@
         content: "▲";
     }
 
-
 </style>
 {% endblock %}
 
@@ -121,13 +120,11 @@
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
                         <label data-labelCd="PM 마스터">PM 마스터</label>
-                    </span>
-                    <span>
-                    </span>
+                    </span>                
                     <span>
                         <!-- 오른쪽 버튼 영역-->
-                        <button id="btnAdd" style="visibility: hidden;">등록</button>
-                        <button id="btnSearch" style="visibility: hidden;">조회</button>
+                        <button id="btnAdd" class="btn-search">등록</button>
+                        <button id="btnSearch" class="btn-search">조회</button>
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
@@ -163,6 +160,90 @@
             this.init();
         }
 
+        /**
+         * 모달창 입력란 초기화 함수
+         */
+        resetModalInputs() {
+            // 일반 입력 필드 초기화
+            $("#equ_id").val("");
+            $("#pm_pk").val("");
+            $("#pmNumber").val("");
+            $("#pmName").val("");
+            $("#work_text").val("");
+            $("#equ_code").val("");
+            $("#equ_name").val("");
+            $("#equ_loc").val("");
+            $("#equ_import").val("");
+            $("#equ_status").val("");
+            $("#equ_env_yn").val("");
+
+            // Kendo UI 컴포넌트 초기화
+            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
+            if (maintenanceTime) {
+                maintenanceTime.value("");
+            }
+
+            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
+            if (execDeptDropdown) {
+                execDeptDropdown.value("");
+            }
+
+            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
+            if (pmManagerDropdown) {
+                pmManagerDropdown.value("");
+            }
+
+            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
+            if (pmTypeDropdown) {
+                pmTypeDropdown.value("");
+            }
+        }
+
+        /**
+         * 그리드와 검색 조건을 초기화하는 함수
+         */
+        resetData() {
+            // 그리드 초기화
+            if (this.grid) {
+                this.grid.setData([]);
+            }
+
+            // 검색 조건 초기화
+            $("#keyword").val("");
+            
+            // Kendo 컴포넌트 초기화
+            let srchDept = $("#srch_dept").data("kendoDropDownTree");
+            if (srchDept) srchDept.value("");
+
+            let srchLocation = $("#srch_location").data("kendoDropDownTree");
+            if (srchLocation) srchLocation.value("");
+
+            let srchDeptType = $("#srch_dept_type").data("kendoDropDownTree");
+            if (srchDeptType) srchDeptType.value("");
+
+            let serchPmType = $("#serchPmType").data("kendoDropDownList");
+            if (serchPmType) serchPmType.value("");
+
+            let srchApplyYn = $("#srchApplyYn").data("kendoDropDownList");
+            if (srchApplyYn) srchApplyYn.value("");
+
+            let srchPeriodUnit = $("#srchPeriodUnit").data("kendoDropDownList");
+            if (srchPeriodUnit) srchPeriodUnit.value("");
+
+            let dateRange = $("#srch_date_range").data("kendoDateRangePicker");
+            if (dateRange) dateRange.range({
+                start: new Date(),
+                end: new Date()
+            });
+
+            // 스위치 초기화
+            let myTaskSwitch = $("#chk_my_task").data("kendoSwitch");
+            if (myTaskSwitch) myTaskSwitch.value(false);
+
+            let legalSwitch = $("#chk_legal").data("kendoSwitch");
+            if (legalSwitch) legalSwitch.value(false);
+        }
+
         init() {
             let _this = this;
             let equipmentGridOption = {
@@ -179,22 +260,22 @@
                 },
                 columns: [
                     { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
-                    { field: 'pm_no', title: 'PM 번호', width: 150 },
+                    { field: 'pm_no', title: 'PM 번호', width: 120 },
                     {
                         field: "pm_name",
                         title: "PM명",
-                        width: 200,
+                        width: 150,
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_name#</a>'
                     },
-                    { field: 'equ_code', title: '설비코드', width: 120 },
+                    { field: 'equ_code', title: '설비코드', width: 100 },
                     { field: 'equ_name', title: '설비명', width: 150 },
-                    { field: 'priority', title: '중요도', width: 80 },
+					{ field: 'import_rank', title: '중요도', width: 80 },
                     { field: 'exec_dept', title: '실행부서', width: 100 },
-                    { field: 'manage_dept', title: '관리부서', width: 100 },
+					{ field: 'mng_dept_nm', title: '관리부서', width: 100 },
                     { field: 'equ_location', title: '설비위치', width: 120 },
-                    { field: 'pm_manager', title: 'PM 담당자', width: 100 },
+					{ field: 'pm_manager', title: 'PM 담당자', width: 100 },
                     { field: 'pm_type', title: 'PM 유형', width: 80 },
-                    { field: 'action', title: '주기', width: 50 }
+					{ field: 'cycle_type', title: '주기', width: 50 }
                 ],
 
                 change: function (e) {
@@ -278,6 +359,7 @@
                 fillMode: "outline",    // outline 스타일로 변경
                 click: function (e) {
                     e.preventDefault();
+                    page.resetModalInputs();  // 초기화 함수 호출
                     $("#modalPmMaster").fadeIn();
                 }
             }).css('visibility','visible');
@@ -295,8 +377,8 @@
         }
 
         /**
-     * PM명 클릭 시 모달 창 열기
-     */
+         * PM명 클릭 시 모달 창 열기
+         */
         showPmMasterModal(pmId) {
             let _this = this;
             let param = {
@@ -307,8 +389,7 @@
             // PM 상세 정보를 가져오는 API 호출
             let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
 
-            console.log("📌 [DEBUG] API 응답 데이터:", pmData);
-
+            console.log("📌 [DEBUG] API 응답 데이터:", pmData);			
 
             $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
             $("#equ_id").val(pmData.equ_id);
@@ -316,16 +397,6 @@
             $("#pmNumber").val(pmData.pm_no);
             $("#pmName").val(pmData.pm_name);
             $("#pmType").val(pmData.pm_type);
-
-            // 정비시간 설정 - 여러 방법 시도
-            let maintenanceTime = $("#maintenanceTime");
-            // 방법 3: setTimeout으로 지연 설정
-            setTimeout(() => {
-                maintenanceTime.val(pmData.work_expect_hr);
-                if (numericBox) {
-                    numericBox.value(pmData.work_expect_hr);
-                }
-            }, 100);
 
             // 실행부서 설정
             let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
@@ -355,13 +426,12 @@
                 $("#pmManager").val(pmData.pm_manager);
             }
             $("#work_text").val(pmData.work_text);
-
             $("#equ_code").val(pmData.equ_code);
             $("#equ_name").val(pmData.equ_name);
             $("#equ_loc").val(pmData.equ_location);
-            $("#equ_import").val(pmData.priority);
-            $("#equ_status").val(pmData.equ_status);
-            $("#equ_env_yn").val(pmData.equ_env_yn);
+			$("#equ_import").val(pmData.import_rank);
+			$("#equ_status").val(pmData.Status);
+			$("#equ_env_yn").val(pmData.environ_equip_yn);
 
             // PM 유형 설정
             let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
@@ -380,25 +450,29 @@
                 // 데이터 소스 새로고침
                 pmTypeDropdown.dataSource.read();
             }
+			
+            $("#maintenanceTime").val(pmData.work_expect_hr);
+            //주기단위 
+			let cycleTypeDropdown = $("#cycleType").data("kendoDropDownList");
+			if (cycleTypeDropdown) {
+				// 데이터 소스 로드 완료 후 값 설정
+				cycleTypeDropdown.one("dataBound", function () {
+					cycleTypeDropdown.value(pmData.cycle_type);
+					cycleTypeDropdown.trigger("change");
 
-            // 정비시간 설정
-            console.log("정비시간 데이터:", pmData.work_expect_hour); // DB 컬럼명으로 수정
+					// 값이 설정되지 않은 경우 text로 시도
+					if (!cycleTypeDropdown.value()) {
+						cycleTypeDropdown.text(pmData.cycle_type);
+					}
+				});
 
-            let maintenanceTimeInput = $("#maintenanceTime");
-            if (maintenanceTimeInput.length > 0) {
-                // kendoNumericTextBox인 경우
-                let numericTextBox = maintenanceTimeInput.data("kendoNumericTextBox");
-                if (numericTextBox) {
-                    numericTextBox.value(pmData.work_expect_hour);
-                    numericTextBox.trigger("change");
-                } else {
-                    // 일반 input인 경우
-                    maintenanceTimeInput.val(pmData.work_expect_hour);
-                }
+				// 데이터 소스 새로고침
+				cycleTypeDropdown.dataSource.read();
             }
+            $("#perNumber").val(pmData.work_expect_hr);
+			$("#schedStartDt").val(pmData.sch_start_dt);
 
         }
-
 
         searchMainData() {
             let _this = this;
@@ -451,13 +525,6 @@
                 console.error('Error in searchMainData:', error);
             }
         }
-
-        resetData() {
-            let _this = this;
-            $("#pm_master_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#equipmentForm'));
-        }
-
 
         // 엑셀 다운로드
         exportExcel() {

@@ -1,6 +1,6 @@
 from django.db import transaction
 from domain.services.sql import DbUtil
-from domain.models.kmms import PreventiveMaintenace
+from domain.models.kmms import PreventiveMaintenance
 from domain.services.kmms.work_order import WorkOrderService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil

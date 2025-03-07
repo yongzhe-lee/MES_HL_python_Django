@@ -44,6 +44,28 @@ class DaService(object):
         #items.append({'img_path':file_url})
         return file_url
 
+    # 25.03.06 김하늘 추가
+    def read_csv_as_utf8(filepath):
+        from io import StringIO  
+
+        """ 파일을 자동 감지하여 UTF-8로 변환 후 pandas DataFrame으로 읽음 """
+        with open(filepath, "rb") as file:
+            raw_data = file.read()  # 파일을 바이너리로 읽음
+
+        # 제대로 된 인코딩 감지를 위해 최선의 방법 찾기
+        try:
+            text = raw_data.decode("utf-8")  # UTF-8로 바로 읽기 시도
+        except UnicodeDecodeError:
+            try:
+                text = raw_data.decode("cp949")  # CP949(Windows 한글) 시도
+            except UnicodeDecodeError:
+                try:
+                    text = raw_data.decode("euc-kr")  # EUC-KR 시도
+                except UnicodeDecodeError:
+                    text = raw_data.decode("latin1")  # 마지막으로 Latin1 시도
+
+        return pd.read_csv(StringIO(text))
+
     def read_csv(self, file_name):
         df = pd.read_csv(file_name)
         row_count = df.shape[0]
@@ -95,7 +117,6 @@ class DaService(object):
         PhysicFileName = row.get('PhysicFileName')
         #FileName = row.get('FileName')
 
-        # 25.02.21 김하늘 수정
         # file_name = settings.FILE_UPLOAD_PATH + 'ds_data\\' + PhysicFileName
         file_name = settings.FILE_UPLOAD_PATH + 'ai\\learning_data\\' + PhysicFileName
 
@@ -201,7 +222,7 @@ class DaService(object):
                 pass
         return df
 
-    def make_col_info(self, df):
+    def make_col_info(self, df, column_preprocess_info=None):
         md_id = self.data_pk
         row_count = df.shape[0]
 
@@ -244,6 +265,13 @@ class DaService(object):
                 else:
                     distinct_count = len(col.value_counts())
                     dc.CategoryCount = distinct_count
+
+                # 컬럼별 반영된 결측치 처리 방식 & 이상치 기준 저장(인자를 보낼 때만)
+                if column_preprocess_info and key in column_preprocess_info:
+                    dc.MissingValProcess = column_preprocess_info[key]["MissingValProcess"]
+                    dc.DropOutLow = column_preprocess_info[key]["DropOutLow"]
+                    dc.DropOutUpper = column_preprocess_info[key]["DropOutUpper"]
+
                 dc.save()
         except Exception as ex:
             print (ex)
@@ -252,14 +280,18 @@ class DaService(object):
     def xy_columns(self):
         '''
         '''
-        sql = ''' 	select "VarName", "X", "Y"
-	    from ds_col 
-	    where "DsData_id" = %(dd_id)s
-	    and 1 in ("X", "Y")
-	    order by "VarIndex"
+        sql = '''
+        SELECT 
+            "VarName"
+            , "X"
+            , "Y"
+	    FROM ds_model_col 
+	    WHERE "DsModel_id" = %(md_id)s
+	    AND 1 IN ("X", "Y")
+	    ORDER BY "VarIndex"
         '''
         dc = {}
-        dc['dd_id'] = self.data_pk
+        dc['md_id'] = self.data_pk
         rows = DbUtil.get_rows(sql, dc)
 
         x_vars = []

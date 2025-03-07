@@ -85,10 +85,12 @@ class EquipmentService():
             , to_char(e."DisposalDate",'yyyy-mm-dd') AS "DisposalDate"
             , e."DisposalReason" AS "DisposalReason"
             , e."OperationRateYN" AS "OperationRateYN"
-            , e."Status" AS "Status"
+            , c."Name" AS "Status"
             , e."loc_pk" AS "loc_pk"
             , e."loc_pk" AS "equip_loc_bef"
             , lo."loc_nm" AS "Location"
+            , e."import_rank"
+            , c2."Name" AS "importRank"
             , to_char(e._created ,'yyyy-MM-dd HH:mm') AS _created 
         FROM 
             equ e
@@ -100,6 +102,10 @@ class EquipmentService():
             dept d ON e."Depart_id" = d.id
         LEFT JOIN 
             "location" lo on e.loc_pk = lo.id 
+        LEFT JOIN 
+    		"code" c on c."Code" = e."Status" and c."CodeGroupCode" = 'EQU_STATUS'
+        LEFT JOIN 
+    		"code" c2 on c2."Code" = e."import_rank" and c2."CodeGroupCode" = 'IMPORT_RANK'
         WHERE 1 = 1  
         '''
         if line_id:
@@ -234,19 +240,21 @@ class EquipmentService():
             , e."ServiceCharger"
             , e."InstallDate"
             , e."DisposalDate"
-            , e."OperationRateYN"
-            , e."Status"
-            , e."import_rank_pk"
-            , e."environ_equip_yn"
+            , e."OperationRateYN"     
+            , c2."Name" as "import_rank"
+            , c."Name" as "Status"
+            , CASE WHEN e."environ_equip_yn" = 'Y' THEN 'Y' ELSE 'N' end as environ_equip_yn
             , e."loc_pk"
             , loc."loc_nm"
             , e."Depart_id"
             , e."EquipmentGroup_id"
             , eg."Name" as group_name
-            , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created        
+            , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created 
          from equ e
             left join equ_grp eg on e."EquipmentGroup_id" =eg.id         
             left join "location" loc on e.loc_pk = loc.id
+            left join "code" c on c."Code" = e."Status" and c."CodeGroupCode" = 'EQU_STATUS'
+            left join "code" c2 on c2."Code" = e."import_rank" and c2."CodeGroupCode" = 'IMPORT_RANK'
         where 
             e.id = %(id)s
         '''
@@ -426,7 +434,11 @@ class EquipmentService():
         items = []
 
         sql = ''' 
-            select * from "location" order by "_created" desc
+            select a.id, a.loc_cd, a.loc_nm, a.loc_status, a.plant_yn, a.building_yn, a.spshop_yn
+	            ,b."loc_nm" as up_loc_nm
+            from "location" a
+	            left join "location" b on a.up_loc_pk = b.id
+            order by a."_created" desc
         '''     
 
         try:
@@ -442,10 +454,11 @@ class EquipmentService():
 
         sql = ''' 
             SELECT 
-	            equip_loc_hist_pk, equip_pk
-	            , equip_loc_bef, b.loc_nm as beforeLoc
-	            , equip_loc_aft, b.loc_nm as afterLoc
-	            , a."_created" as changeDate, a."_creator_name" as changer
+                equip_loc_hist_pk, equip_pk
+                , equip_loc_bef, b.loc_nm as beforeLoc
+                , equip_loc_aft, b.loc_nm as afterLoc
+                , TO_CHAR(a."_created", 'YYYY-MM-DD') as changeDate
+                , a."_creator_name" as changer
             FROM equip_loc_hist a
                 left join "location" b on a.equip_loc_bef = b.id
                 left join "location" c on a.equip_loc_aft = c.id

@@ -733,7 +733,7 @@ class SystemService():
         
         sql = ''' 
         SELECT nation_cd, type_val, name_val, repeat_yn, holidate, id
-        FROM holiday_custom
+        FROM holiday
         where 1=1
         '''
         if keyword:            

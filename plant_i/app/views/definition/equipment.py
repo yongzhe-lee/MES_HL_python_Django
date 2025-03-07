@@ -119,6 +119,9 @@ def equipment(context):
             equipment.DisposalReason = posparam.get('DisposalReason')
             equipment.OperationRateYN = posparam.get('OperationRateYN')
             equipment.loc_pk = posparam.get('loc_pk')
+            equipment.import_rank = posparam.get('import_rank')     
+            equipment.Status = posparam.get('Status')
+
             equipment.set_audit(user)
 
             equipment.save()

@@ -8,25 +8,25 @@ from .system import Site
 
 
 class Depart(models.Model):
-    id = models.AutoField('부서번호', primary_key=True)
-    Code = models.CharField('부서코드', max_length=50, blank=False, null=False)
-    Name = models.CharField('부서명', max_length=100, blank=False, null=False)
-    UpDept_id = models.IntegerField('상위부서번호', blank=True, null=True)  # 외래 키 관계 설정 가능
-    UpDeptCode = models.CharField('상위부서코드', max_length=50, blank=True, null=True)
-    ReqDivCode = models.CharField('의뢰구분코드', max_length=20, blank=True, null=True)
-    LabYN = models.CharField('실험실여부', max_length=1, default='N', blank=True, null=True)
-    MfgYN = models.CharField('제조부서여부', max_length=1, default='N', blank=True, null=True)
-    RoleNo = models.IntegerField('권한번호', blank=True, null=True)
-    UseYN = models.CharField('사용여부', max_length=1, default='Y', blank=False, null=False)
-    DelYN = models.CharField('삭제여부', max_length=1, default='N', blank=False, null=False)
-    ApplyYN = models.CharField('적용여부', max_length=1, default='N', blank=True, null=True)
-    Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, null=True)
-    
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
+    id = models.AutoField('부서번호', primary_key=True, db_comment="부서 고유 번호")
+    Code = models.CharField('부서코드', max_length=50, blank=False, null=False, db_comment="부서를 식별하는 코드")
+    Name = models.CharField('부서명', max_length=100, blank=False, null=False, db_comment="부서의 이름")
+    UpDept_id = models.IntegerField('상위부서번호', blank=True, null=True, db_comment="상위 부서의 고유 번호")
+    UpDeptCode = models.CharField('상위부서코드', max_length=50, blank=True, null=True, db_comment="상위 부서를 식별하는 코드")
+    ReqDivCode = models.CharField('의뢰구분코드', max_length=20, blank=True, null=True, db_comment="의뢰 구분 코드")
+    LabYN = models.CharField('실험실여부', max_length=1, default='N', blank=True, null=True, db_comment="실험실 여부 (Y/N)")
+    MfgYN = models.CharField('제조부서여부', max_length=1, default='N', blank=True, null=True, db_comment="제조 부서 여부 (Y/N)")
+    RoleNo = models.IntegerField('권한번호', blank=True, null=True, db_comment="권한 번호")
+    UseYN = models.CharField('사용여부', max_length=1, default='Y', blank=False, null=False, db_comment="사용 여부 (Y/N)")
+    DelYN = models.CharField('삭제여부', max_length=1, default='N', blank=False, null=False, db_comment="삭제 여부 (Y/N)")
+    ApplyYN = models.CharField('적용여부', max_length=1, default='N', blank=True, null=True, db_comment="적용 여부 (Y/N)")
+    Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, null=True, db_comment="소속된 사이트 정보")
+
+    _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 값")
+    _created = models.DateTimeField('_created', auto_now_add=True, db_comment="데이터 생성 일시")
+    _modified = models.DateTimeField('_modified', auto_now=True, null=True, db_comment="데이터 수정 일시")
+    _creater_id = models.IntegerField('_creater_id', null=True, db_comment="데이터 생성자 ID")
+    _modifier_id = models.IntegerField('_modifier_id', null=True, db_comment="데이터 수정자 ID")
 
     def set_audit(self, user):
         if self._creater_id is None:
@@ -35,10 +35,10 @@ class Depart(models.Model):
         self._modified = DateUtil.get_current_datetime()
         return
 
-
-    class Meta():
+    class Meta:
         db_table = 'dept'
         verbose_name = '부서'
+        db_table_comment = "부서 정보를 관리하는 테이블"
         unique_together = [
             ['Code'],
             ['Name'],

@@ -1,6 +1,6 @@
 from django.db import transaction
 from domain.services.sql import DbUtil
-from domain.models.kmms import PreventiveMaintenace
+from domain.models.kmms import PreventiveMaintenance
 from domain.services.kmms.pi_master import PIService
 # from domain.services.file import FileService
 from domain.services.logging import LogWriter

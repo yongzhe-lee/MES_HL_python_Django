@@ -479,9 +479,9 @@ def learning_data(context):
             ),
             B AS (
                 SELECT A.id,
-                       COUNT(dmc.*) AS var_count
+                       COUNT(mc.*) AS var_count
                 FROM A
-                INNER JOIN ds_model_col dmc ON dmc."DsModel_id" = A.id
+                INNER JOIN ds_model_col mc ON mc."DsModel_id" = A.id
                 GROUP BY A.id
             ),
             F AS (
@@ -489,93 +489,171 @@ def learning_data(context):
                 FROM A
                 INNER JOIN attach_file af ON af."DataPk" = A.id 
                 AND af."TableName" = 'ds_model'
-            )
-            SELECT
-                CONCAT('M_', mm.id) AS tree_id,
-                NULL AS tree_master_id,
-                mm.id AS master_id,    
-                NULL AS model_id, 
-                mm."Name" AS name,
-                mm."Type" AS type,
-                NULL AS source,
-                NULL AS ver,
-                NULL AS description,
-                NULL AS file_path,
-                NULL AS algorithm_type,
-                mm."_created" AS _created,
-                NULL AS var_count,  -- ds_master에는 var_count 없음
-                NULL AS file_name,  -- ds_master에는 file_name 없음
-                NULL AS file_id     -- ds_master에는 file_id 없음
-            FROM ds_master mm
-            UNION ALL
-            SELECT
-                CONCAT('C_', md.id) AS tree_id,
-                CONCAT('M_', md."DsMaster_id") AS tree_master_id,
-                md."DsMaster_id" AS master_id,
-                md.id AS model_id,
-                md."Name" AS name,
-                md."Type" AS type,
-                md."SourceName" AS source,
-                md."Version" AS ver,
-                md."Description" AS description,
-                md."FilePath" AS file_path,
-                tc."AlgorithmType" AS algorithm_type,
-                md."_created" AS _created,
-                B.var_count AS var_count,  -- 변수 개수 추가
-                F.file_name AS file_name,  -- 파일명 추가
-                F.file_id AS file_id
-            FROM ds_model md
-            LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
-            LEFT JOIN B ON B.id = md.id  -- 변수 개수 조인 (ds_model_col 반영)
-            LEFT JOIN F ON F.id = md.id  -- 파일명 조인
-            WHERE 1=1
-            '''
-
-            # sql = '''
-            # SELECT
-            #     mm.id AS id, 
-            #     NULL AS parent_id,
-            #     mm."Name" AS name,
-            #     mm."Type" AS type,
-            #     NULL AS source,
-            #     NULL AS ver,
-            #     NULL AS description,
-            #     NULL AS file_path,
-            #     NULL AS algorithm_type,
-            #     mm."_created" AS _created
-            # FROM ds_master mm
-
-            # UNION ALL
-
-            # SELECT
-            #     md.id AS id,
-            #     md."DsMaster_id" AS parent_id,
-            #     md."Name" AS name,
-            #     md."Type" AS type,
-            #     md."SourceName" AS source,
-            #     md."Version" AS ver,
-            #     md."Description" AS description,
-            #     md."FilePath" AS file_path,
-            #     tc."AlgorithmType" AS algorithm_type,
-            #     md."_created" AS _created
-            # FROM ds_model md
-            # LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
-            # WHERE 1=1
-            # '''
+            ),
+            Parent AS (
+                -- 부모 데이터 (항상 표시)
+                SELECT
+                    CONCAT('M_', mm.id) AS tree_id,
+                    NULL AS tree_master_id,
+                    mm.id AS master_id,    
+                    CAST(NULL AS INTEGER) AS model_id,  -- 🔥 자료형 맞춤
+                    mm."Name" AS name,
+                    mm."Type" AS type,
+                    NULL AS source,
+                    NULL AS ver,
+                    NULL AS description,
+                    NULL AS file_path,
+                    NULL AS algorithm_type,
+                    mm."_created" AS _created,
+                    CAST(NULL AS INTEGER) AS var_count,  -- 🔥 자료형 맞춤
+                    NULL AS file_name,
+                    CAST(NULL AS INTEGER) AS file_id     -- 🔥 자료형 맞춤
+                FROM ds_master mm
+                WHERE 1=1
+                '''
             if master_type:
                 sql += '''
-                AND UPPER(type) = UPPER(%(master_type)s)
+                AND UPPER(mm."Type") = UPPER(%(master_type)s)
                 '''
+
+            sql += '''
+            ),
+            Child AS (
+                -- 자식 데이터 (검색어 있을 때만 필터링)
+                SELECT
+                    CONCAT('C_', md.id) AS tree_id,
+                    CONCAT('M_', md."DsMaster_id") AS tree_master_id,
+                    md."DsMaster_id" AS master_id,
+                    md.id AS model_id,
+                    md."Name" AS name,
+                    md."Type" AS type,
+                    -- mm."Type" AS master_type,
+                    md."SourceName" AS source,
+                    md."Version" AS ver,
+                    md."Description" AS description,
+                    md."FilePath" AS file_path,
+                    tc."AlgorithmType" AS algorithm_type,
+                    md."_created" AS _created,
+                    B.var_count AS var_count,  
+                    F.file_name AS file_name,  
+                    F.file_id AS file_id
+                FROM ds_model md
+                LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
+                LEFT JOIN ds_master mm ON mm.id = md."DsMaster_id"
+                LEFT JOIN B ON B.id = md.id  
+                LEFT JOIN F ON F.id = md.id  
+                WHERE 1=1
+            '''
+
             if keyword:
                 sql += '''
-                (
-                    UPPER(name) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-                    OR UPPER(type) LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                AND (
+                    UPPER(md."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(md."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(md."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                 )
                 '''
+
+            sql += '''
+            )
+            SELECT * FROM Parent
+            WHERE 1=1
+            '''
+            if keyword:
+                sql += '''
+                AND master_id IN (SELECT master_id FROM Child)
+                '''
+            sql += '''
+            UNION ALL
+            SELECT * FROM Child
+            '''
+
+            # if keyword:
+            #     sql += '''
+            #     AND (tree_master_id IN (SELECT tree_id FROM Parent) OR tree_id IN (SELECT tree_id FROM Child))
+            #     '''
+
             sql += '''
             ORDER BY tree_master_id NULLS FIRST, name ASC;
             '''
+
+            # sql = '''
+            # WITH A AS (
+            #     SELECT md.id, md."Name" AS name, md."Description" AS description, md."Type" AS type, md._created
+            #     FROM ds_model md
+            # ),
+            # B AS (
+            #     SELECT A.id,
+            #            COUNT(mc.*) AS var_count
+            #     FROM A
+            #     INNER JOIN ds_model_col mc ON mc."DsModel_id" = A.id
+            #     GROUP BY A.id
+            # ),
+            # F AS (
+            #     SELECT A.id, af.id AS file_id, af."FileName" AS file_name
+            #     FROM A
+            #     INNER JOIN attach_file af ON af."DataPk" = A.id 
+            #     AND af."TableName" = 'ds_model'
+            # ),
+            # T AS (
+            #     SELECT
+            #         CONCAT('M_', mm.id) AS tree_id,
+            #         NULL AS tree_master_id,
+            #         mm.id AS master_id,    
+            #         NULL AS model_id,
+            #         mm."Name" AS name,
+            #         mm."Type" AS type,
+            #         mm."Type" AS master_type,
+            #         NULL AS source,
+            #         NULL AS ver,
+            #         NULL AS description,
+            #         NULL AS file_path,
+            #         NULL AS algorithm_type,
+            #         mm."_created" AS _created,
+            #         NULL AS var_count,  -- ds_master에는 var_count 없음
+            #         NULL AS file_name,  -- ds_master에는 file_name 없음
+            #         NULL AS file_id     -- ds_master에는 file_id 없음
+            #     FROM ds_master mm
+            #     UNION ALL
+            #     SELECT
+            #         CONCAT('C_', md.id) AS tree_id,
+            #         CONCAT('M_', md."DsMaster_id") AS tree_master_id,
+            #         md."DsMaster_id" AS master_id,
+            #         md.id AS model_id,
+            #         md."Name" AS name,
+            #         md."Type" AS type,
+            #         mm."Type" AS master_type,
+            #         md."SourceName" AS source,
+            #         md."Version" AS ver,
+            #         md."Description" AS description,
+            #         md."FilePath" AS file_path,
+            #         tc."AlgorithmType" AS algorithm_type,
+            #         md."_created" AS _created,
+            #         B.var_count AS var_count,  -- 변수 개수 추가
+            #         F.file_name AS file_name,  -- 파일명 추가
+            #         F.file_id AS file_id
+            #     FROM ds_model md
+            #     LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
+            #     LEFT JOIN ds_master mm ON mm.id = md."DsMaster_id"
+            #     LEFT JOIN B ON B.id = md.id  -- 변수 개수 조인 (ds_model_col 반영)
+            #     LEFT JOIN F ON F.id = md.id  -- 파일명 조인
+            #     WHERE 1=1
+            # '''
+            # if keyword:
+            #     sql += '''
+            #     AND (
+            #         UPPER(md."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+            #         OR UPPER(md."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+            #         OR UPPER(md."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+            #     )
+            #     '''
+            # if master_type:
+            #     sql += '''
+            #     AND UPPER(master_type) = UPPER(%(master_type)s)
+            #     '''
+            # sql += '''
+            # ORDER BY tree_master_id NULLS FIRST, name ASC;
+            # '''
 
             # sql = '''
             # SELECT
@@ -884,12 +962,21 @@ def learning_data(context):
             
             daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
+            
+            # 컬럼별 결측치 처리 방식 & 이상치 기준을 저장하는 딕셔너리 생성
+            column_preprocess_info = {}
 
             for item in Q:
-                VarName = item['VarName']
-                MissingValProcess = item['MissingValProcess']
+                VarName = item['VarName'] 
+                MissingValProcess = CommonUtil.blank_to_none(item['MissingValProcess'])
                 DropOutLow = CommonUtil.try_float(item['DropOutLow'])
                 DropOutUpper = CommonUtil.try_float(item['DropOutUpper'])
+
+                column_preprocess_info[VarName] = {
+                    "MissingValProcess": MissingValProcess,
+                    "DropOutLow": DropOutLow,
+                    "DropOutUpper": DropOutUpper
+                }
 
                 q = DsModelColumn.objects.filter(DsModel_id=md_id, VarIndex=item['VarIndex'])
                 dc = q.first()
@@ -898,14 +985,6 @@ def learning_data(context):
                     dc.DropOutLow = DropOutLow
                     dc.DropOutUpper = DropOutUpper
                     dc.save()
-
-                # q = DsModelColumn.objects.filter(DsModel_id=md_id)
-                # q = q.filter(VarIndex=item['VarIndex'])
-                # dc = q.first()
-                # dc.MissingValProcess = MissingValProcess
-                # dc.DropOutLow = DropOutLow
-                # dc.DropOutUpper = DropOutUpper
-                # dc.save()
 
                 # 결측치 처리
                 if MissingValProcess == 'drop':
@@ -919,27 +998,11 @@ def learning_data(context):
                     mode_value = df[VarName].mode()
                     df[VarName].fillna(mode_value[0] if not mode_value.empty else None, inplace=True)
 
-                # #결측치 대체
-                # if MissingValProcess == 'drop':
-                #     #df[VarName].dropna(axis=1, inplace=True)
-                #     df[VarName].dropna(inplace=True)
-                # elif MissingValProcess == 'mean':
-                #     df[VarName].fillna(df[VarName].mean(), inplace=True)
-                # elif MissingValProcess == 'median':
-                #     df[VarName].fillna(df[VarName].median(), inplace=True)
-                # elif MissingValProcess == 'mode':
-                #     df[VarName].fillna(df[VarName].mode(), inplace=True)
-
                 #이상치 제거
                 if DropOutLow:
                     df = df[df[VarName] >= DropOutLow]  # ⬅ `VarName`을 컬럼처럼 사용해야 함
                 if DropOutUpper:
                     df = df[df[VarName] <= DropOutUpper]
-
-                # if DropOutLow:
-                #     df = df[df[VarName <= DropOutLow]]
-                # if DropOutUpper:
-                #     df = df[df[VarName >= DropOutUpper]]
  
             # ds_model_data delete, update
             sql = ''' 
@@ -1000,7 +1063,7 @@ def learning_data(context):
             dc['md_id'] = md_id
             ret = DbUtil.execute(sql, dc)
 
-            daService.make_col_info(df)
+            daService.make_col_info(df, column_preprocess_info)
 
             items = {'success': True, 'message':''}
 
@@ -1163,13 +1226,13 @@ def learning_data(context):
             Q = posparam.get('Q')
             #Q = json.loads(Q)
 
-            daService = DaService('ds_data', md_id)
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
             x_cols = []
             y_cols = []
             for item in Q:
-                q = DsColumn.objects.filter(DsModel_id=md_id)
+                q = DsModelColumn.objects.filter(DsModel_id=md_id)
                 q = q.filter(VarIndex=item['VarIndex'])
                 dc = q.first()
                 dc.X = 1 if item['X'] else None
@@ -1187,7 +1250,7 @@ def learning_data(context):
             multilinear = LinearRegression()
 
             #corr = df[x_cols + y_cols].corr()
-            q = DsVarCorrelation.objects.filter(DsModel_id=md_id)
+            q = DsTagCorrelation.objects.filter(DsModel_id=md_id)
             q.delete()
 
             for y in y_cols:
@@ -1195,7 +1258,7 @@ def learning_data(context):
                 beta_0 = multilinear.intercept_
                 beta_i_list = multilinear.coef_
 
-                cr = DsVarCorrelation()
+                cr = DsTagCorrelation()
                 cr.DsModel_id = md_id
                 cr.YVarName = y
                 cr.XVarName = 'intercept_'
@@ -1207,7 +1270,7 @@ def learning_data(context):
                         corr =df[x].corr(df[y])
                     except Exception as e:
                         corr = None
-                    cr = DsVarCorrelation()
+                    cr = DsTagCorrelation()
                     cr.DsModel_id = md_id
                     cr.XVarName = x
                     cr.YVarName = y
@@ -1233,7 +1296,7 @@ def learning_data(context):
             import seaborn as sns
 
             md_id = gparam.get('md_id')
-            daService = DaService('ds_data', md_id)
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
             #num_df = df.select_dtypes(include=['int64','float64'])

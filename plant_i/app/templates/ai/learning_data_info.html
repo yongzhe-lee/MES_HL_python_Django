@@ -4,7 +4,7 @@
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
-        <form class="search-form" id="searchForm">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
             <div class="card-content search">
                 <div class="form-ui">
                     <div class="col-12 col-md-4 col-xl-3">
@@ -429,8 +429,11 @@
 </div>
 {% verbatim %}
 <script type="text/x-kendo-template" id="fileUploadTemplate">
-    <div class="content_wrap popup">
-        <div class="card-content edit">
+    <div class="modal">
+        <div class="modal-content">
+            <!--<div class="modal-header">
+                <h4 id=title></h4>
+            </div>-->
             <form id="dsDataForm" class="search-form">
                 <div class="form-ui">
                     <input type="hidden" id="id" name="id">
@@ -526,7 +529,9 @@
 
             // model search form
             AjaxUtil.fillDropDownOptions($('#cboModelType'), 'user_code', 'all', null, 'MODEL_TYPE')
-            $('#sch_keyword').kendoTextBox({ placeholder: '모델명, 설명' });
+            $('#sch_keyword').kendoTextBox({ placeholder: '모델명, 유형, 설명' });
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+
             kendoUtil.bindButton('#btnSearch', 'search', 'info', () => this.searchMainData());
             kendoUtil.bindButton('#btnExcel', 'file-excel', 'success', () => {
                 kendoUtil.saveAsExcel(this.modelGrid, "모델 목록");
@@ -634,15 +639,11 @@
                 });
             });
 
-            //tab7
-            $('#x_all_check').on('click', function () {
-                let checked = $(this).prop('checked');
-                $('input[name="chkbx_x"]').prop('checked', checked);
-            });
-            $('#y_all_check').on('click', function () {
-                let checked = $(this).prop('checked');
-                $('input[name="chkbx_y"]').prop('checked', checked);
-            })
+            //tab8
+            //$('#y_all_check').on('click', function () {
+            //    let checked = $(this).prop('checked');
+            //    $('input[name="chkbx_y"]').prop('checked', checked);
+            //})
 
             kendoUtil.bindButton('#btnSaveXY', null, 'success', () => {
                 Alert.confirm('', '지정한 X, Y변수를 저장하시겠습니까??', () => {
@@ -754,9 +755,16 @@
                         ],
                         change: function (e) {
                             let activeTab = $("#tabstrip").data("kendoTabStrip").select().index();
-                            if (_this.getSelectedModel(activeTab, activeTab === 0 ? false : true)) {
-                                _this.loadGridByTab(activeTab); // 현재 탭의 데이터만 갱신
+                            // 첫번째 tab일 때, showAlert을 false로 전달하여 모델 미선택 알럿창 방지
+                            if (activeTab === 0) {
+                                _this.loadGridByTab(activeTab, false);
+                            } else {
+                                _this.loadGridByTab(activeTab);
                             }
+                            //if (_this.getSelectedModel(activeTab, activeTab === 0 ? false : true)) {
+                            //    // 선택된 모델의 데이터를 현재 열려있는 탭 것만 갱신
+                            //    _this.loadGridByTab(activeTab); 
+                            //}
                         },
                         height: "300px"
                     };
@@ -868,37 +876,38 @@
                         editable: true,  // 편집 가능하도록 설정(콤보박스용)
                         columns: [
                             { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            { field: 'VarName', title: '변수명', width: 150, editable: false },
-                            { field: 'DataCount', title: '데이터수', width: 80 },
-                            { field: 'MissingCount', title: '결측치수', width: 80 },
-                            { field: 'CategoryCount', title: '범주개수', width: 80 },
-                            { field: 'Mean', title: '평균', width: 80 },
-                            { field: 'Std', title: '표준편차', width: 80 },
-                            { field: 'Q1', title: 'Q1', width: 80 },
-                            { field: 'Q2', title: 'Q2', width: 80 },
-                            { field: 'Q3', title: 'Q3', width: 80 },
+                            { field: 'VarName', title: '변수명', width: 150, editable: () => false },
                             {
                                 field: "MissingValProcess",
-                                title: "결측치처리",
+                                title: "결측치 처리방법",
                                 width: 120,
                                 attributes: { style: "text-align: center" },
                                 template: function (dataItem) {
-                                    let selectedOption = _this.mission_proc_options.find(opt => opt.code === dataItem.MissingValProcess);
-                                    return selectedOption ? selectedOption.name : "처리 방법 선택";
+                                    let selectedOption = _this.mission_proc_options.find(opt => opt.code == dataItem.MissingValProcess);
+                                    return `<select name="MissingValProcess" class="k-picker k-dropdownlist k-picker-solid k-picker-md k-rounded-md k-valid">
+                                                <option selected value="${selectedOption ? selectedOption.code : ''}">${selectedOption? selectedOption.name : "선택"}</option>
+                                            </select>`;
                                 },
-                                editor: function (container, options) {
-                                    $('<select name="' + options.field + '"></select>')
-                                        .appendTo(container)
-                                        .kendoDropDownList({
-                                            dataSource: _this.mission_proc_options,
-                                            dataTextField: "name",
-                                            dataValueField: "code",
-                                            value: options.model.MissingValProcess,
-                                            change: function (e) {
-                                                options.model.set("MissingValProcess", e.sender.value());
-                                            }
-                                        });
-                                }
+                                // 임의로 editor 형식으로 변환되는 것 방지
+                                editable: () => false
+                                //editor: function (container, options) {
+                                //    $('<select name="' + options.field + '"></select>')
+                                //        .appendTo(container)
+                                //        .kendoDropDownList({
+                                //            text: "선택",
+                                //            dataSource: _this.mission_proc_options,
+                                //            dataTextField: "name",
+                                //            dataValueField: "code",
+                                //            value: options.model.MissingValProcess,
+                                //            optionLabel: {
+                                //                name: "선택",
+                                //                code: ""
+                                //            },
+                                //            change: function (e) {
+                                //                options.model.set("MissingValProcess", e.sender.value());
+                                //            }
+                                //        });
+                                //}
                             },
                             {
                                 field: "DropOutLow",
@@ -906,47 +915,161 @@
                                 width: 100,
                                 attributes: { style: "text-align: center" },
                                 template: function (dataItem) {
-                                    return dataItem.DropOutLow !== null && dataItem.DropOutLow !== undefined ? dataItem.DropOutLow : "입력";
+                                    let value = dataItem.DropOutLow ?? "";
+                                    let displayValue = value == null ? "입력" : value; // ✅ 값이 없으면 "입력" 표시
+                                    return `<input name="DropOutLow" class="k-input k-textbox k-input-solid k-input-md k-rounded-md" 
+                                              value="${displayValue}" placeholder="입력" />`;
                                 },
                                 editor: function (container, options) {
-                                    $('<input name="' + options.field + '"/>')
+                                    $('<input name="DropOutLow"/>')
                                         .appendTo(container)
-                                        .kendoNumericTextBox({
-                                            format: "n2",
-                                            decimals: 2,
-                                            step: 0.01,
-                                            value: options.model[options.field] || null,
+                                        .kendoTextBox({
+                                            value: options.model.DropOutLow ?? null, // ✅ 값이 없으면 placeholder로 "입력" 표시
+                                            placeholder: "입력",
                                             change: function (e) {
-                                                let newValue = e.sender.value();
-                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
-                                            }
+                                                let newValue = e.sender.value().trim();
+                                                options.model.set("DropOutLow", newValue === "" ? null : newValue); // ✅ 빈 값이면 null 처리
+                                            },
+                                        //    width: "100%"
                                         });
                                 }
+                                //template: function (dataItem) {
+                                //    return dataItem.DropOutLow !== null && dataItem.DropOutLow !== undefined ? dataItem.DropOutLow : "입력";
+                                //},
+                                //editor: function (container, options) {
+                                //    $('<input name="' + options.field + '"/>')
+                                //        .appendTo(container)
+                                //        .kendoNumericTextBox({
+                                //            format: "n2",
+                                //            decimals: 2,
+                                //            step: 0.01,
+                                //            value: options.model[options.field] || null,
+                                //            change: function (e) {
+                                //                let newValue = e.sender.value();
+                                //                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
+                                //            }
+                                //        });
+                                //}
                             },
                             {
                                 field: "DropOutUpper",
                                 title: "이상치상한",
                                 width: 100,
                                 attributes: { style: "text-align: center" },
+                                //template: function (dataItem) {
+                                //    return dataItem.DropOutUpper !== null && dataItem.DropOutUpper !== undefined ? dataItem.DropOutUpper : "입력";
+                                //},
+                                //editor: function (container, options) {
+                                //    $('<input name="' + options.field + '"/>')
+                                //        .appendTo(container)
+                                //        .kendoNumericTextBox({
+                                //            format: "n2",
+                                //            decimals: 2,
+                                //            step: 0.01,
+                                //            value: options.model[options.field] || null,
+                                //            change: function (e) {
+                                //                let newValue = e.sender.value();
+                                //                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
+                                //            }
+                                //        });
+                                //}
                                 template: function (dataItem) {
-                                    return dataItem.DropOutUpper !== null && dataItem.DropOutUpper !== undefined ? dataItem.DropOutUpper : "입력";
+                                    let value = dataItem.DropOutUpper ?? "";
+                                    let displayValue = value == null ? "입력" : value; // ✅ 값이 없으면 "입력" 표시
+                                    return `<input name="DropOutUpper" class="k-input k-textbox k-input-solid k-input-md k-rounded-md" 
+                                            value="${displayValue}" placeholder="입력" />`;
                                 },
                                 editor: function (container, options) {
-                                    $('<input name="' + options.field + '"/>')
+                                    $('<input name="DropOutUpper"/>')
                                         .appendTo(container)
-                                        .kendoNumericTextBox({
-                                            format: "n2",
-                                            decimals: 2,
-                                            step: 0.01,
-                                            value: options.model[options.field] || null,
+                                        .kendoTextBox({
+                                            value: options.model.DropOutUpper ?? null, // ✅ 값이 없으면 placeholder로 "입력" 표시
+                                            placeholder: "입력",
                                             change: function (e) {
-                                                let newValue = e.sender.value();
-                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
-                                            }
+                                                let newValue = e.sender.value().trim();
+                                                options.model.set("DropOutUpper", newValue === "" ? null : newValue); // ✅ 빈 값이면 null 처리
+                                            },
+                                        //    width: "100%"
                                         });
                                 }
-                            }
+                            },
+                            { field: 'DataCount', title: '데이터수', width: 80, editable: () => false },
+                            { field: 'MissingCount', title: '결측치수', width: 80, editable: () => false },
+                            { field: 'CategoryCount', title: '범주개수', width: 80, editable: () => false },
+                            { field: 'Mean', title: '평균', width: 80, editable: () => false },
+                            { field: 'Std', title: '표준편차', width: 80, editable: () => false },
+                            { field: 'Q1', title: 'Q1', width: 80, editable: () => false },
+                            { field: 'Q2', title: 'Q2', width: 80, editable: () => false },
+                            { field: 'Q3', title: 'Q3', width: 80, editable: () => false },
+
                         ],
+                        dataBound: function (e) {
+                            let grid = this;
+
+                            // ✅ DropDownList 바인딩 (MissingValProcess)
+                            grid.tbody.find("select[name='MissingValProcess']").each(function () {
+                                let select = $(this);
+                                let row = select.closest("tr");
+                                let dataItem = grid.dataItem(row);
+
+                                select.kendoDropDownList({
+                                    dataSource: _this.mission_proc_options, // ✅ "-" 옵션 그대로 유지
+                                    dataTextField: "name",
+                                    dataValueField: "code",
+                                    value: dataItem.MissingValProcess || "", // ✅ 빈 값이면 "-"가 표시됨
+                                    optionLabel: "선택", // ✅ "선택"이 표시되지만 "-"도 그대로 유지
+                                    change: function (e) {
+                                        dataItem.set("MissingValProcess", e.sender.value());
+                                    }
+                                });
+                            });
+
+                            //// TextBox 바인딩 (DropOutLow)
+                            //grid.tbody.find("input[name='DropOutLow']").each(function () {
+                            //    let input = $(this);
+                            //    let row = input.closest("tr");
+                            //    let dataItem = grid.dataItem(row);
+
+                            //    input.kendoTextBox({
+                            //        format: "n8",
+                            //        decimals: 8,
+                            //        value: dataItem.DropOutLow ?? null, // ✅ 값이 없으면 placeholder로 "입력" 표시
+                            //        placeholder: "입력", // ✅ placeholder 추가
+                            //        change: function (e) {
+                            //            let newValue = e.sender.value().trim();
+                            //            dataItem.set("DropOutLow", newValue == "" ? null : newValue); // ✅ 빈 값이면 "입력" 표시
+                            //        },
+                            //        width: "100%"
+                            //    });
+                            //});
+
+                            //// TextBox 바인딩 (DropOutUpper)
+                            //grid.tbody.find("input[name='DropOutUpper']").each(function () {
+                            //    let input = $(this);
+                            //    let row = input.closest("tr");
+                            //    let dataItem = grid.dataItem(row);
+
+                            //    input.kendoTextBox({
+                            //        format: "n8",
+                            //        decimals: 8,
+                            //        value: dataItem.DropOutUpper ?? null, // ✅ 값이 없으면 placeholder로 "입력" 표시
+                            //        placeholder: "입력", // ✅ placeholder 추가
+                            //        change: function (e) {
+                            //            let newValue = e.sender.value().trim();
+                            //            dataItem.set("DropOutUpper", newValue == "" ? null : newValue); // ✅ 빈 값이면 "입력" 표시
+                            //        },
+                            //        width: "100%"
+                            //    });
+                            //});
+
+                            // 그리드 행 번호 자동 업데이트
+                            let items = grid.items();
+                            items.each(function (index) {
+                                $(this).find("td:first").html(index + 1);
+                            });
+
+                            kendoUtil.showGridRowCount(this.element);
+                        },
                         height: "300px",
                         noRecords: {
                             template: noDataMessage
@@ -957,112 +1080,109 @@
                 case 'settingXy_grid':
                     specificOption = {
                         pageable: false,
-                        editable: true,  // 편집 가능하도록 설정(콤보박스용)
+                        sortable: false,    // 해당 기능 true 되면 check 선택 이벤트보다 sort 이벤트가 실행됨
+                        filterable: false,
+                        editable: false,  // 어차피 dom으로 직접 조작해서 value 주기 때문에 false로
                         columns: [
-                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' }, editable: true },
-                            { field: 'VarName', title: '변수명', width: 150, editable: true },
+                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' }},
+                            { field: 'VarName', title: '변수명', width: 150 },
                             {
                                 field: 'X',
                                 width: 80,
-                                headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="x_all_check"/> <label for="x_all_check">X변수</label>',
+                                headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="x_all_check"/>X변수',
                                 attributes: { style: "text-align: center" },
-                                // 단순 체크박스 에디터: 편집 시 체크박스 생성
                                 template: function (item) {
                                     return '<input name="chkbx_x" type="checkbox"' + (item.X == 1 ? 'checked="checked"' : '') + 'class="chkbx k-checkbox k-checkbox-md k-rounded-md" />';
-                                }
+                                },
                             },
                             {
                                 field: 'Y',
                                 width: 80,
                                 attributes: { style: "text-align: center" },
-                                headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="y_all_check"/> <label for="y_all_check">Y변수</label>',
-                                // 단순 체크박스 에디터: 편집 시 체크박스 생성
+                                title: 'Y변수',
                                 template: function (item) {
                                     return '<input name="chkbx_y" type="checkbox"' + (item.Y == 1 ? 'checked="checked"' : '') + 'class="chkbx k-checkbox k-checkbox-md k-rounded-md" />';
-                                }
-                            },
-                            { field: 'DataCount', title: '데이터개수', width: 100, editable: true },
-                            { field: 'MissingCount', title: '결측치개수', width: 100, editable: true },
-                            { field: 'CategoryCount', title: '범주개수', width: 80, editable: true },
-                            { field: 'Mean', title: '평균', width: 80, editable: true },
-                            { field: 'Std', title: '표준편차', width: 80, editable: true },
-                            { field: 'Q1', title: 'Q1', width: 80, editable: true },
-                            { field: 'Q2', title: 'Q2', width: 80, editable: true },
-                            { field: 'Q3', title: 'Q3', width: 80, editable: true },
-                            {
-                                field: "MissingValProcess",
-                                title: "결측치처리",
-                                width: 120,
-                                attributes: { style: "text-align: center" },
-                                template: function (dataItem) {
-                                    let selectedOption = _this.mission_proc_options.find(opt => opt.code === dataItem.MissingValProcess);
-                                    return selectedOption ? selectedOption.name : "처리 방법 선택";
                                 },
-                                editor: function (container, options) {
-                                    $('<select name="' + options.field + '"></select>')
-                                        .appendTo(container)
-                                        .kendoDropDownList({
-                                            dataSource: _this.mission_proc_options,
-                                            dataTextField: "name",
-                                            dataValueField: "code",
-                                            value: options.model.MissingValProcess,
-                                            change: function (e) {
-                                                options.model.set("MissingValProcess", e.sender.value());
-                                            }
-                                        });
-                                }
                             },
-                            {
-                                field: "DropOutLow",
-                                title: "이상치하한",
-                                width: 100,
-                                attributes: { style: "text-align: center" },
-                                template: function (dataItem) {
-                                    return dataItem.DropOutLow !== null && dataItem.DropOutLow !== undefined ? dataItem.DropOutLow : "입력";
-                                },
-                                editor: function (container, options) {
-                                    $('<input name="' + options.field + '"/>')
-                                        .appendTo(container)
-                                        .kendoNumericTextBox({
-                                            format: "n2",
-                                            decimals: 2,
-                                            step: 0.01,
-                                            value: options.model[options.field] || null,
-                                            change: function (e) {
-                                                let newValue = e.sender.value();
-                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
-                                            }
-                                        });
-                                }
-                            },
-                            {
-                                field: "DropOutUpper",
-                                title: "이상치상한",
-                                width: 100,
-                                attributes: { style: "text-align: center" },
-                                template: function (dataItem) {
-                                    return dataItem.DropOutUpper !== null && dataItem.DropOutUpper !== undefined ? dataItem.DropOutUpper : "입력";
-                                },
-                                editor: function (container, options) {
-                                    $('<input name="' + options.field + '"/>')
-                                        .appendTo(container)
-                                        .kendoNumericTextBox({
-                                            format: "n2",
-                                            decimals: 2,
-                                            step: 0.01,
-                                            value: options.model[options.field] || null,
-                                            change: function (e) {
-                                                let newValue = e.sender.value();
-                                                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
-                                            }
-                                        });
-                                }
-                            }
+                            { field: 'DataCount', title: '데이터개수', width: 100 },
+                            { field: 'MissingCount', title: '결측치개수', width: 100 },
+                            { field: 'CategoryCount', title: '범주개수', width: 80 },
+                            { field: 'Mean', title: '평균', width: 80 },
+                            { field: 'Std', title: '표준편차', width: 80 },
+                            { field: 'Q1', title: 'Q1', width: 80 },
+                            { field: 'Q2', title: 'Q2', width: 80 },
+                            { field: 'Q3', title: 'Q3', width: 80 },
+                            { field: "MissingValProcess", title: "결측치 처리방법", width: 120 },
+                            { field: "DropOutLow", title: "이상치하한", width: 100 },
+                            { field: "DropOutUpper", title: "이상치상한", width: 100 }
                         ],
+                        dataBound: function (e) {
+                            let grid = this;
+                            let items = grid.items();
+
+                            // ✅ 개별 X 체크박스 클릭 시 데이터 반영
+                            grid.element.find("input[name='chkbx_x']").on("change", function () {
+                                let row = $(this).closest("tr");
+                                let dataItem = grid.dataItem(row);
+                                dataItem.set("X", this.checked ? 1 : 0);
+                            });
+
+                            // ✅ 개별 Y 체크박스 클릭 시 데이터 반영 (Y는 하나만 선택 가능)
+                            grid.element.find("input[name='chkbx_y']").on("change", function () {
+                                let row = $(this).closest("tr");
+                                let dataItem = grid.dataItem(row);
+
+                                console.log("1", grid.element.find("input[name='chkbx_y']:checked"));
+                                if (this.checked) {
+                                    console.log("2", grid.element.find("input[name='chkbx_y']:checked"));
+
+                                    // ✅ Y가 이미 선택된 상태인지 확인 (본인이 체크되기 전 기준)
+                                    // ✅ 현재 체크된 상태에서 Y가 이미 선택된 항목이 있는지 확인
+                                    let existingChecked = grid.element.find("input[name='chkbx_y']:checked").not(this);
+
+                                    if (existingChecked.length > 0) {
+                                        console.log("3", grid.element.find("input[name='chkbx_y']:checked"));
+
+                                        Alert.alert("error", "Y변수는 하나만 선택할 수 있습니다.");
+                                        $(this).prop("checked", false);  // 방금 체크한 거 해제
+                                        return;
+                                    }
+                                    console.log("4", grid.element.find("input[name='chkbx_y']:checked"));
+                                    // ✅ 기존 Y 해제 후 현재 선택 반영
+                                    grid.dataSource.data().forEach(item => item.set("Y", 0));
+                                    dataItem.set("Y", 1);
+                                } else {
+                                    // ✅ 체크 해제된 경우 데이터 반영
+                                    dataItem.set("Y", 0);
+                                }
+                                console.log("5", grid.element.find("input[name='chkbx_y']:checked"));
+
+                            });
+
+                            // X 전체 선택 버튼 이벤트 (Y는 단일 선택이라 없음)
+                            $("#x_all_check").on("click", function () {
+                                let checked = $(this).prop("checked");
+                                // data 업데이트
+                                console.log("checked1", checked);
+                                grid.dataSource.data().forEach(item => item.set("X", checked ? 1 : 0));
+                                // UI 업데이트 (체크박스 상태)
+                                console.log("checked2", checked);
+                                $('input[name="chkbx_x"]').prop("checked", checked);
+                                console.log("checked3", checked);
+                            });
+
+                            // 행 번호 추가
+                            items.each(function (index) {
+                                $(this).find("td:first").html(index + 1);
+                            });
+
+                            // 그리드 row 개수 표시
+                            kendoUtil.showGridRowCount(this.element);
+                        },
                         height: "300px",
                         noRecords: {
                             template: noDataMessage
-                        }
+                        },
                     };
                     break;
 
@@ -1103,6 +1223,13 @@
                 };
             }
 
+            //if (!gridOptions.change) {
+            //    // change를 따로 설정하지 않은 그리드는 공통사항을 할당
+            //    gridOptions.change = function (e) {
+            //        this.refresh();
+            //    };
+            //}
+
             console.log("gridOptions", gridOptions);
 
             return gridOptions;
@@ -1122,7 +1249,7 @@
         }
 
         loadGridByTab(tabIndex) {
-            // 탭 인덱스에 따라 해당 탭의 컨테이너를 갱신 또는 초기화
+            // 탭 인덱스에 따라 해당 탭의 컨테이너를 초기화 또는 갱신
             switch (tabIndex) {
                 case 0:
                     // 페이지 최초 로드 시에 모델 선택 alert 방지
@@ -1198,18 +1325,18 @@
             let selectModel = _this.getSelectedModel();
             if (!selectModel) return;
 
-            // 그리드 인스턴스가 이미 존재하면 refresh, 없으면 생성
             let grid = $("#" + gridId).data("kendoGrid");
 
+            // 그리드 인스턴스가 이미 존재하면 refresh, 없으면 생성
             if (grid) {
                 //grid.autoFitColumns();
-                if (grid.dataSource.options.pageSize) {
-                    // 기존 그리드가 있고, pageable 설정이 있으면 첫 페이지로 이동
-                    grid.dataSource.query({
-                        page: 1, // 첫 페이지로 이동
-                        pageSize: 50
-                    });
-                }
+                //if (grid.dataSource.options.pageSize) {
+                //    // 기존 그리드가 있고, pageable 설정이 있으면 첫 페이지로 이동
+                //    grid.dataSource.query({
+                //        page: 1, // 첫 페이지로 이동
+                //        pageSize: 50
+                //    });
+                //}
 
                 //grid.dataSource.read(); // 데이터를 새로 불러옴
 
@@ -1255,9 +1382,14 @@
                         //console.log("gridInstance.dataSource.data", gridInstance.dataSource.data());
                     } else {
                         // xrows는 있지만 빈 배열 일 때. 컬럼&데이터 초기화하여 noDataMessage 표시
+                        let pageSize = gridInstance.dataSource.options.pageSize;
                         gridInstance.setOptions({
                             columns: [],
-                            dataSource: []
+                            dataSource: {
+                                // pageSize 설정이 덮어씌워져서 all로 바뀌는 것 방지
+                                pageSize: pageSize ? pageSize : null,
+                                data: []
+                            }
                         });
                     }
                 } else {
@@ -1457,29 +1589,6 @@
             //});
         }
 
-        //showModelData() {
-        //    let _this = this;
-        //    let data = _this.modelGrid.getSelect();
-
-        //    if (!data || data.length === 0) {
-        //        Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
-        //    } else {
-        //        let selectData = data[0];
-
-        //        _this.mm_id = selectData.master_id;
-        //        _this.md_id = selectData.model_id;
-
-        //        console.log("selectData", selectData);
-
-        //        // 현재 활성 탭이 "데이터" 탭(예: 인덱스 1)일 때만 grid rendering
-        //        let tabstrip = $("#tabstrip").data("kendoTabStrip");
-        //        let activeTabIndex = tabstrip.select().index();
-        //        if (activeTabIndex === 1) {
-        //            //_this.renderGrid("data_list_grid", "ds_data_list");
-        //            _this.renderGrid("data_detail_grid", "ds_rows_list");
-        //        }
-        //    }
-        //}
 
         saveDsCol() {
             let _this = this;
@@ -1487,7 +1596,34 @@
             let url = _this.baseUrl + '?action=save_ds_col_preprocess';
 
             let grid_data = $('#ds_col_grid2').data("kendoGrid").dataSource.data();
-            console.log('save_ds_col_preprocess grid_data', grid_data);
+
+            console.log('save_ds_col_preprocess grid_data1', grid_data);
+
+            // 데이터 타입에 따른 결측치 처리 방식 제한
+            for (let i = 0; i < grid_data.length; i++) {
+                let row = grid_data[i]; // 현재 행(row) 데이터
+
+                // 범주형 데이터(char) → mean, median 사용 금지
+                if (row.CategoryCount > 0 && row.Mean == null) {
+                    console.log('save_ds_col_preprocess grid_data2-1', grid_data);
+                    if (row.MissingValProcess === "mean" || row.MissingValProcess === "median") {
+                        console.log('save_ds_col_preprocess grid_data2-2', grid_data);
+                        Alert.alert("info", `범주형 데이터(${row.VarName})는 평균(mean) 또는 중위값(median)으로 처리할 수 없습니다. 다른 방식을 선택해 주세요.`);
+                        return;
+                    }
+                }
+                // 수치형(연속형) 데이터 → mode 사용 금지
+                else if (!row.CategoryCount) {
+                    console.log('save_ds_col_preprocess grid_data3-1', grid_data);
+                    if (row.MissingValProcess === "mode") {
+                        console.log('save_ds_col_preprocess grid_data3-2', grid_data);
+                        Alert.alert("info", `수치형 데이터(${row.VarName})는 최빈값(mode)으로 처리할 수 없습니다. 다른 방식을 선택해 주세요.`);
+                        return;
+                    }
+                }
+                console.log('save_ds_col_preprocess grid_data4', grid_data);
+                // 수치형(이산형) 데이터는 자동으로 통과 (모든 방식 허용)
+            }
 
             let data = {
                 md_id: _this.md_id,
@@ -1511,16 +1647,23 @@
             let grid_data = $('#settingXy_grid').data("kendoGrid").dataSource.data();
             console.log('grid_data', grid_data);
 
-            grid_data.forEach(function (item, index) {
-                if (item.X == 'true' || item.X == 1)
-                    item.X = 1;
-                else
-                    item.X = 0;
-                if (item.Y == 'true' || item.Y == 1)
-                    item.Y = 1;
-                else
-                    item.Y = 0;
+            let yCount = 0; // Y가 선택된 개수를 체크하는 변수
+
+            grid_data.forEach(function (item) {
+                item.X = (item.X == 'true' || item.X == 1) ? 1 : 0;
+                item.Y = (item.Y == 'true' || item.Y == 1) ? 1 : 0;
+
+                if (item.Y === 1) {
+                    yCount++; // Y가 선택된 경우 개수 증가
+                }
             });
+
+            // Y가 2개 이상 선택된 경우 경고 메시지 출력 후 저장 중단
+            if (yCount > 1) {
+                Alert.alert('error', 'Y 변수는 하나만 선택해야 합니다.');
+                return; // 🚨 저장 로직 중단
+            }
+
             let data = {
                 md_id: _this.md_id,
                 Q: JSON.stringify(grid_data),
