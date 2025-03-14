@@ -1,0 +1,86 @@
+-- DROP FUNCTION public.fn_get_last_pm_date(int8);
+
+CREATE OR REPLACE FUNCTION public.fn_get_last_pm_date(p_pm_pk bigint)
+ RETURNS date
+ LANGUAGE plpgsql
+AS $function$
+declare
+	v_last_date date;
+	v_sched_start_dt date;
+	v_next_chk_date date;
+	v_next_date date;
+	v_cycle_type character varying;
+	v_per_number numeric;
+begin
+	raise notice '===111===';
+	select max(t.plan_start_dt) 
+	into v_last_date
+	from work_order t
+	inner join equ eq on t.equip_id = eq.id
+	where t.pm_pk = p_pm_pk 
+	and t.pm_req_type = 'A' 
+	and t.wo_type = 'PM' 
+	and t.pm_pk is not null
+	and eq.site_id = t.site_id
+	;		
+
+    raise notice '===222===';
+
+	select (case when cycle_type = 'CYCLE_TYPE_Y' then 'year' 
+			   	when cycle_type = 'CYCLE_TYPE_M' then 'month' 
+			   	when cycle_type = 'CYCLE_TYPE_W' then 'week'
+			   	when cycle_type = 'CYCLE_TYPE_D' then 'day' else '' end)
+	, per_number, next_chk_date, sched_start_dt
+	into v_cycle_type, v_per_number, v_next_chk_date, v_sched_start_dt
+	from pm 
+	where pm_pk = p_pm_pk 
+	;	
+
+	raise notice '==333==';
+	if v_next_chk_date is null and v_last_date is null then 
+		-- 다음주기일, 최근생성된일정이 널 : 주기시작일로 일정 생성
+		select fn_get_next_sche_date(v_sched_start_dt
+			, date(current_date + interval '1 day')
+			, fn_dateadd(date(current_date + interval '1 day'), v_cycle_type, v_per_number) 
+			, v_cycle_type
+			, v_per_number) into v_next_date;
+		raise notice '==111==';
+	elsif v_next_chk_date is null and v_last_date is not null then 
+		-- 다음주기일은 널, 최근생성된 일정이 널이 아닌경우 : 최근생성된일정 기준으로 금일 이후의 일정 생성
+		select fn_get_next_sche_date(v_last_date
+			, date(current_date + interval '1 day')
+			, fn_dateadd(date(current_date + interval '1 day'), v_cycle_type, v_per_number) 
+			, v_cycle_type
+			, v_per_number) into v_next_date;	
+	elsif v_next_chk_date is not null and v_next_chk_date < current_date then 
+		-- 다음주기일이 오늘보다 작은경우: 최근생성된 일정 기준으로 오늘 이후의 일정 생성 
+		select fn_get_next_sche_date(v_last_date
+			, date(current_date + interval '1 day')
+			, fn_dateadd(date(current_date + interval '1 day'), v_cycle_type, v_per_number) 
+			, v_cycle_type
+			, v_per_number) into v_next_date;
+	
+	elsif v_next_chk_date is not null and v_next_chk_date >= current_date then 
+		-- 다음주기일이 오늘보다 크거나 같은 경우 
+		select fn_get_next_sche_date(v_next_chk_date
+			, date(current_date + interval '1 day')
+			, fn_dateadd(date(current_date + interval '1 day'), v_cycle_type, v_per_number) 
+			, v_cycle_type
+			, v_per_number) into v_next_date;	
+	else 
+		v_next_date = v_next_chk_date;
+	end if;
+	raise notice '==444==';
+	RETURN coalesce(v_next_date, v_next_chk_date);
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	-- insert into error_log(error_log_type, error_log_title, error_log_desc)
+	-- values('FUNCTION', 'fn_get_last_pm', concat(' [MESSAGE] : ', SQLERRM));
+	RETURN coalesce(v_next_chk_date, null);
+  END;
+  
+end;
+$function$
+;

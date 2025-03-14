@@ -1,0 +1,56 @@
+-- DROP FUNCTION public.fn_get_work_day(varchar);
+
+CREATE OR REPLACE FUNCTION public.fn_get_work_day(p_plan_date character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+    i integer;
+	v_plan_date character varying(10);
+	v_dayofweek text;
+	v_holiday_cnt integer = 0;
+begin
+	-- p_plan_date가 휴일인 경우, 가장빠른 휴일이 아닌 일자 반환 
+	v_plan_date = p_plan_date;
+
+	-- 다음 주기일이 공휴일인 경우 첫번째 평일로 반환 
+	i := 1;
+	LOOP
+		v_holiday_cnt = 99999;
+
+		select to_char(to_date(v_plan_date, 'YYYY-MM-DD'), 'D') into v_dayofweek;
+		
+		with tx as (
+			select (case when v_dayofweek = '1' or v_dayofweek = '7' then 1 else 0 end) as cnt
+			union all
+			select count(t.cnt) as cnt
+			from (
+				select 1 as cnt
+				from holiday t1
+				where t1.holidate = v_plan_date
+				and t1.nation_cd = 'ko'		
+				limit 1
+			) t
+			order by cnt desc limit 1
+		)
+		select max(tx.cnt) into v_holiday_cnt from tx;
+
+		if coalesce(v_holiday_cnt, 99999) = 0 then
+			-- 평일인경우 
+			EXIT;
+		else
+			-- 공휴일인경우 다음일
+			select to_char(to_date(v_plan_date, 'YYYY-MM-DD') + INTERVAL '1 days', 'YYYY-MM-DD') into v_plan_date;
+		end if;
+
+		-- 무한루프 방지
+		EXIT WHEN i = 100;
+
+		SELECT i+1 INTO i;
+	END LOOP;		
+	
+	RETURN v_plan_date;
+	
+end;
+$function$
+;

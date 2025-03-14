@@ -1,0 +1,257 @@
+-- DROP FUNCTION public.fn_make_schedule_pm(varchar, int8, date, date, int4);
+
+CREATE OR REPLACE FUNCTION public.fn_make_schedule_pm(p_sche_type character varying, p_pm_pk bigint, p_make_start_date date, p_make_end_date date, p_site_id integer)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	v_cycle_type character varying(20); 
+	v_cycle_type_code character varying(10); 
+	v_per_number numeric;
+	v_sched_start_dt date;
+	v_next_chk_date date;
+	v_exists_cnt integer = 0;
+	v_start_date date;
+	v_curr_date date;
+	v_plan_date date;
+	v_next_date date;
+    i integer;
+	v_work_order_pk bigint;
+	v_work_order_approval_pk bigint;
+	v_accept_yn character varying(1); 
+	v_approval_yn character varying(1); 
+	v_holiday_use_yn character varying(1);
+	v_pm_dept_pk bigint;
+	v_pm_user_pk bigint;
+	v_pm_login_id character varying(50);
+	v_pm_user_nm character varying(50);
+	v_work_order_no character varying(40);
+	v_req_dept_pk bigint;
+	v_exe_cnt integer = 0;
+	v_last_plan_dt date;
+	v_next_pm_date date;
+	p_exec_cnt varchar(20);
+	v_error_message varchar(1000);
+	v_error_log varchar(1000);
+begin
+
+	-- *********************************************************
+	-- PM 스케줄생성
+	-- 1. PM생성기간 : p_make_start_date ~ p_make_end_date
+	-- 2. PM마스터의 점검주기, 최초주기시작일, 다음주기생성일 정보조회
+	-- 3. 주기의 시작일 구하기.
+	-- 4. 자동인경우에만 마스터의 다음주기일, 마지막주기일 업데이트
+	-- 5. 자동인경우에만 이미 등록된 건은 불가.
+	-- 220329 : 자동/수동모두  날짜+PM마스터가 이미 있으면 생성하지 않는다.
+	-- 230626 : 작업부서는 작업담당자의 부서로 한다.
+	-- 230727 : 최초건인 경우, 주기시작일에 일정이 생성되도록, 주기시작일에 생성되지 못한경우 다음 주기일을 계산하여 생성
+	-- 230807 : WORK_ORDER_NO 사이트아이디 조건 추가 
+	-- 230808 : SITE_CONFIG.SCHE_OPS.inspHolidayScheUse정보를 읽어서 휴일일정을 생성할지 여부를 확인 후 처리 
+	-- 230817 : 최초건인 경우, 230727건 되돌리기
+	-- *********************************************************
+	v_exe_cnt = 0;
+	v_cycle_type = null;
+	v_cycle_type_code = null;
+	v_per_number = null;
+	v_sched_start_dt = null;
+	v_next_chk_date = null;
+	v_start_date = null;
+	v_curr_date = null;
+	v_accept_yn = '';
+	v_approval_yn = '';
+	v_last_plan_dt = null;
+	v_error_log = '';
+
+RAISE NOTICE '현재 v_curr_date 값: %', '==111==';
+	select t.cycle_type, t.per_number, t.sched_start_dt, t.next_chk_date
+	, (case when t.cycle_type = 'CYCLE_TYPE_Y' then 'year' 
+	   	when t.cycle_type = 'CYCLE_TYPE_M' then 'month' when t.cycle_type = 'CYCLE_TYPE_W' then 'week'
+	   	when t.cycle_type = 'CYCLE_TYPE_D' then 'day' else '' end)
+	, coalesce(u.id, t.dept_pk) as dept_pk
+	, t.pm_user_pk as pm_user_pk, u.username as login_id, u.first_name as user_nm, eq."Depart_id" as dept_pk
+	, fn_get_last_pm_date(t.pm_pk) as next_pm_data
+	into v_cycle_type, v_per_number, v_sched_start_dt, v_next_chk_date, v_cycle_type_code
+	, v_pm_dept_pk, v_pm_user_pk, v_pm_login_id, v_pm_user_nm, v_req_dept_pk, v_next_pm_date
+	from pm t
+	inner join equ eq on t.equip_pk = eq.id
+	left outer join dept d on t.dept_pk = d.id
+	left outer join auth_user u on t.pm_user_pk = u.id
+	where t.pm_pk = p_pm_pk and t.use_yn = 'Y' and t.del_yn = 'N' 
+	and eq.site_id = p_site_id
+	;
+
+RAISE NOTICE '현재 v_curr_date 값: %', '==222==';
+
+	
+	if v_cycle_type is null then
+		-- 해당되는 점검을 처리할 수 없으므로 END
+		v_exe_cnt = 0;
+		p_exec_cnt = '0';
+		return '0';
+	end if;
+
+	-- 자동생성 건이 있는지 여부 확인.
+	select count(*) into v_exists_cnt
+	from work_order t
+	inner join equ eq on t.equip_pk = eq.id 
+	where t.pm_pk = p_pm_pk 
+	and t.pm_req_type = 'A' 
+	and t.wo_type = 'PM' 
+	and t.pm_pk is not null
+	and eq.site_id = p_site_id
+	;	
+raise notice '자동생성 건이 있는지 여부 확인';
+	-- 마지막 주기 생성일자구하기
+	select max(t.plan_start_dt) into v_last_plan_dt
+	from work_order t
+	inner join equ eq on t.equip_pk = eq.id
+	where t.pm_pk = p_pm_pk 
+	and t.pm_req_type = 'A' 
+	and t.wo_type = 'PM' 
+	and t.pm_pk is not null
+	and eq.site_id = p_site_id
+	;		
+raise notice '마지막 주기 생성일자구하기';
+	if p_sche_type = 'A' then
+		
+		if v_next_chk_date is null and coalesce(v_exists_cnt, 0) = 0 and date(v_sched_start_dt) BETWEEN  date(p_make_start_date) AND date(p_make_end_date)  then
+			-- 다음주기일이 없고, 최근생성된 일정이 없고, 주기시작일이 생성기간에 포함되어 있으면 
+			v_start_date = v_sched_start_dt;
+		elsif v_next_chk_date is null and coalesce(v_exists_cnt, 0) = 0 and date(v_sched_start_dt) < date(p_make_start_date) then
+			-- 생성된 주기가 한건도 없는데, 주기가 오늘보다 작은 경우 시작일은 다음 주기일을 계산하여, 해당 주기일에 포함여부를 확인하고 처리한다.
+			select fn_get_next_sche_date(v_sched_start_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date;		
+		elsif v_next_chk_date is null and coalesce(v_exists_cnt, 0) > 0  then
+			-- 다음주기일이 없고, 최근생성된 일정이 있는 경우 최근생성된 일정을 기준으로 기간에 포함된 일정을 생성
+			select fn_get_next_sche_date(v_last_plan_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date; 
+		elsif v_next_chk_date is not null and coalesce(v_exists_cnt, 0) > 0 and  date(v_next_chk_date) < date(p_make_start_date) then
+			-- 다음주기일이 있고, 최근생성된 일정도 있지만, 오늘보다 다음주기일이 이전인 경우 최근생성된 일정 기준으로 일정생성
+			select fn_get_next_sche_date(v_last_plan_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date;	
+		elsif v_next_chk_date is not null and coalesce(v_exists_cnt, 0) > 0 and  date(v_next_chk_date) >= date(p_make_start_date) then
+			-- 다음주기일이 있고, 최근생성된 일정도 있지만, 오늘보다 다음주기일이 오늘이후인 경우 다음주기일을 기준으로 일정생성
+			v_start_date = v_next_chk_date;
+		end if;
+	else
+		v_start_date = p_make_start_date;
+	end if;	
+raise notice '==자동==';
+	-- 조회기간동안, v_start_date를 기준일로 간격별로 주기 생성하기.
+	-- 루프의 조건 : 조회기간 동안.
+	v_curr_date = v_start_date;
+	i := 1;	
+	LOOP
+		if v_curr_date > p_make_end_date then
+			-- 날짜에 도달한경우
+			EXIT;
+		else
+			SELECT CASE WHEN v_holiday_use_yn = 'Y' THEN v_curr_date ELSE TO_DATE(fn_get_work_day(TO_CHAR(v_curr_date,'YYYY-MM-DD')),'YYYY-MM-DD') END
+			, (v_curr_date + concat(v_per_number, ' ', v_cycle_type_code)::interval)			
+			into v_plan_date, v_next_date
+			;
+		
+			v_exists_cnt = 0;
+			
+			-- 자동일 경우 이미 중복된 건이 있는지 확인 (점검마스터 + 점검계획일)
+			-- 자동/수동 모두 중복건 확인
+			select count(*) into v_exists_cnt
+			from work_order t
+			inner join equ eq on t.equip_pk = eq.id
+			where t.pm_pk = p_pm_pk 
+			and t.pm_req_type = 'A' 
+			and t.wo_type = 'PM' 
+			and t.pm_pk is not null
+			and to_char(t.plan_start_dt, 'YYYY-MM-DD') = to_char(v_plan_date,'YYYY-MM-DD')
+			and eq.site_id = p_site_id
+			;	
+--		raise notice '==555===';
+			if coalesce(v_exists_cnt, 0) = 0 then
+				v_work_order_pk = 0;
+				v_work_order_approval_pk = 0;
+
+				select nextval('work_order_approval_work_order_approval_pk_seq') into v_work_order_approval_pk;
+			
+				insert into work_order_approval (work_order_approval_pk, wo_status
+				, reg_dt, reg_user_nm, reg_user_pk, rqst_dt, rqst_user_nm, rqst_user_pk
+				, accept_dt, accept_user_nm, accept_user_pk, appr_dt, appr_user_nm, appr_user_pk, _created)
+				values(v_work_order_approval_pk, 'WOS_AP'
+				, current_timestamp, '시스템', 1, current_timestamp, coalesce(v_pm_user_nm, '시스템'), coalesce(v_pm_user_pk, 1)
+				, current_timestamp, coalesce(v_pm_user_nm, '시스템'), coalesce(v_pm_user_pk, 1)
+				, current_timestamp, coalesce(v_pm_user_nm, '시스템'), coalesce(v_pm_user_pk, 1)
+				, now()
+				);
+--raise notice '==insert work_order_approval== ';
+				-- 스케줄링생성.
+				select nextval('work_order_work_order_pk_seq') into v_work_order_pk;
+
+				select coalesce(MAX((select work_order_no from (select max(cast(work_order_no as integer)) as work_order_no 
+					from work_order WHERE (work_order_no ~ E'^[0-9]+$') = true and site_id = p_site_id) as sub_table)) + 1, '1') into v_work_order_no
+				from work_order;
+raise notice '==select work_order';
+				insert into work_order(work_order_pk, equip_pk, work_order_no, work_title, wo_status, maint_type_cd, wo_type, want_dt
+				, plan_start_dt, plan_end_dt, start_dt, end_dt, dept_pk, work_charger_pk, pm_pk, work_order_approval_pk, appr_line, appr_line_next
+				, req_dept_pk, work_order_sort, pm_req_type, _status, _created, _creater_id, _creater_nm, site_id, rqst_insp_yn, rqst_dpr_yn)
+				select v_work_order_pk, p.equip_pk, v_work_order_no, p.pm_nm, 'WOS_AP', 'MAINT_TYPE_PM', 'PM', v_plan_date
+				, v_plan_date, v_plan_date, v_plan_date, v_plan_date, p.dept_pk, p.pm_user_pk, p.pm_pk, v_work_order_approval_pk, 'AP,CM,CL', 'CM'
+				, v_req_dept_pk, cast(v_work_order_no as integer), p_sche_type, 'C', now(), '1', '시스템', p_site_id, 'N', 'N'
+				from pm p
+				where p.pm_pk = p_pm_pk
+				;
+raise notice '==insert work_order==';
+				/* 요청 사업부 업데이트는 내 판단으로 일단 안하는걸로*/
+--				update work_order
+--				set req_dept_busi_cd = fn_get_dept_business_cd(cast(v_req_dept_pk as integer))
+--				where work_order_pk = v_work_order_pk
+--				;
+
+				-- 작업인력
+				insert into wo_labor(work_order_pk, job_class_pk, work_hr)
+				select v_work_order_pk, t1.job_class_pk, t1.work_hr
+				from pm_worker t1
+				where t1.pm_pk = p_pm_pk;
+raise notice '==insert into pm_worker:';
+				-- 작업자재
+				insert into wo_mtrl(work_order_pk, mtrl_pk, plan_amt, unit_price, _created)
+				select  v_work_order_pk, t.id as mtrl_pk, t.amt, m.in_price, now()
+				from pm_mat t
+				inner join material m on t.mat_pk = m.id
+				where t.pm_pk = p_pm_pk
+				;
+raise notice 'insert into wo_mtrl';
+				-- 이력
+				insert into work_order_hist(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+				values(v_work_order_pk, 'WOS_OC', 'WOS_OC', current_timestamp, 1, '시스템', '시스템자동생성');
+				insert into work_order_hist(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+				values(v_work_order_pk, 'WOS_OC', 'WOS_AP', current_timestamp, 1, '시스템', '시스템자동생성');
+raise notice '==insert into work_order_hist:';
+				-- PM주기마스터 업데이트 (last_work_dt, next_chk_date) , 자동인경우에만
+				if p_sche_type = 'A' then
+					update pm
+					set last_work_dt = v_plan_date
+					, next_chk_date = v_next_date
+					where pm_pk = p_pm_pk;
+				end if;
+raise notice '==end===';
+				v_exe_cnt = v_exe_cnt + 1;
+			end if;
+			
+		end if;
+
+		-- 무한루프 방지
+		EXIT WHEN i = 1000;
+
+		v_curr_date = v_next_date;
+		SELECT i+1 INTO i;
+	END LOOP;	
+	
+	RETURN cast(v_exe_cnt as text);
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	insert into error_log(error_log_type, error_log_title, error_log_desc)
+	values('FUNCTION', 'make_schedule_pm', concat('[sche_type] ',  p_sche_type, ' [p_pm_pk] ',  cast(p_pm_pk as text), ' [MESSAGE] : ', SQLERRM));
+	RETURN null;
+  END;
+  
+end;
+$function$
+;

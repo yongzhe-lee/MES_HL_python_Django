@@ -663,11 +663,15 @@
             });
 
             // 범주형 분석
+            kendoUtil.bindButton('#btnCatDistChart', "search", 'base', () => {
+                _this.loadChartImage();
+            });
+
             $('#btnCatDistChart').kendoButton({
                 icon: "search",
                 themeColor: "base",
                 click: function () {
-                    _this.fillCategoryVars();
+                    _this.loadChartImage();
                 }
             });
 
@@ -678,10 +682,11 @@
                 dataValueField: "value",
                 optionLabel: "선택하세요",
                 change: function (e) {
-                    let selected = this.dataItem();
-                    if (selected) {
-                        _this.getCatDistChart(selected.code);
-                    }
+                    //let selected = this.dataItem();
+                    //if (selected) {
+                    //    // 선택값 전달
+                    // }
+                    _this.fillCategoryVars();                    
                 }
             });
         }
@@ -793,15 +798,17 @@
                         ],
                         change: function (e) {
                             let activeTab = $("#tabstrip").data("kendoTabStrip").select().index();
-                            // 첫번째 tab일 때, showAlert을 false로 전달하여 모델 미선택 알럿창 방지
-                            if (activeTab === 0) {
-                                _this.loadGridByTab(activeTab, false);
-                            } else {
-                                _this.loadGridByTab(activeTab);
-                            }
+                            _this.loadContentByTab(activeTab, false);
+                            //// 첫번째 tab일 때, first를 true로 전달하여 모델 미선택 알럿창 방지
+                            //if (activeTab === 0) {
+                            //    _this.loadContentByTab(activeTab, true);
+                            //} else {
+                            //    _this.loadContentByTab(activeTab, false);
+                            //}
+                            //_this.getSelectedModel();
                             //if (_this.getSelectedModel(activeTab, activeTab === 0 ? false : true)) {
                             //    // 선택된 모델의 데이터를 현재 열려있는 탭 것만 갱신
-                            //    _this.loadGridByTab(activeTab); 
+                            //    _this.loadContentByTab(activeTab); 
                             //}
                         },
                         height: "300px"
@@ -1282,24 +1289,36 @@
                 animation: { open: { effects: "fadeIn" } },
                 activate: function (e) {
                     let activeTabIndex = $(e.item).index();
-                    _this.loadGridByTab(activeTabIndex);
+                    _this.loadContentByTab(activeTabIndex, false);
                 }
             });
-            // 초기 로드시 기본 탭(Tab1, 인덱스 0)의 그리드를 명시적으로 로드
-            _this.loadGridByTab(0);
+            // 초기 로드시 기본 탭(Tab1, 인덱스 0)과 첫번째 열람 여부를 명시적으로 로드
+            _this.loadContentByTab(0, true);
         }
 
-        loadGridByTab(tabIndex) {
+        loadContentByTab(tabIndex, first = false) {
+            let _this = this;
+
+            if (first) {
+                _this.getSelectedModel(false);
+            } else {
+                _this.getSelectedModel(true);
+            }
+
             // 탭 인덱스에 따라 해당 탭의 컨테이너를 초기화 또는 갱신
             switch (tabIndex) {
                 case 0:
                     // 페이지 최초 로드 시에 모델 선택 alert 방지
-                    if (this.getSelectedModel(tabIndex, false)) {
-                        this.renderGrid("tag_grid", "tag");
-                        this.renderGrid("mes_tag_grid", "mes");
-                        this.renderGrid("qms_tag_grid", "qms");
-                        this.renderGrid("merged_tag_grid", "merged_tag");
-                    }
+                    //if (this.getSelectedModel(tabIndex, false)) {
+                    //    this.renderGrid("tag_grid", "tag");
+                    //    this.renderGrid("mes_tag_grid", "mes");
+                    //    this.renderGrid("qms_tag_grid", "qms");
+                    //    this.renderGrid("merged_tag_grid", "merged_tag");
+                    //}
+                    this.renderGrid("tag_grid", "tag");
+                    this.renderGrid("mes_tag_grid", "mes");
+                    this.renderGrid("qms_tag_grid", "qms");
+                    this.renderGrid("merged_tag_grid", "merged_tag");
                     break;
                 case 1:
                     this.renderGrid("data_detail_grid", "ds_rows_list");
@@ -1312,7 +1331,8 @@
                     //$("#num_dist_chart").data("kendoChart") && $("#num_dist_chart").data("kendoChart").refresh();
                     break;
                 case 4:
-                    $("#cat_dist_chart").data("kendoChart") && $("#cat_dist_chart").data("kendoChart").refresh();
+                    this.loadChartImage("cat_dist_chart", "ds_numcol_boxhist");
+                    //$("#cat_dist_chart").data("kendoChart") && $("#cat_dist_chart").data("kendoChart").refresh();
                     break;
                 case 5:
                     this.renderGrid("ds_col_grid2", "ds_col_list");
@@ -1340,12 +1360,14 @@
             }
         }
 
-        getSelectedModel(tabIndex, showAlert = true) {
+        //getSelectedModel(tabIndex, showAlert = true) {
+        getSelectedModel(showAlert = true) {
             let _this = this;
             let data = _this.modelGrid.getSelect();
 
-            if (!data || data.length === 0) {
-                if (showAlert && tabIndex !== 0) {
+                //if (showAlert && tabIndex !== 0) {
+            if (showAlert) {
+                if (!data || data.length === 0) {
                     Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
                 }
                 return null;
@@ -1364,8 +1386,8 @@
         renderGrid(gridId, action) {
             let _this = this; // 현재 클래스 인스턴스 참조
 
-            let selectModel = _this.getSelectedModel();
-            if (!selectModel) return;
+            //let selectModel = _this.getSelectedModel();
+            //if (!selectModel) return;
 
             let grid = $("#" + gridId).data("kendoGrid");
 
@@ -1454,8 +1476,8 @@
         loadChartImage(chartId, action) {
             let _this = this;
 
-            let selectModel = _this.getSelectedModel();
-            if (!selectModel) return;
+            //let selectModel = _this.getSelectedModel();
+            //if (!selectModel) return;
 
             let param = {
                 action: action,

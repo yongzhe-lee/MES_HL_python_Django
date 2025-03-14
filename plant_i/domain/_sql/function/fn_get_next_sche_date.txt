@@ -1,0 +1,52 @@
+-- DROP FUNCTION public.fn_get_next_sche_date(date, date, date, varchar, numeric);
+
+CREATE OR REPLACE FUNCTION public.fn_get_next_sche_date(p_sche_date date, p_make_start_date date, p_make_end_date date, p_cycle_type_code character varying, p_per_number numeric)
+ RETURNS date
+ LANGUAGE plpgsql
+AS $function$
+declare
+	v_curr_date date;
+	v_next_date date;
+    i integer;
+begin
+	
+	v_next_date = null;
+	v_curr_date = p_sche_date;
+	i := 1;
+	LOOP
+	
+		if v_curr_date between p_make_start_date and p_make_end_date then
+			v_next_date = v_curr_date;
+			EXIT;
+		elsif v_curr_date > p_make_end_date then
+			v_next_date = v_curr_date;
+			EXIT;
+		else
+			if p_cycle_type_code = 'year' THEN
+				v_curr_date = (v_curr_date + concat(p_per_number, ' year')::interval);
+			ELSIF p_cycle_type_code = 'month' THEN
+				v_curr_date = (v_curr_date + concat(p_per_number, ' month')::interval);
+			ELSIF p_cycle_type_code = 'week' THEN
+				v_curr_date = (v_curr_date + concat(p_per_number, ' week')::interval);
+			else
+				v_curr_date = (v_curr_date + concat(p_per_number, ' day')::interval);
+			end if;		
+		end if;
+	
+		-- 무한루프 방지
+		EXIT WHEN i = 1000;
+
+		SELECT i+1 INTO i;
+	END LOOP;	
+	
+	RETURN v_next_date;
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	RETURN v_next_date;
+  END;
+  
+end;
+$function$
+;
