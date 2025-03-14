@@ -428,7 +428,7 @@ class Equipment(models.Model):
     loc_pk = models.SmallIntegerField('위치PK', null=True, db_comment='위치PK')
     equip_category_id = models.CharField('설비분류', max_length=2, null=True, db_comment='설비분류')
     up_equip_pk = models.IntegerField('상위설비PK', null=True, db_comment='상위설비PK')
-    site_id = models.IntegerField('사이트ID', null=True, db_comment='사이트ID')
+    site_id = models.IntegerField('사이트ID', null=True, db_default=1, db_comment='사이트ID')
     equip_class_path = models.CharField('설비계층경로', max_length=100, null=True, db_comment='설비계층경로')
     equip_class_desc = models.CharField('설비계층설명', max_length=100, null=True, db_comment='설비계층설명')
     asset_nos = models.CharField('자산번호', max_length=100, null=True, db_comment='자산번호')
@@ -802,9 +802,9 @@ class Material(models.Model):
 
 class EquipAlarm(models.Model):    
     alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, primary_key=True, null=False, db_comment="알람 코드 (기본키)")
-    Equipment = models.ForeignKey(Equipment, db_column='Equipment_id', on_delete=models.DO_NOTHING, db_comment="설비 ID (참조키)")    
     Name = models.CharField('알람명', db_column='alarm_nm', max_length=100, db_comment="알람명")
-    AlarmNumber = models.CharField('알람식별번호', db_column='alarm_num', max_length=50, null=True, db_comment="알람 식별 번호")    
+    Equipment = models.ForeignKey(Equipment, db_column='Equipment_id', on_delete=models.DO_NOTHING, db_comment="설비 ID (참조키)")
+    AlarmNumber = models.CharField('알람식별번호', db_column='alarm_num', max_length=50, null=True, db_comment="알람 식별 번호")
     Detail = models.TextField('알람상세', db_column='alarm_detail', null=True, db_comment="알람 상세 내용")
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 정보")

@@ -133,9 +133,26 @@ class DaService(object):
         #q.delete()
 
         row_count = df.shape[0]
+        # 25.03.13 김하늘 추가(model에 사용된 데이터가 수정되는 경우 반영)
+        new_columns = set(df.columns)  # 최신 CSV의 컬럼 목록
+
+        # 현재 DB에 저장된 컬럼 목록 가져오기
+        existing_columns = set(DsModelData.objects.filter(DsModel_id=md_id).values_list('Code', flat=True))
+
+        # **삭제된 컬럼 정리 (CSV에 없는 컬럼은 삭제)**
+        removed_columns = existing_columns - new_columns
+
+        if removed_columns:
+            DsModelData.objects.filter(DsModel_id=md_id, Code__in=removed_columns).delete()
+            print(f"삭제된 컬럼: {removed_columns}")
+
+        # **새로운 컬럼 추가 및 기존 데이터 유지**
         for column in df.columns:
-            sql = ''' SELECT 1 FROM ds_model_col WHERE "DsModel_id" = %(md_id)s
-            AND "VarName" = %(code)s
+            sql = ''' 
+            SELECT 1 
+            FROM ds_model_col 
+            WHERE "DsModel_id" = %(md_id)s
+                AND "VarName" = %(code)s
             '''
             dc = {}
             dc['md_id'] = md_id

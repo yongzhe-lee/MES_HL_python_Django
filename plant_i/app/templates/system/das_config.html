@@ -21,7 +21,7 @@
 
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="cboEquipment" data-labelCd="설비">섧비</label>
+                        <label class="k-label k-form-label" for="cboEquipment" data-labelCd="설비">설비</label>
                         <div class="field-wrapper">
                             <select id="cboEquipment" name="cboEquipment"></select>
                         </div>
@@ -36,139 +36,144 @@
 
             </div>
         </div>
-    </div>
 
-    <div class="content-ui-row connect">
-        <div class="card-content grid">
 
-            <div class="card-group-btn">
-                <span class="info-text">
-                <i class="material-symbols-outlined">list_alt</i>
-                <label data-labelCd="시스템 로그 내역">시스템 로그 내역</label>
-                </span>
-                <span>
-                    <button id="btnExcel">Excel</button>
-                </span>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="설비연계설정">설비연계설정</label>
+                    </span>
+                    <span>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+
+                <div id="config_grid"></div>
             </div>
-
-            <div id="config_grid"></div>
         </div>
-    </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i> <label data-labelCd="설정 상세 정보">설정 상세 정보</label></span>
+                    <span>
+                        <button id="btnNew"><i class="material-symbols-outlined">refresh</i>신규</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
 
 
-    <div class="content-ui-row connect">
-        <div class="card-content edit">
-            <div class="card-group-btn">
-                <span class="info-text"><i class="material-symbols-outlined">list_alt</i> <label data-labelCd="설정 상세 정보">설정 상세 정보</label></span>
-                <span>
-                    <button id="btnNew"><i class="material-symbols-outlined">refresh</i>신규</button>
-                    <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
-                    <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
-                </span>
+                <form id="configForm">
+                    <div class="edit-form-ui">
+                        <input type="hidden" id="id" name="id" />
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Server_id" data-labelCd="서버">서버</label>
+                                <div class="field-wrapper">
+                                    <select id="Server_id" name="Server_id"></select>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Equipment_id" data-labelCd="설비">설비</label>
+                                <div class="field-wrapper">
+                                    <select id="Equipment_id" name="Equipment_id"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Name" data-labelCd="설정명">설정명</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="Name" name="Name" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ConfigFileName" data-labelCd="설정파일명">설정파일명</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="ConfigFileName" name="ConfigFileName" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Handler" data-labelCd="처리모듈명">처리모듈명</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="Handler" name="Handler" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="DeviceType" data-labelCd="장치구분">장치구분</label>
+                                <div class="field-wrapper">
+                                    <select id="DeviceType" name="DeviceType"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Topic" data-labelCd="TOPIC">TOPIC</label>
+                                <div class="field-wrapper">
+                                    <input id="Topic" name="Topic" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label " for="is_active" data-labelCd="수집활성화">수집활성화</label>
+                                <div class="field-wrapper">
+                                    <input id="is_active" name="is_active" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
+                            <div class="field-wrapper">
+                                <textarea id="Description" name="Description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Configuration" data-labelCd="설정(JSON)">설정(JSON)</label>
+                            <div class="field-wrapper">
+                                <textarea id="Configuration" name="Configuration"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
             </div>
-           
-
-            <form id="configForm">
-                <div class="edit-form-ui">
-                    <input type="hidden" id="id" name="id" />
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label essential" for="Server_id" data-labelCd="서버">서버</label>
-                            <div class="field-wrapper">
-                                <select id="Server_id" name="Server_id"></select>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label essential" for="Equipment_id" data-labelCd="설비">설비</label>
-                            <div class="field-wrapper">
-                                <select id="Equipment_id" name="Equipment_id"></select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label essential" for="Name" data-labelCd="설정명">설정명</label>
-                            <div class="field-wrapper">
-                                <input type="text" id="Name" name="Name" />
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="ConfigFileName" data-labelCd="설정파일명">설정파일명</label>
-                            <div class="field-wrapper">
-                                <input type="text" id="ConfigFileName" name="ConfigFileName" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="Handler" data-labelCd="처리모듈명">처리모듈명</label>
-                            <div class="field-wrapper">
-                                <input type="text" id="Handler" name="Handler" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="DeviceType" data-labelCd="장치구분">장치구분</label>
-                            <div class="field-wrapper">
-                                <select id="DeviceType" name="DeviceType"></select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="Topic" data-labelCd="TOPIC">TOPIC</label>
-                            <div class="field-wrapper">
-                                <input id="Topic" name="Topic" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label " for="is_active" data-labelCd="수집활성화">수집활성화</label>
-                            <div class="field-wrapper">
-                                <input type="checkbox" id="is_active" name="is_active" value="Y" />
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="col-12">
-                    <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
-                        <div class="field-wrapper">
-                            <textarea id="Description" name="Description"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="Configuration" data-labelCd="설정(JSON)">설정(JSON)</label>
-                        <div class="field-wrapper">
-                            <textarea id="Configuration" name="Configuration"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-            </form>
-
         </div>
+
+
     </div>
+
+
+
+    
 </div>
 
 {% endblock %}
@@ -218,7 +223,7 @@
                         this.autoFitColumn(i);
                     };
                 },
-                height: 680
+                height: 400
             };
             _this.grid = new Grid($("#config_grid"), gridOption);
 
@@ -240,6 +245,9 @@
             $('#Handler').kendoTextBox();
             $('#ConfigFileName').kendoTextBox();
 
+            $('#is_active').kendoSwitch();
+
+
             $('#Description').kendoTextArea({
                 rows: 4,
                 maxLength: 200,
@@ -248,7 +256,7 @@
 
             
             $('#Configuration').kendoTextArea({
-                rows: 30,
+                rows: 20,
                 placeholder: ""
             });
         }
@@ -262,17 +270,16 @@
         showDetail() {
             let _this = this;
             let datas = _this.grid.getSelect();
-            
 
             let idx = datas[0].id;
-            console.log(idx);
+            //console.log(idx);
 
             let param = { 'id': idx, "action": 'detail' };
             let url = '/api/system/das_config';
             let result = AjaxUtil.getSyncData(url, param);
             if (result != null) {
                 //FormUtil.BindDataForm(result, $('#configForm'));
-
+                //console.log(result);
 
                 $('#id').val(result.id);
                 $('#Server_id').data("kendoDropDownList").value(result.Server_id);
@@ -287,10 +294,12 @@
                 $('#Topic').val( result.Topic);
 
 
-                if (result.is_active=='Y') {
-                    $('#is_active').prop('checked', 'true');
+                let switchInstance = $("#is_active").data("kendoSwitch");
+
+                if (result.is_active == 'Y') {
+                    switchInstance.check(true);
                 } else {
-                    $('#is_active').removeProp('checked');
+                    switchInstance.check(false);
                 }
 
                 let j = "{}";
@@ -343,6 +352,8 @@
 
             //let data = $('#configForm').serialize();
             let data = FormUtil.extractForm($('#configForm'));
+
+            data.is_active = $("#is_active").data("kendoSwitch").check() ? "Y" : "N";
 
             let fnSuccess = function (res) {
                 Notify.success('저장되었습니다'); // Notification

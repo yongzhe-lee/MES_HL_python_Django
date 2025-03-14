@@ -1,0 +1,29 @@
+
+
+CREATE ROLE if_qms NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'qms$1234';
+
+/*
+CREATE ROLE if_mes NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'mes$1234';
+사용안함
+grant select, insert, update, delete on table if_mes_equ TO if_mes;
+grant select, insert, update, delete on table if_mes_line TO if_mes;
+grant select, insert, update, delete on table if_mes_proc TO if_mes;
+grant select, insert, update, delete on table if_mes_prod_plan TO if_mes;
+*/
+
+--qms
+grant select, insert, update, delete on table if_qms_defect TO if_qms;
+
+
+접속정보
+ip : 10.226.236.34
+port : 5432
+
+1. mes인터페이스 계정정보
+ id/pass : if_mes/mes$1234
+ 대상테이블 : if_mes_equ, if_mes_line, if_mes_proc, if_mes_prod_plan
+
+2.qms인터페이스 계정정보
+ id/pass : if_qms/qms$1234
+ 대상테이블 : if_qms_defect
+ 

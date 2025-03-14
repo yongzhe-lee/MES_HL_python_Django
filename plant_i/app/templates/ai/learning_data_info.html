@@ -304,7 +304,7 @@
                                 <button id="btnNumDistChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
                             </span>
                         </div>
-                        <div id="num_dist_container"></div>
+                        <div><img id="num_dist_chart" style="width:100%"/></div>
                     </div>
 
                     <!-- Tab5: 범주형분포확인 -->
@@ -314,11 +314,25 @@
                                 <i class="material-symbols-outlined">edit_square</i>
                                 <label data-labelCd="범주형분포확인">범주형분포확인</label>
                             </span>
-                            <span>
+                            <!--<span>
                                 <button id="btnCatDistChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>
+                            </span>-->
                         </div>
-                        <div id="cat_dist_container"></div>
+                            <div class="col-12 col-md-4">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" for="cate_vari" data-labelCd="범주형변수">범주형변수</label>
+                                    <div class="field-wrapper">
+                                        <select id="cate_vari" name="cate_vari" multiple></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="card-group-btn search">
+                                    <button class="btn-search" id="btnCatDistChart">조회</button>
+                                </div>
+                            </div>
+                        <!--<select class="form-control2" id="cate_vari" multiple></select>-->
+                        <div><img id="cat_dist_chart" style="width:100%" /></div>
                     </div>
 
                     <!-- Tab6: 전처리 -->
@@ -347,7 +361,7 @@
                                 <button id="btnHeatmap" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
                             </span>
                         </div>
-                        <div id="heatmap_container"></div>
+                        <div id="heatmap_chart"></div>
                     </div>
 
                     <!-- Tab8: XY 지정 -->
@@ -375,7 +389,7 @@
                                 <button id="btnScatterPlot" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
                             </span>
                         </div>
-                        <div id="scatter_container"></div>
+                        <div id="scatter_chart"></div>
                     </div>
 
                     <!-- Tab10: 상관관계값조회 -->
@@ -385,9 +399,9 @@
                                 <i class="material-symbols-outlined">edit_square</i>
                                 <label data-labelCd="상관관계값조회">상관관계값조회</label>
                             </span>
-                            <span>
+                            <!--<span>
                                 <button id="btnCorrValue" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>
+                            </span>-->
                         </div>
                         <div id="corr_grid"></div>
                     </div>
@@ -404,7 +418,7 @@
                                 <button id="btnPCAApply" title="적용">적용</button>
                             </span>
                         </div>
-                        <div id="pca_container">
+                        <div id="pca_chart">
                             <div id="pca_plotly" style="width:100%;"></div>
                             <div id="pca_result" style="width:100%;"></div>
                         </div>
@@ -429,11 +443,8 @@
 </div>
 {% verbatim %}
 <script type="text/x-kendo-template" id="fileUploadTemplate">
-    <div class="modal">
-        <div class="modal-content">
-            <!--<div class="modal-header">
-                <h4 id=title></h4>
-            </div>-->
+    <div class="content_wrap popup">
+        <div class="card-content edit">
             <form id="dsDataForm" class="search-form">
                 <div class="form-ui">
                     <input type="hidden" id="id" name="id">
@@ -650,7 +661,29 @@
                     _this.saveDsColXY();
                 });
             });
-            
+
+            // 범주형 분석
+            $('#btnCatDistChart').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.fillCategoryVars();
+                }
+            });
+
+            // 여기부터
+            $('#cate_vari').kendoDropDownList({
+                dataSource: [],
+                dataTextField: "text",
+                dataValueField: "value",
+                optionLabel: "선택하세요",
+                change: function (e) {
+                    let selected = this.dataItem();
+                    if (selected) {
+                        _this.getCatDistChart(selected.code);
+                    }
+                }
+            });
         }
 
 
@@ -726,7 +759,12 @@
 
             // gridName에 따른 특정 옵션 (columns 설정)
             let specificOption;
-            let noDataMessage = "<div style='position: absolute; top: 0; left: 0; width: 100%; padding:10px; text-align:left;'> 태그를 조합하거나 CSV 파일을 업로드하여 AI 모델을 생성하세요. 데이터가 등록되면 기본 모델이 생성되며, 이후 과정에 따라 알고리즘과 모델 정보가 자동으로 업데이트됩니다.</div>";
+
+            // data가 없을 때 그리드에 뜨는 메시지
+            let noDataMessage = "태그를 조합하거나 CSV 파일을 업로드하여 AI 모델을 생성하세요. 데이터가 등록되면 기본 모델이 생성되며, 이후 과정에 따라 알고리즘과 모델 정보가 자동으로 업데이트됩니다.";
+            let noDataTemplate = `<div style='position: absolute; top: 0; left: 0; width: 100%; padding:10px; text-align:left;'> ${noDataMessage} </div>`;
+            const getNoDataTemplate = () =>
+                `<div style='position: absolute; top: 0; left: 0; width: 100%; padding:10px; text-align:left;'> ${noDataMessage} </div>`;
 
             switch (gridName) {
 
@@ -843,7 +881,7 @@
                         ],
                         height: "300px",
                         noRecords: {
-                            template: noDataMessage
+                            template: getNoDataTemplate()
                         }
                     };
                     break;
@@ -865,7 +903,7 @@
                         ],
                         height: "300px",
                         noRecords: {
-                            template: noDataMessage
+                            template: getNoDataTemplate()
                         }
                     };
                     break;
@@ -1072,7 +1110,7 @@
                         },
                         height: "300px",
                         noRecords: {
-                            template: noDataMessage
+                            template: getNoDataTemplate()
                         }
                     };
                     break;
@@ -1181,25 +1219,28 @@
                         },
                         height: "300px",
                         noRecords: {
-                            template: noDataMessage
+                            template: getNoDataTemplate()
                         },
                     };
                     break;
 
                 case 'corr_grid':
+                    noDataMessage += "<br>상관관계값의 경우 X,Y변수가 지정되어야 연산이 가능하므로, XY지정 탭에서 X변수와 Y변수를 지정해주세요.";
                     specificOption = {
                         pageable: false,
                         columns: [
-                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                            //{ title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
                             { field: 'YVarName', title: 'Y변수', width: 80 },
                             { field: 'data_type', title: '구분', width: 80 },
                             { field: 'intercept_', title: '절편', width: 80 }
                         ],
                         height: "300px",
                         noRecords: {
-                            template: noDataMessage
+                            template: getNoDataTemplate()
                         }
                     };
+                    console.log("noDataTemplate", noDataTemplate);
+                    console.log("noDataMessage", noDataMessage);
                     break;
                 // 필요시 다른 탭(그리드) 옵션 추가 가능
                 default:
@@ -1267,25 +1308,26 @@
                     this.renderGrid("ds_col_grid", "ds_col_list");
                     break;
                 case 3:
-                    $("#num_dist_container").data("kendoChart") && $("#num_dist_container").data("kendoChart").refresh();
+                    this.loadChartImage("num_dist_chart", "ds_numcol_boxhist");
+                    //$("#num_dist_chart").data("kendoChart") && $("#num_dist_chart").data("kendoChart").refresh();
                     break;
                 case 4:
-                    $("#cat_dist_container").data("kendoChart") && $("#cat_dist_container").data("kendoChart").refresh();
+                    $("#cat_dist_chart").data("kendoChart") && $("#cat_dist_chart").data("kendoChart").refresh();
                     break;
                 case 5:
                     this.renderGrid("ds_col_grid2", "ds_col_list");
                     break;
                 case 6:
-                    $("#heatmap_container").data("kendoChart") && $("#heatmap_container").data("kendoChart").refresh();
+                    $("#heatmap_chart").data("kendoChart") && $("#heatmap_chart").data("kendoChart").refresh();
                     break;
                 case 7:
                     this.renderGrid("settingXy_grid", "ds_col_list");
                     break;
                 case 8:
-                    $("#scatter_container").data("kendoChart") && $("#scatter_container").data("kendoChart").refresh();
+                    $("#scatter_chart").data("kendoChart") && $("#scatter_chart").data("kendoChart").refresh();
                     break;
                 case 9:
-                    this.renderGrid("corr_grid");
+                    this.renderGrid("corr_grid", "ds_var_corr_sheet");
                     break;
                 case 10:
                     // Tab11: 주성분분석은 Plotly 차트 및 결과 영역(pca_plotly, pca_result)을 별도로 처리
@@ -1327,21 +1369,15 @@
 
             let grid = $("#" + gridId).data("kendoGrid");
 
+            let options = this.getGridOptions(gridId);
+
             // 그리드 인스턴스가 이미 존재하면 refresh, 없으면 생성
             if (grid) {
-                //grid.autoFitColumns();
-                //if (grid.dataSource.options.pageSize) {
-                //    // 기존 그리드가 있고, pageable 설정이 있으면 첫 페이지로 이동
-                //    grid.dataSource.query({
-                //        page: 1, // 첫 페이지로 이동
-                //        pageSize: 50
-                //    });
-                //}
-
-                //grid.dataSource.read(); // 데이터를 새로 불러옴
+                // 이전에 조회했던 모델에 데이터가 없었던 경우 columns이 빈 배열로 초기화된 상태
+                // 본래 컬럼 설정을 다시 찾아갈 수 있도록.
+                grid.options.columns = options.columns;
 
             } else {
-                let options = this.getGridOptions(gridId);
                 new Grid($("#" + gridId), options);
             }
 
@@ -1356,6 +1392,8 @@
             let param = Object.assign({ action: action }, extraParam || {});
 
             let gridInstance = $("#" + gridId).data("kendoGrid");
+            // tab 용도별로 고정으로 생성되어야 하는 컬럼
+            let baseColumns = gridInstance.options.columns;
 
             let succFunc = function (result) {
                 console.log("result", result);
@@ -1370,24 +1408,34 @@
                                 width: item.width || 100,     // 백엔드에서 제공된 width가 없으면 기본값 100px 사용
                             };
                         });
+
+                        if (baseColumns) {
+                            console.log("baseColumns", baseColumns);
+                            dynamicColumns = [...baseColumns, ...dynamicColumns];
+                        }
+
                         // No. 이유는 알 수 없지만 첫번째 컬럼의 값이 row의 index로 바인딩되는 에러 발생(id 아님!)
                         // 이참에 그냥 index컬럼을 만들어버림
-                        dynamicColumns.unshift({
-                            "title": "No",
-                            "width": 50
-                        });
-                        //console.log("dynamicColumns", dynamicColumns);
+                        // "No" 컬럼이 없는 경우에만 추가
+                        if (!dynamicColumns.some(col => col.title === "No")) {
+                            dynamicColumns.unshift({ "title": "No", "width": 50 });
+                        }
+
+                        console.log("dynamicColumns", dynamicColumns);
+
                         gridInstance.setOptions({ columns: dynamicColumns });
                         gridInstance.dataSource.data(result.rows);
                         //console.log("gridInstance.dataSource.data", gridInstance.dataSource.data());
                     } else {
                         // xrows는 있지만 빈 배열 일 때. 컬럼&데이터 초기화하여 noDataMessage 표시
                         let pageSize = gridInstance.dataSource.options.pageSize;
+
                         gridInstance.setOptions({
                             columns: [],
                             dataSource: {
                                 // pageSize 설정이 덮어씌워져서 all로 바뀌는 것 방지
                                 pageSize: pageSize ? pageSize : null,
+                                page: pageSize ? 1 : null, // 첫 페이지로 이동
                                 data: []
                             }
                         });
@@ -1397,18 +1445,36 @@
                     gridInstance.dataSource.data(result);
                 }
 
-                //if (gridInstance.dataSource.options.pageSize) {
-                //    // 기존 그리드가 있고, pageable 설정이 있으면 첫 페이지로 이동
-                //    gridInstance.dataSource.query({
-                //        page: 1, // 첫 페이지로 이동
-                //        pageSize: 50
-                //    });
-                //}
-
                 gridInstance.autoFitColumns();
             }
 
             AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
+        }
+
+        loadChartImage(chartId, action) {
+            let _this = this;
+
+            let selectModel = _this.getSelectedModel();
+            if (!selectModel) return;
+
+            let param = {
+                action: action,
+                md_id: _this.md_id
+            };
+            console.log("param", param);
+
+            try {
+                let result = AjaxUtil.getSyncData(_this.baseUrl, param); // 동기 요청 후 결과 반환
+                console.log("result", result);
+
+                if (result && result.success) {
+                    $('#' + chartId).attr('src', result.chart_url);
+                } else {
+                    console.error("이미지 로드 실패: 응답 성공 여부 확인 필요", result);
+                }
+            } catch (error) {
+                console.error("이미지 로드 중 오류 발생:", error.message);
+            }
         }
 
         // csv file 업로드 popup
@@ -1589,6 +1655,26 @@
             //});
         }
 
+        fillCategoryVars() {
+            let _this = this;
+            let url = _this.baseUrl;
+            let param = {
+                action: 'cate_col_list',
+                md_id: _this.md_id,
+            };
+            let rows = AjaxUtil.getSyncData(url, param);
+            AjaxUtil.fillSelectOptionsRows($('#cate_vari'), rows)
+            //        .kendoDropDownList({
+            //            text: "선택",
+            //            dataSource: _this.mission_proc_options,
+            //            dataTextField: "name",
+            //            dataValueField: "code",
+            //            value: options.model.MissingValProcess,
+            //            optionLabel: {
+            //                name: "선택",
+            //                code: ""
+            //            }
+        }
 
         saveDsCol() {
             let _this = this;
@@ -1669,8 +1755,13 @@
                 Q: JSON.stringify(grid_data),
             };
 
-            let fnSuccess = function () {
-                Notify.success('저장되었습니다');
+            let fnSuccess = function (result) {
+                if (result.message) {
+                    Alert.alert("info", `아래의 ${message}`);
+                }
+                if (result.success) {
+                    Notify.success('저장되었습니다');
+                }
                 _this.renderGrid("settingXy_grid", "ds_col_list");
             }
 

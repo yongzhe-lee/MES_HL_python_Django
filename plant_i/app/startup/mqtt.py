@@ -32,6 +32,10 @@ class MQTTApplication():
         FacadeMQTTClient.set_topic_handler(settings.TOPIC_DEVICE_EVENT, DeviceMessageHandler.device_event_handler)
 
 
+        dic_topic = {
+            
+        }
+
 
         '''
         PCU111001	PCU#1 Flash

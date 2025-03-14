@@ -14,23 +14,23 @@ class PIService():
         sql = ''' 
          SELECT 
               chk_pk, chk_no, chk_name, chk_yn, cycle_type, 
-              per_number, sch_start_dt, first_work_dt, 
+              per_number, sched_start_dt, first_work_dt, 
               last_work_dt, next_chk_date, work_text, 
               work_expect_hr, check_type, use_yn, del_yn, 
               "_status", "_created", "_modified", "_creater_id", 
               "_modifier_id", "_creater_nm", "_modifier_nm", 
-              chk_user_id, dept_id
+              chk_user_id, dept_pk
          FROM chk_mst a
- 	       -- inner join equ e on a.equ_id = e.id 
+ 	       -- inner join equ e on a.equip_pk = e.id 
  	       -- inner join dept mng on e."Depart_id"  = mng.id
- 	       -- inner join dept exc on a.dept_id  = exc.id 	     
-           -- inner join auth_user au on a.pm_user_id  = au.id  	
+ 	       -- inner join dept exc on a.dept_pk  = exc.id 	     
+           -- inner join auth_user au on a.pm_user_pk  = au.id  	
  	       -- left join "location" l on e.loc_pk = l.id  	        
          WHERE 1 = 1 
         '''
         # if keyword:
         #     sql += ''' 
-        #     AND a."pm_name" like CONCAT('%%', %(keyword)s, '%%')
+        #     AND a."pm_nm" like CONCAT('%%', %(keyword)s, '%%')
         #     '''
         # if equDept:
         #     sql += ''' 
@@ -46,7 +46,7 @@ class PIService():
         #     '''
         # if isMyTask:
         #     sql += ''' 
-        #     AND a."pm_user_id" = %(isMyTask)s
+        #     AND a."pm_user_pk" = %(isMyTask)s
         #     '''
         # if isLegal:
         #     sql += ''' 
@@ -68,8 +68,8 @@ class PIService():
         sql = ''' 
         SELECT 
                a.pm_pk
-             , a.pm_no , a.pm_name 
-             , e.id as equ_id
+             , a.pm_no , a.pm_nm 
+             , e.id as equip_pk
              , e."Code" as equ_code, e."Name" as equ_name
              , e.import_rank
              , e."Depart_id" as mng_dept_id
@@ -81,10 +81,10 @@ class PIService():
              , a.pm_type 
              , a.cycle_type 
          FROM pm a
- 	        inner join equ e on a.equ_id = e.id 
+ 	        inner join equ e on a.equip_pk = e.id 
  	        inner join dept mng on e."Depart_id"  = mng.id
- 	        inner join dept exc on a.dept_id  = exc.id 	     
-            inner join auth_user au on a.pm_user_id  = au.id  	
+ 	        inner join dept exc on a.dept_pk  = exc.id 	     
+            inner join auth_user au on a.pm_user_pk  = au.id  	
  	        left join "location" l on e.loc_pk = l.id  	        
          WHERE 
             a.pm_pk = %(id)s
@@ -100,28 +100,28 @@ class PIService():
 
         return data
 
-    def get_pm_modal(self, keyword, dept_id):
+    def get_pm_modal(self, keyword, dept_pk):
         items = []
-        dic_param = {'keyword':keyword, 'dept_id':dept_id}
+        dic_param = {'keyword':keyword, 'dept_pk':dept_pk}
 
         sql = ''' 
         select * from pm
 	        left join auth_user au on pm."_creater_id" = au.id 
-	        left join dept d ON pm."dept_id" = d.id
-	        left join equ e on pm.equ_id = e.id 
+	        left join dept d ON pm."dept_pk" = d.id
+	        left join equ e on pm.equip_pk = e.id 
         where 1=1
         '''
         
         if keyword:
             sql+=''' 
-                AND (UPPER(pm."pm_name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+                AND (UPPER(pm."pm_nm") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
                     or UPPER(e."Name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
         	        or UPPER(e."Code") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
         )
             '''
-        if dept_id:
+        if dept_pk:
             sql+=''' 
-            AND UPPER(d.id) LIKE CONCAT('%%',UPPER(%(dept_id)s),'%%')
+            AND UPPER(d.id) LIKE CONCAT('%%',UPPER(%(dept_pk)s),'%%')
             '''
 
         try:

@@ -68,6 +68,9 @@
     <Compile Include="app\views\definition\bom.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
+    <Compile Include="app\views\interface\sap.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\kmms\job_class.py">
       <SubType>Code</SubType>
     </Compile>
@@ -77,6 +80,9 @@
     <Compile Include="app\views\system\das_config.py" />
     <Compile Include="app\views\system\depart.py" />
     <Compile Include="app\views\system\menu_log.py" />
+    <Compile Include="domain\admin.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\models\da.py" />
     <Compile Include="domain\services\aas\shells.py">
       <SubType>Code</SubType>
@@ -204,12 +210,18 @@
     <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
     <Compile Include="domain\services\mqtt.py" />
+    <Compile Include="domain\services\sap\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\setup\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\services\sql.py" />
     <Compile Include="domain\services\system.py" />
     <Compile Include="domain\services\system_definition\tag_data.py" />
+    <Compile Include="domain\services\van\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\__init__.py" />
     <Compile Include="domain\__init__.py" />
     <Compile Include="manage.py" />
@@ -257,6 +269,7 @@
     <Folder Include="app\templates\kmms\pm\" />
     <Folder Include="app\templates\ai\" />
     <Folder Include="app\templates\aas\" />
+    <Folder Include="app\templates\interface\" />
     <Folder Include="app\templates\system_code\" />
     <Folder Include="app\templates\sample_page\" />
     <Folder Include="app\templates\popup\" />
@@ -289,6 +302,7 @@
     <Folder Include="app\views\das\" />
     <Folder Include="app\views\ai\" />
     <Folder Include="app\views\aas\" />
+    <Folder Include="app\views\interface\" />
     <Folder Include="app\views\popup\" />
     <Folder Include="app\views\system\" />
     <Folder Include="app\views\tagdata\" />
@@ -305,13 +319,17 @@
     <Folder Include="domain\services\ai\" />
     <Folder Include="domain\services\kmms\" />
     <Folder Include="domain\services\aas\" />
+    <Folder Include="domain\services\sap\" />
+    <Folder Include="domain\services\van\" />
     <Folder Include="domain\services\system_definition\" />
     <Folder Include="domain\_sql\" />
     <Folder Include="domain\services\" />
     <Folder Include="domain\services\setup\" />
+    <Folder Include="domain\_sql\das_config\제어pc\" />
     <Folder Include="domain\_sql\function\" />
     <Folder Include="domain\_sql\das_config\" />
     <Folder Include="domain\_sql\aas\" />
+    <Folder Include="domain\_sql\if\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
   </ItemGroup>
@@ -364,6 +382,7 @@
     <Content Include="app\static\img\menuIcon-Lv2-submenu-active.svg" />
     <Content Include="app\static\img\menuIcon-Lv2-submenu.svg" />
     <Content Include="app\static\img\menuIcon-Lv2.svg" />
+    <Content Include="app\static\img\qr-code-image.png" />
     <Content Include="app\static\img\star_01.svg" />
     <Content Include="app\static\img\star_icon.svg" />
     <Content Include="app\static\resource\apexcharts\apexcharts.3.26.min.js" />
@@ -906,6 +925,14 @@
     <Content Include="app\templates\definition\equip_obsolete.html" />
     <Content Include="app\templates\definition\model_change.html" />
     <Content Include="app\templates\definition\line_inactive.html" />
+    <Content Include="app\templates\interface\if_equ_result_data.html">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="app\templates\interface\if_van.html" />
+    <Content Include="app\templates\interface\if_qms.html" />
+    <Content Include="app\templates\interface\if_sap.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="app\templates\kmms\wo\work_order_management.html" />
     <Content Include="app\templates\kmms\wo\work_request_approval.html" />
     <Content Include="app\templates\kmms\wo\work_order_approval.html" />
@@ -991,6 +1018,7 @@
     <Content Include="app\templates\tagdata\tag_statistics.html" />
     <Content Include="app\templates\tagdata\tag_sync_trend.html" />
     <Content Include="app\templates\tagdata\tag_trend.html" />
+    <Content Include="domain\_sql\04.알람마스터.txt" />
     <Content Include="domain\_sql\aas\specificAssetId.json">
       <SubType>Code</SubType>
     </Content>
@@ -1011,8 +1039,21 @@
     <Content Include="domain\_sql\das_config\16_hpc1.brackassm.json" />
     <Content Include="domain\_sql\das_config\17_smt3.load.json" />
     <Content Include="domain\_sql\das_config\18_smt3.unload.json" />
+    <Content Include="domain\_sql\das_config\제어pc\eol.json" />
     <Content Include="domain\_sql\function\fn_code_name.txt" />
     <Content Include="domain\_sql\function\fn_lang_text.txt" />
+    <Content Include="domain\_sql\if\sap_mat.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\if\test.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\if\van.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\if\인터페이스계정.txt">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\partition\em_tag_dat.txt" />
     <Content Include="domain\_sql\partition\tag_dat.txt" />
     <Content Include="domain\_sql\01.기초데이터.txt" />

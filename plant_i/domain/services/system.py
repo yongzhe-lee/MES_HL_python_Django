@@ -186,7 +186,7 @@ class SystemService():
                 user_group_id = userGroup.id
             else:
                 user_group_code = ''
-                user_group_id = 0
+                user_group_id = 1
             lang_code = user.userprofile.lang_code
             sql=''' 
                 WITH RECURSIVE tree(id, menu_code, pid, name, depth, path, folder_order, _order) AS (  
@@ -223,21 +223,21 @@ class SystemService():
                         menu_item mi 
                     INNER JOIN 
                         tree ON mi."MenuFolder_id" = tree.id 
-                    WHERE 
-                        EXISTS (
-                            SELECT 1 
-                            WHERE %(group_code)s = 'dev' 
-                            UNION ALL
-                            SELECT 1 
-                            WHERE mi."MenuCode" IN ('wm_user_group_menu', 'wm_user_group', 'wm_user')
-                                AND (%(super_user)s = true OR %(group_code)s = 'admin' )
-                            UNION ALL
+                        WHERE 
+                            EXISTS (
+    --                        SELECT 1 
+    --                        WHERE %(group_code)s = 'dev' 
+    --                        UNION ALL
+    --                        SELECT 1 
+    --                        WHERE mi."MenuCode" IN ('wm_user_group_menu', 'wm_user_group', 'wm_user')
+    --                            AND (%(super_user)s = true OR %(group_code)s = 'admin' )
+    --                        UNION ALL
                             SELECT 1 
                             FROM user_group_menu gm 
                             WHERE gm."MenuCode" = mi."MenuCode" 
                                 AND gm."UserGroup_id" = %(group_id)s 
                                 AND gm."AuthCode" LIKE '%%R%%'
-                                AND ( %(group_code)s not IN ('dev') OR %(super_user)s = false )
+    --                            AND ( %(group_code)s not IN ('dev') OR %(super_user)s = false )
                         )
                 ), 
                 M AS (
@@ -732,7 +732,7 @@ class SystemService():
     def get_holiday_list(self, keyword, year):
         
         sql = ''' 
-        SELECT nation_cd, type_val, name_val, repeat_yn, holidate, id
+        SELECT nation_cd, name_val, repeat_yn, holidate, id
         FROM holiday
         where 1=1
         '''

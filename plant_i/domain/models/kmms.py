@@ -48,14 +48,14 @@ class PreventiveMaintenance(models.Model):
     '''
     pm_pk = models.AutoField(primary_key=True, db_comment='예방보전 PK')
     pm_no = models.CharField('PM번호', db_column='pm_no', max_length=20, db_comment='예방보전 번호')
-    Name = models.CharField('PM명', db_column='pm_name', max_length=100, db_comment='예방보전 명')
+    Name = models.CharField('PM명', db_column='pm_nm', max_length=100, db_comment='예방보전 명')
     PMSortNo = models.SmallIntegerField('PM번호순번', db_column='pm_sort_no', null=True, db_comment='예방보전 번호순번')
-    Equipment = models.ForeignKey(Equipment, db_column='equ_id', on_delete=models.DO_NOTHING, db_comment='설비 ID')
-    Depart = models.ForeignKey(Depart, db_column='dept_id', on_delete=models.DO_NOTHING, db_comment='부서 ID')
-    PMUser = models.ForeignKey(User, db_column='pm_user_id', on_delete=models.DO_NOTHING, db_comment='예방보전 담당자 ID')
+    Equipment = models.ForeignKey(Equipment, db_column='equip_pk', on_delete=models.DO_NOTHING, db_comment='설비 ID')
+    Depart = models.ForeignKey(Depart, db_column='dept_pk', on_delete=models.DO_NOTHING, db_comment='부서 ID')
+    PMUser = models.ForeignKey(User, db_column='pm_user_pk', on_delete=models.DO_NOTHING, db_comment='예방보전 담당자 ID')
     CycleType = models.CharField('주기단위', db_column='cycle_type', max_length=100, null=True, db_comment='주기단위')
     CyclePerNumber = models.IntegerField('PM주기별번호', db_column='per_number', null=True, db_comment='예방보전 주기별번호')
-    ScheduleStartDate = models.DateField('주기시작일', db_column='sch_start_dt', null=True, db_comment='주기시작일')
+    ScheduleStartDate = models.DateField('주기시작일', db_column='sched_start_dt', null=True, db_comment='주기시작일')
     FirstWorkDate = models.DateField('최초PM생성일', db_column='first_work_dt', null=True, db_comment='최초 예방보전 생성일')
     LastWorkDate = models.DateField('최종PM생성일', db_column='last_work_dt', null=True, db_comment='최종 예방보전 생성일')
     NextCheckDate = models.DateField('다음주기일', db_column='next_chk_date', null=True, db_comment='다음 주기일')
@@ -170,12 +170,12 @@ class CheckMaster(models.Model):
     check_pk = models.AutoField(primary_key=True, db_column='chk_pk', db_comment='점검 PK')
     check_no = models.CharField('점검번호', db_column='chk_no', max_length=20, db_comment='점검 번호')
     CheckName = models.CharField('점검명', db_column='chk_name', max_length=100, db_comment='점검 이름')
-    Depart = models.ForeignKey(Depart, verbose_name='점검부서', db_column='dept_id', on_delete=models.DO_NOTHING, null=True, db_comment='점검 부서 ID')
+    Depart = models.ForeignKey(Depart, verbose_name='점검부서', db_column='dept_pk', on_delete=models.DO_NOTHING, null=True, db_comment='점검 부서 ID')
     CheckUser = models.ForeignKey(User, verbose_name='점검담당자', db_column='chk_user_id', on_delete=models.DO_NOTHING, null=True, db_comment='점검 담당자 ID')
     CheckYN = models.CharField('점검여부', db_column='chk_yn', max_length=1, default='N', db_comment='점검 여부')
     CycleType = models.CharField('주기유형', db_column='cycle_type', max_length=100, null=True, db_comment='주기 유형')
     CyclePerNumber = models.IntegerField('점검주기별번호', db_column='per_number', null=True, db_comment='점검 주기별 번호')
-    ScheduleStartDate = models.DateField('주기시작일', db_column='sch_start_dt', null=True, db_comment='주기 시작일')
+    ScheduleStartDate = models.DateField('주기시작일', db_column='sched_start_dt', null=True, db_comment='주기 시작일')
     FirstWorkDate = models.DateField('최초점검생성일', db_column='first_work_dt', null=True, db_comment='최초 점검 생성일')
     LasttWorkDate = models.DateField('최종점검생성일', db_column='last_work_dt', null=True, db_comment='최종 점검 생성일')
     NexttCheckDate = models.DateField('다음주기일', db_column='next_chk_date', null=True, db_comment='다음 주기일')
@@ -226,10 +226,6 @@ class CheckItem(models.Model):
     '''
     점검항목
     '''
-class CheckItem(models.Model):
-    '''
-    점검항목
-    '''
     Check_item_pk = models.AutoField(primary_key=True, db_column='check_item_pk', db_comment='점검항목 기본키')
     CheckMaster = models.ForeignKey(CheckMaster, verbose_name='점검마스터', db_column='chk_pk', on_delete=models.DO_NOTHING, db_comment='점검 마스터(FK)')
     ItemIndex = models.SmallIntegerField('점검항목순번', db_column='item_index', db_comment='점검 항목 순번')
@@ -270,7 +266,7 @@ class CheckSchedule(models.Model):
     check_sch_pk = models.AutoField(primary_key=True, db_column='chk_sch_pk', db_comment='점검일정PK')
     check_sch_no = models.IntegerField('점검일정번호', db_column='chk_sch_no', db_comment='점검일정번호')
     CheckMaster = models.ForeignKey(CheckMaster, verbose_name='점검마스터', db_column='chk_mast_pk', on_delete=models.DO_NOTHING, db_comment='점검마스터PK')
-    Depart = models.ForeignKey(Depart, verbose_name='점검부서', db_column='dept_id', on_delete=models.DO_NOTHING, null=True, db_comment='점검부서')
+    Depart = models.ForeignKey(Depart, verbose_name='점검부서', db_column='dept_pk', on_delete=models.DO_NOTHING, null=True, db_comment='점검부서')
     CheckScheduleDate = models.DateField('점검예정일', db_column='chk_sch_dt', db_comment='점검예정일')
     CheckStatus = models.CharField('점검상태', db_column='chk_status', max_length=1, default='N', db_comment='점검상태')
     CheckUser = models.ForeignKey(User, db_column='chk_user_id', verbose_name='점검담당자', on_delete=models.DO_NOTHING, null=True, db_comment='점검담당자')
@@ -353,7 +349,7 @@ class CheckResult(models.Model):
     '''
     check_result_pk = models.AutoField(primary_key=True, db_column='chk_rslt_pk', db_comment='점검결과PK')
     CheckSchedule = models.ForeignKey(CheckSchedule, verbose_name='점검일정', db_column='chk_sch_pk', on_delete=models.DO_NOTHING, db_comment='점검일정PK')
-    Equipment = models.ForeignKey(Equipment, verbose_name='설비', db_column='equ_id', on_delete=models.DO_NOTHING, db_comment='설비PK')
+    Equipment = models.ForeignKey(Equipment, verbose_name='설비', db_column='equip_pk', on_delete=models.DO_NOTHING, db_comment='설비PK')
     Result = models.CharField('결과', db_column='result', max_length=1, null=True, db_comment='점검결과 (정상/이상)')
     Description = models.CharField('비고', db_column='description', max_length=2000, null=True, db_comment='비고')
 
@@ -440,10 +436,10 @@ class WorkOrder(models.Model):
     work_order_no = models.CharField('작업지시서번호', db_column='work_order_no', max_length=40, db_comment='작업지시서 번호')
     wo_status = models.CharField('작업상태', db_column='wo_status', max_length=20, db_comment='작업 상태')
     work_title = models.CharField('작업제목', db_column='work_title', max_length=200, db_comment='작업 제목')
-    Equipment = models.ForeignKey(Equipment, db_column='equ_id', on_delete=models.DO_NOTHING, db_comment='설비 ID')
+    Equipment = models.ForeignKey(Equipment, db_column='equip_pk', on_delete=models.DO_NOTHING, db_comment='설비 ID')
     wo_type = models.CharField('작업유형', db_column='wo_type', max_length=20, null=True, db_comment='작업 유형')
     MaintenanceTypeCode = models.CharField('보전유형', db_column='maint_type_cd', max_length=20, default='CM', null=True, db_comment='보전 유형 코드')
-    RequestDepart = models.ForeignKey(Depart, verbose_name='요청부서', db_column='req_dept_id', on_delete=models.DO_NOTHING, null=True, related_name='workorder_request_depart', db_comment='요청 부서 ID')
+    RequestDepart = models.ForeignKey(Depart, verbose_name='요청부서', db_column='req_dept_pk', on_delete=models.DO_NOTHING, null=True, related_name='workorder_request_depart', db_comment='요청 부서 ID')
     RequestInfo = models.TextField('요청내역', db_column='req_info', null=True, db_comment='요청 내역')
     RequestFileGroupCode = models.CharField('요청내역사진파일코드', db_column='req_file_grp_cd', max_length=50, null=True, db_comment='요청내역 사진파일 그룹코드')
     WantDate = models.DateField('희망일', db_column='want_dt', null=True, db_comment='작업 희망일')
@@ -456,8 +452,8 @@ class WorkOrder(models.Model):
     plan_end_dt = models.DateField('계획완료일', db_column='plan_end_dt', null=True, db_comment='계획 완료일')
     start_dt = models.DateField('작업시작일시', db_column='start_dt', null=True, db_comment='작업 시작일시')
     end_dt = models.DateField('작업종료일시', db_column='end_dt', null=True, db_comment='작업 종료일시')
-    WorkDepart = models.ForeignKey(Depart, verbose_name='작업부서', db_column='work_dept_id', on_delete=models.DO_NOTHING, null=True, related_name='workorder_work_depart', db_comment='작업 부서 ID')
-    WorkCharger = models.ForeignKey(User, verbose_name='작업담당자', db_column='work_charger_id', on_delete=models.DO_NOTHING, null=True, db_comment='작업 담당자 ID')
+    WorkDepart = models.ForeignKey(Depart, verbose_name='작업부서PK', db_column='dept_pk', on_delete=models.DO_NOTHING, null=True, related_name='workorder_work_depart', db_comment='작업 부서 ID')
+    WorkCharger = models.ForeignKey(User, verbose_name='작업담당자PK', db_column='work_charger_pk', on_delete=models.DO_NOTHING, null=True, db_comment='작업 담당자 ID')
     WorkText = models.TextField('작업내역', db_column='work_text', null=True, db_comment='작업 내역')
     WorkFileGroupCode = models.CharField('작업내역사진파일코드', db_column='work_file_grp_cd', max_length=50, null=True, db_comment='작업내역 사진파일 그룹코드')
     WorkSourcingCode = models.CharField('작업소싱 코드', db_column='work_src_cd', max_length=20, default='WS01', null=True, db_comment='작업 소싱 코드')
@@ -473,14 +469,20 @@ class WorkOrder(models.Model):
     rqst_dpr_yn = models.CharField('일보WO 여부', db_column='rqst_dpr_yn', max_length=1, default='N', db_comment='일보 작업지시 여부')
     WorkFileGroupCode = models.CharField('첨부파일그룹코드', db_column='wo_file_grp_cd', max_length=50, null=True, db_comment='첨부파일 그룹코드')
     CheckResult = models.ForeignKey(CheckResult, verbose_name='점검결과', db_column='chk_result_pk', on_delete=models.DO_NOTHING, null=True, db_comment='점검결과 ID')
+    site_id = models.IntegerField('사이트ID', db_column='site_id', null=True, db_comment='사이트 ID')
+    WorkOrderApproval = models.ForeignKey('WorkOrderApproval', db_column='work_order_approval_pk', on_delete=models.DO_NOTHING, db_comment='작업결재정보PK')
     
+    # 새로운 필드 추가
+    appr_line = models.CharField('결재라인', db_column='appr_line', max_length=50, null=True, default='', db_comment='결재라인')
+    appr_line_next = models.CharField('다음결재라인', db_column='appr_line_next', max_length=10, null=True, default='', db_comment='다음결재라인')
+
     _status = models.CharField('_status', max_length=10, db_comment='데이터 상태')
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성 일시')
-    _modified = models.DateTimeField('_modified', auto_now=True, db_comment='수정 일시')
+    _modified = models.DateTimeField('_modified', auto_now=True, null=True, db_comment='수정 일시')
     _creater_id = models.IntegerField('_creater_id', db_comment='생성자 ID')
-    _modifier_id = models.IntegerField('_modifier_id', db_comment='수정자 ID')
-    _creater_nm = models.CharField('_creater_nm', max_length=50, db_comment='생성자 이름')
-    _modifier_nm = models.CharField('_modifier_nm', max_length=50, db_comment='수정자 이름')
+    _modifier_id = models.IntegerField('_modifier_id', null=True, db_comment='수정자 ID')
+    _creater_nm = models.CharField('_creater_nm', max_length=50, null=True, db_comment='생성자 이름')
+    _modifier_nm = models.CharField('_modifier_nm', max_length=50, null=True, db_comment='수정자 이름')
 
     def set_audit(self, user):
         if self._creater_id is None:
@@ -506,8 +508,7 @@ class WorkOrderApproval(models.Model):
     '''
     작업지시 결재 정보
     '''
-    work_order_approval_pk = models.AutoField(primary_key=True, db_column='work_order_approval_pk', db_comment='작업결재정보 PK')
-    WorkOrder = models.OneToOneField(WorkOrder, verbose_name='작업지시', db_column='work_order_pk', on_delete=models.DO_NOTHING, related_name='work_order_approval', null=True, db_comment='작업지시 PK')
+    work_order_approval_pk = models.AutoField(primary_key=True, db_column='work_order_approval_pk', db_comment='작업결재정보 PK')    
     rqst_user_pk = models.SmallIntegerField('요청자PK', db_column='rqst_user_pk', null=True, db_comment='요청자 PK')
     rqst_user_nm = models.CharField('요청자명', db_column='rqst_user_nm', max_length=50, null=True, db_comment='요청자 이름')
     rqst_dt = models.DateTimeField('요청일시', db_column='rqst_dt', null=True, db_comment='요청 일시')
@@ -538,7 +539,7 @@ class WorkOrderApproval(models.Model):
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment='데이터 상태')
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성 일시')
-    _modified = models.DateTimeField('_modified', auto_now=True, db_comment='수정 일시')
+    _modified = models.DateTimeField('_modified', null=True, db_comment='수정 일시')
     _creater_id = models.IntegerField('_creater_id', null=True, db_comment='생성자 ID')
     _modifier_id = models.IntegerField('_modifier_id', null=True, db_comment='수정자 ID')
     _creater_nm = models.CharField('작성자명', max_length=10, null=True, db_comment='생성자 이름')
@@ -557,4 +558,79 @@ class WorkOrderApproval(models.Model):
         db_table = 'work_order_approval'
         db_table_comment = '작업 결재정보'
         verbose_name = '작업지시 결재'
+
+class WorkOrderMaterial(models.Model):
+    '''
+    작업 자재
+    '''
+    id = models.BigAutoField(primary_key=True)
+    work_order = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시 PK')
+    material = models.ForeignKey('Material', db_column='mtrl_pk', on_delete=models.DO_NOTHING, db_comment='자재 PK')
+    unit_price = models.DecimalField('단가', db_column='unit_price', max_digits=9, decimal_places=0, db_comment='단가')
+    loc_cd = models.CharField('위치코드', db_column='loc_cd', max_length=30, null=True, db_comment='위치 코드')
+    own_dept_cd = models.CharField('소유부서코드', db_column='own_dept_cd', max_length=20, null=True, db_comment='소유 부서 코드')
+    ab_grade = models.CharField('등급', db_column='ab_grade', max_length=10, null=True, db_comment='A/B 등급')
+    plan_amt = models.SmallIntegerField('계획수량', db_column='plan_amt', null=True, db_comment='계획 수량')
+    a_amt = models.SmallIntegerField('A등급 사용량', db_column='a_amt', null=True, db_comment='A등급 사용량')
+    b_amt = models.SmallIntegerField('B등급 사용량', db_column='b_amt', null=True, db_comment='B등급 사용량')
+    
+    _status = models.CharField('_status', max_length=10, db_comment='데이터 상태')
+    _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성 일시')
+    _modified = models.DateTimeField('_modified', auto_now=True, db_comment='수정 일시')
+    _creater_id = models.IntegerField('_creater_id', db_comment='생성자 ID')
+    _modifier_id = models.IntegerField('_modifier_id', db_comment='수정자 ID')
+    _creater_nm = models.CharField('_creater_nm', max_length=50, db_comment='생성자 이름')
+    _modifier_nm = models.CharField('_modifier_nm', max_length=50, db_comment='수정자 이름')
+    
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+            self._creater_nm = user.userprofile.Name
+        self._modifier_id = user.id
+        self._modifier_nm = user.userprofile.Name
+        self._modified = DateUtil.get_current_datetime()
+        return
+    
+    class Meta:
+        db_table = 'wo_mtrl'
+        db_table_comment = '작업 자재'
+        verbose_name = '작업 자재'
+
+class WorkOrderHistory(models.Model):
+    '''
+    작업지시 이력
+    '''
+    id = models.BigAutoField(primary_key=True)
+    work_order = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시 PK')
+    before_status = models.CharField('이전 상태', db_column='before_status', max_length=20, db_comment='이전 작업 상태')
+    after_status = models.CharField('변경 후 상태', db_column='after_status', max_length=20, null=True, db_comment='변경 후 작업 상태')
+    change_ts = models.DateTimeField('변경 일시', db_column='change_ts', auto_now_add=True, db_comment='변경 일시')
+    changer_pk = models.SmallIntegerField('변경자 PK', db_column='changer_pk', db_comment='변경자 PK')
+    changer_nm = models.CharField('변경자 이름', db_column='changer_nm', max_length=100, db_comment='변경자 이름')
+    change_reason = models.CharField('변경 사유', db_column='change_reason', max_length=500, null=True, db_comment='변경 사유')
+    
+    class Meta:
+        db_table = 'work_order_hist'
+        db_table_comment = '작업지시 이력'
+        verbose_name = '작업지시 이력'
+
+class WorkOrderLabor(models.Model):
+    '''
+    작업 인력
+    '''
+    id = models.AutoField(primary_key=True, db_comment='작업인력시PK')
+    WorkOrder = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시PK')
+    Equipment = models.ForeignKey('Equipment', db_column='equip_pk', on_delete=models.DO_NOTHING, db_comment='작업PK')
+    JobClass = models.ForeignKey('JobClass', db_column='job_class_pk', on_delete=models.DO_NOTHING, db_comment='직종PK')
+    LaborPrice = models.BigIntegerField('노임단가', db_column='labor_price', db_comment='노임단가')
+    WorkerCount = models.IntegerField('인원수', db_column='worker_nos', default=1, db_comment='인원수')
+    WorkHour = models.DecimalField('예상시간', db_column='work_hr', max_digits=7, decimal_places=2, db_comment='예상시간')
+    RealWorkHour = models.DecimalField('실작업시간', db_column='real_work_hr', max_digits=7, decimal_places=2, db_comment='실작업시간')
+    LaborDescription = models.CharField('비고', db_column='labor_dsc', max_length=100, db_comment='비고')
+
+    class Meta:
+        db_table = 'wo_labor'
+        verbose_name = '작업 인력'
+        db_table_comment = '작업 인력'
+
 

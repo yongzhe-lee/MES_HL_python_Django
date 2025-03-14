@@ -2,9 +2,8 @@
 Definition of urls for qm_lims.
 """
 
-from datetime import datetime
-from django.urls import path, re_path
-from django.contrib import admin
+from django.urls import path
+
 from app.views.account import AccountLoginView, AccountLogoutView
 from app import forms
 from app.views.das import DASDeviceView
@@ -44,5 +43,6 @@ urlpatterns = [
     path('page/<str:folder>/<str:template_name>', TemplatePathView.as_view(), name='page'),
     
     # 사용자정의 api 호출
-    path('extra/<str:task>/<str:key>', ExtraDefinitionView.as_view(), name='extra'),
+    path('extra/<str:task>/<str:key>', ExtraDefinitionView.as_view(), name='extra')
+
 ]

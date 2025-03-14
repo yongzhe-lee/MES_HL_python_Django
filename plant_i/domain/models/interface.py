@@ -1,3 +1,4 @@
+from pyexpat import model
 from tabnanny import verbose
 from django.db import models
 from domain.services.date import DateUtil
@@ -22,14 +23,14 @@ class IFSapMaterial(models.Model):
     stab_matkl = models.CharField('자재그룹', max_length=9, null=True)
     stab_mtart = models.CharField('자재유형', max_length=15, null=True)
     stab_meins = models.CharField('기본단위', max_length=4, null=True)
-    stab_atype = models.CharField('품목유형코드', max_length=15, null=True)
-    stab_bkbez = models.CharField('품목유형명', max_length=15, null=True)
+    stab_bklas = models.CharField('품목유형코드', max_length=15, null=True)
+    stab_bkbez = models.CharField('품목유형명', max_length=25, null=True)
     stab_zctime = models.DecimalField('C/T', max_digits=5, decimal_places=1, null=True)
     stab_price = models.DecimalField('자재마스터단가', max_digits=11, decimal_places=2, null=True)
     stab_peinh = models.DecimalField('가격단위', max_digits=5, decimal_places=0, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -67,7 +68,7 @@ class IFSapBOM(models.Model):
     stab_bkbez = models.CharField('품목유형명', max_length=25, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -113,9 +114,9 @@ class IFSapMaterialStock(models.Model):
     stab_meins = models.CharField('단위', max_length=4)
     stab_bklas = models.CharField('품목유형코드', max_length=4,  null=True)
     stab_bkbez = models.CharField('품목유형명', max_length=25, null=True)
-
+    data_date = models.DateTimeField('기준일시')
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -144,9 +145,10 @@ class IFSapPcbRandomNumber(models.Model):
     stab_menge = models.DecimalField('입고수량', max_digits=13, decimal_places=3)
     stab_abqty = models.DecimalField('난수별수량', max_digits=13, decimal_places=3)
     stab_meins = models.CharField('단위', max_length=4)
+    rnd_num = models.CharField('난수번호', max_length=10, null=True)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -180,7 +182,7 @@ class IFMesLine(models.Model):
     line_nm = models.CharField('라인명', max_length=200)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -211,7 +213,7 @@ class IFMesProcess(models.Model):
 
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -244,7 +246,7 @@ class IFMesEquipment(models.Model):
     line_cd = models.CharField('라인코드', max_length=20)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -282,7 +284,7 @@ class IFMesProductionPlan(models.Model):
     description = models.CharField('비고', max_length=2000)
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -335,7 +337,7 @@ class IFMesProductionResult(models.Model):
 
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -389,7 +391,7 @@ class IFMesEquipmentTestResult(models.Model):
         
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -434,29 +436,29 @@ class IFQmsDefect(models.Model):
     '''
     id = models.BigAutoField(primary_key=True)
     qis_pk = models.IntegerField('QIS부적합테이블 PK')
-    a_date = models.DateField('분석일자')
-    o_date = models.DateField('발생일자')
-    w_shift = models.CharField('근무조', max_length=10)
-    step_class = models.CharField('단계', max_length=20)
-    line_cd = models.CharField('라인코드', max_length=20)
-    mat_cd = models.CharField('품목코드', max_length=50)
-    serial_no = models.CharField('시리얼번호', max_length=50)
-    hlk_part_no = models.CharField('파트번호', max_length=50)
-    de_proc_cd = models.CharField('검출공정', max_length=20)
-    oc_prod_cd = models.CharField('발생공정', max_length=20)
-    imput_cate = models.CharField('귀책구분', max_length=50)
-    defect_qty = models.DecimalField('불량수량', max_digits=13, decimal_places=3)
-    defect_type1 = models.CharField('불량유형1', max_length=50)
-    defect_type2 = models.CharField('불량유형2', max_length=50)
-    worker_name = models.CharField('생산라인작업자', max_length=50)
-    remark = models.CharField('REMARK(내용)', max_length=2000)
-    init_result = models.CharField('초기분석결과', max_length=2000)
-    complete_date = models.DateField('최종결론')
-    final_result = models.CharField('최종결론내용', max_length=2000)
-    
+    a_date = models.DateField('분석일자', null=True)
+    o_date = models.DateField('발생일자', null=True)
+    w_shift = models.CharField('근무조', max_length=10, null=True)
+    step_class = models.CharField('단계', max_length=20, null=True)
+    line_cd = models.CharField('라인코드', max_length=20, null=True)
+    mat_cd = models.CharField('품목코드', max_length=50, null=True)
+    serial_no = models.CharField('시리얼번호', max_length=50, null=True)
+    hlk_part_no = models.CharField('파트번호', max_length=50, null=True)
+    de_proc_cd = models.CharField('검출공정', max_length=50, null=True)
+    oc_prod_cd = models.CharField('발생공정', max_length=50, null=True)
+    imput_cate = models.CharField('귀책구분', max_length=50, null=True)
+    defect_qty = models.DecimalField('불량수량', max_digits=13, decimal_places=3, null=True)
+    defect_type1 = models.CharField('불량유형1', max_length=50, null=True)
+    defect_type2 = models.CharField('불량유형2', max_length=50, null=True)
+    worker_name = models.CharField('생산라인작업자', max_length=50, null=True)
+    remark = models.CharField('REMARK(내용)', max_length=2000, null=True)
+    init_result = models.CharField('초기분석결과', max_length=2000, null=True)
+    complete_date = models.DateField('최종결론', null=True)
+    final_result = models.CharField('최종결론', max_length=2000, null=True)    
+    final_remark = models.CharField('최종결론내용', max_length=2000, null=True)   
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -517,7 +519,7 @@ class IFVanLotHostory(models.Model):
     
 
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
     _creater_id = models.IntegerField('_creater_id', null=True)
     _modifier_id = models.IntegerField('_modifier_id', null=True)
@@ -535,27 +537,9 @@ class IFVanLotHostory(models.Model):
         unique_together = [
         ]
 
-
+'''
 class IFVanReceivingInspectionResult(models.Model):
-    '''
-    van 검사고유식별번호	van_pk
-    데이터 상태	status
-    합격	is_pass
-    불량	is_defect
-    4M	is_4m
-    DEV	is_dev
-    제품그룹	prod_grp
-    품목코드	mat_cd
-    품목내역	mat_detail
-    공장	factory
-    LOT no	lot_no
-    LOT size	lot_size
-    수입검사코드	incom_test_cd
-    검사수량	test_qty
-    입고수량	input_qty
-    입고여부	input_status
-    주기단계	stage
-    '''
+
 
     id = models.BigAutoField(primary_key=True)
     van_pk = models.CharField('van 검사고유식별번호', max_length=20)
@@ -595,6 +579,204 @@ class IFVanReceivingInspectionResult(models.Model):
         verbose_name = 'VAN PCB 수입검사결과 인터페이스'
         unique_together = [
         ]
+'''
+
+class IFVanInterface(models.Model):
+
+    '''
+    인터페이스 결과가 성적서와 항목 전체를 포함하고 있을것이라 추측함
+    결과확인후에 테이블 컬럼 정리 필요
+
+    성적서번호	REPORT_NUMBER
+    거래명세서번호	INV_NUMBER
+    거래명세서아이템항번	INV_SEQ
+    SAP입고번호	SAP_GR_NUMBER
+    SAP입고아이템항번	SAP_GR_SEQ
+    금형차수	MOLD
+    자재코드	MATERIAL_NUMBER
+    자재명	MATERIAL_NAME
+    업체코드	VENDOR_CODE
+    업체명	VENDOR_NAME
+    자재리비전	MATERIAL_REVISION
+    ECN No	ECN_NO
+    검사일자	CHECK_DATE
+    검사자	CHECk_USER_NAME
+    LOT No	LOT_NO
+    LOT SIZE	LOT_SIZE
+    DEV NO	DIVISION_NO
+    4M NO	FM_NO
+    입고일자	GR_DATE
+    판정일자	CONFIRM_DATE
+    판정결과	RESULT_VALUE
+    비고	REMARK
+    AQL외관검사 샘플링수	AQL_SAMPLE_COUNT
+    불량률 기준	DEFECT_RATE
+    AC합격판정개수	PASSING_COUNT
+    Re불량판정개수	DEFECT_COUNT
+    AQL치수검사수량	SAMPLE_CHECK_COUNT
+    순번	SEQ
+    검사항목	INS_TEXT
+    검사항번	SPEC_SEQ
+    규격	SPECIFICATION
+    상한가	UPPER_LIMIT
+    하한가	LOWER_LIMIT
+    단위	UNIT
+    계측기코드	MACHINE_TYPE
+    계측기명	MACHINE_TYPE_TEXT
+    X1	X1
+    X2	X2
+    X3	X3
+    X4	X4
+    X5	X5
+    X6	X6
+    X7	X7
+    X8	X8
+    X9	X9
+    X10	X10
+    X_A	X_AVG
+    R	R_VAL
+    합/부	PASS_FAIL
+    입력코드	INPUT_VALUE
+    입력명	INPUT_VALUE_TEXT
+    상한처리여부	UPPER_LIMIT_CHECK
+    하한처리여부	LOWER_LIMIT_CHECK
+
+          "VENDOR_NAME": "(주)신흥오토모티브",
+            "DEFECT_RATE": "0.01",
+            "REPORT_NUMBER": "IR23090800025",
+            "LOWER_LIMIT": null,
+            "MATERIAL_REVISION": "AD",
+            "MATERIAL_NUMBER": "F00.014-007",
+            "VENDOR_CODE": "48301660",
+            "CHECK_USER_NAME": "TEST2",
+            "INS_TEXT": "Appearance",
+            "GR_DATE": "20230908",
+            "UNIT": null,
+            "R_VAL": null,
+            "SAP_GR_NUMBER": "5000822215",
+            "MACHINE_TYPE": "370",
+            "PASSING_COUNT": "0",
+            "LOWER_LIMIT_CHECK": "0",
+            "CONFIRM_DATE": "20230908",
+            "AQL_SAMPLE_COUNT": 8,
+            "SPEC_SEQ": "1",
+            "INV_NUMBER": "IV2309000009",
+            "INPUT_VALUE": "20",
+            "UPPER_LIMIT": null,
+            "MOLD": "-",
+            "LOT_NO": "2308",
+            "SEQ": 1,
+            "PASS_FAIL": null,
+            "RESULT_VALUE": "N",
+            "FM_NO": null,
+            "SPECIFICATION": "공정 누락 없을 것",
+            "X_AVG": null,
+            "LOT_SIZE": 100,
+            "UPPER_LIMIT_CHECK": "0",
+            "X1": "OK",
+            "MACHINE_TYPE_TEXT": "육안",
+            "X2": "OK",
+            "X3": "OK",
+            "MATERIAL_NAME": "Bracket Ass'y_LRR-25(R1T/S)_.",
+            "X4": "OK",
+            "SAP_GR_SEQ": "0001",
+            "REMARK": "TEST3",
+            "X5": "OK",
+            "X6": null,
+            "X7": null,
+            "X8": null,
+            "X9": null,
+            "ECN_NO": "187258",
+            "DEVISION_NO": null,
+            "CHECK_DATE": "20230908",
+            "DEFECT_COUNT": "1",
+            "INPUT_VALUE_TEXT": "Ok/Fail",
+            "X10": null,
+            "INV_SEQ": "00001",
+            "SAMPLE_CHECK_COUNT": 3
+
+
+    '''
+
+    id = models.BigAutoField(primary_key=True)
+    #헤더시작
+    report_number = models.CharField("성적서번호", max_length=20, null=True )
+    inv_number = models.CharField("거래명세서번호", max_length=20, null=True )
+    inv_seq = models.CharField("거래명세서아이템항번", max_length=6, null=True )
+    sap_gr_number = models.CharField("SAP입고번호", max_length=20, null=True )
+    sap_gr_seq = models.CharField("sap_gr_seq", max_length=10, null=True )
+    mold = models.CharField("금형차수", max_length=1, null=True )
+    material_number = models.CharField("자재코드", max_length=50, null=True )
+    material_name = models.CharField("자재명", max_length=500, null=True )
+    vendor_code = models.CharField("업체코드", max_length=20, null=True )
+    vendor_name = models.CharField("업체명", max_length=500, null=True )
+    material_revision = models.CharField("자재리비전", max_length=10, null=True )
+    ecn_no = models.CharField("ecn_no", max_length=20, null=True )
+    check_date = models.CharField("검사일자", max_length=8, null=True )
+    check_user_name = models.CharField("검사자", max_length=50, null=True )
+    lot_no = models.CharField("lot_no", max_length=10, null=True )
+    lot_size  = models.CharField("lot_size", max_length=18, null=True )
+    devision_no = models.CharField("devision_no", max_length=50, null=True )
+    fm_no = models.CharField("4M no", max_length=100, null=True )
+    gr_date = models.CharField("입고일자", max_length=8, null=True )
+    confirm_date = models.CharField("판정일자", max_length=8, null=True )
+    result_value = models.CharField("판정결과", max_length=20, null=True )
+    remark = models.CharField("remark", max_length=1000, null=True )
+    aql_sample_count = models.DecimalField("AQL 외관검사샘플링수", null=True, max_digits=18, decimal_places=0)
+    defect_rate = models.DecimalField("불량률기준", max_digits=18, decimal_places=2, null=True)
+    passing_count = models.DecimalField("AC합격판정개수", null=True, max_digits=18, decimal_places=0)
+    defect_count =  models.DecimalField("RE불량판정개수", null=True, max_digits=18, decimal_places=0)
+    sample_check_count=  models.DecimalField("AQL치수검사수량", null=True, max_digits=18, decimal_places=0)
+    # 아이템 시작
+    seq =  models.IntegerField("seq", null=True)
+    ins_text = models.CharField("ins_text", max_length=100, null=True )
+    spec_seq =  models.CharField("specification", max_length=7, null=True )
+    specification  = models.CharField("specification", max_length=500, null=True )
+    upper_limit = models.DecimalField("upper_limit", max_digits=18, decimal_places=5, null=True)
+    lower_limit = models.DecimalField("lower_limit", max_digits=18, decimal_places=5, null=True)
+    unit = models.CharField("unit", max_length=20, null=True )
+    machine_type = models.CharField("machine_type", max_length=20, null=True )
+    machine_type_text = models.CharField("machine_type_text", max_length=100, null=True )
+
+    x1 = models.CharField("x1", max_length=20, null=True)
+    x2 = models.CharField("x2", max_length=20, null=True)
+    x3 = models.CharField("x3", max_length=20, null=True)
+    x4 = models.CharField("x4", max_length=20, null=True)
+    x5 = models.CharField("x5", max_length=20, null=True)
+    x6 = models.CharField("x6", max_length=20, null=True)
+    x7 = models.CharField("x7", max_length=20, null=True)
+    x8 = models.CharField("x8", max_length=20, null=True)
+    x9 = models.CharField("x9", max_length=20, null=True)
+    x10 = models.CharField("x10", max_length=20, null=True)
+
+    x_avg  = models.CharField("x_avg", max_length=20, null=True )
+    r_val = models.CharField("r_val", max_length=20, null=True )
+    pass_fail = models.CharField("pass_fail", max_length=20, null=True )
+    input_value= models.CharField("input_value", max_length=4, null=True )
+    input_value_text = models.CharField("input_value_text", max_length=100, null=True )
+    upper_limit_check = models.CharField("upper_limit_check", max_length=5, null=True )
+    lower_limit_check = models.CharField("lower_limit_check", max_length=5, null=True )  
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta():
+        db_table = 'if_van'
+        verbose_name = 'VAN PCB 수입검사결과 인터페이스'
+        unique_together = [
+        ]
+
+
 
 
 class if_log(models.Model):

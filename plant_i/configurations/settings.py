@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'app',                                      # 사용자가 만든 앱 이름
     # Add your apps here to enable them         
-    'django.contrib.admin',                     # Django 관리(admin) 사이트
+    #'django.contrib.admin',                     # Django 관리(admin) 사이트
     'django.contrib.auth',                      # 인증(authentication) 시스템 (사용자, 권한 관리)
     'django.contrib.contenttypes',              # 콘텐츠 타입 시스템 (데이터베이스 모델을 처리)
     'django.contrib.sessions',                  # 세션 관리
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # 인증 미들웨어 확인
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -173,11 +173,22 @@ folders = []
 
 FILE_UPLOAD_PATH = 'c:\\temp\\plant_i\\'     #업로드한 파일의 영구저장 장소
 EXTRA_CODE_PATH = 'c:\\temp\\plant_i\\extra\\' # 사용자 정의 코드의 저장 장소
+# 25.03.13 김하늘 추가
+FILE_TEMP_UPLOAD_PATH ='c:\\temp\\plant_i\\upload_temp\\'    # 파일업로드파일 임시저장위치
 
 folders.append(FILE_UPLOAD_PATH)
 folders.append(EXTRA_CODE_PATH)
+folders.append(FILE_TEMP_UPLOAD_PATH)
+
 
 SF_LOG_KEY = ''
+
+
+IF_EAI_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJITCBLbGVtb3ZlIiwic3ViIjoiRUFJIiwiY2xpZW50SWQiOiIxNzQwMzg3MzEyMDAwMDEyNTA2IiwiY2xpZW50SVBzIjoiMTAuMjI2LjIzNi4zMjsgMTAuMjI2LjIzNi4zMDsgMTAuMjI2LjIzNi4zMSIsImlhdCI6MTc0MDYyMTA3Mn0.1oNwV640nxAwpWWglIWrpa9-LF2uNgXFpB6uOYKD7G0"
+IF_EAI_MAIN_SERVER = "219.253.223.111"
+IF_EAI_SUB_SERVER = "219.253.223.84"
+
+
 
 for folder in folders:
     if not os.path.exists(folder):
@@ -185,3 +196,6 @@ for folder in folders:
             os.makedirs(folder)
         except Exception as e:
             pass
+
+
+

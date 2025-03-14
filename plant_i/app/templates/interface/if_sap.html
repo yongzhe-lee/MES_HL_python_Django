@@ -1,0 +1,169 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+<div class="content_wrap">
+    <div class="content-ui-row">
+        <div class="card-content search">
+
+            <div class="form-ui">
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="srch_date_range" data-labelCd="변경일">변경일</label>
+                        <div class="field-wrapper">
+                            <div id="srch_date_range"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-auto">
+                    <div class="card-group-btn search">
+                        <button id="btnSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="SAP 품목정보내역">SAP 품목정보내역</label>
+                    </span>
+                    <span>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+
+                <div id="sap_mat_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+
+
+    class IFSapMaterialPage {
+        constructor() {
+            this.grid = null;
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "stab_matkl", title: "자재그룹", width: 100 },
+                    { field: "stab_mtart", title: "자재유형", width: 100 },
+                    { field: "stab_bklas", title: "품목유형코드", width: 100 },
+                    { field: "stab_bkbez", title: "품목유형", width: 120 },
+                    { field: "stab_matnr", title: "품목코드", width: 150 },
+                    { field: "stab_maktx", title: "품목명", width: 400 },
+                    { field: "stab_groes", title: "규격", width: 150 },
+                    { field: "stab_meins", title: "기본단위", width: 100 },
+                    { field: "stab_zctime", title: "C/T", width: 100 },
+                    { field: "stab_price", title: "단가", width: 120 },
+                    { field: "stab_peinh", title: "가격단위", width: 120 },
+                    { field: "created", title: "생성일", width: 120 },
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                },
+                height: 650
+            };
+            _this.grid = new Grid($("#sap_mat_grid"), gridOption);
+
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_date",
+                endField: "end_date"
+            });
+
+
+            $('#btnSearch').click(function (ex) {
+                page.searchMainData();
+            });
+            // 엑셀 다운로드
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+            let url = '/api/interface/sap';
+
+            let data = {
+                'equipment': $('#cboEquipment').val(),
+                'action' : 'sap_mat'
+            };
+
+            let result = AjaxUtil.getSyncData(url, data);
+            if (result.success) {
+                _this.grid.setData(result.items);
+            }
+
+        }//searchMainData
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#sap_mat_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "sap_mat.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    }
+
+
+    let page = new IFSapMaterialPage();
+    page.searchMainData();
+
+    $(document).ready(function (e) {
+        
+
+    });
+</script>
+
+
+{% endblock %}

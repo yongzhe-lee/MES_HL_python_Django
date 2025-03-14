@@ -45,9 +45,9 @@ def pm_master(context):
 
     elif action=='read_modal':
         keyword = gparam.get('keyword', None)
-        dept_id = gparam.get('dept_id', None)
+        dept_pk = gparam.get('dept_pk', None)
 
-        items = pm_master_service.get_pm_modal(keyword, dept_id)
+        items = pm_master_service.get_pm_modal(keyword, dept_pk)
 
     elif action=='save':
         # 데이터 저장 로직        
@@ -88,12 +88,12 @@ def pm_master(context):
                 pm.CycleType = posparam.get('cycleType')
                 pm.CyclePerNumber = posparam.get('per_number')
 
-            dept_id = posparam.get('dept_id')
-            pm_user_id = posparam.get('pmManager')
-            equ_id = posparam.get('equ_id')
+            dept_pk = posparam.get('dept_pk')
+            pm_user_pk = posparam.get('pmManager')
+            equip_pk = posparam.get('equip_pk')
     
             # 설비 필수값 체크
-            if not equ_id:
+            if not equip_pk:
                 return JsonResponse({
                     'result': False,
                     'message': '설비를 선택해주세요.'
@@ -101,29 +101,29 @@ def pm_master(context):
 
             # Depart 객체 가져오기
             try:
-                depart = Depart.objects.get(id=dept_id)
+                depart = Depart.objects.get(id=dept_pk)
             except Depart.DoesNotExist:
                 return JsonResponse({
                     'result': False,
-                    'message': f'Depart with id {dept_id} does not exist.'
+                    'message': f'Depart with id {dept_pk} does not exist.'
                 })
 
             # User 객체 가져오기
             try:
-                user_id = User.objects.get(id=pm_user_id)
+                user_id = User.objects.get(id=pm_user_pk)
             except User.DoesNotExist:
                 return JsonResponse({
                     'result': False,
-                    'message': f'User with id {pm_user_id} does not exist.'
+                    'message': f'User with id {pm_user_pk} does not exist.'
                 })
 
             # Equipment 객체 가져오기
             try:
-                equipment = Equipment.objects.get(id=equ_id)
+                equipment = Equipment.objects.get(id=equip_pk)
             except Equipment.DoesNotExist:
                 return JsonResponse({
                     'result': False,
-                    'message': f'Equipment with id {equ_id} does not exist.'
+                    'message': f'Equipment with id {equip_pk} does not exist.'
                 })
 
             pm.Depart = depart

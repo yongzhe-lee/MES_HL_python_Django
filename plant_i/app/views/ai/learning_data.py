@@ -484,6 +484,12 @@ def learning_data(context):
                 INNER JOIN ds_model_col mc ON mc."DsModel_id" = A.id
                 GROUP BY A.id
             ),
+            C AS (
+                -- 중복된 AlgorithmType 제거
+                SELECT DISTINCT ON (tc."DsModel_id") tc."DsModel_id", tc."AlgorithmType"
+                FROM ds_tag_corr tc
+                ORDER BY tc."DsModel_id", tc."AlgorithmType"  -- 가장 첫 번째 AlgorithmType 선택
+            ),
             F AS (
                 SELECT A.id, af.id AS file_id, af."FileName" AS file_name
                 FROM A
@@ -499,10 +505,8 @@ def learning_data(context):
                     CAST(NULL AS INTEGER) AS model_id,  -- 🔥 자료형 맞춤
                     mm."Name" AS name,
                     mm."Type" AS type,
-                    NULL AS source,
                     NULL AS ver,
                     NULL AS description,
-                    NULL AS file_path,
                     NULL AS algorithm_type,
                     mm."_created" AS _created,
                     CAST(NULL AS INTEGER) AS var_count,  -- 🔥 자료형 맞춤
@@ -528,17 +532,16 @@ def learning_data(context):
                     md."Name" AS name,
                     md."Type" AS type,
                     -- mm."Type" AS master_type,
-                    md."SourceName" AS source,
                     md."Version" AS ver,
                     md."Description" AS description,
-                    md."FilePath" AS file_path,
-                    tc."AlgorithmType" AS algorithm_type,
+                    C."AlgorithmType" AS algorithm_type,
                     md."_created" AS _created,
                     B.var_count AS var_count,  
                     F.file_name AS file_name,  
                     F.file_id AS file_id
                 FROM ds_model md
-                LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
+                LEFT JOIN C ON C."DsModel_id" = md.id  -- 여기서 중복 제거된 데이터를 가져옴
+                --LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
                 LEFT JOIN ds_master mm ON mm.id = md."DsMaster_id"
                 LEFT JOIN B ON B.id = md.id  
                 LEFT JOIN F ON F.id = md.id  
@@ -604,7 +607,6 @@ def learning_data(context):
             #         mm."Name" AS name,
             #         mm."Type" AS type,
             #         mm."Type" AS master_type,
-            #         NULL AS source,
             #         NULL AS ver,
             #         NULL AS description,
             #         NULL AS file_path,
@@ -623,7 +625,6 @@ def learning_data(context):
             #         md."Name" AS name,
             #         md."Type" AS type,
             #         mm."Type" AS master_type,
-            #         md."SourceName" AS source,
             #         md."Version" AS ver,
             #         md."Description" AS description,
             #         md."FilePath" AS file_path,
@@ -897,12 +898,17 @@ def learning_data(context):
         elif action == 'cate_col_list':
             ''' 컬럼정보를 읽는다.
             '''
-            md_id = gparam.get('md_id')
-            sql = ''' select dc.id, dc."VarName" as value, dc."VarName" as text
-            from ds_col dc
-            where dc."DsModel_id" = %(md_id)s
-            and dc."CategoryCount" > 0
-            order by dc."VarIndex"  
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+
+            sql = ''' 
+            SELECT 
+                mc.id
+                , mc."VarName" AS value
+                , mc."VarName" AS text
+            FROM ds_model_col mc
+            WHERE mc."DsModel_id" = %(md_id)s
+                AND mc."CategoryCount" > 0
+            ORDER BY mc."VarIndex"  
             '''
             dc = {}
             dc['md_id'] = md_id
@@ -1073,8 +1079,9 @@ def learning_data(context):
             import matplotlib.pyplot as plt
             #from matplotlib.figure import Figure
 
-            md_id = gparam.get('md_id')
-            daService = DaService('ds_data', md_id)
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
             num_df = df.select_dtypes(include=['int64','float64'])
@@ -1221,8 +1228,9 @@ def learning_data(context):
 
         elif action == 'save_ds_col_xy':
             '''
+            사용자가 선택한 독립변수(x)와 종속변수(y) 간의 회귀분석
             '''
-            md_id = posparam.get('md_id')
+            md_id = CommonUtil.try_int(posparam.get('md_id'))
             Q = posparam.get('Q')
             #Q = json.loads(Q)
 
@@ -1231,6 +1239,8 @@ def learning_data(context):
 
             x_cols = []
             y_cols = []
+            non_numeric_x_cols = []  # 수치형이 아닌 X 변수 리스트
+
             for item in Q:
                 q = DsModelColumn.objects.filter(DsModel_id=md_id)
                 q = q.filter(VarIndex=item['VarIndex'])
@@ -1250,11 +1260,48 @@ def learning_data(context):
             multilinear = LinearRegression()
 
             #corr = df[x_cols + y_cols].corr()
+
+            # 25.03.07 김하늘 추가
+            # df에서 수치형 컬럼만 선택 (casting 오류 방지)
+            df_numeric = df.select_dtypes(include=[np.number])
+
+            # x_cols와 y_cols에서 수치형 컬럼만 유지
+            valid_x_cols = []
+            for col in x_cols:
+                if col in df_numeric.columns:
+                    valid_x_cols.append(col)
+                else:
+                    non_numeric_x_cols.append(col)
+                    # DsModelColumn에서 X 값을 0으로 변경
+                    q = DsModelColumn.objects.filter(DsModel_id=md_id, VarName=col)
+                    if q.exists():
+                        dc = q.first()
+                        dc.X = 0  # 수치형이 아니므로 X 값 초기화
+                        dc.save()
+
+            x_cols = valid_x_cols
+            y_cols = [col for col in y_cols if col in df_numeric.columns]
+
+            # 수치형이 아닌 변수 메시지 생성
+            if non_numeric_x_cols:
+                items['message'] = non_numeric_x_cols
+
             q = DsTagCorrelation.objects.filter(DsModel_id=md_id)
             q.delete()
 
             for y in y_cols:
-                multilinear.fit(df[x_cols], df[y])
+                # y변수를 수치형으로 변환 (변환 실패 시 NaN 처리)
+                df[y] = pd.to_numeric(df[y], errors='coerce')
+
+                # x_cols도 수치형으로 변환
+                for x in x_cols:
+                    df[x] = pd.to_numeric(df[x], errors='coerce')
+
+                # NaN이 포함된 행 제거 (중요!)
+                df_filtered = df[[y] + x_cols].dropna()
+
+                # 다중 선형 회귀 모델 학습
+                multilinear.fit(df_filtered[x_cols], df_filtered[y])
                 beta_0 = multilinear.intercept_
                 beta_i_list = multilinear.coef_
 
@@ -1267,9 +1314,11 @@ def learning_data(context):
 
                 for i, x in enumerate(x_cols):
                     try:
-                        corr =df[x].corr(df[y])
+                        df_filtered_x = df_filtered[[x, y]]  # NaN이 없는 데이터만 사용
+                        corr = df_filtered_x[x].corr(df_filtered_x[y])
                     except Exception as e:
                         corr = None
+
                     cr = DsTagCorrelation()
                     cr.DsModel_id = md_id
                     cr.XVarName = x
@@ -1280,7 +1329,8 @@ def learning_data(context):
                     #if corr and (corr > 0.5 or 1==1):  #0.5
                     if True:  #0.5
                         try:
-                            simplelinear.fit(df[[x]], df[y])
+                            # 단순 선형 회귀 학습
+                            simplelinear.fit(df_filtered_x[[x]], df_filtered_x[y])
                             beta_0 = simplelinear.intercept_
                             beta_1 = simplelinear.coef_ 
 
@@ -1289,6 +1339,8 @@ def learning_data(context):
                         except Exception as e:
                             pass
                     cr.save()
+
+            return items
 
         elif action == 'ds_col_scatter':
             '''
@@ -1345,48 +1397,94 @@ def learning_data(context):
                 cell 2: 다중회귀식
 
             '''
-            md_id = gparam.get('md_id')
+            # md_id = gparam.get('md_id')
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
 
-            sql = ''' select dc.id, dc."VarIndex", dc."VarName"
-            from ds_col dc
-            where dc."DsModel_id" = %(md_id)s
-            and dc."X" = 1
-            order by dc."VarIndex"  
+            sql = ''' 
+            SELECT 
+                mc.id
+                , mc."VarIndex"
+                , mc."VarName"
+            FROM ds_model_col mc
+            WHERE mc."DsModel_id" = %(md_id)s
+            AND mc."X" = 1
+            ORDER BY mc."VarIndex"  
             '''
             dc = {}
             dc['md_id'] = md_id
 
             xrows = DbUtil.get_rows(sql, dc)
 
-            sql = ''' select vc."YVarName", 1 as grp_idx, '상관계수' as data_type, null::numeric as intercept_ '''
+            sql = '''
+            SELECT 
+                tc."YVarName"
+                , 1 AS grp_idx
+                , '상관계수' AS data_type
+                , NULL::NUMERIC AS intercept_ '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
+                # sql += ''' 
+                # ,MIN(CASE 
+                #     WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                #     THEN tc.r 
+                #     END)::TEXT AS x''' + str(i+1)
                 sql += ''' 
-                ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc.r end)::text as x''' + str(i+1)
-            sql += ''' from ds_var_corr vc 
-            where vc."DsModel_id" = %(md_id)s
-            group by vc."YVarName" 
-            union all
-            select vc."YVarName", 2 as grp_idx, '단일회귀식' as data_type
-            , null::numeric as intercept_ '''
+                ,MIN(CASE 
+                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                    THEN tc.r 
+                    END)::TEXT AS col_''' + str(i+1)
+            sql += ''' 
+            FROM ds_tag_corr tc 
+            WHERE tc."DsModel_id" = %(md_id)s
+            GROUP BY tc."YVarName" 
+            UNION ALL
+            SELECT 
+                tc."YVarName"
+                , 2 AS grp_idx
+                , '단일회귀식' AS data_type
+                , NULL::NUMERIC AS intercept_ '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
+                # sql += ''' 
+                # ,MIN(CASE 
+                #     WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                #     THEN tc."RegressionEquation" 
+                #     END) AS x''' + str(i+1)
                 sql += ''' 
-                ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc."RegressionEquation" end) as x''' + str(i+1)
-            sql += ''' from ds_var_corr vc 
-            where vc."DsModel_id" = %(md_id)s
-            group by vc."YVarName" 
-            union all
-            select vc."YVarName", 3 as grp_idx, '다중회귀식계수' as data_type
-            , min(case when vc."XVarName" = 'intercept_' then vc."MultiLinearCoef" end) as intercept_ '''
+                ,MIN(CASE 
+                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                    THEN tc."RegressionEquation" 
+                    END) AS col_''' + str(i+1)
+            sql += ''' 
+            FROM ds_tag_corr tc 
+            WHERE tc."DsModel_id" = %(md_id)s
+            GROUP BY tc."YVarName" 
+            UNION ALL
+            SELECT 
+                tc."YVarName"
+                , 3 AS grp_idx
+                , '다중회귀식계수' AS data_type
+            , MIN(CASE 
+                WHEN tc."XVarName" = 'intercept_' 
+                THEN tc."MultiLinearCoef" 
+                end) AS intercept_ '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
+                # sql += ''' 
+                # ,MIN(CASE 
+                #     WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                #     THEN tc."MultiLinearCoef" 
+                #     END)::TEXT AS x''' + str(i+1)
                 sql += ''' 
-                ,min(case when vc."XVarName" = \'''' + var_name + '''\' then vc."MultiLinearCoef" end)::text as x''' + str(i+1)
-            sql += ''' from ds_var_corr vc 
-            where vc."DsModel_id" = %(md_id)s
-            group by vc."YVarName" 
-            order by 1, 2
+                ,MIN(CASE 
+                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                    THEN tc."MultiLinearCoef" 
+                    END)::TEXT AS col_''' + str(i+1)
+            sql += '''
+            FROM ds_tag_corr tc 
+            WHERE tc."DsModel_id" = %(md_id)s
+            GROUP BY tc."YVarName" 
+            ORDER BY 1, 2
             '''
             dc = {}
             dc['md_id'] = md_id

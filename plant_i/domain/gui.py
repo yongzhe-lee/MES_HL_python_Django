@@ -143,6 +143,14 @@ class GUIConfiguration():
         gui_dc['wm_learning_data_info'] = cls.gui_item('학습데이터 정보', 'ai/learning_data_info.html')
         gui_dc['wm_learning_data_from_tag'] = cls.gui_item('학습데이터 정보(태그)', 'ai/learning_data_from_tag.html')
 
+        # I/F 이력조회, ERP, 생산설비측정데이터, QMS, VAN, 인사정보
+        gui_dc['wm_if_sap'] = cls.gui_item('SAP', 'interface/if_sap.html')
+        gui_dc['wm_if_equ_result_data'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result_data.html')
+        gui_dc['wm_if_qms'] = cls.gui_item('QMS', 'interface/if_qms.html')
+        gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')
+
+
+
         return gui_dc
  
     @classmethod

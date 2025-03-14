@@ -165,7 +165,7 @@
          */
         resetModalInputs() {
             // 일반 입력 필드 초기화
-            $("#equ_id").val("");
+			$("#equip_pk").val("");
             $("#pm_pk").val("");
             $("#pmNumber").val("");
             $("#pmName").val("");
@@ -262,10 +262,10 @@
                     { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
                     { field: 'pm_no', title: 'PM 번호', width: 120 },
                     {
-                        field: "pm_name",
+						field: "pm_nm",
                         title: "PM명",
                         width: 150,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_name#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
                     },
                     { field: 'equ_code', title: '설비코드', width: 100 },
                     { field: 'equ_name', title: '설비명', width: 150 },
@@ -392,10 +392,10 @@
             console.log("📌 [DEBUG] API 응답 데이터:", pmData);			
 
             $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
-            $("#equ_id").val(pmData.equ_id);
+			$("#equip_pk").val(pmData.equip_pk);
             $("#pm_pk").val(pmData.pm_pk);
             $("#pmNumber").val(pmData.pm_no);
-            $("#pmName").val(pmData.pm_name);
+			$("#pmName").val(pmData.pm_nm);
             $("#pmType").val(pmData.pm_type);
 
             // 실행부서 설정
@@ -470,7 +470,7 @@
 				cycleTypeDropdown.dataSource.read();
             }
             $("#perNumber").val(pmData.work_expect_hr);
-			$("#schedStartDt").val(pmData.sch_start_dt);
+			$("#schedStartDt").val(pmData.sched_start_dt);
 
         }
 

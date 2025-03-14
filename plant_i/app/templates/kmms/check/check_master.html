@@ -287,7 +287,7 @@
                         width: 150,
                         template: '<a href="javascript:void(0);" class="check-link" data-check-pk="#=chk_pk#">#=chk_name#</a>'
                     },
-                    { field: 'dept_id', title: '점검부서', width: 100 },
+                    { field: 'dept_pk', title: '점검부서', width: 100 },
                     { field: 'chk_user_id', title: '점검담당자', width: 100 },
                     { field: 'check_type', title: '점검유형', width: 100 },
                     {
@@ -297,10 +297,10 @@
                         template: '#=cycle_type# (#=per_number#)'
                     },
                     {
-                        field: 'sch_start_dt',
+						field: 'sched_start_dt',
                         title: '주기 시작일',
                         width: 120,
-                        template: '#= kendo.toString(kendo.parseDate(sch_start_dt), "yyyy-MM-dd") #'
+						template: '#= kendo.toString(kendo.parseDate(sched_start_dt), "yyyy-MM-dd") #'
                     },
                     {
                         field: 'last_work_dt',
@@ -392,7 +392,7 @@
                 $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
                 $("#pm_pk").val(pmData.pm_pk);
                 $("#pmNumber").val(pmData.pm_no);
-                $("#pmName").val(pmData.pm_name);
+				$("#pmName").val(pmData.pm_nm);
                 $("#pmType").val(pmData.pm_type);
                 $("#maintenanceTime").val(pmData.maintenance_time);
                 $("#executionDept").data("kendoDropDownTree").value(pmData.exec_dept);

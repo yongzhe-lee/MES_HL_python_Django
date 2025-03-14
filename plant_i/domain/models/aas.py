@@ -258,8 +258,8 @@ class DBAssetSpecificassetIds(models.Model):
 
 class DBAssetInformation(models.Model):
     asset_pk = models.AutoField(primary_key=True, db_column='asset_pk')
-    asset_kind = models.SmallIntegerField(null=True) #    TYPE = 0    INSTANCE = 1    NOT_APPLICABLE = 2
-    asset_type = models.SmallIntegerField(null=True)
+    asset_kind = models.CharField(max_length=50, null=True) #    TYPE = 0    INSTANCE = 1    NOT_APPLICABLE = 2
+    asset_type = models.CharField(max_length=50, null=True)
     
     globalAssetId = models.CharField(max_length=2000, null = True)
     path = models.CharField(max_length=2000, null = True)
@@ -387,6 +387,19 @@ class SubmodelelementEmbeddedDataSpecifications(models.Model):
     SubmodelElement = models.ForeignKey('DBSubmodelElement', on_delete=models.DO_NOTHING, db_column='sme_pk')
     embedded_data_specification_pk = models.ForeignKey(DBEmbeddedDataSpecification, on_delete=models.DO_NOTHING, db_column='embedded_data_specification_pk')
     
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
     class Meta:
         db_table = 'submodelelement_embeddedDataSpecifications'
 
@@ -397,6 +410,20 @@ class SubmodelElementExtensions(models.Model):
     id = models.AutoField(primary_key=True)
     SubmodelElement = models.ForeignKey('DBSubmodelElement', on_delete=models.DO_NOTHING, db_column='sme_pk')
     extension_pk = models.ForeignKey(DBExtension, on_delete=models.DO_NOTHING, db_column='extension_pk')
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
     
     class Meta:
         db_table = 'submodelelement_extensions'
@@ -433,7 +460,7 @@ class DBSubmodelElement(models.Model):
     sme_pk = models.AutoField(primary_key=True, db_column='sme_pk')
     id_short = models.CharField(max_length=200, null =True, unique=True)
     category = models.CharField(max_length=50, null=True) #"constant", "parameter", "variable" measurement, info
-    ModelKind = models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
+    ModelKind = models.CharField(max_length=50, null=True) #models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
     model_type = models.CharField(max_length=50) # Property, Collection, Operation, Event, File, Reference Element    
     semancticId = models.ForeignKey(DBReference, related_name='submodelelement_semancticId',db_column='semanctic_id', on_delete = models.DO_NOTHING)
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=SubmodelelementEmbeddedDataSpecifications, related_name='submodelelement_embeddedDataSpecifications', related_query_name='submodelelement_embeddedDataSpecifications')
@@ -488,7 +515,21 @@ class DBPropertyElement(models.Model):
     contentType = models.CharField(max_length=500)
     valueType = models.CharField(max_length = 200)
     value = models.CharField(max_length = 2000)
-    valueId = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='propertyElement_valueId_reference')
+    valueId = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='propertyElement_valueId_reference', db_column="value_id")
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
 
     class Meta:
         db_table = 'property_element'
@@ -498,6 +539,20 @@ class DBBlobElement(models.Model):
     value = models.TextField(max_length=2000) # BlobType
     mimeType = models.CharField(max_length=500) # ContentType
 
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
     class Meta:
         db_table = 'blob_element'
 
@@ -506,6 +561,20 @@ class DBFileElement(models.Model):
     value = models.CharField(max_length=2000) # PathType
     content_type = models.CharField(max_length=500) # ContentType
     
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
     class Meta:
         db_table = 'file_element'
         
@@ -520,12 +589,41 @@ class DBRangeElement(models.Model):
     max = models.CharField(max_length = 2000)
     min = models.CharField(max_length = 2000)
     
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
     class Meta:
         db_table = 'range_element'
         
 class DBReferenceElement(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
     value = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='referenceelement_value', related_query_name='referenceelement_value')
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
     class Meta:
         db_table = 'reference_element'
         
@@ -538,24 +636,40 @@ class DBEntityElement(models.Model):
     globalAssetId = models.CharField(max_length=2000)
     specificAssetId = models.ForeignKey(DBSpecificAssetId, on_delete=models.DO_NOTHING, null=True)
     
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
     class Meta:
          db_table = 'entity_element'
 
-class SubmodelElementCollectionValues(models.Model):
-    '''
-    맵핑 테이블
-    '''
-    id = models.AutoField(primary_key=True)
-    element_pk = models.ForeignKey('DBSubModelElementCollection', on_delete=models.DO_NOTHING, db_column='collection_element_pk')
-    value_pk = models.ForeignKey(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='value_pk')
-    
-    class Meta:
-        db_table = 'submodelelementcollection_values'
-
 class DBSubModelElementCollection(models.Model):
     sme_pk = models.IntegerField(primary_key=True, db_column='sme_pk')
-    values = models.ManyToManyField(DBSubmodelElement, through=SubmodelElementCollectionValues, related_name='submodelelementcollection_values', related_query_name='submodelelementcollection_values')
-    
+    value = models.ForeignKey(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='value_pk')
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
     class Meta:
         db_table = 'submodel_element_collection'
 
@@ -578,7 +692,19 @@ class SubmodelQualifiers(models.Model):
     id = models.AutoField(primary_key=True)
     submodel_pk = models.ForeignKey('DBSubmodel', on_delete=models.DO_NOTHING, db_column='submodel_pk')
     qualifier_pk = models.ForeignKey(DBQualifier, on_delete=models.DO_NOTHING, db_column='qualifier_pk')
-    
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return    
+
     class Meta:
         db_table = 'submodel_qualifiers'
 
@@ -589,7 +715,19 @@ class SubmodelEmbeddedDataSpecifications(models.Model):
     id = models.AutoField(primary_key=True)
     submodel_pk = models.ForeignKey('DBSubmodel', on_delete=models.DO_NOTHING, db_column='submodel_pk')
     DataSpecification = models.ForeignKey(DBEmbeddedDataSpecification, on_delete=models.DO_NOTHING, db_column='data_spec_pk')
-    
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return    
+
     class Meta:
         db_table = 'submodel_embeddedDataSpecifications'
 
@@ -597,7 +735,7 @@ class DBSubmodel(models.Model):
     submodel_pk = models.AutoField(primary_key=True, db_column='sm_pk')
     id = models.CharField(max_length=2000, unique=True)
     id_short = models.CharField(max_length=200, null =True, unique=True)
-    kind = models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
+    kind = models.CharField(max_length=50, null =True) #SmallIntegerField(null=True) # 0 : Template, 1: Instance
     category = models.CharField(max_length=100, null=True)
     semanticId = models.ForeignKey(DBReference, on_delete=models.CASCADE, null=True, related_name='submodel_semanticId', db_column='semantic_id')
     assetAdministrationShell = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.CASCADE, null=True, db_column='aas_pk')
@@ -661,6 +799,20 @@ class AASExtensions(models.Model):
     aas_pk = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.DO_NOTHING, db_column='aas_pk')
     extension_pk = models.ForeignKey(DBExtension, on_delete=models.DO_NOTHING, db_column='extension_pk')
     
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
     class Meta:
         db_table = 'aas_extensions'
 
@@ -673,6 +825,20 @@ class AASDataSpecification(models.Model):
     aas_pk = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.DO_NOTHING, db_column='aas_pk')
     dataspec_pk = models.ForeignKey(DBEmbeddedDataSpecification, on_delete=models.DO_NOTHING, db_column='dataspec_pk')
     
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
     class Meta:
         db_table = 'aas_dataspecs'
 

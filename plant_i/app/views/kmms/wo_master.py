@@ -88,7 +88,7 @@ def wo_master(context):
         
         # 관계 정보
         chk_result_pk = gparam.get('chk_result_pk', None)
-        equ_id = gparam.get('equ_id', None)
+        equip_pk = gparam.get('equip_pk', None)
         pm_pk = gparam.get('pm_pk', None)
         req_dept_id = gparam.get('req_dept_id', None)
         work_charger_id = gparam.get('work_charger_id', None)
@@ -175,9 +175,9 @@ def get_work_order_list(context):
             wo.start_dt,
             wo.end_dt
         FROM work_order wo
-        LEFT JOIN equipment e ON wo.equ_id = e.id
-        LEFT JOIN department d1 ON wo.req_dept_id = d1.id
-        LEFT JOIN department d2 ON wo.work_dept_id = d2.id
+        LEFT JOIN equ e ON wo.equip_pk = e.id
+        LEFT JOIN dept d1 ON wo.req_dept_id = d1.id
+        LEFT JOIN dept d2 ON wo.work_dept_id = d2.id
         LEFT JOIN users u ON wo.work_charger_id = u.id
         WHERE 1=1
         '''

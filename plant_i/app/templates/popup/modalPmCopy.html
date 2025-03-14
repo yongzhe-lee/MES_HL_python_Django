@@ -173,7 +173,7 @@
                 columns: [
                     // 기본 정보                  
                     { field: 'pm_no', title: 'PM 번호', width: 200 },
-                    { field: 'pm_name', title: 'PM명', width: 150 },
+					{ field: 'pm_nm', title: 'PM명', width: 150 },
                     { field: 'equip_code', title: '설비코드', width: 100 },
                     { field: 'equip_name', title: '설비명', width: 150 },
                     { field: 'install_dept', title: '설치부서', width: 100 },
@@ -232,7 +232,7 @@
             let param = {
                 action: 'read_modal',    
                 keyword: $('#keyword_pm').val(),
-                dept_id: $('#srch_pm_dept').data("kendoDropDownTree").value(),
+				dept_pk: $('#srch_pm_dept').data("kendoDropDownTree").value(),
             };
             
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -252,7 +252,7 @@
                 let selectData = data[0];                
                 console.log("selectData:\n", selectData);
                 $('#selectedPmPK').val(selectData.pm_pk);
-                $('#selectedPmName').val(selectData.pm_name);      
+				$('#selectedPmName').val(selectData.pm_nm);      
 
             }
         }
@@ -305,11 +305,11 @@
             
             // 부모 창의 입력 필드에 값 설정
             //$('#pmNumber').val(result.pm_no); // PM 번호
-            $('#pmName').val(result.pm_name); // PM명
+			$('#pmName').val(result.pm_nm); // PM명
             $('#pmType').val(result.pm_type); // PM유형
             $('#maintenanceTime').val(result.work_expect_hr); // 정비소요시간
-            $('#executionDept').val(result.dept_id); // 실행부서 (작업부서 PK)
-            $('#pmManager').val(result.pm_user_id); // PM담당자
+			$('#executionDept').val(result.dept_pk); // 실행부서 (작업부서 PK)
+            $('#pmManager').val(result.pm_user_pk); // PM담당자
             $('#workInstructions').val(result.work_text); // 작업지침
          
             $("#modalPmCopy").fadeOut();

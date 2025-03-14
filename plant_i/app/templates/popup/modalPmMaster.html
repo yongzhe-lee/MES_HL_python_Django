@@ -26,7 +26,7 @@
 				<div class="form-row">
 					<div class="form-group">
 						<label>설비코드</label>
-						<input type="hidden" id="equ_id" name="equ_id" />
+						<input type="hidden" id="equip_pk" name="equip_pk" />
 						<input type="text" class="form-control" id="equ_code" name="equ_code" readonly>
 					</div>
 					<div class="form-group">
@@ -878,13 +878,33 @@
 			let _this = this;
 			let data = FormUtil.extractForm($('#pmMasterForm'));
 			data.PMType = $("#pmType").val();  // pmType 값 명시적 추가
-			data.dept_id = $("#executionDept").data("kendoDropDownTree").value();
+			data.dept_pk = $("#executionDept").data("kendoDropDownTree").value();
 			data.pmManager = $("#pmManager").val();
-			data.equ_id = $("#equ_id").val();
+			data.equip_pk = $("#equip_pk").val();
 		
 			let Name = $('#pmName').val();
 			if (!Name) {
 				Alert.alert('', 'PM명을 입력해주세요.');
+				return;
+			}
+
+			if (!data.equip_pk) {
+				Alert.alert('', '설비를 선택해주세요.');
+				return;
+			}
+
+			if (!data.PMType) {
+				Alert.alert('', 'PM유형을 선택해주세요.');
+				return;
+			}
+
+			if (!data.dept_pk) {
+				Alert.alert('', '실행부서를 선택해주세요.');
+				return;
+			}
+
+			if (!data.pmManager) {
+				Alert.alert('', 'PM담당자를 선택해주세요.');
 				return;
 			}
 

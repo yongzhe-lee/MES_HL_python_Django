@@ -453,7 +453,8 @@
 						{ field: 'DurableYears', title: '내용연수', width: 150 },
 						{ field: 'PowerWatt', title: '소비전력(W)', width: 150 },
 						{ field: 'Voltage', title: '사용전압', width: 150 },
-						{ field: 'Status', title: '설비상태', width: 150 },
+						{ field: 'Status', title: '설비상태', hidden: true },
+						{ field: 'StatusNm', title: '설비상태', width: 150 },
 						{ field: 'depart_Name', title: '관리부서', width: 150 },
 						{ field: 'Manager', title: '관리책임자', width: 150 },
 						{ field: 'AttentionRemark', title: '주의사항', width: 250 },
@@ -533,7 +534,7 @@
 				});
 				$('#Voltage').kendoTextBox(); // 사용전압
 
-				AjaxUtil.fillDropDownOptions($('#Status'), 'user_code', 'choose', null, 'EQU_STATUS'); //설비상태
+				AjaxUtil.fillDropDownOptions($('#Status'), 'code', 'choose', null, 'EQU_STATUS'); //설비상태
 				AjaxUtil.fillDropDownOptions($('#import_rank'), 'code', 'choose', null, 'IMPORT_RANK'); //설비중요도
 
 				$('#process').kendoDropDownList({
@@ -677,9 +678,13 @@
 			resetData() {
 				let _this = this;
 				$("#equipment_grid").data('kendoGrid').refresh();
-				$("#Depart_id").data('kendoDropDownTree').value('select');
+				$("#Depart_id").data('kendoDropDownTree').value('');
 
 				FormUtil.resetForm($('#equipmentForm'));
+
+				// Switch 컴포넌트 초기화 추가
+				$("#OperationRateYN").data("kendoSwitch").check(true);
+				$("#AssetYN").data("kendoSwitch").check(true);
 			}
 
 			showDetail() {
@@ -696,7 +701,7 @@
 				let _this = this;
 				let data = FormUtil.extractForm($('#equipmentForm'));
 				data.OperationRateYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
-				data.AssetYN = $("#OperationRateYN").data("kendoSwitch").check() ? 'Y' : 'N';
+				data.AssetYN = $("#AssetYN").data("kendoSwitch").check() ? 'Y' : 'N';
 
 				let departDropDown = $("#Depart_id").data("kendoDropDownTree");
 				data.Depart_id = departDropDown.value();
@@ -720,16 +725,15 @@
 				if (!loc_pk) {
 					Alert.alert('', '설비위치를 입력해주세요.');
 					return;
-				} else if (!Depart_id) {
-					Alert.alert('', '관리부서를 선택해주세요.');
-					return;
 				}
-
 				if (!import_rank) {
 					Alert.alert('', '설비중요도를 선택해주세요.');
 					return;
-				}	
-
+				}
+				if (!Depart_id) {
+					Alert.alert('', '관리부서를 선택해주세요.');
+					return;
+				}
 				if (!Status) {
 					Alert.alert('', '설비상태를 선택해주세요.');
 					return;
@@ -742,9 +746,9 @@
 
 				let funcSucc = function (resp) {
 					if (resp.success) {
-						Notify.success('저장되었습니다.');
-						_this.resetData();
+						Notify.success('저장되었습니다.');						
 						_this.searchMainData();
+						_this.resetData();
 					} else {
 						Alert.alert('error', resp.message);
 					}
