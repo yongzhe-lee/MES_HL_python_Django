@@ -1,29 +1,8 @@
-CREATE OR REPLACE FUNCTION fn_code_name(f_code_type VARCHAR(100), f_code VARCHAR(100))
-RETURNS VARCHAR(100)
-BEGIN
-    DECLARE v_name VARCHAR(100) DEFAULT NULL;
+-- DROP FUNCTION public.fn_code_name(varchar, varchar);
 
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        RETURN null;
-    END;
-   
-    BEGIN
-        SELECT `Value` INTO v_name
-        FROM sys_code
-        WHERE `CodeType` = f_code_type
-        AND `Code` = f_code
-        LIMIT 1;
-
-        RETURN coalesce(v_name,f_code);
-    END;
-END;
-
--------------------------------------------------------------------------------------
-# 24.11.05 ±èÇÏ´Ã ¼öÁ¤
-CREATE OR REPLACE FUNCTION public.fn_code_name(f_code_type VARCHAR(100), f_code VARCHAR(100))
-RETURNS VARCHAR(100)
-LANGUAGE plpgsql
+CREATE OR REPLACE FUNCTION public.fn_code_name(f_code_type character varying, f_code character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
 AS $function$
 DECLARE
     v_name VARCHAR(100) DEFAULT NULL;
@@ -40,4 +19,5 @@ BEGIN
             RETURN NULL;
     END;
 END;
-$function$;
+$function$
+;

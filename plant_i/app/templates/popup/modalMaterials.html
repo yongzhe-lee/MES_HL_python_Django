@@ -39,8 +39,8 @@
 
         <!-- 버튼 영역 -->
         <div class="modal-footer">
-            <button type="button" class="modal btn-save" id="btnConfirmMaterial">확인</button>
-            <button type="button" class="modal btn-close" id="btnCloseMaterial">닫기</button>
+            <button type="button" class="modal-btn btn-save" id="btnConfirmMaterial">확인</button>
+            <button type="button" class="modal-btn btn-close" id="btnCloseMaterial">닫기</button>
         </div>
     </div>
 </div>
@@ -87,7 +87,20 @@
     #materialGrid {
         height: 100%;
     }
+	/* 삭제 버튼 스타일 modalPmMaster.html 과 동일하게 적용 */
+	.btn-delete {
+		background: none;
+		border: none;
+		color: #dc3545;
+		font-size: 18px;
+		cursor: pointer;
+		padding: 0 5px;
+	}
 
+	.btn-delete:hover {
+		color: #c82333;
+	}
+    
 </style>
 
 <script>
@@ -114,28 +127,54 @@
                     }
                 },
                 columns: [
+                    { field: "material_id", title: "자재pk", hidden: true },
+                    { 
+                        title: " ",
+                        template: '<input type="checkbox" class="k-checkbox material-checkbox" style="width:13px; height:13px;" />',
+                        width: 35,
+                        headerTemplate: '<input type="checkbox" class="k-checkbox header-checkbox" style="width:13px; height:13px;" />'
+                    },
                     { field: "material_code", title: "자재코드", width: "100px" },
-                    { field: "material_name", title: "자재명", width: "150px" },
-                    { field: "item_type", title: "자재종류", width: "150px" },
-                    { field: "supplier_pk", title: "공급업체", width: "150px" },
+                    { field: "material_name", title: "자재명", width: "200px" },
+					{ field: "item_type_nm", title: "자재종류", width: "150px" },
+					{ field: "supplier_nm", title: "공급업체", width: "150px" },
                     { field: "basic_unit", title: "단위", width: "80px" },
                     { field: "in_price", title: "매입단가", width: "100px" },                    
                 ],
                 dataBound: function (e) {
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
+                    
+                    // 체크박스 헤더의 체크 상태 초기화
+                    $('.header-checkbox').prop('checked', false);
+                    
+                    // 체크박스 헤더 클릭 이벤트 처리
+                    $('.header-checkbox').off('click').on('click', function() {
+                        const isChecked = $(this).is(':checked');
+                        $('.material-checkbox').prop('checked', isChecked);
+                    });
+                    
+                    // 개별 체크박스 클릭 이벤트
+                    $('.material-checkbox').off('click').on('click', function(e) {
+                        e.stopPropagation();
+                        
+                        // 모든 체크박스가 선택되었는지 확인
+                        const allChecked = $('.material-checkbox').length === $('.material-checkbox:checked').length;
+                        $('.header-checkbox').prop('checked', allChecked);
+                    });
                 },
                 height: "100%",
                 scrollable: true, // ✅ 내부에서만 스크롤 유지
-                selectable: "multiple, row",
+                selectable: false, // grid의 selectable 옵션 제거
                 pageable: {
                     refresh: true,
                     pageSizes: [10, 20, 50],
                     buttonCount: 5
                 },
             };
-            _this.grid = new Grid($("#materialGrid"), materialGridOption);
-
+            
+            // Grid 초기화
+            this.grid = new Grid($("#materialGrid"), materialGridOption);
             this.initEvents();
             
 
@@ -169,22 +208,61 @@
                 }
             });            
 
-            $("#btnConfirmMaterial").on("click", () => {
-                const selectedItems = this.grid.select();
+            $('#btnConfirmMaterial').on('click', () => {
+                const selectedItems = [];                
+                // 체크된 체크박스의 행 데이터 수집
+                $('#materialGrid').find('.material-checkbox:checked').each(function() {
+                    const $row = $(this).closest('tr');  // 체크박스가 있는 현재 행
+					
+                    selectedItems.push({                        
+                        id: $row.find('td:eq(0)').text().trim(),
+						mat_cd: $row.find('td:eq(2)').text().trim(),
+						mat_nm: $row.find('td:eq(3)').text().trim(),
+                        unit: 'EA',
+                    });
+                });
                 if (selectedItems.length === 0) {
                     Alert.alert('', '자재를 선택해주세요.');
                     return;
                 }
 
-                this.selectedItems = [];
-                selectedItems.each((idx, row) => {
-                    const dataItem = this.grid.dataItem(row);
-                    this.selectedItems.push(dataItem);
+                // materialTable에 선택된 자재 추가
+                const tbody = $('#materialTable tbody');
+                tbody.find('.no-data').remove();
+
+                selectedItems.forEach(item => {
+                    // 이미 존재하는 자재인지 확인
+                    const exists = tbody.find('tr').toArray().some(tr => 
+						$(tr).find('td:eq(0)').text() === item.mat_cd
+                    );
+                    
+                    if (exists) {
+						Alert.alert('', `자재코드 ${item.mat_cd}는 이미 추가되어 있습니다.`);
+                        return;
+                    }
+
+                    const newRow = `
+                        <tr data-value="${item.id}"> 
+                            <td>${item.mat_cd}</td>
+                            <td>${item.mat_nm}</td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm text-end"
+                                       min="0" step="0.1" placeholder="수량 입력" name="amt"/>
+                            </td>
+                            <td>${item.unit}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(newRow);
                 });
 
-                // 선택된 자재 정보를 부모 모달에 전달
-                this.addMaterialsToParent();
-                $("#modalMaterials").fadeOut();
+                // 모달 닫기
+                $('#modalMaterials').fadeOut();
+                
+                // 체크박스 초기화
+                $('.material-checkbox, .header-checkbox').prop('checked', false);
             });
 
             // 검색 필드 엔터 키 이벤트
@@ -207,33 +285,6 @@
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
         }
-
-        addMaterialsToParent() {
-            const tbody = $('#materialTable tbody');
-            tbody.find('.no-data').remove();
-
-            this.selectedItems.forEach(item => {
-                // 이미 추가된 자재인지 확인
-                const exists = tbody.find(`tr[data-code="${item.material_code}"]`).length > 0;
-                if (!exists) {
-                    const newRow = `
-                        <tr data-code="${item.material_code}">
-                            <td>${item.material_code}</td>
-                            <td>${item.material_name}</td>
-                            <td>
-                                <input type="number" class="form-control form-control-sm text-end" 
-                                       min="0" step="1" placeholder="수량 입력"/>
-                            </td>
-                            <td>${item.unit}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.append(newRow);
-                }
-            });
-        }
     }
 
     // 모달이 처음 로드될 때 MaterialSelector 인스턴스 생성
@@ -248,4 +299,19 @@
             pageMaterialModal.getMaterialData(); // ✅ 손자 모달을 열 때 실행
         });
     });
+
+    // 자재 행 삭제 함수
+    window.deleteMaterialRow = function(btn) {
+        const tbody = $('#materialTable tbody');
+        $(btn).closest('tr').remove();
+        
+        // 모든 행이 삭제되었을 때 no-data 행 추가
+        if (tbody.children().length === 0) {
+            tbody.append(`
+                <tr class="no-data">
+                    <td colspan="5">조회된 데이터가 없습니다.</td>
+                </tr>
+            `);
+        }
+    };
 </script>

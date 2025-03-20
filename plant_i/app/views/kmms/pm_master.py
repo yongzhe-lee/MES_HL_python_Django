@@ -1,14 +1,15 @@
 from django.db import transaction
-from domain.models.definition import Equipment
+from domain.models.definition import Equipment, Material
 from domain.models.user import Depart
 from domain.services.sql import DbUtil
-from domain.models.kmms import PreventiveMaintenance, User
+from domain.models.kmms import JobClass, PMWorker, PMMaterial, PreventiveMaintenance, User
 from domain.services.kmms.pm_master import PMService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime
+import json
 
 
 def pm_master(context):
@@ -39,15 +40,44 @@ def pm_master(context):
         
         items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
 
+    elif action=='read_pm_sch':
+        keyword = gparam.get('keyword', None)  
+        equDept = gparam.get('equDept', None)
+        equLoc = gparam.get('equLoc', None)
+        pmDept = gparam.get('pmDept', None)
+        pmType = gparam.get('pmType', None)
+        applyYn = gparam.get('applyYn', None)
+        cycleType = gparam.get('cycleType', None)
+        sDay = gparam.get('sDay', None)
+        eday = gparam.get('eday', None)
+        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else None
+        isLegal = gparam.get('isLegal', None)
+        
+        items = pm_master_service.get_pm_sch_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
+
+
     elif action=='detail':
         id = gparam.get('id', None)
         items = pm_master_service.get_pm_master_detail(id)
+
+    elif action=='detail_pm_labor':
+        id = gparam.get('id', None)
+        items = pm_master_service.get_pm_labor_detail(id)
+
+    elif action=='detail_pm_mtrl':
+        id = gparam.get('id', None)
+        items = pm_master_service.get_pm_mtrl_detail(id)
 
     elif action=='read_modal':
         keyword = gparam.get('keyword', None)
         dept_pk = gparam.get('dept_pk', None)
 
         items = pm_master_service.get_pm_modal(keyword, dept_pk)
+
+    elif action=='read_pm_wo':
+        pm_pk = gparam.get('pm_pk', None)
+
+        items = pm_master_service.get_pm_wo(pm_pk)
 
     elif action=='save':
         # 데이터 저장 로직        
@@ -63,6 +93,7 @@ def pm_master(context):
                         'result': False,
                         'message': f"PM with pk {pm_pk} does not exist."
                     })
+
             else:
                 # 새 객체 생성
                 pm = PreventiveMaintenance()
@@ -149,9 +180,117 @@ def pm_master(context):
             items = {'success': True, 'id': pm.pm_pk}
 
         except Exception as ex:
-            source = 'api/definition/equipment, action:{}'.format(action)
+            source = 'api/kmms/pm_master, action:{}'.format(action)
             LogWriter.add_dblog('error', source, ex)
             raise ex
+
+    elif action=='save_job_classes':
+        try:
+            pm_pk = posparam.get('pm_pk')
+            job_classes = posparam.get('job_classes')            
+            print("Received job_classes:", job_classes)  # 디버깅용
+            
+            if isinstance(job_classes, str):
+                # JSON 문자열을 파이썬 객체로 변환
+                job_classes = json.loads(job_classes)
+
+            # PreventiveMaintenance 객체 가져오기
+            pm_instance = PreventiveMaintenance.objects.get(pk=pm_pk) 
+
+            # 저장할 PMWorker 객체 리스트 생성
+            pm_labor_list = []
+
+            for job_class in job_classes:
+                job_class_pk = int(job_class.get('job_class_pk'))  # job_class_pk를 정수형 변환
+                jc_instance = JobClass.objects.get(pk=job_class_pk)  # JobClass 객체 조회
+
+                # PMWorker 객체 생성 (아직 DB에 저장하지 않음)
+                pm_labor = PMWorker(
+                    PreventiveMaintenance=pm_instance,  # ForeignKey 필드
+                    JobClass=jc_instance,  # ForeignKey 필드
+                    WorkHour=job_class.get('work_hr'),
+                    _created=timezone.now()
+                )
+
+                # 리스트에 추가
+                pm_labor_list.append(pm_labor)    
+                
+            #기존 pm_labor 삭제
+            PMWorker.objects.filter(PreventiveMaintenance=pm_instance).delete()
+
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            PMWorker.objects.bulk_create(pm_labor_list)
+                
+            ##########################################################
+            # for job_class in job_classes:
+            #     pm_labor = PMWorker()
+            #     pm_labor.PreventiveMaintenance = pm_instance
+            #     pm_labor._created = timezone.now()
+
+            #     job_class_pk = int(job_class.get('job_class_pk'))
+            #     jc_instance = JobClass.objects.get(pk=job_class_pk)
+            #     pm_labor.JobClass = jc_instance  # ForeignKey는 객체를 할당해야 함
+
+            #     pm_labor.WorkHour = job_class.get('work_hr')
+
+            #     pm_labor.save()
+            ##########################################################
+
+            items = {'success': True}
+            
+        except Exception as ex:
+            source = 'api/kmms/pm_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
+    elif action=='save_materials':
+        try:
+            pm_pk = posparam.get('pm_pk')
+            materials = posparam.get('materials')            
+            print("Received materials:", materials)  # 디버깅용
+            
+            if isinstance(materials, str):
+                # JSON 문자열을 파이썬 객체로 변환
+                materials = json.loads(materials)
+
+            # PreventiveMaintenance 객체 가져오기
+            pm_instance = PreventiveMaintenance.objects.get(pk=pm_pk) 
+
+            # 저장할 PMWorker 객체 리스트 생성
+            pm_mtrl_list = []
+
+            for material in materials:
+                mat_pk = int(material.get('mat_pk'))  # mat_pk를 정수형 변환
+                mat_instance = Material.objects.get(pk=mat_pk)  # JobClass 객체 조회
+
+                # PMWorker 객체 생성 (아직 DB에 저장하지 않음)
+                pm_mtrl = PMMaterial(
+                    PreventiveMaintenance=pm_instance,  # ForeignKey 필드
+                    Material=mat_instance,  # not null      
+                    Amount=material.get('mtrl_qty', 0),  # not null, 기본값 0
+
+                    _status='C',  # not null
+                    _created=timezone.now(),  # not null
+                    _creater_id=request.user.id,  # not null
+                    _creater_nm=request.user.username,  # not null                                 
+                )
+
+                # 리스트에 추가
+                pm_mtrl_list.append(pm_mtrl)    
+                
+            #기존 pm_mtrl 삭제
+            PMMaterial.objects.filter(PreventiveMaintenance=pm_instance).delete()
+
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            PMMaterial.objects.bulk_create(pm_mtrl_list)    
+
+            items = {'success': True}
+            
+        except Exception as ex:
+            source = 'api/kmms/pm_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
 
     return items
 
@@ -175,4 +314,7 @@ def generate_pm_number():
     
     pm_no = f"{prefix}{new_sequence}"
     return pm_no
+
+
+
 

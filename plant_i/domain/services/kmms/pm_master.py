@@ -113,6 +113,144 @@ class PMService():
 
         return items
 
+    def get_pm_sch_list(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal):
+        items = []
+        dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'pmType': pmType,'applyYn': applyYn,'cycleType': cycleType,'sDay': sDay,'eday': eday,'isMyTask': isMyTask,'isLegal': isLegal}
+
+        sql = ''' 
+         WITH cte AS (
+            SELECT                
+                t.pm_pk,
+                TO_CHAR(t.plan_start_dt, 'YYYYMMDD') AS pm_plan_dt,
+                TO_CHAR(t.plan_start_dt, 'YYYY-MM-DD') AS pm_plan_dt_label,
+                p.pm_nm,
+                p.per_number,
+                p.cycle_type,
+                ct."Name" AS cycle_type_nm,  -- 변경됨
+                e."Code" as equip_cd,
+                e."Name" as equip_nm,
+                e."environ_equip_yn",
+                ed."Name" as dept_nm,
+                wd."Name" AS wo_dept_nm,  -- 변경됨
+                t.work_order_pk,
+                t.work_order_no,
+                p.pm_no,
+                t.start_dt,
+                t.end_dt,
+                t.plan_start_dt,
+                t.plan_end_dt,
+                t.work_title,
+                ws."Name" AS wo_status_nm,  -- 변경됨
+                ws."Code" AS wo_status,  -- 변경됨
+                pt."Code" AS pm_type,  -- 변경됨
+                pt."Name" AS pm_type_nm,  -- 변경됨
+                fn_user_nm(pmu.first_name, cast(pmu.is_active as varchar)) AS pm_user_nm,  -- 변경됨
+                fn_user_nm(wou.first_name, cast(wou.is_active as varchar)) AS wo_user_nm,  -- 변경됨
+                t.work_charger_pk,
+                t.dept_pk,
+        --        fn_get_dept_team_pk(t.dept_pk) AS dept_team_pk,
+                t.dept_pk AS dept_team_pk,
+                p.dept_pk AS rqst_dept_pk,  -- 변경됨
+                ec.equip_category_desc,
+                (SELECT "Name" FROM code WHERE "CodeGroupCode" = 'EQUIPMENT_PROCESS' AND "Code" = e.process_cd) AS process_nm,  -- 변경됨
+                (SELECT "Name" FROM code WHERE "CodeGroupCode" = 'EQUIP_SYSTEM' AND "Code" = e.system_cd) AS system_nm  -- 변경됨
+            FROM work_order t
+            INNER JOIN work_order_approval woa ON t.work_order_approval_pk = woa.work_order_approval_pk
+            INNER JOIN code ws ON t.wo_status = ws."Code" AND ws."CodeGroupCode" = 'WO_STATUS'  -- 변경됨
+            INNER JOIN equ e ON t.equip_pk = e.id  -- 변경됨
+            INNER JOIN location l ON e.loc_pk = l.id 
+            LEFT JOIN equip_category ec ON e.equip_category_id = ec.equip_category_id
+            LEFT OUTER JOIN dept ed ON e."Depart_id"  = ed.id  -- 변경됨
+            LEFT OUTER JOIN dept wd ON t.dept_pk = wd.id  -- 변경됨
+            LEFT OUTER JOIN dept rd ON t.req_dept_pk = rd.id  -- 변경됨
+            LEFT OUTER JOIN auth_user wcu ON t.work_charger_pk = wcu.id  -- 변경됨
+            LEFT OUTER JOIN pm p ON t.pm_pk = p.pm_pk
+            LEFT OUTER JOIN code ct ON p.cycle_type = ct."Code" AND ct."CodeGroupCode" = 'CYCLE_TYPE'  -- 변경됨
+            LEFT OUTER JOIN code pt ON p.pm_type = pt."Code" AND pt."CodeGroupCode" = 'PM_TYPE'  -- 변경됨
+            LEFT OUTER JOIN auth_user pmu ON p.pm_user_pk = pmu.id  -- 변경됨
+            LEFT OUTER JOIN auth_user wou ON t.WORK_CHARGER_PK = wou.id  -- 변경됨
+            LEFT OUTER JOIN code wsc ON t.work_src_cd = wsc."Code" AND wsc."CodeGroupCode" = 'WORK_SRC'  -- 변경됨    
+            LEFT OUTER JOIN code wt ON t.wo_type = wt."Code" AND wt."CodeGroupCode" = 'WO_TYPE'  -- 변경됨  
+            LEFT OUTER JOIN equ ue ON e.UP_EQUIP_PK = ue.id  -- 변경됨
+            LEFT OUTER JOIN code av ON av."Code" = e.first_asset_status AND av."CodeGroupCode" = 'ASSET_VAL_STATUS'  -- 변경됨   
+            WHERE 1 = 1
+            AND t.site_id = '1'
+            --AND t.work_charger_pk = ISNULL(%(isMyTask)s, t.work_charger_pk)                   
+            AND t.wo_status IN ('WOS_CM', 'WOS_AP')
+            AND t.pm_pk IS NOT NULL
+            AND pt."Code" = 'PM_TYPE_TBM'  -- 변경됨
+            -- AND (
+            --    t.plan_start_dt >= TO_DATE(REPLACE('2024-12-06', '-', ''), 'YYYYMMDD')
+            --     AND t.plan_start_dt <= TO_DATE(REPLACE('2025-05-31', '-', ''), 'YYYYMMDD')
+            --)
+        )
+        SELECT *
+        FROM (
+            TABLE cte
+            ORDER BY plan_start_dt ASC
+            --LIMIT 30 OFFSET (1-1) * 30
+        ) sub
+        RIGHT JOIN (SELECT COUNT(*) FROM cte) c(total_rows) ON TRUE
+        WHERE total_rows != 0  
+         
+            '''
+        if keyword:
+            sql += ''' 
+            AND a."pm_nm" like CONCAT('%%', %(keyword)s, '%%')
+            '''
+        if equDept:
+            sql += ''' 
+            AND ve.mng_dept_id = %(equDept)s
+            '''
+        if equLoc:
+            sql += ''' 
+            AND ve.loc_id = %(equLoc)s
+            '''
+        if pmDept:
+            sql += ''' 
+            AND a.dept_pk = %(pmDept)s
+            '''
+        if pmType:
+            sql += ''' 
+            AND a.pm_type = %(pmType)s
+            '''
+        if applyYn:
+            sql += ''' 
+            AND a.use_yn = %(applyYn)s
+            '''
+
+        if cycleType:
+            sql += ''' 
+            AND a.cycle_type = %(cycleType)s
+            '''
+
+        # if sDay:
+        #     sql += ''' 
+        #     AND exc.id = %(sDay)s
+        #     '''
+
+        # if eday:
+        #     sql += ''' 
+        #     AND exc.id = %(eday)s
+        #     '''
+
+
+        # if isLegal:
+        #     sql += ''' 
+        #     AND "environ_equip_yn" = %(isLegal)s
+        #     '''
+        sql += ''' 
+            ORDER BY COALESCE(NULLIF(work_order_no, ''), '0')::INTEGER DESC
+            '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
+            raise ex
+
+        return items
+
     def get_pm_master_detail(self, id):
         sql = ''' 
         SELECT 
@@ -147,7 +285,7 @@ class PMService():
             a.pm_pk = %(id)s
         '''
         data = {}
-        try:
+        try:    
             items = DbUtil.get_rows(sql, {'id':id})
             if len(items)>0:
                 data = items[0]
@@ -156,6 +294,43 @@ class PMService():
             raise ex
 
         return data
+
+    def get_pm_labor_detail(self, id):
+        sql = ''' 
+        SELECT pl.id, 
+            pl.job_class_pk, jc.nm as job_class_nm,
+            pl.work_hr, pl.pm_pk	
+        FROM pm_labor pl
+	        inner join pm on pm.pm_pk = pl.pm_pk
+	        left join job_class jc on pl.job_class_pk = jc.job_class_pk
+        where pl.pm_pk = %(id)s
+        '''   
+        try:
+            items = DbUtil.get_rows(sql, {'id':id})     
+                
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_labor_detail', ex)
+            raise ex
+
+        return items
+
+    def get_pm_mtrl_detail(self, id):
+        sql = ''' 
+        SELECT pmt.id, pmt.mat_pk, pmt.pm_pk,
+	        m."Code" as mat_cd, m."Name" as mat_nm, pmt.amt, m."BasicUnit" as unit
+        FROM pm_mtrl pmt
+	        inner join pm on pm.pm_pk = pmt.pm_pk
+	        left join material m on pmt.mat_pk = m.id
+        where pmt.pm_pk = %(id)s
+        '''   
+        try:
+            items = DbUtil.get_rows(sql, {'id':id})     
+                
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_mtrl_detail', ex)
+            raise ex
+
+        return items
 
     def get_pm_modal(self, keyword, dept_pk):
         items = []
@@ -184,7 +359,41 @@ class PMService():
         try:
             items = DbUtil.get_rows(sql, dic_param)
         except Exception as ex:
-            LogWriter.add_dblog('error','EquipmentService.get_equip_modal', ex)
+            LogWriter.add_dblog('error','PMService.get_equip_modal', ex)
+            raise ex
+
+        return items
+
+    def get_pm_wo(self, pm_pk):
+        items = []
+        dic_param = {'pm_pk':pm_pk}
+
+        sql = ''' 
+        SELECT 
+            t.work_order_no,				-- WO 번호
+            woa.reg_dt, 					-- WO 생성일
+            ws."Code" AS wo_status_cd,
+            ws."Name" AS wo_status_nm,  	-- WO 상태
+            t.plan_start_dt, 				-- 작업계획일
+            t.end_dt, 						-- 작업완료일
+            p.pm_user_pk,
+            fn_user_nm(au."first_name", cast(au.is_active as VARCHAR)) AS user_nm,	-- 담당자
+            COUNT(*) OVER() AS total_rows	-- 전체 행 수 추가
+        FROM work_order t
+            INNER JOIN work_order_approval woa ON t.work_order_approval_pk = woa.work_order_approval_pk
+            INNER JOIN pm p ON t.pm_pk = p.pm_pk
+            INNER JOIN code ws ON t.wo_status = ws."Code" AND ws."CodeGroupCode" = 'WO_STATUS'
+            LEFT JOIN auth_user au ON p.pm_user_pk = au.id
+        WHERE t.PM_PK = %(pm_pk)s
+            --AND t.site_id = '1'
+        ORDER BY t.end_dt DESC	-- 작업 완료일 정렬
+        ;
+        '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_wo', ex)
             raise ex
 
         return items

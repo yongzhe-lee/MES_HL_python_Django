@@ -6,64 +6,209 @@
 
 <div class="content_wrap">
     <div class="content-ui-row">
-        <div class="card-content search">
-
-            <div class="form-ui">
-
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="srch_date_range" data-labelCd="변경일">변경일</label>
-                        <div class="field-wrapper">
-                            <div id="srch_date_range"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-auto">
-                    <div class="card-group-btn search">
-                        <button id="btnSearch" class="btn-search">조회</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
 
         <div class="content-ui-row connect">
-            <div class="card-content grid">
 
-                <div class="card-group-btn">
-                    <span class="info-text">
-                        <i class="material-symbols-outlined">list_alt</i>
-                        <label data-labelCd="SAP 품목정보내역">SAP 품목정보내역</label>
-                    </span>
-                    <span>
-                        <button id="btnExcel">Excel</button>
-                    </span>
+            <div id="tab_strip">
+                <ul>
+                    <li class="k-active">SAP Material</li>
+                    <li>SAP BOM</li>
+                    <li>품목별위치별재고</li>
+                    <li>PCB난수별입고번호</li>
+                </ul>
+                <div>
+                    <div class="form-ui">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="srch_date_range" data-labelCd="자재그룹">자재그룹</label>
+                                <div class="field-wrapper">
+                                    <select id="cboMATKL" name="matkl">
+                                        <option value="">전체</option>
+                                        <option value="ABS">ABS</option>
+                                        <option value="ESC">ESC</option>
+                                        <option value="ESCP">ESCP</option>
+                                        <option value="MAS">MAS</option>
+                                        <option value="MAC">MAC</option>
+                                        <option value="MOC">MOC</option>
+                                        <option value="SPAS">SPAS</option>
+                                        <option value="TAS">TAS</option>
+                                        <option value="WSS">WSS</option>
+                                        <option value="Y&G"> Y&G</option>
+                                        <option value="ZZZ">ZZZ</option>
+                                        <option value="11162100">11162100</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="srch_date_range" data-labelCd="자재유형">자재유형</label>
+                                <div class="field-wrapper">
+                                    <select id="cboMTART" name="mtart">
+                                        <option value="FERT">FERT</option>
+                                        <option value="">HALB</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="srch_date_range" data-labelCd="품목유형">품목유형</label>
+                                <div class="field-wrapper">
+                                    <select id="cboBKLAS" name="bkals">
+                                        <option value="">전체</option>
+                                        <option value="FREW">Group external</option>
+                                        <option value="FERT">Inhouse made</option>
+                                        <option value="EING">Semi-fin. Prod, inhouse</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-1 col-xl-1">
+                            <div class="card-group-btn search">
+                                <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-content grid">
+                        <div class="card-group-btn">
+                            <span class="info-text">
+                                <i class="material-symbols-outlined">list_alt</i>
+                                <label data-labelCd="SAP 품목정보내역">SAP 품목정보내역</label>
+                            </span>
+                            <span>
+                                <button id="btnSAPMaterialSearchSAP">인터페이스실행</button>
+                                <button id="btnExcelSapMat">Excel</button>
+                            </span>
+                        </div>
+                        <div id="sap_mat_grid"></div>
+                    </div>
                 </div>
-
-                <div id="sap_mat_grid"></div>
+                <div>
+                    <div class="form-ui">
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="mat_cd_bom" data-labelCd="품목코드">품목코드</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="mat_cd_bom" name="mat_cd" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-2 col-xl-2">
+                            <div class="card-group-btn search">
+                                <button id="btnBOMSearch" class="btn-search">조회</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content grid">
+                        <div class="card-group-btn">
+                            <span class="info-text">
+                                <i class="material-symbols-outlined">list_alt</i>
+                                <label data-labelCd="SAP BOM">SAP BOM</label>
+                            </span>
+                            <span>
+                                <button id="btnExcelBOM">Excel</button>
+                            </span>
+                        </div>
+                        <div id="sap_bom_grid"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-ui">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="mat_cd_stock" data-labelCd="위치">위치</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="location_stock" name="loc_cd" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="mat_cd_stock" data-labelCd="품목코드">품목코드</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="mat_cd_stock" name="mat_cd" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-2 col-xl-2">
+                            <div class="card-group-btn search">
+                                <button id="btnStockSearch" class="btn-search">조회</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content grid">
+                        <div class="card-group-btn">
+                            <span class="info-text">
+                                <i class="material-symbols-outlined">list_alt</i>
+                                <label data-labelCd="SAP 품목별 재고">SAP 품목별 재고</label>
+                            </span>
+                            <span>
+                                <button id="btnExcelSapStock">Excel</button>
+                            </span>
+                        </div>
+                        <div id="stock_grid"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-ui">
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="txtPCBRanNumber" data-labelCd="PCB난수번호">PCB난수번호</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtPCBRanNumber" name="pcb_ran_num" value="" placeholder="pcb 난수번호" /> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-2 col-xl-2">
+                            <div class="card-group-btn search">
+                                <button id="btnRandomNumberDBSearch" class="btn-search">조회</button>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content grid">
+                        <div class="card-group-btn">
+                            <span class="info-text">
+                                <i class="material-symbols-outlined">list_alt</i>
+                                <label data-labelCd="SAP PCB난수별 입고번호">SAP PCB난수별 입고번호</label>
+                            </span>
+                            <span></span>
+                            <span>
+                                <button id="btnRandomNumberSAPSearch" class="btn-search">SAP인터페이스조회</button>
+                                <button id="btnExcelSAPRndInput">Excel</button>
+                            </span>
+                        </div>
+                        <div id="pcb_random_grid"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 {% endblock %}
-
 {% block scripts %}
-
 <script type="text/javascript">
-
-
     class IFSapMaterialPage {
         constructor() {
             this.grid = null;
             this.init();
+            this.url = "/api/interface/sap";
         }
 
         init() {
             let _this = this;
 
-
+            this.initSapMaterial();
+            this.initSapBom();
+            this.initSapStock();
+            this.initSapRandom();
+        }
+        initSapMaterial() {
+            let _this = this;
             let gridOption = {
                 toolbar: [
                     "columns"
@@ -88,6 +233,92 @@
                     { field: "stab_zctime", title: "C/T", width: 100 },
                     { field: "stab_price", title: "단가", width: 120 },
                     { field: "stab_peinh", title: "가격단위", width: 120 },
+                    { field: "created", title: "생성일", width: 120 }
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                },
+                height: 650
+            };
+
+            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+
+            //search form
+            let today = CommonUtil.getYYYYMMDD();
+            $('#cboMATKL').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $('#cboMTART').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $('#cboBKLAS').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $('#btnSAPMaterialSearchDB').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    _this.searchSapMat();
+                }
+            });
+
+            $('#btnSAPMaterialSearchSAP').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    Alert.alert("구현중", "구현중");
+                }
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelSapMat').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#sap_mat_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_mat.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+        }
+
+        initSapBom() {
+
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "stab_matnr", title: "상위품목", width: 150 },
+                    { field: "stab_revlv", title: "Revision번호", width: 150 },
+                    { field: "stab_bmeng", title: "기준수량", width: 150 },
+                    { field: "stab_idnrk", title: "구성부품", width: 150 },
+                    { field: "stab_mnglg", title: "구성부품수량", width: 150 },
+                    { field: "stab_meins", title: "단위", width: 150 },
+                    { field: "stab_stufe", title: "BOM레벨", width: 150 },
+                    { field: "stab_datuv", title: "효력시작일", width: 150 },
+                    { field: "stab_datab", title: "효력종료일", width: 150 },
+                    { field: "stab_aennr", title: "ECN번호", width: 150 },
+                    { field: "stab_bklas", title: "품목유형", width: 150 },
+                    { field: "stab_bkbez", title: "품목유형명", width: 150 },
                     { field: "created", title: "생성일", width: 120 },
                 ],
                 change: function (e) {
@@ -96,74 +327,228 @@
                 },
                 height: 650
             };
-            _this.grid = new Grid($("#sap_mat_grid"), gridOption);
 
+            let bom_grid = new Grid($("#sap_bom_grid"), gridOption);
 
-            //search form
-            $("#srch_date_range").kendoDateRangePicker({
-                range: {
-                    start: new Date(),
-                    end: new Date()
-                },
-                change: function (e) {
+            
+            $('#mat_cd_bom').kendoTextBox();
 
-                },
-                format: "yyyy-MM-dd",
-                labels: false,
-                startField: "start_date",
-                endField: "end_date"
+            $('#btnBOMSearch').click(function (ex) {
+                _this.searchSapBom();
             });
 
-
-            $('#btnSearch').click(function (ex) {
-                page.searchMainData();
-            });
             // 엑셀 다운로드
-            $('#btnExcel').kendoButton({
+            $('#btnExcelBOM').kendoButton({
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    let gridData = $('#sap_bom_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_mat.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+        }
+
+        initSapStock() {
+
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    //autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "stab_werks", title: "플랜트", width: 100 },
+                    { field: "stab_matnr", title: "품목코드", width: 150 },
+                    { field: "stab_maktx", title: "품목명", width: 150 },
+                    { field: "stab_idnrk", title: "구성부품", width: 150 },
+                    { field: "stab_lgort", title: "저장위치코드", width: 150 },
+                    { field: "stab_lgobe", title: "조장위치명", width: 150 },
+                    { field: "stab_labst", title: "가용재고", width: 150 },
+                    { field: "stab_insme", title: "품질재고", width: 150 },
+                    { field: "stab_speme", title: "보류재고", width: 150 },
+                    { field: "stab_mslbq", title: "외주재고", width: 150 },
+                    { field: "stab_mkolq", title: "벤더위탁재고", width: 150 },
+                    { field: "stab_mskuq", title: "고객위탁재고", width: 150 },
+                    { field: "stab_meins", title: "단위", width: 150 },
+                    { field: "stab_bklas", title: "품목유형코드", width: 150 },
+                    { field: "stab_bkbez", title: "품목유형명", width: 150 },
+                    { field: "created", title: "생성일", width: 120 },
+                ],
+                height: 650
+            };
+
+            this.stock_grid = new Grid($("#stock_grid"), gridOption);
+            
+            $('#location_stock').kendoTextBox();
+            $('#mat_cd_stock').kendoTextBox();
+
+            $('#btnStockSearch').click(function (ex) {
+                _this.searchSapStock();
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelBOM').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#stock_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_stock.xlsx";
+                    });
+                    gridData.saveAsExcel();
                 }
             });
 
         }
 
-        searchMainData() {
+        initSapRandom() {
+
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "rnd_num", title: "PCB난수번호", width: 100 },
+                    { field: "stab_mblnr", title: "입고번호", width: 100 },
+                    { field: "stab_zeile", title: "아이템번호", width: 100 },
+                    { field: "stab_matnr", title: "품목코드", width: 100 },
+                    { field: "stab_maktx", title: "품목명", width: 100 },
+                    { field: "stab_menge", title: "입고수량", width: 100 },
+                    { field: "stab_abqty", title: "난수별 입고수량", width: 100 },
+                    { field: "stab_meins", title: "단위", width: 100 },
+                    { field: "created", title: "생성일", width: 120 },
+                ],
+                height: 650
+            };
+            this.pcb_random_grid = new Grid($("#pcb_random_grid"), gridOption);
+
+
+            $('#txtPCBRanNumber').kendoTextBox();
+
+            $('#btnRandomNumberDBSearch').click(function (ex) {
+                _this.searchRandomNumber('DB');
+            });
+
+            //$('#btnRandomNumberSAPSearch').click(function (ex) {
+            //    _this.searchRandomNumber('SAP');
+            //});
+
+            $('#btnSAPRandomNumber').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    _this.searchRandomNumber('SAP');
+                }
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelSAPRndInput').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#pcb_random_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_pcb_rnd.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+
+        }
+
+        /********************************************************/
+
+        searchSapMat() {
             let _this = this;
             let url = '/api/interface/sap';
+            let matkl = $('#cboMATKL').val();
+            let mtart = $('#cboMTART').val();
+            let bklas = $('#cboBKLAS').val();
 
             let data = {
-                'equipment': $('#cboEquipment').val(),
+                matkl: matkl,
+                mtart: mtart,
+                bklas: bklas,
                 'action' : 'sap_mat'
             };
 
-            let result = AjaxUtil.getSyncData(url, data);
-            if (result.success) {
-                _this.grid.setData(result.items);
+            AjaxUtil.getAsyncData(url, data, function(result){
+                if (result.success) {
+                    _this.sap_mat_grid.setData(result.items);
+                }
+                else{
+                    Alert.alert('오류', result.message);
+                }
+            });
+        }
+
+        searchSapBom() {
+
+        }
+
+        searchSapStock() {
+
+        }
+
+        searchRandomNumber(reqType) {
+            let _this = this;
+            let rnd_num = $('#txtPCBRanNumber').val();
+
+            if (rnd_num == "") {
+                Alert.alert('입력누락', 'PCB난수번호를 입력하세요');
+                return;
             }
 
-        }//searchMainData
+            let action = 'search_pcb_random_db';
+            if (reqType == "SAP") {
+                action = "search_pcb_random_sap"
+            }
 
-        // 엑셀 다운로드
-        exportExcel() {
-            let gridData = $('#sap_mat_grid').data("kendoGrid");
-            gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "sap_mat.xlsx";
+            let data = {
+                action: action,
+                rnd_num: rnd_num
+            };
+
+            this.pcb_random_grid.setData([]);
+            AjaxUtil.getAsyncData(this.url, data, function (result) {
+                if (result.success) {
+                    _this.pcb_random_grid.setData(result.items);
+                }
             });
-            gridData.saveAsExcel();
         }
     }
 
-
     let page = new IFSapMaterialPage();
-    page.searchMainData();
+    $("#tab_strip").kendoTabStrip({
+        animation: {
+            open: {
+                effects: "fadeIn"
+            }
+        }
+    });
 
     $(document).ready(function (e) {
         
 
     });
 </script>
-
-
 {% endblock %}

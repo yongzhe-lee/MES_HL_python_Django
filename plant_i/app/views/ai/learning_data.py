@@ -64,9 +64,9 @@ def perform_pca(data, features, target_column, num_components=None, scale_factor
     # 데이터 전처리: 결측치 제거
     data.dropna(inplace=True)
 
-    # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
-    data['date_val'] = pd.to_datetime(data['date_val'])
-    data.set_index('date_val', inplace=True)
+    # # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
+    # data['date_val'] = pd.to_datetime(data['date_val'])
+    # data.set_index('date_val', inplace=True)
 
     # 독립 변수와 종속 변수 분리
     X = data[features]  # 독립 변수
@@ -286,7 +286,7 @@ def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
     # Plotly 그래프를 HTML로 변환 (include_plotlyjs = JavaScript 라이브러리 포함 여부 설정)
     # plotly_graph = pio.to_html(fig, full_html=False)  # 라이브러리가 설치되어 있을 때 사용
     # cdn = 라이브러리 포함해서 보내기. 추후에는 false로 해서 내부에 라이브러리 저장하는 방식으로 해야하지 않을까
-    plotly_graph = pio.to_html(fig, full_html=False, include_plotlyjs='cdn', config=dict(responsive=True))
+    plotly_graph = pio.to_html(fig, full_html=False, include_plotlyjs=True, config=dict(responsive=True))
 
     # Plotly 그래프를 HTML 파일로 저장 (필요시만 활성화)
     # fig.write_html("D:\김하늘\위존\실무\★SF팀\★HL클레무비\개발실무\스터디\plotly_to_html.html")
@@ -327,31 +327,43 @@ def learning_data(context):
             ##############################################################################
             
             # 24.08.08 김하늘 추가 data 불러오기(다른 메서드에서 카피)
-            md_id = gparam.get('md_id')
-            daService = DaService('ds_data', md_id)
+            
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            daService = DaService('ds_model', md_id)
             num_components = gparam.get('num_components')
             data = daService.read_table_data()
-            
 
-            # 분석에 필요한 컬럼 지정하기
-            # 독립변수
-            features = ['AP1', 'AP2', 'AP3', 'AP4', 'EC1', 'EC2', 'EC3', 'RAP1', 'RAP2', 'RAP3', 'RAP4']
-            # 종속변수
-            target_column = 'alarm'
+            # 분석에 필요한 컬럼 지정하기            
+            # features = ['AP1', 'AP2', 'AP3', 'AP4', 'EC1', 'EC2', 'EC3', 'RAP1', 'RAP2', 'RAP3', 'RAP4'] # 독립변수
+            # target_column = 'alarm' # 종속변수
 
+            # 사용자가 선택한 feature와ㅏ target
+            x_vars, y_vars = daService.xy_columns()
 
-            # PCA 적용 함수 호출
-            pca_result = perform_pca(data, features, target_column, num_components)
+            if len(x_vars) > 0 and len(y_vars) > 0:
+                if len(x_vars) <2 :
+                    return {'success':False, 'not_enough_x_vars': True }
+
+                # 지정된 x,y가 있고, x >=2일 때만 PCA 적용 함수 호출
+                pca_result = perform_pca(data, x_vars, y_vars, num_components)
+            else:
+                return {'success':False, 'no_xy_message': True }
+
 
             # plt 시각화를 html로 만들어주는 함수 호출
-            '''title = {'main':'그래프 제목', 'x':'x축 제목', 'y':'y축 제목'}'''
+            '''
+                [ 예시 ]
+                title = { 'main': 전체 그래프 제목, 'x': x축 제목, 'y': y축 제목 }
+                graph = { 'data': 데이터, 'mode': chart 종류, 'name': 범례(그래프 개별 명)}
+
+            '''
             title = {'main':'PCA 주성분별 설명 가능한 분산 비율', 'x':'주성분(차원) 수', 'y':'설명 가능 비율'}
             graph1 = {'data':pca_result['explained_variance_ratio'], 'mode':'lines+markers', 'name':'주성분별 설명 비율'}
             graph2 = {'data':pca_result['cumulative_explained_variance'], 'mode':'lines+markers', 'name':'누적 설명 비율'}
 
             pca_plotly = visualize_to_plotly(title, graph1, graph2)
 
-            items = {'success':True, 'pca_plotly': pca_plotly}
+            items = {'success':True, 'pca_plotly': pca_plotly, 'x_vars_len': len(x_vars) }
 
 
         # 사용자 지정 차원으로 축소(pca)
@@ -360,45 +372,51 @@ def learning_data(context):
             # 시각화를 위해 PCA 축소 결과를 원본 데이터 공간으로 재구성
             # X_new = pca_final.inverse_transform(X_pca)
             
-            # # 시각화 함수 호출하여 pca 결과 확인
-            # visualize(pca_final, X, X_pca, X_new)
-            
-            md_id = gparam.get('md_id')
-            daService = DaService('ds_data', md_id)
-            num_components = gparam.get('num_components')
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            daService = DaService('ds_model', md_id)
+            num_components = CommonUtil.blank_to_none(gparam.get('num_components'))
             data = daService.read_table_data()
 
-            # PCA 적용 및 결과 반환
-            features = ['AP1', 'AP2', 'AP3', 'AP4', 'EC1', 'EC2', 'EC3', 'RAP1', 'RAP2', 'RAP3', 'RAP4']
-            target_column = 'alarm'
+            # # PCA 적용 및 결과 반환
+            # features = ['AP1', 'AP2', 'AP3', 'AP4', 'EC1', 'EC2', 'EC3', 'RAP1', 'RAP2', 'RAP3', 'RAP4']
+            # target_column = 'alarm'
             
-            # 사용자 지정 차원 == null(선택 안함)일 때 누적 설명 비율이 90% 이상인 차원으로 자동 적용
-            # num_components를 int로 변환하기
-            # print(f"num_components(type): {type(num_components)}")
-            if num_components != None:
-                num_components = int(num_components)
+            # 사용자가 선택한 feature와ㅏ target
+            x_vars, y_vars = daService.xy_columns()
 
-            pca_result = perform_pca(data, features, target_column, num_components)
+            if len(x_vars) > 0 and len(y_vars) > 0:
+                # num_components를 int로 변환하기
+                if num_components != None:
+                    num_components = int(num_components)
 
-            # plt 시각화를 html로 만들어주는 함수 호출
-            '''title = {'main':'그래프 제목', 'x':'x축 제목', 'y':'y축 제목'}'''
-            title = {'main': 'PCA가 적용된 그래프', 'x': 'PC1', 'y': 'PC2'}
+                # 지정된 x,y가 있을 때만 PCA 적용 함수 호출
+                pca_result = perform_pca(data, x_vars, y_vars, num_components)
 
-            # 시각화 데이터 준비
-            scatter_data = {
-                'data': pca_result['X_pca'], 
-                'name': f'{num_components}차원 데이터', 
-                'mode': 'markers'
-                }
-            # principal_axes_data = {     
-            #     'key': 'principal_axes',  # 메타정보
-            #     'data': pca_result['principal_axes'],    # 시각화 함수 내부에서 name & mode 추가
-            #     'name': '주성분 축',
-            #     }
+            else:
+                return {'success':False, 'no_xy_message': True }
 
-            pca_plotly = visualize_to_plotly(title, scatter_data)
+            new_dim = pca_result['num_components']
 
-            items = {'success':True, 'pca_result': pca_plotly}
+            if new_dim < 4 :
+                # 새로운 차원이 3차원 이하일 때
+
+                # plt 시각화를 html로 만들어주는 함수 호출
+                '''title = {'main':'그래프 제목', 'x':'x축 제목', 'y':'y축 제목'}'''
+                title = {'main': 'PCA가 적용된 그래프', 'x': 'PC1', 'y': 'PC2'}
+
+                # 시각화 데이터 준비
+                scatter_data = {
+                    'data': pca_result['X_pca'], 
+                    'name': f'{new_dim}차원 데이터', 
+                    'mode': 'markers'
+                    }
+
+                pca_plotly = visualize_to_plotly(title, scatter_data)
+
+            else :
+                pca_plotly = pca_result
+
+            items = {'success':True, 'pca_plotly': pca_plotly}
             
 
         # 추후 수정    
@@ -1089,7 +1107,9 @@ def learning_data(context):
             #nrow = math.ceil( len(num_df.columns) / (ncol) )
             nrow = len(num_df.columns)
             
-            fig, ax = plt.subplots(nrows=nrow, ncols=2, figsize=(20, 20))
+            # fig, ax = plt.subplots(nrows=nrow, ncols=2, figsize=(20, 20))
+            fig, ax = plt.subplots(nrows=nrow, ncols=2, figsize=(20, 20), tight_layout=True)
+            #plt.subplots_adjust(hspace=0.5)
             #fig, ax = plt.subplots(nrows=nrow, ncols=2)
             #fig.set_figheight(100)
             #fig.set_figwidth(80)
@@ -1160,9 +1180,10 @@ def learning_data(context):
             import seaborn as sns
             #from matplotlib.figure import Figure
 
-            md_id = gparam.get('md_id')
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+
             variables = gparam.get('variables')
-            daService = DaService('ds_data', md_id)
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
             
             cate=[]
@@ -1207,16 +1228,20 @@ def learning_data(context):
             import seaborn as sns
             #from matplotlib.figure import Figure
 
-            md_id = gparam.get('md_id')
-            daService = DaService('ds_data', md_id)
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
             #num_df = df.select_dtypes(include=['int64','float64'])
 
-            corr_df = df.corr()
-            # seaborn을 사용하여 heatmap 출력
+            # corr() 실행 전 숫자형 컬럼만 선택
+            df_numeric = df.select_dtypes(include=['number'])
+            corr_df = df_numeric.corr()
+            # corr_df = df.corr()
 
+            # seaborn을 사용하여 heatmap 출력
             fig = plt.figure(figsize=(15,10))
+            # fig = plt.figure(figsize=(15,10), tight_layout=True)
             sns.heatmap(corr_df, annot=True, cmap='PuBu')
             #fig = Figure()
            
@@ -1240,6 +1265,7 @@ def learning_data(context):
             x_cols = []
             y_cols = []
             non_numeric_x_cols = []  # 수치형이 아닌 X 변수 리스트
+            non_numeric_y_cols = []  # 수치형이 아닌 Y 변수 리스트
 
             for item in Q:
                 q = DsModelColumn.objects.filter(DsModel_id=md_id)
@@ -1280,64 +1306,112 @@ def learning_data(context):
                         dc.save()
 
             x_cols = valid_x_cols
-            y_cols = [col for col in y_cols if col in df_numeric.columns]
+
+            valid_y_cols = []
+            for col in y_cols:
+                if col in df_numeric.columns:
+                    valid_y_cols.append(col)
+                else:
+                    non_numeric_y_cols.append(col)
+                    # DsModelColumn에서 Y 값을 0으로 변경
+                    q = DsModelColumn.objects.filter(DsModel_id=md_id, VarName=col)
+                    if q.exists():
+                        dc = q.first()
+                        dc.Y = 0  # 수치형이 아니므로 Y 값 초기화
+                        dc.save()
+
+            y_cols = valid_y_cols
+            # y_cols = [col for col in y_cols if col in df_numeric.columns]
 
             # 수치형이 아닌 변수 메시지 생성
-            if non_numeric_x_cols:
-                items['message'] = non_numeric_x_cols
+            if non_numeric_x_cols or non_numeric_y_cols:
+                items['message'] = {}
+                if non_numeric_x_cols:
+                    items['message']['non_numeric_x'] = non_numeric_x_cols
+                if non_numeric_y_cols:
+                    items['message']['non_numeric_y'] = non_numeric_y_cols
+
+            # if non_numeric_x_cols:
+                # items['message'] = non_numeric_x_cols
 
             q = DsTagCorrelation.objects.filter(DsModel_id=md_id)
             q.delete()
 
             for y in y_cols:
-                # y변수를 수치형으로 변환 (변환 실패 시 NaN 처리)
-                df[y] = pd.to_numeric(df[y], errors='coerce')
 
-                # x_cols도 수치형으로 변환
-                for x in x_cols:
-                    df[x] = pd.to_numeric(df[x], errors='coerce')
+                # 이미 위에서 수치형 데이터만 배열에 담아두어서 아래 로직이 불필요해짐
+                # # y변수를 수치형으로 변환 (변환 실패 시 NaN 처리)
+                # df[y] = pd.to_numeric(df[y], errors='coerce')
 
-                # NaN이 포함된 행 제거 (중요!)
-                df_filtered = df[[y] + x_cols].dropna()
+                # # x_cols도 수치형으로 변환
+                # for x in x_cols:
+                #     df[x] = pd.to_numeric(df[x], errors='coerce')
+
+                # NaN이 포함된 행 제거
+                df_filtered = df.dropna(subset=[y] + x_cols) # 불필요한 데이터 복사x 메모리 효율이 올라감
+                #df_filtered = df[[y] + x_cols].dropna()
 
                 # 다중 선형 회귀 모델 학습
                 multilinear.fit(df_filtered[x_cols], df_filtered[y])
-                beta_0 = multilinear.intercept_
+
+                # beta_0 = float(multilinear.intercept_) # np.float64 → float 변환
+                beta_0 = float(multilinear.intercept_)
+                # beta_0 = multilinear.intercept_ if np.isscalar(multilinear.intercept_) else multilinear.intercept_.item()
+                # if isinstance(beta_0, np.ndarray):
+                #     beta_0 = beta_0[0]  # 배열이면 첫 번째 값만 저장
+
                 beta_i_list = multilinear.coef_
+                # if isinstance(beta_i_list, np.ndarray) and beta_i_list.ndim > 1:
+                #     beta_i_list = beta_i_list[0]  # 2D 배열이면 1D로 변환
+                # coef_가 2D 배열일 경우 1D로 변환
+                if beta_i_list.ndim > 1:
+                    beta_i_list = beta_i_list.flatten()
 
                 cr = DsTagCorrelation()
                 cr.DsModel_id = md_id
                 cr.YVarName = y
                 cr.XVarName = 'intercept_'
-                cr.MultiLinearCoef = beta_0
+                cr.MultiLinearCoef = beta_0  # ✅ PostgreSQL FLOAT8에 적합한 변환
+                # cr.MultiLinearCoef = beta_0
                 cr.save()
 
                 for i, x in enumerate(x_cols):
-                    try:
-                        df_filtered_x = df_filtered[[x, y]]  # NaN이 없는 데이터만 사용
-                        corr = df_filtered_x[x].corr(df_filtered_x[y])
-                    except Exception as e:
-                        corr = None
-
                     cr = DsTagCorrelation()
                     cr.DsModel_id = md_id
                     cr.XVarName = x
                     cr.YVarName = y
+                    cr.MultiLinearCoef =float(beta_i_list[i]) # np.array → float 변환
+                    # cr.MultiLinearCoef =float(beta_i_list[i]) # np.array → float 변환
+
+                    try:
+                        corr = df_filtered[x].corr(df_filtered[y])
+                    except Exception as e:
+                        print(f"상관계수 계산 오류 (X: {x}, Y: {y}): {e}")
+                        corr = None
+
                     cr.r = corr
-                    cr.MultiLinearCoef = beta_i_list[i]
                     
                     #if corr and (corr > 0.5 or 1==1):  #0.5
                     if True:  #0.5
                         try:
-                            # 단순 선형 회귀 학습
-                            simplelinear.fit(df_filtered_x[[x]], df_filtered_x[y])
-                            beta_0 = simplelinear.intercept_
-                            beta_1 = simplelinear.coef_ 
+                            # X == Y 체크 (여기서 미리 걸러야 함)
+                            if x == y:
+                                print(f"X == Y (X: {y}, Y: {y}) → 단순 회귀 분석을 수행하지 않음.")
+                                continue  # 다음 Y 변수로 넘어감
 
-                            equ = 'y = ' + str(beta_1) + '*x +' + str(beta_0)
+                            # 단순 선형 회귀 학습
+                            simplelinear.fit(df_filtered[[x]], df_filtered[[y]])
+                            beta_0 = float(simplelinear.intercept_)
+                            beta_1 = float(simplelinear.coef_[0])  # coef_는 배열이므로 item만 빼서 가져옴
+                            # beta_0 = simplelinear.intercept_.flatten()[0]
+                            # beta_1 = simplelinear.coef_.flatten()[0]  # coef_는 배열이므로 item만 빼서 가져옴
+                            # beta_1 = simplelinear.coef_ 
+
+                            equ = f"y = {beta_1}*x + {beta_0}"  # f-string 사용하여 가독성 향상
+                            # equ = 'y = ' + str(beta_1) + '*x +' + str(beta_0)
                             cr.RegressionEquation = equ
                         except Exception as e:
-                            pass
+                            print(f"단순 선형 회귀 오류 (X: {x}, Y: {y}): {e}")
                     cr.save()
 
             return items
@@ -1347,7 +1421,7 @@ def learning_data(context):
             '''
             import seaborn as sns
 
-            md_id = gparam.get('md_id')
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
             daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
@@ -1360,12 +1434,14 @@ def learning_data(context):
             #ax = fig.subplots()
 
             if len(x_vars) > 0 and len(y_vars) > 0:
+                # 지정된 x,y가 있을 때만 산점도 실행
                 pp = sns.pairplot(df, x_vars=x_vars, y_vars=y_vars, diag_kind='hist')
             else:
-                pp = sns.pairplot(df, diag_kind='hist') # 그래프가 별도 창에 표시된다.
+                return {'success':False, 'no_xy_message': True }
+                # pp = sns.pairplot(df, diag_kind='hist') # 그래프가 별도 창에 표시된다.
 
             scatter_url = daService.plt_url(pp)
-            return {'success':True, 'scatter_url': scatter_url} 
+            return {'success':True, 'chart_url': scatter_url } 
 
             import matplotlib.pyplot as plt
 

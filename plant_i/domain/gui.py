@@ -145,11 +145,22 @@ class GUIConfiguration():
 
         # I/F 이력조회, ERP, 생산설비측정데이터, QMS, VAN, 인사정보
         gui_dc['wm_if_sap'] = cls.gui_item('SAP', 'interface/if_sap.html')
-        gui_dc['wm_if_equ_result_data'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result_data.html')
+        gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
         gui_dc['wm_if_qms'] = cls.gui_item('QMS', 'interface/if_qms.html')
         gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')
 
-
+        # kendo ui 샘플화면
+        gui_dc['wm_sample_test'] = cls.gui_item('샘플화면(test)', 'sample_page/test.html')
+        gui_dc['wm_sample_treelist'] = cls.gui_item('샘플1_트리그리드', 'sample_page/tree_list.html')
+        gui_dc['wm_sample_form'] = cls.gui_item('샘플2_폼화면', 'sample_page/form.html')
+        gui_dc['wm_sample_chart'] = cls.gui_item('샘플3_차트', 'sample_page/chart.html')
+        gui_dc['wm_sample_popup'] = cls.gui_item('샘플4_팝업', 'sample_page/popup.html')
+        gui_dc['wm_sample_editor'] = cls.gui_item('샘플5_웹에디터', 'sample_page/editor.html')
+        gui_dc['wm_sample_spread_sheet'] = cls.gui_item('샘플6_스프레드시트', 'sample_page/spread_sheet.html')
+        gui_dc['wm_sample_upload'] = cls.gui_item('샘플7_파일업로드', 'sample_page/upload.html')
+        gui_dc['wm_sample_alert_noti'] = cls.gui_item('샘플8_알람_노티', 'sample_page/alert_notification.html')
+        gui_dc['wm_sample_export'] = cls.gui_item('샘플9_Export', 'sample_page/export.html')
+        gui_dc['wm_sample_design'] = cls.gui_item('샘플10_디자인', 'sample_page/design.html')
 
         return gui_dc
  

@@ -119,7 +119,7 @@ class PMWorker(models.Model):
         return
 
     class Meta():
-        db_table = 'pm_worker'
+        db_table = 'pm_labor'
         verbose_name = 'PM인력'
         db_table_comment = 'PM작업자 정보'
         index_together = [
@@ -153,7 +153,7 @@ class PMMaterial(models.Model):
         return
 
     class Meta():
-        db_table = 'pm_mat'
+        db_table = 'pm_mtrl'
         verbose_name = 'PM자재'
         db_table_comment = 'PM소요자재 정보'
         unique_together = [
@@ -470,7 +470,7 @@ class WorkOrder(models.Model):
     WorkFileGroupCode = models.CharField('첨부파일그룹코드', db_column='wo_file_grp_cd', max_length=50, null=True, db_comment='첨부파일 그룹코드')
     CheckResult = models.ForeignKey(CheckResult, verbose_name='점검결과', db_column='chk_result_pk', on_delete=models.DO_NOTHING, null=True, db_comment='점검결과 ID')
     site_id = models.IntegerField('사이트ID', db_column='site_id', null=True, db_comment='사이트 ID')
-    WorkOrderApproval = models.ForeignKey('WorkOrderApproval', db_column='work_order_approval_pk', on_delete=models.DO_NOTHING, db_comment='작업결재정보PK')
+    WorkOrderApproval = models.ForeignKey('WorkOrderApproval', db_column='work_order_approval_pk', on_delete=models.DO_NOTHING, db_comment='작업결재정보PK', null=True)
     
     # 새로운 필드 추가
     appr_line = models.CharField('결재라인', db_column='appr_line', max_length=50, null=True, default='', db_comment='결재라인')
@@ -567,20 +567,20 @@ class WorkOrderMaterial(models.Model):
     work_order = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시 PK')
     material = models.ForeignKey('Material', db_column='mtrl_pk', on_delete=models.DO_NOTHING, db_comment='자재 PK')
     unit_price = models.DecimalField('단가', db_column='unit_price', max_digits=9, decimal_places=0, db_comment='단가')
-    loc_cd = models.CharField('위치코드', db_column='loc_cd', max_length=30, null=True, db_comment='위치 코드')
-    own_dept_cd = models.CharField('소유부서코드', db_column='own_dept_cd', max_length=20, null=True, db_comment='소유 부서 코드')
-    ab_grade = models.CharField('등급', db_column='ab_grade', max_length=10, null=True, db_comment='A/B 등급')
-    plan_amt = models.SmallIntegerField('계획수량', db_column='plan_amt', null=True, db_comment='계획 수량')
-    a_amt = models.SmallIntegerField('A등급 사용량', db_column='a_amt', null=True, db_comment='A등급 사용량')
-    b_amt = models.SmallIntegerField('B등급 사용량', db_column='b_amt', null=True, db_comment='B등급 사용량')
+    loc_cd = models.CharField('위치코드', db_column='loc_cd', null=True,max_length=30, db_comment='위치 코드')
+    own_dept_cd = models.CharField('소유부서코드', null=True,db_column='own_dept_cd', max_length=20, db_comment='소유 부서 코드')
+    ab_grade = models.CharField('등급', db_column='ab_grade',null=True, max_length=10, db_comment='A/B 등급')
+    plan_amt = models.SmallIntegerField('계획수량', null=True,db_column='plan_amt', db_comment='계획 수량')
+    a_amt = models.SmallIntegerField('A등급 사용량', null=True,db_column='a_amt', db_comment='A등급 사용량')
+    b_amt = models.SmallIntegerField('B등급 사용량', null=True,db_column='b_amt', db_comment='B등급 사용량')
     
-    _status = models.CharField('_status', max_length=10, db_comment='데이터 상태')
+    _status = models.CharField('_status', max_length=10, null=True,db_comment='데이터 상태')
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성 일시')
-    _modified = models.DateTimeField('_modified', auto_now=True, db_comment='수정 일시')
-    _creater_id = models.IntegerField('_creater_id', db_comment='생성자 ID')
-    _modifier_id = models.IntegerField('_modifier_id', db_comment='수정자 ID')
-    _creater_nm = models.CharField('_creater_nm', max_length=50, db_comment='생성자 이름')
-    _modifier_nm = models.CharField('_modifier_nm', max_length=50, db_comment='수정자 이름')
+    _modified = models.DateTimeField('_modified', null=True,auto_now=True, db_comment='수정 일시')
+    _creater_id = models.IntegerField('_creater_id', null=True,db_comment='생성자 ID')
+    _modifier_id = models.IntegerField('_modifier_id', null=True,db_comment='수정자 ID')
+    _creater_nm = models.CharField('_creater_nm', null=True,max_length=50, db_comment='생성자 이름')
+    _modifier_nm = models.CharField('_modifier_nm', null=True, max_length=50, db_comment='수정자 이름')
     
     def set_audit(self, user):
         if self._creater_id is None:
@@ -620,13 +620,13 @@ class WorkOrderLabor(models.Model):
     '''
     id = models.AutoField(primary_key=True, db_comment='작업인력시PK')
     WorkOrder = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시PK')
-    Equipment = models.ForeignKey('Equipment', db_column='equip_pk', on_delete=models.DO_NOTHING, db_comment='작업PK')
-    JobClass = models.ForeignKey('JobClass', db_column='job_class_pk', on_delete=models.DO_NOTHING, db_comment='직종PK')
-    LaborPrice = models.BigIntegerField('노임단가', db_column='labor_price', db_comment='노임단가')
-    WorkerCount = models.IntegerField('인원수', db_column='worker_nos', default=1, db_comment='인원수')
-    WorkHour = models.DecimalField('예상시간', db_column='work_hr', max_digits=7, decimal_places=2, db_comment='예상시간')
-    RealWorkHour = models.DecimalField('실작업시간', db_column='real_work_hr', max_digits=7, decimal_places=2, db_comment='실작업시간')
-    LaborDescription = models.CharField('비고', db_column='labor_dsc', max_length=100, db_comment='비고')
+    Equipment = models.ForeignKey('Equipment', db_column='equip_pk', null=True,on_delete=models.DO_NOTHING, db_comment='작업PK')
+    JobClass = models.ForeignKey('JobClass', db_column='job_class_pk', null=True,on_delete=models.DO_NOTHING, db_comment='직종PK')
+    LaborPrice = models.BigIntegerField('노임단가', db_column='labor_price', null=True,db_comment='노임단가')
+    WorkerCount = models.IntegerField('인원수', db_column='worker_nos', default=1, null=True,db_comment='인원수')
+    WorkHour = models.DecimalField('예상시간', db_column='work_hr', max_digits=7, null=True,decimal_places=2, db_comment='예상시간')
+    RealWorkHour = models.DecimalField('실작업시간', db_column='real_work_hr', max_digits=7, null=True,decimal_places=2, db_comment='실작업시간')
+    LaborDescription = models.CharField('비고', db_column='labor_dsc', max_length=100, null=True,db_comment='비고')
 
     class Meta:
         db_table = 'wo_labor'

@@ -68,7 +68,16 @@
     <Compile Include="app\views\definition\bom.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
+    <Compile Include="app\views\interface\equ_result.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\interface\qms.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\interface\sap.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\interface\van.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\kmms\job_class.py">
@@ -205,23 +214,19 @@
     <Compile Include="domain\services\file\attach_file.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="domain\services\interface\sap.py" />
+    <Compile Include="domain\services\interface\van.py" />
     <Compile Include="domain\services\kmms\pi_master.py" />
     <Compile Include="domain\services\kmms\pm_master.py" />
     <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
     <Compile Include="domain\services\mqtt.py" />
-    <Compile Include="domain\services\sap\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="domain\services\setup\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\services\sql.py" />
     <Compile Include="domain\services\system.py" />
     <Compile Include="domain\services\system_definition\tag_data.py" />
-    <Compile Include="domain\services\van\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="domain\services\__init__.py" />
     <Compile Include="domain\__init__.py" />
     <Compile Include="manage.py" />
@@ -319,8 +324,7 @@
     <Folder Include="domain\services\ai\" />
     <Folder Include="domain\services\kmms\" />
     <Folder Include="domain\services\aas\" />
-    <Folder Include="domain\services\sap\" />
-    <Folder Include="domain\services\van\" />
+    <Folder Include="domain\services\interface\" />
     <Folder Include="domain\services\system_definition\" />
     <Folder Include="domain\_sql\" />
     <Folder Include="domain\services\" />
@@ -925,7 +929,7 @@
     <Content Include="app\templates\definition\equip_obsolete.html" />
     <Content Include="app\templates\definition\model_change.html" />
     <Content Include="app\templates\definition\line_inactive.html" />
-    <Content Include="app\templates\interface\if_equ_result_data.html">
+    <Content Include="app\templates\interface\if_equ_result.html">
       <SubType>Code</SubType>
     </Content>
     <Content Include="app\templates\interface\if_van.html" />
@@ -943,9 +947,11 @@
     <Content Include="app\templates\popup\modalEqu.html" />
     <Content Include="app\templates\popup\modalEquDeptHist.html" />
     <Content Include="app\templates\popup\modalOccupations.html" />
+    <Content Include="app\templates\popup\modalEquipMaster.html" />
     <Content Include="app\templates\popup\modalPmMaster.html" />
     <Content Include="app\templates\popup\modalEquLocHist.html" />
     <Content Include="app\templates\popup\modalEquLoc.html" />
+    <Content Include="app\templates\sample_page\design.html" />
     <Content Include="app\templates\system_code\code.html" />
     <Content Include="app\templates\system_code\store_location.html" />
     <Content Include="app\templates\system_code\material_type.html" />
@@ -1049,7 +1055,15 @@
     <Content Include="domain\_sql\function\fn_insert_debug_log.txt" />
     <Content Include="domain\_sql\function\fn_lang_text.txt" />
     <Content Include="domain\_sql\function\fn_make_schedule_pm.txt" />
+    <Content Include="domain\_sql\function\fn_user_nm.txt" />
+    <Content Include="domain\_sql\if\sap_bom.json" />
     <Content Include="domain\_sql\if\sap_mat.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\if\sap_pcb_random_number.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\if\sap_stock.json">
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\if\test.json">

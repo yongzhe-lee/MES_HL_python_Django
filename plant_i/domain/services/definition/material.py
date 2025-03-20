@@ -22,15 +22,17 @@ class MaterialService():
                 , m."Standard" AS standard
                 , m."ItemGroup" AS item_group
                 , m."ItemType" AS item_type
+                , c."Name" AS item_type_nm
                 , m."BasicUnit" AS basic_unit
                 , m."CycleTime" AS cycle_time
                 , m."in_price" AS in_price
                 , m."out_price" AS out_price
-                , m.supplier_pk
-            FROM
-                material m
-            INNER JOIN
-                factory f on m."Factory_id" = f.id
+                , m.supplier_pk as supplier
+                , co."Name" as supplier_nm
+            FROM material m
+                INNER JOIN factory f on m."Factory_id" = f.id
+                left join code c on UPPER(c."CodeGroupCode") = 'MTRL_TYPE' and m."ItemType" = c."Code"
+                left join company co on m.supplier_pk = co.id
             WHERE 1=1
         '''
         

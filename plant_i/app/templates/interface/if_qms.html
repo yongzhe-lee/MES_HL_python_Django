@@ -1,1 +1,367 @@
+{% extends "app/layout.html" %}
 
+{% block css %}
+<style>
+    .k-daterange-picker .k-dateinput, .k-daterangepicker .k-dateinput {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-8 col-md-7 col-lg-5 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="변경일">변경일</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="QMS부적합내역">QMS부적합내역</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <!--<button id="btnReturn">반려</button>
+                        <button id="btnReSample">재샘플</button>
+                        <button id="btnEditSample"><i class="material-symbols-outlined">edit</i>샘플수정</button>
+                        <button id="btnHistory">이력조회</button>
+                        <button id="btnFile">파일조회</button>
+                        <button id="btnApproval">승인</button>-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="qms_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <!--<i class="material-symbols-outlined">list_alt</i> 적합한 icon 찾아야 할듯 -->
+                        
+                        <label data-labelCd="QMS부적합상세">QMS부적합상세</label>
+                    </span>
+                </div>
+                <form id="detailForm">
+                    <input type="hidden" id="id" name="id" />
+                    <div class="edit-form-ui">
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="o_date" data-labelCd="발생일">발생일</label>
+                                <div class="field-wrapper">
+                                    <input id="o_date" name="o_date" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="w_shift" data-labelCd="근무조">근무조</label>
+                                <div class="field-wrapper">
+                                    <input id="w_shift" name="w_shift" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="step_class" data-labelCd="단계">단계</label>
+                                <div class="field-wrapper">
+                                    <input id="step_class" name="step_class" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="line_cd" data-labelCd="라인코드">라인코드</label>
+                                <div class="field-wrapper">
+                                    <input id="line_cd" name="line_cd" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="mat_cd" data-labelCd="품목코드">품목코드</label>
+                                <div class="field-wrapper">
+                                    <input id="mat_cd" name="mat_cd" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="serial_no" data-labelCd="시리얼번호">시리얼번호</label>
+                                <div class="field-wrapper">
+                                    <input id="serial_no" name="serial_no" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="de_proc_cd" data-labelCd="검출공정">검출공정</label>
+                                <div class="field-wrapper">
+                                    <input id="de_proc_cd" name="de_proc_cd" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="de_proc_cd" data-labelCd="발생공정">발생공정</label>
+                                <div class="field-wrapper">
+                                    <input id="oc_proc_cd" name="de_proc_cd" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="imput_cate" data-labelCd="귀책구분">귀책구분</label>
+                                <div class="field-wrapper">
+                                    <input id="imput_cate" name="imput_cate" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="defect_qty" data-labelCd="불량수량">불량수량</label>
+                                <div class="field-wrapper">
+                                    <input id="defect_qty" name="defect_qty" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="defect_type1" data-labelCd="불량유형1">불량유형1</label>
+                                <div class="field-wrapper">
+                                    <input id="defect_type1" name="defect_type1" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="defect_type2" data-labelCd="불량유형1">불량유형2</label>
+                                <div class="field-wrapper">
+                                    <input id="defect_type2" name="defect_type2" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="worker_name" data-labelCd="생산라인작업자">생산라인작업자</label>
+                                <div class="field-wrapper">
+                                    <input id="worker_name" name="worker_name" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remark" data-labelCd="내용">내용</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="remark" name="remark"  class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="init_result" data-labelCd="초기분석결과">초기분석결과</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="init_result" name="init_result"  class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="complete_date" data-labelCd="완료일자">완료일자</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="complete_date" name="complete_date" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="final_remark" data-labelCd="최종결론내용">최종결론내용</label>
+                                <div class="field-wrapper">
+                                    <textarea id="final_remark" name="final_remark" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class IFInterfaceQMSPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/interface/qms';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "o_date", title: "발생일자", width: 100 },
+                    { field: "w_shift", title: "근무조", width: 100 },
+                    { field: "step_class", title: "단계", width: 100 },
+                    { field: "line_cd", title: "라인", width: 100 },
+                    { field: "mat_cd", title: "품목코드", width: 100 },
+                    { field: "serial_no", title: "시리얼번호", width: 100 },
+                    { field: "de_proc_cd", title: "검출공정", width: 100 },
+                    { field: "oc_proc_cd", title: "발생공정", width: 100 },
+                    { field: "imput_cate", title: "귀책구분", width: 100 },
+                    { field: "defect_qty", title: "불량수량", width: 100 },
+                    { field: "defect_type1", title: "불량유형1", width: 100 },
+                    { field: "defect_type2", title: "불량유형2", width: 100 },
+                    { field: "worker_name", title: "생산작업자", width: 100 },
+                    { field: "init_result", title: "초기결과", width: 100 },
+                    { field: "complete_date", title: "완료일자", width: 100 },
+                    { field: "final_result", title: "최종결론", width: 100 },
+                    { field: "final_remark", title: "최종결론내용", width: 100 },
+                    { field: "created", title: "생성일", width: 180 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: 680
+            };
+            _this.grid = new Grid($("#qms_grid"), gridOption);
+
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: '2025-01-01',
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_date",
+                endField: "end_date"
+            });
+
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            // combo.py에서 정의해서 사용. value = Type, text = Type
+            // AjaxUtil.fillDropDownOptions --> 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.exportExcel();
+                }
+            });
+
+        }
+
+
+        searchMainData() {
+
+            let _this = this;
+            const startDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().start);
+            const endDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().end);
+
+            // 9시간 추가(date객체가 UTC 기준이라 서버로 넘어갈 때 9시간 빠져서 넘어감)
+            startDate.setHours(startDate.getHours() + 9);
+            endDate.setHours(endDate.getHours() + 9);
+
+            $('#detailForm')[0].reset();
+
+            let param = {
+                action: 'read',
+                // 날짜를 YYYY-MM-DD 형태로 변환 & 시간 제외해서 넘기기
+                start: startDate.toISOString().split("T")[0],
+                end: endDate.toISOString().split("T")[0],
+            };
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.items);
+                }
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            console.log(data)
+
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+            }
+        }
+
+    };
+
+    let page = new IFInterfaceQMSPage();
+
+    $(document).ready(function () { 
+    });
+
+</script>
+
+{% endblock %}

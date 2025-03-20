@@ -478,225 +478,8 @@ class IFQmsDefect(models.Model):
         ]
 
 
-class IFVanLotHostory(models.Model):
-    '''
-    VAN 입고식별번호	van_pk
-    구매오더	po_number
-    SAP자재전표(입고번호)	sap_recv_num
-    검사유무	test_type
-    판정결과	judg_result
-    품목코드	mat_cd
-    품목내역	mat_detail
-    저장위치	loc_cd
-    공급업체코드	supp_cd
-    공급업체명	supp_nm
-    단위	unit
-    입고수량	input_qty
-    LOT No	lot_no
-    입고일자	recv_date
-    입고시간	recv_time
-    검사판정일자	ju_date
-    검사판정시간	ju_time
-    '''
-    id = models.BigAutoField(primary_key=True)
-    van_pk = models.CharField('VAN 입고식별번호', max_length=20)
-    po_number = models.CharField('구매오더', max_length=20)
-    sap_recv_num = models.CharField('SAP자재전표(입고번호)', max_length=20)
-    test_type = models.CharField('검사유무', max_length=20)
-    judg_result = models.CharField('판정결과', max_length=20)
-    mat_cd = models.CharField('품목코드', max_length=20)
-    mat_detail = models.CharField('품목내역', max_length=200)
-    sap_loc_cd = models.CharField('저장위치', max_length=20)
-    supp_cd = models.CharField('공급업체코드', max_length=20)
-    supp_nm = models.CharField('공급업체명', max_length=200)
-    unit = models.CharField('단위', max_length=20)
-    input_qty = models.DecimalField('입고수량', max_digits=13, decimal_places=3)
-    lot_no = models.CharField('LOT No', max_length=20)
-    recv_date = models.DateField('입고일자')
-    recv_time = models.TimeField('입고시간')
-    ju_date = models.DateField('검사판정일자')
-    ju_time = models.TimeField('검사판정시간')
-    
-
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
-    class Meta():
-        db_table = 'if_van_lot_history'
-        verbose_name = 'VAN 입고별 LOT발행이력'
-        unique_together = [
-        ]
-
-'''
-class IFVanReceivingInspectionResult(models.Model):
-
-
-    id = models.BigAutoField(primary_key=True)
-    van_pk = models.CharField('van 검사고유식별번호', max_length=20)
-    status = models.CharField('데이터 상태', max_length=20)
-    is_pass = models.CharField('합격', max_length=20)
-    is_defect = models.CharField('불량', max_length=20)
-    is_4m = models.CharField('4M', max_length=20)
-    is_dev = models.CharField('DEV', max_length=20)
-    prod_grp = models.CharField('제품그룹', max_length=20)
-    mat_cd = models.CharField('품목코드', max_length=20)
-    mat_detail = models.CharField('품목내역', max_length=200)
-    factory = models.CharField('공장', max_length=20)
-    lot_no = models.CharField('LOT no', max_length=20)
-    lot_size = models.CharField('LOT size', max_length=20)
-    incom_test_cd = models.CharField('수입검사코드', max_length=20)
-    test_qty = models.DecimalField('검사수량', max_digits=13, decimal_places=3)
-    input_qty = models.DecimalField('입고수량', max_digits=13, decimal_places=3)
-    input_status = models.CharField('입고여부', max_length=20)
-    stage = models.CharField('주기단계', max_length=20)
-
-
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
-    class Meta():
-        db_table = 'if_recv_inst_result'
-        verbose_name = 'VAN PCB 수입검사결과 인터페이스'
-        unique_together = [
-        ]
-'''
 
 class IFVanInterface(models.Model):
-
-    '''
-    인터페이스 결과가 성적서와 항목 전체를 포함하고 있을것이라 추측함
-    결과확인후에 테이블 컬럼 정리 필요
-
-    성적서번호	REPORT_NUMBER
-    거래명세서번호	INV_NUMBER
-    거래명세서아이템항번	INV_SEQ
-    SAP입고번호	SAP_GR_NUMBER
-    SAP입고아이템항번	SAP_GR_SEQ
-    금형차수	MOLD
-    자재코드	MATERIAL_NUMBER
-    자재명	MATERIAL_NAME
-    업체코드	VENDOR_CODE
-    업체명	VENDOR_NAME
-    자재리비전	MATERIAL_REVISION
-    ECN No	ECN_NO
-    검사일자	CHECK_DATE
-    검사자	CHECk_USER_NAME
-    LOT No	LOT_NO
-    LOT SIZE	LOT_SIZE
-    DEV NO	DIVISION_NO
-    4M NO	FM_NO
-    입고일자	GR_DATE
-    판정일자	CONFIRM_DATE
-    판정결과	RESULT_VALUE
-    비고	REMARK
-    AQL외관검사 샘플링수	AQL_SAMPLE_COUNT
-    불량률 기준	DEFECT_RATE
-    AC합격판정개수	PASSING_COUNT
-    Re불량판정개수	DEFECT_COUNT
-    AQL치수검사수량	SAMPLE_CHECK_COUNT
-    순번	SEQ
-    검사항목	INS_TEXT
-    검사항번	SPEC_SEQ
-    규격	SPECIFICATION
-    상한가	UPPER_LIMIT
-    하한가	LOWER_LIMIT
-    단위	UNIT
-    계측기코드	MACHINE_TYPE
-    계측기명	MACHINE_TYPE_TEXT
-    X1	X1
-    X2	X2
-    X3	X3
-    X4	X4
-    X5	X5
-    X6	X6
-    X7	X7
-    X8	X8
-    X9	X9
-    X10	X10
-    X_A	X_AVG
-    R	R_VAL
-    합/부	PASS_FAIL
-    입력코드	INPUT_VALUE
-    입력명	INPUT_VALUE_TEXT
-    상한처리여부	UPPER_LIMIT_CHECK
-    하한처리여부	LOWER_LIMIT_CHECK
-
-          "VENDOR_NAME": "(주)신흥오토모티브",
-            "DEFECT_RATE": "0.01",
-            "REPORT_NUMBER": "IR23090800025",
-            "LOWER_LIMIT": null,
-            "MATERIAL_REVISION": "AD",
-            "MATERIAL_NUMBER": "F00.014-007",
-            "VENDOR_CODE": "48301660",
-            "CHECK_USER_NAME": "TEST2",
-            "INS_TEXT": "Appearance",
-            "GR_DATE": "20230908",
-            "UNIT": null,
-            "R_VAL": null,
-            "SAP_GR_NUMBER": "5000822215",
-            "MACHINE_TYPE": "370",
-            "PASSING_COUNT": "0",
-            "LOWER_LIMIT_CHECK": "0",
-            "CONFIRM_DATE": "20230908",
-            "AQL_SAMPLE_COUNT": 8,
-            "SPEC_SEQ": "1",
-            "INV_NUMBER": "IV2309000009",
-            "INPUT_VALUE": "20",
-            "UPPER_LIMIT": null,
-            "MOLD": "-",
-            "LOT_NO": "2308",
-            "SEQ": 1,
-            "PASS_FAIL": null,
-            "RESULT_VALUE": "N",
-            "FM_NO": null,
-            "SPECIFICATION": "공정 누락 없을 것",
-            "X_AVG": null,
-            "LOT_SIZE": 100,
-            "UPPER_LIMIT_CHECK": "0",
-            "X1": "OK",
-            "MACHINE_TYPE_TEXT": "육안",
-            "X2": "OK",
-            "X3": "OK",
-            "MATERIAL_NAME": "Bracket Ass'y_LRR-25(R1T/S)_.",
-            "X4": "OK",
-            "SAP_GR_SEQ": "0001",
-            "REMARK": "TEST3",
-            "X5": "OK",
-            "X6": null,
-            "X7": null,
-            "X8": null,
-            "X9": null,
-            "ECN_NO": "187258",
-            "DEVISION_NO": null,
-            "CHECK_DATE": "20230908",
-            "DEFECT_COUNT": "1",
-            "INPUT_VALUE_TEXT": "Ok/Fail",
-            "X10": null,
-            "INV_SEQ": "00001",
-            "SAMPLE_CHECK_COUNT": 3
-
-
-    '''
 
     id = models.BigAutoField(primary_key=True)
     #헤더시작
@@ -722,18 +505,25 @@ class IFVanInterface(models.Model):
     confirm_date = models.CharField("판정일자", max_length=8, null=True )
     result_value = models.CharField("판정결과", max_length=20, null=True )
     remark = models.CharField("remark", max_length=1000, null=True )
-    aql_sample_count = models.DecimalField("AQL 외관검사샘플링수", null=True, max_digits=18, decimal_places=0)
-    defect_rate = models.DecimalField("불량률기준", max_digits=18, decimal_places=2, null=True)
-    passing_count = models.DecimalField("AC합격판정개수", null=True, max_digits=18, decimal_places=0)
-    defect_count =  models.DecimalField("RE불량판정개수", null=True, max_digits=18, decimal_places=0)
-    sample_check_count=  models.DecimalField("AQL치수검사수량", null=True, max_digits=18, decimal_places=0)
+    aql_sample_count = models.DecimalField("AQL 외관검사샘플링수", null=True, max_digits=18, decimal_places=0, blank=True)
+    defect_rate = models.CharField("불량률기준", max_length=50, null=True )
+    passing_count= models.CharField("AC합격판정개수", max_length=50, null=True )
+    defect_count = models.CharField("RE불량판정개수", max_length=50, null=True )
+    #defect_rate = models.DecimalField("불량률기준", max_digits=18, decimal_places=2, null=True, blank=True)
+    #passing_count = models.DecimalField("AC합격판정개수", null=True, max_digits=18, decimal_places=0, blank=True)
+    #defect_count =  models.DecimalField("RE불량판정개수", null=True, max_digits=18, decimal_places=0, blank=True)
+    sample_check_count=  models.DecimalField("AQL치수검사수량", null=True, max_digits=18, decimal_places=0, blank=True)
+
     # 아이템 시작
-    seq =  models.IntegerField("seq", null=True)
+    seq =  models.IntegerField("seq", null=True, blank=True)
     ins_text = models.CharField("ins_text", max_length=100, null=True )
     spec_seq =  models.CharField("specification", max_length=7, null=True )
     specification  = models.CharField("specification", max_length=500, null=True )
-    upper_limit = models.DecimalField("upper_limit", max_digits=18, decimal_places=5, null=True)
-    lower_limit = models.DecimalField("lower_limit", max_digits=18, decimal_places=5, null=True)
+    #upper_limit = models.DecimalField("upper_limit", max_digits=18, decimal_places=5, null=True, blank=True)
+    #lower_limit = models.DecimalField("lower_limit", max_digits=18, decimal_places=5, null=True, blank=True)
+    upper_limit = models.CharField("upper_limit", max_length=20, null=True )
+    lower_limit = models.CharField("lower_limit", max_length=20, null=True )
+
     unit = models.CharField("unit", max_length=20, null=True )
     machine_type = models.CharField("machine_type", max_length=20, null=True )
     machine_type_text = models.CharField("machine_type_text", max_length=100, null=True )
@@ -776,6 +566,118 @@ class IFVanInterface(models.Model):
         unique_together = [
         ]
 
+
+
+class VanReport(models.Model):
+    
+    id = models.BigAutoField(primary_key=True)
+    #헤더시작
+    report_number = models.CharField("성적서번호", max_length=20, null=True )
+    inv_number = models.CharField("거래명세서번호", max_length=20, null=True )
+    inv_seq = models.CharField("거래명세서아이템항번", max_length=6, null=True )
+    sap_gr_number = models.CharField("SAP입고번호", max_length=20, null=True )
+    sap_gr_seq = models.CharField("sap_gr_seq", max_length=10, null=True )
+    mold = models.CharField("금형차수", max_length=1, null=True )
+    material_number = models.CharField("자재코드", max_length=50, null=True )
+    material_name = models.CharField("자재명", max_length=500, null=True )
+    vendor_code = models.CharField("업체코드", max_length=20, null=True )
+    vendor_name = models.CharField("업체명", max_length=500, null=True )
+    material_revision = models.CharField("자재리비전", max_length=10, null=True )
+    ecn_no = models.CharField("ecn_no", max_length=20, null=True )
+    check_date = models.CharField("검사일자", max_length=8, null=True )
+    check_user_name = models.CharField("검사자", max_length=50, null=True )
+    lot_no = models.CharField("lot_no", max_length=10, null=True )
+    lot_size  = models.CharField("lot_size", max_length=18, null=True )
+    devision_no = models.CharField("devision_no", max_length=50, null=True )
+    fm_no = models.CharField("4M no", max_length=100, null=True )
+    gr_date = models.CharField("입고일자", max_length=8, null=True )
+    confirm_date = models.CharField("판정일자", max_length=8, null=True )
+    result_value = models.CharField("판정결과", max_length=20, null=True )
+    remark = models.CharField("remark", max_length=1000, null=True )
+    aql_sample_count = models.DecimalField("AQL 외관검사샘플링수", null=True, max_digits=18, decimal_places=0, blank=True)
+
+    defect_rate = models.CharField("defect_rate", max_length=50, null=True )
+    passing_count= models.CharField("passing_count", max_length=50, null=True )
+    defect_count = models.CharField("defect_count", max_length=50, null=True )
+    #defect_rate = models.DecimalField("불량률기준", max_digits=18, decimal_places=2, null=True, blank=True)
+    #passing_count = models.DecimalField("AC합격판정개수", null=True, max_digits=18, decimal_places=0, blank=True)
+    #defect_count =  models.DecimalField("RE불량판정개수", null=True, max_digits=18, decimal_places=0, blank=True)
+    sample_check_count=  models.DecimalField("AQL치수검사수량", null=True, max_digits=18, decimal_places=0, blank=True)
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
+    class Meta():
+        db_table = 'van_report'
+        verbose_name = 'VAN PCB 성적서'
+        unique_together = [
+        ]
+
+class VanItemResult(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    VanReport = models.ForeignKey(VanReport, db_column='report_id', on_delete=models.DO_NOTHING, db_comment="VAN성적서id")
+    seq =  models.IntegerField("seq", null=True, blank=True)
+    ins_text = models.CharField("ins_text", max_length=100, null=True )
+    spec_seq =  models.CharField("specification", max_length=7, null=True )
+    specification  = models.CharField("specification", max_length=500, null=True )
+    #upper_limit = models.DecimalField("upper_limit", max_digits=18, decimal_places=5, null=True, blank=True)
+    #lower_limit = models.DecimalField("lower_limit", max_digits=18, decimal_places=5, null=True, blank=True)
+    upper_limit = models.CharField("upper_limit", max_length=20, null=True )
+    lower_limit = models.CharField("lower_limit", max_length=20, null=True )
+
+    unit = models.CharField("unit", max_length=20, null=True )
+    machine_type = models.CharField("machine_type", max_length=20, null=True )
+    machine_type_text = models.CharField("machine_type_text", max_length=100, null=True )
+
+    x1 = models.CharField("x1", max_length=20, null=True)
+    x2 = models.CharField("x2", max_length=20, null=True)
+    x3 = models.CharField("x3", max_length=20, null=True)
+    x4 = models.CharField("x4", max_length=20, null=True)
+    x5 = models.CharField("x5", max_length=20, null=True)
+    x6 = models.CharField("x6", max_length=20, null=True)
+    x7 = models.CharField("x7", max_length=20, null=True)
+    x8 = models.CharField("x8", max_length=20, null=True)
+    x9 = models.CharField("x9", max_length=20, null=True)
+    x10 = models.CharField("x10", max_length=20, null=True)
+
+    x_avg  = models.CharField("x_avg", max_length=20, null=True )
+    r_val = models.CharField("r_val", max_length=20, null=True )
+    pass_fail = models.CharField("pass_fail", max_length=20, null=True )
+    input_value= models.CharField("input_value", max_length=4, null=True )
+    input_value_text = models.CharField("input_value_text", max_length=100, null=True )
+    upper_limit_check = models.CharField("upper_limit_check", max_length=5, null=True )
+    lower_limit_check = models.CharField("lower_limit_check", max_length=5, null=True )  
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
+    class Meta():
+        db_table = 'van_item_result'
+        verbose_name = 'VAN PCB 성적서항목결과'
+        unique_together = [
+        ]
 
 
 

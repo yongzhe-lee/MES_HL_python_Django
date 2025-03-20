@@ -106,7 +106,17 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="item_type" data-labelCd="자재유형">자재유형</label>
                                 <div class="field-wrapper">
-                                    <input id="item_type" name="item_type" />
+                                    <select id="item_type" name="item_type">
+                                    </select>                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="supplier" data-labelCd="공급업체">공급업체</label>
+                                <div class="field-wrapper">
+                                    <select id="supplier" name="supplier">
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -176,7 +186,8 @@
                     { field: "material_code", title: "품목코드", width: 100 },
                     { field: "standard", title: "규격", width: 100 },
                     { field: "item_group", title: "자재그룹", width: 100 },
-                    { field: "item_type", title: "자재유형", width: 100 },
+					{ field: "item_type_nm", title: "자재유형", width: 100 },
+					{ field: "supplier_nm", title: "공급업체", width: 100 },
                     { field: "basic_unit", title: "기본단위", width: 100 },
                     { field: "cycle_time", title: "c/t", width: 100 },
                     { field: "in_price", title: "입고금액", width: 100, format: "{0:c}",type: "number" },
@@ -218,6 +229,8 @@
             $('#item_group').kendoTextBox();
             
             AjaxUtil.fillDropDownOptions($('#item_type'), 'user_code', 'choose', null, 'MTRL_TYPE');
+			AjaxUtil.fillDropDownOptions($('#supplier'), 'company', 'choose', null);
+
             $('#basic_unit').kendoTextBox();
             $('#cycle_time').kendoNumericTextBox({
                 //format: 'n0'
@@ -286,7 +299,7 @@
             FormUtil.resetForm($('#materialForm'));
         }
 
-        showDetail() {
+        showDetail() {            
             let _this = this;
             let data = _this.grid.getSelect();
             if (data.length > 0) {

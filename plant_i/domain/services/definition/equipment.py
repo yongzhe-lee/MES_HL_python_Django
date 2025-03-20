@@ -248,11 +248,18 @@ class EquipmentService():
             , e."loc_pk"
             , loc."loc_nm"
             , e."Depart_id"
+            , d."Name" as dept_nm
             , e."EquipmentGroup_id"
             , eg."Name" as group_name
             , to_char(e._created ,'yyyy-mm-dd hh24:mi') as _created 
+            , e.asset_nos
+            , e.up_equip_pk
+            , e.ccenter_cd          
+            , e."warranty_dt"
+            , e."Usage"
          from equ e
-            left join equ_grp eg on e."EquipmentGroup_id" =eg.id         
+            inner join dept d on d.id = e."Depart_id" 
+            left join equ_grp eg on e."EquipmentGroup_id" =eg.id 
             left join "location" loc on e.loc_pk = loc.id
             left join "code" c on c."Code" = e."Status" and c."CodeGroupCode" = 'EQU_STATUS'
             left join "code" c2 on c2."Code" = e."import_rank" and c2."CodeGroupCode" = 'IMPORT_RANK'

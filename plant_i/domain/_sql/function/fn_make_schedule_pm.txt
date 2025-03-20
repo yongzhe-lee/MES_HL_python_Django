@@ -205,13 +205,13 @@ raise notice '==insert work_order==';
 				-- 작업인력
 				insert into wo_labor(work_order_pk, job_class_pk, work_hr)
 				select v_work_order_pk, t1.job_class_pk, t1.work_hr
-				from pm_worker t1
+				from pm_labor t1
 				where t1.pm_pk = p_pm_pk;
-raise notice '==insert into pm_worker:';
+raise notice '==insert into pm_labor:';
 				-- 작업자재
 				insert into wo_mtrl(work_order_pk, mtrl_pk, plan_amt, unit_price, _created)
-				select  v_work_order_pk, t.id as mtrl_pk, t.amt, m.in_price, now()
-				from pm_mat t
+				select  v_work_order_pk, t.id as mtrl_pk, t.amt, COALESCE(m.in_price, 0), now()
+				from pm_mtrl t
 				inner join material m on t.mat_pk = m.id
 				where t.pm_pk = p_pm_pk
 				;
@@ -247,8 +247,8 @@ raise notice '==end===';
 EXCEPTION  
   WHEN OTHERS THEN 
   BEGIN 
-	insert into error_log(error_log_type, error_log_title, error_log_desc)
-	values('FUNCTION', 'make_schedule_pm', concat('[sche_type] ',  p_sche_type, ' [p_pm_pk] ',  cast(p_pm_pk as text), ' [MESSAGE] : ', SQLERRM));
+	insert into error_log(error_log_type, error_log_title, error_log_desc, insert_ts)
+	values('FUNCTION', 'make_schedule_pm', concat('[sche_type] ',  p_sche_type, ' [p_pm_pk] ',  cast(p_pm_pk as text), ' [MESSAGE] : ', SQLERRM), now());
 	RETURN null;
   END;
   

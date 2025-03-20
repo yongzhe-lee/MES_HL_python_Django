@@ -1,1 +1,258 @@
+{% extends "app/layout.html" %}
 
+{% block css %}
+<style>
+    .k-daterange-picker .k-dateinput, .k-daterangepicker .k-dateinput {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtPCBRanNumber" data-labelCd="PCB난수번호">PCB난수번호</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtPCBRanNumber" name="pcb_ran_num" value="" placeholder="pcb 난수번호" />
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtSAPInputNumber" data-labelCd="입고번호">입고번호</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtSAPInputNumber" name="sap_input_number" value="" placeholder="SAP입고번호" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 col-lg-2 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button type="button" id="btnSearch" class="btn-search">조회</button>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="VAN성적서 및 검사결과">VAN성적서목록</label></span>
+                    <span></span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <!--<button id="btnReturn">반려</button>
+                    <button id="btnReSample">재샘플</button>
+                    <button id="btnEditSample"><i class="material-symbols-outlined">edit</i>샘플수정</button>
+                    <button id="btnHistory">이력조회</button>
+                    <button id="btnFile">파일조회</button>
+                    <button id="btnApproval">승인</button>-->
+                        <button type="button" id="btnSAPRandomNumber" class="btn-search"> SAP, VAN 조회</button>
+                        <button id="btnReportExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="report_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="검사결과">검사결과</label></span>
+                    <span></span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <!--<button id="btnReturn">반려</button>
+                    <button id="btnReSample">재샘플</button>
+                    <button id="btnEditSample"><i class="material-symbols-outlined">edit</i>샘플수정</button>
+                    <button id="btnHistory">이력조회</button>
+                    <button id="btnFile">파일조회</button>
+                    <button id="btnApproval">승인</button>-->
+
+
+                    </span>
+                </div>
+                <div id="item_result_grid"></div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class IFVanInterfacePage {
+        constructor() {
+            this.report_grid = null;
+            this.item_result_grid = null;
+            this.baseUrl = '/api/interface/van';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: false,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+
+                //id, report_number, inv_number, inv_seq, sap_gr_number, sap_gr_seq , mold, material_number, material_name, vendor_code, vendor_name,  material_revision, ecn_no, check_date, check_user_name
+                //, lot_no, lot_size, devision_no, fm_no, gr_date, confirm_date, result_value, remark, aql_sample_count, defect_rate, passing_count, defect_count, sample_check_count
+                //, "_status", "_created", "_modified", "_creater_id", "_modifier_id"
+
+                columns: [
+                    { field: "sap_gr_number", title: "SAP입고번호", width: 80 },
+                    { field: "report_number", title: "성적서번호", width: 80 },
+                    { field: "inv_number", title: "거래명세서번호", width: 90 },
+                    { field: "inv_seq", title: "아이템번호", width: 80 },
+                    { field: "material_number", title: "품목코드", width: 100 },
+                    { field: "material_name", title: "품목명", width: 200 },
+                    { field: "material_revision", title: "리비전번호", width: 80 },
+                    
+                    { field: "vendor_code", title: "업체코드", width: 80 },
+                    { field: "vendor_name", title: "업체명", width: 200 },
+
+                    { field: "confirm_date", title: "판정일자", width: 80 },
+                    { field: "result_value", title: "판정결과", width: 80 },
+
+                    { field: "created", title: "생성일", width: 100 },
+                ],
+                height: 300
+            };
+            this.report_grid = new Grid($("#report_grid"), gridOption);
+
+
+            $('#txtPCBRanNumber').kendoTextBox();
+            $('#txtSAPInputNumber').kendoTextBox();
+
+            $('#btnSAPRandomNumber').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchSAPRandomNumber();
+                }
+            });
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnReportExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.exportExcel();
+                }
+            });
+
+            this.initItemResult();
+        }
+
+        initItemResult() {
+
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+
+                //vir.id, vir.report_id
+                //, vir.seq, vir.spec_seq, vir.specification, vir.unit, vir.upper_limit, vir.upper_limit_check
+                //, vir.x1, vir.x10, vir.x2, vir.x3, vir.x4, vir.x5, vir.x6, vir.x7, vir.x8, vir.x9, vir.x_avg
+                //, to_char(vir._created, 'yyyy-mm-dd hh24:mi:ss') as created
+                //, vir."_status", vir."_created", vir."_modified", vir."_creater_id", vir."_modifier_id"
+
+                columns: [
+                    { field: "seq", title: "순번", width: 80 },
+                    { field: "spec_seq", title: "검사항번", width: 100 },
+                    { field: "ins_text", title: "검사항목", width: 200 },
+                    { field: "specification", title: "규격", width: 200 },
+                    { field: "unit", title: "단위", width: 100 },
+                    { field: "upper_limit", title: "상한", width: 100 },
+                    { field: "lower_limit", title: "하한", width: 100 },
+                    { field: "upper_limit_check", title: "상한처리여부", width: 100 },
+                    { field: "lower_limit_check", title: "하한처리여부", width: 100 },
+                    { field: "pass_fail", title: "합/부", width: 100 },
+                    { field: "input_value", title: "입력값", width: 100 },
+                    { field: "input_value_text", title: "입력명", width: 100 },
+                    { field: "x1", title: "X1", width: 80 },
+                    { field: "x2", title: "X2", width: 80 },
+                    { field: "x3", title: "X3", width: 80 },
+                    { field: "x4", title: "X4", width: 80 },
+                    { field: "x5", title: "X5", width: 80 },
+                    { field: "x6", title: "X6", width: 80 },
+                    { field: "x7", title: "X7", width: 80 },
+                    { field: "x8", title: "X8", width: 80 },
+                    { field: "x9", title: "X9", width: 80 },
+                    { field: "x10", title: "X10", width: 80 },
+                    { field: "x_avg", title: "X avg", width: 100 },
+                    { field: "r_val", title: "R val", width: 100 },
+                    { field: "created", title: "생성일", width: 200 },
+                ],
+                height: 380
+            };
+            this.item_result_grid = new Grid($("#item_result_grid"), gridOption);
+
+        }
+
+        searchSAPRandomNumber() {
+
+        }
+        searchMainData() {
+            let _this = this;
+            let param = {
+                action: 'read',
+            };
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.report_grid.setData(result.reports);
+                    _this.item_result_grid.setData(result.items);
+                }
+            };
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+
+
+    };
+
+    let page = new IFVanInterfacePage();
+
+    $(document).ready(function () {
+
+    });
+
+</script>
+
+{% endblock %}

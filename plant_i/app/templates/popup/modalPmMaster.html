@@ -139,7 +139,7 @@
 						</div>
 					</form>
 					<!-- 작업 인력/자재 탭 컨텐츠 -->
-					<div id="pmWorkerMaterialContent" class="work-content" style="display: none;">
+					<div id="pmWorkerMaterialContent" class="work-content" style="display: none; overflow-y: auto; max-height: 350px;">
 						<div class="work-section">
 							<div class="edit-form-ui">
 								<div class="col-12 col-md-4 col-lg-4 col-xl-3">
@@ -161,6 +161,7 @@
 									<thead>
 										<tr style="border-top: 2px solid #343a40;">
 											<th width="10%">순번</th>
+											<th style="display: none;">직종코드</th>
 											<th width="40%">직종 *</th>
 											<th width="40%">예상작업시간</th>
 											<th width="10%">삭제</th>
@@ -181,7 +182,7 @@
 								<button class="btn-save" id="selectMaterial" name="selectMaterial">자재선택</button>
 							</div>
 							<div class="grid">
-								<table class="table">
+								<table class="table" id="materialTable">
 									<thead>
 										<tr style="border-top: 2px solid #343a40;">
 											<th>자재코드</th>
@@ -202,34 +203,7 @@
 					</div>
 					<!-- PM WO 목록 탭 컨텐츠 -->
 					<div id="pmWorkOrderContent" class="pmwo-content" style="display: none;">
-						<div class="grid">
-							<table class="table">
-								<thead>
-									<tr style="border-top: 2px solid #343a40;">
-										<th>WO번호</th>
-										<th>WO생성일</th>
-										<th>WO상태</th>
-										<th>작업계획일</th>
-										<th>작업완료일</th>
-										<th>담당자</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr class="no-data">
-										<td colspan="6">데이터 없음</td>
-									</tr>
-								</tbody>
-							</table>
-							<div class="pagination">
-								<button class="prev-btn">&lt;</button>
-								<span class="page-number">1</span>
-								<button class="next-btn">&gt;</button>
-								<select class="page-size">
-									<option value="30">30</option>
-								</select>
-								<span class="total-count">Total: 0</span>
-							</div>
-						</div>
+						<div id="pmWorkOrderGrid"></div>
 					</div>
 				</div>
 			</div>
@@ -252,28 +226,9 @@
 		border: none !important;
 	}
 
-	.modal .btn-equipment:hover, .btn-copy:hover {
-		background-color: #2980b9;
-	}
-
-	/* 저장 버튼 스타일 */
-	/* .modal .btn-save {
-		background: #ECF5FF !important;
-		color: #409EFF !important;
-		border-color: #B3D8FF !important;
-		border: 1px solid #00a9ff !important;
-		padding: 6px 12px;
-		border-radius: 4px;
-		cursor: pointer;
-		min-width: 40px;
-		height: 28px;
-		line-height: 1;
-	}
-
-	.modal .btn-save:hover {
-		background-color: #C2DFFF !important;
-		border-color: #0054e0 !important;
-	} */
+		.modal .btn-equipment:hover, .btn-copy:hover {
+			background-color: #2980b9;
+		}
 
 	.section {
 		background: #fff;
@@ -725,10 +680,10 @@
 		line-height: 1 !important;
 	}
 
-	.k-button-custom-save .k-button:hover {
-		background-color: #C2DFFF !important;
-		border-color: #0054e0 !important;
-	}
+		.k-button-custom-save .k-button:hover {
+			background-color: #C2DFFF !important;
+			border-color: #0054e0 !important;
+		}
 </style>
 
 <script type="text/javascript">
@@ -848,13 +803,13 @@
 				"height": "28px",
 				"line-height": "1"
 			}).hover(
-				function() {
+				function () {
 					$(this).css({
 						"background-color": "#C2DFFF",
 						"border-color": "#0054e0"
 					});
 				},
-				function() {
+				function () {
 					$(this).css({
 						"background": "#ECF5FF",
 						"border-color": "#B3D8FF"
@@ -877,13 +832,13 @@
 		saveData() {
 			let _this = this;
 			let data = FormUtil.extractForm($('#pmMasterForm'));
-			data.PMType = $("#pmType").val();  // pmType 값 명시적 추가
+			data.PMType = $("#pmType").val();
 			data.dept_pk = $("#executionDept").data("kendoDropDownTree").value();
 			data.pmManager = $("#pmManager").val();
 			data.equip_pk = $("#equip_pk").val();
-		
-			let Name = $('#pmName').val();
-			if (!Name) {
+
+			// 유효성 검사
+			if (!$('#pmName').val()) {
 				Alert.alert('', 'PM명을 입력해주세요.');
 				return;
 			}
@@ -908,26 +863,17 @@
 				return;
 			}
 
-			// TBM 유형일 때 필수값 체크 및 데이터 추가
+			// TBM 유형 체크
 			if (data.PMType === 'PM_TYPE_TBM') {
 				const schedStartDt = $("#schedStartDt").val();
 				const cycleType = $("#cycleType").val();
 				const perNumber = $("#perNumber").val();
 
-				if (!schedStartDt) {
-					Alert.alert('', '주기시작일을 입력해주세요.');
+				if (!schedStartDt || !cycleType || !perNumber) {
+					Alert.alert('', '주기 정보를 모두 입력해주세요.');
 					return;
 				}
-				if (!cycleType) {
-					Alert.alert('', '주기단위를 선택해주세요.');
-					return;
-				}
-				if (!perNumber) {
-					Alert.alert('', '반복 횟수를 입력해주세요.');
-					return;
-				}
-				
-				// 데이터 추가
+
 				data.sched_start_dt = schedStartDt;
 				data.cycle_type = cycleType;
 				data.per_number = perNumber;
@@ -935,12 +881,8 @@
 
 			let funcSucc = function (resp) {
 				if (resp.success) {
-					Notify.success('저장되었습니다.');
-					_this.resetData();
-
-					// 부모 페이지의 그리드 갱신
-					page.searchMainData();
-
+					// 기본 정보 저장 성공 시 작업 인력 저장 진행
+					_this.savePmLalor(resp);
 				} else {
 					Alert.alert('error', resp.message);
 				}
@@ -955,6 +897,82 @@
 			FormUtil.resetForm($('#pmMasterForm'));
 			// 폼 리셋 후 cycleInfo 체크
 			this.checkCycleInfo();
+		}
+
+		savePmLalor(resp) {
+			let _this = this;
+			let jobClassData = [];
+			$('#jobClassTable tbody tr').not('.no-data').each(function () {
+				const job_class_pk = $(this).data('value');
+				let work_hr = $(this).find('input[type="number"]').val();
+				work_hr = work_hr || 0;
+				jobClassData.push({
+					job_class_pk: job_class_pk,
+					work_hr: work_hr
+				});
+			});
+
+			// 작업 인력 데이터가 없는 경우 바로 자재 저장으로 진행
+			if (jobClassData.length === 0) {
+				_this.savePmMtrl(resp);
+				return;
+			}
+
+			let data = {
+				job_classes: JSON.stringify(jobClassData),
+				pm_pk: resp.id
+			};
+
+			let funcSucc2 = function (resp2) {
+				if (resp2.success) {
+					_this.savePmMtrl(resp);
+				} else {
+					Alert.alert('error', resp2.message);
+				}
+			}
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_job_classes', data, funcSucc2);
+		}
+
+		savePmMtrl(resp) {			
+			let _this = this;
+			let materialData = [];
+			$('#materialTable tbody tr').not('.no-data').each(function () {				
+				const mat_pk = $(this).data('value');				
+				let mtrl_qty = $(this).find('input[type="number"]').val();
+				mtrl_qty = mtrl_qty || 0;
+				materialData.push({
+					mat_pk: mat_pk,
+					mtrl_qty: mtrl_qty
+				});
+			});
+			
+			// 자재 데이터가 없는 경우 바로 완료 처리
+			if (materialData.length === 0) {
+				_this.finalizeSave();
+				return;
+			}
+		
+			let data = {
+				materials: JSON.stringify(materialData),
+				pm_pk: resp.id
+			};
+
+			let funcSucc3 = function (resp3) {
+				if (resp3.success) {
+					_this.finalizeSave();
+				} else {
+					Alert.alert('error', resp3.message);
+				}
+			}
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_materials', data, funcSucc3);
+		}
+
+		finalizeSave() {
+			Notify.success('저장되었습니다.');
+			this.resetData();
+			page.searchMainData();
 		}
 
 		searchLocationData() {
@@ -974,6 +992,74 @@
 			// 폼 리셋 시 cycleInfo 체크
 			this.checkCycleInfo();
 		}
+
+		/**
+		 * PM 마스터 데이터를 모달 폼에 바인딩하는 함수
+		 * @param {Object} pmData - PM 마스터 상세 데이터
+		 */
+		bindPmMasterData(pmData) {
+			// 기본 필드 바인딩
+			const basicFields = {
+				'equip_pk': pmData.equip_pk,
+				'pm_pk': pmData.pm_pk,
+				'pmNumber': pmData.pm_no,
+				'pmName': pmData.pm_nm,
+				'work_text': pmData.work_text,
+				'equ_code': pmData.equ_code,
+				'equ_name': pmData.equ_name,
+				'equ_loc': pmData.equ_location,
+				'equ_import': pmData.import_rank,
+				'equ_status': pmData.Status,
+				'equ_env_yn': pmData.environ_equip_yn,
+				'maintenanceTime': pmData.work_expect_hr,
+				'perNumber': pmData.per_number,
+				'schedStartDt': pmData.sched_start_dt
+			};
+
+			// 기본 필드 값 설정
+			Object.entries(basicFields).forEach(([id, value]) => {
+				$(`#${id}`).val(value);
+			});
+
+			// Kendo 드롭다운 컴포넌트 바인딩
+			const kendoDropdowns = [
+				{
+					id: 'executionDept',
+					type: 'kendoDropDownTree',
+					value: pmData.exec_dept
+				},
+				{
+					id: 'pmManager',
+					type: 'kendoDropDownList',
+					value: pmData.pm_manager
+				},
+				{
+					id: 'pmType',
+					type: 'kendoDropDownList',
+					value: pmData.pm_type
+				},
+				{
+					id: 'cycleType',
+					type: 'kendoDropDownList',
+					value: pmData.cycle_type
+				}
+			];
+
+			kendoDropdowns.forEach(dropdown => {
+				const component = $(`#${dropdown.id}`).data(dropdown.type);
+				if (component) {
+					component.one("dataBound", function () {
+						component.value(dropdown.value);
+						component.trigger("change");
+
+						if (!component.value()) {
+							component.text(dropdown.value);
+						}
+					});
+					component.dataSource.read();
+				}
+			});
+		}   
 	}
 
 	function deleteRow(btn) {
@@ -1012,16 +1098,6 @@
 			return originalFadeIn.apply(this, arguments);
 		};
 
-		// 그리드 링크 클릭 이벤트 처리
-		$(document).on('click', '.grid-column-link', function (e) {
-			e.preventDefault();
-			const pmPk = $(this).data('pm-pk');
-			if (pmPk) {
-				pmMasterPage.loadPmData(pmPk);
-				$("#modalPmMaster").fadeIn();
-			}
-		});
-
 		// 탭 클릭 이벤트 처리
 		$('.tab-group button').on('click', function () {
 			// 모든 탭에서 active 클래스 제거
@@ -1043,6 +1119,15 @@
 					break;
 				case 'PM WO 목록':
 					$('#pmWorkOrderContent').show();
+					// PM WO 목록 탭 선택 시에만 데이터 로드
+					var grid = $("#pmWorkOrderGrid").data("kendoGrid");
+					var pmPk = $('#pm_pk').val();
+					if (grid && pmPk) {
+						console.log("Loading PM WO data for pm_pk:", pmPk);
+						grid.dataSource.read();
+					} else {
+						console.log("Grid or pm_pk not available:", { grid: !!grid, pmPk: pmPk });
+					}
 					break;
 			}
 		});
@@ -1072,7 +1157,7 @@
 
 			// 이미 존재하는 직종인지 확인
 			const exists = $('#jobClassTable tbody tr').not('.no-data').toArray().some(tr =>
-				$(tr).find('td:nth-child(2)').text() === selectedText
+				$(tr).find('td:nth-child(3)').text() === selectedText
 			);
 
 			if (exists) {
@@ -1090,10 +1175,15 @@
 			const newRow = `
 				<tr data-value="${selectedValue}">
 					<td>${rowCount}</td>
+					<td style="display: none;">${selectedValue}</td>
 					<td>${selectedText}</td>
 					<td>
-						<input type="number" class="form-control form-control-sm text-end"
-							   min="0" step="0.5" placeholder="시간 입력"/>
+						<input type="number" 
+							class="form-control form-control-sm text-end"
+							min="0" 
+							step="1"
+							oninput="this.value"
+							placeholder="시간 입력"/>
 					</td>
 					<td class="text-center">
 						<button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
@@ -1103,6 +1193,52 @@
 
 			$('#jobClassTable tbody').append(newRow);
 			$(this).val(''); // 선택 초기화
+		});
+
+		$("#pmWorkOrderGrid").kendoGrid({
+			dataSource: new kendo.data.DataSource({
+				transport: {
+					read: {
+						url: "/api/kmms/pm_master",
+						dataType: "json",
+						contentType: "application/json",
+						data: function() {
+							return {
+								action: 'read_pm_wo',
+								pm_pk: $('#pm_pk').val()
+							};
+						}
+					}
+				},
+				schema: {
+					data: function(response) {
+						console.log("Grid Response:", response);
+						if (Array.isArray(response)) {
+							return response;
+						}
+						return [];
+					}
+				},
+				pageSize: 30,
+				requestStart: function() {
+					console.log("DataSource request starting with pm_pk:", $('#pm_pk').val());
+				}
+			}),
+			height: 550,
+			sortable: true,
+			pageable: true,
+			autoBind: false, // 자동 데이터 바인딩 비활성화
+			columns: [
+				{ field: "work_order_no", title: "WO번호", width: 120 },
+				{ field: "reg_dt", title: "WO생성일", width: 120, format: "{0:yyyy-MM-dd}" },
+				{ field: "wo_status_nm", title: "WO상태", width: 100 },
+				{ field: "plan_start_dt", title: "작업계획일", width: 120, format: "{0:yyyy-MM-dd}" },
+				{ field: "end_dt", title: "작업완료일", width: 120, format: "{0:yyyy-MM-dd}" },
+				{ field: "user_nm", title: "담당자", width: 100 }
+			],
+			noRecords: {
+				template: "조회된 데이터가 없습니다."
+			}
 		});
 	});
 

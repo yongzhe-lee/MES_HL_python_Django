@@ -23,21 +23,20 @@
         position: relative;
     }
 
-    #toggleSearchBtn::before {
-    content: "▼";
-    color: #0d6efd;
-    font-size: 20px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.3s ease;  /* ✅ 애니메이션 적용 */
-    }
+        #toggleSearchBtn::before {
+            content: "▼";
+            color: #0d6efd;
+            font-size: 20px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
+        }
 
-    #toggleSearchBtn.expanded::before {
-        content: "▲";
-    }
-
+        #toggleSearchBtn.expanded::before {
+            content: "▲";
+        }
 </style>
 {% endblock %}
 
@@ -83,7 +82,7 @@
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">적용여부</label>
-                            <select id="srchApplyYn" style="width: 200px;">                               
+                            <select id="srchApplyYn" style="width: 200px;">
                             </select>
                         </div>
                     </div>
@@ -110,7 +109,7 @@
                             <label class="k-label k-form-label" for="chk_legal">법정관리설비</label>
                             <input id="chk_legal" name="chk_legal">
                         </div>
-                    </div>                 
+                    </div>
                 </div>
             </div>
         </form>
@@ -120,7 +119,7 @@
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
                         <label data-labelCd="PM 마스터">PM 마스터</label>
-                    </span>                
+                    </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
                         <button id="btnAdd" class="btn-search">등록</button>
@@ -142,6 +141,7 @@
 {% block scripts %}
 
 {% include '../../popup/modalPmMaster.html'%}
+{% include '../../popup/modalEquipMaster.html'%}
 {% include '../../popup/modalEqu.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
@@ -165,7 +165,7 @@
          */
         resetModalInputs() {
             // 일반 입력 필드 초기화
-			$("#equip_pk").val("");
+            $("#equip_pk").val("");
             $("#pm_pk").val("");
             $("#pmNumber").val("");
             $("#pmName").val("");
@@ -210,7 +210,7 @@
 
             // 검색 조건 초기화
             $("#keyword").val("");
-            
+
             // Kendo 컴포넌트 초기화
             let srchDept = $("#srch_dept").data("kendoDropDownTree");
             if (srchDept) srchDept.value("");
@@ -262,30 +262,38 @@
                     { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
                     { field: 'pm_no', title: 'PM 번호', width: 120 },
                     {
-						field: "pm_nm",
+                        field: "pm_nm",
                         title: "PM명",
                         width: 150,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
                     },
-                    { field: 'equ_code', title: '설비코드', width: 100 },
+                    {
+                        field: 'equ_code',
+                        title: '설비코드',
+                        width: 100,
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#">#=equ_code#</a>'
+                    },
                     { field: 'equ_name', title: '설비명', width: 150 },
-					{ field: 'import_rank', title: '중요도', width: 80 },
+                    { field: 'import_rank', title: '중요도', width: 80 },
                     { field: 'exec_dept', title: '실행부서', width: 100 },
-					{ field: 'mng_dept_nm', title: '관리부서', width: 100 },
+                    { field: 'mng_dept_nm', title: '관리부서', width: 100 },
                     { field: 'equ_location', title: '설비위치', width: 120 },
-					{ field: 'pm_manager', title: 'PM 담당자', width: 100 },
+                    { field: 'pm_manager', title: 'PM 담당자', width: 100 },
                     { field: 'pm_type', title: 'PM 유형', width: 80 },
-					{ field: 'cycle_type', title: '주기', width: 50 }
+                    { field: 'cycle_type', title: '주기', width: 50 }
                 ],
 
-                change: function (e) {
-                    _this.showDetail();
-                },
                 dataBound: function (e) {
                     $(".grid-column-link").off("click").on("click", function (e) {
                         e.preventDefault();
-                        let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기
-                        page.showPmMasterModal(pmPk);
+                        let pmPk = $(this).data("pm-pk");
+                        let equipPk = $(this).data("equip-pk");
+                        
+                        if (pmPk) {
+                            _this.showPmMasterModal(pmPk);
+                        } else if (equipPk) {
+							equipMasterPage.getEquipMasterData(equipPk);
+                        }
                     });
                 },
                 height: "540px"
@@ -314,9 +322,9 @@
                 dataSource: [
                     { text: "선택", value: "" },
                     { text: "년", value: "Y" },
-                    { text: "월", value: "M" },                    
+                    { text: "월", value: "M" },
                     { text: "주", value: "W" },
-                    { text: "일", value: "D" },                                   
+                    { text: "일", value: "D" },
                 ],
                 dataTextField: "text",
                 dataValueField: "value"
@@ -362,7 +370,7 @@
                     page.resetModalInputs();  // 초기화 함수 호출
                     $("#modalPmMaster").fadeIn();
                 }
-            }).css('visibility','visible');
+            }).css('visibility', 'visible');
 
             //form button
             $('#btnSearch').kendoButton({
@@ -376,102 +384,128 @@
             }).css('visibility', 'visible');
         }
 
-        /**
-         * PM명 클릭 시 모달 창 열기
-         */
+        //pm 마스터
         showPmMasterModal(pmId) {
             let _this = this;
+
+            // 1. PM 상세 정보 API 호출
             let param = {
                 action: 'detail',
                 id: pmId,
             };
+            let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);            
 
-            // PM 상세 정보를 가져오는 API 호출
-            let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
+            // 2. PM 작업 인력 API 호출
+            let param2 = {
+                action: 'detail_pm_labor',
+                id: pmId,
+            };
+            let pmDataLabor = AjaxUtil.getSyncData(_this.baseUrl, param2);            
 
-            console.log("📌 [DEBUG] API 응답 데이터:", pmData);			
+            // 3. PM 필요자재 API 호출
+            let param3 = {
+                action: 'detail_pm_mtrl',
+                id: pmId,
+            };
+            let pmDataMtrl = AjaxUtil.getSyncData(_this.baseUrl, param3);            
 
-            $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
-			$("#equip_pk").val(pmData.equip_pk);
-            $("#pm_pk").val(pmData.pm_pk);
-            $("#pmNumber").val(pmData.pm_no);
-			$("#pmName").val(pmData.pm_nm);
-            $("#pmType").val(pmData.pm_type);
+            // 1.1. 기존 데이터 바인딩
+			pmMasterPage.bindPmMasterData(pmData);
 
-            // 실행부서 설정
-            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
-            if (execDeptDropdown) {
-                // 데이터 소스 로드 완료 후 값 설정
-                execDeptDropdown.one("dataBound", function () {
-                    execDeptDropdown.value(pmData.exec_dept);
-                    execDeptDropdown.trigger("change");
+            // 2.1. 작업인력 테이블 초기화 및 데이터 바인딩
+            $('#jobClassTable tbody').empty();
 
-                    // 값이 설정되지 않은 경우 text로 시도
-                    if (!execDeptDropdown.value()) {
-                        execDeptDropdown.text(pmData.exec_dept);
-                    }
+            if (Array.isArray(pmDataLabor) && pmDataLabor.length > 0) {
+                pmDataLabor.forEach((labor, index) => {                   
+
+                    // null 체크를 포함한 안전한 데이터 접근
+                    const id = labor?.id || '';
+                    const job_class_pk = labor?.job_class_pk || '';
+                    const job_class_nm = labor?.job_class_nm || '';
+                    const work_hr = labor?.work_hr || '';
+
+                    const newRow = `
+                        <tr data-value="${job_class_pk}">
+                            <td>${index + 1}</td>
+                            <td style="display: none;">${job_class_pk}</td>
+                            <td>${job_class_nm}</td>
+                            <td>
+                                <input type="number"
+                                       class="form-control form-control-sm text-end"
+                                       min="0"
+                                       step="0.5"
+                                       placeholder="시간 입력"
+                                       value="${work_hr}" />
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
+                            </td>
+                        </tr>
+                    `;
+                    $('#jobClassTable tbody').append(newRow);
                 });
-                // 데이터 소스 새로고침
-                execDeptDropdown.dataSource.read();
-            }
-
-            // PM 담당자 설정 - 여러 방법 시도
-            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
-            if (pmManagerDropdown) {
-                // 드롭다운 리스트가 초기화되어 있는 경우
-                pmManagerDropdown.value(pmData.pm_manager);
-                pmManagerDropdown.trigger('change');
             } else {
-                // 일반 입력필드인 경우
-                $("#pmManager").val(pmData.pm_manager);
+                console.log("📌 [ERROR] 작업인력 데이터가 없거나 유효하지 않음:", pmDataLabor);
             }
-            $("#work_text").val(pmData.work_text);
-            $("#equ_code").val(pmData.equ_code);
-            $("#equ_name").val(pmData.equ_name);
-            $("#equ_loc").val(pmData.equ_location);
-			$("#equ_import").val(pmData.import_rank);
-			$("#equ_status").val(pmData.Status);
-			$("#equ_env_yn").val(pmData.environ_equip_yn);
 
-            // PM 유형 설정
-            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
-            if (pmTypeDropdown) {
-                // 데이터 소스 로드 완료 후 값 설정
-                pmTypeDropdown.one("dataBound", function () {
-                    pmTypeDropdown.value(pmData.pm_type);
-                    pmTypeDropdown.trigger("change");
+            // 3.1. 필요자재 테이블 초기화 및 데이터 바인딩
+            $('#materialTable tbody').empty();  // 기존 테이블 초기화
 
-                    // 값이 설정되지 않은 경우 text로 시도
-                    if (!pmTypeDropdown.value()) {
-                        pmTypeDropdown.text(pmData.pm_type);
-                    }
+            if (Array.isArray(pmDataMtrl) && pmDataMtrl.length > 0) {
+                pmDataMtrl.forEach((mtrl, index) => {
+
+                    // null 체크를 포함한 안전한 데이터 접근
+                    const mat_pk = mtrl?.mat_pk || '';
+                    const mat_cd = mtrl?.mat_cd || '';
+                    const mat_nm = mtrl?.mat_nm || '';
+                    const amt = mtrl?.amt || '0';  // 기본값 설정
+                    const unit = mtrl?.BasicUnit || '';
+
+                    const newRow = `
+                        <tr data-value="${mat_pk}">
+                            <td>${mat_cd}</td>
+                            <td>${mat_nm}</td>
+                            <td>
+                                <input type="number"
+                                       class="form-control form-control-sm text-end"
+                                       min="0"
+                                       step="1"
+                                       value="${amt}"
+                                       placeholder="수량 입력"
+                                       name="amt"/>
+                            </td>
+                            <td>${unit}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
+                            </td>
+                        </tr>
+                    `;
+                    $('#materialTable tbody').append(newRow);  // materialTable로 수정
                 });
-
-                // 데이터 소스 새로고침
-                pmTypeDropdown.dataSource.read();
+            } else {
+                console.log("📌 [ERROR] 필요자재 데이터가 없거나 유효하지 않음:", pmDataMtrl);
             }
-			
-            $("#maintenanceTime").val(pmData.work_expect_hr);
-            //주기단위 
-			let cycleTypeDropdown = $("#cycleType").data("kendoDropDownList");
-			if (cycleTypeDropdown) {
-				// 데이터 소스 로드 완료 후 값 설정
-				cycleTypeDropdown.one("dataBound", function () {
-					cycleTypeDropdown.value(pmData.cycle_type);
-					cycleTypeDropdown.trigger("change");
 
-					// 값이 설정되지 않은 경우 text로 시도
-					if (!cycleTypeDropdown.value()) {
-						cycleTypeDropdown.text(pmData.cycle_type);
-					}
-				});
+            $("#modalPmMaster").fadeIn();
+        }
 
-				// 데이터 소스 새로고침
-				cycleTypeDropdown.dataSource.read();
+        //설비 마스터
+        showEquipMasterModal(equipId) {
+            let _this = this;
+
+            // 설비 상세 정보 API 호출
+            let param = {
+                action: 'detail',
+                id: equipId,
+            };
+            let equipData = AjaxUtil.getSyncData('/api/definition/equipment', param);
+
+			// 1.1. 기존 데이터 바인딩
+			this.bindEquipMasterData(equipData);
+
+            if (equipData) {
+                $("#modalEquipMaster").fadeIn();
             }
-            $("#perNumber").val(pmData.work_expect_hr);
-			$("#schedStartDt").val(pmData.sched_start_dt);
-
         }
 
         searchMainData() {
@@ -482,7 +516,7 @@
                 let startDate = '';
                 let endDate = '';
                 let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
-                
+
                 if (dateRangePicker) {
                     let range = dateRangePicker.range();
                     if (range) {

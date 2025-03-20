@@ -207,10 +207,10 @@
                             </div>
                             <!-- 그래프 영역 (Tab1의 오른쪽 영역) -->
                             <!--<div class="col-12 col-md-6 col-xl-4">
-                                <div class="content-ui-column connect">
-                                    <div id="chart"></div>
-                                </div>
-                            </div>-->
+                <div class="content-ui-column connect">
+                    <div id="chart"></div>
+                </div>
+            </div>-->
                             <!-- 최종 태그 집합 (Tab1의 오른쪽 영역) -->
                             <div class="col-12 col-md-6">
                                 <div class="content-ui-column connect">
@@ -300,11 +300,17 @@
                                 <i class="material-symbols-outlined">edit_square</i>
                                 <label data-labelCd="수치형분포확인">수치형분포확인</label>
                             </span>
-                            <span>
-                                <button id="btnNumDistChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>
+                            <!--<span>
+                <button id="btnNumDistChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
+            </span>-->
                         </div>
-                        <div><img id="num_dist_chart" style="width:100%"/></div>
+                        <div class="col-auto">
+                            <p>
+                                * 수치형 데이터의 값별 분포 수를 보여 줍니다.
+                                변수 개수, 또는 데이터 개수가 많은 경우 시간이 오래 걸릴 수 있습니다.
+                            </p>
+                        </div>
+                        <div style="text-align:center;"><img id="num_dist_chart" style="width:90%" /></div>
                     </div>
 
                     <!-- Tab5: 범주형분포확인 -->
@@ -315,24 +321,35 @@
                                 <label data-labelCd="범주형분포확인">범주형분포확인</label>
                             </span>
                             <!--<span>
-                                <button id="btnCatDistChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>-->
+                <button id="btnCatDistChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
+            </span>-->
                         </div>
-                            <div class="col-12 col-md-4">
-                                <div class="form-item align-h">
-                                    <label class="k-label k-form-label" for="cate_vari" data-labelCd="범주형변수">범주형변수</label>
-                                    <div class="field-wrapper">
-                                        <select id="cate_vari" name="cate_vari" multiple></select>
+                        <form class="search-form" id="cateVarForm">
+                            <div class="card-content search">
+                                <div class="form-ui">
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="form-item align-h">
+                                            <label class="k-label k-form-label" for="cate_vari" data-labelCd="범주형변수">범주형변수</label>
+                                            <div class="field-wrapper">
+                                                <select id="cate_vari" name="cate_vari" class="k-picker k-dropdownlist k-picker-solid k-picker-md k-rounded-md k-valid" ></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="card-group-btn search">
+                                            <button class="btn-search" id="btnCatDistChart">조회</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <p>
+                                            * 범주형 변수를 선택한 후 조회 버튼을 클릭하면 데이터의 값별 분포 수를 보여 줍니다.
+                                            변수 개수, 또는 데이터 개수가 많은 경우 시간이 오래 걸릴 수 있습니다.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-auto">
-                                <div class="card-group-btn search">
-                                    <button class="btn-search" id="btnCatDistChart">조회</button>
-                                </div>
-                            </div>
-                        <!--<select class="form-control2" id="cate_vari" multiple></select>-->
-                        <div><img id="cat_dist_chart" style="width:100%" /></div>
+                        </form>
+                        <div style="text-align:center;"><img id="cat_dist_chart" style="width:90%;" /></div>
                     </div>
 
                     <!-- Tab6: 전처리 -->
@@ -357,11 +374,16 @@
                                 <i class="material-symbols-outlined">edit_square</i>
                                 <label data-labelCd="상관관계히트맵">상관관계히트맵</label>
                             </span>
-                            <span>
+                            <!--<span>
                                 <button id="btnHeatmap" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>
+                            </span>-->
                         </div>
-                        <div id="heatmap_chart"></div>
+                        <div class="col-auto">
+                            <p>
+                                * 수치형 데이터 간 상관관계를 히트맵 형태로 표시합니다.
+                            </p>
+                        </div>
+                        <div style="text-align:center;"><img id="heatmap_chart" style="width:90%;" /></div>
                     </div>
 
                     <!-- Tab8: XY 지정 -->
@@ -385,13 +407,16 @@
                                 <i class="material-symbols-outlined">edit_square</i>
                                 <label data-labelCd="산점도">산점도</label>
                             </span>
-                            <span>
-                                <button id="btnScatterPlot" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>
                         </div>
-                        <div id="scatter_chart"></div>
+                        <div class="col-auto">
+                            <p>
+                                * X변수와 Y변수에 대해서 산점도를 그려 표시합니다.
+                                변수 개수, 또는 데이터 개수가 많은 경우 시간이 오래 걸릴 수 있습니다.<br />
+                                <!--* X변수와 Y변수를 지정한 경우는 해당 상관관계만, 지정하지 않은 경우는 전체 변수 간의 상관관계를 표시합니다.-->
+                            </p>
+                        </div>
+                        <div style="text-align:center;"><img id="scatter_chart" style="width:90%" /></div>
                     </div>
-
                     <!-- Tab10: 상관관계값조회 -->
                     <div class="tab-contents">
                         <div class="card-group-btn">
@@ -400,8 +425,8 @@
                                 <label data-labelCd="상관관계값조회">상관관계값조회</label>
                             </span>
                             <!--<span>
-                                <button id="btnCorrValue" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                            </span>-->
+                <button id="btnCorrValue" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
+            </span>-->
                         </div>
                         <div id="corr_grid"></div>
                     </div>
@@ -414,13 +439,38 @@
                                 <label data-labelCd="주성분분석">주성분분석</label>
                             </span>
                             <span>
-                                <button id="btnPCAChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>
-                                <button id="btnPCAApply" title="적용">적용</button>
+                                <!--<button id="btnPCAChart" title="조회"><i class="material-symbols-outlined">search</i>조회</button>-->
+                                <!--<button id="btnPCAApply" title="적용">적용</button>-->
                             </span>
                         </div>
+                        <form class="search-form" id="pcaForm">
+                            <div class="card-content search">
+                                <div class="form-ui">
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="form-item align-h">
+                                            <label class="k-label k-form-label" for="pca_num_dim" data-labelCd="PCA차원(주성분 수)">PCA차원(주성분 수)</label>
+                                            <div class="field-wrapper">
+                                                <select id="pca_num_dim" name="pca_num_dim" class="k-picker k-dropdownlist k-picker-solid k-picker-md k-rounded-md k-valid"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="card-group-btn search">
+                                            <button class="btn-search" id="btnPcaApply">실행</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <p>
+                                            * PCA(차원축소)는 고차원 데이터의 차원을 축소하여 데이터의 주요 특징을 파악하고 시각화 및 분석을 용이하게 만드는 기법입니다.<br />
+                                            * 축소될 차원 수를 선택하지 않을 경우, 설명률이 90% 이상이 되는 차원으로 자동 지정됩니다.(PCA 실행 결과 차트는 3D까지만 지원됩니다.)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                         <div id="pca_chart">
-                            <div id="pca_plotly" style="width:100%;"></div>
-                            <div id="pca_result" style="width:100%;"></div>
+                            <div id="pca_plotly" style="width: 80%; margin: auto; position: relative;"></div>
+                            <div id="pca_result" style="width: 80%; margin: auto; position: relative;"></div>
                         </div>
                     </div>
 
@@ -538,7 +588,7 @@
         initUIComponents() {
             let _this = this;
 
-            // model search form
+            // 메인데이터 model search form
             AjaxUtil.fillDropDownOptions($('#cboModelType'), 'user_code', 'all', null, 'MODEL_TYPE')
             $('#sch_keyword').kendoTextBox({ placeholder: '모델명, 유형, 설명' });
             kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
@@ -598,7 +648,7 @@
                 kendoUtil.saveAsExcel(this.grid, "태그집합");
             });
 
-            // 조회
+            // tab1 조회버튼
             // 설비 태그 폼의 조회 버튼 바인딩
             _this.bindSearchButton("#btnSearchTag", "#searchTagForm", "#tag_grid", "read");
             // MES 데이터 폼의 조회 버튼 바인딩
@@ -610,7 +660,7 @@
 
 
             // tab2
-            // csv기반 모델 등록
+            // csv기반 모델 등록 버튼
             kendoUtil.bindButton('#btnNewData', 'file-excel', 'success', () => {
 
                 if (_this.mm_id) {
@@ -632,7 +682,7 @@
                 }
             });
 
-            // 모델 수정
+            // tab2 모델 수정 버튼
             kendoUtil.bindButton('#btnEditData', null, 'info', () => {
                 //if (this.mm_id) {
                 if (_this.md_id) {
@@ -643,54 +693,106 @@
                 }
             });
 
-            //tab6
+            // tab5 범주형 변수 리스트
+            $('#cate_vari').kendoMultiSelect({
+                dataSource: _this.fillCategoryVars(),
+                dataTextField: "text",
+                dataValueField: "value",
+                placeholder: "선택하세요",
+                filter: "contains",
+                downArrow: true,
+                clearButton: true,
+                noDataTemplate: "No Data",
+                change: function (e) {
+                    console.log("선택 변경됨", this.value());
+                },
+                value: []
+            });
+
+            // tab5 범주형 분석 조회 버튼
+            kendoUtil.bindButton('#btnCatDistChart', "search", 'base', () => {
+                let items = $("#cate_vari").data("kendoMultiSelect").value() || [];
+
+                // 값이 단일 문자열일 경우 배열로 변환
+                if (!Array.isArray(items)) {
+                    items = [items];
+                }
+                console.log("items", items);
+
+                let values = '';
+
+                if (items.length > 0) {
+                    items.forEach(function (value, index) {
+                        if (index == 0)
+                            values = value;
+                        else
+                            values += ',' + value;
+                    });
+                    console.log("value", values);
+                    _this.loadChartImage("cat_dist_chart", "ds_col_count_plot", { variables: values });
+                } else {
+                    Alert.alert("info", "범주형 변수를 선택해주세요.");
+                }
+            });
+
+            // tab6 전처리 저장 버튼
             kendoUtil.bindButton('#btnSavePreprocess', null, 'error', () => {
                 Alert.confirm('', '결측치 및 이상치를 제거하시겠습니까?', () => {
                     _this.saveDsCol();
                 });
             });
 
-            //tab8
-            //$('#y_all_check').on('click', function () {
-            //    let checked = $(this).prop('checked');
-            //    $('input[name="chkbx_y"]').prop('checked', checked);
-            //})
-
+            // tab8 x,y 지정 저장 버튼
             kendoUtil.bindButton('#btnSaveXY', null, 'success', () => {
                 Alert.confirm('', '지정한 X, Y변수를 저장하시겠습니까??', () => {
                     _this.saveDsColXY();
                 });
             });
 
-            // 범주형 분석
-            kendoUtil.bindButton('#btnCatDistChart', "search", 'base', () => {
-                _this.loadChartImage();
-            });
-
-            $('#btnCatDistChart').kendoButton({
-                icon: "search",
-                themeColor: "base",
-                click: function () {
-                    _this.loadChartImage();
-                }
-            });
-
-            // 여기부터
-            $('#cate_vari').kendoDropDownList({
+            // tab11 PCA 차원축소 가능 범위 드롭다운 
+            $('#pca_num_dim').kendoDropDownList({
                 dataSource: [],
                 dataTextField: "text",
                 dataValueField: "value",
-                optionLabel: "선택하세요",
+                //placeholder: "선택하세요",
+                optionLabel: {
+                    text: "선택하세요",
+                    value: ""
+                },
+                noDataTemplate: "No Data",
                 change: function (e) {
-                    //let selected = this.dataItem();
-                    //if (selected) {
-                    //    // 선택값 전달
-                    // }
-                    _this.fillCategoryVars();                    
+                    console.log("선택 변경됨", this.value());
+                },
+                value: []
+            });
+
+            // tab11 pca 실행 버튼
+            kendoUtil.bindButton('#btnPcaApply', null, 'base', () => {
+                let dropdown = $("#pca_num_dim").data("kendoDropDownList");
+
+                if (dropdown) {
+                    let selected_value = dropdown.value();
+
+                    let num_components = selected_value || null;
+                    console.log("num_components", num_components);
+
+                    _this.loadChartImage("pca_result", "pca_apply", { num_components: num_components });
                 }
+
+            //    if (!dropdown) {
+            //        console.error("pca_num_dim DropDownList가 초기화되지 않았습니다.");
+            //        return;
+
+            //    } else {
+            //        let selected_value = dropdown.value();
+
+            //        let num_components = selected_value || null;
+            //        console.log("num_components", num_components);
+
+            //        _this.loadChartImage("pca_result", "pca_apply", { num_components: num_components });
+            //    }
             });
         }
-
 
         // 드롭다운 선택 사항에 따른 이벤트 핸들링
         setupDropdowns(config) {
@@ -1143,6 +1245,7 @@
                             {
                                 field: 'Y',
                                 width: 80,
+                                //headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="y_all_check"/>Y변수',
                                 attributes: { style: "text-align: center" },
                                 title: 'Y변수',
                                 template: function (item) {
@@ -1172,10 +1275,13 @@
                                 dataItem.set("X", this.checked ? 1 : 0);
                             });
 
-                            // ✅ 개별 Y 체크박스 클릭 시 데이터 반영 (Y는 하나만 선택 가능)
+                            // ✅ 개별 Y 체크박스 클릭 시 데이터 반영
                             grid.element.find("input[name='chkbx_y']").on("change", function () {
                                 let row = $(this).closest("tr");
                                 let dataItem = grid.dataItem(row);
+
+                                //// 임시 y 1개만 지정 해제
+                                //dataItem.set("Y", this.checked ? 1 : 0);
 
                                 console.log("1", grid.element.find("input[name='chkbx_y']:checked"));
                                 if (this.checked) {
@@ -1215,6 +1321,18 @@
                                 $('input[name="chkbx_x"]').prop("checked", checked);
                                 console.log("checked3", checked);
                             });
+
+                            //// Y 전체 선택 버튼 이벤트 (Y는 단일 선택이라 없음)
+                            //$("#y_all_check").on("click", function () {
+                            //    let checked = $(this).prop("checked");
+                            //    // data 업데이트
+                            //    console.log("checked1", checked);
+                            //    grid.dataSource.data().forEach(item => item.set("Y", checked ? 1 : 0));
+                            //    // UI 업데이트 (체크박스 상태)
+                            //    console.log("checked2", checked);
+                            //    $('input[name="chkbx_y"]').prop("checked", checked);
+                            //    console.log("checked3", checked);
+                            //});
 
                             // 행 번호 추가
                             items.each(function (index) {
@@ -1299,61 +1417,266 @@
         loadContentByTab(tabIndex, first = false) {
             let _this = this;
 
+            let selectModel = null;
+
+            // 페이지가 처음 로드 될 때는 모델 선택 alert이 발생하지 않도록, 표출 여부를 false로 전달
             if (first) {
-                _this.getSelectedModel(false);
+                selectModel = _this.getSelectedModel(false);
             } else {
-                _this.getSelectedModel(true);
+                selectModel = _this.getSelectedModel(true);
+            }
+
+            // 선택된 모델이 없으면 정지. 단, 페이지를 처음 로드할 때는 계속 진행
+            if (!selectModel && !(first && tabIndex === 0)) {
+                return;
             }
 
             // 탭 인덱스에 따라 해당 탭의 컨테이너를 초기화 또는 갱신
             switch (tabIndex) {
                 case 0:
-                    // 페이지 최초 로드 시에 모델 선택 alert 방지
-                    //if (this.getSelectedModel(tabIndex, false)) {
-                    //    this.renderGrid("tag_grid", "tag");
-                    //    this.renderGrid("mes_tag_grid", "mes");
-                    //    this.renderGrid("qms_tag_grid", "qms");
-                    //    this.renderGrid("merged_tag_grid", "merged_tag");
-                    //}
-                    this.renderGrid("tag_grid", "tag");
-                    this.renderGrid("mes_tag_grid", "mes");
-                    this.renderGrid("qms_tag_grid", "qms");
-                    this.renderGrid("merged_tag_grid", "merged_tag");
+                    //// tab1 form
+                    //_this.setupDropdowns({
+                    //    lineId: null,
+                    //    equipId: 'cboEquip',
+                    //    tagGroupId: 'cboTagGroup',
+                    //    tagId: 'cboTag',
+                    //    mtrlId: null
+                    //});
+                    //_this.setupDropdowns({
+                    //    lineId: 'cboLineMES',
+                    //    equipId: 'cboEquipMES',
+                    //    tagGroupId: null,
+                    //    tagId: null,
+                    //    mtrlId: 'cboMtrlMES'
+                    //});
+                    //_this.setupDropdowns({
+                    //    lineId: 'cboLineQMS',
+                    //    equipId: 'cboEquipQMS',
+                    //    tagGroupId: null,
+                    //    tagId: null,
+                    //    mtrlId: 'cboMtrlQMS'
+                    //});
+                    //$("#srchStartDt").kendoDatePicker({
+                    //    format: "yyyy-MM-dd",
+                    //    value: new Date(new Date().setDate(new Date().getDate() - 7))
+                    //}).closest(".k-datepicker").css("width", "140px");
+
+                    //$("#srchEndDt").kendoDatePicker({
+                    //    format: "yyyy-MM-dd",
+                    //    value: new Date()
+                    //}).closest(".k-datepicker").css("width", "140px");
+
+                    //// tab1 button
+                    //// 저장 버튼 설정
+                    //kendoUtil.bindButton('#btnSaveMerged', null, 'info', () => {
+                    //    Alert.confirm('', '저장하시겠습니까?', () => {
+                    //        this.saveData();
+                    //    });
+                    //});
+                    //// 삭제 버튼 설정
+                    //kendoUtil.bindButton('#btnDeleteMerged', null, 'error', () => {
+                    //    Alert.confirm('', '삭제하시겠습니까?', () => {
+                    //        this.deleteData();
+                    //    });
+                    //});
+                    //// 엑셀 버튼 설정
+                    //kendoUtil.bindButton('#btnExcelMerged', 'file-excel', 'success', () => {
+                    //    kendoUtil.saveAsExcel(this.grid, "태그집합");
+                    //});
+
+                    //// 조회
+                    //// 설비 태그 폼의 조회 버튼 바인딩
+                    //_this.bindSearchButton("#btnSearchTag", "#searchTagForm", "#tag_grid", "read");
+                    //// MES 데이터 폼의 조회 버튼 바인딩
+                    //_this.bindSearchButton("#btnSearchMES", "#searchMesForm", "#mes_tag_grid", "read");
+                    //// QMS 데이터 폼의 조회 버튼 바인딩
+                    //_this.bindSearchButton("#btnSearchQMS", "#searchQmsForm", "#qms_tag_grid", "read");
+                    //// 최종 태그 집합 조회 버튼이 있다면
+                    //_this.bindSearchButton("#btnSearchMerged", "#searchMergedForm", "#merged_tag_grid", "read");
+
+                    // 그리드
+                    _this.renderGrid("tag_grid", "tag");
+                    _this.renderGrid("mes_tag_grid", "mes");
+                    _this.renderGrid("qms_tag_grid", "qms");
+                    _this.renderGrid("merged_tag_grid", "merged_tag");
                     break;
                 case 1:
-                    this.renderGrid("data_detail_grid", "ds_rows_list");
+                    //// csv기반 모델 등록 버튼
+                    //kendoUtil.bindButton('#btnNewData', 'file-excel', 'success', () => {
+
+                    //    if (_this.mm_id) {
+                    //        if (_this.md_id) {
+                    //            Alert.confirm("info",
+                    //                "이미 등록된 파일이 존재합니다. 수정하시겠습니까?",
+                    //                function () {
+                    //                    let data = _this.getDsInfo();
+                    //                    _this.openDataUploadPopup(data);
+                    //                },
+                    //                function () { }
+                    //            );
+                    //        } else {
+                    //            // csv 데이터 업로드 = 모델 생성으로 고정
+                    //            _this.openDataUploadPopup();
+                    //        }
+                    //    } else {
+                    //        Alert.alert('info', '목록에서 데이터를 업로드 할 모델마스터를 선택해 주세요.');
+                    //    }
+                    //});
+
+                    //// 모델 수정 버튼
+                    //kendoUtil.bindButton('#btnEditData', null, 'info', () => {
+                    //    //if (this.mm_id) {
+                    //    if (_this.md_id) {
+                    //        let data = _this.getDsInfo();
+                    //        _this.openDataUploadPopup(data);
+                    //    } else {
+                    //        Alert.alert('error', '목록에서 데이터를 수정할 모델을 선택해 주세요.');
+                    //    }
+                    //});
+
+                    // 그리드
+                    _this.renderGrid("data_detail_grid", "ds_rows_list");
                     break;
                 case 2:
-                    this.renderGrid("ds_col_grid", "ds_col_list");
+                    _this.renderGrid("ds_col_grid", "ds_col_list");
                     break;
                 case 3:
-                    this.loadChartImage("num_dist_chart", "ds_numcol_boxhist");
+                    _this.loadChartImage("num_dist_chart", "ds_numcol_boxhist");
                     //$("#num_dist_chart").data("kendoChart") && $("#num_dist_chart").data("kendoChart").refresh();
                     break;
                 case 4:
-                    this.loadChartImage("cat_dist_chart", "ds_numcol_boxhist");
+                    // 범주형 변수 리스트
+                    let cate_var_list = $("#cate_vari").data("kendoMultiSelect");
+                    if (cate_var_list) {
+                        cate_var_list.setDataSource(_this.fillCategoryVars());
+                        // 선택된 모델 변경시 차트 초기화
+                        if (!cate_var_list.value().length) {
+                            $('#cat_dist_chart').attr('src', '').css('opacity', 0);
+                        }
+                        console.log("cate_var_list", cate_var_list);
+                    }
+                    //else {
+                    //    $('#cate_vari').kendoMultiSelect({
+                    //        dataSource: _this.fillCategoryVars(),
+                    //        dataTextField: "text",
+                    //        dataValueField: "value",
+                    //        placeholder: "선택하세요",
+                    //        filter: "contains",
+                    //        downArrow: true,
+                    //        clearButton: true,
+                    //        noDataTemplate: "No Data",
+                    //        change: function (e) {
+                    //            console.log("선택 변경됨", this.value());
+                    //        },
+                    //        value: []
+                    //    });
+                    //}
+                    //// 범주형 분석 조회 버튼
+                    //kendoUtil.bindButton('#btnCatDistChart', "search", 'base', () => {
+                    //    let items = $("#cate_vari").data("kendoMultiSelect").value() || [];
+
+                    //    // 값이 단일 문자열일 경우 배열로 변환
+                    //    if (!Array.isArray(items)) {
+                    //        items = [items];
+                    //    }
+                    //    console.log("items", items);
+
+                    //    let values = '';
+
+                    //    if (items.length > 0) {
+                    //        items.forEach(function (value, index) {
+                    //            if (index == 0)
+                    //                values = value;
+                    //            else
+                    //                values += ',' + value;
+                    //        });
+                    //        console.log("value", values);
+                    //        _this.loadChartImage("cat_dist_chart", "ds_col_count_plot", { variables: values });
+                    //    } else {
+                    //        Alert.alert("info", "범주형 변수를 선택해주세요.");
+                    //    }
+                    //});
+                    //this.loadChartImage("cat_dist_chart", "ds_numcol_boxhist");
                     //$("#cat_dist_chart").data("kendoChart") && $("#cat_dist_chart").data("kendoChart").refresh();
                     break;
                 case 5:
-                    this.renderGrid("ds_col_grid2", "ds_col_list");
+                    //// 전처리 저장 버튼
+                    //kendoUtil.bindButton('#btnSavePreprocess', null, 'error', () => {
+                    //    Alert.confirm('', '결측치 및 이상치를 제거하시겠습니까?', () => {
+                    //        _this.saveDsCol();
+                    //    });
+                    //});
+
+                    // 그리드
+                    _this.renderGrid("ds_col_grid2", "ds_col_list");
                     break;
                 case 6:
-                    $("#heatmap_chart").data("kendoChart") && $("#heatmap_chart").data("kendoChart").refresh();
+                    _this.loadChartImage("heatmap_chart", "ds_heatmap");
+                    //$("#heatmap_chart").data("kendoChart") && $("#heatmap_chart").data("kendoChart").refresh();
                     break;
                 case 7:
-                    this.renderGrid("settingXy_grid", "ds_col_list");
+                    // 그리드
+                    _this.renderGrid("settingXy_grid", "ds_col_list");
+                    //// x,y 지정 저장 버튼
+                    //kendoUtil.bindButton('#btnSaveXY', null, 'success', () => {
+                    //    Alert.confirm('', '지정한 X, Y변수를 저장하시겠습니까??', () => {
+                    //        _this.saveDsColXY();
+                    //    });
+                    //});
                     break;
                 case 8:
-                    $("#scatter_chart").data("kendoChart") && $("#scatter_chart").data("kendoChart").refresh();
+                    _this.loadChartImage("scatter_chart", "ds_col_scatter");
+                    //$("#scatter_chart").data("kendoChart") && $("#scatter_chart").data("kendoChart").refresh();
                     break;
                 case 9:
-                    this.renderGrid("corr_grid", "ds_var_corr_sheet");
+                    _this.renderGrid("corr_grid", "ds_var_corr_sheet");
                     break;
                 case 10:
+                    // pca 차원축소 범위 리스트(실제 변수 개수)
+                    let pca_dim_list = $("#pca_num_dim").data("kendoDropDownList");
+                    if (pca_dim_list) {
+                        pca_dim_list.setDataSource([]);
+                        console.log("pca_dim_list", pca_dim_list);
+                    }
+                    //else {
+                    //    $('#pca_num_dim').kendoDropDownList({
+                    //        dataSource: [],
+                    //        dataTextField: "text",
+                    //        dataValueField: "value",
+                    //        //placeholder: "선택하세요",
+                    //        optionLabel: {
+                    //            text: "선택하세요",
+                    //            value: ""
+                    //        },
+                    //        noDataTemplate: "No Data",
+                    //        change: function (e) {
+                    //            console.log("선택 변경됨", this.value());
+                    //        },
+                    //        value: []
+                    //    });
+                    //}
+                    _this.loadChartImage("pca_plotly", "pca_evr");
+
+                    //// pca 실행 버튼
+                    //kendoUtil.bindButton('#btnPcaApply', "search", 'base', () => {
+                    //    let dropdown = $("#pca_num_dim").data("kendoDropDownList");
+
+                    //    if (!dropdown) {
+                    //        console.error("pca_num_dim DropDownList가 초기화되지 않았습니다.");
+                    //        return;
+                    //    } else {
+                    //        let selected_value = dropdown.value();
+
+                    //        let num_components = selected_value || null;
+                    //        console.log("num_components", num_components);
+
+                    //        _this.loadChartImage("pca_result", "pca_apply", { num_components: num_components });
+                    //    }
+                    //});
                     // Tab11: 주성분분석은 Plotly 차트 및 결과 영역(pca_plotly, pca_result)을 별도로 처리
                     break;
                 case 11:
-                    this.renderGrid("model_create_grid");
+                    _this.renderGrid("model_create_grid");
                     break;
                 default:
                     console.log("해당 탭에 그리드 없음");
@@ -1365,18 +1688,18 @@
             let _this = this;
             let data = _this.modelGrid.getSelect();
 
+            let selectData = data[0];
+
                 //if (showAlert && tabIndex !== 0) {
-            if (showAlert) {
-                if (!data || data.length === 0) {
+            if (!data || data.length === 0) {
+                if (showAlert) {
                     Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
                 }
                 return null;
+            } else {
+                _this.mm_id = selectData.master_id;
+                _this.md_id = selectData.model_id;
             }
-
-            let selectData = data[0];
-            _this.mm_id = selectData.master_id;
-            _this.md_id = selectData.model_id;
-
             console.log("선택된 모델:", selectData);
 
             return selectData;
@@ -1384,19 +1707,14 @@
 
 
         renderGrid(gridId, action) {
-            let _this = this; // 현재 클래스 인스턴스 참조
-
-            //let selectModel = _this.getSelectedModel();
-            //if (!selectModel) return;
-
+            let _this = this;
             let grid = $("#" + gridId).data("kendoGrid");
-
             let options = this.getGridOptions(gridId);
 
-            // 그리드 인스턴스가 이미 존재하면 refresh, 없으면 생성
             if (grid) {
-                // 이전에 조회했던 모델에 데이터가 없었던 경우 columns이 빈 배열로 초기화된 상태
-                // 본래 컬럼 설정을 다시 찾아갈 수 있도록.
+                /* 그리드 인스턴스가 이미 존재할 때,
+                ** 이전에 조회했던 모델에 데이터가 없었던 경우 columns이 빈 배열로 초기화된 상태.
+                ** 본래 컬럼 설정을 다시 찾아갈 수 있도록 재할당 */
                 grid.options.columns = options.columns;
 
             } else {
@@ -1414,31 +1732,32 @@
             let param = Object.assign({ action: action }, extraParam || {});
 
             let gridInstance = $("#" + gridId).data("kendoGrid");
-            // tab 용도별로 고정으로 생성되어야 하는 컬럼
+            // tab별 용도에 따라 고정으로 생성되어야 하는 컬럼(원천 데이터의 컬럼과 별개)
             let baseColumns = gridInstance.options.columns;
 
             let succFunc = function (result) {
                 console.log("result", result);
-                // xrows(컬럼)를 백엔드에서 보내주는 경우(데이터마다 colunmn이 달라지는 경우)
+                // xrows(컬럼)를 백엔드에서 보내주는 경우(데이터마다 컬럼이 달라지는 경우)
                 if (result.xrows) {
                     if (result.xrows.length > 0) {
                         var dynamicColumns = result.xrows.map(function (item, index) {
                             return {
-                                field: 'col_' + (index + 1),          // x + 변수순서
-                                //field: item.VarName,        // 필드 이름 (백엔드에서 보내는 컬럼명)
-                                title: item.VarName,          // 제목 (화면에 표시될 텍스트)
-                                width: item.width || 100,     // 백엔드에서 제공된 width가 없으면 기본값 100px 사용
+                                field: 'col_' + (index + 1),// col_ + 변수순서
+                                //field: item.VarName,      // 필드 이름 (백엔드에서 보내는 컬럼명)
+                                title: item.VarName,        // 제목 (화면에 표시될 텍스트)
+                                width: item.width || 100,   // 백엔드에서 제공된 width가 없으면 기본값 100px 사용
                             };
                         });
 
                         if (baseColumns) {
                             console.log("baseColumns", baseColumns);
+                            // base컬럼이 있으면 데이터의 컬럼들과 병합(정적 생성 + 동적 생성)
                             dynamicColumns = [...baseColumns, ...dynamicColumns];
                         }
 
                         // No. 이유는 알 수 없지만 첫번째 컬럼의 값이 row의 index로 바인딩되는 에러 발생(id 아님!)
                         // 이참에 그냥 index컬럼을 만들어버림
-                        // "No" 컬럼이 없는 경우에만 추가
+                        // "No" 컬럼이 없는 경우에만 추가.
                         if (!dynamicColumns.some(col => col.title === "No")) {
                             dynamicColumns.unshift({ "title": "No", "width": 50 });
                         }
@@ -1457,7 +1776,7 @@
                             dataSource: {
                                 // pageSize 설정이 덮어씌워져서 all로 바뀌는 것 방지
                                 pageSize: pageSize ? pageSize : null,
-                                page: pageSize ? 1 : null, // 첫 페이지로 이동
+                                page: pageSize ? 1 : null, // 페이지 속성이 있으면 첫 페이지로 이동
                                 data: []
                             }
                         });
@@ -1466,35 +1785,98 @@
                     // 일반적인 grid 데이터일 때
                     gridInstance.dataSource.data(result);
                 }
-
+                // 컬럼 크기 자동 조절
                 gridInstance.autoFitColumns();
             }
 
             AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
         }
 
-        loadChartImage(chartId, action) {
+        loadChartImage(chartId, action, extraParam = null) {
             let _this = this;
 
-            //let selectModel = _this.getSelectedModel();
-            //if (!selectModel) return;
+            // 그래프 초기화 PCA 차트는 `empty()`, 이미지 차트는 `src` 비우기
+            if ($('#' + chartId).is('div')) {
+                $('#' + chartId).empty();
+                // PCA 수행 결과 로드 시, 이전에 생성된 설명률 차트도 남아있어야 하므로 여기서 초기화x
+            } else {
+                $('#' + chartId).attr('src', '').css('opacity', 0); // 이미지 차트
+            }
 
             let param = {
                 action: action,
-                md_id: _this.md_id
+                md_id: _this.md_id,
+                ...extraParam
             };
+
             console.log("param", param);
 
             try {
                 let result = AjaxUtil.getSyncData(_this.baseUrl, param); // 동기 요청 후 결과 반환
                 console.log("result", result);
 
-                if (result && result.success) {
-                    $('#' + chartId).attr('src', result.chart_url);
-                } else {
-                    console.error("이미지 로드 실패: 응답 성공 여부 확인 필요", result);
+                // 결과가 없거나 실패했을 경우, 먼저 처리하고 함수 종료
+                if (!result || !result.success) {
+                    // 실패 시 PCA 수행 결과 차트 초기화
+                    $('#' + chartId).siblings().empty();
+
+                    let errorMessage = null;
+
+                    if (result?.not_enough_x_vars) {
+                        errorMessage = "지정된 X변수가 1개 이하이므로 더이상 축소할 차원이 없습니다. <br>PCA 진행을 원하는 경우, XY지정 탭에서 X변수를 2개 이상 선택해주세요.";
+
+                    } else if (result?.no_xy_message) {
+                        errorMessage = "X, Y변수가 지정되어야 연산이 가능하므로, 먼저 XY지정 탭에서 X변수와 Y변수를 지정해주세요.";
+
+                    } else {
+                        errorMessage = `이미지 로드에 실패했습니다. 응답 성공 여부 확인이 필요합니다.\n응답: ${JSON.stringify(result)}`;
+                        console.error("이미지 로드 실패: 응답 성공 여부 확인 필요", result);
+                    }
+
+                    Alert.alert(result?.not_enough_x_vars || result?.no_xy_message ? "info" : "error", errorMessage);
+                    return;
                 }
+
+                // pca 관련 그래프면 plotly로, 아니면 이미지로
+                if (result.pca_plotly) {
+                    //let x_range = result.x_vars_len;
+                    let x_range = result.x_vars_len ?? null;
+
+                    //// X 변수가 1개 이하라면 PCA 그래프를 그리지 않고 종료
+                    //if (x_range !== null && x_range < 2) {
+                    //    Alert.alert("info", "X변수가 1개 이하입니다. 더 이상 축소할 차원이 없습니다.");
+                    //    return;
+                    //}
+
+                    // PCA 그래프 그리기
+                    $('#' + chartId).html(result.pca_plotly);
+                    window.dispatchEvent(new Event('resize'));
+
+                    // PCA 드롭다운 업데이트 (x_range가 있는 경우만)
+                    if (x_range !== null) {
+                        let pca_dim_list = $("#pca_num_dim").data("kendoDropDownList");
+                        if (pca_dim_list) {
+                            let dim_range = [];
+                            for (let i = 1; i < parseInt(x_range); i++) {
+                                dim_range.push({ value: i, text: i });
+                            }
+                            console.log("dim_range", dim_range);
+                            pca_dim_list.setDataSource(dim_range);
+                        }
+
+                        // 설명률 차트 업데이트 시, pca수행결과 차트 초기화
+                        $('#' + chartId).siblings().empty();
+                    }
+                    return; // PCA 실행 후 일반 차트 실행 방지
+                }
+
+                else {
+                    // 일반 차트(이미지)
+                    $('#' + chartId).attr('src', result.chart_url).css('opacity', 1);
+                }
+
             } catch (error) {
+                Alert.alert("error", `이미지 로드에 실패했습니다. \n에러 메시지: ${error.message}`);
                 console.error("이미지 로드 중 오류 발생:", error.message);
             }
         }
@@ -1685,17 +2067,9 @@
                 md_id: _this.md_id,
             };
             let rows = AjaxUtil.getSyncData(url, param);
-            AjaxUtil.fillSelectOptionsRows($('#cate_vari'), rows)
-            //        .kendoDropDownList({
-            //            text: "선택",
-            //            dataSource: _this.mission_proc_options,
-            //            dataTextField: "name",
-            //            dataValueField: "code",
-            //            value: options.model.MissingValProcess,
-            //            optionLabel: {
-            //                name: "선택",
-            //                code: ""
-            //            }
+            console.log("rows", rows);
+
+            return rows;
         }
 
         saveDsCol() {
@@ -1757,21 +2131,29 @@
 
             let yCount = 0; // Y가 선택된 개수를 체크하는 변수
 
-            grid_data.forEach(function (item) {
+            // forEach문의 경우 중간에 중지 불가.
+            //grid_data.forEach(function (item) {
+            for (let item of grid_data) {
                 item.X = (item.X == 'true' || item.X == 1) ? 1 : 0;
                 item.Y = (item.Y == 'true' || item.Y == 1) ? 1 : 0;
+
+                // X = Y인 경우(독립변수와 종속변수가 같은 경우) 경고 메시지 출력 후 저장 중단
+                if (item.X == 1 && item.Y == 1) {
+                    Alert.alert('error', 'X변수와 Y변수가 같습니다. 다시 선택해주세요.');
+                    return; // 🚨 저장 로직 중단
+                } 
 
                 if (item.Y === 1) {
                     yCount++; // Y가 선택된 경우 개수 증가
                 }
-            });
+            }
 
             // Y가 2개 이상 선택된 경우 경고 메시지 출력 후 저장 중단
             if (yCount > 1) {
-                Alert.alert('error', 'Y 변수는 하나만 선택해야 합니다.');
-                return; // 🚨 저장 로직 중단
+                Alert.alert('error', 'Y변수는 하나만 선택해야 합니다.');
+                return; // 저장 로직 중단
             }
-
+            
             let data = {
                 md_id: _this.md_id,
                 Q: JSON.stringify(grid_data),
@@ -1779,7 +2161,14 @@
 
             let fnSuccess = function (result) {
                 if (result.message) {
-                    Alert.alert("info", `아래의 ${message}`);
+                    let excluded_x = result.message.non_numeric_x;
+                    let excluded_y = result.message.non_numeric_y;
+
+                    Alert.alert("info",
+                        `수치형 데이터가 아닌 변수는 제외됩니다. 
+                        <br/>제외된 X변수: ${excluded_x ? excluded_x : '없음'}
+                        <br/>제외된 Y변수: ${excluded_y ? excluded_y : '없음'}`
+                    );
                 }
                 if (result.success) {
                     Notify.success('저장되었습니다');
