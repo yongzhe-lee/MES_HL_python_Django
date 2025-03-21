@@ -397,23 +397,19 @@
                 const options = {
                     title: '내 정보',
                     width: '400px',
-                    height: '370px',
+                    height: '350px',
+					param: { login_id: '{{userinfo.login_id}}', username: '{{userinfo.username}}' }
                 }
                 popupComn.openPopup('/page/popup/myinfo', options);
             });
             // 다국어 설정
             $('#langSetting').on('click', function () {
-                langModal = $("<div></div>").kendoWindow({
-                    width: "400px",
-                    height: "200px",
-                    title: "Language setting",
-                    actions: ["Close"],
-                    content: '/page/popup/language',
-                    iframe: true,
-                    resizable: false
-                }).data("kendoWindow");
-
-                langModal.center().open();
+				const options = {
+					title: '언어 설정',
+					width: '400px',
+					height: '200px',
+				}
+				popupComn.openPopup('/page/popup/language', options);
             });
 
             // Tab Context Menu

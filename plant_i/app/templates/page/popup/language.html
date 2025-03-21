@@ -1,5 +1,67 @@
 {% extends "app/layout.html" %}
 {% block css %}
+<style>
+	/* 모달 푸터 스타일 */
+	.modal-footer {
+		padding: 0px 20px;
+		margin: 0px;
+		text-align: right;
+		border-top: 0px solid #dee2e6;
+	}
+
+	/* 저장 버튼 스타일 */
+	.btn-save {
+		background: #ECF5FF !important;
+		color: #409EFF !important;
+		border-color: #B3D8FF !important;
+		border: 1px solid #00a9ff !important;
+		padding: 6px 12px;
+		border-radius: 4px;
+		cursor: pointer;
+		min-width: 40px;
+		height: 32px;
+		line-height: 1;
+	}
+
+	.btn-save:hover {
+		background-color: #C2DFFF !important;
+		border-color: #0054e0 !important;
+	}
+
+	/* 기본 상태 (디폴트) */
+	.btn-close {
+		background: #ECF5FF !important;
+		color: #409EFF !important;
+		border-color: #B3D8FF !important;
+		border: 1px solid #00a9ff !important;
+		padding: 5px 12px;
+		border-radius: 6px;
+		cursor: pointer;
+		min-width: 60px;
+		height: 32px;
+		font-size: 14px;
+		text-align: center;
+		display: inline-block;
+	}
+
+	/* 마우스 호버 시 (hover) */
+	.btn-close:hover {
+		background-color: #C2DFFF !important;
+		border-color: #0054e0 !important;
+	}
+
+	.k-button.btn-close {
+		background: #ECF5FF !important;
+		color: #409EFF !important;
+		border-color: #B3D8FF !important;
+		border: 1px solid #00a9ff !important;
+	}
+
+	.k-button.btn-close:hover {
+		background-color: #C2DFFF !important;
+		border-color: #0054e0 !important;
+	}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,8 +74,11 @@
             </div>
         </div>
     </div>
-    <button type="button" id="saveLanguage"><span data-commonCd="저장">Save</span></button>
-    <button type="button" id="modal-close-button"><span data-commonCd="닫기">Close</span></button>
+    <!-- 버튼 영역 -->
+    <div class="modal-footer">
+        <button type="button" class="btn-save" id="saveLanguage">저장</button>
+        <button type="button" class="btn-close" id="modal-close-button">닫기</button>
+    </div>
 </div>
 
 
@@ -51,10 +116,9 @@
 
 
         $('#modal-close-button').kendoButton({
-            icon: "x",
-            themeColor: "error",
+            themeColor: "base",
             click: function () {
-                parent.langModal.close();
+				window.popupData.close();
             }
         })
     });

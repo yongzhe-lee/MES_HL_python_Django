@@ -1,0 +1,164 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+    .k-daterange-picker .k-dateinput, .k-daterangepicker .k-dateinput {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-2  col-lg-2 col-xl-2">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="data_date" data-labelCd="변경일">변경일</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="data_date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="설비실적,측정데이터">설비실적,측정데이터</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <!--<button id="btnReturn">반려</button>
+                        <button id="btnReSample">재샘플</button>
+                        <button id="btnEditSample"><i class="material-symbols-outlined">edit</i>샘플수정</button>
+                        <button id="btnHistory">이력조회</button>
+                        <button id="btnFile">파일조회</button>
+                        <button id="btnApproval">승인</button>-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="equ_result_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class IFInterfaceQMSPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/interface/qms';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "data_date", title: "작업일", width: 100 },
+                    { field: "worker_name", title: "설비코드", width: 100 },
+                    { field: "init_result", title: "초기결과", width: 100 },
+                    { field: "complete_date", title: "완료일자", width: 100 },
+                    { field: "final_result", title: "최종결론", width: 100 },
+                    { field: "final_remark", title: "최종결론내용", width: 100 },
+                    { field: "created", title: "생성일", width: 180 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: 680
+            };
+            _this.grid = new Grid($("#equ_result_grid"), gridOption);
+
+
+            $("#data_date").kendoDatePicker({
+                dateInput: true
+            });
+
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    _this.exportExcel();
+                }
+            });
+
+        }
+
+
+        searchMainData() {
+
+            let _this = this;
+
+            let data_date = $('#data_date').val();
+
+            let param = {
+                action: 'read',
+                data_date: data_date
+            };
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.items);
+                }
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            console.log(data)
+
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+            }
+        }
+
+    };
+
+    let page = new IFInterfaceQMSPage();
+
+    $(document).ready(function () {
+    });
+
+</script>
+
+{% endblock %}

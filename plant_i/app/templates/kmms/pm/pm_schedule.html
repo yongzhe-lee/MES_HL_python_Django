@@ -141,10 +141,11 @@
 {% block scripts %}
 
 {% include '../../popup/modalPmMaster.html'%}
+{% include '../../popup/modalEquipMaster.html'%}
 {% include '../../popup/modalEqu.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
-{% include '../../popup/modalMaterials.html'%}
+{% include '../../popup/modalWoDetail.html'%}
 {% include 'common/file_upload.html' %}
 
 <script type="text/javascript">
@@ -263,19 +264,19 @@
                         field: 'work_order_no',
                         title: 'WO 번호',
                         width: 80,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=work_order_pk#">#=work_order_no#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-pk="#=work_order_pk#">#=work_order_no#</a>'
                     },
                     {
                         field: 'pm_no',
                         title: 'PM 번호',
                         width: 150,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
                     },
                     {
-						field: "work_title",
+                        field: "work_title",
                         title: "작업제목",
                         width: 150,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=work_order_no#">#=work_title#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-pk="#=work_order_pk#">#=work_title#</a>'
                     },
                     { field: 'equ_code', title: '설비코드', width: 100 },
                     { field: 'equ_name', title: '설비명', width: 150 },
@@ -287,15 +288,18 @@
                     { field: 'pm_type', title: 'PM 유형', width: 80 },
                     { field: 'cycle_type', title: '주기', width: 50 }
                 ],
-
-                change: function (e) {
-                    _this.showDetail();
-                },
                 dataBound: function (e) {
                     $(".grid-column-link").off("click").on("click", function (e) {
                         e.preventDefault();
                         let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기
-                        page.showPmMasterModal(pmPk);
+						let work_order_pk = $(this).data("wo-pk");
+                        
+                        if (pmPk) {
+                            page.showPmMasterModal(pmPk);
+						} else if (work_order_pk) {
+							woDetailPage.getWorkOrderData(work_order_pk);
+                        }
+
                     });
                 },
                 height: "540px"
@@ -385,75 +389,7 @@
                 }
             }).css('visibility', 'visible');
         }
-
-        /**
-         * PM 마스터 데이터를 모달 폼에 바인딩하는 함수
-         * @param {Object} pmData - PM 마스터 상세 데이터
-         */
-        bindPmMasterData(pmData) {
-            // 기본 필드 바인딩
-            const basicFields = {
-                'equip_pk': pmData.equip_pk,
-                'pm_pk': pmData.pm_pk,
-                'pmNumber': pmData.pm_no,
-                'pmName': pmData.pm_nm,
-                'work_text': pmData.work_text,
-                'equ_code': pmData.equ_code,
-                'equ_name': pmData.equ_name,
-                'equ_loc': pmData.equ_location,
-                'equ_import': pmData.import_rank,
-                'equ_status': pmData.Status,
-                'equ_env_yn': pmData.environ_equip_yn,
-                'maintenanceTime': pmData.work_expect_hr,
-                'perNumber': pmData.per_number,
-                'schedStartDt': pmData.sched_start_dt
-            };
-
-            // 기본 필드 값 설정
-            Object.entries(basicFields).forEach(([id, value]) => {
-                $(`#${id}`).val(value);
-            });
-
-            // Kendo 드롭다운 컴포넌트 바인딩
-            const kendoDropdowns = [
-                {
-                    id: 'executionDept',
-                    type: 'kendoDropDownTree',
-                    value: pmData.exec_dept
-                },
-                {
-                    id: 'pmManager',
-                    type: 'kendoDropDownList',
-                    value: pmData.pm_manager
-                },
-                {
-                    id: 'pmType',
-                    type: 'kendoDropDownList',
-                    value: pmData.pm_type
-                },
-                {
-                    id: 'cycleType',
-                    type: 'kendoDropDownList',
-                    value: pmData.cycle_type
-                }
-            ];
-
-            kendoDropdowns.forEach(dropdown => {
-                const component = $(`#${dropdown.id}`).data(dropdown.type);
-                if (component) {
-                    component.one("dataBound", function () {
-                        component.value(dropdown.value);
-                        component.trigger("change");
-
-                        if (!component.value()) {
-                            component.text(dropdown.value);
-                        }
-                    });
-                    component.dataSource.read();
-                }
-            });
-        }
-
+		//pm 마스터
         showPmMasterModal(pmId) {
             let _this = this;
 
@@ -463,7 +399,6 @@
                 id: pmId,
             };
             let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
-            console.log("📌 [DEBUG] PM 상세 데이터:", pmData);
 
             // 2. PM 작업 인력 API 호출
             let param2 = {
@@ -471,7 +406,6 @@
                 id: pmId,
             };
             let pmDataLabor = AjaxUtil.getSyncData(_this.baseUrl, param2);
-            console.log("📌 [DEBUG] 작업인력 데이터:", pmDataLabor);
 
             // 3. PM 필요자재 API 호출
             let param3 = {
@@ -479,17 +413,15 @@
                 id: pmId,
             };
             let pmDataMtrl = AjaxUtil.getSyncData(_this.baseUrl, param3);
-            console.log("📌 [DEBUG] 작업 필요자재 데이터:", pmDataMtrl);
 
             // 1.1. 기존 데이터 바인딩
-            this.bindPmMasterData(pmData);
+			pmMasterPage.bindPmMasterData(pmData);
 
             // 2.1. 작업인력 테이블 초기화 및 데이터 바인딩
             $('#jobClassTable tbody').empty();
 
             if (Array.isArray(pmDataLabor) && pmDataLabor.length > 0) {
                 pmDataLabor.forEach((labor, index) => {
-                    console.log("📌 [DEBUG] 바인딩할 labor 데이터:", labor);
 
                     // null 체크를 포함한 안전한 데이터 접근
                     const id = labor?.id || '';
@@ -526,7 +458,6 @@
 
             if (Array.isArray(pmDataMtrl) && pmDataMtrl.length > 0) {
                 pmDataMtrl.forEach((mtrl, index) => {
-                    console.log("📌 [DEBUG] 바인딩할 material 데이터:", mtrl);
 
                     // null 체크를 포함한 안전한 데이터 접근
                     const mat_pk = mtrl?.mat_pk || '';
@@ -592,7 +523,7 @@
                 };
 
                 let param = {
-					action: 'read_pm_sch',
+                    action: 'read_pm_sch',
                     keyword: $('#keyword').val() || '',
                     equDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
                     equLoc: getComponentValue("#srch_location", "kendoDropDownTree"),

@@ -288,7 +288,7 @@
                         e.preventDefault();
                         let pmPk = $(this).data("pm-pk");
                         let equipPk = $(this).data("equip-pk");
-                        
+						
                         if (pmPk) {
                             _this.showPmMasterModal(pmPk);
                         } else if (equipPk) {
@@ -487,26 +487,7 @@
             }
 
             $("#modalPmMaster").fadeIn();
-        }
-
-        //설비 마스터
-        showEquipMasterModal(equipId) {
-            let _this = this;
-
-            // 설비 상세 정보 API 호출
-            let param = {
-                action: 'detail',
-                id: equipId,
-            };
-            let equipData = AjaxUtil.getSyncData('/api/definition/equipment', param);
-
-			// 1.1. 기존 데이터 바인딩
-			this.bindEquipMasterData(equipData);
-
-            if (equipData) {
-                $("#modalEquipMaster").fadeIn();
-            }
-        }
+        }     
 
         searchMainData() {
             let _this = this;

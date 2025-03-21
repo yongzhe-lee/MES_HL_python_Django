@@ -1,0 +1,328 @@
+<div id="modalWoDetail" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>wo 상세정보</h4>
+		</div>
+
+		<div class="modal-body">
+			<!-- 대상설비 섹션 -->
+			<div class="equipment-section">
+				<div class="form-row">
+					<div class="form-group">
+						<label>설비코드</label>
+						<input type="hidden" id="equip_pk" name="equip_pk" />
+						<input type="text" class="form-control" id="equip_code" name="equip_code" readonly>
+					</div>
+					<div class="form-group">
+						<label>설비명</label>
+						<input type="text" class="form-control" id="equip_name" name="equip_name" readonly>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label>설비위치</label>
+						<input type="hidden" id="equ_loc_pk" name="equ_loc_pk" />
+						<input type="text" class="form-control" id="equip_loc" name="equip_loc" readonly>
+					</div>
+					<div class="form-group">
+						<label>중요도</label>
+						<input type="text" class="form-control" id="equip_import" name="equip_import" readonly>
+					</div>
+					<div class="form-group">
+						<label>설비상태</label>
+						<input type="text" class="form-control" id="equip_status" name="equip_status" readonly>
+					</div>
+					<div class="form-group">
+						<label>법정관리설비</label>
+						<input type="text" class="form-control" id="equip_env_yn" name="equip_env_yn" readonly>
+					</div>
+				</div>
+			</div>
+
+			<!-- 탭 섹션 -->
+			<div class="section">
+				<div class="tab-group">
+					<button class="tab-button active" data-tab="equipMasterForm" style="background: #1e4f88; color: white; border-color: #1e4f88;">기본정보</button>
+					<button class="tab-button" data-tab="equipSpec">사양(Spec)</button>
+					<button class="tab-button" data-tab="equipPartsBom">Parts/BOM</button>
+					<button class="tab-button">파일</button>
+					<button class="tab-button">PM</button>
+					<button class="tab-button">점검</button>
+					<button class="tab-button">로그</button>
+					<button class="tab-button">자산평가</button>
+					<button class="tab-button">기술진단</button>
+				</div>
+				<div class="tab-content">
+					<!-- 기본정보 탭 컨텐츠 -->
+					<div class="tab-pane active" id="equipMasterForm" style="display: block; overflow-y:auto; height: 400px;">
+						<div class="form-row">
+							<div class="form-group">
+								<label>관리부서 <span class="required">*</span></label>
+								<input type="text" class="form-control" id="dept_nm" name="dept_nm" readonly>
+							</div>
+							<div class="form-group">
+								<label>자산번호<span class="required">*</span></label>
+								<input type="text" class="form-control" id="asset_nos" name="asset_nos" readonly>
+							</div>						
+						</div>
+						<div class="form-row">
+							<div class="form-group">
+								<label>상위설비</label>
+								<input type="text" class="form-control" id="up_equip_pk" name="up_equip_pk" readonly>
+							</div>
+							<div class="form-group">
+								<label>순환설비자재</label>
+								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
+							</div>
+							<div class="form-group">
+								<label>코스트 센터</label>
+								<input type="text" class="form-control" id="ccenter_cd" name="ccenter_cd" readonly>
+							</div>
+						</div>
+						<div class="form-row">							
+							<div class="form-group">
+								<label>공급업체</label>
+								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
+							</div>
+							<div class="form-group">
+								<label>구매비용</label>
+								<input type="text" class="form-control" id="PurchaseCost" name="PurchaseCost" readonly>
+							</div>
+							<div class="form-group">
+								<label>제조일</label>
+								<input type="text" class="form-control" id="ProductionYear" name="ProductionYear" readonly>
+							</div>
+							<div class="form-group">
+								<label>설치일</label>
+								<input type="text" class="form-control" id="InstallDate" name="InstallDate" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group">
+								<label>보증만료일</label>
+								<input type="text" class="form-control" id="warranty_dt" name="warranty_dt" readonly>
+							</div>
+							<div class="form-group">
+								<label>제조사명</label>
+								<input type="text" class="form-control" id="Maker" name="Maker" readonly>
+							</div>
+							<div class="form-group">
+								<label>모델넘버</label>
+								<input type="text" class="form-control" id="Model" name="Model" readonly>
+							</div>
+							<div class="form-group">
+								<label>시리얼넘버</label>
+								<input type="text" class="form-control" id="SerialNumber" name="SerialNumber" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group">
+								<label>비고</label>
+								<textarea class="form-control" id="Description" name="Description" readonly></textarea>
+							</div>
+						</div>
+					</div>
+					<!-- 작업 인력/자재 탭 컨텐츠 -->
+					<div class="tab-pane" id="equipSpec" style="display: block; overflow-y:auto; height: 400px;">
+						<div class="form-row">
+							<div class="form-group">
+								<label>설비분류</label>
+								<input type="text" class="form-control" id="pmName" name="pmName" readonly >
+							</div>
+							<div class="form-group">
+								<label>설비분류 설명</label>
+								<input type="text" class="form-control" id="pmName" name="pmName" readonly >
+							</div>
+						</div>
+						<div id="equSpecGrid" class="grid">
+						</div>
+					</div>
+					<!-- PM WO 목록 탭 컨텐츠 -->
+					<div class="tab-pane" id="equipPartsBom">
+						<div id="pmWorkOrderGrid"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 버튼 영역 -->
+		<div class="modal-footer">			
+			<button type="button" class="btn-close" id="closeWoModal">닫기</button>
+		</div>
+	</div>
+</div>
+
+<style>
+	.required {
+		color: #e74c3c;
+		margin-left: 3px;
+	}
+
+	.grid {
+		width: 100%;
+		margin-bottom: 20px;
+	}
+
+	/* 탭 영역 */
+	.tab-group {
+		display: flex;
+		margin-bottom: 10px;
+		border-bottom: 1px solid #1e4f88;
+	}
+
+	.tab-button {
+		padding: 6px 20px;
+		border: 1px solid #ccc;
+		background: #f5f5f5;
+		cursor: pointer;
+		font-size: 12px;
+	}
+
+		.tab-button.active {
+			background: #4682B4;
+			color: white;
+			border-color: #4682B4;
+		}
+
+	/* 탭 컨텐츠 */
+	.tab-content {
+		min-height: 400px;
+	}
+
+	.tab-pane {
+		display: none;
+	}
+
+		.tab-pane.active {
+			display: block;
+		}
+
+	/* 모달 */
+	#modalWoDetail {
+		z-index: 1000;
+	}
+
+</style>
+
+<script type="text/javascript">
+	class WorkOrder {
+		constructor() {
+			this.baseUrl = '/api/definition/equipment';
+			this.init();
+		}
+
+		init() {
+			const modal = $("#modalWoDetail");
+
+			$("#equSpecGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'detail',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},									
+				}),
+				height: 550,
+				sortable: true,
+				pageable: true,
+				autoBind: false, // 자동 데이터 바인딩 비활성화
+				columns: [
+					{ field: "no", title: "NO", width: 120 },
+					{ field: "specnm", title: "사양명", width: 120,},
+					{ field: "unit", title: "단위", width: 100 },
+					{ field: "spec", title: "사양(Spec)", width: 100 }
+				],
+				noRecords: {
+					template: "조회된 데이터가 없습니다."
+				}
+			});
+
+			// 탭 클릭 이벤트
+			$('.tab-button').on('click', function () {
+				const tabId = $(this).data('tab');
+				$('.tab-button').removeClass('active').removeAttr('style');
+				$('.tab-pane').removeClass('active').hide();
+				$(this).addClass('active').css({
+					'background': '#1e4f88',
+					'color': 'white',
+					'border-color': '#1e4f88'
+				});
+				if (tabId) $('#' + tabId).addClass('active').show();
+			});
+
+			// 모달 닫기
+			$('#closeWoModal').kendoButton({
+				click: () => modal.fadeOut()
+			});		
+
+			// ESC 키로 모달 닫기
+			$(document).on('keydown', (e) => {
+				if (e.keyCode === 27) modal.fadeOut();
+			});
+		}
+
+		//설비 마스터
+		getWorkOrderData(equipId) {			
+			let _this = this;
+
+			// 설비 상세 정보 API 호출
+			let param = {
+				action: 'detail',
+				id: equipId,
+			};
+			let equipData = AjaxUtil.getSyncData('/api/definition/equipment', param);
+
+			// 1.1. 기존 데이터 바인딩
+			this.bindEquipMasterData(equipData);
+
+			if (equipData) {
+				$("#modalWoDetail").fadeIn();
+			}
+		}
+
+		bindEquipMasterData(data) {
+			// 기본 필드 바인딩
+			const basicFields = {
+				'equip_master_pk': data.id,
+				'equip_code': data.Code,
+				'equip_name': data.Name,
+				'equip_loc': data.loc_nm,
+				'equip_import': data.import_rank,
+				'equip_status': data.Status,
+				'equip_env_yn': data.environ_equip_yn,
+
+				//기본정보
+				'dept_nm': data.dept_nm,
+				'asset_nos': data.asset_nos,			
+				'up_equip_pk': data.up_equip_pk,
+				'ccenter_cd': data.ccenter_cd,
+				'SupplierName': data.SupplierName,
+				'PurchaseCost': data.PurchaseCost,
+				'ProductionYear': data.ProductionYear,
+				'InstallDate': data.InstallDate,
+				'warranty_dt': data.warranty_dt,
+				'Maker': data.Maker,
+				'Model': data.Model,
+				'SerialNumber': data.SerialNumber,
+				'Description': data.Description,
+			};
+
+			// 기본 필드 값 설정
+			Object.entries(basicFields).forEach(([id, value]) => {
+				$(`#${id}`).val(value);
+			});
+
+		}
+
+	}
+
+	woDetailPage = new WorkOrder();
+</script>

@@ -434,8 +434,8 @@ class IFQmsDefect(models.Model):
     final_result	varchar(2000)	최종결론내용
 
     '''
-    id = models.BigAutoField(primary_key=True)
-    qis_pk = models.IntegerField('QIS부적합테이블 PK')
+   #id = models.BigAutoField(primary_key=True)
+    qis_pk = models.IntegerField('QIS부적합테이블 PK', primary_key=True)
     a_date = models.DateField('분석일자', null=True)
     o_date = models.DateField('발생일자', null=True)
     w_shift = models.CharField('근무조', max_length=10, null=True)
@@ -482,6 +482,7 @@ class IFQmsDefect(models.Model):
 class IFVanInterface(models.Model):
 
     id = models.BigAutoField(primary_key=True)
+    rnd_num = models.CharField('난수번호', max_length=10, null=True)
     #헤더시작
     report_number = models.CharField("성적서번호", max_length=20, null=True )
     inv_number = models.CharField("거래명세서번호", max_length=20, null=True )
@@ -571,6 +572,7 @@ class IFVanInterface(models.Model):
 class VanReport(models.Model):
     
     id = models.BigAutoField(primary_key=True)
+    rnd_num = models.CharField('난수번호', max_length=10, null=True)
     #헤더시작
     report_number = models.CharField("성적서번호", max_length=20, null=True )
     inv_number = models.CharField("거래명세서번호", max_length=20, null=True )
@@ -681,7 +683,7 @@ class VanItemResult(models.Model):
 
 
 
-class if_log(models.Model):
+class IFLog(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     task = models.CharField('인터페이스업무데이터구분', max_length=50, null =True)
@@ -692,6 +694,7 @@ class if_log(models.Model):
     rev_no = models.CharField('REVISION번호', max_length=2, null =True)
     is_success  = models.CharField(' success yn', max_length=1, default="Y")
     log_date = models.DateTimeField('로그일시', auto_now_add=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
 
     class Meta():
         db_table = 'if_log'

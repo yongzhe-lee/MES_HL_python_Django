@@ -1859,6 +1859,28 @@ var popupComn = {
             resizable: false,
             open: function () {
                 var iframe = this.wrapper.find("iframe");
+
+                // ✅ 팝업 생성 즉시 스타일 적용하여 기본 스타일 덮어쓰기
+                this.wrapper.find(".k-window-titlebar")
+                    .css({
+                        "background-color": "#34495e",
+                        "color": "#ffffff",
+                        "border-top-left-radius": "5px",
+                        "border-top-right-radius": "5px"
+                    });
+
+                this.wrapper.css({
+                    "border": "1px solid #2c3e50", // ✅ 테두리 추가
+                    "border-radius": "5px",
+                    "overflow": "hidden", // 테두리 둥글게 유지
+                    "box-shadow": "none",
+                    "-webkit-box-shadow": "none",
+                    "-moz-box-shadow": "none"
+                });
+
+                // ✅ iframe이 깜빡거리지 않도록 숨김 처리
+                iframe.css("display", "none");
+
                 iframe.on("load", function () {
                     var contentWindow = iframe[0].contentWindow;
                     $(contentWindow.document.body).css("background-color", "#ffffff");  // iframe 흰색 배경
@@ -1869,11 +1891,18 @@ var popupComn = {
                             popup.close(result);
                         }
                     };
+
+                    // ✅ 스타일 적용 후 iframe 표시
+                    setTimeout(() => {
+                        $(contentWindow.document.body).css("visibility", "visible");
+                        iframe.css("display", "block");
+                    }, 1); // 약간의 지연을 주어 깜빡임 방지
+
                     // open 콜백 함수가 존재하면 호출
                     if (typeof _options.openCallback === "function") {
                         _options.openCallback(this);  
                     }
-                })
+                }.bind(this))
             },
             close: function (e) {
                 // close 콜백 함수가 존재하면 호출

@@ -7,7 +7,7 @@ from django.db.models import ProtectedError
 from django.db import IntegrityError
 from domain import init_once
 from domain.services.date import DateUtil
-
+from domain.models.interface import IFLog
 
 @init_once
 class LogWriter:
@@ -185,3 +185,25 @@ class LogWriter:
                 print(ex)
 
         return
+
+
+    @classmethod
+    def add_interface_log(cls, task, method, contents, equ_cd=None, mat_cd=None, rev_no=None, is_success='Y', user=None):
+
+        if_log = IFLog()
+        if_log.task = task
+        if_log.method = method
+        if_log.contents = contents
+        if_log.equ_cd = equ_cd
+        if_log.mat_cd = mat_cd
+        if_log.rev_no = rev_no
+        if_log.is_success = is_success
+
+        if user:
+            if_log._creater_id = user.id
+
+        if_log.log_date = DateUtil.get_current_datetime()
+
+        if_log.save()
+
+        return if_log

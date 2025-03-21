@@ -18,7 +18,7 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="txtPCBRanNumber" data-labelCd="PCB난수번호">PCB난수번호</label>
                             <div class="field-wrapper">
-                                <input type="text" id="txtPCBRanNumber" name="pcb_ran_num" value="" placeholder="pcb 난수번호" />
+                                <input type="text" id="txtPCBRanNumber" name="rnd_num" placeholder="pcb 난수번호" value="aBPYK"/>
 
                             </div>
                         </div>
@@ -227,12 +227,35 @@
         }
 
         searchSAPRandomNumber() {
+            let rnd_num = $('#txtPCBRanNumber').val();
+
+            let data = {
+                action: 'sap_van_report_by_pcb_rnd_num',
+                rnd_num: rnd_num
+            };
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("SAP, VAN 조회", "조회되었습니다.");
+                }
+                else {
+                    Alert.alert("SAP, VAN 조회", result.message);
+                }
+            }
+
+            AjaxUtil.getAsyncData(this.url, data, fnSuccess);
 
         }
         searchMainData() {
             let _this = this;
+
+            let rnd_num = $('#txtPCBRanNumber').val();
+            let sap_input_number = $('#txtSAPInputNumber').val();
+
             let param = {
                 action: 'read',
+                rnd_num: rnd_num,
+                sap_input_number: sap_input_number
             };
 
             let fnSuccess = function (result) {

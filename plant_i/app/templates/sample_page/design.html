@@ -1,0 +1,294 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_line" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select id="srch_equ_line" name="srch_equ_line"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_grp" data-labelCd="설비그룹">설비그룹</label>
+                            <div class="field-wrapper">
+                                <select id="srch_equ_grp" name="srch_equ_grp"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_equ_name" data-labelCd="설비명">설비명</label>
+                            <div class="field-wrapper">
+                                <input id="srch_equ_name" name="srch_equ_name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="content-ui-row connect">
+        <div class="card-content grid">
+            <div class="card-group-btn">
+                <span class="info-text">
+                    <i class="material-symbols-outlined">list_alt</i>
+                    <label data-labelCd="설비정보">설비정보</label>
+                </span>
+                <span>
+                    <button id="btnExcel">Excel</button>
+                </span>
+            </div>
+            <div id="equipment_grid" style="height:540px;"></div>
+        </div>
+    </div>
+    <div class="content-ui-row connect">
+        <div class="card-content edit">
+            <div class="card-group-btn">
+                <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
+                <span>
+                    <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                    <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
+                    <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                </span>
+            </div>
+            <form id="equipmentForm">
+                <div class="edit-form-ui">
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Name">설비명</label>
+                            <div class="field-wrapper">
+                                <input id="Name" name="Name" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="Code">설비코드</label>
+                            <div class="field-wrapper">
+                                <input id="Code" name="Code" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="InstallDate">설치일</label>
+                            <div class="field-wrapper">
+                                <input id="InstallDate" name="InstallDate" type="date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="PurchaseCost">구매금액</label>
+                            <div class="field-wrapper">
+                                <input id="PurchaseCost" name="PurchaseCost" type="number" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="AssetYN">자산여부</label>
+                            <div class="field-wrapper">
+                                <input id="AssetYN" name="AssetYN" type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+    class SampleDesignPage {
+        constructor() {
+            this.grid = null;
+            // 데이터를 받아오는 api 주소 ( '/api/도메인/해당하는 view파일명' )
+            // this.baseUrl = '/api/definition/equipment';
+            this.init();
+            // 임시 그리드 데이터
+            this.dummyData = [
+                { Name: "설비A", Code: "EQ001", InstallDate: "2024-01-15", AssetYN: "Y" },
+                { Name: "설비B", Code: "EQ002", InstallDate: "2024-02-20", AssetYN: "Y" }
+            ];
+
+        }
+
+        init() {
+            let _this = this;
+            // 그리드
+            let equipmentGridOption = {
+                dataSource: {
+                    data: _this.dummyData,
+                    schema: {
+                        model: {
+                            fields: {
+                                Name: { type: "string" },
+                                Code: { type: "string" },
+                                InstallDate: { type: "date" }
+                            }
+                        }
+                    },
+                    pageSize: 5
+                },
+                autoBind: true,
+                sortable: true,
+                pageable: true,
+                columns: [
+                    { field: "Name", title: "설비명" },
+                    { field: "Code", title: "설비코드" },
+                    { field: "InstallDate", title: "설치일", format: "{0:yyyy-MM-dd}" }
+                ],
+                change: function () {
+                    _this.showDetail();
+                }
+            };
+            _this.grid = $("#equipment_grid").kendoGrid(equipmentGridOption).data("kendoGrid");
+
+            //search form
+            //combo 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
+            AjaxUtil.fillDropDownOptions($('#srch_equ_line'), 'line', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#srch_equ_grp'), 'equipment_group', 'all', null);
+            $('#srch_equ_name').kendoTextBox();
+            $('#srch_equ_name').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            $('#Code').kendoTextBox();
+            $('#Name').kendoTextBox();
+            $('#InstallDate').kendoDatePicker({ format: 'yyyy-MM-dd' });
+            $('#PurchaseCost').kendoTextBox();
+            $('#AssetYN').kendoSwitch({
+                checked: true
+            });
+
+            //button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            // Kendo Grid에 데이터 설정
+            let grid = $("#equipment_grid").data("kendoGrid");
+            if (grid) {
+                grid.dataSource.data(_this.dummyData); // ✅ 데이터를 직접 설정
+                grid.refresh(); // ✅ UI 갱신
+            }
+        }
+
+        resetData() {
+            let _this = this;
+            $("#equipment_grid").data('kendoGrid').refresh();
+            $("#Depart_id").data('kendoDropDownTree').value('');
+
+            FormUtil.resetForm($('#equipmentForm'));
+
+            // Switch 컴포넌트 초기화 추가
+            $("#AssetYN").data("kendoSwitch").check(true);
+        }
+
+        showDetail() {
+            let _this = this;
+            let selectedData = _this.grid.dataItem(_this.grid.select());
+            if (selectedData) {
+                FormUtil.BindDataForm(selectedData, $('#equipmentForm'));
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#equipmentForm'));
+            data.AssetYN = $("#AssetYN").data("kendoSwitch").check() ? 'Y' : 'N';
+
+            _this.dummyData.push(data);
+
+            Notify.success('저장되었습니다.');
+            _this.searchMainData();
+            _this.resetData();
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+
+            if (data.length > 0) {
+                _this.dummyData = _this.dummyData.filter(x => !data.includes(x));
+            }
+
+            Notify.success('삭제되었습니다.');
+            _this.resetData();
+            _this.searchMainData();
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#equipment_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "equipment.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    }
+
+    let page = new SampleDesignPage();
+
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}
