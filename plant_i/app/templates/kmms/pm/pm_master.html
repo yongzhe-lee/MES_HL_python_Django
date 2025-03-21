@@ -290,7 +290,7 @@
                         let equipPk = $(this).data("equip-pk");
 						
                         if (pmPk) {
-                            _this.showPmMasterModal(pmPk);
+							pmMasterPage.getPmMasterModal(pmPk);
                         } else if (equipPk) {
 							equipMasterPage.getEquipMasterData(equipPk);
                         }
@@ -383,111 +383,6 @@
                 }
             }).css('visibility', 'visible');
         }
-
-        //pm 마스터
-        showPmMasterModal(pmId) {
-            let _this = this;
-
-            // 1. PM 상세 정보 API 호출
-            let param = {
-                action: 'detail',
-                id: pmId,
-            };
-            let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);            
-
-            // 2. PM 작업 인력 API 호출
-            let param2 = {
-                action: 'detail_pm_labor',
-                id: pmId,
-            };
-            let pmDataLabor = AjaxUtil.getSyncData(_this.baseUrl, param2);            
-
-            // 3. PM 필요자재 API 호출
-            let param3 = {
-                action: 'detail_pm_mtrl',
-                id: pmId,
-            };
-            let pmDataMtrl = AjaxUtil.getSyncData(_this.baseUrl, param3);            
-
-            // 1.1. 기존 데이터 바인딩
-			pmMasterPage.bindPmMasterData(pmData);
-
-            // 2.1. 작업인력 테이블 초기화 및 데이터 바인딩
-            $('#jobClassTable tbody').empty();
-
-            if (Array.isArray(pmDataLabor) && pmDataLabor.length > 0) {
-                pmDataLabor.forEach((labor, index) => {                   
-
-                    // null 체크를 포함한 안전한 데이터 접근
-                    const id = labor?.id || '';
-                    const job_class_pk = labor?.job_class_pk || '';
-                    const job_class_nm = labor?.job_class_nm || '';
-                    const work_hr = labor?.work_hr || '';
-
-                    const newRow = `
-                        <tr data-value="${job_class_pk}">
-                            <td>${index + 1}</td>
-                            <td style="display: none;">${job_class_pk}</td>
-                            <td>${job_class_nm}</td>
-                            <td>
-                                <input type="number"
-                                       class="form-control form-control-sm text-end"
-                                       min="0"
-                                       step="0.5"
-                                       placeholder="시간 입력"
-                                       value="${work_hr}" />
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
-                            </td>
-                        </tr>
-                    `;
-                    $('#jobClassTable tbody').append(newRow);
-                });
-            } else {
-                console.log("📌 [ERROR] 작업인력 데이터가 없거나 유효하지 않음:", pmDataLabor);
-            }
-
-            // 3.1. 필요자재 테이블 초기화 및 데이터 바인딩
-            $('#materialTable tbody').empty();  // 기존 테이블 초기화
-
-            if (Array.isArray(pmDataMtrl) && pmDataMtrl.length > 0) {
-                pmDataMtrl.forEach((mtrl, index) => {
-
-                    // null 체크를 포함한 안전한 데이터 접근
-                    const mat_pk = mtrl?.mat_pk || '';
-                    const mat_cd = mtrl?.mat_cd || '';
-                    const mat_nm = mtrl?.mat_nm || '';
-                    const amt = mtrl?.amt || '0';  // 기본값 설정
-                    const unit = mtrl?.BasicUnit || '';
-
-                    const newRow = `
-                        <tr data-value="${mat_pk}">
-                            <td>${mat_cd}</td>
-                            <td>${mat_nm}</td>
-                            <td>
-                                <input type="number"
-                                       class="form-control form-control-sm text-end"
-                                       min="0"
-                                       step="1"
-                                       value="${amt}"
-                                       placeholder="수량 입력"
-                                       name="amt"/>
-                            </td>
-                            <td>${unit}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
-                            </td>
-                        </tr>
-                    `;
-                    $('#materialTable tbody').append(newRow);  // materialTable로 수정
-                });
-            } else {
-                console.log("📌 [ERROR] 필요자재 데이터가 없거나 유효하지 않음:", pmDataMtrl);
-            }
-
-            $("#modalPmMaster").fadeIn();
-        }     
 
         searchMainData() {
             let _this = this;

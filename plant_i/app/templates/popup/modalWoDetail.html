@@ -5,56 +5,58 @@
 		</div>
 
 		<div class="modal-body">
+			<!-- 결재 라인 -->
+			<div class="appLine-section">
+				<div class="navigation-menu">
+					<span class="menu-item pm-icon">PM</span>
+					<span class="menu-separator">>></span>
+					<span class="menu-item">작업요청</span>
+					<span class="menu-separator">></span>
+					<span class="menu-item">요청승인</span>
+					<span class="menu-separator">></span>
+					<span class="menu-item active">작업승인</span>
+					<span class="menu-separator">></span>
+					<span class="menu-item">작업완료</span>
+					<span class="menu-separator">></span>
+					<span class="menu-item">WO 완료</span>
+				</div>
+			</div>
 			<!-- 대상설비 섹션 -->
 			<div class="equipment-section">
 				<div class="form-row">
 					<div class="form-group">
-						<label>설비코드</label>
-						<input type="hidden" id="equip_pk" name="equip_pk" />
-						<input type="text" class="form-control" id="equip_code" name="equip_code" readonly>
-					</div>
-					<div class="form-group">
-						<label>설비명</label>
-						<input type="text" class="form-control" id="equip_name" name="equip_name" readonly>
-					</div>
-				</div>
-				<div class="form-row">
-					<div class="form-group">
-						<label>설비위치</label>
+						<label>작업제목</label>
 						<input type="hidden" id="equ_loc_pk" name="equ_loc_pk" />
 						<input type="text" class="form-control" id="equip_loc" name="equip_loc" readonly>
 					</div>
 					<div class="form-group">
-						<label>중요도</label>
+						<label>작업유형</label>
 						<input type="text" class="form-control" id="equip_import" name="equip_import" readonly>
 					</div>
 					<div class="form-group">
-						<label>설비상태</label>
+						<label>보전유형</label>
 						<input type="text" class="form-control" id="equip_status" name="equip_status" readonly>
 					</div>
 					<div class="form-group">
-						<label>법정관리설비</label>
+						<label>요청자</label>
+						<input type="text" class="form-control" id="equip_env_yn" name="equip_env_yn" readonly>
+					</div>
+					<div class="form-group">
+						<label>희망일</label>
 						<input type="text" class="form-control" id="equip_env_yn" name="equip_env_yn" readonly>
 					</div>
 				</div>
 			</div>
-
 			<!-- 탭 섹션 -->
 			<div class="section">
 				<div class="tab-group">
-					<button class="tab-button active" data-tab="equipMasterForm" style="background: #1e4f88; color: white; border-color: #1e4f88;">기본정보</button>
-					<button class="tab-button" data-tab="equipSpec">사양(Spec)</button>
-					<button class="tab-button" data-tab="equipPartsBom">Parts/BOM</button>
-					<button class="tab-button">파일</button>
-					<button class="tab-button">PM</button>
-					<button class="tab-button">점검</button>
-					<button class="tab-button">로그</button>
-					<button class="tab-button">자산평가</button>
-					<button class="tab-button">기술진단</button>
+					<button class="tab-button" data-tab="reqInfo" style="background: #1e4f88; color: white; border-color: #1e4f88;">요청정보</button>
+					<button class="tab-button active" data-tab="workInfo">작업내역(전체)</button>
+					<button class="tab-button" data-tab="logInfo">로그</button>
 				</div>
 				<div class="tab-content">
 					<!-- 기본정보 탭 컨텐츠 -->
-					<div class="tab-pane active" id="equipMasterForm" style="display: block; overflow-y:auto; height: 400px;">
+					<div class="tab-pane" id="reqInfo" style="display: block; overflow-y:auto; height: 400px;">
 						<div class="form-row">
 							<div class="form-group">
 								<label>관리부서 <span class="required">*</span></label>
@@ -63,7 +65,7 @@
 							<div class="form-group">
 								<label>자산번호<span class="required">*</span></label>
 								<input type="text" class="form-control" id="asset_nos" name="asset_nos" readonly>
-							</div>						
+							</div>
 						</div>
 						<div class="form-row">
 							<div class="form-group">
@@ -79,7 +81,7 @@
 								<input type="text" class="form-control" id="ccenter_cd" name="ccenter_cd" readonly>
 							</div>
 						</div>
-						<div class="form-row">							
+						<div class="form-row">
 							<div class="form-group">
 								<label>공급업체</label>
 								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
@@ -123,23 +125,12 @@
 						</div>
 					</div>
 					<!-- 작업 인력/자재 탭 컨텐츠 -->
-					<div class="tab-pane" id="equipSpec" style="display: block; overflow-y:auto; height: 400px;">
-						<div class="form-row">
-							<div class="form-group">
-								<label>설비분류</label>
-								<input type="text" class="form-control" id="pmName" name="pmName" readonly >
-							</div>
-							<div class="form-group">
-								<label>설비분류 설명</label>
-								<input type="text" class="form-control" id="pmName" name="pmName" readonly >
-							</div>
-						</div>
-						<div id="equSpecGrid" class="grid">
-						</div>
+					<div class="tab-pane active" id="workInfo" style="display: block; overflow-y:auto; height: 400px;">
+
 					</div>
 					<!-- PM WO 목록 탭 컨텐츠 -->
-					<div class="tab-pane" id="equipPartsBom">
-						<div id="pmWorkOrderGrid"></div>
+					<div class="tab-pane" id="logInfo">
+						<div id="logInfoGrid"></div>
 					</div>
 				</div>
 			</div>
@@ -200,6 +191,38 @@
 	/* 모달 */
 	#modalWoDetail {
 		z-index: 1000;
+	}
+
+	.navigation-menu {
+		display: flex;
+		align-items: center;
+		padding: 5px 10px;
+		background-color: #f5f5f5;
+		border: 1px solid #ddd;
+	}
+
+	.menu-item {
+		padding: 2px 8px;
+		font-size: 12px;
+		color: #666;
+	}
+
+	.menu-item.active {
+		font-weight: bold;
+		color: #000;
+	}
+
+	.menu-item.pm-icon {
+		background-color: #4CAF50;
+		color: white;
+		padding: 2px 8px;
+		border-radius: 3px;
+	}
+
+	.menu-separator {
+		color: #999;
+		margin: 0 5px;
+		font-size: 11px;
 	}
 
 </style>
@@ -285,7 +308,33 @@
 
 			if (equipData) {
 				$("#modalWoDetail").fadeIn();
+				
+				// 작업내역 탭을 기본으로 활성화
+				this.activateTab('workInfo');
 			}
+		}
+
+		// 탭 활성화 메서드
+		activateTab(tabId) {
+			$('.tab-button').removeClass('active').removeAttr('style');
+			$('.tab-pane').removeClass('active').hide();
+			
+			$(`.tab-button[data-tab="${tabId}"]`).addClass('active').css({
+				'background': '#1e4f88',
+				'color': 'white',
+				'border-color': '#1e4f88'
+			});
+			$(`#${tabId}`).addClass('active').show();
+		}
+
+		// 작업번호 클릭 시 요청정보 탭 활성화
+		activateReqInfoTab() {
+			this.activateTab('reqInfo');
+		}
+
+		// 작업제목 클릭 시 작업내역 탭 활성화
+		activateWorkInfoTab() {
+			this.activateTab('workInfo');
 		}
 
 		bindEquipMasterData(data) {
