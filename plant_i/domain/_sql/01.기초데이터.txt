@@ -201,6 +201,12 @@ INSERT INTO equ_grp ("Code","Name","EquipmentType","Description","_status","_cre
 	 ('PR-016','HEAT-EX','기타',NULL,NULL,'2024-11-28 08:28:13.952111+09','2025-01-21 14:14:53.33048+09',3,3),
 	 ('PR-018','전원투입','기타',NULL,NULL,'2024-11-28 08:28:13.952111+09','2025-01-21 14:15:07.628097+09',3,3);
 
+-- equ
+alter SEQUENCE equ_id_seq restart WITH 1;
+INSERT INTO public.equ ("Code","MESCode","SAPCode","Name","Description","Maker","Model","Standard","Usage","ManageNumber","SerialNumber","ProductionYear","AssetYN","DurableYears","PowerWatt","Voltage","Manager","SupplierName","PurchaseDate","PurchaseCost","ServiceCharger","ASTelNumber","AttentionRemark","Inputdate","InstallDate","DisposalDate","DisposalReason","OperationRateYN","Status",loc_pk,equip_category_id,up_equip_pk,site_id,equip_class_path,equip_class_desc,asset_nos,warranty_dt,buy_cost,photo_file_grp_cd,doc_file_grp_cd,import_rank,environ_equip_yn,ccenter_cd,breakdown_dt,del_yn,process_cd,system_cd,first_asset_status,disposed_type,"_status","_created","_modified","_creater_id","_modifier_id","Depart_id","EquipmentGroup_id",line_id) VALUES
+	 ('equ01','','','설비01','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,NULL,'','',NULL,NULL,NULL,NULL,NULL,'Y','O',4,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'A',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-27 15:35:42.780811+09','2025-03-27 15:35:42.780811+09',1,1,4,NULL,1);
+
+
 --라인정보
 alter SEQUENCE line_id_seq restart WITH 1;
 insert into line ("Code", "Name", _created) values('PCU-01-01', 'HPC#1' , now());
@@ -239,11 +245,6 @@ INSERT INTO equip_category (equip_category_id,equip_category_desc,remark,use_yn,
 	 ('X','Auxiliaries','보조장치','N',NULL,'2025-01-07 11:39:04.617+09',NULL,1,NULL);
 
 
--- equ
-alter SEQUENCE equ_id_seq restart WITH 1;
-INSERT INTO equ("Code","MESCode","SAPCode","Name","Description","Maker","Model","Standard","Usage","ManageNumber","SerialNumber","ProductionYear","AssetYN","DurableYears","PowerWatt","Voltage","Manager","SupplierName","PurchaseDate","PurchaseCost","ServiceCharger","ASTelNumber","AttentionRemark","Inputdate","InstallDate","DisposalDate","DisposalReason","OperationRateYN","Status",loc_pk,equip_category_id,up_equip_pk,site_id,equip_class_path,equip_class_desc,asset_nos,warranty_dt,buy_cost,photo_file_grp_cd,doc_file_grp_cd,import_rank,environ_equip_yn,ccenter_cd,breakdown_dt,del_yn,process_cd,system_cd,first_asset_status,disposed_type,"_status","_created","_modified","_creater_id","_modifier_id","Depart_id","EquipmentGroup_id",line_id) VALUES
-	 ('equ01','','','설비01','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,NULL,'','',NULL,NULL,NULL,NULL,NULL,'Y','O',5,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'A',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:34:53.995001+09','2025-03-18 10:34:53.995001+09',1,1,4,5,1),
-	 ('equ02','','','설비02','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,1.0,'','',NULL,NULL,NULL,NULL,NULL,'Y','D',4,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'B',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:35:30.324849+09','2025-03-18 10:35:30.324849+09',1,1,3,2,2);
 
 */
 --das_server
