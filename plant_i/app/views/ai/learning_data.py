@@ -747,7 +747,7 @@ def learning_data(context):
                 fileService = AttachFileService()
                 fileService.updateDataPk(new_file_id, md_id)
  
-            items = {'success': True}
+            items = {'success': True, 'md_id':md_id }
 
         elif action == 'ds_data_list':
             keyword = gparam.get('keyword')           
@@ -1601,6 +1601,13 @@ def learning_data(context):
             rows = DbUtil.get_rows(sql, dc)    
             
             items = rows
+
+        elif action == 'delete_model':
+            md_id = CommonUtil.try_int(posparam.get('md_id'))
+
+            # q = DsTagCorrelation.objects.filter(DsModel_id=md_id)
+            # q.delete()
+
         
     except Exception as ex:
         source = '/api/ai/learning_data, action:{}'.format(action)

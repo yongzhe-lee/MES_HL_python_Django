@@ -1,5 +1,7 @@
 import requests, json
 
+from domain.services.sql import DbUtil
+
 #from domain.services.logging import LogWriter
 #from configurations import settings
 
@@ -103,6 +105,24 @@ class SapInterfaceService():
         print(body + "\r\n")
         response = requests.post(self.url, headers=self.headers, data=body, verify=False)
         return response.json()
+
+
+    def get_sap_input_number_list(self, rnd_num):
+
+        sql = '''
+        select 
+        id, stab_mblnr, stab_zeile, stab_matnr, stab_maktx, stab_menge, stab_abqty, stab_meins, rnd_num
+        , "_status", "_created", "_modified", "_creater_id", "_modifier_id"
+        from if_sap_pcb_ran
+        where rnd_num = %(rnd_num)s
+        order by stab_mblnr
+        '''
+
+        items = DbUtil.get_rows(sql, {"rnd_num" : rnd_num})
+
+        return items
+
+
 
     def get_sap_input_number_by_random(self, random_numbers=[]):
 

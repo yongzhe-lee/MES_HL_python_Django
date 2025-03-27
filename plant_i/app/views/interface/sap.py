@@ -3,7 +3,7 @@ from domain.services.date import DateUtil
 from domain.services.sql import DbUtil
 from domain.services.interface.sap import SapInterfaceService
 
-from domain.models.interface import IFSapBOM, IFSapMaterial, IFSapMaterialStock, IFSapPcbRandomNumber
+from domain.models.interface import IFSapBOM, IFSapMaterial, IFSapMaterialStock, IFSapPcbRandomNumber, IFSapMaterial
 
 def sap(context):
     '''
@@ -24,6 +24,7 @@ def sap(context):
         matkl = gparam.get('matkl')
         mtart = gparam.get('mtart')
         bklas = gparam.get('bklas')
+        keyword = gparam.get('keyword')
 
         dic_param = {'matkl':matkl, 'mtart':mtart,'bklas':bklas}
 
@@ -49,7 +50,11 @@ def sap(context):
             sql+='''
             and stab_bklas = %(bklas)s
             '''
-        #and upper(matkl) like concat('%%', UPPER(%(matkl)s),'%%')
+
+        if keyword:
+            sql+='''
+            and upper(stab_matnr) like concat('%%', upper(%(stab_matnr)s),'%%')
+            '''
 
         sql+='''
         order by stab_maktx asc
@@ -57,7 +62,9 @@ def sap(context):
         items = DbUtil.get_rows(sql, dic_param)
         result['items'] = items
 
-    elif action=="sap_bom":
+    elif action=="sap_bom_list":
+
+        keyword = gparam.get('keyword')
 
         sql= '''
         select 
@@ -65,12 +72,64 @@ def sap(context):
         , "_status", "_created", "_modified", "_creater_id", "_modifier_id"
         , to_char(_created, 'yyyy-mm-dd hh24:mi:ss') as created
         from if_sap_bom
+        where 1=1
         '''
-        items = DbUtil.get_rows(sql)
+        if keyword:
+            sql+='''
+            and upper(stab_matnr) like concat('%%', upper(%(keyword)s),'%%')
+            '''
+
+
+        items = DbUtil.get_rows(sql, {'keyword' : keyword})
         result['items'] = items
 
+    elif action=="req_sap_mat":
 
-    elif action=="sap_stock":
+        start_dt = posparam.get('start_dt')
+        end_dt = posparam.get('end_dt')
+        mig_flag = posparam.get('mig_flag')
+
+        IFSapMaterial.objects.all().delete()
+
+        res = sap_service.get_sap_material(start_dt, end_dt, mig_flag)
+        items = res["rs"]["tables"]["STAB"]
+        count = len(items)
+        result['count'] = count
+
+        for t in items:
+            if_sap_mat = IFSapMaterial()
+            if_sap_mat.stab_werks = t["WERKS"]
+            if_sap_mat.stab_matnr = t["MATNR"]
+            if_sap_mat.stab_groes = t["GROES"]
+            if_sap_mat.stab_matkl = t["MATKL"]
+            if_sap_mat.stab_mtart = t["MTART"]
+            if_sap_mat.stab_meins = t["MEINS"]
+            if_sap_mat.stab_bklas = t["BKLAS"]
+            if_sap_mat.stab_bkbez = t["BKBEZ"]
+            if_sap_mat.stab_zctime = t["ZCTIME"]
+            if_sap_mat.stab_peinh = t["PEINH"]
+
+            if_sap_mat.set_audit(user)
+            if_sap_mat.save()
+
+
+        sql='''
+        insert into material ("Code", "Name", "Standard", "CycleTime", in_price,  _created)
+        select 
+        ism.stab_matnr
+        , ism.stab_matkl
+        , ism.stab_groes
+        , ism.stab_zctime
+        , ism.stab_price 
+        , now()
+        from material m
+        left join if_sap_mat ism on m."Code" = ism.stab_matnr
+        where m."Code" is null;
+        '''
+
+        DbUtil.execute(sql)        
+
+    elif action=="sap_stock_list":
 
         mat_cd = gparam.get('mat_cd')
         location_cd = gparam.get('location_cd')
@@ -108,17 +167,7 @@ def sap(context):
             result['success'] = False
             return result
 
-        sql = '''
-        select 
-        id, stab_mblnr, stab_zeile, stab_matnr, stab_maktx, stab_menge, stab_abqty, stab_meins, rnd_num
-        , "_status", "_created", "_modified", "_creater_id", "_modifier_id"
-        from if_sap_pcb_ran
-        where rnd_num = %(rnd_num)s
-        order by stab_mblnr
-        '''
-
-        items = DbUtil.get_rows(sql, {"rnd_num" : rnd_num})
-
+        items = sap_service.get_sap_input_number_list(rnd_num)
         result['items'] = items
 
     elif action=="search_pcb_random_sap":
@@ -153,17 +202,7 @@ def sap(context):
                 if_sap_ran.save()
 
 
-            sql = '''
-            select 
-            id, stab_mblnr, stab_zeile, stab_matnr, stab_maktx, stab_menge, stab_abqty, stab_meins, rnd_num
-            , "_status", "_created", "_modified", "_creater_id", "_modifier_id"
-            from if_sap_pcb_ran
-            where rnd_num = %(rnd_num)s
-            order by stab_mblnr
-            '''
-
-            items = DbUtil.get_rows(sql, {"rnd_num" : rnd_num})
-
+            items = sap_service.get_sap_input_number_list(rnd_num)
             result['items'] = items
 
         except Exception as ex:

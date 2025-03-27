@@ -99,11 +99,11 @@ class GUIConfiguration():
         
         # 25.01.02 김하늘 추가
         # 시스템코드(대메뉴) -> 코드관리(명칭 변경)
-        gui_dc['wm_code'] = cls.gui_item('기초코드', 'system_code/code.html') #부적합정보
+        gui_dc['wm_code'] = cls.gui_item('기초코드', 'definition/code.html') #부적합정보
         # 코드관리 - 자재관련 코드(중메뉴)
-        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'system_code/supplier.html')# 공급업체
-        gui_dc['wm_material_type'] = cls.gui_item('품목유형', 'system_code/material_type.html')# 품목유형(코드)
-        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'system_code/store_location.html')# 보관위치 주소(코드)
+        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/supplier.html')# 공급업체
+        gui_dc['wm_material_type'] = cls.gui_item('품목유형', 'definition/material_type.html')# 품목유형(코드)
+        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'kmms/store_location.html')# 보관위치 주소(코드)
 
 
         # 시스템관리

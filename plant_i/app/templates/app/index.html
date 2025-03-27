@@ -87,9 +87,9 @@
                                 <li><a href="#" id="infoSetting"><i class="material-symbols-outlined">edit_square</i>개인정보 수정</a></li>
                                 <li><a href="#" id="langSetting"><i class="material-symbols-outlined">language</i>다국어 설정</a></li>
                                 <li>
-                                    <form method="post" action="{% url 'logout' %}" id="logout">
+                                    <a href="#" id="logoutBtn"><i class="material-symbols-outlined">output</i>로그아웃</a>
+                                    <form method="post" action="{% url 'logout' %}" id="logout" style="display: none;">
                                         {% csrf_token %}
-                                        <a href="#" onclick="document.getElementById('logout').submit()"><i class="material-symbols-outlined">output</i>로그아웃</a>
                                     </form>
                                 </li>
                             </ul>
@@ -500,6 +500,11 @@
         });
 
         jQuery('.scrollbar-inner').scrollbar();
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('logout').submit();
+        });
     </script>
 
     {% block scripts %}

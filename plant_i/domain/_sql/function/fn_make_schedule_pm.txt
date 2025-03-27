@@ -189,7 +189,7 @@ raise notice '==select work_order';
 				insert into work_order(work_order_pk, equip_pk, work_order_no, work_title, wo_status, maint_type_cd, wo_type, want_dt
 				, plan_start_dt, plan_end_dt, start_dt, end_dt, dept_pk, work_charger_pk, pm_pk, work_order_approval_pk, appr_line, appr_line_next
 				, req_dept_pk, work_order_sort, pm_req_type, _status, _created, _creater_id, _creater_nm, site_id, rqst_insp_yn, rqst_dpr_yn)
-				select v_work_order_pk, p.equip_pk, v_work_order_no, p.pm_nm, 'WOS_AP', 'MAINT_TYPE_PM', 'PM', v_plan_date
+				select v_work_order_pk, p.equip_pk, v_work_order_no, p.pm_nm, 'WOS_AP', 'MAINT_TYPE_PM', 'PM_TYPE_TBM', v_plan_date
 				, v_plan_date, v_plan_date, v_plan_date, v_plan_date, p.dept_pk, p.pm_user_pk, p.pm_pk, v_work_order_approval_pk, 'AP,CM,CL', 'CM'
 				, v_req_dept_pk, cast(v_work_order_no as integer), p_sche_type, 'C', now(), '1', '╫ц╫╨еш', p_site_id, 'N', 'N'
 				from pm p

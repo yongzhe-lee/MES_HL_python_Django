@@ -4,7 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from configurations import settings
 from domain.services.mqtt import FacadeMQTTClient
-from domain.services.sql import DbUtil
+
 
 ###############################################################################
 # topic 
@@ -32,8 +32,40 @@ class MQTTApplication():
         FacadeMQTTClient.set_topic_handler(settings.TOPIC_DEVICE_EVENT, DeviceMessageHandler.device_event_handler)
 
 
-        dic_topic = {
-            
+        '''
+        (1, 'hpc1.load', 'HPC#1 매거진로더', '은일', now(), now(), 1, 1, '', '', 1),
+(2, 'hpc1.flash' , 'HPC#1플래쉬프로그램입력', '코어솔루션', now(), now(), 1, 1, 'PCU111001', '', 1),
+(3, 'hpc1.ict' , 'HPC#1 ICT', '코어솔루션', now(), now(), 1, 1, '', 'PCU112001', 1),
+(4, 'hpc1.coatload', 'HPC#1 PCB코팅로더', 'CJT', now(), now(), 1, 1, '', '', 1),
+(5, 'hpc1.coating1', 'HPC#1 Conformal코팅1', '', now(), now(), 1, 1, '', '', 1),
+(6, 'hpc1.coating2', 'HPC#1 Conformal코팅2', '', now(), now(), 1, 1, '', '', 1),
+(7, 'hpc1.coatvision', 'HPC#1 PCB코팅비젼', '', now(), now(), 1, 1, '', '', 1),
+(8, 'hpc1.pcbrev', 'HPC#1 PCB반전', 'CJT', now(), now(), 1, 1, '', '', 1),
+(9, 'hpc1.curr', 'HPC#1 코팅경화Curing', 'YJE', now(), now(), 1, 1, '', '', 1),
+(10, 'hpc1.frobackload', 'HPC#1 프론트백로더', 'CJT', now(), now(), 1, 1, '', '', 1),
+(11, 'hpc1.uh.load', 'HPC#1 Upper 하우징 로딩', 'CJT', now(), now(), 1, 1, '', '', 1),
+(12, 'hpc1.tim', 'HPC#1 TIM도포', 'CJT', now(), now(), 1, 1, '', '', 1),
+(13, 'hpc1.lh.load', 'HPC#1 Lower하우징로딩', 'CJT', now(), now(), 1, 1, '', '',1),
+(14, 'hpc1.scrwt', 'HPC#1 스크류체결', 'CJT', now(), now(), 1, 1, '', '',1),
+(15, 'hpc1.scrwt.height', 'HPC#1 스크류높이체크', 'CJT', now(), now(), 1, 1, '', '',1),
+(16, 'hpc1.fclip', 'HPC#1 Fan&Clip Fan조립', 'CJT', now(), now(), 1, 1, '', '', 1),
+(17, 'hpc1.fclip.height', 'HPC#1 Fan&Clip 높이체크', 'CJT', now(), now(), 1, 1, '', '', 1),
+(18, 'hpc1.fclip.clip', 'HPC#1 Fan&Clip 클립', 'CJT', now(), now(), 1, 1, '', '', 1),
+(19, 'hpc1.eol1', 'HPC#1 EOL1', '일신', now(), now(), 1, 1, '', '', 1),
+(20, 'hpc1.eol2', 'HPC#1 EOL2', '일신', now(), now(), 1, 1, '', '', 1),
+(21, 'hpc1.pinchk', 'HPC#1 Pin검사', 'CJT', now(), now(), 1, 1, '', '', 1),
+(22, 'hpc1.labeling', 'HPC#1 Pin검사 라벨링', 'CJT', now(), now(), 1, 1, '', '', 1),
+(23, 'hpc1.brackassm', 'HPC#1 브라켓조립', 'CJT', now(), now(), 1, 1, '', '', 1),
+(24, 'hpc1.brackassm.height', 'HPC#1 브라켓높이', 'CJT', now(), now(), 1, 1, '', '', 1)
+
+        '''
+
+
+        dic_rst_topic = {
+            'RST_hpc1.load' : ConrolPCResultMessageHandler.handler,
+            'RST_hpc1.ict' : ConrolPCResultMessageHandler.handler,
+            'RST_hpc1.coatload1' : ConrolPCResultMessageHandler.handler,
+            'RST_hpc1.coatload2' : ConrolPCResultMessageHandler.handler,
         }
 
 
@@ -73,7 +105,7 @@ class ConrolPCResultMessageHandler():
         pass
 
     @classmethod
-    def PCU111001_handler(cls, payload):
+    def handler(cls, payload):
         dic_payload = json.loads(payload)
 
         equ_cd = dic_payload.get('equ_cd', None)

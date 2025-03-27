@@ -17,13 +17,15 @@ def predictive_conversation(context):
     try:
         if action == 'read_tag_data':
             sql = '''
-            select 
-            t.tag_code ,t.tag_name 
-            ,t."LastValue" as last_value
-            ,to_char(t."LastDate",'yyyy-mm-dd hh24:mi:ss') as last_date
-            from tag t 
-            inner join equ e on e.id = t."Equipment_id" and e."Code" in ('EQ_A_PRESS_2','EQ_B_ETC_5')
-            order by e.id desc,t.tag_code 
+            SELECT 
+                t.tag_code 
+                , t.tag_name 
+                , t."LastValue" AS last_value
+                , to_char(t."LastDate",'yyyy-mm-dd hh24:mi:ss') AS last_date
+            FROM tag t 
+            INNER JOIN equ e ON e.id = t."Equipment_id"
+                AND e."Code" IN ('EQ_A_PRESS_2','EQ_B_ETC_5')
+            ORDER BY e.id DESC,t.tag_code 
             '''
             items = DbUtil.get_rows(sql)
             

@@ -6,7 +6,7 @@ from .sql import DbUtil
 from .logging import LogWriter
 from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory, Unit
 from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup
-from domain.models.kmms import JobClass
+from domain.models.kmms import JobClass, Project
 from django.contrib.auth.models import User
 
 #from django.core.cache import cache
@@ -55,6 +55,7 @@ class ComboService(object):
             'auth_user': cls.auth_user,
             'job_class': cls.job_class,
             'code': cls.code,
+            'project': cls.project,
         }
         cls.__initialized__ = True
 
@@ -441,4 +442,10 @@ class ComboService(object):
         q = q.filter(DelYn='N', UseYn='Y')
         q = q.order_by('DispOrder', 'Name')
         items = [ {'value': entry['Code'], 'text':entry['Name']} for entry in q ]
+        return items
+    
+    @classmethod 
+    def project(cls, cond1, cond2, cond3):
+        query = Project.objects.values('proj_cd', 'proj_nm').order_by('proj_nm')
+        items = [ {'value': entry['proj_cd'], 'text':entry['proj_nm']} for entry in query ]
         return items

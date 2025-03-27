@@ -264,7 +264,7 @@
                         field: 'work_order_no',
                         title: 'WO 번호',
                         width: 80,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-pk-info="#=work_order_pk#">#=work_order_no#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
                     },
                     {
                         field: 'pm_no',
@@ -276,7 +276,7 @@
                         field: "work_title",
                         title: "작업제목",
                         width: 150,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-pk="#=work_order_pk#">#=work_title#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-title-pk="#=work_order_pk#">#=work_title#</a>'
                     },
                     { field: 'equ_code', title: '설비코드', width: 100 },
                     { field: 'equ_name', title: '설비명', width: 150 },
@@ -290,21 +290,21 @@
                 ],
                 dataBound: function (e) {
                     $(".grid-column-link").off("click").on("click", function (e) {
-                        e.preventDefault();
-                        let pmPkInfo = $(this).data("pm-pk-info");  // ✅ pm_pk 값 가져오기
-                        let work_order_pk = $(this).data("wo-pk");
-                        let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기
-                        debugger;
-						if (pmPkInfo) {
-							woDetailPage.getWorkOrderData(work_order_pk);
-						}
+                        e.preventDefault();                   
+                        
+                        let woNoPk = $(this).data("wo-no-pk");
+                        let pmPk = $(this).data("pm-pk");
+                        let woTitlePk = $(this).data("wo-title-pk");
+                        
+                        if (woNoPk) {
+                            woDetailPage.getWorkOrderData(woNoPk, 1);
+                        }
                         else if (pmPk) {
-							pmMasterPage.getPmMasterModal(pmPk);
+                            pmMasterPage.getPmMasterModal(pmPk);
+                        }                     
+                        else if (woTitlePk) {
+                            woDetailPage.getWorkOrderData(woTitlePk, 2);
                         }
-                        else if (work_order_pk) {
-							woDetailPage.getWorkOrderData(work_order_pk);
-                        }
-
                     });
                 },
                 height: "540px"

@@ -1,10 +1,11 @@
 <div id="modalWoDetail" class="modal">
 	<div class="modal-content">
 		<div class="modal-header">
-			<h4>wo 상세정보</h4>
+			<h4>작업 결과입력</h4>
 		</div>
 
 		<div class="modal-body">
+			<input type="hidden" id="work_order_pk" name="work_order_pk" />
 			<!-- 결재 라인 -->
 			<div class="appLine-section">
 				<div class="navigation-menu">
@@ -14,7 +15,7 @@
 					<span class="menu-separator">></span>
 					<span class="menu-item">요청승인</span>
 					<span class="menu-separator">></span>
-					<span class="menu-item active">작업승인</span>
+					<span class="menu-item">작업승인</span>
 					<span class="menu-separator">></span>
 					<span class="menu-item">작업완료</span>
 					<span class="menu-separator">></span>
@@ -23,27 +24,27 @@
 			</div>
 			<!-- 대상설비 섹션 -->
 			<div class="equipment-section">
-				<div class="form-row">
+				<div class="form-row">					
+					<input type="hidden" id="tabId" name="tabId" />
 					<div class="form-group">
 						<label>작업제목</label>
-						<input type="hidden" id="equ_loc_pk" name="equ_loc_pk" />
-						<input type="text" class="form-control" id="equip_loc" name="equip_loc" readonly>
+						<input type="text" class="form-control" id="sum_work_title" name="sum_work_title" readonly>
 					</div>
 					<div class="form-group">
 						<label>작업유형</label>
-						<input type="text" class="form-control" id="equip_import" name="equip_import" readonly>
+						<input type="text" class="form-control" id="sum_wo_type_nm" name="sum_wo_type_nm" readonly>
 					</div>
 					<div class="form-group">
 						<label>보전유형</label>
-						<input type="text" class="form-control" id="equip_status" name="equip_status" readonly>
+						<input type="text" class="form-control" id="sum_maint_type_nm" name="sum_maint_type_nm" readonly>
 					</div>
 					<div class="form-group">
 						<label>요청자</label>
-						<input type="text" class="form-control" id="equip_env_yn" name="equip_env_yn" readonly>
+						<input type="text" class="form-control" id="sum__creater_nm" name="sum__creater_nm" readonly>
 					</div>
 					<div class="form-group">
 						<label>희망일</label>
-						<input type="text" class="form-control" id="equip_env_yn" name="equip_env_yn" readonly>
+						<input type="text" class="form-control" id="sum_want_dt" name="sum_	want_dt" readonly>
 					</div>
 				</div>
 			</div>
@@ -57,79 +58,130 @@
 				<div class="tab-content">
 					<!-- 기본정보 탭 컨텐츠 -->
 					<div class="tab-pane" id="reqInfo" style="display: block; overflow-y:auto; height: 400px;">
+						<div class="modal-table-header-line"></div>
+						<table class="detail-table">
+							<tr>
+								<th width="120">작업제목</th>
+								<td id="req_work_title" colspan="7"></td>
+							</tr>
+							<tr>
+								<th>WO 번호</th>
+								<td id="req_work_order_no" width="150"></td>
+								<th width="120">PM 번호</th>
+								<td id="req_pm_no" width="150"></td>
+								<th width="120">보전유형</th>
+								<td id="req_maint_type_nm" width="150"></td>
+								<th width="120">작업구분</th>
+								<td id="req_wo_type_nm"></td>
+							</tr>
+							<tr>
+								<th>현상</th>
+								<td id="req_problem_nm" colspan="3"></td>
+								<th>프로젝트</th>
+								<td id="req_proj_nm" colspan="3"></td>
+							</tr>
+							<tr>
+								<th>설비</th>
+								<td id="req_equip_cd_nm" colspan="5"></td>
+								<th>설비중요도</th>
+								<td id="req_import_rank_cd"></td>
+							</tr>
+							<tr>
+								<th>카테고리</th>
+								<td id="req_equip_category_desc"></td>
+								<th>상위설비</th>
+								<td id="req_loc_nm"></td>
+								<th>설비위치</th>
+								<td id="req_up_loc_nm" colspan="3"></td>
+							</tr>
+						</table>
+						<br />
 						<div class="form-row">
 							<div class="form-group">
-								<label>관리부서 <span class="required">*</span></label>
-								<input type="text" class="form-control" id="dept_nm" name="dept_nm" readonly>
-							</div>
-							<div class="form-group">
-								<label>자산번호<span class="required">*</span></label>
-								<input type="text" class="form-control" id="asset_nos" name="asset_nos" readonly>
-							</div>
-						</div>
-						<div class="form-row">
-							<div class="form-group">
-								<label>상위설비</label>
-								<input type="text" class="form-control" id="up_equip_pk" name="up_equip_pk" readonly>
-							</div>
-							<div class="form-group">
-								<label>순환설비자재</label>
-								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
-							</div>
-							<div class="form-group">
-								<label>코스트 센터</label>
-								<input type="text" class="form-control" id="ccenter_cd" name="ccenter_cd" readonly>
-							</div>
-						</div>
-						<div class="form-row">
-							<div class="form-group">
-								<label>공급업체</label>
-								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
-							</div>
-							<div class="form-group">
-								<label>구매비용</label>
-								<input type="text" class="form-control" id="PurchaseCost" name="PurchaseCost" readonly>
-							</div>
-							<div class="form-group">
-								<label>제조일</label>
-								<input type="text" class="form-control" id="ProductionYear" name="ProductionYear" readonly>
-							</div>
-							<div class="form-group">
-								<label>설치일</label>
-								<input type="text" class="form-control" id="InstallDate" name="InstallDate" readonly>
-							</div>
-						</div>
-						<div class="form-row">
-							<div class="form-group">
-								<label>보증만료일</label>
-								<input type="text" class="form-control" id="warranty_dt" name="warranty_dt" readonly>
-							</div>
-							<div class="form-group">
-								<label>제조사명</label>
-								<input type="text" class="form-control" id="Maker" name="Maker" readonly>
-							</div>
-							<div class="form-group">
-								<label>모델넘버</label>
-								<input type="text" class="form-control" id="Model" name="Model" readonly>
-							</div>
-							<div class="form-group">
-								<label>시리얼넘버</label>
-								<input type="text" class="form-control" id="SerialNumber" name="SerialNumber" readonly>
-							</div>
-						</div>
-						<div class="form-row">
-							<div class="form-group">
-								<label>비고</label>
-								<textarea class="form-control" id="Description" name="Description" readonly></textarea>
+								<label>작업지침</label>
+								<textarea class="form-control" id="req_pm_work_text" name="req_pm_work_text" style="height:180px !important;"></textarea>
 							</div>
 						</div>
 					</div>
 					<!-- 작업 인력/자재 탭 컨텐츠 -->
-					<div class="tab-pane active" id="workInfo" style="display: block; overflow-y:auto; height: 400px;">
-
-					</div>
+					<form id="workResultForm">
+						<input type="hidden" id="work_order_pk" name="work_order_pk" />
+						<div class="tab-pane active" id="workInfo" style="display: block; overflow-y:auto; height: 400px;">
+							<div class="form-row">
+								<div class="form-group">
+									<label>작업부서<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_dept_nm" name="wo_dept_nm">
+								</div>
+								<div class="form-group">
+									<label>작업담당자<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_work_charger_nm" name="wo_work_charger_nm">
+									<select id="wo_work_charger_sel" name="wo_work_charger_sel"></select>
+								</div>
+								<div class="form-group">
+									<label>작업계획일<span class="required">*</span></label>
+									<div class="date-range-input">
+										<input type="text" class="form-control" id="wo_plan_dt" name="wo_plan_dt">
+										<input type="date" id="wo_plan_start_dt" name="wo_plan_start_dt" />
+										<span class="spandt" style="margin:0 5px;">~</span>
+										<input type="date" id="wo_plan_end_dt" name="wo_plan_end_dt" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label>보전유형<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_maint_type_nm" name="wo_maint_type_nm">
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+									<label>현상<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_problem_nm" name="wo_problem_nm">
+									<select id="wo_problem_sel" name="wo_problem_sel"></select>
+								</div>
+								<div class="form-group">
+									<label>원인<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_cause_nm" name="wo_cause_nm">
+									<select id="wo_cause_sel" name="wo_cause_sel"></select>
+								</div>
+								<div class="form-group">
+									<label>조치<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_remedy_nm" name="wo_remedy_nm">
+									<select id="wo_remedy_sel" name="wo_remedy_sel"></select>
+								</div>
+								<div class="form-group">
+									<label>프로젝트</label>
+									<input type="text" class="form-control" id="wo_proj_nm" name="wo_proj_nm">
+									<select id="wo_proj_sel" name="wo_proj_sel"></select>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+									<label>작업구분<span class="required">*</span></label>
+									<input type="text" class="form-control" id="wo_work_src_nm" name="wo_work_src_nm">
+									<select id="wo_work_src_sel" name="wo_work_src_sel"></select>
+								</div>
+								<div class="form-group">
+									<label>작업기간(시작~종료)<span class="required">*</span></label>
+									<div class="date-range-input">
+										<input type="text" class="form-control" id="wo_start_end_dt" name="wo_start_end_dt">
+										<input type="date" id="wo_start_dt" name="wo_start_dt" />
+										<span class="spandt" style="margin:0 5px;">~</span>
+										<input type="date" id="wo_end_dt" name="wo_end_dt" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label></label>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+									<label>작업내역</label>
+									<textarea class="form-control" id="wo_work_text" name="wo_work_text"></textarea>
+								</div>
+							</div>
+						</div>
+					</form>
 					<!-- PM WO 목록 탭 컨텐츠 -->
-					<div class="tab-pane" id="logInfo">
+					<div class="tab-pane" id="logInfo">						
 						<div id="logInfoGrid"></div>
 					</div>
 				</div>
@@ -137,7 +189,8 @@
 		</div>
 
 		<!-- 버튼 영역 -->
-		<div class="modal-footer">			
+		<div class="modal-footer">
+			<button type="button" class="btn-save" id="btnWoSave">저장</button>
 			<button type="button" class="btn-close" id="closeWoModal">닫기</button>
 		</div>
 	</div>
@@ -225,19 +278,52 @@
 		font-size: 11px;
 	}
 
+
+	.detail-table {
+		width: 100%;
+		border-collapse: collapse;
+		border: 1px solid #ddd;
+	}
+
+	.detail-table th,
+	.detail-table td {
+		border: 1px solid #ddd;
+		padding: 5px 8px;
+		font-size: 12px;
+		height: 28px;
+	}
+
+	.detail-table th {
+		background-color: #f5f5f5;
+		font-weight: normal;
+		text-align: left;
+	}
+
+	.equipment-section {
+		margin-bottom: 20px;
+	}
+
+	/* date-range-input 스타일 */
+	.date-range-input {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
 </style>
 
 <script type="text/javascript">
 	class WorkOrder {
 		constructor() {
-			this.baseUrl = '/api/definition/equipment';
+			this.baseUrl = '/api/kmms/pm_master';
 			this.init();
 		}
 
 		init() {
+			let _this = this;
 			const modal = $("#modalWoDetail");
 
-			$("#equSpecGrid").kendoGrid({
+			$("#logInfoGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -246,8 +332,8 @@
 							contentType: "application/json",
 							data: function () {
 								return {
-									action: 'detail',
-									id: $('#equip_pk').val()
+									action: 'read_work_order_hist',
+									id: $('#work_order_pk').val()
 								};
 							}
 						}
@@ -258,10 +344,11 @@
 				pageable: true,
 				autoBind: false, // 자동 데이터 바인딩 비활성화
 				columns: [
-					{ field: "no", title: "NO", width: 120 },
-					{ field: "specnm", title: "사양명", width: 120,},
-					{ field: "unit", title: "단위", width: 100 },
-					{ field: "spec", title: "사양(Spec)", width: 100 }
+					{ field: "work_order_hist_pk", title: "id", hidden: true },
+					{ field: "after_status_nm", title: "상태", width: 120 },
+					{ field: "changer_nm", title: "담당자", width: 120,},
+					{ field: "change_reason", title: "비고", width: 100 },
+					{ field: "change_ts", title: "일시", width: 100 }
 				],
 				noRecords: {
 					template: "조회된 데이터가 없습니다."
@@ -279,7 +366,19 @@
 					'border-color': '#1e4f88'
 				});
 				if (tabId) $('#' + tabId).addClass('active').show();
+				// 💡 여기서 커스텀 이벤트 발생시킴
+				
+				$(document).trigger(tabId);  // e.g. 'reqInfo', 'workInfo', 'logInfo'
+				$("#tabId").val(tabId);
 			});
+
+			$("#btnWoSave").kendoButton({
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault();
+					_this.saveData();
+				}
+			})
 
 			// 모달 닫기
 			$('#closeWoModal').kendoButton({
@@ -290,88 +389,252 @@
 			$(document).on('keydown', (e) => {
 				if (e.keyCode === 27) modal.fadeOut();
 			});
+			
 		}
 
-		//설비 마스터
-		getWorkOrderData(equipId) {			
+		// 작업 결과 저장
+		saveData() {
 			let _this = this;
+			let data = FormUtil.extractForm($('#workResultForm'));
+			data.WorkCharger = $("#wo_work_charger_sel").val();
+	
+
+			// 유효성 검사
+			if (!$('#wo_work_charger_sel').val()) {
+				Alert.alert('', '작업담당자를 선택해주세요.');
+				return;
+			}
+
+			let funcSucc = function (resp) {
+				if (resp.success) {
+					// 기본 정보 저장 성공 시 작업 인력 저장 진행
+					
+				} else {
+					Alert.alert('error', resp.message);
+				}
+			};
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_work_order', data, funcSucc);
+			$("#modalWoDetail").fadeOut();
+		}
+
+		//작업 결과
+		getWorkOrderData(work_order_pk, idx) {			
+			let _this = this;
+			
+			// work_order_pk 설정
+			$('#work_order_pk').val(work_order_pk);
 
 			// 설비 상세 정보 API 호출
 			let param = {
-				action: 'detail',
-				id: equipId,
+				action: 'read_work_order_summary',
+				id: work_order_pk,
 			};
-			let equipData = AjaxUtil.getSyncData('/api/definition/equipment', param);
+			let woSummaryData = AjaxUtil.getSyncData(_this.baseUrl, param);
+			console.log(woSummaryData);
+		
+			// 1.1. summary 데이터
+			this.bindWoSummaryData(woSummaryData);
 
-			// 1.1. 기존 데이터 바인딩
-			this.bindEquipMasterData(equipData);
+			// TODO: 요청정보 데이터 바인딩
+			this.getWoRequestData(woSummaryData);
 
-			if (equipData) {
+			// TODO: 작업내역 데이터 바인딩
+			this.getWoInfoData(woSummaryData);
+
+			if (woSummaryData) {
 				$("#modalWoDetail").fadeIn();
 				
 				// 작업내역 탭을 기본으로 활성화
-				this.activateTab('workInfo');
+				switch (idx) {
+					case 1:
+						$("#tabId").val('reqInfo');						
+						$('#workInfo input, #workInfo textarea').prop('readonly', true);
+						break;
+					case 2:
+						$("#tabId").val('workInfo');
+						// workInfo 탭의 모든 input의 readonly 속성 제거
+						$('#workInfo input, #workInfo textarea').prop('readonly', false);
+						// 작업부서와 보전유형만 readonly로 설정
+						$('#wo_dept_nm, #wo_maint_type_nm').prop('readonly', true);
+						break;
+					default:
+						$("#tabId").val('logInfo');
+						break;
+				}	
+
+				this.activateTab($("#tabId").val(), woSummaryData);
+
+				// 그리드 데이터 리프레시
+				$("#logInfoGrid").data("kendoGrid").dataSource.read();
 			}
 		}
 
 		// 탭 활성화 메서드
-		activateTab(tabId) {
+		activateTab(tabId, data) {
 			$('.tab-button').removeClass('active').removeAttr('style');
-			$('.tab-pane').removeClass('active').hide();
-			
+			$('.tab-pane').removeClass('active').hide();			
 			$(`.tab-button[data-tab="${tabId}"]`).addClass('active').css({
 				'background': '#1e4f88',
 				'color': 'white',
 				'border-color': '#1e4f88'
 			});
 			$(`#${tabId}`).addClass('active').show();
+			
+			// 작업담당자 필드 전환
+			if (tabId === 'reqInfo') {
+				$('#wo_work_charger_nm').show();
+				$('#wo_plan_dt').show();	
+				$('#wo_work_charger_sel').css("display", "none"); // ← 이 부분 추가!	
+				
+				$('.spandt').css("display", "none");
+				$('#wo_plan_start_dt,#wo_plan_end_dt,#wo_start_dt,#wo_end_dt').css({
+					'position': 'absolute',
+					'left': '-9999px'
+				});
+
+				$('#wo_problem_sel').css("display", "none");
+				$('#wo_cause_sel').css("display", "none");
+				$('#wo_remedy_sel').css("display", "none");
+				$('#wo_proj_sel').css("display", "none");	
+				$('#wo_work_src_sel').css("display", "none");				
+
+			} else if (tabId === 'workInfo') {
+				// 기존 옵션 제거
+				$('#wo_work_charger_sel').empty(); 
+				$('#wo_work_src_sel').empty();
+				
+
+				$('#wo_plan_dt,#wo_start_end_dt, #wo_work_charger_nm,#wo_problem_nm,#wo_cause_nm,#wo_remedy_nm,#wo_proj_nm,#wo_work_src_nm').css({
+					'position': 'absolute',
+					'left': '-9999px'
+				});
+
+				AjaxUtil.fillDropDownOptions($('#wo_work_charger_sel'), 'auth_user', 'choose', data.work_charger_pk);
+
+				//위치원상복구
+				$('#wo_plan_start_dt,#wo_plan_end_dt,#wo_start_dt,#wo_end_dt').css({
+					position: '',
+					left: ''
+				});
+
+				$("#wo_plan_start_dt").kendoDatePicker({
+					value: data.plan_start_dt,
+					format: "yyyy-MM-dd",
+				});
+
+				$("#wo_plan_end_dt").kendoDatePicker({
+					value: data.plan_end_dt,
+					format: "yyyy-MM-dd",
+				});
+
+				AjaxUtil.fillDropDownOptions($('#wo_problem_sel'), 'user_code', 'choose', data.problem_cd, 'PC');
+				AjaxUtil.fillDropDownOptions($('#wo_cause_sel'), 'user_code', 'choose', data.cause_cd, 'CC');
+				AjaxUtil.fillDropDownOptions($('#wo_remedy_sel'), 'user_code', 'choose', data.remedy_cd, 'RC');
+
+				AjaxUtil.fillDropDownOptions($('#wo_proj_sel'), 'project', 'choose', null);
+				AjaxUtil.fillDropDownOptions($('#wo_work_src_sel'), 'user_code', 'choose', data.work_src_cd, 'WORK_SRC');
+
+				$("#wo_start_dt").kendoDatePicker({
+					value: data.start_dt,
+					format: "yyyy-MM-dd",
+				});
+
+				$("#wo_end_dt").kendoDatePicker({
+					value: data.end_dt,
+					format: "yyyy-MM-dd",
+				});
+
+			}
 		}
 
-		// 작업번호 클릭 시 요청정보 탭 활성화
-		activateReqInfoTab() {
-			this.activateTab('reqInfo');
-		}
-
-		// 작업제목 클릭 시 작업내역 탭 활성화
-		activateWorkInfoTab() {
-			this.activateTab('workInfo');
-		}
-
-		bindEquipMasterData(data) {
-			// 기본 필드 바인딩
+		bindWoSummaryData(data) {
+			
+			 //기본 필드 바인딩
 			const basicFields = {
-				'equip_master_pk': data.id,
-				'equip_code': data.Code,
-				'equip_name': data.Name,
-				'equip_loc': data.loc_nm,
-				'equip_import': data.import_rank,
-				'equip_status': data.Status,
-				'equip_env_yn': data.environ_equip_yn,
-
-				//기본정보
-				'dept_nm': data.dept_nm,
-				'asset_nos': data.asset_nos,			
-				'up_equip_pk': data.up_equip_pk,
-				'ccenter_cd': data.ccenter_cd,
-				'SupplierName': data.SupplierName,
-				'PurchaseCost': data.PurchaseCost,
-				'ProductionYear': data.ProductionYear,
-				'InstallDate': data.InstallDate,
-				'warranty_dt': data.warranty_dt,
-				'Maker': data.Maker,
-				'Model': data.Model,
-				'SerialNumber': data.SerialNumber,
-				'Description': data.Description,
+				'work_order_pk': data.work_order_pk,
+				'sum_work_title': data.work_title,
+				'wo_status_nm': data.wo_status_nm,
+				'sum_wo_type_nm': data.wo_type_nm,				
+				'sum_maint_type_nm': data.maint_type_nm,
+				'sum__creater_nm': data._creater_nm,
+				'sum_want_dt': data.want_dt,
 			};
-
+			
 			// 기본 필드 값 설정
 			Object.entries(basicFields).forEach(([id, value]) => {
 				$(`#${id}`).val(value);
 			});
 
-		}
+			// 네비게이션 메뉴 활성화 상태 초기화
+			$('.navigation-menu .menu-item').removeClass('active');
 
+			// 작업 상태에 따른 메뉴 활성화
+			const menuMap = {
+				'작업요청': '작업요청',
+				'요청승인': '요청승인',
+				'작업승인': '작업승인',
+				'작업완료': '작업완료',
+				'WO완료': 'WO 완료'
+			};
+
+			if (menuMap[data.wo_status_nm]) {
+				$(`.navigation-menu .menu-item:contains('${menuMap[data.wo_status_nm]}')`).addClass('active');
+			}
+		}
+		// 요청정보 데이터 바인딩
+		getWoRequestData(data) {
+		
+			//기본 필드 바인딩
+			const reqFields = {
+				'work_order_pk': data.work_order_pk,
+				'req_work_title': data.work_title,
+				'req_work_order_no': data.work_order_no,
+				'req_pm_no': data.pm_no,
+				'req_maint_type_nm': data.maint_type_nm,
+				'req_wo_type_nm': data.wo_type_nm,
+				'req_problem_nm': data.problem_nm,
+				'req_proj_nm': data.proj_nm,
+				'req_equip_cd_nm': '[' + data.equip_cd + '] ' + data.equip_nm,
+				'req_import_rank_cd': data.import_rank_cd,
+				'req_equip_category_desc': data.equip_category_desc,
+				'req_loc_nm': data.loc_nm,
+				'req_up_loc_nm': data.up_loc_nm,
+				'req_pm_work_text': data.pm_work_text,
+			};
+
+			// 기본 필드 값 설정
+			Object.entries(reqFields).forEach(([id, value]) => {				
+				$(`#${id}`).text(value);
+			});
+		}
+		// 작업내역 데이터 바인딩
+		getWoInfoData(data) {
+			
+			//기본 필드 바인딩
+			const reqFields = {
+				'work_order_pk': data.work_order_pk,
+				'wo_dept_nm': data.dept_nm,
+				'wo_work_charger_nm': data.work_charger_nm,						
+				'wo_plan_dt': data.plan_start_dt + ' ~ ' + data.plan_end_dt,
+				'wo_maint_type_nm': data.maint_type_nm,
+				'wo_problem_nm': data.problem_nm,
+				'wo_cause_nm': data.cause_nm,
+				'wo_remedy_nm': data.remedy_nm,
+				'wo_proj_nm': data.proj_nm,
+				'wo_work_src_nm': data.work_src_nm,
+				'wo_start_end_dt': data.start_dt + ' ~ ' + data.end_dt,
+				'wo_work_text': data.work_text,
+			};
+
+			// 기본 필드 값 설정
+			Object.entries(reqFields).forEach(([id, value]) => {
+				$(`#${id}`).val(value);
+			});		
+
+		}
 	}
 
 	woDetailPage = new WorkOrder();
+
 </script>

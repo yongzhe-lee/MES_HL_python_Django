@@ -462,7 +462,7 @@ class DBSubmodelElement(models.Model):
     category = models.CharField(max_length=50, null=True) #"constant", "parameter", "variable" measurement, info
     ModelKind = models.CharField(max_length=50, null=True) #models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
     model_type = models.CharField(max_length=50) # Property, Collection, Operation, Event, File, Reference Element    
-    semancticId = models.ForeignKey(DBReference, related_name='submodelelement_semancticId',db_column='semanctic_id', on_delete = models.DO_NOTHING)
+    semancticId = models.ForeignKey(DBReference, related_name='submodelelement_semancticId',db_column='semanctic_id', on_delete = models.DO_NOTHING, null=True)
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=SubmodelelementEmbeddedDataSpecifications, related_name='submodelelement_embeddedDataSpecifications', related_query_name='submodelelement_embeddedDataSpecifications')
     Extensions= models.ManyToManyField(DBExtension, through=SubmodelElementExtensions, related_name='submodelelement_extensions', related_query_name='submodelelement_extensions')
 
@@ -510,8 +510,6 @@ class DBMultiLanguageProperty(models.Model):
     
 class DBPropertyElement(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
-
-    value = models.CharField(max_length=2000)
     contentType = models.CharField(max_length=500)
     valueType = models.CharField(max_length = 200)
     value = models.CharField(max_length = 2000)

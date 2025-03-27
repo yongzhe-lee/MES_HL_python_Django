@@ -398,6 +398,180 @@ class PMService():
 
         return items
 
+    def get_work_order_hist(self, work_order_pk):
+        items = []
+        dic_param = {'work_order_pk':work_order_pk}
+
+        sql = ''' 
+        SELECT 1 as work_order_hist_pk
+	         , wo.work_order_pk
+	         , wo.work_order_no
+	         , '작성(생성)' as after_status_nm
+	         , to_char(wo."_created", 'YYYY-MM-DD')  as change_ts
+	         , coalesce(wo."_creater_nm", fn_user_nm(cu.first_name, case when cu.is_active then 'Y' else 'N' end)) as changer_nm
+	         , '' AS change_reason
+        from work_order wo
+        inner join auth_user cu on wo."_creater_id" = cu.id 
+        where wo.work_order_pk = %(work_order_pk)s
+        UNION ALL
+        SELECT woh.id as work_order_hist_pk
+	        , woh.work_order_pk
+	        , wo.work_order_no
+	        , aws."Name" as after_status_nm
+	        , to_char(woh.change_ts, 'YYYY-MM-DD') as change_ts
+	        , coalesce(woh.changer_nm, fn_user_nm(cu.first_name, case when cu.is_active then 'Y' else 'N' end)) as changer_nm
+	        , woh.change_reason
+        from work_order_hist woh
+        inner join code aws on woh.after_status = aws."Code" and aws."CodeGroupCode" = 'WO_STATUS'
+        inner join auth_user cu on woh.changer_pk = cu.id
+        inner join work_order wo on woh.work_order_pk = wo.work_order_pk
+        where woh.work_order_pk = %(work_order_pk)s
+        order by change_ts desc, work_order_hist_pk desc
+        ;
+        '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_wo', ex)
+            raise ex
+
+        return items
+
+    def get_work_order_summary(self, work_order_pk):
+        items = []
+        dic_param = {'work_order_pk':work_order_pk}
+
+        sql = ''' 
+              select 		
+				t.work_order_pk
+				, t.work_order_no
+				, t.work_title
+				, t.work_text
+				, t.work_order_sort
+				, t.req_dept_pk
+				, rd."Name" as req_dept_nm
+				, t.dept_pk
+				, wd."Name" as dept_nm
+				, t.work_charger_pk
+				, wcu."Name" as work_charger_nm
+				, mt."Code" as maint_type_cd
+				, mt."Name" as maint_type_nm
+				, ws."Code" as wo_status
+				, ws."Name" as wo_status_nm
+				, t.plan_start_dt
+				, t.plan_end_dt
+				, t.start_dt
+				, t.end_dt
+				, t.want_dt
+				, t.equip_pk
+				, e."Code" as equip_cd
+				, e."Name" as equip_nm
+				, ed.id as equip_dept_pk
+				, ed."Name" as equip_dept_nm
+				, to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
+				, t.pm_pk
+				, p.pm_no
+				, p.pm_nm
+				, pt."Name"                        AS pm_type_nm
+				, p.work_text as pm_work_text
+				, t.chk_rslt_pk
+				, l.loc_nm
+				, t.req_info
+				, t.wo_type
+				, t.rqst_insp_yn
+				, t.rqst_dpr_yn
+				, wt."Name" as wo_type_nm
+				, t.breakdown_dt
+				, t.breakdown_hr
+				, wsc."Code" as work_src_cd
+				, wsc."Name" as work_src_nm
+				, t.tot_cost
+				, t.mtrl_cost
+				, t.labor_cost
+				, t.outsourcing_cost
+				, t.etc_cost
+		        , t.problem_cd
+		        , wp."Name" as problem_nm
+		        , t.cause_cd
+		        , wc."Name" as cause_nm
+		        , t.remedy_cd
+		        , wr."Name" as remedy_nm
+				, prj.proj_cd
+				, prj.proj_nm
+				, t.wo_file_grp_cd
+				, t.pm_req_type
+				, t.appr_line
+				, t.appr_line_next
+				, t.work_order_approval_pk
+				, woa.reg_dt
+				, woa.rqst_dt
+				, woa.rqst_user_nm
+				, woa.cancel_dt
+				, woa.cancel_user_nm
+				, woa.accept_dt
+				, woa.appr_dt
+				, woa.finish_dt
+				, substring(t.appr_line, 1,2) as wo_start_type
+				, fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
+				, t._created
+				, e.environ_equip_yn
+				, e."Status" as equip_stauts_cd
+				, e.import_rank
+				, e.up_equip_pk
+				, ue."Name" AS up_equip_name
+				, ec.equip_category_id
+        		, ec.remark
+				, e.equip_class_path
+				, e.equip_class_desc
+				, av."Name" as first_asset_status
+				, av."Code" as first_asset_status_cd
+				, fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
+				, (select "Name" from code where "CodeGroupCode" = 'EQUIPMENT_PROCESS' and "Code" = e.process_cd) as process_nm
+				, (select "Name" from code where "CodeGroupCode" = 'EQUIP_SYSTEM' and "Code" = e.system_cd) as system_nm
+				, l2.loc_nm as up_loc_nm
+				, woa.cancel_reason
+                , t._creater_nm
+		from work_order t
+			inner join work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
+			inner join code mt on t.maint_type_cd = mt."Code" and mt."CodeGroupCode" = 'MAINT_TYPE'
+			inner join code ws on t.wo_status = ws."Code" and ws."CodeGroupCode" = 'WO_STATUS'
+			inner join equ e on t.equip_pk = e.id
+			inner join location l on e.loc_pk = l.id
+            left join location l2 on l.up_loc_pk = l2.id
+			left join equip_category ec on e.equip_category_id = ec.equip_category_id
+			left outer join dept ed on e."Depart_id"  = ed.id
+			left outer join dept wd on t.dept_pk = wd.id
+			left outer join dept rd on t.req_dept_pk = rd.id
+			left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
+            left outer join code wp on t.problem_cd = wp."Code" and wp."CodeGroupCode" = 'PC'
+	        left outer join code wc on t.cause_cd = wc."Code" and wc."CodeGroupCode" = 'CC'
+	        left outer join code wr on t.remedy_cd = wr."Code" and wr."CodeGroupCode" = 'RC'
+			left outer join pm p on t.pm_pk = p.pm_pk
+			left outer join code ct on p.cycle_type = ct."Code" and ct."CodeGroupCode" = 'CYCLE_TYPE'
+			left outer join code pt on p.pm_type  = pt."Code" and pt."CodeGroupCode" = 'PM_TYPE'
+			left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
+			left outer join user_profile wou on t.work_charger_pk = wou."User_id"
+			left outer join code wsc on t.work_src_cd = wsc."Code" and wsc."CodeGroupCode" = 'WORK_SRC'
+			left outer join project prj on t.proj_cd = prj.proj_cd
+			left outer join user_profile woarqstu on woa.rqst_user_pk = woarqstu."User_id"			
+			left outer join code wt on t.wo_type = wt."Code" and wt."CodeGroupCode" = 'WO_TYPE'
+			left outer join equ ue on e.UP_EQUIP_PK  = ue.id
+			left outer join code av on av."Code" = e.first_asset_status and av."CodeGroupCode" = 'ASSET_VAL_STATUS'
+
+		where 1 = 1
+		AND t.work_order_pk =  %(work_order_pk)s
+            ;
+        '''
+
+        try:
+            items = DbUtil.get_row(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_wo', ex)
+            raise ex
+
+        return items
+
     def get_job_class_list(self):
         items = []        
         sql = ''' 

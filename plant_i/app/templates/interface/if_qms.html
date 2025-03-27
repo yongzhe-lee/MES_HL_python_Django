@@ -14,14 +14,27 @@
         <form class="search-form" id="searchForm" onsubmit="return false;">
             <div class="card-content search">
                 <div class="form-ui">
-                    <div class="col-12 col-sm-8 col-md-7 col-lg-5 col-xl-3">
+                    <div class="col-12 col-sm-8 col-md-7 col-lg-6 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_date_range" data-labelCd="변경일">변경일</label>
                             <div class="field-wrapper">
-                                <div id="srch_date_range"></div>
+                                <input id="start_date" name="start_date" />
+                            </div>
+                            ~
+                            <div class="field-wrapper">
+                                <input id="end_date" name="start_date" />
                             </div>
                         </div>
                     </div>
+                    <div class="col-12 col-sm-8 col-md-7 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtKeyword" data-labelCd="키워드검색">키워드검색</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtKeyword" name="keyword" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-auto">
                         <div class="card-group-btn search">
                             <button id="btnSearch" class="btn-search">조회</button>
@@ -276,20 +289,14 @@
             };
             _this.grid = new Grid($("#qms_grid"), gridOption);
 
+            let startDt = CommonUtil.getYYYYMMDD(-90);
+            var endDt = CommonUtil.getYYYYMMDD();
+            kendoUtil.kenDateTimePicker($("#start_date"), $("#end_date"), startDt, endDt);
 
-            //search form
-            $("#srch_date_range").kendoDateRangePicker({
-                range: {
-                    start: '2025-01-01',
-                    end: new Date()
-                },
-                change: function (e) {
 
-                },
-                format: "yyyy-MM-dd",
-                labels: false,
-                startField: "start_date",
-                endField: "end_date"
+
+            $('#txtKeyword').on('keypress', function (e) {
+                console.log(e);
             });
 
 
@@ -319,27 +326,31 @@
         searchMainData() {
 
             let _this = this;
-            const startDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().start);
-            const endDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().end);
 
-            // 9시간 추가(date객체가 UTC 기준이라 서버로 넘어갈 때 9시간 빠져서 넘어감)
-            startDate.setHours(startDate.getHours() + 9);
-            endDate.setHours(endDate.getHours() + 9);
-
-            $('#detailForm')[0].reset();
-
+            let start_date = $('#start_date').val();
+            let end_date = $('#end_date').val();
+            
+            let keyword = $('#txtKeyword').val();
             let param = {
                 action: 'read',
-                // 날짜를 YYYY-MM-DD 형태로 변환 & 시간 제외해서 넘기기
-                start: startDate.toISOString().split("T")[0],
-                end: endDate.toISOString().split("T")[0],
+                start: start_date,
+                end: end_date,
+                keyword : keyword
             };
+
+            let gg = $('#qms_grid');
+
+            kendo.ui.progress(gg, true);
 
             let fnSuccess = function (result) {
                 if (result.success) {
                     _this.grid.setData(result.items);
                 }
+
+                kendo.ui.progress(gg, false);
             };
+
+            $('#detailForm')[0].reset();
 
             AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }

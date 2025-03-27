@@ -4,21 +4,30 @@
 'use strict';
 
 let Alert = {
-    alert: function (title, content, okText='확인') {
-        // title이 빈 값일 때 기본값 설정
+    alert: function (title, content, okText = '확인') {
         if (!title) {
             title = i18n.getCommonText('정보');
         }
 
-        return $("<div></div>").kendoAlert({
+        const $alert = $("<div></div>").kendoAlert({
             title: title,
             content: content,
             messages: {
                 okText: okText,
-                //okText: "확인",
+            },
+            open: function () {
+                // 25.03.25 kendo css 커스텀을 위한 wrapper class(alert-container) 추가
+                const $wrapper = $(this.element).closest(".k-dialog-wrapper");
+                if ($wrapper.length) {
+                    $wrapper.addClass("alert-container");
+                }
             }
-        }).data("kendoAlert").open();
+        });
+
+        // open()으로 alert 띄우기
+        return $alert.data("kendoAlert").open();
     },
+
     confirm: function (title, content, okFunc, cancelFunc) {
         // title이 빈 값일 때 기본값 설정
         if (!title) {
@@ -32,6 +41,13 @@ let Alert = {
                 okText: i18n.getCommonText('확인'),
                 cancel: i18n.getCommonText('취소'),
             },
+            open: function () {
+                // 25.03.25 김하늘 kendo css 커스텀을 위한 wrapper class(alert-container) 추가
+                const $wrapper = $(this.element).closest(".k-dialog-wrapper");
+                if ($wrapper.length) {
+                    $wrapper.addClass("alert-container");
+                } 
+            }
         }).data("kendoConfirm").open().result
             .done(function () {
                 okFunc();

@@ -243,7 +243,7 @@
                 }
             }
 
-            AjaxUtil.getAsyncData(this.url, data, fnSuccess);
+            AjaxUtil.getAsyncData(this.baseUrl, data, fnSuccess);
 
         }
         searchMainData() {
@@ -258,11 +258,20 @@
                 sap_input_number: sap_input_number
             };
 
+
+            let g1 = $('#report_grid');
+            let g2 = $('#item_result_grid');
+            
+            kendo.ui.progress(g1, true);
+            kendo.ui.progress(g2, true);
+            
             let fnSuccess = function (result) {
                 if (result.success) {
                     _this.report_grid.setData(result.reports);
                     _this.item_result_grid.setData(result.items);
                 }
+                kendo.ui.progress(g1, false);
+                kendo.ui.progress(g2, false);
             };
             AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }

@@ -40,6 +40,40 @@ class JobClass(models.Model):
         db_table_comment = '직종 정보'
         unique_together = [
             ['Code']
+        ]        
+        
+class Project(models.Model):
+    '''
+    프로젝트
+    '''
+    proj_pk = models.AutoField(primary_key=True, db_column='proj_pk', db_comment='프로젝트 PK')
+    proj_cd = models.CharField('프로젝트코드', db_column='proj_cd', max_length=30, db_comment='프로젝트코드')
+    proj_nm = models.CharField('프로젝트명', db_column='proj_nm', max_length=200, db_comment='프로젝트명')
+    plan_start_dt = models.DateField('계획 시작일', db_column='plan_start_dt', db_comment='계획 시작일')
+    plan_end_dt = models.DateField('계획 마감일', db_column='plan_end_dt', db_comment='계획 마감일')
+    manager_id = models.CharField('담당자PK', db_column='manager_id', max_length=20, db_comment='담당자PK')
+    proj_purpose = models.CharField('설명', db_column='proj_purpose', max_length=400, db_comment='설명')
+    proj_tot_cost = models.IntegerField('중요성', db_column='proj_tot_cost', db_comment='중요성')
+
+    _status = models.CharField('_status', max_length=10, null=True, db_comment='데이터 상태')
+    _created    = models.DateTimeField('_created', auto_now_add=True, db_comment='생성일시')
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True, db_comment='수정일시')
+    _creater_id = models.IntegerField('_creater_id', null=True, db_comment='생성자 ID')
+    _modifier_id = models.IntegerField('_modifier_id', null=True, db_comment='수정자 ID')
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta:
+        db_table = 'project'
+        verbose_name = '프로젝트'
+        db_table_comment = '프로젝트 정보'
+        unique_together = [
+            ['proj_cd']
         ]
 
 class PreventiveMaintenance(models.Model):
@@ -468,13 +502,14 @@ class WorkOrder(models.Model):
     rqst_insp_yn = models.CharField('점검WO 여부', db_column='rqst_insp_yn', max_length=1, default='N', db_comment='점검 작업지시 여부')
     rqst_dpr_yn = models.CharField('일보WO 여부', db_column='rqst_dpr_yn', max_length=1, default='N', db_comment='일보 작업지시 여부')
     WorkFileGroupCode = models.CharField('첨부파일그룹코드', db_column='wo_file_grp_cd', max_length=50, null=True, db_comment='첨부파일 그룹코드')
-    CheckResult = models.ForeignKey(CheckResult, verbose_name='점검결과', db_column='chk_result_pk', on_delete=models.DO_NOTHING, null=True, db_comment='점검결과 ID')
+    CheckResult = models.ForeignKey(CheckResult, verbose_name='점검결과', db_column='chk_rslt_pk', on_delete=models.DO_NOTHING, null=True, db_comment='점검결과 ID')
     site_id = models.IntegerField('사이트ID', db_column='site_id', null=True, db_comment='사이트 ID')
     WorkOrderApproval = models.ForeignKey('WorkOrderApproval', db_column='work_order_approval_pk', on_delete=models.DO_NOTHING, db_comment='작업결재정보PK', null=True)
     
     # 새로운 필드 추가
     appr_line = models.CharField('결재라인', db_column='appr_line', max_length=50, null=True, default='', db_comment='결재라인')
     appr_line_next = models.CharField('다음결재라인', db_column='appr_line_next', max_length=10, null=True, default='', db_comment='다음결재라인')
+    proj_cd = models.CharField('프로젝트코드', db_column='proj_cd', max_length=30, null=True, db_comment='프로젝트 코드')
 
     _status = models.CharField('_status', max_length=10, db_comment='데이터 상태')
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성 일시')
@@ -632,5 +667,7 @@ class WorkOrderLabor(models.Model):
         db_table = 'wo_labor'
         verbose_name = '작업 인력'
         db_table_comment = '작업 인력'
+
+
 
 

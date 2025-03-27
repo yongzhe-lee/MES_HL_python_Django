@@ -55,7 +55,6 @@ def pm_master(context):
         
         items = pm_master_service.get_pm_sch_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
 
-
     elif action=='detail':
         id = gparam.get('id', None)
         items = pm_master_service.get_pm_master_detail(id)
@@ -78,6 +77,18 @@ def pm_master(context):
         pm_pk = gparam.get('pm_pk', None)
 
         items = pm_master_service.get_pm_wo(pm_pk)
+
+    # PM 작업오더 결재라인 /* findOne [work-order-approval-mapper.xml] */
+    elif action=='read_work_order_summary':
+        work_order_pk = gparam.get('id', None)
+
+        items = pm_master_service.get_work_order_summary(work_order_pk)
+
+    # PM 작업 결과 로그
+    elif action=='read_work_order_hist':
+        work_order_pk = gparam.get('id', None)
+
+        items = pm_master_service.get_work_order_hist(work_order_pk)
 
     elif action=='save':
         # 데이터 저장 로직        
@@ -290,7 +301,6 @@ def pm_master(context):
             source = 'api/kmms/pm_master, action:{}'.format(action)
             LogWriter.add_dblog('error', source, ex)
             raise ex
-
 
     return items
 

@@ -14,7 +14,9 @@ def qms(context):
         if action=="read":
             start_dt = gparam.get('start')
             end_dt = gparam.get('end')
-            dic_param = {'start_dt' : start_dt, 'end_dt': end_dt}
+            keyword = gparam.get('keyword')
+
+            dic_param = {'start_dt' : start_dt, 'end_dt': end_dt,  "keyword":keyword}
             sql ='''
                 select 
                  qis_pk, a_date, o_date, w_shift, step_class
@@ -26,6 +28,11 @@ def qms(context):
                 from if_qms_defect
                 where 1=1
             '''
+
+            if keyword:
+                sql+='''
+                and upper(mat_cd) like concat('%%',upper(%(keyword)s),'%%')
+                '''
 
             if start_dt:
                 sql+='''

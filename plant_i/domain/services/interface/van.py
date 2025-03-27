@@ -15,7 +15,7 @@ class VanInterfaceService():
 
     def get_van_report_data(self, rnd_num, sap_input_number):
 
-        result = {'success' : True}
+        result = {}
         dic_param = {'sap_input_number' : sap_input_number, 'rnd_num': rnd_num}
 
         sql_report ='''
@@ -62,7 +62,7 @@ class VanInterfaceService():
 
         if sap_input_number:
             sql_item+='''
-            vr.sap_gr_number = %(sap_input_number)s
+            and vr.sap_gr_number = %(sap_input_number)s
             '''
 
         items = DbUtil.get_rows(sql_item, dic_param)
@@ -91,13 +91,11 @@ class VanInterfaceService():
         response = requests.post(url, headers=headers, params=data, verify=False)
         return response.json()
 
-    def save_if_van_data(rnd_num, items, user):
+    def save_if_van_data(self, rnd_num, items, user):
 
         dic_report = {}
         for item in items:
             van_report = None
-            van_query = VanReport.objects.filter(report_number=item["REPORT_NUMBER"])
-            count = van_query.count()
 
             if_van = IFVanInterface()
             if_van.rnd_num = rnd_num
