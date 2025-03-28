@@ -255,12 +255,6 @@
 		border: 1px solid #ddd;
 	}
 
-	/* 달력 테두리 스타일 */
-	.k-calendar .k-calendar-cell-inner,
-	.k-calendar .k-link {
-		border: 1px solid var(--kendo-border-color, #dee2e6) !important;
-	}
-
 	.menu-item {
 		padding: 2px 8px;
 		font-size: 12px;
@@ -316,6 +310,14 @@
 		align-items: center;
 		gap: 5px;
 	}
+	/* 날짜 입력 필드의 테두리를 항상 유지하려면 */
+	.k-datepicker .k-input,
+	.k-input {
+		border: 1px solid #dee2e6 !important;
+		box-sizing: border-box;
+		height: 28px !important;
+	}
+
 </style>
 
 <script type="text/javascript">
@@ -440,13 +442,7 @@
 			let funcSucc = function (resp) {
 				if (resp.success) {
 					// 기본 정보 저장 성공 시 작업 인력 저장 진행
-					Notify.success('저장되었습니다.');
-
-					// ⬇ 스타일 재적용
-					setTimeout(() => {
-						$('.k-calendar .k-calendar-cell-inner, .k-calendar .k-link').css('border', '1px solid #dee2e6');
-					}, 300);
-					
+					Notify.success('저장되었습니다.');					
 				} else {
 					Alert.alert('error', resp.message);
 				}
