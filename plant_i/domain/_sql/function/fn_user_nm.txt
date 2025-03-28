@@ -1,6 +1,6 @@
--- DROP FUNCTION public.fn_user_nm(varchar);
+-- DROP FUNCTION fn_user_nm(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.fn_user_nm(v_user_nm character varying)
+CREATE OR REPLACE FUNCTION fn_user_nm(v_user_nm character varying, v_del_yn character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -18,7 +18,7 @@ begin
 	    else t.user_nm end as user_nm	
 	into t_nm	    
 	FROM  (
-	    select v_user_nm as user_nm
+	    select v_user_nm as user_nm, v_del_yn as del_yn
 	) t
 	;
 

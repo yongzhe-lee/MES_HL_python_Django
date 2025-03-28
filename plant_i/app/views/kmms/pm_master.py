@@ -2,7 +2,7 @@ from django.db import transaction
 from domain.models.definition import Equipment, Material
 from domain.models.user import Depart
 from domain.services.sql import DbUtil
-from domain.models.kmms import JobClass, PMWorker, PMMaterial, PreventiveMaintenance, User
+from domain.models.kmms import JobClass, PMWorker, PMMaterial, PreventiveMaintenance, User, WorkOrder
 from domain.services.kmms.pm_master import PMService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
@@ -297,6 +297,82 @@ def pm_master(context):
 
             items = {'success': True}
             
+        except Exception as ex:
+            source = 'api/kmms/pm_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
+    elif action=='save_work_order':
+        # 데이터 저장 로직        
+        work_order_pk = posparam.get('work_order_pk')# pk 값을 가져옵니다. 없으면 None
+        wo = None
+
+        try:
+
+            if work_order_pk:
+                wo = WorkOrder.objects.filter(work_order_pk=work_order_pk).first()
+                if not wo:
+                    return JsonResponse({
+                        'result': False,
+                        'message': f"WO with pk {work_order_pk} does not exist."
+                    })
+
+            else:
+                # 새 객체 생성
+                wo = WorkOrder()
+
+            # 데이터 저장      
+            # Depart 객체 가져오기
+            dept_pk = posparam.get('wo_dept_pk')
+            try:
+                depart = Depart.objects.get(id=dept_pk)
+            except Depart.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'Depart with id {dept_pk} does not exist.'
+                })
+
+            wo.Depart = depart
+
+            # User 객체 가져오기
+            work_charger_pk = posparam.get('wo_work_charger_sel')
+            try:
+                user_id = User.objects.get(id= work_charger_pk)
+            except User.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'User with id {work_charger_pk} does not exist.'
+                })
+
+            wo.WorkCharger = user_id
+            
+            wo.plan_start_dt = posparam.get('wo_plan_start_dt')
+            wo.plan_end_dt = posparam.get('wo_plan_end_dt')            
+            wo.start_dt = posparam.get('wo_start_dt')
+            wo.end_dt = posparam.get('wo_end_dt')
+            wo.MaintenanceTypeCode = posparam.get('wo_maint_type_cd')
+            wo.CauseCode = posparam.get('wo_cause_sel')
+            wo.ProblemCode = posparam.get('wo_problem_sel')
+            wo.RemedyCode = posparam.get('wo_remedy_sel')
+            wo.proj_cd = posparam.get('wo_proj_sel')            
+            wo.WorkSourcingCode = posparam.get('wo_work_src_sel')
+            wo.WorkText = posparam.get('wo_work_text')
+        
+            if not work_order_pk:  # 신규 등록시
+                wo._status = 'C'
+                wo._created = timezone.now()
+                wo._creater_id = request.user.id
+                wo._creater_nm = request.user.username
+            else:  # 수정시
+                wo._status = 'U'
+                wo._modified = timezone.now()
+                wo._modifier_id = request.user.id
+                wo._modifier_nm = request.user.username
+
+            wo.save()
+
+            items = {'success': True, 'id': wo.work_order_pk}
+
         except Exception as ex:
             source = 'api/kmms/pm_master, action:{}'.format(action)
             LogWriter.add_dblog('error', source, ex)

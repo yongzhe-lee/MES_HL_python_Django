@@ -1,0 +1,9 @@
+-- DROP FUNCTION fn_datediff(timestamp, timestamp);
+
+CREATE OR REPLACE FUNCTION fn_datediff(date1 timestamp without time zone, date2 timestamp without time zone)
+ RETURNS integer
+ LANGUAGE sql
+AS $function$
+SELECT cast(date1 as date) - cast(date2 as date) as DateDifference
+$function$
+;

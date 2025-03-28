@@ -215,6 +215,14 @@ INSERT INTO dept ("Code","Name","UpDept_id","UpDeptCode","ReqDivCode","LabYN","M
 	 ('SFD','SF개발팀',6,'SFS',NULL,NULL,NULL,NULL,'Y','N','Y',NULL,'2024-12-23 16:00:54.927+09',NULL,3,NULL,1),
 	 ('DTT','DT사업팀',6,'SFS',NULL,NULL,NULL,NULL,'Y','N','Y',NULL,'2024-12-23 16:00:54.927+09',NULL,3,NULL,1),
 	 ('','테스트 부서',NULL,NULL,NULL,'N','N',NULL,'Y','N','N',NULL,'2025-02-12 17:17:25.638021+09','2025-02-12 17:17:25.638021+09',NULL,NULL,NULL);
+
+-- equ
+alter SEQUENCE equ_id_seq restart WITH 1;
+INSERT INTO equ("Code","MESCode","SAPCode","Name","Description","Maker","Model","Standard","Usage","ManageNumber","SerialNumber","ProductionYear","AssetYN","DurableYears","PowerWatt","Voltage","Manager","SupplierName","PurchaseDate","PurchaseCost","ServiceCharger","ASTelNumber","AttentionRemark","Inputdate","InstallDate","DisposalDate","DisposalReason","OperationRateYN","Status",loc_pk,equip_category_id,up_equip_pk,site_id,equip_class_path,equip_class_desc,asset_nos,warranty_dt,buy_cost,photo_file_grp_cd,doc_file_grp_cd,import_rank,environ_equip_yn,ccenter_cd,breakdown_dt,del_yn,process_cd,system_cd,first_asset_status,disposed_type,"_status","_created","_modified","_creater_id","_modifier_id","Depart_id","EquipmentGroup_id",line_id) VALUES
+	 ('equ01','','','설비01','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,NULL,'','',NULL,NULL,NULL,NULL,NULL,'Y','O',5,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'A',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:34:53.995001+09','2025-03-18 10:34:53.995001+09',1,1,4,5,1),
+	 ('equ02','','','설비02','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,1.0,'','',NULL,NULL,NULL,NULL,NULL,'Y','D',4,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'B',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:35:30.324849+09','2025-03-18 10:35:30.324849+09',1,1,3,2,2);
+
+
 /*
 -- equip_category
 INSERT INTO equip_category (equip_category_id,equip_category_desc,remark,use_yn,"_status","_created","_modified","_creater_id","_modifier_id") VALUES
@@ -239,11 +247,6 @@ INSERT INTO equip_category (equip_category_id,equip_category_desc,remark,use_yn,
 	 ('X','Auxiliaries','보조장치','N',NULL,'2025-01-07 11:39:04.617+09',NULL,1,NULL);
 
 
--- equ
-alter SEQUENCE equ_id_seq restart WITH 1;
-INSERT INTO equ("Code","MESCode","SAPCode","Name","Description","Maker","Model","Standard","Usage","ManageNumber","SerialNumber","ProductionYear","AssetYN","DurableYears","PowerWatt","Voltage","Manager","SupplierName","PurchaseDate","PurchaseCost","ServiceCharger","ASTelNumber","AttentionRemark","Inputdate","InstallDate","DisposalDate","DisposalReason","OperationRateYN","Status",loc_pk,equip_category_id,up_equip_pk,site_id,equip_class_path,equip_class_desc,asset_nos,warranty_dt,buy_cost,photo_file_grp_cd,doc_file_grp_cd,import_rank,environ_equip_yn,ccenter_cd,breakdown_dt,del_yn,process_cd,system_cd,first_asset_status,disposed_type,"_status","_created","_modified","_creater_id","_modifier_id","Depart_id","EquipmentGroup_id",line_id) VALUES
-	 ('equ01','','','설비01','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,NULL,'','',NULL,NULL,NULL,NULL,NULL,'Y','O',5,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'A',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:34:53.995001+09','2025-03-18 10:34:53.995001+09',1,1,4,5,1),
-	 ('equ02','','','설비02','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,1.0,'','',NULL,NULL,NULL,NULL,NULL,'Y','D',4,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'B',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:35:30.324849+09','2025-03-18 10:35:30.324849+09',1,1,3,2,2);
 
 */
 --das_server
@@ -897,24 +900,24 @@ INSERT INTO holiday (nation_cd,name_val,repeat_yn,holidate) VALUES
 
 --자재
 alter SEQUENCE material_id_seq restart WITH 1;
-INSERT INTO public.material ("Code","Name","Standard","ItemGroup","ItemType","BasicUnit","CycleTime",in_price,out_price,supplier_pk,"_status","_created","_modified","_creater_id","_modifier_id","Factory_id") VALUES
+INSERT INTO material ("Code","Name","Standard","ItemGroup","ItemType","BasicUnit","CycleTime",in_price,out_price,supplier_pk,"_status","_created","_modified","_creater_id","_modifier_id","Factory_id") VALUES
 	 ('MT0000696','도어락_KONAM KN-100','','','MA','',NULL,NULL,NULL,NULL,NULL,'2025-03-17 10:46:42.635501+09','2025-03-17 10:46:42.635501+09',1,1,1),
 	 ('MT0000695','스프링클러 헤드_플러쉬형,하향,표준반응 72 ℃','','','ME','',NULL,NULL,NULL,NULL,NULL,'2025-03-17 10:46:59.966689+09','2025-03-17 10:47:12.359949+09',1,1,1);
 
 --업체 정보
 alter SEQUENCE company_id_seq restart WITH 1;
-INSERT INTO public.company ("Name","Code","Country","Local","CompanyType","CEOName","Email","ZipCode",addr,"TelNumber","FaxNumber","BusinessType","BusinessItem","Homepage","Description","Manager","ManagerPhone","Manager2","Manager2Phone","UseYn","DelYn","UserText1","UserText2","UserText3","UserText4","UserText5","_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm","Site_id") VALUES
+INSERT INTO company ("Name","Code","Country","Local","CompanyType","CEOName","Email","ZipCode",addr,"TelNumber","FaxNumber","BusinessType","BusinessItem","Homepage","Description","Manager","ManagerPhone","Manager2","Manager2Phone","UseYn","DelYn","UserText1","UserText2","UserText3","UserText4","UserText5","_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm","Site_id") VALUES
 	 ('위존','wezon','','','S','','','','','','','SW','','','','','','','','Y','N',NULL,NULL,NULL,NULL,NULL,NULL,'2025-03-17 11:10:28.692624+09','2025-03-17 11:10:28.692624+09',1,1,'위존','위존',NULL),
 	 ('열린기술','YULLIN','','','S','','','','','','','SW','','','','','','','','Y','N',NULL,NULL,NULL,NULL,NULL,NULL,'2025-03-17 11:10:45.752357+09','2025-03-17 11:11:00.873981+09',1,1,'위존','위존',NULL);
 
 --pm마스터
 alter SEQUENCE pm_pm_pk_seq restart WITH 1;
-INSERT INTO public.pm (pm_no,pm_nm,pm_sort_no,cycle_type,per_number,sched_start_dt,first_work_dt,last_work_dt,next_chk_date,work_text,work_expect_hr,pm_type,use_yn,del_yn,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",dept_pk,equip_pk,pm_user_pk) VALUES
+INSERT INTO pm (pm_no,pm_nm,pm_sort_no,cycle_type,per_number,sched_start_dt,first_work_dt,last_work_dt,next_chk_date,work_text,work_expect_hr,pm_type,use_yn,del_yn,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",dept_pk,equip_pk,pm_user_pk) VALUES
 	 ('PM-20250318-001','정기 점검 계획',NULL,'CYCLE_TYPE_D',1,'2025-03-18',NULL,NULL,NULL,'없음',1,'PM_TYPE_TBM','Y','N','C','2025-03-18 10:38:40.061698+09','2025-03-18 10:38:40.061698+09',1,NULL,'yullin',NULL,4,1,3);
 
 --pm 작업인력
 alter SEQUENCE pm_labor_id_seq restart WITH 1;
-INSERT INTO public.pm_labor (work_hr,disp_order,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",job_class_pk,pm_pk) VALUES
+INSERT INTO pm_labor (work_hr,disp_order,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",job_class_pk,pm_pk) VALUES
 	 (1.00,NULL,NULL,'2025-03-18 10:39:59.306564+09','2025-03-18 10:39:59.306564+09',NULL,NULL,NULL,NULL,2,1),
 	 (2.00,NULL,NULL,'2025-03-18 10:39:59.306564+09','2025-03-18 10:39:59.306564+09',NULL,NULL,NULL,NULL,1,1);
 
@@ -926,6 +929,6 @@ INSERT INTO pm_mtrl (amt,"_status","_created","_modified","_creater_id","_modifi
 
 -- AI 모델마스터
 alter SEQUENCE ds_master_id_seq restart WITH 1;
-INSERT INTO public.ds_master ("Name", "Type", "_status", "_created", "_modified", "_creater_id", "_modifier_id", "_creater_nm", "_modifier_nm") VALUES
+INSERT INTO ds_master ("Name", "Type", "_status", "_created", "_modified", "_creater_id", "_modifier_id", "_creater_nm", "_modifier_nm") VALUES
 	('TEST2', 'MES', NULL, '2025-02-06 14:18:12.035', '2025-02-06 14:18:12.035', 3, 3, NULL, NULL),
 	('TEST1', 'QMS', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);

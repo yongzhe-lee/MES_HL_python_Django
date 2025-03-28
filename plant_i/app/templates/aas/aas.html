@@ -42,6 +42,13 @@
                             </div>
                             <ul>
                                 <li>
+                                    <div class="tree-node">
+                                        <ul>
+                                            <li><span class="prop-title">Prop</span> isNotAuthenticated<span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
                                     <div class="tree-node" onclick="toggleNode(this)">
                                         <span class="toggle-btn">-</span><i class="material-symbols-outlined draft">draft</i><span class="coll-title">Coll </span> roles #1 <span class="aas-time">  (25-01-19 09:36:37.099)</span>
                                     </div>
@@ -139,14 +146,18 @@
                             <input id="version" name="version" placeholder="version" class="form-control" />
                         </div>
                         <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="표시언어">표시언어</label>
                             <select id="language" name="language" class="form-control">
-                                <option value="">언어를 선택하세요</option>
+                                <option value="">표시언어를 선택하세요</option>
                                 <option value="ko">한글</option>
                                 <option value="en">English</option>
                             </select>
-                            <input id="text" name="text" class="form-control" placeholder="이름입력" />
-                            <button id="btnAddDisplayName" class="btn-add">추가</button>
                         </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="이름입력">이름입력</label>
+                            <input id="displayText" name="displayText" class="form-control" placeholder="이름입력" />
+                        </div>
+
                         <div class="aas-input-group">
                             <div id="displayName_grid"></div>
                         </div>
@@ -155,8 +166,8 @@
                             <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
                             <textarea id="description" name="description" class="form-control"></textarea>
                         </div>
-
                     </div>
+                    <hr />
 
                     <div class="aas-info">
 
@@ -197,7 +208,7 @@
                 </div>
             </form>
         </div>
-        <div class="right-panel">
+        <div class="right-panel" style="display:none">
             <div class="card-group-btn">
                 <span class="info-text">
                     <i class="material-symbols-outlined">edit_square</i>
@@ -214,7 +225,7 @@
 
             </div>
         </div>
-        <div class="right-panel">
+        <div class="right-panel" style="display:none">
             <div class="card-group-btn">
                 <span class="info-text">
                     <i class="material-symbols-outlined">edit_square</i>
@@ -271,7 +282,7 @@
 <script type="text/x-kendo-template" id="aasTemplate">
     <li>
         <div class="tree-node">
-            <span class="toggle-btn" onclick="aasToggleNode(this)">-</span><i class="material-symbols-outlined folder">folder</i><span class="aas-title">#: gubun # </span> <span onclick="aasNodeClick(this)" aas_pk="#=aas_pk#">#: displayName #</span><span class="aas-time"> #: created #</span>
+            <span class="toggle-btn" onclick="aasToggleNode(this)">-</span><i class="material-symbols-outlined folder">folder</i><span class="aas-title">#: gubun # </span> <span onclick="aasNodeClick(this)" data_id="#=aas_pk#" gubun="#= gubun #">#: displayName #</span><span class="aas-time"> #: created #</span>
         </div>
         # if (data.sub_items.length>0) { #
         <ul>
@@ -279,7 +290,7 @@
             <ul>
                 <li>
                     <div class="tree-node" >
-                        <span class="toggle-btn" onclick="aasToggleNode(this)">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="sub-title"> #: sb.gubun # </span> #: sb.displayName # <span class="aas-time"> #: sb.created #</span>
+                        <span class="toggle-btn" onclick="aasToggleNode(this)">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="sub-title"> #: sb.gubun # </span> <span onclick="aasNodeClick(this)" data_id="#=sb.sb_pk#" gubun="#= gubun #"">#: sb.displayName # </span><span class="aas-time"> #: sb.created #</span>
                     </div>
                     <ul>
 
@@ -308,56 +319,6 @@
 
         init() {
             let _this = this;
-
-            let gridOption = {
-                //height: 450,
-                //toolbar: [
-                //    "columns"
-                //],
-                //columnMenu: {
-                //    componentType: "classic",
-                //    autoSize: true,
-                //    clearAllFilters: true,
-                //    columns: {
-                //        sort: "asc",
-                //    }
-                //},
-                columns: [
-                    { field: "category", title: "Category", width: 80 },
-                    { field: "id_short", title: "id(short)", width: 100 },
-                    { field: "id", title: "id", width: 100 },
-                    { field: "displayName", title: "Display name", width: 200 },
-                    { field: "created", title: "Created", width: 100 },
-                    { field: "ver_rev", title: "Version/Revision", width: 100 },
-                    { field: "aasx", title: "Download aasx", width: 100 },
-                ],
-                change: function (e) {
-                    _this.showDetail();
-                },
-                dataBound: function (e) {
-                    kendoUtil.showGridRowCount(this.element);
-                },
-                height: "540px"
-            };
-            _this.grid = new Grid($("#aas_grid"), gridOption);
-
-
-            let option2 = {
-                columns: [
-                    { field: "category", title: "언어", width: 80 },
-                    { field: "id_short", title: "이름", width: 100 },
-                ],
-                change: function (e) {
-
-                },
-                dataBound: function (e) {
-                    kendoUtil.showGridRowCount(this.element);
-                },
-                height: "150px"
-            };
-            _this.displayNameGrid = new Grid($("#displayName_grid"), option2);
-
-
 
             let option3 = {
                 columns: [
@@ -557,26 +518,45 @@
     let page = new AASPage();
 
     $(document).ready(function () {
-        page.searchMainData();
+        //page.searchMainData();
     });
     //트리구조
-    function aasToggleNode(node) {        
+    function aasToggleNode(node) {
 
         let childUl = node.parentElement.nextElementSibling;
 
         if (childUl) {
             childUl.classList.toggle('hidden');
             let toggleBtn = node.parentElement.querySelector('.toggle-btn');
-            toggleBtn.textContent = childUl.classList.contains('hidden') ? '+' : '-';
+            let isHidden = childUl.classList.contains('hidden');
+            if(isHidden){
+                toggleBtn.textContent = '+';
+            }
+            else{
+                toggleBtn.textContent = '-';
+                // 하위 데이터를 새로 읽어올지 여부 결정
+                alert('데이터');
+            }
         }
     }
 
     function aasNodeClick(item) {
+        let _this = this;
         let $item = $(item);
 
-        let aas_pk = $item.attr('aas_pk');
-        alert(aas_pk);
+        let data_pk = $item.attr('data_pk');
+        let gubun = $item.attr('gubun');
+        let action = gubun + '_detail';
 
+        let param = { action: action, data_pk: data_pk };
+        let fnSuccess = function (result) {
+            if (result.success) {
+                console.log(result.data);
+            }
+        };
+
+        //alert(page.baseUrl);
+        AjaxUtil.getAsyncData(page.baseUrl, param, fnSuccess);
     }
 
 </script>

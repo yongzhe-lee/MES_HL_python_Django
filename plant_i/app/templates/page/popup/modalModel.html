@@ -1,0 +1,270 @@
+{% extends "app/layout.html" %}
+{% block css %}
+<style>
+    /* Kendo TextBox가 비활성화된 상태일 때 스타일 변경 */
+    /*.k-textbox.k-disabled {
+        background-color: #f0f0f0;*/ /* 비활성화된 상태의 배경색 */
+        /*border: 1px solid #d0d0d0;*/ /* 비활성화된 상태의 테두리 색 */
+    /*}*/
+
+    /* 모달 푸터 스타일 */
+    .modal-footer {
+        padding: 0px 20px;
+        margin: 10px 0 0 0;
+        text-align: right;
+        border-top: 0px solid #dee2e6;
+    }
+
+    .upload-container {
+        margin: 20px !important; 
+    }
+    /* 저장 버튼 스타일 */
+    /*.btn-save {
+        background: #ECF5FF !important;
+        color: #409EFF !important;
+        border-color: #B3D8FF !important;
+        border: 1px solid #00a9ff !important;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        min-width: 40px;
+        height: 32px;
+        line-height: 1;
+    }
+
+        .btn-save:hover {
+            background-color: #C2DFFF !important;
+            border-color: #0054e0 !important;
+        }*/
+
+    /* 기본 상태 (디폴트) */
+    /*.btn-close {
+        background: #ECF5FF !important;
+        color: #409EFF !important;
+        border-color: #B3D8FF !important;
+        border: 1px solid #00a9ff !important;
+        padding: 5px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        min-width: 60px;
+        height: 32px;
+        font-size: 14px;
+        text-align: center;
+        display: inline-block;
+    }*/
+
+        /* 마우스 호버 시 (hover) */
+        /*.btn-close:hover {
+            background-color: #C2DFFF !important;
+            border-color: #0054e0 !important;
+        }
+
+    .k-button.btn-close {
+        background: #ECF5FF !important;
+        color: #409EFF !important;
+        border-color: #B3D8FF !important;
+        border: 1px solid #00a9ff !important;
+    }
+
+        .k-button.btn-close:hover {
+            background-color: #C2DFFF !important;
+            border-color: #0054e0 !important;
+        }*/
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+    <div class="content-ui-row">
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <form id="dsDataForm" class="search-form">
+                    <div class="edit-form-ui">
+                        <input type="hidden" id="id" name="id">
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="Name" data-labelCd="모델명">모델명</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="Name" name="Name" data-msg="모델명을" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Type" data-labelCd="구분">구분</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="Type" name="Type" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="Description" data-labelCd="비고">비고</label>
+                                <div class="field-wrapper">
+                                    <textarea id="Description" name="Description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="da_file_area" data-labelCd="첨부된 데이터(csv)">첨부된 데이터(csv)</label>
+                            <div class="field-wrapper">
+                                <div id="da_file_area" name="da_file_area"></div>
+                            </div>
+                        </div>
+                    </div>-->
+                    </div>
+                </form>
+                <!-- kendo 첨부파일 -->
+                <div class="card-group-btn k-mt-5">
+                    <span class="info-text"><i class="material-symbols-outlined">attach_file</i><label data-labelCd="첨부된 데이터(csv)">첨부된 데이터(csv)</label></span>
+                </div>
+                <div class="form-item align-h">
+                    <div class="field-wrapper">
+                        <div id="da_file_area" name="da_file_area"></div>
+                    </div>
+                </div>
+                <!--<div class="card-group-btn" style="margin-top:10px">
+                <span></span>
+                <span>
+                    <button id="btnSaveModalData"><i class="material-symbols-outlined">save</i>저장</button>
+                    <button id="btnCloseModal" class="btn-cancel">닫기</button>
+                </span>
+            </div>-->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="btnSaveModalData">저장</button>
+            <button type="button" id="btnCloseModal">닫기</button>
+            <!--<button type="button" id="btnSaveModalData" class="btn-save">저장</button>
+            <button type="button" id="btnCloseModal" class="btn-close">닫기</button>-->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include 'common/file_upload.html' %}
+<script type="text/javascript">
+    class PopupModelPage {
+        constructor() {
+            this.popupData = null;
+            this.upload = null;
+            this.mm_id = null;
+            this.md_id = null;
+            this.baseUrl = '/api/ai/learning_data';
+            //this.param = null;
+
+            this.init();
+        }
+        init() {
+            let _this = this;
+
+            _this.popupData = window.popupData.param;
+
+            console.log("_this.popupData", _this.popupData);
+
+            _this.mm_id = _this.popupData.mm_id;
+            _this.md_id = _this.popupData.md_id;
+
+            $('#Name').kendoTextBox();
+            $('#Type').kendoTextBox(/*{ enable: false }*/);
+            $('#Description').kendoTextArea({
+                rows: 2,
+                maxLength: 200,
+                placeholder: ""
+            });
+
+            // 저장된 모델 정보를 부모에게 받은 경우(수정 시)
+            if (_this.popupData) {
+                FormUtil.BindDataForm(_this.popupData.data, $('#dsDataForm'));
+            }
+
+            // 저장버튼 클릭시
+            $('#btnSaveModalData').kendoButton({
+                icon: "k-i-save",
+                themeColor: "info",
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        const fileIds = _this.getUploadedFileIds();
+                        _this.saveDsModel(fileIds);
+                    });
+                }
+            });
+
+            $('#btnCloseModal').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    window.popupData.close();
+                }
+            });
+
+            // 부모한테 받아온 dataPk와 filemap이 적용되려면 초기화 필요
+            _this.upload = new FileUploadPage($('#da_file_area'), {
+                placeholder: '',
+                extensions: ['.csv'],       // 확장자
+                tableName: 'ds_model',      // 테이블명
+                attachName: 'attach_data',
+                others: 'ai\\learning_data',// path
+                dataPk: _this.popupData.data ? _this.popupData.data.id : -1,  // 해당 테이블의 dataPk
+                //dataPk: -1,               // 해당 테이블의 dataPk
+                height: '100px',
+                width: '100%',
+                maxFilesCount: 1,           // 최대 파일 개수
+                maxFileSize: 2000,          // 최대 용량
+                allowedDuple: true
+            });
+
+        };
+
+        // 업로드된 fileId 가져오기
+        getUploadedFileIds() {
+            let _this = this;
+            if (_this.upload) {
+                // 📌 업로드된 모든 파일의 fileId를 가져옴
+                const fileIds = Object.values(_this.upload.fileMap).map(file => file.id);
+                console.log("업로드된 fileId 목록:", fileIds);
+                return fileIds;
+            } else {
+                console.log("파일 업로더가 초기화되지 않음");
+                return [];
+            }
+        }
+
+        saveDsModel(fileIds) {
+            let _this = this;
+
+            let url = _this.baseUrl + '?action=save_ds_model';
+
+            let data = FormUtil.extractForm($('#dsDataForm'));
+            data['mm_id'] = _this.mm_id;
+            data['fileId'] = fileIds[0];
+
+            console.log('form data', data);
+
+            if (checkForm($('#dsDataForm')) === false) return;
+
+            let fnSuccess = function (resp) {
+                if (resp.success) {
+                    // 팝업 닫으면서 데이터 전달
+                    window.popupData.close(resp);
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+    };
+
+    $(document).ready(function () {
+        page = new PopupModelPage();
+
+        // 부모에서 전달한 param 접근
+        if (window.popupData && window.popupData.param) {
+            console.log("부모에서 받은 param:", window.popupData.param);
+
+        }
+    });
+</script>
+{% endblock %}

@@ -115,7 +115,7 @@ def aasgui(context) :
             result['items'] = aas_items
 
         elif action=="aas_detail":
-            aas_pk = gparam.get('aas_pk')
+            aas_pk = gparam.get('data_pk')
             dic_param = {"aas_pk": aas_pk, "lang_code" :lang_code}
 
             sql='''
@@ -132,6 +132,8 @@ def aasgui(context) :
             , 1 as lvl
             , (select count(*) from specific_asset where specific_asset.asset_pk= ai.asset_pk) as asset_count
             , to_char(a._created, 'yyyy-mm-dd hh24:mi:ss') created
+            , a.description as json_description
+            , a."displayName" as json_displayname
             from aas a   
             left join asset_info ai on a.asset_pk = ai.asset_pk 
             where a.aas_pk=%(aas_pk)s
@@ -141,8 +143,8 @@ def aasgui(context) :
             result['success'] = True
             result['data'] = data
 
-        elif action=="submodel_detail":
-            sm_pk = gparam.get('sm_pk')
+        elif action=="sub_detail":
+            sm_pk = gparam.get('data_pk')
             dic_param = {"sm_pk": sm_pk}
 
             sql='''

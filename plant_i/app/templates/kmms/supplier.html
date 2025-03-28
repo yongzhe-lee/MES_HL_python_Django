@@ -1,0 +1,492 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어"></label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부"></label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn" ></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="supplierGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="comp_id" name="comp_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="업체명">업체명</label>
+                                <div class="field-wrapper">
+                                    <input id="comp_name" name="comp_name" data-msg="업체명을" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_code" data-labelCd="업체코드">업체코드</label>
+                                <div class="field-wrapper">
+                                    <input id="comp_code" name="comp_code" data-msg="업체코드를" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="site_id" data-labelCd="사이트">사이트</label>
+                                <div class="field-wrapper">
+                                    <select id="site_id" name="site_id"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="comp_type" data-labelCd="업체구분">업체구분</label>
+                                <div class="field-wrapper">
+                                    <select id="comp_type" name="comp_type" data-msg="업체구분을"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="business_type" data-labelCd="업태">업태</label>
+                                <div class="field-wrapper">
+                                    <input id="business_type" name="business_type" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="business_item" data-labelCd="종목">종목</label>
+                                <div class="field-wrapper">
+                                    <input id="business_item" name="business_item" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="tel_no" data-labelCd="대표자">대표자</label>
+                                <div class="field-wrapper">
+                                    <input id="ceo_name" name="ceo_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="country" data-labelCd="국가">국가</label>
+                                <div class="field-wrapper">
+                                    <input id="country" name="country" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="local" data-labelCd="지역">지역</label>
+                                <div class="field-wrapper">
+                                    <input id="local" name="local" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="manager_name" data-labelCd="담당자">담당자</label>
+                                <div class="field-wrapper">
+                                    <input id="manager_name" name="manager_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="manager_tel" data-labelCd="담당자 연락처">담당자 연락처</label>
+                                <div class="field-wrapper">
+                                    <input id="manager_tel" name="manager_tel" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="manager2_name" data-labelCd="담당자2">담당자2</label>
+                                <div class="field-wrapper">
+                                    <input id="manager2_name" name="manager2_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="manager2_tel" data-labelCd="담당자2 연락처">담당자2 연락처</label>
+                                <div class="field-wrapper">
+                                    <input id="manager2_tel" name="manager2_tel" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="tel_no" data-labelCd="전화번호">전화번호</label>
+                                <div class="field-wrapper">
+                                    <input id="tel_no" name="tel_no" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="fax_no" data-labelCd="팩스번호">팩스번호</label>
+                                <div class="field-wrapper">
+                                    <input id="fax_no" name="fax_no" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="zip_code" data-labelCd="우편번호">우편번호</label>
+                                <div class="field-wrapper">
+                                    <input id="zip_code" name="zip_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="addr" data-labelCd="주소"></label>
+                                <div class="field-wrapper">
+                                    <input id="addr" name="addr" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="homepage" data-labelCd="홈페이지">홈페이지</label>
+                                <div class="field-wrapper">
+                                    <input id="homepage" name="homepage" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="email" data-labelCd="email">email</label>
+                                <div class="field-wrapper">
+                                    <input id="email" name="email" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부"></label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="desc" data-labelCd="비고"></label>
+                                <div class="field-wrapper">
+                                    <input id="desc" name="desc" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class SupplierPage {
+        
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/definition/company';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            
+            let rowNumberTemplate = function (dataItem) {
+                return '<div>${dataItem.index + 1}</div>';
+            };
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                    { field: 'comp_code', title: '업체코드', width: 80 },
+                    { field: 'comp_name', title: '업체명', width: 100 },
+                    { field: 'site_name', title: '사이트', width: 100 },
+                    { field: 'comp_type', title: '업체구분', width: 100 },
+                    { field: 'business_type', title: '업태', width: 100 },
+                    { field: 'business_item', title: '종목', width: 100 },
+                    { field: 'ceo_name', title: '대표자', width: 100 },
+                    { field: 'country', title: '국가', width: 80 },
+                    { field: 'local', title: '지역', width: 80 },
+                    { field: 'manager_name', title: '담당자', width: 100 },
+                    { field: 'manager_tel', title: '담당자 연락처', width: 100 },
+                    { field: 'manager2_name', title: '담당자2', width: 100 },
+                    { field: 'manager2_tel', title: '담당자2 연락처', width: 100 },
+                    { field: 'tel_no', title: '전화번호', width: 80 },
+                    { field: 'fax_no', title: '팩스번호', width: 80 },
+                    { field: 'zip_code', title: '우편번호', width: 80 },
+                    { field: 'addr', title: '주소', width: 100 },
+                    { field: 'homepage', title: '홈페이지', width: 100 },
+                    { field: 'email', title: 'email', width: 100 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                    { field: 'desc', title: '비고', width: 100 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+
+                    // No. set
+                    let items = this.items();
+                    items.each(function (index) {
+                        $(this).find("td:first").html(index + 1);
+                    });
+
+                    this.autoFitColumns();
+                },
+                /*dataBinding: function (e) {
+                    //rowNo = (this.dataSource.page() - 1) * this.dataSource.pageSize();
+                },*/
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.grid = new Grid($('#supplierGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today +".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            $('#sch_keyword').kendoTextBox({
+                placeholder: '업체명, 업체코드, 비고'
+            });
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'user_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
+            });
+
+            // form
+            $('#comp_code').kendoTextBox();
+            $('#comp_name').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#site_id'), 'site', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#comp_type'), 'user_code', 'choose', null, 'COMP_KIND');
+            $('#business_type').kendoTextBox();
+            $('#business_item').kendoTextBox();
+            $('#ceo_name').kendoTextBox();
+            $('#country').kendoTextBox();
+            $('#local').kendoTextBox();
+            $('#manager_name').kendoTextBox();
+            $('#manager_tel').kendoTextBox({
+            });
+            $('#manager2_name').kendoTextBox();
+            $('#manager2_tel').kendoTextBox({
+            });
+            $('#tel_no').kendoTextBox({
+            });
+            $('#fax_no').kendoTextBox({
+            });
+            $('#zip_code').kendoTextBox({
+            });
+            $('#addr').kendoTextBox();
+            $('#homepage').kendoTextBox();
+            $('#email').kendoTextBox();
+            $('#desc').kendoTextArea({
+                rows: 4,
+                autosize: true,
+                maxLength: 500,
+                size: "large"
+            });
+            $('#use_yn').kendoSwitch({
+                checked: true
+            });
+            
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();                    
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                sch_comp_kind: 'S, CS', // 공급업체만 조회
+                sch_keyword: $('#sch_keyword').val(),
+                sch_use_yn: $('#sch_use_yn').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#detailForm'));
+            
+            if(checkForm($('#detailForm')) === false) return;
+            
+            let fnSuccess = function (res) {                
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', formData, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].comp_id) {
+                let fnSuccess = function (res) {                
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { comp_id: formData[0].comp_id }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
+        }
+    }
+
+    let page = null;
+
+    $(document).ready(function () {
+        page = new SupplierPage();
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

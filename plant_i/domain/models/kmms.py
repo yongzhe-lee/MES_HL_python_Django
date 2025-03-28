@@ -668,6 +668,29 @@ class WorkOrderLabor(models.Model):
         verbose_name = '작업 인력'
         db_table_comment = '작업 인력'
 
+class FaultLocation(models.Model):
+    '''
+    작업 고정부위
+    '''
+    WorkOrder = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시PK')
+    FaultLocationCode = models.CharField('고장개소 코드', db_column='fault_loc_cd', max_length=20, db_comment='고장개소 코드')
+    FaultLocationDescription = models.CharField('고장개소 상세설명', db_column='fault_loc_desc', max_length=100, null=True, db_comment='고장개소 상세설명')
+    CauseCode = models.CharField('원인 코드', db_column='cause_cd', max_length=8, db_comment='원인 코드')
+    
+    _status = models.CharField('_status', max_length=10, null=True,db_comment='데이터 상태')
+    _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성 일시')
+    _creater_id = models.IntegerField('_creater_id', null=True,db_comment='생성자 ID')
+    
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        
+        return
+
+    class Meta:
+        db_table = 'wo_fault_loc'
+        verbose_name = '작업 고정부위'
+        db_table_comment = '작업 고정부위'
 
 
 

@@ -1,0 +1,22 @@
+-- DROP FUNCTION fn_get_dept_team_pk(int8);
+
+CREATE OR REPLACE FUNCTION fn_get_dept_team_pk(v_dept_pk bigint)
+ RETURNS bigint
+ LANGUAGE plpgsql
+AS $function$
+declare
+	t_team_pk bigint;
+begin
+	with x as (
+		select unnest(path_info_pk) as path_pk from v_dept where dept_pk = v_dept_pk
+	)
+	select max(case when d.team_yn = 'Y' then d.dept_pk else null end) as team_nm
+	into t_team_pk
+	from x
+	inner join dept d on x.path_pk = d.dept_pk;
+	
+	RETURN t_team_pk;
+	
+end;
+$function$
+;
