@@ -166,6 +166,17 @@
         init() {
             let _this = this;
 
+
+
+            $("#srchDate").kendoDatePicker({
+                format: "yyyy-MM-dd",
+                value: new Date()
+            });
+
+            $("#srchStartTm").kendoTimePicker({ dateInput: true, value: '09:00' });
+            $("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
+
+
             //console.log('chartBoxplotMulti result', _this.result);
 
             let series = [];
@@ -498,8 +509,7 @@
         });
     }
 
-    $(document).ready(function (e) {
-        
+    function page_start() {
         let result = [
             {
                 'data_name': 'A',
@@ -519,14 +529,6 @@
         ];
         page = new chartBoxplotMulti('sample', result);
 
-
-        $("#srchDate").kendoDatePicker({
-            format: "yyyy-MM-dd",
-            value: new Date()
-        }); 
-
-        $("#srchStartTm").kendoTimePicker({ dateInput: true, value: '09:00' });
-        $("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
 
         let rows = AjaxUtil.getSelectDataWithNull('tag', '', null);
         let dataSource = new kendo.data.DataSource({
@@ -569,6 +571,10 @@
                 searchMainData();
             }
         });
+    }
+
+    page_start();
+    $(document).ready(function (e) {    
         searchMainData();
     });
 

@@ -87,3 +87,31 @@ class CommonUtil(object):
             queryset = queryset.exclude(id=exclude_id)
         return queryset.exists()
     
+    @classmethod
+    def convert_quotation_mark_string(cls, input_string):
+        # "a,b,c" -> "'a','b','c'"
+        elements = input_string.split(',')
+    
+        # 각 요소에 작은 따옴표를 추가하고 다시 쉼표로 연결합니다.
+        result = ",".join(f"'{element}'" for element in elements)
+    
+        return result
+
+
+    @classmethod
+    def find_and_set_multilanguage_text(cls, jsonArr:list=[], lang_code:str='ko-KR', text:str=''):
+        is_find = False
+        for dic in jsonArr:
+            language = dic.get('language')
+            if language==lang_code:
+                dic['text'] = text
+                is_find = True
+
+        if is_find == False:
+            new_dic = {}
+            new_dic['language'] = lang_code
+            new_dic['text'] = text
+            jsonArr.append(new_dic)
+
+        return jsonArr
+            

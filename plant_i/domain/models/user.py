@@ -83,6 +83,7 @@ class UserProfile(models.Model):
     token = models.CharField(max_length=512, null=True)
     Name = models.CharField('사용자명', max_length=100, null=True)
     Depart = models.ForeignKey(Depart, on_delete=models.DO_NOTHING, null=True)
+    job_class_pk = models.IntegerField('직무등급id', null=True) # CmJobClass
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)

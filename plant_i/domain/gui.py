@@ -41,6 +41,10 @@ class GUIConfiguration():
         gui_dc['wm_asset'] = cls.gui_item('Asset조회', 'aas/asset.html')
         gui_dc['wm_aasx'] = cls.gui_item('AASX관리', 'aas/aasx.html')
 
+        #cmms 설비정보
+        gui_dc['wm_cm_equipment'] = cls.gui_item('설비마스터', 'kmms/equipment/cm_equipment.html')
+        gui_dc['wm_cm_equip_disposed'] = cls.gui_item('불용설비', 'kmms/equipment/cm_equip_disposed.html')
+        gui_dc['wm_cm_equip_workhist'] = cls.gui_item('설비별작업이력', 'kmms/equipment/cm_equip_workhist.html')
 
         #기준정보
         gui_dc['wm_factory'] = cls.gui_item('공장', 'definition/factory.html')#라인정보
@@ -59,8 +63,8 @@ class GUIConfiguration():
         # 설비관리
         gui_dc['wm_equip_group'] = cls.gui_item('설비그룹', 'definition/equip_group.html')
         gui_dc['wm_equipment'] = cls.gui_item('설비', 'definition/equipment.html')
-        gui_dc['wm_equip_obsolete'] = cls.gui_item('불용설비목록', 'definition/equip_obsolete.html')
-        gui_dc['wm_equip_work_hist'] = cls.gui_item('설비별작업이력', 'definition/equip_work_hist.html')
+        # gui_dc['wm_equip_obsolete'] = cls.gui_item('불용설비목록', 'definition/equip_obsolete.html')
+        # gui_dc['wm_equip_work_hist'] = cls.gui_item('설비별작업이력', 'definition/equip_work_hist.html')
         gui_dc['wm_tag_group'] = cls.gui_item('태그그룹', 'definition/tag_group.html')
         gui_dc['wm_tag_master'] = cls.gui_item('태그정보', 'definition/tag.html')
         gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')

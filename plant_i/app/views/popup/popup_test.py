@@ -1,7 +1,7 @@
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 
-from domain.models.definition import TestCls
+#from domain.models.definition import TestCls
 
 def popup_test(context):
     '''

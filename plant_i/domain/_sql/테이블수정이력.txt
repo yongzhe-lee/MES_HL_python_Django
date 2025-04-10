@@ -25,3 +25,28 @@
 
 2025.02.06 da.py(데이터분석) 관련 모델 수정(기존 mes 모델을 새 설계에 맞게 통폐합)
     -- 작업자: 김하늘
+
+
+2025.03.28 da.py(데이터분석) 관련 모델 수정(설계 확장에 테이블 추가 & 기존 컬럼 정리)
+    -- 작업자: 김하늘
+
+    -- 기존 테이블 수정내역
+        [ds_master]
+            + Cycle             -- 모델생성주기(데이터 수집 주기)
+            + Equipment_id(FK)
+        
+        [ds_model]
+            + DataVersion       -- 기존 Version -> DataVersion으로 변경(혼선방지)
+
+        [ds_model_col]
+            + TagCode           -- relation X
+            (+ AlarmCode)       -- relation X(우선 주석) 
+
+        [ds_tag_corr]
+            - AlgorithmType     -- 확장되어 새 테이블로 분리(ds_model_train)
+
+    -- 추가 테이블
+        [ds model_train]        -- 실제 학습 주체(모델링 관련 정보)
+        [ds_model_param]        -- 학습에 사용된 하이퍼파라미터 정보
+        [ds_model_metric]       -- 모델 성능(지표 종류 & 점수)
+        ( [ds_model_test] )     -- 모델 테스트 정보(우선 주석. 추후 확장)

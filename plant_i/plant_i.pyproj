@@ -80,6 +80,23 @@
     <Compile Include="app\views\interface\van.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\views\kmms\equip_classify.py" />
+    <Compile Include="app\views\kmms\equip_category.py" />
+    <Compile Include="app\views\kmms\base_code_grp.py" />
+    <Compile Include="app\views\kmms\base_code.py" />
+    <Compile Include="app\views\kmms\equip_dept_hist.py" />
+    <Compile Include="app\views\kmms\equip_group.py" />
+    <Compile Include="app\views\kmms\work_order_approval.py" />
+    <Compile Include="app\views\kmms\work_order_hist.py" />
+    <Compile Include="app\views\kmms\work_order.py" />
+    <Compile Include="app\views\kmms\work_order_supplier.py" />
+    <Compile Include="app\views\kmms\wo_mtrl.py" />
+    <Compile Include="app\views\kmms\wo_labor.py" />
+    <Compile Include="app\views\kmms\wo_fault_loc.py" />
+    <Compile Include="app\views\kmms\reliab_code.py" />
+    <Compile Include="app\views\kmms\project.py" />
+    <Compile Include="app\views\kmms\ex_supplier.py" />
+    <Compile Include="app\views\kmms\equipment.py" />
     <Compile Include="app\views\kmms\job_class.py">
       <SubType>Code</SubType>
     </Compile>
@@ -221,6 +238,7 @@
     <Compile Include="domain\services\interface\sap.py" />
     <Compile Include="domain\services\interface\van.py" />
     <Compile Include="domain\services\kmms\pi_master.py" />
+    <Compile Include="domain\services\kmms\equipment.py" />
     <Compile Include="domain\services\kmms\pm_master.py" />
     <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
@@ -232,6 +250,9 @@
     <Compile Include="domain\services\system.py" />
     <Compile Include="domain\services\system_definition\tag_data.py" />
     <Compile Include="domain\services\__init__.py" />
+    <Compile Include="domain\_sql\interface\equipment\example.json">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\__init__.py" />
     <Compile Include="manage.py" />
     <Compile Include="configurations\settings.py" />
@@ -268,12 +289,14 @@
     <Folder Include="app\static\resource\windowContainer\css\" />
     <Folder Include="app\static\resource\windowContainer\fonts\" />
     <Folder Include="app\static\resource\windowContainer\js\" />
+    <Folder Include="app\templates\components\" />
     <Folder Include="app\templates\dashboard\" />
     <Folder Include="app\templates\definition\document\" />
     <Folder Include="app\templates\common\" />
     <Folder Include="app\templates\definition\" />
     <Folder Include="app\templates\kmms\" />
     <Folder Include="app\templates\kmms\check\" />
+    <Folder Include="app\templates\kmms\equipment\" />
     <Folder Include="app\templates\kmms\wo\" />
     <Folder Include="app\templates\kmms\pm\" />
     <Folder Include="app\templates\ai\" />
@@ -337,6 +360,9 @@
     <Folder Include="domain\_sql\das_config\" />
     <Folder Include="domain\_sql\aas\" />
     <Folder Include="domain\_sql\if\" />
+    <Folder Include="domain\_sql\if\equ\" />
+    <Folder Include="domain\_sql\interface\" />
+    <Folder Include="domain\_sql\interface\equipment\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
   </ItemGroup>
@@ -925,6 +951,9 @@
     <Content Include="app\templates\app\index_spa.html" />
     <Content Include="app\templates\app\system.js" />
     <Content Include="app\templates\common\file_upload.html" />
+    <Content Include="app\templates\components\equipment.html" />
+    <Content Include="app\templates\components\FileUpload.html" />
+    <Content Include="app\templates\components\ImageUpload.html" />
     <Content Include="app\templates\dashboard\main_dash.html" />
     <Content Include="app\templates\dashboard\storyboard.html" />
     <Content Include="app\templates\definition\bom_참고.html" />
@@ -942,12 +971,17 @@
     <Content Include="app\templates\interface\if_sap.html">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="app\templates\kmms\equipment\cm_equipment.html" />
+    <Content Include="app\templates\kmms\equipment\cm_equip_disposed.html" />
+    <Content Include="app\templates\kmms\equipment\cm_equip_workhist.html" />
     <Content Include="app\templates\kmms\wo\work_order_management.html" />
     <Content Include="app\templates\kmms\wo\work_request_approval.html" />
     <Content Include="app\templates\kmms\wo\work_order_approval.html" />
     <Content Include="app\templates\kmms\wo\post_work_management.html" />
     <Content Include="app\templates\kmms\wo\my_work_request.html" />
     <Content Include="app\templates\page\popup\modalModel.html" />
+    <Content Include="app\templates\popup\modalEqus.html" />
+    <Content Include="app\templates\popup\modalPiMaster.html" />
     <Content Include="app\templates\popup\modalWoDetail.html" />
     <Content Include="app\templates\popup\modalMaterials.html" />
     <Content Include="app\templates\popup\modalPmCopy.html" />
@@ -1031,7 +1065,9 @@
     <Content Include="app\templates\tagdata\tag_statistics.html" />
     <Content Include="app\templates\tagdata\tag_sync_trend.html" />
     <Content Include="app\templates\tagdata\tag_trend.html" />
+    <Content Include="domain\_sql\11. CMMS기초데이터.txt" />
     <Content Include="domain\_sql\04.알람마스터.txt" />
+    <Content Include="domain\_sql\aas\aas_마스터.txt" />
     <Content Include="domain\_sql\aas\specificAssetId.json">
       <SubType>Code</SubType>
     </Content>
@@ -1053,11 +1089,15 @@
     <Content Include="domain\_sql\das_config\17_smt3.load.json" />
     <Content Include="domain\_sql\das_config\18_smt3.unload.json" />
     <Content Include="domain\_sql\das_config\제어pc\eol.json" />
+    <Content Include="domain\_sql\das_config\제어pc\ict.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\function\fn_datediff.txt" />
     <Content Include="domain\_sql\function\fn_code_name.txt" />
     <Content Include="domain\_sql\function\fn_dateadd.txt" />
     <Content Include="domain\_sql\function\fn_get_dept_team_pk.txt" />
     <Content Include="domain\_sql\function\fn_get_dept_business_cd.txt" />
+    <Content Include="domain\_sql\function\fn_get_incineration.txt" />
     <Content Include="domain\_sql\function\fn_get_last_pm_date.txt" />
     <Content Include="domain\_sql\function\fn_get_next_sche_date.txt" />
     <Content Include="domain\_sql\function\fn_get_work_day.txt" />
@@ -1065,29 +1105,47 @@
     <Content Include="domain\_sql\function\fn_json_lang_text.txt" />
     <Content Include="domain\_sql\function\fn_make_schedule_pm.txt" />
     <Content Include="domain\_sql\function\fn_minutediff.txt" />
+    <Content Include="domain\_sql\function\cm_fn_.txt" />
     <Content Include="domain\_sql\function\fn_user_nm.txt" />
-    <Content Include="domain\_sql\if\sap_bom.json" />
-    <Content Include="domain\_sql\if\sap_mat.json">
+    <Content Include="domain\_sql\interface\equipment\01_Tim dispensing vision.json" />
+    <Content Include="domain\_sql\interface\equipment\02_Housing &amp; PCB Assembly.json" />
+    <Content Include="domain\_sql\interface\equipment\03_Cover Screw.json" />
+    <Content Include="domain\_sql\interface\equipment\04_Cover Screw Height.json" />
+    <Content Include="domain\_sql\interface\equipment\05_Fan Assembly.json" />
+    <Content Include="domain\_sql\interface\equipment\06_Fan Screw.json" />
+    <Content Include="domain\_sql\interface\equipment\07_Fan Screw Height.json" />
+    <Content Include="domain\_sql\interface\equipment\08_Clip wire Assembly.json" />
+    <Content Include="domain\_sql\interface\equipment\09_Pin Check.json" />
+    <Content Include="domain\_sql\interface\equipment\10_Labeling.json" />
+    <Content Include="domain\_sql\interface\equipment\11_Bracket Assembly.json" />
+    <Content Include="domain\_sql\interface\equipment\12_Bracket Assembly Check_수정본.json" />
+    <Content Include="domain\_sql\interface\equipment\250403 Techways_EOL.json" />
+    <Content Include="domain\_sql\interface\equipment\eol.json" />
+    <Content Include="domain\_sql\if\equ\eol.json" />
+    <Content Include="domain\_sql\interface\sap_bom.json" />
+    <Content Include="domain\_sql\interface\sap_mat.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\if\sap_pcb_random_number.json">
+    <Content Include="domain\_sql\interface\sap_pcb_random_number.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\if\sap_stock.json">
+    <Content Include="domain\_sql\interface\sap_stock.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\if\test.json">
+    <Content Include="domain\_sql\interface\test.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\if\van.json">
+    <Content Include="domain\_sql\interface\van.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\if\인터페이스계정.txt">
+    <Content Include="domain\_sql\interface\인터페이스계정.txt">
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\partition\em_tag_dat.txt" />
     <Content Include="domain\_sql\partition\tag_dat.txt" />
     <Content Include="domain\_sql\01.기초데이터.txt" />
+    <Content Include="domain\_sql\views\cm_v_dept.txt" />
+    <Content Include="domain\_sql\views\cm_v_dept_path.txt" />
     <Content Include="domain\_sql\views\v_menu_folder.txt" />
     <Content Include="domain\_sql\02.설비_태그.txt" />
     <Content Include="domain\_sql\03.전력량계_태그.txt" />
@@ -1123,7 +1181,7 @@
     <Content Include="app\templates\app\loginpartial.html" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="C:\devprojects\virtual_env\plant_i\env312\">
+    <Interpreter Include="c:\devprojects\virtual_env\plant_i\env312\">
       <Id>env312</Id>
       <Version>0.0</Version>
       <Description>env312 (Python 3.12 (64-bit))</Description>

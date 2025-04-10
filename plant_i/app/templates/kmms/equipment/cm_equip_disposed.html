@@ -1,0 +1,224 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색키워드">검색키워드</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" placeholder="설비코드, 설비명을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_cat" data-labelCd="카테고리">카테고리</label>
+                            <div class="field-wrapper">
+                                <select id="srch_cat" name="srch_cat"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_dept" data-labelCd="관리부서">관리부서</label>
+                            <div class="field-wrapper">
+                                <select id="srch_dept" name="srch_dept"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srchStartDt" data-labelCd="요청일">요청일</label>
+                            <div class="field-wrapper">
+                                <input id="srchStartDt" name="srchStartDt" />
+                            </div>
+                            <div class="field-wrapper">
+                                <input id="srchEndDt" name="srchEndDt" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="설비정보">설비정보</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="equipment_grid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    {% verbatim %}
+    {% endverbatim %}
+    {% endblock %}
+
+    {% block scripts %}
+
+    <script type="text/javascript">
+        class EquipmentPage {
+            constructor() {
+                this.grid = null;
+                this.upload = null;
+                this.baseUrl = '/api/kmms/equipment';
+
+                this.init();
+            }
+
+            init() {
+                let _this = this;
+                let equipmentGridOption = {
+                    toolbar: [
+                        "columns"
+                    ],
+                    columnMenu: {
+                        componentType: "classic",
+                        autoSize: true,
+                        clearAllFilters: true,
+                        columns: {
+                            sort: "asc",
+                        }
+                    },
+                    columns: [
+                        // 기본 정보
+						{ field: 'equip_cd', title: '설비코드', width: 150 },
+						{ field: 'equip_nm', title: '설비명', width: 200 },
+						{ field: 'loc_nm', title: '설비위치', width: 150 },
+                        { field: 'equip_status_nm', title: '설비상태', width: 150 },
+                        // 폐기 정보
+                        { field: 'diposed_type_nm', title: '불용처리유형', width: 200 },
+						{ field: 'disposed_date', title: '폐기일', width: 150 },
+                    ],
+                    dataBound: function (e) {
+                        for (var i = 0; i < this.columns.length; i++) {
+                            this.autoFitColumn(i);
+                        };
+
+                        // grid 데이터 개수 표시
+                        kendoUtil.showGridRowCount(this.element);
+                    },
+                    height: "540px"
+                };
+                _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+
+                //search form
+                $('#keyword').kendoTextBox();
+                $('#srch_cat').kendoTextBox();
+                $('#srch_dept').kendoTextBox();
+
+                $('#srch_cat').keypress(function (e) {
+                    // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+                        _this.searchMainData();
+                    }
+                });
+
+                AjaxUtil.fillDropDownOptions($('#srch_cat'), 'equip_category', 'all', null);
+                AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
+
+                let startDt = CommonUtil.getYYYYMMDD(-1);
+                var endDt = CommonUtil.getYYYYMMDD();
+                kendoUtil.kenDateTimePicker($("#srchStartDt"), $("#srchEndDt"), startDt, endDt);
+
+                //form button
+                $('#btnSearch').kendoButton({
+                    icon: "search",
+                    themeColor: "base",
+                    click: function () {
+                        _this.searchMainData();
+                    }
+                });
+
+                $('#btnExcel').kendoButton({
+                    icon: "file-excel",
+                    themeColor: "success",
+                    click: function () {
+                        page.exportExcel();
+                    }
+                });
+
+                $('#btnClear').kendoButton({
+                    themeColor: "base", click: function () {
+                        _this.resetData();
+                    }
+                });
+
+            }
+
+            searchMainData() {
+                let _this = this;
+
+				// 안전한 컴포넌트 값 가져오기
+				const getComponentValue = (selector, type) => {
+					try {
+						const component = $(selector).data(type);
+						return component ? component.value() : '';
+					} catch (e) {
+						console.warn(`Failed to get value for ${selector}`, e);
+						return '';
+					}
+                };
+
+                let param = {
+                    action: 'read_dispose',
+                    keyword: $('#keyword').val() || '',
+                    srchCat: $('#srch_cat').val(),
+                    srchDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
+                    sDate: $('#srchStartDt').val(),
+                    eDate: $('#srchEndDt').val(),
+                };
+
+                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                _this.grid.setData(result);
+            }
+
+            resetData() {
+                let _this = this;
+                $("#equipment_grid").data('kendoGrid').refresh();
+                FormUtil.resetForm($('#equipmentForm'));
+            }
+
+            // 엑셀 다운로드
+            exportExcel() {
+                let gridData = $('#equipment_grid').data("kendoGrid");
+                gridData.bind("excelExport", function (e) {
+                    e.workbook.fileName = "equipment.xlsx";
+                });
+                gridData.saveAsExcel();
+            }
+        };
+
+        let page = null;
+        page = new EquipmentPage();
+
+        $(document).ready(function () {
+            debugger;
+            page.searchMainData();
+        });
+
+    </script>
+
+    {% endblock %}

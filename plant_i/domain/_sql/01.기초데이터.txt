@@ -260,30 +260,31 @@ insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_crea
 truncate table menu_folder cascade;
 
 --메뉴폴더
-alter SEQUENCE menu_folder_id_seq restart WITH 1 ;
-INSERT INTO menu_folder ("FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
-	 ('대시보드','team_dashboard',100,NULL,'2024-11-25 15:00:19.159507+09','2025-01-15 13:14:32.503551+09',1,NULL,NULL),
-	 ('AAS관리','description',200,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:47:30.788452+09',1,NULL,NULL),
-	 ('기준정보','contract_edit',300,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:11:37.48031+09',1,NULL,NULL),
-	 ('설비관리','construction',400,NULL,'2024-11-22 17:01:51.726933+09','2025-01-15 15:11:18.760593+09',1,NULL,NULL),
-	 ('작업지시(WO)','inventory',510,NULL,'2025-01-08 15:46:00.305887+09','2025-01-15 15:19:58.546512+09',1,NULL,20),
-	 ('작업이력','inventory',511,NULL,'2025-01-08 16:49:52.374771+09',NULL,1,NULL,20),
-	 ('예방정비(PM)','manage_accounts',520,NULL,'2025-01-08 15:48:46.699764+09','2025-01-15 14:37:50.924932+09',1,NULL,20),
-	 ('예방점검(PI)','content_paste_search',530,NULL,'2025-01-08 15:49:22.922632+09','2025-01-15 14:39:33.580483+09',1,NULL,20),
-	 ('데이터분석','search_insights',600,NULL,'2024-11-22 17:02:09.507788+09','2025-01-15 13:47:47.804092+09',1,NULL,NULL),
-	 ('업무지원','supervisor_account',700,NULL,'2024-11-22 17:02:34.099485+09','2025-01-15 11:29:57.787695+09',1,NULL,NULL),
-	 ('코드관리','wysiwyg',800,NULL,'2025-01-03 10:57:57.374248+09','2025-01-15 11:31:57.587072+09',1,NULL,20),
-	 ('시스템관리','manufacturing',900,NULL,'2024-11-22 17:02:44.44146+09','2025-01-15 10:58:39.798384+09',1,NULL,NULL),
-	 ('자재관련코드','inventory',910,NULL,'2025-01-03 11:00:24.452026+09',NULL,1,NULL,20),
-	 ('리포트 및 통계','bar_chart',1000,NULL,'2025-01-09 11:36:32.760762+09','2025-01-15 11:28:03.081531+09',1,NULL,20),
-	 ('설비통계','inventory',1100,NULL,'2025-01-09 11:41:20.63937+09',NULL,1,NULL,20),
-	 ('작업통계','inventory',1200,NULL,'2025-01-09 11:41:20.644402+09',NULL,1,NULL,20),
-	 ('PM통계','inventory',1300,NULL,'2025-01-09 11:41:20.649337+09',NULL,1,NULL,20),
-	 ('점검통계','inventory',1400,NULL,'2025-01-09 11:41:20.653906+09',NULL,1,NULL,20),
-	 ('AI','Experiment',610,NULL,'2025-01-21 15:01:46.983179+09','2025-01-21 15:02:14.429179+09',NULL,NULL,NULL),
-	 ('KMMS','inventory',210,NULL,'2025-01-21 15:01:46.983+09',NULL,1,NULL,NULL);
-
-
+alter SEQUENCE menu_folder_id_seq restart WITH 22;
+INSERT INTO menu_folder (id,"FolderName","IconCSS","_order","_status","_created","_modified","_creater_id","_modifier_id","Parent_id") VALUES
+	 (1,'대시보드','team_dashboard',100,NULL,'2024-11-25 15:00:19.159507+09','2025-01-15 13:14:32.503551+09',1,NULL,NULL),
+	 (2,'AAS관리','description',200,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:47:30.788452+09',1,NULL,NULL),
+	 (3,'기준정보','contract_edit',300,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:11:37.48031+09',1,NULL,NULL),
+	 (4,'설비관리','construction',400,NULL,'2024-11-22 17:01:51.726933+09','2025-01-15 15:11:18.760593+09',1,NULL,NULL),
+	 (5,'작업지시(WO)','inventory',510,NULL,'2025-01-08 15:46:00.305887+09','2025-01-15 15:19:58.546512+09',1,NULL,20),
+	 (6,'작업이력','inventory',511,NULL,'2025-01-08 16:49:52.374771+09',NULL,1,NULL,20),
+	 (7,'예방정비(PM)','manage_accounts',520,NULL,'2025-01-08 15:48:46.699764+09','2025-01-15 14:37:50.924932+09',1,NULL,20),
+	 (8,'예방점검(PI)','content_paste_search',530,NULL,'2025-01-08 15:49:22.922632+09','2025-01-15 14:39:33.580483+09',1,NULL,20),
+	 (9,'데이터분석','search_insights',600,NULL,'2024-11-22 17:02:09.507788+09','2025-01-15 13:47:47.804092+09',1,NULL,NULL),
+	 (10,'업무지원','supervisor_account',700,NULL,'2024-11-22 17:02:34.099485+09','2025-01-15 11:29:57.787695+09',1,NULL,NULL),
+	 (11,'코드관리','wysiwyg',700,NULL,'2025-01-03 10:57:57.374248+09','2025-03-31 15:27:57.773028+09',1,NULL,20),
+	 (12,'시스템관리','manufacturing',900,NULL,'2024-11-22 17:02:44.44146+09','2025-01-15 10:58:39.798384+09',1,NULL,NULL),
+	 (13,'자재관련코드','inventory',800,NULL,'2025-01-03 11:00:24.452026+09','2025-03-31 15:28:09.28484+09',1,NULL,20),
+	 (14,'리포트 및 통계','bar_chart',1000,NULL,'2025-01-09 11:36:32.760762+09','2025-01-15 11:28:03.081531+09',1,NULL,20),
+	 (15,'설비통계','inventory',1100,NULL,'2025-01-09 11:41:20.63937+09',NULL,1,NULL,20),
+	 (16,'작업통계','inventory',1200,NULL,'2025-01-09 11:41:20.644402+09',NULL,1,NULL,20),
+	 (17,'PM통계','inventory',1300,NULL,'2025-01-09 11:41:20.649337+09',NULL,1,NULL,20),
+	 (18,'점검통계','inventory',1400,NULL,'2025-01-09 11:41:20.653906+09',NULL,1,NULL,20),
+	 (19,'AI','Experiment',610,NULL,'2025-01-21 15:01:46.983179+09','2025-01-21 15:02:14.429179+09',NULL,NULL,NULL),
+	 (20,'KMMS','inventory',210,NULL,'2025-01-21 15:01:46.983+09',NULL,1,NULL,NULL),
+	 (21,'설비정보','inventory',600,NULL,'2025-03-31 14:41:51.835379+09','2025-03-31 15:27:48.762236+09',NULL,NULL,20),
+	 (9999,'샘플페이지','inventory',9999,NULL,'2025-03-31 14:41:51.835379+09','2025-03-31 15:27:48.762236+09',NULL,NULL,NULL)
+	 ;
 
 
 --메뉴
@@ -314,8 +315,6 @@ VALUES
      --설비정보
 	 ('wm_equip_group','설비그룹',NULL,'/gui/wm_equip_group','N',10,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,4),
 	 ('wm_equipment','설비',NULL,'/gui/wm_equipment','N',20,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
-	 ('wm_equip_obsolete','불용 설비 목록',NULL,'/gui/wm_equip_obsolete','N',30,NULL,'2025-01-09 11:17:48.420001+09',NULL,1,NULL,4),
-	 ('wm_equip_work_hist','설비별 작업이력',NULL,'/gui/wm_equip_work_hist','N',40,NULL,'2025-01-09 11:17:48.427957+09',NULL,1,NULL,4),
 	 ('wm_tag_group','태그그룹',NULL,'/gui/wm_tag_group','N',50,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
 	 ('wm_tag_master','태그관리',NULL,'/gui/wm_tag_master','N',60,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
 	 ('wm_das_config','데이터수집설정',NULL,'/gui/wm_das_config','N',70,NULL,'2024-11-22 17:09:17.963281+09','2024-11-22 17:09:24.967392+09',1,1,4),
@@ -336,6 +335,12 @@ VALUES
     ('wm_check_work_daily','일상점검',NULL,'/gui/wm_check_work_daily','N',120,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
     ('wm_equ_grade','설비등급관리',NULL,'/gui/wm_equ_grade','N',130,NULL,'2024-11-22 17:09:20.838481+09','2024-11-22 17:09:24.957445+09',1,1,5),
 */
+
+	--cmms 설비정보
+	 ('wm_cm_equipment','설비마스터',NULL,'/gui/wm_cm_equipment','N',10,NULL,'2025-03-31 14:50:24.768489+09','2025-03-31 15:10:05.791491+09',1,1,21),
+	 ('wm_cm_equip_disposed','불용설비',NULL,'/gui/wm_cm_equip_disposed','N',20,NULL,'2025-03-31 14:50:43.602806+09','2025-03-31 15:10:05.798405+09',1,1,21),
+	 ('wm_cm_equip_workhist','설비별작업이력',NULL,'/gui/wm_cm_equip_workhist','N',30,NULL,'2025-03-31 14:51:10.006381+09','2025-03-31 15:10:05.807803+09',1,1,21),
+
      -- 작업지시(WO)
 	 ('wm_my_work_request','나의 작업요청',NULL,'/gui/wm_my_work_request','N',10,NULL,'2025-01-08 16:30:34.500902+09',NULL,1,NULL,5),
 	 ('wm_work_order_management','작업지시 관리',NULL,'/gui/wm_work_order_management','N',20,NULL,'2025-01-08 16:30:34.511169+09',NULL,1,NULL,5),
@@ -436,7 +441,22 @@ VALUES
 	 ('wm_ai_tagdata_list','AI시스템 IF 확인',NULL,'/gui/wm_ai_tagdata_list','N',30,NULL,'2025-01-21 15:02:38.986308+09','2025-01-21 16:54:21.334786+09',3,3,19),
 	 ('wm_predictive_conservation','예지보전 알람',NULL,'/gui/wm_predictive_conservation','N',40,NULL,'2025-01-21 15:02:45.262656+09','2025-01-21 16:54:21.342407+09',3,3,19),
 	 ('wm_learning_data_info','학습데이터 정보',NULL,'/gui/wm_learning_data_info','N',50,NULL,'2025-01-21 16:54:07.515311+09','2025-01-21 16:54:21.349119+09',3,3,19),
-	 ('wm_learning_data_from_tag','학습데이터 정보(태그)',NULL,'/gui/wm_learning_data_from_tag','N',60,NULL,'2025-01-21 15:02:57.467844+09','2025-01-21 16:54:21.356793+09',3,3,19);
+	 ('wm_learning_data_from_tag','학습데이터 정보(태그)',NULL,'/gui/wm_learning_data_from_tag','N',60,NULL,'2025-01-21 15:02:57.467844+09','2025-01-21 16:54:21.356793+09',3,3,19),
+
+	 -- 샘플페이지(디자인)
+	 ('wm_sample_test','샘플화면(test)',NULL,'/gui/wm_sample_test','N',10,NULL,'2025-04-02 14:01:08.530','2025-04-02 14:02:25.480',3,3,9999),
+	 ('wm_sample_treelist','샘플1_트리그리드',NULL,'/gui/wm_sample_treelist','N',20,NULL,'2025-04-02 14:01:15.186','2025-04-02 14:02:25.487',3,3,9999),
+	 ('wm_sample_form','샘플2_폼화면',NULL,'/gui/wm_sample_form','N',30,NULL,'2025-04-02 14:01:24.279','2025-04-02 14:02:25.491',3,3,9999),
+	 ('wm_sample_chart','샘플3_차트',NULL,'/gui/wm_sample_chart','N',40,NULL,'2025-04-02 14:01:28.991','2025-04-02 14:02:25.495',3,3,9999),
+	 ('wm_sample_popup','샘플4_팝업',NULL,'/gui/wm_sample_popup','N',50,NULL,'2025-04-02 14:01:32.741','2025-04-02 14:02:25.498',3,3,9999),
+	 ('wm_sample_editor','샘플5_웹에디터',NULL,'/gui/wm_sample_editor','N',60,NULL,'2025-04-02 14:01:49.103','2025-04-02 14:02:25.502',3,3,9999),
+	 ('wm_sample_spread_sheet','샘플6_스프레드시트',NULL,'/gui/wm_sample_spread_sheet','N',70,NULL,'2025-04-02 14:01:55.159','2025-04-02 14:02:25.507',3,3,9999),
+	 ('wm_sample_upload','샘플7_파일업로드',NULL,'/gui/wm_sample_upload','N',80,NULL,'2025-04-02 14:02:02.343','2025-04-02 14:02:25.511',3,3,9999),
+	 ('wm_sample_alert_noti','샘플8_알람_노티',NULL,'/gui/wm_sample_alert_noti','N',90,NULL,'2025-04-02 14:02:07.329','2025-04-02 14:02:25.515',3,3,9999),
+	 ('wm_sample_export','샘플9_Export',NULL,'/gui/wm_sample_export','N',100,NULL,'2025-04-02 14:02:11.948','2025-04-02 14:02:25.519',3,3,9999),
+	 ('wm_sample_design','샘플10_디자인',NULL,'/gui/wm_sample_design','N',110,NULL,'2025-04-02 14:02:20.316','2025-04-02 14:02:25.524',3,3,9999)
+	 ;
+
 
 --메뉴권한
 alter SEQUENCE user_group_menu_id_seq restart WITH 1 ;
@@ -457,7 +477,6 @@ values
 , ('MTRL_TYPE','자재종류','N','자재종류','Y','N',now())
 , ('USE_YN','사용여부','Y','','Y','N',now())
 , ('PM_TYPE','예방정비유형','Y','','Y','N',now())
-, ('MODEL_TYPE','모델유형','N','모델유형','Y','N',now())
 , ('EQU_STATUS','설비상태','N','설비상태','Y','N',now())
 , ('CYCLE_TYPE','주기단위','N','주기단위','Y','N',now())
 , ('WO_STATUS','작업상태','Y','작업상태','Y','N',now())
@@ -467,6 +486,21 @@ values
 , ('CC','원인','Y','원인','Y','N',now())
 , ('RC','조치','Y','조치','Y','N',now())
 , ('WORK_SRC','작업구분','Y','작업구분','Y','N',now())
+, ('MODEL_TYPE','AI모델유형','Y','AI모델유형','Y','N',now())
+, ('TASK_TYPE','AI분석유형','N','AI분석유형','Y','N',now())
+, ('TRAINING_STATUS','AI학습상태','Y','AI모델학습상태','Y','N',now())
+, ('RANDOM_FOREST','랜덤포레스트 하이퍼파라미터','N','','Y','N',now())
+, ('PARAM_TYPE','AI하이퍼파라미터타입','N','하이퍼파라미터 값 데이터타입','Y','N',now())
+-- AI 분석 유형별
+, ('AI_OPTIMIZATION',   '최적화',       'N', 'TASK_TYPE=OPTIMIZATION에 해당하는 알고리즘 그룹', 'Y', 'N', NOW())
+, ('AI_TEXT_ANALYSIS',  '텍스트 분석',  'N', 'TASK_TYPE=TEXT_ANALYSIS에 해당하는 알고리즘 그룹', 'Y', 'N', NOW())
+, ('AI_IMAGE_ANALYSIS', '이미지 분석',  'N', 'TASK_TYPE=IMAGE_ANALYSIS에 해당하는 알고리즘 그룹', 'Y', 'N', NOW())
+, ('AI_ANOMALY',        '이상탐지',     'N', 'TASK_TYPE=ANOMALY에 해당하는 알고리즘 그룹',        'Y', 'N', NOW())
+, ('AI_CLASSIFICATION', '분류',         'N', 'TASK_TYPE=CLASSIFICATION에 해당하는 알고리즘 그룹', 'Y', 'N', NOW())
+, ('AI_REGRESSION',     '회귀',         'N', 'TASK_TYPE=REGRESSION에 해당하는 알고리즘 그룹',     'Y', 'N', NOW())
+, ('AI_CLUSTERING',     '군집',         'N', 'TASK_TYPE=CLUSTERING에 해당하는 알고리즘 그룹',     'Y', 'N', NOW())
+, ('AI_TIMESERIES',     '시계열 분석',  'N', 'TASK_TYPE=TIMESERIES에 해당하는 알고리즘 그룹',     'Y', 'N', NOW())
+, ('AI_OTHERS',         '기타',         'N', 'TASK_TYPE=OTHERS에 해당하는 알고리즘 그룹',         'Y', 'N', NOW())
 
 ;
 
@@ -701,6 +735,93 @@ values
 	 ,('WORK_SRC','WS02','외주수리', '', 2, 'Y', 'N', NOW())
 	 ,('WORK_SRC','WS03','사내/외주수리', '', 3, 'N', 'N', NOW())
 
+	
+	-- 모델분석유형
+	, ('TASK_TYPE', 'OPTIMIZATION',      '최적화',            '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'TEXT_ANALYSIS',     '텍스트 분석',       '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'IMAGE_ANALYSIS',    '이미지 분석',       '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'ANOMALY',           '이상탐지',           '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'CLASSIFICATION',    '분류',               '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'REGRESSION',        '회귀',               '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'CLUSTERING',        '군집',               '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'TIMESERIES',        '시계열 분석',        '', NULL, 'Y', 'N', NOW())
+	, ('TASK_TYPE', 'OTHERS',            '기타',               '', NULL, 'Y', 'N', NOW())
+
+	-- 모델알고리즘종류(전체)
+	, ('ALGORITHM_TYPE', 'RANDOM_FOREST',        '랜덤포레스트',         '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'LINEAR_REGRESSION',    '선형회귀',             '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'LOGISTIC_REGRESSION',  '로지스틱 회귀',        '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'XGBOOST',              'XGBoost',              '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'LIGHTGBM',             'LightGBM',             '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'SVM',                  '서포트 벡터 머신',     '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'KNN',                  'K-최근접 이웃',        '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'NAIVE_BAYES',          '나이브 베이즈',        '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'KMEANS',               'K-평균 군집',          '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'TRANSFORMER',          '트랜스포머',           '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'CNN',                  '합성곱 신경망',         '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'RNN',                  '순환 신경망',           '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'LSTM',                 'LSTM',                 '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'MLP',                  '다층 퍼셉트론',         '', NULL, 'Y', 'N', NOW())
+	, ('ALGORITHM_TYPE', 'OTHERS',               '기타',                 '', NULL, 'Y', 'N', NOW())
+	
+	-- 분석유형:분류
+	, ('AI_CLASSIFICATION', 'RANDOM_FOREST',       '랜덤포레스트',         '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'LOGISTIC_REGRESSION', '로지스틱 회귀',        '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'XGBOOST',             'XGBoost',              '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'LIGHTGBM',            'LightGBM',             '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'SVM',                 '서포트 벡터 머신',     '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'KNN',                 'K-최근접 이웃',        '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'NAIVE_BAYES',         '나이브 베이즈',        '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'CNN',                 '합성곱 신경망',         '', NULL, 'Y', 'N', NOW())
+	, ('AI_CLASSIFICATION', 'MLP',                 '다층 퍼셉트론',         '', NULL, 'Y', 'N', NOW())
+	
+	-- 분석유형:회귀
+	, ('AI_REGRESSION', 'RANDOM_FOREST',       '랜덤포레스트', '', NULL, 'Y', 'N', NOW())
+	, ('AI_REGRESSION', 'LINEAR_REGRESSION',   '선형회귀',     '', NULL, 'Y', 'N', NOW())
+	, ('AI_REGRESSION', 'XGBOOST',             'XGBoost',      '', NULL, 'Y', 'N', NOW())
+	, ('AI_REGRESSION', 'LIGHTGBM',            'LightGBM',     '', NULL, 'Y', 'N', NOW())
+	, ('AI_REGRESSION', 'MLP',                 '다층 퍼셉트론', '', NULL, 'Y', 'N', NOW())
+	
+	-- 분석유형:군집
+	, ('AI_CLUSTERING', 'KMEANS', 'K-평균 군집', '', NULL, 'Y', 'N', NOW())
+	
+	-- 분석유형:시계열 분석
+	, ('AI_TIMESERIES', 'LSTM',        'LSTM',         '', NULL, 'Y', 'N', NOW())
+	, ('AI_TIMESERIES', 'RNN',         '순환 신경망',   '', NULL, 'Y', 'N', NOW())
+	, ('AI_TIMESERIES', 'TRANSFORMER', '트랜스포머',   '', NULL, 'Y', 'N', NOW())
+	
+	-- 분석유형:이미지 분석
+	, ('AI_IMAGE_ANALYSIS', 'CNN', '합성곱 신경망', '', NULL, 'Y', 'N', NOW())
+	
+	-- 분석유형:텍스트 분석
+	, ('AI_TEXT_ANALYSIS', 'RNN',         '순환 신경망', '', NULL, 'Y', 'N', NOW())
+	, ('AI_TEXT_ANALYSIS', 'LSTM',        'LSTM',         '', NULL, 'Y', 'N', NOW())
+	, ('AI_TEXT_ANALYSIS', 'TRANSFORMER', '트랜스포머',   '', NULL, 'Y', 'N', NOW())
+
+	-- 하이퍼파라미터 값 유형
+	, ('PARAM_TYPE', 'STRING', 'string', '', NULL, 'Y', 'N', NOW())
+	, ('PARAM_TYPE', 'INT',    'int',    '', NULL, 'Y', 'N', NOW())
+	, ('PARAM_TYPE', 'FLOAT',  'float',  '', NULL, 'Y', 'N', NOW())
+	, ('PARAM_TYPE', 'BOOL',   'bool',   '', NULL, 'Y', 'N', NOW())
+	, ('PARAM_TYPE', 'JSON',   'json',   '', NULL, 'Y', 'N', NOW())
+
+	-- RANDOM_FOREST 파라미터
+	, ('RANDOM_FOREST', 'N_ESTIMATORS',       '트리 개수',           '', NULL, 'Y', 'N', NOW())
+	, ('RANDOM_FOREST', 'MAX_DEPTH',          '최대 깊이',           '', NULL, 'Y', 'N', NOW())
+	, ('RANDOM_FOREST', 'MIN_SAMPLES_SPLIT',  '최소 분할 샘플 수',   '', NULL, 'Y', 'N', NOW())
+	, ('RANDOM_FOREST', 'MIN_SAMPLES_LEAF',   '최소 리프 샘플 수',   '', NULL, 'Y', 'N', NOW())
+	, ('RANDOM_FOREST', 'MAX_FEATURES',       '최대 특성 수',        '', NULL, 'Y', 'N', NOW())
+	, ('RANDOM_FOREST', 'BOOTSTRAP',          '부트스트랩 사용여부', '', NULL, 'Y', 'N', NOW())
+	, ('RANDOM_FOREST', 'RANDOM_STATE',       '랜덤 시드',           '', NULL, 'Y', 'N', NOW())	
+
+	-- 모델학습상태
+	, ('TRAINING_STATUS', 'INITIALIZED', '초기화',    '모델만 생성된 상태 (파라미터 저장 완료)', 1, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'PENDING',     '대기중',    '학습 요청 완료, 큐에서 대기 중',          2, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'TRAINING',    '학습중',    '학습 프로세스 실행 중',                   3, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'COMPLETED',   '학습완료',  '학습이 성공적으로 완료됨',               4, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'FAILED',      '학습실패',  '학습 실패 (에러 등 발생)',                5, 'Y', 'N', NOW())
+	
+
 	;
 
 alter SEQUENCE job_class_job_class_pk_seq restart WITH 1;
@@ -899,10 +1020,10 @@ INSERT INTO holiday (nation_cd,name_val,repeat_yn,holidate) VALUES
 	 ('ko','성탄절','Y','2037-12-25');
 
 --자재
-alter SEQUENCE material_id_seq restart WITH 1;
-INSERT INTO material ("Code","Name","Standard","ItemGroup","ItemType","BasicUnit","CycleTime",in_price,out_price,supplier_pk,"_status","_created","_modified","_creater_id","_modifier_id","Factory_id") VALUES
-	 ('MT0000696','도어락_KONAM KN-100','','','MA','',NULL,NULL,NULL,NULL,NULL,'2025-03-17 10:46:42.635501+09','2025-03-17 10:46:42.635501+09',1,1,1),
-	 ('MT0000695','스프링클러 헤드_플러쉬형,하향,표준반응 72 ℃','','','ME','',NULL,NULL,NULL,NULL,NULL,'2025-03-17 10:46:59.966689+09','2025-03-17 10:47:12.359949+09',1,1,1);
+--alter SEQUENCE material_id_seq restart WITH 1;
+--INSERT INTO material ("Code","Name","Standard","ItemGroup","ItemType","BasicUnit","CycleTime",in_price,out_price,supplier_pk,"_status","_created","_modified","_creater_id","_modifier_id","Factory_id") VALUES
+	-- ('MT0000696','도어락_KONAM KN-100','','','MA','',NULL,NULL,NULL,NULL,NULL,'2025-03-17 10:46:42.635501+09','2025-03-17 10:46:42.635501+09',1,1,1),
+	 --('MT0000695','스프링클러 헤드_플러쉬형,하향,표준반응 72 ℃','','','ME','',NULL,NULL,NULL,NULL,NULL,'2025-03-17 10:46:59.966689+09','2025-03-17 10:47:12.359949+09',1,1,1);
 
 --업체 정보
 alter SEQUENCE company_id_seq restart WITH 1;
@@ -922,9 +1043,9 @@ INSERT INTO pm_labor (work_hr,disp_order,"_status","_created","_modified","_crea
 	 (2.00,NULL,NULL,'2025-03-18 10:39:59.306564+09','2025-03-18 10:39:59.306564+09',NULL,NULL,NULL,NULL,1,1);
 
 --pm 작업 자재
-alter SEQUENCE pm_mtrl_id_seq restart WITH 1;
-INSERT INTO pm_mtrl (amt,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",mat_pk,pm_pk) VALUES
-	 (2.000,'C','2025-03-18 17:49:05.471268+09','2025-03-18 17:49:05.471268+09',1,NULL,'yullin',NULL,1,1);
+--alter SEQUENCE pm_mtrl_id_seq restart WITH 1;
+--INSERT INTO pm_mtrl (amt,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",mat_pk,pm_pk) VALUES
+--	 (2.000,'C','2025-03-18 17:49:05.471268+09','2025-03-18 17:49:05.471268+09',1,NULL,'yullin',NULL,1,1);
 
 
 -- AI 모델마스터

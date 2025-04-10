@@ -21,7 +21,12 @@ def tagdata_list(context):
             tag_group = gparam.get('tag_group', '')
             tag_code = gparam.get('tag_code', '')
 
-            sql = ''' 
+            table = 'tag_dat'
+            if tag_group=="7":
+                table = 'em_tag_dat'
+
+
+            sql = f''' 
             SELECT
                 td.tag_code AS tag_code
                 , t.tag_name AS tag_name
@@ -29,7 +34,7 @@ def tagdata_list(context):
                 , td.data_value
                 , td.data_char
 	        FROM 
-                tag_dat td
+                {table} td
             INNER JOIN 
                 tag t ON t.tag_code = td.tag_code
             INNER JOIN

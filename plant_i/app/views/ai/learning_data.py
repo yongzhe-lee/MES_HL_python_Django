@@ -1,26 +1,21 @@
-from asyncio.windows_events import NULL
+import io
 import math
-from winreg import KEY_WOW64_32KEY
-import numpy as np
-import pandas as pd
 import json
-import plotly
-
-#import matplotlib.pyplot as plt
-#import seaborn as sns
-#from matplotlib.figure import Figure
+import threading
+import urllib, base64
+from datetime import datetime
+from django.db import transaction
+from configurations import settings
 
 from sklearn.linear_model import LinearRegression
-
-from configurations import settings
-from domain.models.da import DsModel, DsModelColumn, DsTagCorrelation
+from domain.models.da import DsModel, DsModelColumn, DsModelData, DsModelParam, DsModelTrain, DsTagCorrelation
 from domain.models.system import AttachFile
-from domain.models.da import DsModelData
 from domain.services.logging import LogWriter
 from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
 from domain.services.file.attach_file import AttachFileService
 from domain.services.calculation.data_analysis import DaService
+# from domain.services.ai.data_processing import DataProcessingService
 
 # 24.07.23 김하늘 추가 알고리즘 라이브러리
 import numpy as np
@@ -29,21 +24,20 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.manifold import TSNE
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.ensemble import RandomForestClassifier,AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.metrics import accuracy_score
 
 # 24.07.23 김하늘 추가 시각화를 위한 import
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import to_hex
+import plotly
 import plotly.graph_objs as go
 import plotly.io as pio
-import io
-import urllib, base64
+
 
 # 24.07.31 김하늘 추가 첨부파일 루트 주소를 가져오기
 # from configurations import settings
-
 
 # 24.08.08 김하늘 추가 PCA처리 메서드 따로 추출
 def perform_pca(data, features, target_column, num_components=None, scale_factor=None):
@@ -502,12 +496,12 @@ def learning_data(context):
                 INNER JOIN ds_model_col mc ON mc."DsModel_id" = A.id
                 GROUP BY A.id
             ),
-            C AS (
+            -- C AS (
                 -- 중복된 AlgorithmType 제거
-                SELECT DISTINCT ON (tc."DsModel_id") tc."DsModel_id", tc."AlgorithmType"
-                FROM ds_tag_corr tc
-                ORDER BY tc."DsModel_id", tc."AlgorithmType"  -- 가장 첫 번째 AlgorithmType 선택
-            ),
+                --SELECT DISTINCT ON (tc."DsModel_id") tc."DsModel_id", tc."AlgorithmType"
+                --FROM ds_tag_corr tc
+                --ORDER BY tc."DsModel_id", tc."AlgorithmType"  -- 가장 첫 번째 AlgorithmType 선택
+            -- ),
             F AS (
                 SELECT A.id, af.id AS file_id, af."FileName" AS file_name
                 FROM A
@@ -520,17 +514,19 @@ def learning_data(context):
                     CONCAT('M_', mm.id) AS tree_id,
                     NULL AS tree_master_id,
                     mm.id AS master_id,    
-                    CAST(NULL AS INTEGER) AS model_id,  -- 🔥 자료형 맞춤
+                    CAST(NULL AS INTEGER) AS model_id,  -- 자료형 맞춤
+                    e."Name" AS equip_name,
                     mm."Name" AS name,
                     mm."Type" AS type,
                     NULL AS ver,
                     NULL AS description,
-                    NULL AS algorithm_type,
+                    -- NULL AS algorithm_type,
                     mm."_created" AS _created,
-                    CAST(NULL AS INTEGER) AS var_count,  -- 🔥 자료형 맞춤
+                    CAST(NULL AS INTEGER) AS var_count,  -- 자료형 맞춤
                     NULL AS file_name,
-                    CAST(NULL AS INTEGER) AS file_id     -- 🔥 자료형 맞춤
+                    CAST(NULL AS INTEGER) AS file_id     -- 자료형 맞춤
                 FROM ds_master mm
+                LEFT OUTER JOIN equ e ON e.id = mm."Equipment_id"
                 WHERE 1=1
                 '''
             if master_type:
@@ -547,18 +543,19 @@ def learning_data(context):
                     CONCAT('M_', md."DsMaster_id") AS tree_master_id,
                     md."DsMaster_id" AS master_id,
                     md.id AS model_id,
+                    NULL AS equip_name,
                     md."Name" AS name,
                     md."Type" AS type,
                     -- mm."Type" AS master_type,
-                    md."Version" AS ver,
+                    md."DataVersion" AS ver,
                     md."Description" AS description,
-                    C."AlgorithmType" AS algorithm_type,
+                    -- C."AlgorithmType" AS algorithm_type,
                     md."_created" AS _created,
                     B.var_count AS var_count,  
                     F.file_name AS file_name,  
                     F.file_id AS file_id
                 FROM ds_model md
-                LEFT JOIN C ON C."DsModel_id" = md.id  -- 여기서 중복 제거된 데이터를 가져옴
+                --LEFT JOIN C ON C."DsModel_id" = md.id  -- 여기서 중복 제거된 데이터를 가져옴
                 --LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
                 LEFT JOIN ds_master mm ON mm.id = md."DsMaster_id"
                 LEFT JOIN B ON B.id = md.id  
@@ -723,10 +720,10 @@ def learning_data(context):
             Name = posparam.get('Name')
             Description = posparam.get('Description')
             Type = posparam.get('Type')
+            DataVersion = posparam.get('DataVersion', '')
+
             new_file_id = posparam.get('fileId')
             
-            old_file_id = -1
-
             if md_id:
                 md = DsModel.objects.get(id=md_id)
             else:
@@ -734,6 +731,7 @@ def learning_data(context):
             md.Name = Name
             md.Description = Description
             md.Type = Type
+            md.DataVersion = DataVersion if DataVersion else datetime.now().strftime("v%Y%m%d-%H%M%S")
             md.DsMaster_id = mm_id
             md.set_audit(user)
             md.save()
@@ -747,7 +745,7 @@ def learning_data(context):
                 fileService = AttachFileService()
                 fileService.updateDataPk(new_file_id, md_id)
  
-            items = {'success': True, 'md_id':md_id }
+            items = {'success': True, 'md_id':md_id, 'new_file_id':new_file_id }
 
         elif action == 'ds_data_list':
             keyword = gparam.get('keyword')           
@@ -852,6 +850,7 @@ def learning_data(context):
                 , md."Name"
                 , md."Description"
                 , md."Type"
+                , md."DataVersion"
                 , md._created
                 , (select id as file_id 
                     from attach_file af 
@@ -1602,18 +1601,74 @@ def learning_data(context):
             
             items = rows
 
-        elif action == 'delete_model':
+        elif action == 'delete_ds_model':
             md_id = CommonUtil.try_int(posparam.get('md_id'))
 
-            # q = DsTagCorrelation.objects.filter(DsModel_id=md_id)
-            # q.delete()
+            with transaction.atomic():
+                # 하위 종속 테이블 삭제
+                DsTagCorrelation.objects.filter(DsModel_id=md_id).delete()
+                DsModelData.objects.filter(DsModel_id=md_id).delete()
+                DsModelColumn.objects.filter(DsModel_id=md_id).delete()
 
-        
+                # DsModel 삭제 (DsModelTrain은 보존됨)
+                DsModel.objects.filter(id=md_id).delete()
+
+            items = {'success': True} 
+
+        # 작성중 모델 설정 저장
+        elif action == 'save_ds_model_train':
+            md_id = CommonUtil.try_int(posparam.get('md_id'))
+            mt_id = CommonUtil.try_int(posparam.get('id'))
+            # 설정에 필요한 멤버들
+            description = posparam.get('Description')
+            task_type = posparam.get('TaskType')
+            algorithm_type = posparam.get('AlgorithmType')
+            version = posparam.get('Version', 1)
+            train_status = posparam.get('TrainStatus')
+            
+            if mt_id:
+                mt = DsModelTrain.objects.get(id=mt_id) # 수정이 필요한가?
+            else:
+                mt = DsModelTrain()
+                # 신규 생성 시 버전관리
+                # 동일 모델, 작업유형, 알고리즘이 이미 있으면 버전 업
+                q = DsModelTrain.objects.filter(DsModel_id=md_id, TaskType=task_type, AlgorithmType=algorithm_type)
+                if q.exists():
+                    old_ver = q.order_by('-Version').first().Version
+                    new_ver = float(old_ver) + 0.1
+                    version = new_ver
+
+            mt.DsModel_id = md_id
+            mt.Description = description
+            mt.TaskType = task_type
+            mt.AlgorithmType = algorithm_type
+            mt.TrainStatus = train_status            
+            mt.Version = version
+
+            mt.set_audit(user)
+            mt.save()
+            mt_id = mt.id
+
+            # 모델 저장 끝나면 param 저장
+
+            # set table_name, data_pk
+            # daService = DaService('ds_model', md_id)
+ 
+            items = {'success': True, 'mt_id':mt_id }
+
+        # 작성중. 모델 학습(ai 서버에 작업 요청)
+        elif action == 'learning_data':
+            
+            # data_svc = DataProcessingService()
+            # thread = threading.Thread(target=data_svc.run_model_training)
+            # thread.start()
+            
+            items = {'success':True}        
     except Exception as ex:
         source = '/api/ai/learning_data, action:{}'.format(action)
         LogWriter.add_dblog('error', source , ex)
         # # 24.07.16 김하늘 에러 로그 확인
         # print('error: ', ex)
-        items = {'success':False}
+        items = {'success':False, 'message':ex}
 
     return items

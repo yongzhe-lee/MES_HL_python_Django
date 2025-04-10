@@ -1,0 +1,104 @@
+
+select * from aas;
+select * from submodel s ;
+select * from submodel_element se ;
+select * from reference;
+select * from keys;
+select * from aas_submodel_refs asr;
+select * from property_element pe;
+select * from submodel_element_collection sec ;
+select * from submodel_element_collection_values secv;
+
+truncate table aas cascade;
+truncate table aas cascade;
+truncate table submodel cascade;
+truncate table submodel_element cascade;
+truncate table reference cascade;
+truncate table keys cascade;
+truncate table aas_submodel_refs cascade;
+truncate table property_element cascade;
+truncate table submodel_element_collection cascade;
+truncate table submodel_element_collection_values cascade;
+
+
+
+
+alter SEQUENCE aas_aas_pk_seq restart WITH 1;
+insert into aas (aas_pk, id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) 
+values
+ (1,'/aas/hpc#1','line','hpc1','[{"text": "line hpc#1", "language": "en-US"}, {"text": "hpc#1 라인", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL,NULL),
+ (2, '/aas/smt#4','line','smt4','[{"text": "line smt#4", "language": "en-US"}, {"text": "smt#4 라인", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL,NULL),
+ (3, '/aas/hpc1.load','equipment','hpc1.load','[{"text": "hpc#1 Magazine loader", "language": "en-US"}, {"text": "hpc#1매거진로더", "language": "ko-KR"}]', '[{"text": "en test1", "language": "en-US"}, {"text": "테스트1", "language": "ko-KR"}]',NULL,now(),NULL,NULL,NULL,NULL,1,null) ,
+ (4, 'http://test/test3','equipment','smt4.load', '[{"text": "en flash", "language": "en-US"}, {"text": " hpc#1 플래쉬", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,2,null);
+alter SEQUENCE aas_aas_pk_seq restart WITH 4;
+
+
+alter SEQUENCE submodel_sm_pk_seq restart WITH 1; 
+INSERT INTO public.submodel (sm_pk, id,id_short,kind,category,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",aas_pk,semantic_id) 
+VALUES
+(1, 'http://submodel1','hpc1.load.nameplate','````````````````````cc','INSTANCE','[{"text": "en NameplateTest", "language": "en-US"}, {"text": "Nameplate", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(2, 'http://submodel2','hpc1.load.document','ccc','INSTANCE','[{"text": "en Document", "language": "en-US"}, {"text": "Document", "language": "ko-KR"}]',NULL,NULL,now(),now(),3,3,NULL,NULL),
+(3, 'http://submodel3','hpc1.load.identification','ccc','INSTANCE','[{"text": "en Identification", "language": "en-US"}, {"text": "Identification", "language": "ko-KR"}]',NULL,NULL,now(),now(),3,3,3,NULL),	 
+(4, 'http://submodel4','hpc1.load.technicalspec','ccc','INSTANCE','[{"text": "en TechnicalSpec", "language": "en-US"}, {"text": "TechnicalSpecification", "language": "ko-KR"}]',NULL,NULL,now(),now(),3,3,NULL,NULL);
+alter SEQUENCE submodel_sm_pk_seq restart WITH 4; 
+
+
+alter SEQUENCE reference_ref_pk_seq restart WITH 1;
+INSERT INTO public.reference (ref_pk, "type","_status","_created","_modified","_creater_id","_modifier_id","referredSemanticId_id") VALUES
+(1,'ModelReference',NULL,'2025-04-01 13:49:04.073459+09',NULL,NULL,NULL,NULL),
+(2, 'ModelReference',NULL,'2025-04-02 15:32:46.855429+09',NULL,NULL,NULL,NULL),
+(3, 'ModelReference',NULL,'2025-04-02 15:32:47.801392+09',NULL,NULL,NULL,NULL),
+(4, 'ModelReference',NULL,'2025-04-02 15:32:48.570255+09',NULL,NULL,NULL,NULL);
+alter SEQUENCE reference_ref_pk_seq restart WITH 4;
+
+INSERT INTO public."keys" ("type",value,"_status","_created","_modified","_creater_id","_modifier_id",ref_pk) VALUES
+('SUBMODEL','http://submodel1',NULL,'2025-04-01 14:00:56.434949+09',NULL,NULL,NULL,1),
+('SUBMODEL','http://submodel2',NULL,'2025-04-02 15:34:14.635113+09',NULL,NULL,NULL,2),
+('SUBMODEL','http://submodel3',NULL,'2025-04-02 15:34:14.635113+09',NULL,NULL,NULL,3),
+('SUBMODEL','http://submodel4',NULL,'2025-04-02 15:34:14.635113+09',NULL,NULL,NULL,4);
+
+
+
+alter SEQUENCE aas_submodel_refs_id_seq restart WITH 1;
+INSERT INTO public.aas_submodel_refs (id, "_status","_created","_modified","_creater_id","_modifier_id",aas_pk,ref_pk) VALUES
+(1, NULL,now(),NULL,NULL,NULL,3,1),
+(2, NULL,now(),NULL,NULL,NULL,3,2),
+(3, NULL,now(),NULL,NULL,NULL,3,3),
+(4, NULL,now(),NULL,NULL,NULL,3,4);
+alter SEQUENCE aas_submodel_refs_id_seq restart WITH 4;
+
+
+alter SEQUENCE submodel_element_sme_pk_seq restart WITH 1;
+INSERT INTO public.submodel_element (sme_pk, id_short,category,"ModelKind","modelType","displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",semanctic_id,sm_pk)
+VALUES
+(1,'test_collection1','Collection','Instance','Collection','[{"text": "collection test1", "language": "en-US"}, {"text": "엘리먼트컬렉션1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
+(2, 'test_collcoll1','Collection','Instance','Collection','[{"text": "collcoll test1", "language": "en-US"}, {"text": "컬컬렉션1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),	 
+(3, 'test_property1','VARIABLE','Instance','Property','[{"text": "property1", "language": "en-US"}, {"text": "property테스트1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
+(4, 'test_property2','VARIABLE','Instance','Property','[{"text": "property2", "language": "en-US"}, {"text": "property테스트2", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
+(5, 'test_property3','VARIABLE','Instance','Property','[{"text": "property3", "language": "en-US"}, {"text": "property테스트3", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(6, 'test_property4','VARIABLE','Instance','Property','[{"text": "property4", "language": "en-US"}, {"text": "property테스트4", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(7, 'test_property5','VARIABLE','Instance','Property','[{"text": "property5", "language": "en-US"}, {"text": "property테스트5", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(8, 'test_property6','VARIABLE','Instance','Property','[{"text": "property6", "language": "en-US"}, {"text": "property테스트6", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL);
+alter SEQUENCE submodel_element_sme_pk_seq restart WITH 8;
+
+
+INSERT INTO public.submodel_element_collection (sme_pk,"_status","_created","_modified","_creater_id") VALUES
+(1,NULL,'2025-03-28 17:22:43.720434+09',NULL,NULL),
+(2,NULL,'2025-03-28 19:48:39.909505+09',NULL,NULL);
+
+
+INSERT INTO public.submodel_element_collection_values (dbsubmodelelementcollection_id,dbsubmodelelement_id) VALUES  
+(1,2),
+(1,5),
+(1,6),	
+(2,7),
+(2,8);
+
+
+INSERT INTO property_element (sme_pk,"contentType","valueType",value,"_status","_created","_modified","_creater_id","_modifier_id",value_id) VALUES
+(3,'nnnn','xs:string','test값',NULL,'2025-03-26 18:01:02.077742+09',NULL,NULL,NULL,NULL),
+(4,'','xs:string','rr4',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),
+(5,'','xs:string','rr5',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),
+(6,'','xs:string','rr6',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),
+(7,'','xs:string','rr7',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),
+(8,'','xs:string','rr8',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL);

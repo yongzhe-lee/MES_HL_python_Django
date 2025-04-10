@@ -1,0 +1,364 @@
+<div class="file-section">
+	<h3>기술문서</h3>
+
+	<!-- 파일 선택 및 드래그 영역 -->
+	<div class="file-upload-container">
+		<input type="file" id="fileDocInput" multiple
+			   accept=".xls,.xlsx,.pdf,.txt,.doc,.docx,.ppt,.pptx,.csv,.zip,.hwp,.png,.jpg,.jpeg,.gif" hidden />
+		<button type="button" class="upload-button" onclick="document.getElementById('fileDocInput').click()">
+			파일선택
+		</button>
+
+		<div id="dropDocZone" class="file-upload-box">
+			<div class="upload-placeholder">업로드할 파일을 여기에 끌어다 놓으세요.</div>
+		</div>
+	</div>
+
+	<!-- 미리보기 (이미지) -->
+	<div class="uploaded-docfiles-preview" id="previewDocContainer"></div>
+
+	<!-- 테이블 -->
+	<div class="file-grid">
+		<table class="file-table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>파일명</th>					
+					<th>용량</th>
+					<th>삭제</th>
+				</tr>
+			</thead>
+			<tbody id="fileDocTableBody"></tbody>
+		</table>
+	</div>
+
+	<!-- 정보 -->
+	<div class="file-info-footer">
+		<div class="file-count-info">
+			total count : <span class="count-badge" id="docTotalCount">0</span>
+			<span class="total-size" id="docTotalSize">total size : 0 KB</span>
+		</div>
+		<div class="file-type-info">
+			허용되는 파일 형식 :
+			xls, xlsx, pdf, txt, doc, docx, ppt, pptx, csv, zip, hwp, png, gif, jpg
+			(파일크기제한 : 10MB)
+		</div>
+	</div>
+</div>
+<style>
+	.file-table {
+		width: 100%;
+		border-collapse: collapse;
+		text-align: left;
+	}
+
+	.file-table th,
+	.file-table td {
+		padding: 8px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.file-table th {
+		background-color: #f5f5f5;
+		font-weight: bold;
+	}
+
+	.file-table td {
+		vertical-align: middle;
+	}
+
+	.file-table th:nth-child(1),
+	.file-table td:nth-child(1) {
+		width: 10%;
+	}
+
+	.file-table th:nth-child(2),
+	.file-table td:nth-child(2) {
+		width: 60%;
+	}
+
+	.file-table th:nth-child(3),
+	.file-table td:nth-child(3) {
+		width: 20%;
+		text-align: right;
+	}
+
+	.file-table th:nth-child(4),
+	.file-table td:nth-child(4) {
+		width: 10%;
+		text-align: center;
+	}
+</style>
+<script>
+	const DOC_MAX_SIZE = 10 * 1024 * 1024;
+	const DOC_ALLOWED_TYPES = [
+		"application/vnd.ms-excel",
+		"application/haansoftxlsx",
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		"application/pdf",
+		"text/plain",
+		"application/msword",
+		"application/haansoftdocx",
+		"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		"application/vnd.ms-powerpoint",
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+		"text/csv",
+		"application/zip",
+		"application/x-zip-compressed",
+		"application/x-hwp",
+		"application/haansofthwp",
+		"application/octet-stream",
+		"image/png",
+		"image/jpeg",
+		"image/gif"
+	];
+
+	const fileDocsData = [];
+
+	const fileDocInput = document.getElementById("fileDocInput");
+	const dropDocZone = document.getElementById("dropDocZone");
+	const previewDocContainer = document.getElementById("previewDocContainer");
+	const fileDocTableBody = document.getElementById("fileDocTableBody");
+	const totalDocCount = document.getElementById("docTotalCount");
+	const totalDocSize = document.getElementById("docTotalSize");
+
+	// 파일 업로드 클래스 정의
+	class FileUploader {
+		constructor() {
+			this.tableName = '{{ tableName }}';
+			this.attachName = '{{ attachName }}';
+			this.dataPk = document.getElementById('equip_pk')?.value?.trim() || '';
+			this.init();
+		}
+
+		init() {
+			this.bindEvents();
+			this.loadFilesFromServer();
+		}
+
+		bindEvents() {
+			fileDocInput.addEventListener("change", e => {
+				handleFiles(e.target.files);
+				fileDocInput.value = '';
+			});
+
+			dropDocZone.addEventListener("dragover", e => e.preventDefault());
+			dropDocZone.addEventListener("drop", e => {
+				e.preventDefault();
+				handleFiles(e.dataTransfer.files);
+			});
+		}
+
+		// 서버에서 파일 목록 로드
+		loadFilesFromServer(callback) {
+			const url = '/api/files/upload?action=call_attach_file';
+			const data = {
+				action: 'call_attach_file',
+				tableName: this.tableName,
+				attachName: this.attachName,
+				dataPk: this.dataPk || ''
+			};		
+
+			AjaxUtil.postAsyncData(url, data, (res) => {
+				if (res.success) {
+					fileDocTableBody.innerHTML = '';
+					previewDocContainer.innerHTML = '';
+					fileDocsData.length = 0;
+
+					res.data.forEach((file, index) => {
+						const fileData = {
+							name: file.FileName,
+							size: file.FileSize,
+							id: file.id,
+							file_index: file.FileIndex,
+							src: '/uploads/plant_i/' + this.tableName +'/' + file.PhysicFileName
+						};
+
+						fileDocsData.push(fileData);
+						renderTable(index);
+					});
+
+					updateFileInfo();
+
+					if (typeof callback === 'function') callback();
+				}
+			});
+		}
+
+		// 파일 저장 메서드
+		async saveFiles() {
+			const formData = new FormData();			
+			const previewFiles = Array.from(previewDocContainer.querySelectorAll('.file-doc-item')).map(item => {
+				const index = parseInt(item.dataset.index);
+				return fileDocsData[index];
+			}).filter(file => file && file.rawFile); // rawFile이 있는 파일만 필터링
+
+			for (let i = 0; i < previewFiles.length; i++) {
+				const file = previewFiles[i].rawFile;
+				formData.append('uploadfile', file);
+			}
+
+			formData.append('action', 'save_file');
+			formData.append('tableName', this.tableName);
+			formData.append('attachName', this.attachName);
+			formData.append('dataPk', this.dataPk);
+			formData.append('others', this.tableName);
+			formData.append('allowedDuple', 'Y'); // 중복 파일 허용
+
+			try {
+				const response = await fetch('/api/files/upload', {
+					method: 'POST',
+					body: formData
+				});
+
+				const result = await response.json();
+				console.log('Save result:', result);
+
+				const failedFiles = result.filter(f => !f.success);
+
+				if (failedFiles.length > 0) {
+					const msg = failedFiles.map(f => `${f.fileNm}: ${f.message || '저장 실패'}`).join('\n');
+					Alert.alert('일부 파일 저장 실패', msg);
+					return false;
+				} else {
+					Alert.alert('성공', '파일이 성공적으로 저장되었습니다.');
+					
+					// UI 초기화
+					fileDocsData.length = 0;
+					previewDocContainer.innerHTML = '';
+					updateFileInfo();
+					
+					// 서버에서 최신 파일 목록 로드
+					await this.loadFilesFromServer();
+					return true;
+				}
+
+			} catch (error) {
+				console.error('파일 저장 중 오류:', error);
+				Alert.alert('오류', '파일 저장 중 오류가 발생했습니다.');
+				return false;
+			}
+		}
+
+		// 현재 파일 데이터 반환
+		getFilesData() {
+			return fileDocsData;
+		}
+
+		// 파일 데이터 초기화
+		clearFiles() {
+			fileDocsData.length = 0;
+			previewDocContainer.innerHTML = '';
+			updateFileInfo();
+		}
+	}
+
+	// 전역 객체로 FileUploader 인스턴스 생성
+	window.fileUploader = new FileUploader();
+
+	function handleFiles(fileList) {		
+		Array.from(fileList).forEach(file => {			
+			if (!DOC_ALLOWED_TYPES.includes(file.type)) {
+				alert(`허용되지 않는 파일 형식입니다: ${file.name}`);
+				return;
+			}
+			if (file.size > DOC_MAX_SIZE) {
+				alert(`파일 크기 초과 (10MB): ${file.name}`);
+				return;
+			}
+
+			const reader = new FileReader();	
+
+			reader.onload = e => {
+				const index = fileDocsData.push({
+					name: file.name,
+					size: file.size,
+					src: e.target.result,
+					type: file.type,
+					rawFile: file
+				}) - 1;
+
+				renderPreview(index);
+				updateFileInfo();
+			};
+			reader.readAsDataURL(file);
+		});
+	}
+
+	function renderPreview(index) {
+		const file = fileDocsData[index];
+		const div = document.createElement("div");
+		div.className = 'file-item file-doc-item';
+		
+		let previewContent = '';
+		if (file.type.startsWith("image/")) {
+			previewContent = `<img src="${file.src}" alt="img" style="width: 48px; height: 48px;">`;
+		} else {
+			previewContent = `<img src="/static/img/file-icon.png" style="width: 48px; height: 48px;">`;
+		}
+
+		div.innerHTML = `
+			<div class="file-icon">
+				${previewContent}
+			</div>
+			<div class="file-info">
+				<span class="file-name">${file.name}</span>
+				<span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+			</div>
+			<button type="button" class="delete-button" onclick="deleteFile(${index})">×</button>
+		`;
+		div.dataset.index = index;
+		previewDocContainer.appendChild(div);
+	}
+
+	function renderTable(index) {
+		const file = fileDocsData[index];
+		if (!file) return;
+
+		const tr = document.createElement("tr");
+		tr.dataset.index = index;
+		tr.innerHTML = `
+			<td></td>
+			<td><a href="javascript:void(0)" onclick="downloadFile(${file.id})">${file.name}</a></td>
+			<td>${(file.size / 1024).toFixed(1)} KB</td>
+			<td><button type="button" class="delete-button" onclick="deleteFile(${index})">×</button></td>
+		`;
+		fileDocTableBody.appendChild(tr);
+	}
+
+	function deleteFile(index) {
+		const file = fileDocsData[index];
+		if (!file) return;
+
+		// 서버에 삭제 요청
+		const url = '/api/files/upload?action=remove_file';
+		const data = {
+			tableName: window.fileUploader.tableName,
+			attachName: window.fileUploader.attachName,
+			fileName: file.name,
+			others: 'equipment',
+			dataPk: window.fileUploader.dataPk,
+			fileIndex: file.file_index
+		};
+
+		AjaxUtil.postAsyncData(url, data, (res) => {
+			if (res.success) {
+				fileDocsData[index] = null;
+				document.querySelectorAll(`[data-index="${index}"]`).forEach(el => el.remove());
+				updateFileInfo();
+			}
+		});
+	}
+
+	function updateFileInfo() {
+		const valid = fileDocsData.filter(f => f);
+		const total = valid.reduce((sum, f) => sum + f.size, 0);
+		totalDocCount.textContent = valid.length;
+		totalDocSize.textContent = `total size : ${(total / 1024).toFixed(1)} KB`;
+	}
+
+	// 파일 다운로드 함수 추가
+	function downloadFile(fileId) {
+		window.location.href = `/api/files/download?file_id=${fileId}`;
+	}
+</script>

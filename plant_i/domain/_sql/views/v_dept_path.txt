@@ -1,0 +1,8 @@
+-- cm_v_dept_path source
+
+CREATE OR REPLACE VIEW cm_v_dept_path
+AS SELECT x.dept_pk,
+    unnest(x.path_info_pk) AS path_info_pk,
+    x.dept_cd,
+    unnest(x.path_info) AS path_info
+   FROM cm_v_dept x;

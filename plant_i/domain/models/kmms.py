@@ -672,6 +672,7 @@ class FaultLocation(models.Model):
     '''
     작업 고정부위
     '''
+    id = models.AutoField(primary_key=True, db_comment='작업 고정부위 PK') # 제발좀 id 명시합시다
     WorkOrder = models.ForeignKey('WorkOrder', db_column='work_order_pk', on_delete=models.DO_NOTHING, db_comment='작업지시PK')
     FaultLocationCode = models.CharField('고장개소 코드', db_column='fault_loc_cd', max_length=20, db_comment='고장개소 코드')
     FaultLocationDescription = models.CharField('고장개소 상세설명', db_column='fault_loc_desc', max_length=100, null=True, db_comment='고장개소 상세설명')

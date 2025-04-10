@@ -6,7 +6,7 @@
 <div class="content-wrap">
     <div class="content-ui-row">
         <form class="search-form" id="searchForm">
-            <div class="card-content search">                
+            <div class="card-content search">
                 <div class="form-ui">
                     <div class="col-auto">
                         <div class="form-item align-h">
@@ -42,7 +42,7 @@
                                 <input id="srchEndDt" name="srchEndDt" />
                             </div>
                         </div>
-                    </div>                
+                    </div>
                     <div class="col-auto">
                         <div class="card-group-btn search">
                             <button id="btnSearch" class="btn-search">조회</button>
@@ -69,7 +69,7 @@
                 <div id="work_order_grid"></div>
             </div>
         </div>
-        
+
     </div>
 
     {% verbatim %}
@@ -108,7 +108,7 @@
                         { field: 'work_order_no', title: '작업지시번호', width: 100 },
                         { field: 'work_title', title: '작업제목', width: 150 },
                         { field: 'wo_status', title: '상태', width: 80 },
-						{ field: 'equip_pk', title: '설비코드', width: 100 },
+                        { field: 'equip_pk', title: '설비코드', width: 100 },
                         { field: 'equ_name', title: '설비명', width: 150 },
                         { field: 'req_dept_name', title: '요청부서', width: 100 },
                         { field: '_creater_nm', title: '요청자', width: 80 },
@@ -117,7 +117,7 @@
                         { field: 'dept_name', title: '작업부서', width: 100 },
                         { field: 'work_charger_name', title: '작업담당자', width: 100 },
                         { field: 'maint_type_cd', title: '보전유형', width: 100 }
-                    ],               
+                    ],
                     dataBound: function (e) {
                         for (var i = 0; i < this.columns.length; i++) {
                             this.autoFitColumn(i);
@@ -130,7 +130,7 @@
                 };
                 _this.grid = new Grid($("#work_order_grid"), equipmentGridOption);
 
-                //search form      
+                //search form
                 $('#keyword').kendoTextBox();
                 $('#dept_name').kendoTextBox();
                 $('#dept_name').keypress(function (e) {
@@ -139,11 +139,11 @@
                         e.preventDefault();
                         _this.searchMainData();
                     }
-                });  
+                });
 
                 $('#srch_equ_name').kendoTextBox();
                 $('#_creater_nm').kendoTextBox();
-                AjaxUtil.fillDropDownOptions($('#req_dept'), 'depart', 'choose', null); // 관리부서 드롭다운   
+                AjaxUtil.fillDropDownOptions($('#req_dept'), 'depart', 'choose', null); // 관리부서 드롭다운
 
                 let startDt = CommonUtil.getYYYYMMDD(-1);
                 var endDt = CommonUtil.getYYYYMMDD();
@@ -155,7 +155,7 @@
                         e.preventDefault();
                         _this.searchMainData();
                     }
-                });               
+                });
 
                 //form button
                 $('#btnSearch').kendoButton({
@@ -171,14 +171,14 @@
                     themeColor: "blue",
                     spriteCssClass: "k-icon k-foo",
                     click: function () {
-                        
+
                     }
                 });
 
                 $('#btnExcel').kendoButton({
                     icon: "file-excel",
                     themeColor: "success",
-                    click: function () {                        
+                    click: function () {
                         page.exportExcel();
                     }
                 });
@@ -195,7 +195,7 @@
                 let _this = this;
 
                 let param = {
-                    action: 'read',                    
+                    action: 'read',
                     keyword: $('#keyword').val(),
                     req_dept: $('#req_dept').val(),
                 };
@@ -223,7 +223,7 @@
         let page = null;
         page = new WorkOrderPage();
 
-        $(document).ready(function () {            
+        $(document).ready(function () {
             page.searchMainData();
         });
 

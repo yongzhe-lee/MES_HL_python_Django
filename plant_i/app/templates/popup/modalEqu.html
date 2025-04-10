@@ -46,18 +46,17 @@
     /* 손자 모달은 부모 모달보다 높은 z-index를 설정하고 독립적으로 배치 */
     #modalEqu {
         display: none;
-        position: absolute; /* ✅ fixed → absolute 변경 */
+        position: absolute;
         top: 50%;
         left: 50%;
-        /* transform: translate(-50%, -50%); *//* transform 사용하면 흐릿하게 보임 */
-        margin-top: -42.5vh; /* 전체 높이의 절반 */
-        margin-left: -450px; /* 전체 너비의 절반 */
+        margin-top: -42.5vh;
+        margin-left: -450px;
         width: 900px;
         max-width: 95%;
         background: #fff;
-        z-index: 1001 !important; /* ✅ 손자 모달의 z-index를 부모보다 1 높게 설정 */
+        z-index: 1001 !important;
         border-radius: 8px;
-        box-shadow: none !important; /* ✅ 그림자 완전히 제거 */
+        box-shadow: none !important;
         max-height: 85vh;
         overflow: hidden;
     }
@@ -67,23 +66,23 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        padding-bottom: 0 !important; /* ✅ 모달 내부 불필요한 패딩 제거 */
+        padding-bottom: 0 !important;
     }
 
     #modalEqu .modal-body {
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        max-height: 75vh; /* ✅ 최대 높이 설정 */
-        overflow: hidden; /* ✅ 내부에서만 스크롤 유지 */
-        padding: 0 !important; /* ✅ 내부 여백 제거 */
-        margin: 0 !important; /* ✅ 모든 margin 제거 */
+        max-height: 75vh;
+        overflow: hidden;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     #equipment_grid {
-        flex-grow: 1; /* ✅ 남는 공간을 채우도록 설정 */
-        overflow-y: auto; /* ✅ 내부에서만 스크롤 */
-        min-height: 200px; /* ✅ 최소 높이 설정 */
+        flex-grow: 1;
+        overflow-y: auto;
+        min-height: 200px;
     }
 
     .grid-area {
@@ -91,15 +90,6 @@
         overflow-y: auto;
         border: 1px solid #ddd;
         border-radius: 5px;
-    }
-
-    .paging-area {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-        font-size: 14px;
     }
 
     /* 검색 영역 스타일 */
@@ -154,25 +144,6 @@
         color: white;
         border: none !important;
     }
-
-    .tab-menu {
-        display: flex;
-        border-bottom: 2px solid #1e4f88;
-        margin: 10px 0;
-    }
-
-    .tab-menu .tab {
-        padding: 8px 20px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        color: #666;
-    }
-
-    .tab-menu .tab.active {
-        background: #1e4f88;
-        color: white;
-    }
 </style>
 
 <script type="text/javascript">
@@ -181,7 +152,7 @@
         constructor() {
             this.grid = null;         
             this.baseUrl = '/api/definition/equipment';
-
+            this.callback = null;
             this.init();
         }
 
@@ -288,6 +259,14 @@
 
             }
         }
+
+        show(callback) {
+            let _this = this;
+            this.callback = callback;
+
+            $("#modalEqu").fadeIn();
+            _this.getEquData();
+        }
     };
 
     let equiPage = null;
@@ -334,18 +313,11 @@
             
             let result = AjaxUtil.getSyncData('/api/definition/equipment', param);
 
-            // 부모 창의 입력 필드에 값 설정   
-			$('#equip_pk').val(result.id);
-            $('#equ_code').val(result.Code);
-            $('#equ_name').val(result.Name);
-            $('#equ_loc_pk').val(result.id);
-            $('#equ_loc').val(result.loc_nm);
-            $('#equ_status').val(result.Status);
-            $('#equ_import').val(result.import_rank);
-            $('#equ_env_yn').val(result.environ_equip_yn);
+            if (typeof pageEquModal.callback !== 'undefined' && pageEquModal.callback != null) {
+                pageEquModal.callback(result);
+            }
          
             $("#modalEqu").fadeOut();
-
             reset();
         });
     });

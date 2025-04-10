@@ -774,6 +774,7 @@ input:-webkit-autofill {
         display: inline-flex;
         align-items: center;
         font-size: 13px;
+        font-weight: 700;
     }
 
         .card-group-btn .info-text i {
@@ -1506,6 +1507,12 @@ input:-webkit-autofill {
 
 
 /*이가영 Css 추가*/
+.k-menu-popup .k-group .k-menu-item i.material-symbols-outlined {
+    transform: scale(0.9) !important;
+}
+.work-content > .work-section > .edit-form-ui {
+    margin-bottom: 10px;
+}
 .d-logo {
     scale: 0.9;
 }
@@ -1596,25 +1603,49 @@ span.k-switch-track.k-rounded-full {
  /*샘플페이지 끝*/
 
  /*alert 페이지 수정*/
+
 .alert-container .k-dialog-titlebar {
     background-color: #fff !important;
 }
-span.k-window-title.k-dialog-title::before {
+.alert-container span.k-window-title.k-dialog-title::before {
     content: "check_circle";
-    font-family: 'Material Icons';
+    /* 25.03.31 김하늘 수정 */
+    /*font-family: 'Material Icons';*/ /* url 외부에서 참조하므로 사용X */
+    font-family: 'Material Symbols Outlined'; /* 올바른 icon font-famaily (local) */
     font-style: normal;
     font-weight: normal;
     font-size: 20px; /* 원하는 크기로 조정 */
     vertical-align: middle;
     margin-right: 6px; /* 아이콘과 텍스트 사이 간격 */
-    color: green; /* 아이콘 색상 (원하는 색으로 변경 가능) */
+    color: #39C25E; /* 아이콘 색상 (원하는 색으로 변경 가능) */
+}
+.k-dialog-wrapper.alert-container > .k-window.k-dialog {
+    width: 300px;
+}
+/*에러일 때*/
+.alert-container.error span.k-window-title.k-dialog-title::before {
+    content: "cancel";
+    color: #FF4E3E; /* 아이콘 색상 (원하는 색으로 변경 가능) */
 }
 .alert-container > .k-window.k-dialog {
     border-radius: 5px;
     border-left: solid 4px #39C25E;
 }
-span.k-window-title.k-dialog-title {
+/*에러일 때*/
+.alert-container.error > .k-window.k-dialog {
+    border-left: solid 4px #FF4E3E;
+}
+.alert-container.error button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base {
+    background-color: #FEE4E3 !important;
+    color: #f56c6c;
+    border: 1px solid #f56c6c !important;
+}
+.alert-container span.k-window-title.k-dialog-title {
     color: #39C25E !important;
+}
+/*에러일 때*/
+.alert-container.error span.k-window-title.k-dialog-title {
+    color: #FF4E3E !important;
 }
 button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-primary {
     background-color: #E5F9F2;
@@ -1772,6 +1803,8 @@ input[type="radio"], input[type="checkbox"] {
     padding: 10px 40px !important;
 }
 /*AAS 화면*/
+
+
 .panel-container {
     display: flex; /* 좌우 배치를 위해 flex 사용 */
     height: 100vh; /* 화면 전체 높이 */
@@ -1779,13 +1812,12 @@ input[type="radio"], input[type="checkbox"] {
     padding: 16px;
 }
 .btn-add {
-    color: #fff;
-    background-color: #40c0f1;
-    border-color: #40c0f1;
+    color: #40c0f1;
+    background-color: #fff;
+    border: 1px solid #40c0f1;
     width: 50%;
     border-radius: 5px;
     height: 30px;
-    border: none;
 }
 .col-12.aas-col {
     padding: 5px 0 5px 0 !important;
@@ -1803,6 +1835,32 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /* 왼쪽 패널 (트리 구조) */
+/*
+.btn-add-menu:hover {
+    background-color: #c2dfff;
+}
+    */
+.aas-menu-btn {
+    display: flex;
+}
+.btn-add-menu {
+    background: #ecf5ff;
+    color: #409eff;
+    border: 1px solid #b3d8ff;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 60px;
+    height: 28px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    padding: 4px 6px;
+    margin-right:4px;
+}
+i.material-symbols-outlined.k-button-text.add {
+    scale: 0.8;
+}
 .left-panel {
     flex: 1;
     background: #fff;
@@ -1847,13 +1905,38 @@ input[type="radio"], input[type="checkbox"] {
 .hidden {
     display: none;
 }
+/*호버됐을떄*/
+.tree-node {
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    /* 마우스 올렸을 때 */
+    .tree-node:hover {
+        background-color: #e9f1ff; /* 연한 파란색 */
+        color: #1a73e8; /* 강조 텍스트 색상 */
+    }
+
+    /* 활성화(클릭)된 항목 */
+    .tree-node.active {
+        background-color: #d0e2ff; /* 더 진한 파란색 배경 */
+        font-weight: bold;
+        border-left: 4px solid #1a73e8;
+    }
+
 /*아이콘*/
 i.material-symbols-outlined.folder {
     color: #0270FF !important;
     font-size: 19px;
 }
 i.material-symbols-outlined.folder-open {
-    color: #0295FF !important;
+    color: #2b95ff !important;
+    font-size: 19px;
+}
+/*file 아이콘 컬러 수정*/
+i.material-symbols-outlined.folder-save {
+    color: #79DBFF !important;
     font-size: 19px;
 }
 i.material-symbols-outlined.draft {
@@ -1887,16 +1970,19 @@ i.material-symbols-outlined.draft {
     font-weight: bold;
     margin-right: 10px;
 }
-.prop-title {
+.aas-time {
+    color: #c5c5c5;
+    font-size: 14px;
+}
+/*file 텍스트 컬러 및 정렬 수정*/
+.prop-title, .file-title {
     color: #79DBFF;
     font-weight: bold;
     margin-right: 10px;
 }
-.aas-time {
-    color: #c5c5c5;
-    font-size:14px;
+li.aas-save {
+    display: flex;
 }
-
 /* 오른쪽 패널 (상세 정보) */
 .right-panel {
     flex: 1;
@@ -1909,7 +1995,9 @@ i.material-symbols-outlined.draft {
 .aas-info {
     padding:10px 0;
 }
-
+.aas-form-control.form-control {
+    padding: 4px 12px;
+}
 /*슬라이드 추가*/
 .slide-panel {
     position: fixed;
@@ -1972,6 +2060,7 @@ i.material-symbols-outlined.draft {
     border-radius: 6px;
     font-size: 14px;
     background-color: #f9f9f9;
+    padding: 4px 12px;
 }
 
 /* URL 필드 */
@@ -2038,6 +2127,7 @@ i.material-symbols-outlined.draft {
         font-weight: bold;
         width: 120px; /* 라벨 넓이를 일정하게 설정 */
         flex-shrink: 0;
+        font-weight:500;
     }
 /* Timestamp & QR 코드 컨테이너 */
 .timestamp-container {
@@ -2093,5 +2183,9 @@ div[class^='smp_state_div_'] {
     color: #ff5722 !important; /* hover 시 색상 변경 */
     text-decoration: none !important;
 }
+
+
+
+
 
 

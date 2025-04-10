@@ -68,7 +68,7 @@ class LanguageText(models.Model):
 
 class DBResource(models.Model):
     resource_pk = models.AutoField(primary_key=True, db_column='res_pk')
-    content_type = models.CharField(max_length=50)    
+    contentType = models.CharField(max_length=50)    
     StringType = models.CharField(max_length=50)
     path = models.CharField(max_length=2000)
     
@@ -92,8 +92,8 @@ class DBResource(models.Model):
 class DBReferenceKey(models.Model):
     key_pk = models.AutoField(primary_key=True, db_column='key_pk')
     #type = models.CharField(max_length=50) # asset, data_element, submodel_element, submodel, aas....
-    type = models.SmallIntegerField(null=True)
-    value = models.CharField(max_length=2000)
+    type = models.CharField(max_length=50, null=True)
+    value = models.CharField(max_length=2000, null=True)
     Reference = models.ForeignKey('DBReference', on_delete=models.DO_NOTHING, db_column='ref_pk')
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -258,9 +258,8 @@ class DBAssetSpecificassetIds(models.Model):
 
 class DBAssetInformation(models.Model):
     asset_pk = models.AutoField(primary_key=True, db_column='asset_pk')
-    asset_kind = models.CharField(max_length=50, null=True) #    TYPE = 0    INSTANCE = 1    NOT_APPLICABLE = 2
-    asset_type = models.CharField(max_length=50, null=True)
-    
+    assetKind = models.CharField(max_length=50, null=True) #  TYPE, INSTANCE, NOT_APPLICABLE
+    assetType = models.CharField(max_length=50, null=True) # 자산종류 equipment, tool, material, product, software, document, person, organization, location, other
     globalAssetId = models.CharField(max_length=2000, null = True)
     path = models.CharField(max_length=2000, null = True)
     defaultThumbnail = models.ForeignKey(DBResource, on_delete=models.DO_NOTHING, null=True)
@@ -461,7 +460,7 @@ class DBSubmodelElement(models.Model):
     id_short = models.CharField(max_length=200, null =True, unique=True)
     category = models.CharField(max_length=50, null=True) #"constant", "parameter", "variable" measurement, info
     ModelKind = models.CharField(max_length=50, null=True) #models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
-    model_type = models.CharField(max_length=50) # Property, Collection, Operation, Event, File, Reference Element    
+    modelType = models.CharField(max_length=50) # Property, Collection, Operation, Event, File, Reference Element    
     semancticId = models.ForeignKey(DBReference, related_name='submodelelement_semancticId',db_column='semanctic_id', on_delete = models.DO_NOTHING, null=True)
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=SubmodelelementEmbeddedDataSpecifications, related_name='submodelelement_embeddedDataSpecifications', related_query_name='submodelelement_embeddedDataSpecifications')
     Extensions= models.ManyToManyField(DBExtension, through=SubmodelElementExtensions, related_name='submodelelement_extensions', related_query_name='submodelelement_extensions')
@@ -653,7 +652,8 @@ class DBEntityElement(models.Model):
 
 class DBSubModelElementCollection(models.Model):
     sme_pk = models.IntegerField(primary_key=True, db_column='sme_pk')
-    value = models.ForeignKey(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='value_pk')
+    value = models.ForeignKey(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='value_pk', null=True)
+    values = models.ManyToManyField(DBSubmodelElement, related_name='submodelelementcollection_values', related_query_name='submodelelementcollection_values')
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
@@ -840,6 +840,33 @@ class AASDataSpecification(models.Model):
     class Meta:
         db_table = 'aas_dataspecs'
 
+
+class AASSubmodelReferences(models.Model):
+    '''
+    aas <--> submodel aggregation 맵핑
+    '''
+    id = models.AutoField(primary_key=True)
+    aas_pk = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.DO_NOTHING, db_column='aas_pk')
+    ref_pk = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, db_column='ref_pk')
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta:
+        db_table = 'aas_submodel_refs'
+
+
+
 ###################################################################################
 # AssetAdministrationShell
 ###################################################################################
@@ -853,7 +880,7 @@ class DBAssetAdministrationShell(models.Model) :
     derivedFrom = models.ForeignKey('self', db_column='base_aas_pk', on_delete=models.CASCADE, null=True, related_name='aas_derivedFrom')
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=AASDataSpecification, related_name='aas_dataspecs', related_query_name='aas_dataspecs')
     Extensions = models.ManyToManyField(DBExtension, through=AASExtensions, related_name='aas_extensions', related_query_name='aas_extensions')
-
+    submodels = models.ManyToManyField(DBReference,  through=AASSubmodelReferences, related_name='aas_submodel_references', related_query_name='aas_submodel_references')
     #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_displayName')
     #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_description')
 

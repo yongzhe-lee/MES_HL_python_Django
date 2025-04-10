@@ -344,13 +344,13 @@
     let page = [];
     let resData;
 
-    $(document).ready(function (e) {
+    function page_start() {
         $('#srchStartDt').val(CommonUtil.getYYYYMMDD());
         //셀렉트 검색기능 노준오
-        AjaxUtil.fillSelectOptions($('#cboTag'), 'tag', '', false);  
+        AjaxUtil.fillSelectOptions($('#cboTag'), 'tag', '', false);
         //$('select').select2({tags: true,});
 
-    
+
         $('#srchDt').ax5DatePicker({ direction: 'top' });
         $('#srchStartTm').timepicker({
             show2400: true,
@@ -361,8 +361,13 @@
             timeFormat: 'H:i'
         }).val('18:00');
         $("#btnSearch").click(function (e) { searchMainData(); });
+    }
 
-    })
+    page_start();
+
+    $(document).ready(function (e) {
+
+    });
     
 
     function searchMainData() {

@@ -51,19 +51,19 @@ class AttachFileService():
         return items
 
     def get_attach_file_detail(self, file_id):
-        sql=''' select id
-        , TableName
-        , DataPk
-        , AttachName
-        , FileIndex
-        , FileName
-        , PhysicFileName
-        , ExtName
-        , FilePath
-        , _created
-        , FileSize
-        from attach_file 
-        where id = %(file_id)s
+        sql=''' 
+            SELECT id
+                , "TableName"
+                , "DataPk"
+                , "AttachName"
+                , "FileIndex"
+                , "FileName"
+                , "PhysicFileName"
+                , "ExtName"
+                , "FilePath"
+                , "FileSize"
+            FROM attach_file
+            where id = %(file_id)s
         '''
         try:
            items = DbUtil.get_row(sql, {'file_id': file_id})

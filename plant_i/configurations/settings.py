@@ -154,6 +154,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # 정적 파일을 모아둘 �
 
 USE_MOBILE_LOGIN = False
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 MOSQUITTO_HOST = 'localhost'
 MOSQUITTO_WEBSOCKET_PORT =9001
 TOPIC_SYSTEM_EVENT='qmlims_system_event'
@@ -175,6 +177,10 @@ FILE_UPLOAD_PATH = 'c:\\temp\\plant_i\\'     #업로드한 파일의 영구저�
 EXTRA_CODE_PATH = 'c:\\temp\\plant_i\\extra\\' # 사용자 정의 코드의 저장 장소
 # 25.03.13 김하늘 추가
 FILE_TEMP_UPLOAD_PATH ='c:\\temp\\plant_i\\upload_temp\\'    # 파일업로드파일 임시저장위치
+
+MEDIA_URL = '/uploads/'
+MEDIA_ROOT = 'c:/temp'  # 윈도우 경로
+
 
 folders.append(FILE_UPLOAD_PATH)
 folders.append(EXTRA_CODE_PATH)

@@ -1,0 +1,1317 @@
+
+
+<div id="modalPiMaster" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>점검 마스터 등록</h4>
+		</div>
+
+		<div class="modal-body">
+			<div class="equipment-section">
+				<div class="section-header"  style="display: flex; justify-content: flex-end;">					
+					<div class="button-group">
+						<button type="button" class="btn-copy" id="copyPi" name="copyPi">
+							점검복사
+						</button>
+					</div>
+				</div>
+
+			<!-- 계획 섹션2 -->
+			<div class="section">
+				<div class="tab-group">
+					<button class="active">계획</button>
+					<button>점검설비</button>
+					<button>점검항목</button>
+					<button>작업결과 목록</button>
+					<button>작업 WO 목록</button>
+				</div>
+				<div class="tab-content">
+					<!-- 계획 탭 컨텐츠 -->
+					<form id="piMasterForm">
+						<input type="hidden" id="pm_pk" name="pm_pk">
+						<div class="plan-content">
+							<div class="form-row">
+								<div class="form-group col-6">
+									<label>점검번호</label>
+									<input type="text" class="form-control" id="pmNumber" name="pmNumber" placeholder="점검번호는 자동으로 생성됩니다" readonly>
+								</div>
+								<div class="form-group col-6">
+									<label>점검명 <span class="required">*</span></label>
+									<input type="text" class="form-control" id="piName" name="piName" placeholder="100자 이하로 입력하세요">
+								</div>
+							</div>
+							<div class="form-row">
+								<!-- 오른쪽 cycleInfo 영역 -->
+								<!-- 주기단위 -->
+								<div class="form-group col-4">
+									<label>주기단위 <span class="required">*</span></label>
+									<select id="cycleType" name="cycleType">
+									</select>
+								</div>
+								<div class="form-group col-4">
+									<label>반복 <span class="required">*</span></label>
+									<div class="field-wrapper" style="display:flex">
+										<span class="mt-2" style="margin-left: 5px;">매</span>
+										<input id="perNumber" name="perNumber" type="number" class="form-control" />
+									</div>
+								</div>
+								<!-- 주기시작일 -->
+								<div class="form-group col-4">
+									<label>주기시작일 <span class="required">*</span></label>
+									<div class="field-wrapper">
+										<input type="date" id="schedStartDt" name="schedStartDt" class="form-control" />
+									</div>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group col-6">
+									<label>점검부서 <span class="required">*</span></label>
+									<select id="executionDept" name="executionDept">
+									</select>
+								</div>
+								<div class="form-group col-6">
+									<label>점검담당자 <span class="required">*</span></label>
+									<select id="piManager" name="piManager">
+										<option value="">점검 담당자를 선택하세요</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group col-12">
+								<label>작업지침</label>
+								<textarea class="form-control" id="work_text" name="work_text" placeholder="2000자 이하로 입력하세요" maxlength="2000"></textarea>
+								<div class="char-count">0 / 2000 bytes</div>
+							</div>
+						</div>
+					</form>
+
+
+					<!-- 점검설비 목록 탭 컨텐츠 -->
+					<div id="piEquip" class="pmwo-content" style="display: none;">
+						<div class="section-header" style="display: flex; justify-content: flex-end;">
+							<div class="button-group">
+								<button type="button" class="btn-equipment" id="selectEquipment" name="selectEquipment">
+									설비선택
+								</button>
+							</div>
+						</div>
+						<!--<div id="piEquipGrid"></div>-->
+						<div class="grid">
+							<table class="table" id="equipTable">
+								<thead>
+									<tr style="border-top: 2px solid #343a40;">
+										<th>설비코드</th>
+										<th>설비명</th>
+										<th>위치</th>
+										<th>카테고리</th>
+										<th>중요도</th>
+										<th>상태</th>
+										<th>삭제</th>
+										<th style="display: none">equipPk</th>
+										<th style="display: none">설비신규추가여부</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr class="no-data">
+										<td colspan="7">조회된 데이터가 없습니다.</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+
+					<!-- 점검항목 목록 탭 컨텐츠 -->
+					<div id="piCheckItem" class="pmwo-content" style="display: none;">
+						<div class="section-header" style="display: flex; justify-content: flex-end;">
+							<div class="button-group">
+								<button type="button" class="btn-equipment" id="addCheckItem" name="addCheckItem">
+									점검항목추가
+								</button>
+							</div>
+						</div>
+						<div id="piCheckItemGrid"></div>
+					</div>
+
+	
+					<!-- PM WO 목록 탭 컨텐츠 -->
+					<div id="pmWorkOrderContent" class="pmwo-content" style="display: none;">
+						<div id="pmWorkOrderGrid"></div>
+					</div>
+				</div>
+			</div>
+			
+
+			<!-- 버튼 영역 -->
+			<div class="modal-footer">
+				<button type="button" class="btn-save" id="saveBtn">저장</button>
+				<button type="button" class="btn-close" id="closePmModal">닫기</button>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+  
+<style>
+
+	/* 설비선택, PM복사 버튼 스타일 */
+	.modal .btn-equipment, .btn-copy {
+		background: #1e4f88 !important;
+		color: white !important;
+		border: none !important;
+	}
+
+	.modal .btn-equipment:hover, .btn-copy:hover {
+		background-color: #2980b9;
+	}
+
+	.section {
+		background: #fff;
+		margin-bottom: 20px;
+		height: auto;
+	}
+
+    /*
+	.form-row {
+		display: flex;
+		gap: 20px;
+		margin-bottom: 15px;
+	}
+
+	.form-group {
+		flex: 1;
+		min-width: 0;
+		margin-bottom: 10px;
+	}
+
+	.form-group:first-child {
+		flex: 0.8;
+	}
+
+	.form-group:last-child {
+		flex: 1.2;
+	}
+
+	.form-group label {
+		font-size: 13px;
+		font-weight: 600;
+		color: #2c3e50;
+		margin-bottom: 5px;
+	}
+
+	.form-control {
+		font-size: 13px;
+		padding: 8px 12px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		transition: border-color 0.2s;
+	}
+*/
+	.form-control:focus {
+		border-color: #3498db;
+		box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+	}
+
+/*
+	.required {
+		color: #e74c3c;
+		margin-left: 3px;
+	}
+*/
+	
+
+	textarea {
+		min-height: 150px;
+		resize: vertical;
+	}
+
+	.char-count {
+		text-align: right;
+		color: #666;
+		font-size: 12px;
+		margin-top: 3px;
+		padding-right: 5px;
+	}
+
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+
+	.grid {
+		width: 100%;
+		margin-bottom: 20px;
+	}
+
+	.table {
+		width: 100%;
+		min-width: 800px;
+		border-collapse: collapse;
+	}
+
+		.table th, .table td {
+			padding: 8px;
+			border: 1px solid #ddd;
+			text-align: center;
+		}
+
+		.table th {
+			font-size: 13px;
+			font-weight: 600;
+			color: #2c3e50;
+		}
+
+		.table td {
+			font-size: 13px;
+			color: #34495e;
+		}
+
+	.no-data td {
+		text-align: center;
+		padding: 20px;
+		color: #666;
+	}
+
+	.pagination {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		padding: 10px;
+	}
+
+	.page-size {
+		margin-left: 10px;
+	}
+
+	.total-count {
+		margin-left: 10px;
+		color: #666;
+	}
+
+	
+
+	
+
+	
+
+	/* 툴팁 스타일 */
+	.section-title {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+		.section-title h4 {
+			margin: 0;
+			display: flex;
+			align-items: center;
+		}
+
+	/* 느낌표 아이콘 스타일 */
+	.info-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		background: #e9ecef;
+		border-radius: 50%;
+		margin-left: 5px;
+		cursor: help;
+		position: relative;
+	}
+
+		.info-badge i {
+			font-size: 12px;
+			color: #666;
+		}
+
+	/* 툴팁 스타일 */
+	.tooltip {
+		display: none;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		width: 400px;
+		background: #fff;
+		border: 1px solid #ddd;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		border-radius: 4px;
+		padding: 15px;
+		z-index: 1000;
+		margin-top: 10px;
+	}
+
+		.tooltip h5 {
+			color: #333;
+			margin: 0 0 10px 0;
+			font-size: 14px;
+		}
+
+	.tooltip-content {
+		font-size: 13px;
+		line-height: 1.5;
+	}
+
+		.tooltip-content p {
+			margin: 5px 0;
+		}
+
+		.tooltip-content .highlight {
+			background-color: #e9ecef;
+			padding: 2px 5px;
+			border-radius: 3px;
+		}
+
+	/* 마우스 오버 시 툴팁 표시 */
+	.info-badge:hover .tooltip {
+		display: block;
+	}
+
+	/* 툴팁 화살표 */
+	.tooltip:before {
+		content: '';
+		position: absolute;
+		top: -6px;
+		left: 10px;
+		width: 10px;
+		height: 10px;
+		background: #fff;
+		border-left: 1px solid #ddd;
+		border-top: 1px solid #ddd;
+		transform: rotate(45deg);
+	}
+
+	/* 툴팁 아이콘 스타일 */
+	.tooltip-icon {
+		color: #6c757d;
+		font-size: 14px;
+		margin-left: 5px;
+		cursor: help;
+		position: relative;
+	}
+
+		/* 툴팁 스타일 */
+		.tooltip-icon[data-tooltip]:hover::after {
+			content: attr(data-tooltip);
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			bottom: 100%;
+			width: max-content;
+			max-width: 300px;
+			padding: 8px 12px;
+			border-radius: 4px;
+			background-color: #2c3e50;
+			color: white;
+			font-size: 12px;
+			font-weight: normal;
+			z-index: 1000;
+			white-space: nowrap;
+		}
+
+		/* 툴팁 화살표 */
+		.tooltip-icon[data-tooltip]:hover::before {
+			content: '';
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			bottom: 100%;
+			border: 6px solid transparent;
+			border-top-color: #2c3e50;
+			margin-bottom: -12px;
+		}
+
+	
+
+	
+
+	#modalPiMaster {
+		z-index: 1000 !important; /* ✅ 부모 모달의 z-index */
+	}
+
+	#pmMasterTabs {
+		margin-bottom: 20px;
+	}
+
+		#pmMasterTabs button {
+			padding: 10px 20px;
+			margin-right: 5px;
+			border: 1px solid #ddd;
+			background: #f5f5f5;
+			cursor: pointer;
+		}
+
+			#pmMasterTabs button.active {
+				background: #007bff;
+				color: white;
+				border-color: #0056b3;
+			}
+
+			#pmMasterTabs button:hover {
+				background: #e9ecef;
+			}
+
+			#pmMasterTabs button.active:hover {
+				background: #0056b3;
+			}
+
+    /* Kendo 버튼 커스텀 스타일 */
+    .k-button-custom-save .k-button {
+        background: #ECF5FF !important;
+        color: #409EFF !important;
+        border-color: #B3D8FF !important;
+        border: 1px solid #00a9ff !important;
+        padding: 6px 12px !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        min-width: 40px !important;
+        height: 28px !important;
+        line-height: 1 !important;
+    }
+
+        .k-button-custom-save .k-button:hover {
+            background-color: #C2DFFF !important;
+            border-color: #0054e0 !important;
+        }
+
+
+
+
+
+
+
+
+
+
+
+    /* 대상설비 섹션 전용 스타일 */
+    .equipment-section {
+        background: #fff;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+        /* 첫 번째 form-row의 input 너비 조정 */
+        .equipment-section .form-row:first-child .form-group {
+            flex: 1;
+        }
+
+        /* 두 번째 form-row의 input 너비 동일하게 조정 */
+        .equipment-section .form-row:last-child .form-group {
+            flex: 1;
+        }
+
+	/* 직종 테이블 관련 스타일 추가 */
+	#jobClassTable .btn-delete {
+		background: none;
+		border: none;
+		color: #dc3545;
+		font-size: 18px;
+		cursor: pointer;
+		padding: 0 5px;
+	}
+
+		#jobClassTable .btn-delete:hover {
+			color: #c82333;
+		}
+
+	#jobClassTable input[type="number"] {
+		width: 100%;
+		padding: 4px 8px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+	}
+
+</style>
+
+<script type="text/javascript">
+	let piMasterPage = null;
+	class PiMaster {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/pi_master';
+
+			this.resetForm = this.resetForm.bind(this);
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			const modal = $("#modalPiMaster");
+
+			// cycleInfo 표시 여부 체크 함수
+			this.checkCycleInfo = function () {
+				const pmTypeValue = $('#pmType').val();
+				if (pmTypeValue === 'PM_TYPE_TBM') {
+					$('#cycleInfo').show();
+				} else {
+					$('#cycleInfo').hide();
+				}
+			};
+
+			// 데이터 로드 함수
+			this.loadPmData = function (pmPk) {
+				let param = {
+					action: 'read',
+					pm_pk: pmPk
+				};
+
+				let result = AjaxUtil.getSyncData(this.baseUrl, param);
+				if (result) {
+					// FormUtil.fillForm($('#piMasterForm'), result);
+					// 데이터 로드 직후 cycleInfo 체크
+					setTimeout(() => this.checkCycleInfo(), 0);
+				}
+			};
+
+			// 모달이 표시될 때마다 cycleInfo 체크
+			modal.on('show', function () {
+				_this.checkCycleInfo();
+			});
+
+			AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
+			AjaxUtil.fillDropDownOptions($('#piManager'), 'auth_user', 'choose', null);
+			AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+
+			let today = CommonUtil.getYYYYMMDD();
+			$("#schedStartDt").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd",
+			});
+
+			//설비선택
+			$('#selectEquipment').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+				click: function (e) {
+					e.preventDefault();
+                    console.log("main selectEquipment button click");
+					$("#modalEqus").fadeIn();
+				}
+			});
+
+            $('#addCheckItem').kendoButton({
+                themeColor: "base",
+                icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+                click: function (e) {
+                    e.preventDefault();
+                    $("#modalEqus").fadeIn();
+                }
+            });
+			
+
+
+			$("#copyPi").kendoButton({
+				icon: "k-i-copy",// 복사 아이콘
+				click: function (e) {
+					e.preventDefault();
+					$("#modalPmCopy").fadeIn();
+				}
+			});
+
+			$('#addOccupations').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+				click: function (e) {
+					e.preventDefault();
+					$("#modalOccupations").fadeIn();
+				}
+			});
+
+			$('#selectMaterial').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+				click: function (e) {
+					e.preventDefault();
+					$("#modalMaterials").fadeIn();
+				}
+			});
+
+			// ESC 키 누를 때 모달 닫기
+			$(document).on('keydown', (e) => {
+				if (e.keyCode === 27) { // ESC key
+					modal.fadeOut();
+				}
+			});
+
+			$("#saveBtn").kendoButton({
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault();
+					_this.saveData();
+				},
+				themeColor: "none"
+			}).closest(".k-button").css({
+				"background": "#ECF5FF",
+				"color": "#409EFF",
+				"border-color": "#B3D8FF",
+				"border": "1px solid #00a9ff",
+				"padding": "6px 12px",
+				"border-radius": "4px",
+				"cursor": "pointer",
+				"min-width": "40px",
+				"height": "28px",
+				"line-height": "1"
+			}).hover(
+				function () {
+					$(this).css({
+						"background-color": "#C2DFFF",
+						"border-color": "#0054e0"
+					});
+				},
+				function () {
+					$(this).css({
+						"background": "#ECF5FF",
+						"border-color": "#B3D8FF"
+					});
+				}
+			);
+
+			// 모달 닫기 - 닫기 버튼 클릭
+			$('#closePmModal').kendoButton({
+				click: function (e) {
+					e.preventDefault();
+					modal.fadeOut();
+				}
+			});
+
+			AjaxUtil.fillDropDownOptions($('#selJobClass'), 'job_class', 'choose', null);
+
+		}
+
+		saveData() {
+			let _this = this;
+			let data = FormUtil.extractForm($('#piMasterForm'));
+			data.dept_pk = $("#executionDept").data("kendoDropDownTree").value();
+			data.piManager = $("#piManager").val();
+			
+			// 유효성 검사
+			if (!$('#piName').val()) {
+				Alert.alert('', '점검명을 입력해주세요.');
+				return;
+			}
+
+			if (!data.dept_pk) {
+				Alert.alert('', '점검부서를 선택해주세요.');
+				return;
+			}
+
+			if (!data.piManager) {
+				Alert.alert('', '점검담당자를 선택해주세요.');
+				return;
+			}
+
+			// 주기시작일,주기단위,반복
+			const schedStartDt = $("#schedStartDt").val();
+			const cycleType = $("#cycleType").val();
+			const perNumber = $("#perNumber").val();
+
+			if (!schedStartDt || !cycleType || !perNumber) {
+				Alert.alert('', '주기 정보를 모두 입력해주세요.');
+				return;
+			}
+
+			data.sched_start_dt = schedStartDt;
+			data.cycle_type = cycleType;
+			data.per_number = perNumber;
+
+            const workText = $("#work_text").val();
+			data.work_text = workText;
+
+			let funcSucc = function (resp) {
+				if (resp.success) {
+					// 기본 정보 저장 성공 시 작업 인력 저장 진행
+					// choi : 일단 제거
+					//_this.savePmLalor(resp);
+				} else {
+					Alert.alert('error', resp.message);
+				}
+			};
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+			$("#modalPiMaster").fadeOut();
+		}
+
+		resetData() {
+			let _this = this;
+			FormUtil.resetForm($('#piMasterForm'));
+			// 폼 리셋 후 cycleInfo 체크
+			this.checkCycleInfo();
+		}
+
+		savePmLalor(resp) {
+			let _this = this;
+			let jobClassData = [];
+			$('#jobClassTable tbody tr').not('.no-data').each(function () {
+				const job_class_pk = $(this).data('value');
+				let work_hr = $(this).find('input[type="number"]').val();
+				work_hr = work_hr || 0;
+				jobClassData.push({
+					job_class_pk: job_class_pk,
+					work_hr: work_hr
+				});
+			});
+
+			// 작업 인력 데이터가 없는 경우 바로 자재 저장으로 진행
+			if (jobClassData.length === 0) {
+				_this.savePmMtrl(resp);
+				return;
+			}
+
+			let data = {
+				job_classes: JSON.stringify(jobClassData),
+				pm_pk: resp.id
+			};
+
+			let funcSucc2 = function (resp2) {
+				if (resp2.success) {
+					_this.savePmMtrl(resp);
+				} else {
+					Alert.alert('error', resp2.message);
+				}
+			}
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_job_classes', data, funcSucc2);
+		}
+
+		savePmMtrl(resp) {			
+			let _this = this;
+			let materialData = [];
+			$('#materialTable tbody tr').not('.no-data').each(function () {				
+				const mat_pk = $(this).data('value');				
+				let mtrl_qty = $(this).find('input[type="number"]').val();
+				mtrl_qty = mtrl_qty || 0;
+				materialData.push({
+					mat_pk: mat_pk,
+					mtrl_qty: mtrl_qty
+				});
+			});
+			
+			// 자재 데이터가 없는 경우 바로 완료 처리
+			if (materialData.length === 0) {
+				_this.finalizeSave();
+				return;
+			}
+		
+			let data = {
+				materials: JSON.stringify(materialData),
+				pm_pk: resp.id
+			};
+
+			let funcSucc3 = function (resp3) {
+				if (resp3.success) {
+					_this.finalizeSave();
+				} else {
+					Alert.alert('error', resp3.message);
+				}
+			}
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_materials', data, funcSucc3);
+		}
+
+		finalizeSave() {
+			Notify.success('저장되었습니다.');
+			this.resetData();
+			page.searchMainData();
+		}
+
+		searchLocationData() {
+			let _this = this;
+
+			let param = {
+				action: 'read',
+			};
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			_this.grid.setData(result);
+			// 데이터 로드 후 cycleInfo 체크
+			this.checkCycleInfo();
+		}
+
+		resetForm() {
+			// 폼 리셋 시 cycleInfo 체크
+			this.checkCycleInfo();
+		}
+
+		//pm 마스터
+		getPmMasterModal(pmId) {
+			let _this = this;
+
+			// 1. PM 상세 정보 API 호출
+			let param = {
+				action: 'detail',
+				id: pmId,
+			};
+			let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+			// 2. PM 작업 인력 API 호출
+			let param2 = {
+				action: 'detail_pm_labor',
+				id: pmId,
+			};
+			let pmDataLabor = AjaxUtil.getSyncData(_this.baseUrl, param2);
+
+			// 3. PM 필요자재 API 호출
+			let param3 = {
+				action: 'detail_pm_mtrl',
+				id: pmId,
+			};
+			let pmDataMtrl = AjaxUtil.getSyncData(_this.baseUrl, param3);
+
+			// 1.1. 기존 데이터 바인딩
+			piMasterPage.bindPmMasterData(pmData);
+
+			// 2.1. 작업인력 테이블 초기화 및 데이터 바인딩
+			$('#jobClassTable tbody').empty();
+
+			if (Array.isArray(pmDataLabor) && pmDataLabor.length > 0) {
+				pmDataLabor.forEach((labor, index) => {
+
+					// null 체크를 포함한 안전한 데이터 접근
+					const id = labor?.id || '';
+					const job_class_pk = labor?.job_class_pk || '';
+					const job_class_nm = labor?.job_class_nm || '';
+					const work_hr = labor?.work_hr || '';
+
+					const newRow = `
+                        <tr data-value="${job_class_pk}">
+                            <td>${index + 1}</td>
+                            <td style="display: none;">${job_class_pk}</td>
+                            <td>${job_class_nm}</td>
+                            <td>
+                                <input type="number"
+                                       class="form-control form-control-sm text-end"
+                                       min="0"
+                                       step="0.5"
+                                       placeholder="시간 입력"
+                                       value="${work_hr}" />
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
+                            </td>
+                        </tr>
+                    `;
+					$('#jobClassTable tbody').append(newRow);
+				});
+			} else {
+				console.log("📌 [ERROR] 작업인력 데이터가 없거나 유효하지 않음:", pmDataLabor);
+			}
+
+			// 3.1. 필요자재 테이블 초기화 및 데이터 바인딩
+			$('#materialTable tbody').empty();  // 기존 테이블 초기화
+
+			if (Array.isArray(pmDataMtrl) && pmDataMtrl.length > 0) {
+				pmDataMtrl.forEach((mtrl, index) => {
+
+					// null 체크를 포함한 안전한 데이터 접근
+					const mat_pk = mtrl?.mat_pk || '';
+					const mat_cd = mtrl?.mat_cd || '';
+					const mat_nm = mtrl?.mat_nm || '';
+					const amt = mtrl?.amt || '0';  // 기본값 설정
+					const unit = mtrl?.BasicUnit || '';
+
+					const newRow = `
+                        <tr data-value="${mat_pk}">
+                            <td>${mat_cd}</td>
+                            <td>${mat_nm}</td>
+                            <td>
+                                <input type="number"
+                                       class="form-control form-control-sm text-end"
+                                       min="0"
+                                       step="1"
+                                       value="${amt}"
+                                       placeholder="수량 입력"
+                                       name="amt"/>
+                            </td>
+                            <td>${unit}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
+                            </td>
+                        </tr>
+                    `;
+					$('#materialTable tbody').append(newRow);  // materialTable로 수정
+				});
+			} else {
+				console.log("📌 [ERROR] 필요자재 데이터가 없거나 유효하지 않음:", pmDataMtrl);
+			}
+
+			$("#modalPiMaster").fadeIn();
+		}
+
+		/**
+		 * PM 마스터 데이터를 모달 폼에 바인딩하는 함수
+		 * @param {Object} pmData - PM 마스터 상세 데이터
+		 */
+		bindPmMasterData(pmData) {
+			// 기본 필드 바인딩
+			const basicFields = {
+				'equip_pk': pmData.equip_pk,
+				'pm_pk': pmData.pm_pk,
+				'pmNumber': pmData.pm_no,
+				'piName': pmData.pm_nm,
+				'work_text': pmData.work_text,
+				'equ_code': pmData.equ_code,
+				'equ_name': pmData.equ_name,
+				'equ_loc': pmData.equ_location,
+				'equ_import': pmData.import_rank,
+				'equ_status': pmData.Status,
+				'equ_env_yn': pmData.environ_equip_yn,
+				'maintenanceTime': pmData.work_expect_hr,
+				'perNumber': pmData.per_number,
+				'schedStartDt': pmData.sched_start_dt
+			};
+
+			// 기본 필드 값 설정
+			Object.entries(basicFields).forEach(([id, value]) => {
+				$(`#${id}`).val(value);
+			});
+
+			// Kendo 드롭다운 컴포넌트 바인딩
+			const kendoDropdowns = [
+				{
+					id: 'executionDept',
+					type: 'kendoDropDownTree',
+					value: pmData.exec_dept
+				},
+				{
+					id: 'piManager',
+					type: 'kendoDropDownList',
+					value: pmData.pm_manager
+				},
+				{
+					id: 'pmType',
+					type: 'kendoDropDownList',
+					value: pmData.pm_type
+				},
+				{
+					id: 'cycleType',
+					type: 'kendoDropDownList',
+					value: pmData.cycle_type
+				}
+			];
+
+			kendoDropdowns.forEach(dropdown => {
+				const component = $(`#${dropdown.id}`).data(dropdown.type);
+				if (component) {
+					component.one("dataBound", function () {
+						component.value(dropdown.value);
+						component.trigger("change");
+
+						if (!component.value()) {
+							component.text(dropdown.value);
+						}
+					});
+					component.dataSource.read();
+				}
+			});
+		}   
+	}
+
+	function deleteRow(btn) {
+		const tr = $(btn).closest('tr');
+		tr.remove();
+
+		// 모든 행이 삭제되었을 때 no-data 행 추가
+		if ($('tbody tr').length === 0) {
+			$('tbody').append(`
+			<tr class="no-data">
+				<td colspan="4">조회된 데이터가 없습니다.</td>
+			</tr>
+		`);
+		}
+
+		// 순번 재정렬
+		$('tbody tr:not(.no-data)').each((index, tr) => {
+			$(tr).find('td:first').text(index + 1);
+		});
+	}
+
+	piMasterPage = new PiMaster();
+	$(document).ready(function () {
+
+		// pmType 선택 이벤트 핸들러 추가
+		$('#pmType').on('change', function () {
+			piMasterPage.checkCycleInfo();
+		});
+
+		// 모달이 표시될 때마다 cycleInfo 체크 (jQuery fadeIn 방식)
+		const originalFadeIn = $.fn.fadeIn;
+		$.fn.fadeIn = function () {
+			if (this.attr('id') === 'modalPiMaster') {
+				setTimeout(() => piMasterPage.checkCycleInfo(), 0);
+			}
+			return originalFadeIn.apply(this, arguments);
+		};
+
+		// 탭 클릭 이벤트 처리
+		$('.tab-group button').on('click', function () {
+			// 모든 탭에서 active 클래스 제거
+			$('.tab-group button').removeClass('active');
+			// 클릭된 탭에 active 클래스 추가
+			$(this).addClass('active');
+
+			// 모든 컨텐츠 숨기기
+            $('#piMasterForm, #piEquip,  #piCheckItem, #pmWorkOrderContent').hide();
+
+			// 탭 내용 전환
+			var tabName = $(this).text().trim();
+			switch (tabName) {
+				case '계획':
+					$('#piMasterForm').show();
+					break;
+                case '점검설비':
+                    $('#piEquip').show();
+                    break;
+				case '점검항목':
+                    $('#piCheckItem').show();
+					break;
+				case 'PM WO 목록':
+					$('#pmWorkOrderContent').show();
+					// PM WO 목록 탭 선택 시에만 데이터 로드
+					var grid = $("#pmWorkOrderGrid").data("kendoGrid");
+					var pmPk = $('#pm_pk').val();
+					if (grid && pmPk) {
+						console.log("Loading PM WO data for pm_pk:", pmPk);
+						grid.dataSource.read();
+					} else {
+						console.log("Grid or pm_pk not available:", { grid: !!grid, pmPk: pmPk });
+					}
+					break;
+			}
+		});
+
+		// 초기 상태: 계획 탭 활성화
+		$('.tab-group button:first').click();
+
+		// 글자수 카운트 기능
+		$('#work_text').on('input', function () {
+			const maxLength = 1000;
+			const currentLength = $(this).val().length;
+			$('.char-count').text(`${currentLength} / ${maxLength} bytes`);
+
+			// 최대 글자수 체크
+			if (currentLength > maxLength) {
+				$(this).val($(this).val().substring(0, maxLength));
+			}
+		});
+
+		let rowCount = 0;
+
+		$('#selJobClass').on('change', function () {
+			const selectedValue = $(this).val();
+			if (!selectedValue) return;
+
+			const selectedText = $(this).find('option:selected').text();
+
+			// 이미 존재하는 직종인지 확인
+			const exists = $('#jobClassTable tbody tr').not('.no-data').toArray().some(tr =>
+				$(tr).find('td:nth-child(3)').text() === selectedText
+			);
+
+			if (exists) {
+				Alert.alert('', '이미 추가된 직종입니다.');
+				$(this).val('');
+				return;
+			}
+
+			// no-data 행 제거
+			$('#jobClassTable .no-data').remove();
+
+			// 현재 행 수 계산
+			rowCount = $('#jobClassTable tbody tr').length + 1;
+
+			const newRow = `
+				<tr data-value="${selectedValue}">
+					<td>${rowCount}</td>
+					<td style="display: none;">${selectedValue}</td>
+					<td>${selectedText}</td>
+					<td>
+						<input type="number" 
+							class="form-control form-control-sm text-end"
+							min="0" 
+							step="1"
+							oninput="this.value"
+							placeholder="시간 입력"/>
+					</td>
+					<td class="text-center">
+						<button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
+					</td>
+				</tr>
+			`;
+
+			$('#jobClassTable tbody').append(newRow);
+			$(this).val(''); // 선택 초기화
+		});
+
+
+        $("#piEquipGrid").kendoGrid({
+            dataSource: new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/api/kmms/pi_master",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: function () {
+                            return {
+                                action: 'read_equip',
+                                pm_pk: $('#pm_pk').val()
+                            };
+                        }
+                    }
+                },
+                schema: {
+                    data: function (response) {
+                        console.log("Grid Response:", response);
+                        if (Array.isArray(response)) {
+                            return response;
+                        }
+                        return [];
+                    }
+                },
+                pageSize: 30,
+                requestStart: function () {
+                    console.log("DataSource request starting with pm_pk:", $('#pm_pk').val());
+                }
+            }),
+            height: 550,
+            sortable: true,
+            pageable: true,
+            autoBind: false, // 자동 데이터 바인딩 비활성화
+            columns: [
+                { field: "equipCd", title: "설비코드", width: 120 },
+                { field: "equipNm", title: "설비명", width: 120, format: "{0:yyyy-MM-dd}" },
+                { field: "locNm", title: "위치", width: 100 },
+                { field: "equipCategoryDesc", title: "카테고리", width: 120, format: "{0:yyyy-MM-dd}" },
+                { field: "importRankCd", title: "중요도", width: 120, format: "{0:yyyy-MM-dd}" },
+                { field: "equipStatusNm", title: "상태", width: 100 },
+				{ field: "user_nm", title: "삭제", width: 100 },
+                { field: "equipPk", title: "equipPk", width: 100, hidden: true },
+                { field: "addEquipYn", title: "설비신규추가여부", width: 100, hidden: true }
+            ],
+            noRecords: {
+                template: "조회된 데이터가 없습니다."
+            }
+        });
+
+
+        $("#piCheckItemGrid").kendoGrid({
+            dataSource: new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/api/kmms/pi_master",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: function () {
+                            return {
+                                action: 'read_equip',
+                                pm_pk: $('#pm_pk').val()
+                            };
+                        }
+                    }
+                },
+                schema: {
+                    data: function (response) {
+                        console.log("Grid Response:", response);
+                        if (Array.isArray(response)) {
+                            return response;
+                        }
+                        return [];
+                    }
+                },
+                pageSize: 30,
+                requestStart: function () {
+                    console.log("DataSource request starting with pm_pk:", $('#pm_pk').val());
+                }
+            }),
+            height: 550,
+            sortable: true,
+            pageable: true,
+            autoBind: false, // 자동 데이터 바인딩 비활성화
+            columns: [
+                { field: "work_order_no", title: "순번", width: 120 },
+                { field: "reg_dt", title: "순서조정", width: 120, format: "{0:yyyy-MM-dd}" },
+                { field: "wo_status_nm", title: "점검항목명", width: 100 },
+                { field: "plan_start_dt", title: "LCL", width: 120, format: "{0:yyyy-MM-dd}" },
+                { field: "end_dt", title: "UCL", width: 120, format: "{0:yyyy-MM-dd}" },
+                { field: "user_nm", title: "단위", width: 100 },
+				{ field: "user_nm", title: "점검가이드", width: 100 },
+                { field: "user_nm", title: "삭제", width: 100 }
+            ],
+            noRecords: {
+                template: "조회된 데이터가 없습니다."
+            }
+        });
+
+		$("#pmWorkOrderGrid").kendoGrid({
+			dataSource: new kendo.data.DataSource({
+				transport: {
+					read: {
+						url: "/api/kmms/pm_master",
+						dataType: "json",
+						contentType: "application/json",
+						data: function() {
+							return {
+								action: 'read_pm_wo',
+								pm_pk: $('#pm_pk').val()
+							};
+						}
+					}
+				},
+				schema: {
+					data: function(response) {
+						console.log("Grid Response:", response);
+						if (Array.isArray(response)) {
+							return response;
+						}
+						return [];
+					}
+				},
+				pageSize: 30,
+				requestStart: function() {
+					console.log("DataSource request starting with pm_pk:", $('#pm_pk').val());
+				}
+			}),
+			height: 550,
+			sortable: true,
+			pageable: true,
+			autoBind: false, // 자동 데이터 바인딩 비활성화
+			columns: [
+				{ field: "work_order_no", title: "WO번호", width: 120 },
+				{ field: "reg_dt", title: "WO생성일", width: 120, format: "{0:yyyy-MM-dd}" },
+				{ field: "wo_status_nm", title: "WO상태", width: 100 },
+				{ field: "plan_start_dt", title: "작업계획일", width: 120, format: "{0:yyyy-MM-dd}" },
+				{ field: "end_dt", title: "작업완료일", width: 120, format: "{0:yyyy-MM-dd}" },
+				{ field: "user_nm", title: "담당자", width: 100 }
+			],
+			noRecords: {
+				template: "조회된 데이터가 없습니다."
+			}
+		});
+	});
+
+	// 직종 행 삭제 함수
+	function deleteJobClassRow(btn) {
+		const tbody = $('#jobClassTable tbody');
+		$(btn).closest('tr').remove();
+
+		// 모든 행이 삭제되었을 때 no-data 행 추가
+		if (tbody.children().length === 0) {
+			tbody.append(`
+				<tr class="no-data">
+					<td colspan="4">조회된 데이터가 없습니다.</td>
+				</tr>
+			`);
+		} else {
+			// 순번 재정렬
+			tbody.find('tr').not('.no-data').each((index, tr) => {
+				$(tr).find('td:first').text(index + 1);
+			});
+		}
+	}
+</script>

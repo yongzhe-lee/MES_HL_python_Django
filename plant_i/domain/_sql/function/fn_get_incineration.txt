@@ -1,0 +1,22 @@
+-- DROP FUNCTION fn_get_incineration(int8);
+
+CREATE OR REPLACE FUNCTION fn_get_incineration(v_loc_pk bigint)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	t_business_cd character varying(20);
+begin
+	with x as (
+		select unnest(path_info_pk) as path_pk from v_dept where dept_pk = v_loc_pk
+	)
+	select max(case when d.business_yn = 'Y' then d.dept_cd else null end) as business_cd
+	into t_business_cd
+	from x
+	inner join cm_dept d on x.path_pk = d.dept_pk;
+	
+	RETURN t_business_cd;
+	
+end;
+$function$
+;

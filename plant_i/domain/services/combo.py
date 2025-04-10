@@ -1,6 +1,7 @@
 import datetime
 from domain import init_once
 from configurations import settings
+from domain.models.cmms import CmEquipCategory
 from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
@@ -34,6 +35,7 @@ class ComboService(object):
             'equipment' : cls.equipment,
             'equipment_group' : cls.equipment_group,
             'equipment_type' : cls.equipment_type,
+            'equip_category' : cls.equip_category,
             'factory' : cls.factory,
             'item_group' : cls.item_group,
             'item_type' : cls.item_type,
@@ -296,6 +298,12 @@ class ComboService(object):
         items = [ {'value': entry['id'], 'text':entry['Value']} for entry in queryset ]
         return items
 
+    @classmethod
+    def equip_category(cls, cond1, cond2, cond3):
+        queryset = CmEquipCategory.objects.all().values('EquipCategoryCode','Remark').order_by('Remark')
+        items = [ {'value': entry['EquipCategoryCode'], 'text':entry['Remark']} for entry in queryset ]
+        return items
+
 
     @classmethod
     def factory(cls, cond1, cond2, cond3):
@@ -360,7 +368,8 @@ class ComboService(object):
     @classmethod
     def user_code(cls, cond1, cond2, cond3):
     # def user_code(cls, site_id, cond1, cond2, cond3): # 우린 아직 code에 site 반영X 추후 여쭤보고 진행
-        q = Code.objects.values('Code', 'Name')
+        # 25.04.03 김하늘 수정. code_group 추가
+        q = Code.objects.values('Code', 'Name', 'CodeGroupCode')
         # q = q.filter(Site_id=site_id)
         if cond1:
             if ',' in cond1:
@@ -385,7 +394,7 @@ class ComboService(object):
                 q = q.exclude(Code=cond3)
         q = q.filter(DelYn='N', UseYn='Y')
         q = q.order_by('DispOrder', 'Name')
-        items = [ {'value': entry['Code'], 'text':entry['Name']} for entry in q ]
+        items = [ {'value': entry['Code'], 'text':entry['Name'], 'group':entry['CodeGroupCode']} for entry in q ]
         return items
 
     @classmethod

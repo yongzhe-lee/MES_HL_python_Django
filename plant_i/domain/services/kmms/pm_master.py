@@ -173,8 +173,7 @@ class PMService():
             LEFT OUTER JOIN code wt ON t.wo_type = wt."Code" AND wt."CodeGroupCode" = 'WO_TYPE'  -- 변경됨  
             LEFT OUTER JOIN equ ue ON e.UP_EQUIP_PK = ue.id  -- 변경됨
             LEFT OUTER JOIN code av ON av."Code" = e.first_asset_status AND av."CodeGroupCode" = 'ASSET_VAL_STATUS'  -- 변경됨   
-            WHERE 1 = 1
-            AND t.site_id = '1'
+            WHERE 1 = 1          
             --AND t.work_charger_pk = ISNULL(%(isMyTask)s, t.work_charger_pk)                   
             AND t.wo_status IN ('WOS_CM', 'WOS_AP')
             AND t.pm_pk IS NOT NULL
@@ -384,8 +383,7 @@ class PMService():
             INNER JOIN pm p ON t.pm_pk = p.pm_pk
             INNER JOIN code ws ON t.wo_status = ws."Code" AND ws."CodeGroupCode" = 'WO_STATUS'
             LEFT JOIN auth_user au ON p.pm_user_pk = au.id
-        WHERE t.PM_PK = %(pm_pk)s
-            --AND t.site_id = '1'
+        WHERE t.PM_PK = %(pm_pk)s      
         ORDER BY t.end_dt DESC	-- 작업 완료일 정렬
         ;
         '''

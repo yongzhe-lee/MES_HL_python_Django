@@ -14,6 +14,10 @@ from django.views.generic.base import RedirectView
 
 # aas관련
 from app.views.aas import AASDefaultRenderer
+from app.views.aas.asset import AssetView
+
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico'))),
@@ -24,6 +28,7 @@ urlpatterns = [
 
     # aas 관련
     path('aas/swagger', AASDefaultRenderer.swagger , name='aas_swagger'),
+    path('aas/asset/<str:global_asset_id>', AssetView.as_view() , name='aas_asset'),
 
     # DAS에서 호출하는 API
     path('api/das_device', DASDeviceView.as_view(), name='das'), # DAS에서 호출한다, 인증관련 이슈
@@ -46,3 +51,5 @@ urlpatterns = [
     path('extra/<str:task>/<str:key>', ExtraDefinitionView.as_view(), name='extra')
 
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

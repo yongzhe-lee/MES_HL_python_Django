@@ -13,13 +13,13 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="Display Name" />
+                                <input id="keyword" name="keyword" placeholder="AAS 이름 검색" />
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="card-group-btn search">
-                            <button id="btnSearch" class="btn-search" data-labelCd="Search">조회</button>
+                            <button id="btnSearch" class="btn-search" data-labelCd="Search" title="조회">조회</button>
                         </div>
                     </div>
                 </div>
@@ -28,49 +28,64 @@
         <div class="left-panel">
             <div class="card-group-btn">
                 <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="AAS목록">AAS목록</label></span>
-                <span></span>
+                
+                <div class="aas-menu-btn">
+                    <div class="btn-add-menu">                        
+                        <button id="btnAddRoot" name="addRoot" title="최상위노드추가"><i class="material-symbols-outlined k-button-text add">add</i></button>
+                    </div>
+                </div>
             </div>
             <ul class="tree" id="aas_tree">
                 <li>
-                    <div class="tree-node" onclick="toggleNode(this)">
-                        <span class="toggle-btn">-</span><i class="material-symbols-outlined folder">folder</i><span class="aas-title"> AAS </span> myAASwithGlobalSecurityMetaModel<span class="aas-time"> 25-01-22 01:12:18</span>
-                    </div>
-                    <ul>
-                        <li>
-                            <div class="tree-node" onclick="toggleNode(this)">
-                                <span class="toggle-btn">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="sub-title"> Sub </span> SecuritySettingsForServer @QUALIFIERS <span class="aas-time"> (25-01-21 08:03:38.611)</span>
-                            </div>
-                            <ul>
-                                <li>
-                                    <div class="tree-node">
-                                        <ul>
-                                            <li><span class="prop-title">Prop</span> isNotAuthenticated<span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="tree-node" onclick="toggleNode(this)">
-                                        <span class="toggle-btn">-</span><i class="material-symbols-outlined draft">draft</i><span class="coll-title">Coll </span> roles #1 <span class="aas-time">  (25-01-19 09:36:37.099)</span>
-                                    </div>
-                                    <div class="tree-node" onclick="toggleNode(this)">
-                                        <ul>
-                                            <li><span class="prop-title">Prop </span> isNotAuthenticated <span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="tree-node" onclick="toggleNode(this)">
-                                        <span class="toggle-btn">-</span> <i class="material-symbols-outlined draft">draft</i><span class="coll-title"> Coll</span>  roleMapping #1 <span class="aas-time"> (25-01-19 09:36:37.099)</span>
-                                    </div>
-                                    <div class="tree-node" onclick="toggleNode(this)">
-                                        <ul>
-                                            <li><span class="prop-title">Prop </span> isNotAuthenticated<span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
-                                        </ul>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
+                        <div class="tree-node" onclick="toggleNode(this)">
+                            <span class="toggle-btn">-</span><i class="material-symbols-outlined folder">folder</i><span class="aas-title"> AAS </span> myAASwithGlobalSecurityMetaModel<span class="aas-time"> 25-01-22 01:12:18</span>
+                        </div>
+                        <ul>
+                            <li>
+                                <div class="tree-node" onclick="toggleNode(this)">
+                                    <span class="toggle-btn">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="sub-title"> Sub </span> SecuritySettingsForServer @QUALIFIERS <span class="aas-time"> (25-01-21 08:03:38.611)</span>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <div class="tree-node">
+                                            <ul>
+                                                <li><span class="prop-title">Prop</span> isNotAuthenticated<span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
+                                            </ul>
+                                        </div>
+                                        <!--이가영 file 아이콘 추가-->
+                                        <div class="tree-node">
+                                            <ul>
+                                                <li class="aas-save"><i class="material-symbols-outlined folder-save">save</i><span class="file-title">file</span> isNotAuthenticated<span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="tree-node" onclick="toggleNode(this)">
+                                            <span class="toggle-btn">-</span><i class="material-symbols-outlined draft">description</i><span class="coll-title">Coll </span> roles #1 <span class="aas-time">  (25-01-19 09:36:37.099)</span>
+                                        </div>
+                                        <div class="tree-node" onclick="toggleNode(this)">
+                                            <ul>
+                                                <li><span class="prop-title">Prop </span> isNotAuthenticated <span class="aas-time"> (25-01-19 09:36:37.099)</span></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="tree-node" onclick="toggleNode(this)">
+                                            <span class="toggle-btn">-</span> <i class="material-symbols-outlined draft">description</i><span class="coll-title"> Coll</span>  roleMapping #1 <span class="aas-time"> (25-01-19 09:36:37.099)</span>
+                                        </div>
+                                        <div class="tree-node" onclick="toggleNode(this)">
+                                            <ul>
+                                                <!--col 추가 이가영 250328-->
+                                                <li>
+                                                    <i class="material-symbols-outlined draft">description</i>
+                                                    <span class="coll-title">Coll</span> isNotAuthenticated<span class="aas-time"> (25-01-19 09:36:37.099)</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
                 </li>
                 <li>
                     <div class="tree-node" onclick="toggleNode(this)">
@@ -84,7 +99,7 @@
                             <ul>
                                 <li>
                                     <div class="tree-node" onclick="toggleNode(this)">
-                                        <span class="toggle-btn">-</span> <i class="material-symbols-outlined draft">draft</i><span class="coll-title">Coll </span> roles #1 <span class="aas-time">  (25-01-19 09:36:37.099)</span>
+                                        <span class="toggle-btn">-</span> <i class="material-symbols-outlined draft">description</i><span class="coll-title">Coll </span> roles #1 <span class="aas-time">  (25-01-19 09:36:37.099)</span>
                                     </div>
                                     <div class="tree-node" onclick="toggleNode(this)">
                                         <ul>
@@ -94,7 +109,7 @@
                                 </li>
                                 <li>
                                     <div class="tree-node" onclick="toggleNode(this)">
-                                        <span class="toggle-btn">-</span><i class="material-symbols-outlined draft">draft</i> <span class="coll-title"> Coll</span>  roleMapping #1 <span class="aas-time"> (25-01-19 09:36:37.099)</span>
+                                        <span class="toggle-btn">-</span><i class="material-symbols-outlined draft">description</i> <span class="coll-title"> Coll</span>  roleMapping #1 <span class="aas-time"> (25-01-19 09:36:37.099)</span>
                                     </div>
                                     <div class="tree-node" onclick="toggleNode(this)">
                                         <ul>
@@ -107,6 +122,8 @@
                     </ul>
                 </li>
             </ul>
+
+
         </div>
 
 
@@ -120,189 +137,439 @@
         </div>
             </div>
     -->
-        <div class="right-panel">
+        <div class="right-panel" id="div_aas_detail" style="display:none">
             <div class="card-group-btn">
-                <span class="info-text"><i class="material-symbols-outlined">edit_square</i>AAS입력</span>
+                <span class="info-text"><i class="material-symbols-outlined">edit_square</i>AAS상세입력</span>
                 <span>
-                    <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
-                    <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
-                    <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
+                    <!--<button name="clear"><i class="material-symbols-outlined">forms_add_on</i></button>-->
+                    <button name="save"><i class="material-symbols-outlined">save</i></button>
+                    <!--<button name="delete"><i class="material-symbols-outlined">delete</i></button>-->
+                    <button name="add_child"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
                 </span>
-            </div>
-            <form id="aasForm">
-                <div class="right-panel-content">
+                </div>
+                <form>
+                    <input type="hidden" name="aas_pk" value="" />
+                    <div class="right-panel-content">
+                        <div class="aas-info">
+                            <div class="aas-input-group">
+                                <label class="k-label k-form-label" for="p_display_name" data-labelCd="상위AAS">상위AAS</label>
+                                <input name="p_display_name" class="form-control aas-form-control" readonly />
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="aas-info">
+                            <div class="aas-input-group">
+                                <label class="k-label k-form-label essential" for="id_short" data-labelCd="id Short">id Short</label>
+                                <input name="id_short" class="form-control aas-form-control" />
+                            </div>
+                            <div class="aas-input-group">
+                                <label class="k-label k-form-label essential" for="id" data-labelCd="id">id</label>
+                                <input name="id" class="form-control aas-form-control" />
+                            </div>
+
+                            <div class="aas-input-group">
+                                <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
+                                <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
+                                <select name="lang_code" class="form-control aas-form-control">
+                                    <option value="ko-KR">한글</option>
+                                    <option value="en-US">English</option>
+                                </select>
+                            </div>
+                            <div class="aas-input-group">
+                                <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                                <textarea name="description" class="form-control aas-form-control"></textarea>
+                            </div>
+
+                            <div class="aas-input-group">
+                                <label class="k-label k-form-label" for="description" data-labelCd="수정일">수정일</label>
+                                <input name="created" placeholder="YYYY-MM-DD hh:mm:ss" class="form-control aas-form-control" />
+                            </div>
+                        </div>
+                        <hr />
+    <!--
+
+    <div class="card-group-btn">
+        <span class="info-text"><i class="material-symbols-outlined">edit_square</i>Administration</span>
+    </div>
+
+    <div class="aas-info">
+        <div class="aas-input-group">
+            <input name="version" placeholder="version" class="form-control aas-form-control" />
+            <input name="revision" placeholder="revision" class="form-control aas-form-control" />
+            <input name="creator" placeholder="creator" class="form-control aas-form-control" />
+        </div>
+    </div>
+    <hr />
+    -->
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">edit_square</i>Asset Information</span>
+                    </div>
+
                     <div class="aas-info">
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="ID Short">ID Short</label>
-                            <input id="id_short" name="id_short" class="form-control" />
-                        </div>
-                        <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="id" data-labelCd="id">id</label>
-                            <input id="id" name="id" class="form-control" />
-                        </div>
-                        <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="version" data-labelCd="Ver/Rev">Ver/Rev</label>
-                            <input id="revision" name="revision" placeholder="revision" class="form-control" />
-                            <input id="version" name="version" placeholder="version" class="form-control" />
-                        </div>
-                        <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="표시언어">표시언어</label>
-                            <select id="language" name="language" class="form-control">
-                                <option value="">표시언어를 선택하세요</option>
-                                <option value="ko">한글</option>
-                                <option value="en">English</option>
+                            <label class="k-label k-form-label essential" for="asset_kind" data-labelCd="Asset Kind">Asset Kind</label>
+                            <select name="asset_kind" class="form-control aas-form-control">
+                                <option value="NotApplicable">NotApplicable</option>
+                                <option value="Instance">Instance</option>
+                                <option value="Type">Type</option>
                             </select>
                         </div>
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="이름입력">이름입력</label>
-                            <input id="displayText" name="displayText" class="form-control" placeholder="이름입력" />
+                            <label class="k-label k-form-label essential" for="globalAssetId" data-labelCd="Asset Type">Asset Type</label>
+                            <select name="assetType" class="form-control aas-form-control">
+                                <option value="equipment">equipment</option>
+                                <option value="material">material</option>
+                                <option value="product">product</option>
+                                <option value="tool">tool</option>
+                                <option value="software">software</option>
+                            </select>
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="globalAssetId" data-labelCd="Grobal Asset ID">Grobal Asset ID</label>
+                            <input name="globalAssetId" class="form-control aas-form-control" placeholder="ex) 설비코드 등" />
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label ">Default Thumbnail</label>
+                            <input name="thumbnailfiles" type="file" aria-label="files" accept="image/*" placeholder="설비이미지파일지정" />
+                            <button name="upload"><i class="material-symbols-outlined">upload</i></button>
+
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label "></label>
+                            <div id="previewThumbnail"></div>
+                        </div>
+                    </div>
+
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="globalAssetId" data-labelCd="Specific Asset IDs">Specific Asset IDs</label>
+                            <div id="specificAsssetIds_grid"></div>
+                        </div>
+                    </div>
+</div>
+            </form>
+        </div>
+
+        <div class="right-panel" id="div_submodel_detail" style="display:none">
+            <div class="card-group-btn">
+                <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="Submodel">Submodel</label></span>
+                <span>
+                    <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
+                    <button name="save"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete"><i class="material-symbols-outlined">delete</i></button>
+                    <button name="add_child"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
+                </span>
+            </div>
+            <form>
+                <input type="hidden" name="sm_pk" value="" />
+                <div class="right-panel-content">
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="p_display_name" data-labelCd="상위AAS">상위AAS</label>
+                            <input name="p_display_name" class="form-control aas-form-control" readonly />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="aas-info">
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="id Short">id Short</label>
+                            <input name="id_short" class="form-control aas-form-control" />
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="id" data-labelCd="id">id</label>
+                            <input name="id" class="form-control aas-form-control" />
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="scope" data-labelCd="적용범위">적용범위</label>
+                            <select name="scope" class="form-control aas-form-control">
+                                <option value="share">공유</option>
+                                <option value="exclusive">전용</option>
+                            </select>
                         </div>
 
                         <div class="aas-input-group">
-                            <div id="displayName_grid"></div>
+                            <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
+                            <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
+                            <select name="lang_code" class="form-control aas-form-control">
+                                <option value="ko-KR">한글</option>
+                                <option value="en-US">English</option>
+                            </select>
                         </div>
-
                         <div class="aas-input-group">
                             <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
-                            <textarea id="description" name="description" class="form-control"></textarea>
+                            <textarea name="description" class="form-control aas-form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="right-panel" id="div_subcollection_detail" style="display:none">
+            <div class="card-group-btn">
+                <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="Collection">Collection</label></span>
+                <span>
+                    <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
+                    <button name="save"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete"><i class="material-symbols-outlined">delete</i></button>
+                    <button name="add_child"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
+                </span>
+            </div>
+            <form>
+                <input type="hidden" name="sme_pk" value="" />
+                <div class="right-panel-content">
+
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="p_display_name" data-labelCd="상위">상위</label>
+                            <input name="p_display_name" class="form-control aas-form-control" readonly />
                         </div>
                     </div>
                     <hr />
 
                     <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="id Short">id Short</label>
+                            <input name="id_short" class="form-control aas-form-control" />
+                        </div>
 
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="asset_kind" data-labelCd="Asset Kind">Asset Kind</label>
-                            <select id="asset_kind" name="asset_kind" class="form-control">
-                                <option value="Instance">Instance</option>
-                                <option value="Type">Type</option>
+                            <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
+                            <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
+                            <select name="lang_code" class="form-control aas-form-control">
+                                <option value="ko-KR">한글</option>
+                                <option value="en-US">English</option>
                             </select>
                         </div>
 
-                        <div class="col-12 aas-col">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="globalAssetId" data-labelCd="Grobal Asset ID">Grobal Asset ID</label>
-                                <div class="field-wrapper">
-                                    <input id="globalAssetId" name="globalAssetId" class="form-control" />
-                                </div>
-                            </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                            <textarea name="description" class="form-control aas-form-control"></textarea>
                         </div>
-
-                        <div class="col-12 aas-col">
-                            <div class="form-item align-h mb-10">
-                                <label class="k-label k-form-label essential" for="globalAssetId" data-labelCd="Specific Asset IDs">Specific Asset IDs</label>
-                                <div class="field-wrapper">
-                                    <input id="specific_id" name="specific_id" class="form-control" />
-                                </div>
-                                <div class="field-wrapper">
-                                    <button id="btnAddSpecificID" class="btn-add">추가</button>
-                                </div>
-                            </div>
-
-                            <div id="specificAsssetIds_grid"></div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="displayName" data-labelCd="생성일">생성일</label>
+                            <input name="created" class="form-control aas-form-control" />
                         </div>
-
-
                     </div>
-
                 </div>
             </form>
         </div>
-        <div class="right-panel" style="display:none">
+
+        <div class="right-panel" id="div_prpt_detail" style="display:none">
             <div class="card-group-btn">
-                <span class="info-text">
-                    <i class="material-symbols-outlined">edit_square</i>
-                    <label data-labelCd="Submodel">Submodel</label>
+                <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="Property Element">Property Element</label></span>
+                <span>
+                    <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
+                    <button name="save"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete"><i class="material-symbols-outlined">delete</i></button>
                 </span>
-                <span></span>
             </div>
             <div class="right-panel-content">
-                <div class="aas-info">
-                    <div class="aas-input-group">
+                <form>
+                    <input type="hidden" name="sme_pk" value="" />
+
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="p_display_name" data-labelCd="상위">상위</label>
+                            <input name="p_display_name" class="form-control aas-form-control" readonly />
+                        </div>
+                    </div>
+                    <hr />
+
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="id_short" data-labelCd="id Short">id Short</label>
+                            <input name="id_short" class="form-control aas-form-control" />
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="category" data-labelCd="Category">Category</label>
+                            <input name="category" class="form-control aas-form-control" placeholder="category" />
+                        </div>
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="valueType" data-labelCd="Value Type">Value Type</label>
+                            <select name="valueType" class="form-control aas-form-control">
+                                <option value="xs:anyURI">xs:anyURI</option>
+                                <option value="xs:base64Binary">xs:base64Binary</option>
+                                <option value="xs:boolean">xs:boolean</option>
+                                <option value="xs:byte">xs:byte</option>
+                                <option value="xs:date">xs:date</option>
+                                <option value="xs:dateTime">xs:dateTime</option>
+                                <option value="xs:decimal">xs:decimal</option>
+                                <option value="xs:double">xs:double</option>
+                                <option value="xs:duration">xs:duration</option>
+                                <option value="xs:gDay">xs:gDay</option>
+                                <option value="xs:gMonth">xs:gMonth</option>
+                                <option value="xs:gMonthDay">xs:gMonthDay</option>
+                                <option value="xs:gYearMonth">xs:gYearMonth</option>
+                                <option value="xs:float">xs:float</option>
+                                <option value="xs:hexBinary">xs:hexBinary</option>
+                                <option value="xs:int">xs:int</option>
+                                <option value="xs:integer">xs:integer</option>
+                                <option value="xs:long">xs:long</option>
+                                <option value="xs:negativeInteger">xs:negativeInteger</option>
+                                <option value="xs:nonNegativeInteger">xs:nonNegativeInteger</option>
+                                <option value="xs:nonPositiveInteger">xs:nonPositiveInteger</option>
+                                <option value="xs:positiveInteger">xs:positiveInteger</option>
+                                <option value="xs:short">xs:short</option>
+                                <option value="xs:string">xs:string</option>
+                                <option value="xs:time">xs:time</option>
+                                <option value="xs:unsignedByte">xs:unsignedByte</option>
+                                <option value="xs:unsigendInt">xs:unsigendInt</option>
+                                <option value="xs:unsignedLong">xs:unsignedLong</option>
+                                <option value="xs:unsignedShort">xs:unsignedShort</option>
+                            </select>
+                        </div>
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="value" data-labelCd="value">value</label>
+                            <input name="value" class="form-control aas-form-control" />
+                        </div>
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
+                            <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
+                            <select name="lang_code" class="form-control aas-form-control">
+                                <option value="ko-KR">한글</option>
+                                <option value="en-US">English</option>
+                            </select>
+                        </div>
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                            <textarea name="description" class="form-control aas-form-control"></textarea>
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="displayName" data-labelCd="생성일">생성일</label>
+                            <input name="created" class="form-control aas-form-control" readonly />
+                        </div>
 
                     </div>
-                </div>
-
+                </form>
             </div>
         </div>
-        <div class="right-panel" style="display:none">
+
+        <div class="right-panel" id="div_file_detail" style="display:none">
             <div class="card-group-btn">
-                <span class="info-text">
-                    <i class="material-symbols-outlined">edit_square</i>
-                    <label data-labelCd="Property">Property</label>
+                <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="File Element">File Element</label></span>
+                <span>
+                    <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
+                    <button name="save"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete"><i class="material-symbols-outlined">delete</i></button>
                 </span>
-                <span></span>
             </div>
-            <div class="right-panel-content">
-                <!-- 왼쪽: 텍스트 입력 -->
-                <div class="aas-info" id="aas_detail">
-                    <div class="aas-input-group">
-                        <label>PROP</label>
-                        <input type="text" value="isNotAuthenticated" readonly>
-                    </div>
-                    <div class="aas-input-group">
-                        <label>Value Type</label>
-                        <input type="text" value="isNotAuthenticated" readonly>
-                    </div>
-                    <div class="aas-input-group">
-                        <label>Semantic ID</label>
-                        <input type="text" value="NULL" readonly>
-                    </div>
-                    <div class="aas-input-group">
-                        <label>URL</label>
-                        <a href="https://v3.admin-shell-io.com/submodels/aHR0cH..." target="_blank">
-                            https://v3.admin-shell-io.com/submodels/aHR0cH...
-                        </a>
-                    </div>
-                    <div class="aas-input-group">
-                        <label>TimeStamp</label>
-                        <button class="timestamp-button">click</button>
-                        <div class="timestamp-text">
-                            UPDATE 24-10-18 09:29:50.739 <br>
-                            CREATE 24-10-14 05:20:24.670 <br>
-                            TREE 24-10-18 09:29:50.739
-                        </div>
-                    </div>
-                    <!-- 오른쪽: QR 코드 -->
-                    <div class="aas-input-group">
-                        <label>QR Code</label>
-                        <div class="qrcode">
 
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-
-
     </div>
 </div>
 
 {% verbatim %}
 <script type="text/x-kendo-template" id="aasTemplate">
     <li>
+    # if(sub_items.length>0) { #
         <div class="tree-node">
-            <span class="toggle-btn" onclick="aasToggleNode(this)">-</span><i class="material-symbols-outlined folder">folder</i><span class="aas-title">#: gubun # </span> <span onclick="aasNodeClick(this)" data_id="#=aas_pk#" gubun="#= gubun #">#: displayName #</span><span class="aas-time"> #: created #</span>
+            <span class="toggle-btn aas-node">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="aas-title">#: gubun # </span> <span class="aas_detail" aas_pk="#=aas_pk#" gubun="aas">#: displayName #</span><span class="aas-time"> #: created #</span>
         </div>
-        # if (data.sub_items.length>0) { #
-        <ul>
-             # for (let i=0;i<data.sub_items.length; i++) { let sb = sub_items[i]; #
-            <ul>
-                <li>
-                    <div class="tree-node" >
-                        <span class="toggle-btn" onclick="aasToggleNode(this)">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="sub-title"> #: sb.gubun # </span> <span onclick="aasNodeClick(this)" data_id="#=sb.sb_pk#" gubun="#= gubun #"">#: sb.displayName # </span><span class="aas-time"> #: sb.created #</span>
-                    </div>
-                    <ul>
+        <ul id="aas_sub_#=aas_pk#">
+        #
+        for(let idx=0; idx<sub_items.length;idx++) {
+         let item = sub_items[idx];
+         let gubun = item.gubun;
+        #
+         # if(gubun=="aas"){ #
+            <div class="tree-node">
 
-                    </ul>
-                </li>
-            </ul>
-             # } #
-        </ul>
+                <span class="toggle-btn aas-node">-</span><i class="material-symbols-outlined folder-open">folder_open</i><span class="aas-title">#: item.gubun # </span> <span class="aas_detail" aas_pk="#=item.aas_pk#" gubun="aas">#: item.displayName #</span><span class="aas-time"> #: item.created #</span>
+            </div>
+            # if(item.sub_items.length>0) {#
+                <ul id="aas_sub_#=item.aas_pk#">
+                    #
+                    for(let sidx=0;sidx<item.sub_items.length; sidx++){
+                      let sm_item = item.sub_items[sidx];
+                    #
+                    <li>
+                        <div class="tree-node" >
+                            <span class="toggle-btn submodel-node" sm_pk="#=sm_item.sm_pk#" >+</span>
+                            <i class="material-symbols-outlined folder-open">folder</i>
+                            <span class="sub-title"> #: sm_item.gubun # </span>
+                            <span class="submodel_detail" sm_pk="#=sm_item.sm_pk#" gubun="#= sm_item.gubun #" aas_pk="#=item.aas_pk#">#: sm_item.displayName # </span>
+                            <span class="aas-time"> #: sm_item.created #</span>
+                        </div>
+                        <ul id="sm_#=sm_item.sm_pk#" class="hidden"></ul>
+                    </li>
+                    # } #
+
+                </ul>
+            # } #
+         # } else { #
+
+            <li>
+                <div class="tree-node" gubun="#= item.gubun #">
+                    <span class="toggle-btn submodel-node" gubun="#= item.gubun #" sm_pk="#=item.sm_pk#" >+</span>
+                    <i class="material-symbols-outlined folder-open">folder</i>
+                    <span class="sub-title"> #: item.gubun # </span>
+                    <span class="submodel_detail" sm_pk="#=item.sm_pk#" aas_pk="#=item.aas_pk#">#: item.displayName # </span>
+                    <span class="aas-time"> #: item.created #</span>
+                </div>
+                <ul id="sm_#=item.sm_pk#" class="hidden"></ul>
+            </li>
+
+         # } #
         # } #
+        </ul>
+    # } else { #
+        <div class="tree-node">
+            <span class="toggle-btn aas-node"></span><i class="material-symbols-outlined folder-open">folder_open</i><span class="aas-title">#: gubun # </span> <span class="aas_detail" aas_pk="#=aas_pk#" gubun="aas">#: displayName #</span><span class="aas-time"> #: created #</span>
+        </div>
+    # } #
     </li>
 </script>
 
+<script type="text/x-kendo-template" id="submodelTemplate">
+    <li>
+        <div class="tree-node" >
+            <span class="toggle-btn submodel-node" sm_pk="#=sm_pk#" >+</span>
+            <i class="material-symbols-outlined folder">folder</i>
+            <span class="sub-title"> #: gubun # </span>
+            <span class="submodel_detail" data_pk="#=sm_pk#" gubun="#= gubun #"">#: displayName # </span>
+            <span class="aas-time"> #: created #</span>
+        </div>
+        <ul id="sub_ul_#=sm_pk#" class="hidden">
+
+        </ul>
+    </li>
+
+</script>
+
+<script type="text/x-kendo-template" id="smeTemplate">
+     # for (let i=0;i<data.length; i++) { let item = data[i]; #
+      <li>
+          # if (item.gubun =='prop'){ #
+              <ul class="tree-node">
+                  <li><span class="prop-title">Prop</span> <a class="sme_prpt_title" data_pk="#=item.sme_pk#" gubun="#= item.gubun #" >#= item.displayName # = #=item.prpt_value#</a><span class="aas-time"> (#= item.created #)</span></li>
+              </ul>
+          # } #
+
+          # if (item.gubun =='file'){ #
+              <ul class="tree-node">
+                  <li><span class="prop-title">Prop</span> <a class="sme_file_title" data_pk="#=item.sme_pk#" gubun="#= item.gubun #"> #= item.displayName #</a><span class="aas-time"> (#= item.created #)</span></li>
+              </ul>
+          # } #
+
+         # if (item.gubun =='coll') { #
+              <div class="tree-node" gubun="#=item.gubun#" >
+                  <span class="toggle-btn sme-coll-node" data_pk="#=item.sme_pk#">+</span><i class="material-symbols-outlined folder">folder</i><span class="sub-title"> #: item.gubun # </span> <a class="sme_collection_title" data_pk="#=item.sme_pk#" gubun="#= item.gubun #">#: item.displayName # </a><span class="aas-time"> #: item.created #</span>
+              </div>
+              <ul class="hidden"></ul>
+         # } #
+    </li>
+     # } #
+</script>
+
+<script type="text/x-kendo-template" id="popupSubmodelElementSelection">
+
+</script>
 
 {% endverbatim %}
 {% endblock %}
@@ -314,13 +581,21 @@
             this.grid = null;
             this.baseUrl = '/api/aas/aasgui';
             this.$aasTree = $('#aas_tree');
+
+            this.$div_aas_detail = $('#div_aas_detail');
+            this.$div_submodel_detail = $('#div_submodel_detail');
+            this.$div_subcollection_detail = $('#div_subcollection_detail');
+            this.$div_prpt_detail = $('#div_prpt_detail');
+            this.$div_file_detail = $('#div_file_detail');
             this.init();
         }
 
         init() {
             let _this = this;
 
-            let option3 = {
+            this.divItems = [this.$div_aas_detail, this.$div_submodel_detail, this.$div_subcollection_detail, this.$div_prpt_detail, this.$div_file_detail];
+
+            let option = {
                 columns: [
                     { field: "name", title: "Name", width: 80 },
                     { field: "value", title: "Value", width: 100 },
@@ -333,26 +608,16 @@
                 },
                 height: "150px"
             };
-            _this.displayNameGrid = new Grid($("#specificAsssetIds_grid"), option3);
-
+            _this.displayNameGrid = new Grid($("#specificAsssetIds_grid"), option);
 
             //search form
             $('#keyword').kendoTextBox();
             $('#keyword').keypress(function (e) {
                 // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
-                if (e.keyCode === 13) {
+                if (e.keyCode == 13) {
                     e.preventDefault();
                     _this.searchMainData();
                 }
-            });
-
-            //detail form
-            $('#Name').kendoTextBox();
-            $('#Code').kendoTextBox();
-            $('#Description').kendoTextArea({
-                rows: 4,
-                maxLength: 200,
-                placeholder: ""
             });
 
             //form button
@@ -364,73 +629,380 @@
                 }
             });
 
-            $('#btnExcel').kendoButton({
-                icon: "file-excel",
-                themeColor: "success",
+
+            
+            // 최상위 AAs 추가
+            $('#btnAddRoot').kendoButton({
+                
+                themeColor: "base",
                 click: function () {
-                    page.exportExcel();
+                    _this.addRootNode();
                 }
             });
 
-            $('#btnClear').kendoButton({
-                themeColor: "base", click: function () {
-                    _this.resetData();
+            ////////////////////////////////////////////////////////////////////////////
+            // AAS
+            this.$div_aas_detail.find("button[name=clear]").kendoButton({
+                themeColor: "base",
+                click: function () {
+                    let $form = _this.$div_aas_detail.find('form');
+                    $form[0].reset();
                 }
             });
-            $('#btnSave').kendoButton({
+
+            this.$div_aas_detail.find("button[name=save]").kendoButton({
                 themeColor: "info",
                 click: function () {
-                    _this.saveData();
+                    _this.saveAASData();
                 }
             });
-            $('#btnDelete').kendoButton({
+
+            this.$div_aas_detail.find("button[name=add_child]").kendoButton({
+                themeColor: "info",
+                click: function () {
+                    Alert.alert('하위노드추가', '기능구현중');
+                }
+            });
+            ////////////////////////////////////////////////////////////////////////////
+
+            this.$div_aas_detail.find("button[name=delete]").kendoButton({
                 themeColor: "error",
                 click: function () {
-                    _this.deleteData();
+                    let $form = _this.$div_aas_detail.find('form');
+                }
+            });
+
+            this.$div_aas_detail.find("button[name=upload]").kendoButton({
+                themeColor: "info",
+                click: function () {
+                    let $form = _this.$div_aas_detail.find('form');
+                }
+            });
+
+
+            this.$div_aas_detail.find("input[name=thumbnailfiles]").on('change', function (e) {
+                let files = e.currentTarget.files;
+                //console.log(typeof files, files);
+                $('#previewThumbnail').empty();
+                let file;
+                if (files.length > 0) {
+                    file = files[0];
+
+                    let img = document.createElement('img');
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        
+                        img.setAttribute('src', e.target.result);
+                        img.setAttribute('style', "width:200px;");
+                        img.setAttribute('data-file', file.name);
+                        
+                        $('#previewThumbnail').append(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            ///////////////////////////////////////////////////////////////////////////////
+            // Submodel
+            this.$div_submodel_detail.find("button[name=clear]").kendoButton({
+                themeColor: "base",
+                click: function () {
+                    let $form = _this.$div_submodel_detail.find('form');
+                    $form[0].reset();
+                }
+            });
+
+            this.$div_submodel_detail.find("button[name=save]").kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveSubmodel();
+                }
+            });
+
+            this.$div_submodel_detail.find("button[name=delete]").kendoButton({
+                themeColor: "error",
+                click: function () {
+                    let $form = _this.$div_submodel_detail.find('form');
+                }
+            });
+            // 서브모델 하위 항목 추가
+            this.$div_submodel_detail.find("button[name=add_child]").kendoButton({
+                themeColor: "info",
+                click: function () {
+                    let $form = _this.$div_submodel_detail.find('form');
+                }
+            });
+
+            //SubmodelElementCollection
+            this.$div_subcollection_detail.find('button[name=clear]').kendoButton({
+                themeColor: "base",
+                click: function () {
+                }
+            });
+            this.$div_subcollection_detail.find('button[name=save]').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveSubmodelElementCollection();
+                }
+            });
+            this.$div_subcollection_detail.find('button[name=delete]').kendoButton({
+                themeColor: "error",
+                click: function () {
+                }
+            });
+
+            // 서브모델엘리먼트컬렉션 하위 항목 추가
+            this.$div_subcollection_detail.find("button[name=add_child]").kendoButton({
+                themeColor: "info",
+                click: function () {
+                    let $form = _this.$div_subcollection_detail.find('form');
+
+                }
+            });
+
+            //PropertyElement
+            //SubmodelElementCollection
+            this.$div_prpt_detail.find('button[name=clear]').kendoButton({
+                themeColor: "base",
+                click: function () {
+                }
+            });
+
+            this.$div_prpt_detail.find('button[name=save]').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.savePropertyElement();
+                }
+            });
+
+            this.$div_prpt_detail.find('button[name=delete]').kendoButton({
+                themeColor: "error",
+                click: function () {
+                }
+            });
+
+            //FileElement
+            this.$div_file_detail.find('button[name=clear]').kendoButton({
+                themeColor: "base",
+                click: function () {
+                }
+            });
+            this.$div_file_detail.find('button[name=save]').kendoButton({
+                themeColor: "info",
+                click: function () {
+                }
+            });
+            this.$div_file_detail.find('button[name=delete]').kendoButton({
+                themeColor: "error",
+                click: function () {
                 }
             });
 
         }
 
-        searchMainData() {
+        addRootNode() {
+            Alert.alert('최상위노드추가', '기능구현중');
+        }
+
+        showAASDetail($item) {
 
             let _this = this;
-            let param = {
-                action: 'aas_read',
-                keyword: $('#keyword').val(),
-            };
+            let aas_pk = $item.attr('aas_pk');
+            let gubun = $item.attr('gubun');
+            let action = gubun + '_detail';
+            let param = { action: action, aas_pk: aas_pk };
+
+            this.hideAllDetail();
+            this.$div_aas_detail.show();
+
+            let $form = this.$div_aas_detail.find('form');
+            let $lang_code = this.$div_aas_detail.find('select[name=lang_code]');
 
             let fnSuccess = function (result) {
-                _this.aasRender(result.items);
+                if (result.success) {
+                    let aasData = result.data;
+                    FormUtil.BindDataForm(aasData, $form);
+                    $lang_code.off('change').on('change', function () {
+                        let selectedLangCode = $lang_code.val();
+                        let disp_text = _this.getLangTextFromJson(selectedLangCode, aasData.json_displayname);
+                        let desc_text = _this.getLangTextFromJson(selectedLangCode, aasData.json_description);
+                        $form.find("input[name=displayName]").val(disp_text);
+                        $form.find("input[name=description]").text(desc_text);
+                    });
+
+                    _this.$div_submodel_detail.find("button[name=add_child]").removeAttr('disabled');
+                }
             };
 
-            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+
         }
 
+        aasToggleNode(node) {
 
-        aasRender(aasItems) {
-            //console.log(aasItems);
-            this.$aasTree.empty();
-            let arrHtmls = [];
-            for (let i = 0; i < aasItems.length; i++) {
-                let template = kendo.template($('#aasTemplate').html());
-                let aasHtml = template(aasItems[i]);
-                arrHtmls.push(aasHtml);
+            let childUl = node.parentElement.nextElementSibling;
+            if (childUl) {
+                childUl.classList.toggle('hidden');
+                let toggleBtn = node.parentElement.querySelector('.toggle-btn');
+                let isHidden = childUl.classList.contains('hidden');
+                if (isHidden) {
+                    toggleBtn.textContent = '+';
+                }
+                else {
+                    //서브모델 목록 펼치기
+                    //이미 데이터가 있음
+                    toggleBtn.textContent = '-';
+                }
             }
-            let html = arrHtmls.join("");
-
-            this.$aasTree.html(html);
         }
 
 
-        getSubmodelElements(sm_pk) {
+        saveSubmodelElementCollection() {
+            let _this = this;
+            let $form = _this.$div_subcollection_detail.find("form");
+            let data = FormUtil.extractForm($form);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    alert(result.data);
+                    Alert.alert("저장확인", '저장되었습니다.');
+                }
+                else {
+                    Alert.alert("저장오류", result.message);
+                }
+            }
+
+            let url = this.baseUrl + '?action=save_submodel_element_collection'
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        hideAllDetail() {
+            $.each(this.divItems, function (idx, item) {
+                item.hide();
+            });
+        }
+
+        getLangTextFromJson(selectedLangCode, strJson) {
+            let strText = '';
+            if (strJson != null) {
+                let jsonArr = JSON.parse(strJson);
+                $.each(jsonArr, function (idx, item) {
+                    if (item.language == selectedLangCode) {
+                        strText = item.text;
+                    }
+                });
+            }
+            return strText;
+        }     
+
+        saveSubmodel() {
+            let _this = this;
+            let $form = this.$div_submodel_detail.find('form');
+            let data = FormUtil.extractForm($form);
+
+            let fnSaveSuccess = function (result) {
+                if (result.success) {
+                    Alert.alert('Submodel 저장확인', '저장하였습니다.');
+                }
+            };
+            let url = this.baseUrl + "?action=save_submodel";
+            AjaxUtil.postAsyncData(url, data, fnSaveSuccess);
+        }
+
+        showSubmodelDetail($item) {
+            let _this = this;
+            let sm_pk = $item.attr('sm_pk');
+            let aas_pk = $item.attr('aas_pk');
+            this.hideAllDetail();
+            this.$div_submodel_detail.show();
+
+            let $form = this.$div_submodel_detail.find("form");
+            let $lang_code = this.$div_submodel_detail.find('select[name=lang_code]');
+            
+            let param = { action: 'submodel_detail', sm_pk: sm_pk, aas_pk: aas_pk };
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    let submodelData = result.data;
+                    FormUtil.BindDataForm(submodelData, $form);
+                    
+                    $lang_code.off('change').on('change', function () {
+                        let selectedLangCode = $lang_code.val();
+                        let disp_text = _this.getLangTextFromJson(selectedLangCode, submodelData.json_displayname);
+                        let desc_text = _this.getLangTextFromJson(selectedLangCode, submodelData.json_description);
+                        $form.find("input[name=displayName]").val(disp_text);
+                        $form.find("input[name=description]").text(desc_text);
+                    });
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+        }
+
+        submodelToggleNode(node)
+        {
+            let _this = this;
+            /*
+            서브모델 하위에 올 수 있는 서브모델 엘리먼트는 
+            Property, Collection, File
+            */
+
+            let ul = node.parentElement.nextElementSibling;            
+            if (ul) {
+                ul.classList.toggle('hidden');
+                let toggleBtn = node.parentElement.querySelector('.toggle-btn');
+                let isHidden = ul.classList.contains('hidden');
+                if (isHidden) {
+                    toggleBtn.textContent = '+';
+                }
+                else {
+                    toggleBtn.textContent = '-';
+                }
+
+                if (toggleBtn.textContent == '-') {
+                    let $node = $(node);
+                    if ($node.attr('loaded') != '1') {
+                        this.submodelElementsRender($node);
+                    }
+                }
+            }
+        }
+
+        submodelElementsRender($node) {
+            let _this = this;
+            let sm_pk = $node.attr('sm_pk');
             let param = { 'action': 'submodel_element_list', sm_pk: sm_pk };
-            let $sme_div = $('#sm_' + sm_pk);
-            $sme_div.empty();
+            let $sm_children_ul = this.$aasTree.find('#sm_' + sm_pk);
+            $sm_children_ul.empty();
 
             let fnSuccess = function (result) {
                 if (result.success) {
                     let items = result.items;
+
+                    if (items.length == 0) {
+
+                    }
+
+                    let template = kendo.template($('#smeTemplate').html());
+                    let smeHtml = template(items);
+                    $sm_children_ul.html(smeHtml);
+
+                    $sm_children_ul.find('.sme_prpt_title').on('click', function () {
+                        _this.showPropertyDetail($(this), $node);
+                    });
+
+                    $sm_children_ul.find('.sme-coll-node').on('click', function () {
+                        let $collNode = $(this);
+                        if ($collNode.attr('loaded') != "1") {
+                            _this.submodelElementsCollectionRender($collNode);
+                        }
+                        _this.aasToggleNode(this);
+
+                    });
+                    $sm_children_ul.find('.sme_collection_title').on('click', function () {
+                        _this.showSubmodelElementsCollectionDetail($(this));
+                    });
+
+                    $node.attr('loaded', "1");
+
                 }
                 else {
                     Alert.alert('조회오류', '서브모델엘리먼트를 가져오지 못했습니다.');
@@ -440,35 +1012,138 @@
             AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }
 
-        resetData() {
+        submodelElementsCollectionRender($node) {
             let _this = this;
-            $("#line_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#aasForm'));
+            let sme_pk = $node.attr('data_pk');
+            let param = {
+                action: 'submodel_element_collection_items',
+                sme_pk: sme_pk
+            };
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+
+                    let ul = $node[0].parentElement.nextElementSibling;
+                    let $children_ul = $(ul);
+                    //console.log($children_ul);                    
+
+                    let items = result.items;
+                    let template = kendo.template($('#smeTemplate').html());
+
+                    let arrHtml = [];
+
+                    $children_ul.empty();
+                    let html = template(items);
+                    $children_ul.html(html);
+                    $children_ul.find('.sme_prpt_title').on('click', function () {
+                        _this.showPropertyDetail($(this), $node);
+                    });
+
+                    $children_ul.find('.sme-coll-node').on('click', function () {
+                        _this.submodelElementsCollectionRender($(this));
+                        _this.aasToggleNode(this);
+                    });
+                    $children_ul.find('.sme_collection_title').on('click', function () {
+                        _this.showSubmodelElementsCollectionDetail($(this));
+                    });
+
+                    $node.attr('loaded', "1");
+                }
+                else {
+                    Alert.alert('조회오류', result.message);
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
         }
 
-        showDetail() {
+        showSubmodelElementsCollectionDetail($node) {
             let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#aasForm'));
-            }
+            let data_pk = $node.attr("data_pk");
+            this.hideAllDetail();
+            this.$div_subcollection_detail.show();
+            let $form = this.$div_subcollection_detail.find("form");
+            let $lang_code = this.$div_subcollection_detail.find('select[name=lang_code]');
+            let param = { action: "submodel_element_collection_detail", data_pk : data_pk};
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    let submodelCollData = result.data;
+                    FormUtil.BindDataForm(submodelCollData, $form);
+
+                    $lang_code.off('change').on('change', function () {
+                        let selectedLangCode = $lang_code.val();
+                        let disp_text = _this.getLangTextFromJson(selectedLangCode, submodelCollData.json_displayname);
+                        let desc_text = _this.getLangTextFromJson(selectedLangCode, submodelCollData.json_description);
+                        $form.find("input[name=displayName]").val(disp_text);
+                        $form.find("input[name=description]").text(desc_text);
+                    });
+
+
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
         }
 
-        saveData() {
+        // property
+        savePropertyElement() {
+
+            //1. 입력항목체크
+            //2. 저장하시겠습니까? confirm
+            //3. 저장진행
+
+            let $form = this.$div_prpt_detail.find("form");
+            let data = FormUtil.extractForm($form);
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("Property", "저장되었습니다.");
+                }else {
+                    Alert.alert("저장오류", result.message);
+                }
+            };
+
+            let url = this.baseUrl + "?action=save_property";
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        showPropertyDetail($node, $parentNode) {
             let _this = this;
-            let data = FormUtil.extractForm($('#aasForm'));
+            let data_pk = $node.attr("data_pk");
 
-            let Code = $('#Code').val();
-            let Name = $('#Name').val();
+            console.log("property parent node : ", $parentNode);
 
-            if (!Code) {
-                Alert.alert('', '라인코드를 입력해주세요.');
-                return;
-            } else if (!Name) {
-                Alert.alert('', '라인명을 입력해주세요.');
-                return;
-            }
+            this.hideAllDetail();
+            this.$div_prpt_detail.show();
+            let $form = this.$div_prpt_detail.find("form");
+            let $lang_code = this.$div_prpt_detail.find('select[name=lang_code]');
+            let param = { action: 'property_detail', data_pk: data_pk };
+
+            $form[0].reset();
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    let prptData = result.data;
+                    FormUtil.BindDataForm(prptData, $form);
+
+                    $lang_code.off('change').on('change', function () {
+                        let selectedLangCode = $lang_code.val();
+                        let disp_text = _this.getLangTextFromJson(selectedLangCode, prptData.json_displayname);
+                        let desc_text = _this.getLangTextFromJson(selectedLangCode, prptData.json_description);
+                        $form.find("input[name=displayName]").val(disp_text);
+                        $form.find("input[name=description]").text(desc_text);
+                    });
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+        }
+
+
+        saveAASData() {
+            let _this = this;
+            let $form = this.$div_aas_detail.find('form');
+            let data = FormUtil.extractForm($form);
 
             let funcSucc = function (resp) {
                 if (resp.success) {
@@ -480,85 +1155,86 @@
                     Alert.alert('error', resp.message);
                 }
             };
-            AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
-        }
 
-        deleteData() {
+            AjaxUtil.postAsyncData(this.baseUrl, data, funcSucc);
+        }
+      
+
+        showAASTreeList(aasItems) {
             let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
-                let param = {
-                    id: selectData.id,
-                }
+            let arrHtmls = [];
+            this.$aasTree.empty();
 
-                let funcSucc = function (resp) {
-                    if (resp.success) {
-                        Notify.success('삭제되었습니다.');
-                        _this.resetData();
-                        _this.searchMainData();
-                    } else {
-                        Alert.alert('error', resp.message);
-                    }
-                };
-                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
-            }
-        }
-
-        // 엑셀 다운로드
-        exportExcel() {
-            let gridData = $('#line_grid').data("kendoGrid");
-            gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "line.xlsx";
+            // 시작점
+            $.each(aasItems, function (idx, item) {
+                let template = kendo.template($("#aasTemplate").html());
+                let nodeHtml = template(item);
+                arrHtmls.push(nodeHtml);
             });
-            gridData.saveAsExcel();
+
+            let html = arrHtmls.join("");
+            this.$aasTree.html(html);
+
+
+            //let objDetailList = this.$aasTree.find('.aas_detail');
+            //console.log(objDetailList);
+
+
+            this.$aasTree.find('.aas_detail').on('click', function () {
+                _this.showAASDetail($(this));
+            });
+
+            this.$aasTree.find(".aas-node").on('click', function () {
+                _this.aasToggleNode(this);
+            });
+
+            this.$aasTree.find('.submodel_detail').on('click', function () {
+                _this.showSubmodelDetail($(this));
+            });
+
+            this.$aasTree.find('.submodel-node').on('click', function () {
+                _this.submodelToggleNode(this);
+            });
         }
+
+        searchMainData() {
+
+            let _this = this;
+            let param = {
+                action: 'aas_read',
+                keyword: $('#keyword').val(),
+            };
+
+            let fnSuccess = function (result) {
+
+                if (result.success) {
+                    _this.showAASTreeList(result.items);
+                }
+                else {
+                    Alert.alert('조회오류', result.message);
+                }
+                
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+
     };
 
     let page = new AASPage();
 
-    $(document).ready(function () {
-        //page.searchMainData();
+    $(document).ready(function () { 
+        page.searchMainData();
     });
-    //트리구조
-    function aasToggleNode(node) {
 
-        let childUl = node.parentElement.nextElementSibling;
-
+    function toggleNode(node) {
+        let childUl = node.nextElementSibling;
         if (childUl) {
             childUl.classList.toggle('hidden');
-            let toggleBtn = node.parentElement.querySelector('.toggle-btn');
-            let isHidden = childUl.classList.contains('hidden');
-            if(isHidden){
-                toggleBtn.textContent = '+';
-            }
-            else{
-                toggleBtn.textContent = '-';
-                // 하위 데이터를 새로 읽어올지 여부 결정
-                alert('데이터');
-            }
+            let toggleBtn = node.querySelector('.toggle-btn');
+            toggleBtn.textContent = childUl.classList.contains('hidden') ? '+' : '-';
         }
     }
-
-    function aasNodeClick(item) {
-        let _this = this;
-        let $item = $(item);
-
-        let data_pk = $item.attr('data_pk');
-        let gubun = $item.attr('gubun');
-        let action = gubun + '_detail';
-
-        let param = { action: action, data_pk: data_pk };
-        let fnSuccess = function (result) {
-            if (result.success) {
-                console.log(result.data);
-            }
-        };
-
-        //alert(page.baseUrl);
-        AjaxUtil.getAsyncData(page.baseUrl, param, fnSuccess);
-    }
-
 </script>
 
 {% endblock %}

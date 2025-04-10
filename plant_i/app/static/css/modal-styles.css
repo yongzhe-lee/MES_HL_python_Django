@@ -1,4 +1,4 @@
-/* 모달 스타일 */
+/*모달 기본 레이아웃*/
 .modal {
     background: none !important; /* ✅ 배경 흐림 효과 제거 */
     backdrop-filter: none !important; /* ✅ 블러 효과 제거 */
@@ -12,25 +12,22 @@
     z-index: 9999;
     overflow: hidden !important; /* ✅ 모달 바깥쪽 스크롤 제거 */
 }
-
-/*모달 기본 레이아웃*/
-.modal-common {
-    display: none;
-    position: fixed;
-    top: 50%;
+/*모달 컨텐트*/
+.modal-content {
+    position: absolute;
+    top: 45%;
     left: 50%;
-    margin-top: -42.5vh; /* 전체 높이의 절반 */
-    margin-left: -450px; /* 전체 너비의 절반 */
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    max-height: 85vh;
-    width: 900px;
-    overflow: hidden;
-}
-.modal-body {
-    padding: 5px;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    width: 95%;
+    max-width: 1400px;
+    max-height: 95vh !important; /* ✅ 모니터 높이의 95%까지 사용 */
+    overflow-y: auto;
+    border-radius: 5px;
+    padding: 10px !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 중요: 전체에 스크롤 안 걸리게 */
 }
 
 /* 모달 헤더 */
@@ -46,69 +43,32 @@
     align-items: center;
 }
 
-.modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    width: 95%;
-    max-width: 1400px;
-    height: 800px;
-    border-radius: 5px;
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    padding: 10px !important; /* 기존 값보다 줄여서 내부 간격 최소화 */
-    box-shadow: none !important; /* ✅ 그림자 완전 제거 */
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-}
-
-.modal-content-900-600 {
-    max-width: 900px;
-    height: 600px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 95%;
-    border-radius: 5px;
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    box-shadow: none !important; /* ✅ 그림자 완전 제거 */
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-}
-
 .modal-header h4 {
     font-size: 18px;
     font-weight: 600;
     margin: 0;
 }
 
+/* 모달 바디 */
 .modal-body {
-    flex: 1;
-    overflow-y: hidden;
+    flex: 1 1 auto; /* 남은 공간 모두 차지 */
+    overflow-y: auto !important; /* ✅ 수정 */
     margin: 0px !important;
-    padding: 5px 10px !important; /* 내부 패딩을 최소화 */
+    padding: 5px 10px !important;
+    min-height: 0; /* ✅ flex 아이템 내부 스크롤 필수 조건 */
 }
 
 /* 모달 푸터 스타일 */
 .modal-footer {
-    padding: 15px 20px;
+    flex-shrink: 0; /* 푸터 줄어드는 거 방지 */
+    margin: 0 !important;
+    padding: 5px 10px !important;
     text-align: right;
     border-top: 0px solid #dee2e6;
 }
 
 /* 버튼 스타일 */
-.modal-footer .btn {
-    margin: 0 20px;
+.modal-footer .btn {    
     padding: 6px 20px;
     font-size: 13px;
     margin-left: 10px;
@@ -397,3 +357,278 @@ textarea[readonly],
     color: #495057;
 }
 
+/* 파일 업로드 섹션 스타일 */
+.file-section {
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+    .file-section h3 {
+        font-size: 14px;
+        margin: 0 0 15px 0;
+        color: #333;
+    }
+
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+}
+
+    .file-upload-container:hover {
+        border-color: #1e4f88;
+        background-color: #f0f4f8;
+    }
+
+.upload-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+    .upload-button:hover {
+        background-color: #f8f9fa;
+        border-color: #1e4f88;
+        color: #1e4f88;
+    }
+
+.file-upload-box {
+    flex: 1;
+}
+
+.upload-box {
+    padding: 6px 12px;
+    text-align: left;
+    cursor: pointer;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.upload-placeholder {
+    color: #666;
+    font-size: 14px;
+}
+
+.upload-box input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-info {
+    margin-top: 15px;
+    font-size: 12px;
+}
+
+.file-count {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.count-badge {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.size-info {
+    color: #666;
+}
+
+.file-type-info {
+    color: #666;
+    font-style: italic;
+}
+
+/* Kendo Upload 커스터마이징 */
+.k-upload.k-upload-async.k-upload-empty {
+    display: none !important;
+}
+
+.k-upload-button {
+    color: #333;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.k-upload .k-dropzone {
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+.k-file-name {
+    color: #1e4f88;
+}
+
+.k-file-extension-wrapper {
+    display: none;
+}
+
+.k-file-size {
+    color: #666;
+}
+
+.k-upload-status {
+    color: #dc3545;
+}
+
+/* 업로드된 파일 미리보기 영역 */
+.uploaded-docfiles-preview {
+    margin-bottom: 15px;
+}
+
+.file-doc-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.file-icon {
+    margin-right: 12px;
+}
+
+.file-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #333;
+}
+
+.file-size {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 파일 그리드 스타일 */
+.file-grid {
+    margin-bottom: 15px;
+}
+
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .file-table th,
+    .file-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .file-table th {
+        background-color: #f8f9fa;
+        font-weight: normal;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .file-table td {
+        font-size: 14px;
+        color: #333;
+    }
+
+/* 파일 정보 푸터 */
+.file-info-footer {
+    margin-top: 15px;
+    font-size: 12px;
+}
+
+.file-count-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.total-size {
+    color: #666;
+}
+
+/* 삭제 버튼 */
+.delete-button {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+    .delete-button:hover {
+        color: #dc3545;
+    }
+
+/* 탭 영역 */
+.modal .tab-group {
+    display: flex;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #1e4f88;
+}
+
+.modal .tab-button {
+    padding: 6px 20px;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.modal .tab-button.active {
+    background: #4682B4;
+    color: white;
+    border-color: #4682B4;
+}
+
+/* 탭 컨텐츠 */
+.modal .tab-content {
+    min-height: 400px;
+}
+
+.modal .tab-pane {
+    display: none;
+}
+
+.modal .tab-pane.active {
+    display: block;
+}
+
+.modal .grid {
+    width: 100%;
+    margin-bottom: 20px;
+}

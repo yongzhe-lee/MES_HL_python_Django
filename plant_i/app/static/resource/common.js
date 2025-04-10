@@ -20,6 +20,11 @@ let Alert = {
                 const $wrapper = $(this.element).closest(".k-dialog-wrapper");
                 if ($wrapper.length) {
                     $wrapper.addClass("alert-container");
+
+                    // 상태 클래스 추가 (error 포함 시)
+                    if (title.toLowerCase().includes('error') || title.includes('오류')) {
+                        $wrapper.addClass("error");
+                    }
                 }
             }
         });
@@ -46,6 +51,11 @@ let Alert = {
                 const $wrapper = $(this.element).closest(".k-dialog-wrapper");
                 if ($wrapper.length) {
                     $wrapper.addClass("alert-container");
+
+                    // 상태 클래스 추가 (error 포함 시)
+                    if (title.toLowerCase().includes('error') || title.includes('오류')) {
+                        $wrapper.addClass("error");
+                    }
                 } 
             }
         }).data("kendoConfirm").open().result

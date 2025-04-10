@@ -218,7 +218,6 @@
 </div>
 
 <style>
-
 	/* 설비선택, PM복사 버튼 스타일 */
 	.modal .btn-equipment, .btn-copy {
 		background: #1e4f88 !important;
@@ -420,20 +419,20 @@
 
 	/* 탭 컨텐츠 영역 */
 	.tab-content {
-		position: relative; /* 위치 고정 */
-		min-height: 400px; /* 최소 높이 설정 */
-		width: 100%; /* 너비 100% */
+		position: relative;
+		min-height: 400px;
+		width: 100%;
 	}
 
 		.tab-content > .tab-pane {
-			position: absolute; /* 절대 위치 */
-			width: 100%; /* 너비 100% */
-			display: none; /* 기본적으로 숨김 */
+			position: absolute;
+			width: 100%;
+			display: none;
 		}
 
 		.tab-content > .active {
-			display: block; /* 활성화된 탭만 표시 */
-			position: relative; /* 활성화된 탭은 상대 위치로 */
+			display: block;
+			position: relative;
 		}
 
 	/* 툴팁 스타일 */
@@ -591,7 +590,7 @@
 	.tab-group {
 		display: flex;
 		margin-bottom: 10px;
-		border-bottom: 1px solid #1e4f88; /* 네이비 컬러 밑줄 */
+		border-bottom: 1px solid #1e4f88;
 	}
 
 		.tab-group button {
@@ -604,7 +603,7 @@
 		}
 
 			.tab-group button.active {
-				background: #1e4f88; /* 네이비 배경색 */
+				background: #1e4f88;
 				color: white;
 				border-color: #1e4f88;
 				position: relative;
@@ -616,7 +615,7 @@
 			}
 
 	#modalPmMaster {
-		z-index: 1000 !important; /* ✅ 부모 모달의 z-index */
+		z-index: 1000 !important;
 	}
 
 	#pmMasterTabs {
@@ -645,7 +644,7 @@
 				background: #0056b3;
 			}
 
-	/* 직종 테이블 관련 스타일 추가 */
+	/* 직종 테이블 관련 스타일 */
 	#jobClassTable .btn-delete {
 		background: none;
 		border: none;
@@ -747,7 +746,17 @@
 				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
 				click: function (e) {
 					e.preventDefault();
-					$("#modalEqu").fadeIn();
+					pageEquModal.show(function(selectedEqu) {
+						// 선택된 설비 데이터 처리
+						$('#equip_pk').val(selectedEqu.id);
+						$('#equ_code').val(selectedEqu.Code);
+						$('#equ_name').val(selectedEqu.Name);
+						$('#equ_loc_pk').val(selectedEqu.id);
+						$('#equ_loc').val(selectedEqu.loc_nm);
+						$('#equ_status').val(selectedEqu.Status);
+						$('#equ_import').val(selectedEqu.import_rank);
+						$('#equ_env_yn').val(selectedEqu.environ_equip_yn);
+					});
 				}
 			});
 

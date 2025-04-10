@@ -1,0 +1,298 @@
+<div class="file-section">
+	<h3>사진</h3>
+
+	<!-- 파일 선택 및 드래그 영역 -->
+	<div class="file-upload-container">
+		<input type="file" id="imageInput" multiple accept=".png,.jpg,.jpeg,.gif" hidden />
+		<button type="button" class="upload-button" onclick="document.getElementById('imageInput').click()">
+			파일선택
+		</button>
+
+		<div id="dropZone" class="file-upload-box">
+			<div class="upload-placeholder">업로드할 파일을 여기에 끌어다 놓으세요.</div>
+		</div>
+	</div>
+
+	<!-- 업로드된 파일 미리보기 영역 -->
+	<div class="uploaded-files-preview" id="previewContainer"></div>
+
+	<!-- 파일 그리드 영역 -->
+	<div class="file-grid">
+		<table class="file-table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>파일명</th>
+					<th>용량</th>
+					<th>삭제</th>
+				</tr>
+			</thead>
+			<tbody id="fileTableBody"></tbody>
+		</table>
+	</div>
+
+	<!-- 파일 정보 영역 -->
+	<div class="file-info-footer">
+		<div class="file-count-info">
+			total count : <span class="count-badge" id="totalCount">0</span>
+			<span class="total-size" id="totalSize">total size : 0 KB</span>
+		</div>
+		<div class="file-type-info">
+			허용되는 파일 형식 : png, gif, jpg (파일크기제한 : 10MB)
+		</div>
+	</div>
+</div>
+<style>
+	
+</style>
+<script>
+	const MAX_SIZE = 10 * 1024 * 1024;
+	const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
+	const imagesData = [];
+
+	const imageInput = document.getElementById('imageInput');
+	const dropZone = document.getElementById('dropZone');
+	const previewContainer = document.getElementById('previewContainer');
+	const fileTableBody = document.getElementById('fileTableBody');
+	const totalCount = document.getElementById('totalCount');
+	const totalSize = document.getElementById('totalSize');
+
+	// 이미지 업로드 클래스 정의
+	class ImageUploader {
+		constructor() {
+			this.tableName = '{{ tableName }}';
+			this.attachName = '{{ attachName }}';
+
+			// ⚠ 템플릿에서 안 주는 경우 DOM에서 읽기
+			this.dataPk = document.getElementById('equip_pk')?.value?.trim() || '';
+
+			this.init();
+		}
+
+		init() {
+			this.bindEvents();
+			this.loadFilesFromServer(); // 초기 로드
+		}
+
+		bindEvents() {
+			imageInput.addEventListener('change', e => {
+				handleImages(e.target.files);
+				imageInput.value = '';  // ✅ 같은 파일 다시 선택할 수 있게 초기화
+			});
+
+			dropZone.addEventListener('dragover', e => e.preventDefault());
+			dropZone.addEventListener('drop', e => {
+				e.preventDefault();
+				handleImages(e.dataTransfer.files);
+			});
+		}
+
+		// 서버에서 파일 목록 로드
+		loadFilesFromServer(callback) {
+			const url = '/api/files/upload?action=call_attach_file';
+			const data = {
+				action: 'call_attach_file',
+				tableName: this.tableName,
+				attachName: this.attachName,
+				dataPk: this.dataPk || ''
+			};		
+
+			AjaxUtil.postAsyncData(url, data, (res) => {
+				if (res.success) {
+					// 기존 테이블 초기화
+					fileTableBody.innerHTML = '';
+					previewContainer.innerHTML = '';
+					imagesData.length = 0;
+
+					// 받아온 파일 데이터로 테이블 생성
+					res.data.forEach((file, index) => {
+						const fileData = {
+							name: file.FileName,
+							size: file.FileSize,
+							id: file.id,
+							file_index: file.FileIndex,
+							src: '/uploads/plant_i/' + this.tableName +'/' + file.PhysicFileName // <-- 여기를 강제 고정
+						};
+						console.log(window.imageUploader.getImagesData());
+
+						imagesData.push(fileData);
+						renderImageTable(index);
+					});
+
+					updateImageInfo();
+
+					// ✅ 콜백 실행
+					if (typeof callback === 'function') callback();
+				}
+			});
+		}
+
+		// 이미지 저장 메서드
+		async saveImages() {
+			const formData = new FormData();
+			
+			// previewContainer에 있는 파일만 저장하도록 수정
+			const previewFiles = Array.from(previewContainer.querySelectorAll('.file-item')).map(item => {
+				const index = parseInt(item.dataset.index);
+				return imagesData[index];
+			}).filter(file => file); // null이나 undefined 제거
+			
+			// 원본 File 객체(rawFile)로 바로 append
+			for (let i = 0; i < previewFiles.length; i++) {
+				const file = previewFiles[i].rawFile;
+				if (file) {
+					formData.append('uploadfile', file);
+				}
+			}
+
+			if (previewFiles.length > 0) {
+				// 추가 파라미터 설정
+				formData.append('action', 'save_file');
+				formData.append('tableName', this.tableName);
+				formData.append('attachName', this.attachName);
+				formData.append('dataPk', this.dataPk);
+				formData.append('others', this.tableName);
+
+				// 서버로 전송
+				try {
+					const response = await fetch('/api/files/upload', {
+						method: 'POST',
+						body: formData
+					});
+
+					const result = await response.json();
+					// 실패한 파일 목록 필터링
+					const failedFiles = result.filter(f => !f.success);
+
+					if (failedFiles.length > 0) {
+						// 일부 실패
+						const msg = failedFiles.map(f => `${f.fileNm}: ${f.message || '저장 실패'}`).join('\n');
+						Alert.alert('일부 파일 저장 실패', msg);
+					} else {
+						// 전부 성공
+						Alert.alert('성공', '이미지가 성공적으로 저장되었습니다.');
+					}
+
+					// UI 초기화
+					imagesData.length = 0;
+					previewContainer.innerHTML = '';
+					updateImageInfo();
+					this.loadFilesFromServer();
+					return true;
+
+				} catch (error) {
+					console.error('이미지 저장 중 오류:', error);
+					Alert.alert('오류', '이미지 저장 중 오류가 발생했습니다.');
+					return false;
+				}
+			}			
+		}
+
+		// 현재 이미지 데이터 반환
+		getImagesData() {
+			return imagesData;
+		}
+
+		// 이미지 데이터 초기화
+		clearImages() {
+			imagesData.length = 0;
+			previewContainer.innerHTML = '';
+			updateImageInfo();
+		}
+	}
+
+	// 전역 객체로 ImageUploader 인스턴스 생성
+	window.imageUploader = new ImageUploader();
+
+	function handleImages(fileList) {
+		Array.from(fileList).forEach(file => {
+			if (!ALLOWED_TYPES.includes(file.type)) return alert('지원하지 않는 파일 형식입니다.');
+			if (file.size > MAX_SIZE) return alert('파일 크기는 최대 10MB까지 허용됩니다.');
+
+			const reader = new FileReader();
+			reader.onload = e => {
+				const index = imagesData.push({
+					name: file.name,
+					size: file.size,
+					src: e.target.result,
+					type: file.type,
+					rawFile: file     // ✅ 원본 File 객체 저장
+				}) - 1;
+				renderImagePreview(index);				
+				updateImageInfo();
+			};
+			reader.readAsDataURL(file);
+		});
+	}
+
+	function renderImagePreview(index) {
+		const file = imagesData[index];
+		const div = document.createElement('div');
+		div.className = 'file-item file-doc-item';
+		div.innerHTML = `
+			<div class="file-icon">
+				<img src="${file.src}" alt="img" style="width: 48px; height: 48px;">
+			</div>
+			<div class="file-info">
+				<span class="file-name">${file.name}</span>
+				<span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+			</div>
+			<button type="button" class="delete-button" onclick="deleteImage(${index})">×</button>
+		`;
+		div.dataset.index = index;
+		previewContainer.appendChild(div);
+	}
+
+	function renderImageTable(index) {
+		const file = imagesData[index];
+		if (!file) return;
+
+		const tr = document.createElement('tr');
+		tr.dataset.index = index;
+		tr.innerHTML = `
+			<td><img src="/static/img/no-image.png" style="width: 20px; height: 20px;"></td>
+			<td><a href="javascript:void(0)" onclick="downloadFile(${file.id})">${file.name}</a></td>
+			<td>${(file.size / 1024).toFixed(1)} KB</td>
+			<td>
+				<button type="button" class="delete-button" onclick="deleteImage(${index})">×</button>
+			</td>
+		`;
+		fileTableBody.appendChild(tr);
+	}
+
+	function deleteImage(index) {
+		const file = imagesData[index];
+		if (!file) return;
+
+		// 서버에 삭제 요청
+		const url = '/api/files/upload?action=remove_file';
+		const data = {
+			tableName: window.imageUploader.tableName,
+			attachName: window.imageUploader.attachName,
+			fileName: file.name,
+			others: 'equipment',
+			dataPk: window.imageUploader.dataPk,
+			fileIndex: file.file_index
+		};
+
+		AjaxUtil.postAsyncData(url, data, (res) => {
+			if (res.success) {
+				imagesData[index] = null;
+				document.querySelectorAll(`[data-index="${index}"]`).forEach(el => el.remove());
+				updateImageInfo();
+			}
+		});
+	}
+
+	function updateImageInfo() {
+		const validFiles = imagesData.filter(f => f);
+		const sizeSum = validFiles.reduce((sum, f) => sum + f.size, 0);
+		totalCount.textContent = validFiles.length;
+		totalSize.textContent = `total size : ${(sizeSum / 1024).toFixed(1)} KB`;
+	}
+
+	// 파일 다운로드 함수 추가
+	function downloadFile(fileId) {
+		window.location.href = `/api/files/download?file_id=${fileId}`;
+	}
+</script>

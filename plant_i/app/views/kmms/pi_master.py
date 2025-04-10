@@ -1,11 +1,16 @@
 from django.db import transaction
 from domain.services.sql import DbUtil
-from domain.models.kmms import PreventiveMaintenance
+from domain.models.user import Depart, User
+# from domain.models.kmms import PreventiveMaintenance  
+from domain.models.cmms import CmEquipChkMaster
 from domain.services.kmms.pi_master import PIService
 # from domain.services.file import FileService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
-
+from django.http import JsonResponse
+from django.utils import timezone
+from datetime import datetime
+import json
 
 def pi_master(context):
     '''
@@ -20,128 +25,121 @@ def pi_master(context):
 
     pi_master_service = PIService()
 
-    if action=='read':
-        keyword = gparam.get('keyword', None)  
-        equDept = gparam.get('equDept', None)
-        equLoc = gparam.get('equLoc', None)
-        pmDept = gparam.get('pmDept', None)
+    if action=='save':
+        # 데이터 저장 로직        
+        chk_mast_pk = posparam.get('chk_mast_pk')# pk 값을 가져옵니다. 없으면 None
+        pi = None
+
+        try:
+            if chk_mast_pk:
+                pi = CmEquipChkMaster.objects.filter(chk_mast_pk=chk_mast_pk).first()
+                if not pi:
+                    return JsonResponse({
+                        'result': False,
+                        'message': f"pi with pk {chk_mast_pk} does not exist."
+                    })
+            else:
+                # 새 객체 생성
+                pi = CmEquipChkMaster()
+
+            # 파라미터 가져오기
+            
+            chk_mast_no = pi_master_service.generate_pi_number()
+
+            # 데이터 저장
+            pi.ChkMastNo = chk_mast_no
+            pi.ChkMastNm = posparam.get('piName')          
+            pi.WorkText = posparam.get('work_text')
+            pi.SchedStartDate = posparam.get('sched_start_dt')
+            pi.CycleType = posparam.get('cycleType')
+            pi.PerNumber = posparam.get('per_number')
+
+            dept_pk = posparam.get('dept_pk')
+            chk_user_pk = posparam.get('piManager')
+    
+            # 설비 필수값 체크
+            '''
+            if not equip_pk:
+                return JsonResponse({
+                    'result': False,
+                    'message': '설비를 선택해주세요.'
+                })
+            '''
+            
+            # Depart 객체 가져오기
+            try:
+                depart = Depart.objects.get(id=dept_pk)
+            except Depart.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'Depart with id {dept_pk} does not exist.'
+                })
+
+            # User 객체 가져오기
+            try:
+                user_id = User.objects.get(id=chk_user_pk)
+            except User.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'User with id {chk_user_pk} does not exist.'
+                })
+
+            # Equipment 객체 가져오기
+            '''
+            try:
+                equipment = Equipment.objects.get(id=equip_pk)
+            except Equipment.DoesNotExist:
+                return JsonResponse({
+                    'result': False,
+                    'message': f'Equipment with id {equip_pk} does not exist.'
+                })
+            '''
+            
+            pi.DeptPk = dept_pk
+            pi.ChkUserPk= chk_user_pk
+            #pi.Equipment = equipment
+
+            #pi.SiteId = '1'
+            pi.UseYn = 'Y'
+            pi.DelYn = 'N'           
+        
+            if not chk_mast_pk:  # 신규 등록시
+                pi.InsertTs = timezone.now()
+                pi.InserterId = request.user.id
+                pi.InserterNm = request.user.username
+            else:  # 수정시
+                pi.UpdateTs = timezone.now()
+                pi.UpdaterId = request.user.id
+                pi.UpdaterNm = request.user.username
+
+            pi.save()
+
+            items = {'success': True, 'id': pi.chk_mast_pk}
+
+        except Exception as ex:
+            source = 'api/kmms/pi_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+        
+    elif action=='read':
+        chkMastNo = gparam.get('chkMastNo', None)
+        searchText = gparam.get('searchText', None)  
+        equipDeptPk = gparam.get('equipDeptPk', None)
+        locPk = gparam.get('locPk', None)
+        deptPk = gparam.get('deptPk', None)
+        useYn = gparam.get('useYn', None)
+        cycleTypeCd = gparam.get('cycleTypes', None)        
+        startDate = gparam.get('startDate', None)
+        endDate = gparam.get('endDate', None)
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
         isLegal = gparam.get('isLegal', None)
         
-        items = pi_master_service.get_pi_master_list(keyword, equDept, equLoc, pmDept, isMyTask, isLegal)
+        items = pi_master_service.get_pi_master_list(searchText, equipDeptPk, locPk, deptPk, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate)
 
-    # elif action=='detail':
-    #     id = gparam.get('id', None)
-    #     items = equipment_service.get_equipment_detail(id)
-
-    # elif action=='save':
-    #     posparam = context.posparam
-    #     print(posparam)
-    #     id = posparam.get('id','')
-    #     code = posparam.get('Code')
-    #     name = posparam.get('Name')
-    #     equipment = None
-    #     eh_content = ''
-    #     today = DateUtil.get_today()
-
-    #     try:
-    #         if id:
-    #             equipment = Equipment.objects.get(id=id)
-
-    #             q = Equipment.objects.filter(Code=code)
-    #             q = q.exclude(pk=id)
-    #             check_code = q.first()
-
-    #             name = Equipment.objects.filter(Name=name)
-    #             name = name.exclude(pk=id)
-    #             check_name = name.first()
-
-    #         else:
-    #             #{'id': '', 'EquipmentGroup_id': '1', 'Code': 'equip-1', 'Name': '설비1', 'ManageNumber': 'ㅁㄴㄻㄴ', 'WorkCenter_id': '2', 
-    #             #'Model': 'ㅁㄴㅇㄹ', 'Maker': 'ㄴ', 'SerialNumber': 'ㅁㄴㄻㄴ', 'ProductionYear': '', 'PurchaseYear': '', 
-    #             #'InstallDate': 'ㄴ', 'SupplierName': 'ㄴㄴ', 
-    #             #'PurchaseCost': 'ㅁㄴㅇㄹ', 'OperationRateYN': 'Y', 'DisposalDate': 'ㅇㅁㄴㅇㄻ', 'Manager': 'ㅁ', 
-    #             #'Description': 'ㅁㄴㅇㄻㄴㅇㄻㄴㅇㄻㄴㅇㄻㄴㅇㄻㄴㅇㄹ', 
-    #             #'csrfmiddlewaretoken': 'xJwIk4wgZG9Gv3tllsxNHec3BBOAWi21dyjjtlUaFO7NJcimoJvawsoMsm01gn8t'}
-    #             equipment = Equipment()
-
-    #             check_code = Equipment.objects.filter(Code=code).first()
-    #             check_name = Equipment.objects.filter(Name=name).first()
-
-    #         if check_code:
-    #             items = {'success': False, 'message' : '중복된 설비그룹코드가 존재합니다.'}
-    #             return items
-
-    #         if check_name:
-    #             items = {'success': False, 'message' : '중복된 설비그룹명이 존재합니다.'}
-    #             return items
-
-    #         equipment.Code = posparam.get('Code')
-    #         equipment.Name = posparam.get('Name')
-    #         equipment.Line_id = posparam.get('Line_id')
-    #         equipment.MESCode = posparam.get('MESCode')
-    #         equipment.SAPCode = posparam.get('SAPCode')
-    #         equipment.EquipmentGroup_id = posparam.get('EquipmentGroup_id')
-    #         equipment.Description = posparam.get('Description')
-    #         equipment.Maker = posparam.get('Maker')
-    #         equipment.Model = posparam.get('Model')
-    #         equipment.Standard = posparam.get('Standard')
-    #         equipment.Usage = posparam.get('Usage')
-    #         equipment.ManageNumber = posparam.get('ManageNumber')
-    #         equipment.SerialNumber = posparam.get('SerialNumber')
-    #         equipment.Depart_id = posparam.get('Depart_id')
-    #         equipment.ProductionYear = posparam.get('ProductionYear') if posparam.get('ProductionYear') else None
-    #         equipment.AssetYN = posparam.get('AssetYN')
-    #         equipment.DurableYears = posparam.get('DurableYears') if posparam.get('DurableYears') else None
-    #         equipment.PowerWatt = posparam.get('PowerWatt')
-    #         equipment.Voltage = posparam.get('Voltage')
-    #         equipment.Manager = posparam.get('Manager')
-    #         equipment.SupplierName = posparam.get('SupplierName')
-    #         equipment.PurchaseDate = posparam.get('PurchaseDate') if posparam.get('PurchaseDate') else None
-    #         equipment.PurchaseCost = posparam.get('PurchaseCost') if posparam.get('PurchaseCost') else None
-    #         equipment.ServiceCharger = posparam.get('ServiceCharger')
-    #         equipment.ASTelNumber = posparam.get('ASTelNumber')
-    #         equipment.AttentionRemark = posparam.get('AttentionRemark')
-    #         equipment.Inputdate = posparam.get('InputDate') if posparam.get('InputDate') else None
-    #         equipment.InstallDate = posparam.get('InstallDate') if posparam.get('InstallDate') else None
-    #         equipment.DisposalDate = posparam.get('DisposalDate') if posparam.get('DisposalDate') else None
-    #         equipment.DisposalReason = posparam.get('DisposalReason')
-    #         equipment.OperationRateYN = posparam.get('OperationRateYN')
-    #         equipment.set_audit(user)
-
-    #         equipment.save()
-
-    #         items = {'success': True, 'id': equipment.id}
-
-    #     except Exception as ex:
-    #         source = 'api/definition/equipment, action:{}'.format(action)
-    #         LogWriter.add_dblog('error', source, ex)
-    #         raise ex
-
-    # elif action=='delete':
-    #     try:
-    #         id = posparam.get('id','')
-    #         Equipment.objects.filter(id=id).delete()
-    #         items = {'success': True}
-
-    #     except Exception as ex:
-    #         source = 'api/definition/equipment, action:{}'.format(action)
-    #         LogWriter.add_dblog('error', source, ex)
-    #         if action == 'delete':
-    #             err_msg = LogWriter.delete_err_message(ex)
-    #             items = {'success':False, 'message': err_msg}
-    #             return items
-    #         else:
-    #             items = {}
-    #             items['success'] = False
-    #             if not items.get('message'):
-    #                 items['message'] = str(ex)
-    #             return items
-    #         #if action == 'delete':
-    #         #    items = {'success':False, 'message': '삭제중 오류가 발생하였습니다.'}
-    #         #    return items
-    #         #raise ex
+    
 
 
 
     return items
+
+

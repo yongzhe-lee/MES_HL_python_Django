@@ -1,0 +1,663 @@
+<div id="modalEquipMaster" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>설비마스터 상세정보</h4>
+		</div>
+
+		<div class="modal-body">
+			<!-- 대상설비 섹션 -->
+			<div class="equipment-section" style="display: flex; gap: 20px;">
+				<!-- 왼쪽 이미지 영역 -->
+				<div class="equipment-image-section" style="flex: 0 0 250px;">
+					<div class="image-container" style="width: 250px; height: 190px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; background: #f9f9f9;">
+						<div style="text-align: center;">
+							<img src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
+							<div style="margin-top: 10px; color: #999;">No image</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 중앙 정보 영역 -->
+				<div class="equipment-info-section" style="flex: 1;">
+					<div class="form-row" style="margin-bottom: 10px;">
+						<div class="form-group" style="width: 100%;">
+							<span style="color: red;"><label>설비코드*<i class="fas fa-info-circle" style="color: #666; font-size: 14px;"></i></label></span>
+							<input type="hidden" id="equip_pk" value="{{ equipment.equip_pk }}">
+							<input type="text" class="form-control" id="equip_code" name="equip_code" readonly>
+						</div>
+					</div>
+					<div class="form-row" style="margin-bottom: 10px;">
+						<div class="form-group" style="width: 100%;">
+							<span style="color: red;"><label>설비명*</label></span>
+							<input type="text" class="form-control" id="equip_name" name="equip_name" value="AuSn Granule기">
+						</div>
+					</div>
+					<div class="form-row" style="margin-bottom: 0;">
+						<div class="form-group" style="width: 100%;">
+							<label>설비상태</label>
+							<div style="display: flex; gap: 5px;">
+								<button class="btn" style="width: 120px; background-color: #f9f9f9; border: 1px solid #ddd; color: #333; padding: 6px 12px;">가동중</button>
+								<button class="btn" style="width: 120px; background-color: #6c757d; border: 1px solid #6c757d; color: white; padding: 6px 12px;">상태변경</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 오른쪽 QR코드 영역 -->
+				<div class="equipment-qr-section" style="flex: 0 0 250px;">
+					<div style="display: flex; flex-direction: column; justify-content: space-between; height: 190px;">
+						<div class="qr-container" style="width: 100%; height: 130px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background-color: white;">
+							<img src="/static/img/qr-sample.png" alt="QR Code" style="width: 110px; height: 110px;">
+						</div>
+						<div>
+							<div style="text-align: left; color: red; margin-bottom: 5px;">
+								카테고리*
+							</div>
+							<div style="display: flex; gap: 5px;">
+								<input type="text" class="form-control" id="equip_category" name="equip_category" readonly value="O : Office Equipment" style="background-color: #f9f9f9; flex: 1;">
+								<button class="btn" style="min-width: 36px; padding: 0; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">
+									<img src="/static/img/folder-icon.png" alt="폴더" style="width: 24px; height: 24px;">
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>			
+			</div>
+
+			<!-- 탭 섹션 -->
+			<div class="section">
+				<div class="tab-group">
+					<button class="tab-button active" data-tab="equipMasterForm" style="background: #1e4f88; color: white; border-color: #1e4f88;">기본정보</button>
+					<button class="tab-button" data-tab="equipSpec">사양(Spec)</button>
+					<button class="tab-button" data-tab="equipPartsBom">Parts/BOM</button>
+					<button class="tab-button" data-tab="fileTab">파일</button>
+					<button class="tab-button" data-tab="pmTab">PM</button>
+					<button class="tab-button" data-tab="inspectionTab">점검</button>
+					<button class="tab-button" data-tab="logTab">로그</button>
+					<button class="tab-button" data-tab="assetEvaluationTab">자산평가</button>
+				</div>
+				<div class="tab-content">
+					<!-- 기본정보 탭 컨텐츠 -->
+					<div class="tab-pane active" id="equipMasterForm" style="overflow-y:auto; height: 400px;">
+						<div class="form-row">
+							<div class="form-group col-md-4">
+								<span class="required"><label>설비위치*</label></span>
+								<div class="field-wrapper">
+									<select id="loc_pk" name="loc_pk"></select>
+								</div>
+							</div>
+							<div class="form-group  col-md-4">
+								<span class="required"><label>관리부서*</label></span>
+								<select id="dept_pk" name="dept_pk"></select>
+							</div>
+							<div class="form-group  col-md-4">
+								<label>설비중요도</label>
+								<select id="import_rank_pk" name="import_rank_pk"></select>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-4">
+								<label>프로세스</label>
+								<select id="process_cd" name="process_cd"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>시스템</label>
+								<select id="system_cd" name="system_cd"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>제조일</label>
+								<input type="text" class="form-control" id="ProductionYear" name="ProductionYear" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-4">
+								<label>자산번호<span class="required">*</span></label>
+								<input type="text" class="form-control" id="asset_nos" name="asset_nos" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>상위설비</label>
+								<input type="text" class="form-control" id="up_equip_pk" name="up_equip_pk" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>순환설비자재</label>
+								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-4">
+								<label>코스트 센터</label>
+								<select id="ccenter_cd" name="ccenter_cd"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>법정관리 설비 여부</label>
+								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<span class="required"><label>설치일*</label></span>
+								<input type="text" class="form-control" id="InstallDate" name="InstallDate" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-4">
+								<label>공급업체</label>
+								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>구매비용</label>
+								<input type="text" class="form-control" id="PurchaseCost" name="PurchaseCost" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>보증만료일</label>
+								<input type="text" class="form-control" id="warranty_dt" name="warranty_dt" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-4">
+								<label>제조사명</label>
+								<input type="text" class="form-control" id="Maker" name="Maker" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>모델넘버</label>
+								<input type="text" class="form-control" id="Model" name="Model" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>시리얼넘버</label>
+								<input type="text" class="form-control" id="SerialNumber" name="SerialNumber" readonly>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-12">
+								<label>비고</label>
+								<textarea class="form-control" id="Description" name="Description" readonly></textarea>
+							</div>
+						</div>
+					</div>
+
+					<!-- 사양(Spec) 탭 컨텐츠 -->
+					<div class="tab-pane" id="equipSpec" style="overflow-y:auto; height: 400px;">
+						<div class="form-row">
+							<div class="form-group">
+								<label>설비분류</label>
+								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
+							</div>
+							<div class="form-group">
+								<label>설비분류 설명</label>
+								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
+							</div>
+						</div>
+						<div id="equSpecGrid" class="grid">
+						</div>
+					</div>
+
+					<!-- Parts/BOM 탭 컨텐츠 -->
+					<div class="tab-pane" id="equipPartsBom">
+						<!-- Parts 섹션 -->
+						<div style="margin-bottom: 20px;">
+							<div style="display: flex; align-items: center; margin-bottom: 10px;">
+								<div style="display: flex; align-items: center;">
+									<span>Parts</span>
+									<span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #e9ecef; border-radius: 50%; margin-left: 5px; font-size: 12px;">1</span>
+								</div>
+								<button class="btn" style="margin-left: auto; background-color: #1e4f88; color: white; padding: 4px 12px; font-size: 12px;">자재선택</button>
+							</div>
+							<div id="partsGrid" class="grid"></div>
+						</div>
+
+						<!-- BOM 계층구조 보기 섹션 -->
+						<div>
+							<div style="display: flex; align-items: center; margin-bottom: 10px;">
+								<div style="display: flex; align-items: center;">
+									<span>BOM 계층구조 보기</span>
+									<span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #e9ecef; border-radius: 50%; margin-left: 5px; font-size: 12px;">1</span>
+								</div>
+							</div>
+							<div style="border: 1px solid #dee2e6; padding: 15px;">
+								<div style="color: #1e4f88; font-weight: bold; margin-bottom: 10px;">YPE00013 : AuSn Granule기</div>
+							</div>
+						</div>
+					</div>
+					<!--PM 탭 컨텐츠 -->
+					<div class="tab-pane" id="pmTab" style="overflow-y:auto; height: 400px;">
+						<div id="pmGrid" class="grid"></div>
+					</div>
+					<!--점검 탭 컨텐츠 -->
+					<div class="tab-pane" id="inspectionTab" style="overflow-y:auto; height: 400px;">
+						<div id="inspectionGrid" class="grid"></div>
+					</div>
+					<!--로그 탭 컨텐츠 -->
+					<div class="tab-pane" id="logTab" style="overflow-y:auto; height: 400px;">
+						<div id="logGrid" class="grid"></div>
+					</div>
+					<!--자산평가 탭 컨텐츠 -->
+					<div class="tab-pane" id="assetEvaluationTab" style="overflow-y:auto; height: 400px;">
+						<div id="assetEvaluationGrid" class="grid"></div>
+					</div>
+					<!--파일 탭 컨텐츠 -->
+					<div class="tab-pane" id="fileTab" style="overflow-y:auto; height: 400px;">
+						{% include 'components/ImageUpload.html' with tableName='equipment' attachName='image' dataPk=equipment.equip_pk|default:'' %}
+						{% include 'components/FileUpload.html' with tableName='equipment' attachName='file' dataPk=equipment.equip_pk|default:'' %}
+					</div>
+				</div>
+				<!-- 버튼 영역 -->
+				<div class="modal-footer">
+					<button type="button" style="background-color: #dc3545 !important; color: white !important; border-color: #d9534f !important; " id="disposedBtn">설비불용처리</button>
+					<button type="button" style="background-color: #dc3545 !important; color: white !important; border-color: #d9534f !important;" id="notUseBtn">사용안함</button>
+					<button type="button" class="btn-save" id="saveBtn">저장</button>
+					<button type="button" class="btn-close" id="closeBtn">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+	
+</style>
+
+<script type="text/javascript">
+	class EquipMaster {
+		constructor() {
+			this.baseUrl = '/api/kmms/equipment';
+			this.init();
+		}
+
+		init() {
+			const modal = $("#modalEquipMaster");
+
+			// PM 그리드 초기화
+			$("#pmGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl + '/pm',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'pm',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},
+					pageSize: 50
+				}),
+				height: 550,
+				sortable: true,
+				pageable: {
+					refresh: false,
+					pageSizes: [50],
+					buttonCount: 5
+				},
+				columns: [
+					{ field: "pm_no", title: "PM번호", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "pm_nm", title: "PM명", width: 200 },
+					{ field: "dept_nm", title: "설명부서", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "manager_nm", title: "PM 담당자", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "pm_type", title: "PM유형", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "cycle", title: "주기", width: 80, attributes: { style: "text-align: center" } },
+					{ field: "cycle_unit", title: "주기단위", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "last_complete_dt", title: "최근 완료일", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "use_yn", title: "사용여부", width: 100, attributes: { style: "text-align: center" } }
+				],
+				noRecords: {
+					template: "데이터 없음"
+				}
+			});
+
+			$("#equSpecGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'detail',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},
+				}),
+				height: 550,
+				sortable: true,
+				pageable: true,
+				autoBind: false, // 자동 데이터 바인딩 비활성화
+				columns: [
+					{ field: "no", title: "NO", width: 120 },
+					{ field: "specnm", title: "사양명", width: 120, },
+					{ field: "unit", title: "단위", width: 100 },
+					{ field: "spec", title: "사양(Spec)", width: 100 }
+				],
+				noRecords: {
+					template: "조회된 데이터가 없습니다."
+				}
+			});
+
+			// Parts 그리드 초기화
+			$("#partsGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl + '/parts',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'parts',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},
+					pageSize: 50
+				}),
+				height: 300,
+				sortable: true,
+				pageable: {
+					refresh: false,
+					pageSizes: [50],
+					buttonCount: 5
+				},
+				columns: [
+					{ field: "no", title: "NO", width: 80, attributes: { style: "text-align: center" } },
+					{ field: "material_code", title: "자재코드", width: 120 },
+					{ field: "material_name", title: "자재명", width: 200 },
+					{ field: "quantity", title: "구성수량", width: 100, attributes: { style: "text-align: center" } },
+					{
+						command: {
+							text: "삭제",
+							click: function (e) {
+								e.preventDefault();
+								// 삭제 로직 구현
+							}
+						},
+						width: 100
+					}
+				],
+				noRecords: {
+					template: "조회된 데이터가 없습니다."
+				}
+			});
+
+			// 점검 그리드 초기화
+			$("#inspectionGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl + '/inspection',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'inspection',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},
+					pageSize: 50
+				}),
+				height: 550,
+				sortable: true,
+				pageable: {
+					refresh: false,
+					pageSizes: [50],
+					buttonCount: 5
+				},
+				columns: [
+					{ field: "inspection_no", title: "점검번호", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "inspection_nm", title: "점검명", width: 200 },
+					{ field: "dept_nm", title: "점검부서", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "manager_nm", title: "점검담당자", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "inspection_type", title: "점검유형", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "cycle", title: "주기", width: 80, attributes: { style: "text-align: center" } },
+					{ field: "cycle_unit", title: "주기단위", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "last_complete_dt", title: "최근 완료일", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "use_yn", title: "사용여부", width: 100, attributes: { style: "text-align: center" } }
+				],
+				noRecords: {
+					template: "데이터 없음"
+				}
+			});
+
+			// 자산평가 그리드 초기화
+			$("#assetEvaluationGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl + '/asset-evaluation',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'asset-evaluation',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},
+					pageSize: 50
+				}),
+				height: 550,
+				sortable: true,
+				pageable: {
+					refresh: false,
+					pageSizes: [50],
+					buttonCount: 5
+				},
+				columns: [
+					{ field: "evaluation_criteria", title: "자산평가기준", width: 150, attributes: { style: "text-align: center" } },
+					{ field: "evaluation_grade", title: "자산평가단계", width: 150, attributes: { style: "text-align: center" } },
+					{ field: "evaluation_value", title: "자산평가값", width: 150, attributes: { style: "text-align: center" } },
+					{ field: "last_evaluation_dt", title: "최종자산평가", width: 150, attributes: { style: "text-align: center" } }
+				],
+				noRecords: {
+					template: "조회된 데이터가 없습니다."
+				}
+			});
+
+			// 로그 그리드 초기화
+			$("#logGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl + '/log',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'log',
+									id: $('#equip_pk').val()
+								};
+							}
+						}
+					},
+					pageSize: 50
+				}),
+				height: 550,
+				sortable: true,
+				pageable: {
+					refresh: false,
+					pageSizes: [50],
+					buttonCount: 5
+				},
+				columns: [
+					{ field: "user_nm", title: "사용자", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "log_type", title: "로그 타입", width: 120, attributes: { style: "text-align: center" } },
+					{ field: "log_content", title: "로그 내역", width: 500 },
+					{ field: "log_dt", title: "일시", width: 150, attributes: { style: "text-align: center" } }
+				],
+				noRecords: {
+					template: "데이터 없음"
+				}
+			});
+
+			AjaxUtil.fillDropDownOptions($('#loc_pk'), 'line', 'all', null);
+			AjaxUtil.fillDropDownOptions($('#dept_pk'), 'line', 'all', null);
+			AjaxUtil.fillDropDownOptions($('#import_rank_pk'), 'line', 'all', null);
+
+			AjaxUtil.fillDropDownOptions($('#process_cd'), 'line', 'all', null);
+			AjaxUtil.fillDropDownOptions($('#system_cd'), 'line', 'all', null);
+			AjaxUtil.fillDropDownOptions($('#ccenter_cd'), 'line', 'all', null);
+
+
+			// 탭 클릭 이벤트
+			$('.tab-button').on('click', function () {
+				const tabId = $(this).data('tab');
+				$('.tab-button').removeClass('active').removeAttr('style');
+				$('.tab-pane').removeClass('active').hide();
+				$(this).addClass('active').css({
+					'background': '#1e4f88',
+					'color': 'white',
+					'border-color': '#1e4f88'
+				});
+				if (tabId) $('#' + tabId).addClass('active').show();
+			});
+
+			$('#disposedBtn').kendoButton({});
+			$('#notUseBtn').kendoButton({});
+			$('#saveBtn').off('click').kendoButton({
+				click: async function () {
+					if (window.imageUploader) {
+						const imageResult = await window.imageUploader.saveImages();
+					}					
+					if (window.fileUploader) {
+						const fileResult = await window.fileUploader.saveFiles();						
+					}					// 추가 저장 로직
+				}
+			});
+
+			// 모달 닫기
+			$('#closeBtn').kendoButton({
+				click: () => modal.fadeOut()
+			});
+
+			// ESC 키로 모달 닫기
+			$(document).on('keydown', (e) => {
+				if (e.keyCode === 27) modal.fadeOut();
+			});
+		}
+
+		//설비 마스터
+		getEquipMasterData(equip_pk) {			
+			let _this = this;
+
+			// 설비 상세 정보 API 호출
+			let param = {
+				action: 'detail',
+				equip_pk: equip_pk,
+			};
+			
+			let equipData = AjaxUtil.getSyncData('/api/kmms/equipment', param);
+
+			// 1.1. 기존 데이터 바인딩
+			this.bindEquipMasterData(equipData);
+
+			if (equipData) {
+				$("#modalEquipMaster").fadeIn();
+			}
+
+			// ✅ 여기서 imageUploader의 dataPk를 재세팅 후 파일 목록 새로 로드
+			if (window.imageUploader) {
+				window.imageUploader.dataPk = equip_pk;
+				window.imageUploader.loadFilesFromServer(() => {
+					showMainImageFromUploader();
+				});
+			}
+
+			// ✅ 여기서 fileUploader의 dataPk를 재세팅 후 파일 목록 새로 로드
+			if (window.fileUploader) {
+				window.fileUploader.dataPk = equip_pk;
+				window.fileUploader.loadFilesFromServer(() => {
+					showMainFileFromUploader();
+				});
+			}
+		}
+
+		bindEquipMasterData(data) {
+			// 기본 필드 바인딩
+			const basicFields = {
+				'equip_master_pk': data.equip_pk,
+				'equip_code': data.equip_cd,
+				'equip_name': data.equip_nm,
+				'loc_pk': data.loc_pk,
+				'dept_pk': data.dept_pk,
+				'import_rank_pk': data.import_rank_pk,
+				'process_cd': data.process_cd,
+				'system_cd': data.system_cd,
+
+			};
+
+			// 기본 필드 값 설정
+			Object.entries(basicFields).forEach(([id, value]) => {
+				$(`#${id}`).val(value);
+			});
+		}
+	}
+
+	equipMasterPage = new EquipMaster();
+
+	function showMainImageFromUploader() {
+		if (!window.imageUploader) return;
+
+		const imageDataList = window.imageUploader.getImagesData();
+		const mainImage = imageDataList.find(file => file); // 첫 번째 이미지
+
+		const container = document.querySelector('#modalEquipMaster .image-container');
+		if (container) {
+			if (mainImage) {
+				container.innerHTML = `
+				<img src="${mainImage.src}" alt="${mainImage.name}" style="max-width: 100%; max-height: 100%;">
+			`;
+			} else {
+				// fallback 이미지
+				container.innerHTML = `
+				<div style="text-align: center;">
+					<img src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
+					<div style="margin-top: 10px; color: #999;">No image</div>
+				</div>
+			`;
+			}
+		}
+	}
+
+	function showMainFileFromUploader() {
+		if (!window.fileUploader) return;
+
+		const fileDataList = window.fileUploader.getFilesData();
+		const mainFile = fileDataList.find(file => file); // 첫 번째 파일
+
+		const container = document.querySelector('#modalEquipMaster .file-container');
+		if (container) {
+			if (mainFile) {
+				container.innerHTML = `
+				<div style="text-align: center;">
+					<i class="fas fa-file" style="font-size: 48px; color: #1e4f88;"></i>
+					<div style="margin-top: 10px; color: #333;">${mainFile.name}</div>
+					<div style="color: #666; font-size: 12px;">${formatFileSize(mainFile.size)}</div>
+				</div>
+			`;
+			} else {
+				// fallback 파일 표시
+				container.innerHTML = `
+				<div style="text-align: center;">
+					<i class="fas fa-file" style="font-size: 48px; color: #999;"></i>
+					<div style="margin-top: 10px; color: #999;">No file</div>
+				</div>
+			`;
+			}
+		}
+	}
+
+	function formatFileSize(bytes) {
+		if (bytes === 0) return '0 Bytes';
+		const k = 1024;
+		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+	}
+
+</script>
+

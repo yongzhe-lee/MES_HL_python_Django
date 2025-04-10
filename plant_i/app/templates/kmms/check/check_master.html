@@ -1,13 +1,13 @@
 {% extends "app/layout.html" %}
 {% block css %}
-<style>
+<!--<style>
     /* PM명 컬럼 스타일 */
     .pm-highlight {
         background-color: #fff3cd !important; /* 연한 노란색 */
         color: #d9534f !important; /* 진한 빨간색 */
         font-weight: bold !important;
         text-decoration: underline !important;
-        padding: 3px 8px !important;
+        pa         * dding:         *  3px 8px !important;
         border-radius: 4px !important;
         display: inline-block !important;
     }
@@ -164,59 +164,119 @@
         opacity: 0.9;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
     }
+</style>-->
+
+<style>
+    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
+    #searchFormContent {
+        overflow: hidden;
+        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
+        transition: height 0.3s ease-in-out;
+    }
+
+    /* ✅ 검색 폼이 펼쳐진 상태 */
+    .search-expanded {
+        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
+    }
+
+    /* ✅ 접기/펼치기 버튼 스타일 */
+    #toggleSearchBtn {
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+    }
+
+        #toggleSearchBtn::before {
+            content: "▼";
+            color: #0d6efd;
+            font-size: 20px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
+        }
+
+        #toggleSearchBtn.expanded::before {
+            content: "▲";
+        }
 </style>
+
 {% endblock %}
 
 {% block content %}
+
 <div class="content-wrap">
     <div class="content-ui-row">
-        <div class="card-content search">
-            <div class="search-panel">
-                <!-- 첫 번째 줄 - 라벨들 -->
-                <div class="search-row">
-                    <div class="search-label-item search-label-wide">
-                        <label>검색키워드</label>
-                    </div>
-                    <div class="search-label-item">
-                        <label>관리부서</label>
-                    </div>
-                    <div class="search-label-item">
-                        <label>설비위치</label>
-                    </div>
-                    <div class="search-label-item">
-                        <label>실행 부서</label>
-                    </div>
-                    <div class="checkbox-item no-margin">
-                        <input type="checkbox" id="chk_my_task">
-                        <label for="chk_my_task">나의 담당건</label>
-                    </div>
-                    <div class="flex-spacer"></div>
+        <form id="searchForm" class="search-form">
+            <div class="card-content search">
+                <div class="form-ui-header">
+                    <div id="toggleSearchBtn"></div> <!-- ✅ 삼각형 화살표 버튼 -->
                 </div>
-                <!-- 두 번째 줄 - 입력 필드들 -->
-                <div class="search-row">
-                    <div class="search-input-item search-input-wide">
-                        <input id="checkNo" class="k-textbox" placeholder="점검번호" style="width: 30%;" />
-                        <input id="keyword" class="k-textbox" placeholder="점검명,설비코드,설비명" style="width: 60%;" />
+                <div class="form-ui" id="searchFormContent">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">검색키워드</label>
+                            <input id="chkMastNo" class="k-textbox" placeholder="점검번호" style="width: 30%;" />
+                            <input id="searchText" class="k-textbox" placeholder="점검명,설비코드,설비명" style="width: 60%;" />
+                        </div>
                     </div>
-                    <div class="search-input-item">
-                        <select id="srch_dept" style="width: 200px;"></select>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">관리부서</label>
+                            <select id="equipDeptPk" style="width: 200px;"></select>
+                        </div>
                     </div>
-                    <div class="search-input-item">
-                        <select id="srch_location" style="width: 200px;"></select>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">설비위치</label>
+                            <select id="locPk" style="width: 200px;"></select>
+                        </div>
                     </div>
-                    <div class="search-input-item">
-                        <select id="srch_dept_type" style="width: 200px;"></select>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">점검 부서</label>
+                            <select id="deptPk" style="width: 200px;"></select>
+                        </div>
                     </div>
-                    <div class="checkbox-item no-margin">
-                        <input type="checkbox" id="chk_legal">
-                        <label for="chk_legal">법정관리설비</label>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">적용여부</label>
+                            <select id="useYn" style="width: 200px;">
+                            </select>
+                        </div>
                     </div>
-                    <div class="button-wrapper">
-                        <button id="btnSearch" class="btn-search">조회</button>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">주기단위</label>
+                            <select id="cycleTypeCd" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">다음 주기일</label>
+                            <div id="date_chk"></div>
+                            <div id="srch_date_range"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
+                            <input id="chk_my_task" name="chk_my_task">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="chk_legal">법정관리설비</label>
+                            <input id="chk_legal" name="chk_legal">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
@@ -225,11 +285,11 @@
                         <label data-labelCd="점검 마스터">점검 마스터</label>
                     </span>
                     <span>
-                    </span>
-                    <span>
                         <!-- 오른쪽 버튼 영역-->
-                        <button id="btnAdd">등록</button>
+                        <button id="btnAdd" class="btn-search">등록</button>
+                        <button id="btnSearch" class="btn-search">조회</button>
                         <button id="btnExcel">Excel</button>
+                        <button id="btnPopupTest" class="btn-search">팝업테스트</button>
                     </span>
                 </div>
                 <div id="pi_master_grid"></div>
@@ -245,12 +305,13 @@
 
 {% block scripts %}
 
-{% include '../../popup/modalPmMaster.html'%}
-{% include '../../popup/modalEqu.html'%}
+{% include '../../popup/modalPiMaster.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
 {% include '../../popup/modalMaterials.html'%}
 {% include 'common/file_upload.html' %}
+{% include '../../popup/modalEqus.html'%}
+{% include '../../popup/popup_test.html'%}
 
 <script type="text/javascript">
     class PiMasterPage {
@@ -263,6 +324,80 @@
 
             this.init();
         }
+
+        /**
+         * 모달창 입력란 초기화 함수
+         * choi : 모달창에 값을 넘겨주는 역할을 함
+         */
+        resetModalInputs() {
+            // 일반 입력 필드 초기화
+            $("#equip_pk").val("");
+            $("#pm_pk").val("");
+            $("#pmNumber").val("");
+            $("#pmName").val("");
+            $("#work_text").val("");
+            $("#equ_code").val("");
+            $("#equ_name").val("");
+            $("#equ_loc").val("");
+            $("#equ_import").val("");
+            $("#equ_status").val("");
+            $("#equ_env_yn").val("");
+
+            // Kendo UI 컴포넌트 초기화
+            // choi : 이건뭐지??안쓰는데
+            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
+            if (maintenanceTime) {
+                maintenanceTime.value("");
+            }
+            // choi : 이건뭐지??안쓰는데
+            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
+            if (execDeptDropdown) {
+                execDeptDropdown.value("");
+            }
+            // choi : 이건뭐지??안쓰는데
+            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
+            if (pmManagerDropdown) {
+                pmManagerDropdown.value("");
+            }
+
+            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
+            if (pmTypeDropdown) {
+                pmTypeDropdown.value("");
+            }
+        }
+
+
+        /**
+         * 그리드와 검색 조건을 초기화하는 함수
+         * choi : 현재로서는 사용하지 않음
+         */
+        resetData() {
+            // 그리드 초기화
+            if (this.grid) {
+                this.grid.setData([]);
+            }
+
+            // 검색 조건 초기화
+            $("#searchText").val("");
+
+            // Kendo 컴포넌트 초기화
+            let srchDept = $("#equipDeptPk").data("kendoDropDownTree");
+            if (srchDept) srchDept.value("");
+
+            let srchLocation = $("#locPk").data("kendoDropDownTree");
+            if (srchLocation) srchLocation.value("");
+
+            let srchDeptType = $("#deptPk").data("kendoDropDownTree");
+            if (srchDeptType) srchDeptType.value("");
+
+            // 스위치 초기화
+            let myTaskSwitch = $("#chk_my_task").data("kendoSwitch");
+            if (myTaskSwitch) myTaskSwitch.value(false);
+
+            let legalSwitch = $("#chk_legal").data("kendoSwitch");
+            if (legalSwitch) legalSwitch.value(false);
+        }
+
 
         init() {
             let _this = this;
@@ -279,46 +414,51 @@
                     }
                 },
                 columns: [
-                    { field: 'chk_pk', title: '점검 PK', hidden: true },
-                    { field: 'chk_no', title: '점검번호', width: 80 },
+                    { field: 'chk_mast_pk', title: '점검 PK', hidden: true },
+                    { field: 'chk_mast_no', title: '점검번호', width: 80 },
                     {
-                        field: "chk_name",
+                        field: "chk_mast_nm",
                         title: "점검명",
                         width: 150,
-                        template: '<a href="javascript:void(0);" class="check-link" data-check-pk="#=chk_pk#">#=chk_name#</a>'
+                        template: '<a href="javascript:void(0);" class="check-link" data-check-pk="#=chk_mast_pk#">#=chk_mast_nm#</a>'
                     },
-                    { field: 'dept_pk', title: '점검부서', width: 100 },
-                    { field: 'chk_user_id', title: '점검담당자', width: 100 },
-                    { field: 'check_type', title: '점검유형', width: 100 },
+                    { field: 'dept_nm', title: '점검부서', width: 100 },
+                    { field: 'chk_user_nm', title: '점검담당자', width: 100 },
+                    { field: 'chk_equip_cnt', title: '점검설비수량', width: 100 },
+                    { field: 'chk_item_cnt', title: '점검항목수량', width: 100 },
                     {
-                        field: 'cycle_type',
+                        field: 'cycle_display_nm',
                         title: '주기',
                         width: 80,
-                        template: '#=cycle_type# (#=per_number#)'
+                        template: '#=cycle_display_nm# (#=per_number#)'
                     },
+                    { field: 'cycle_type_nm', title: '주기단위', width: 100 },
+
                     {
-						field: 'sched_start_dt',
+                        field: 'sched_start_date',
                         title: '주기 시작일',
                         width: 120,
-						template: '#= kendo.toString(kendo.parseDate(sched_start_dt), "yyyy-MM-dd") #'
+                        template: '#= kendo.toString(kendo.parseDate(sched_start_date), "yyyy-MM-dd") #'
                     },
                     {
-                        field: 'last_work_dt',
+                        field: 'last_chk_date',
                         title: '최근 생성된 일정',
                         width: 120,
-                        template: '#= kendo.toString(kendo.parseDate(last_work_dt), "yyyy-MM-dd") #'
+                        template: '#= kendo.toString(kendo.parseDate(last_chk_date), "yyyy-MM-dd") #'
                     },
                     {
-                        field: 'next_chk_date',
+                        //field: 'next_chk_date',
+                        //choi : 임시 코딩
+                        field: 'last_chk_date',
                         title: '다음 주기일',
                         width: 120,
-                        template: '#= kendo.toString(kendo.parseDate(next_chk_date), "yyyy-MM-dd") #'
+                        template: '#= kendo.toString(kendo.parseDate(last_chk_date), "yyyy-MM-dd") #'
                     },
                     {
-                        field: 'chk_yn',
-                        title: '작동여부',
+                        field: 'use_yn',
+                        title: '적용여부',
                         width: 80,
-                        template: '#= chk_yn == "Y" ? "작동" : "미작동" #'
+                        template: '#= use_yn == "Y" ? "적용" : "미적용" #'
                     }
                 ],
 
@@ -337,11 +477,33 @@
             _this.grid = new Grid($("#pi_master_grid"), piGridOption);
 
             $('#checkNo').kendoTextBox();
-            $('#keyword').kendoTextBox();
+            $('#searchText').kendoTextBox();
 
-            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "location", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#locPk"), "location", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#equipDeptPk"), "depart", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#deptPk"), "depart", "select");
+
+            $("#useYn").kendoDropDownList({
+                dataSource: [
+                    { text: "전체", value: "" },
+                    { text: "적용", value: "Y" },
+                    { text: "미적용", value: "N" },
+                ],
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $("#cycleTypeCd").kendoDropDownList({
+                dataSource: [
+                    { text: "선택", value: "" },
+                    { text: "년", value: "Y" },
+                    { text: "월", value: "M" },
+                    { text: "주", value: "W" },
+                    { text: "일", value: "D" },
+                ],
+                dataTextField: "text",
+                dataValueField: "value"
+            });
 
             $('#btnAdd').kendoButton({
                 icon: "pencil",
@@ -349,7 +511,10 @@
                 spriteCssClass: "k-icon k-foo",
                 click: function (e) {
                     e.preventDefault();
-                    $("#modalPmMaster").fadeIn();
+                    page.resetModalInputs();  // 초기화 함수 호출
+
+                    //choi : popup/modalPiMaster.html에 있는 id를 참고하여 popup처리한다
+                    $("#modalPiMaster").fadeIn();
                 }
             });
 
@@ -361,6 +526,71 @@
                 }
             });
 
+            //choi : test버튼
+            $('#btnPopupTest').kendoButton({
+                icon: "pencil",
+                themeColor: "blue",
+                spriteCssClass: "k-icon k-foo",
+                click: function (e) {
+                    e.preventDefault();
+
+                    let popup = new PopupTestPage();
+
+                    popup.show(function (selectedItem) {
+                        // 여기서 선택된 데이터를 받아서 처리
+                        console.log("선택된 항목:", selectedItem);                        
+                    });
+
+                }
+            });
+
+
+            $('#chk_my_task').kendoSwitch({
+                checked: false,
+                change: function (e) {
+                    if (e.checked) {
+                        console.log("chk_my_task ON 상태로 변경됨");
+                    } else {
+                        console.log("chk_my_task OFF 상태로 변경됨");
+                    }
+                }
+            });
+
+            $('#chk_legal').kendoSwitch({
+                checked: false
+            });
+
+            $('#date_chk').kendoSwitch({
+                checked: false
+            });
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_date",
+                endField: "end_date"
+            });
+
+            $('#btnAdd').kendoButton({
+                icon: "k-i-pencil",
+                themeColor: "info",     // info 테마 사용
+                fillMode: "outline",    // outline 스타일로 변경
+                click: function (e) {
+                    e.preventDefault();
+                    page.resetModalInputs();  // 초기화 함수 호출
+                    $("#modalPiMaster").fadeIn();
+                }
+            }).css('visibility', 'visible');
+
+
 
             //form button
             $('#btnSearch').kendoButton({
@@ -370,76 +600,74 @@
                     _this.searchMainData();
                 }
             });
-
         }
-
-        /**
-     * PM명 클릭 시 모달 창 열기
-     */
-        showPmMasterModal(pmId) {
-            let _this = this;
-            let param = {
-                action: 'detail',
-                id: pmId,
-            };
-
-            // PM 상세 정보를 가져오는 API 호출
-            let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
-
-            console.log("📌 [DEBUG] API 응답 데이터:", pmData);
-
-            if (pmData) {
-                $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
-                $("#pm_pk").val(pmData.pm_pk);
-                $("#pmNumber").val(pmData.pm_no);
-				$("#pmName").val(pmData.pm_nm);
-                $("#pmType").val(pmData.pm_type);
-                $("#maintenanceTime").val(pmData.maintenance_time);
-                $("#executionDept").data("kendoDropDownTree").value(pmData.exec_dept);
-                $("#pmManager").val(pmData.pm_manager);
-                $("#work_text").val(pmData.work_text);
-
-                $("#equ_code").val(pmData.equ_code);
-                $("#equ_name").val(pmData.equ_name);
-                $("#equ_loc").val(pmData.equ_location);
-                $("#equ_import").val(pmData.priority);
-                $("#equ_status").val(pmData.equ_status);
-                $("#equ_env_yn").val(pmData.equ_env_yn);
-            } else {
-                alert("PM 정보를 불러오지 못했습니다.");
-            }
-        }
-
 
         searchMainData() {
             let _this = this;
 
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
+            }
+
+            // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+            console.log('startDate:', startDate);
+            //console.log('date_chk:', $('#date_chk').data("kendoSwitch").checked());
+            console.log('date_chk:', getComponentValue("#date_chk", "kendoSwitch"));
+            var isDateChecked = getComponentValue("#date_chk", "kendoSwitch");
+            var isMyTaskChecked = getComponentValue("#chk_my_task", "kendoSwitch");
+            var isLegalChecked = getComponentValue("#chk_legal", "kendoSwitch");
+
             let param = {
                 action: 'read',
-                keyword: $('#keyword').val(),
-                equDept: $("#srch_dept").data("kendoDropDownTree").value(),
-                equLoc: $('#srch_location').data("kendoDropDownTree").value(),
-                pmDept: $("#srch_dept_type").data("kendoDropDownTree").value(),
-                isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
-                isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
+                chkMastNo: $('#chkMastNo').val(),
+                searchText: $('#searchText').val(),
+                equipDeptPk: getComponentValue("#equipDeptPk", "kendoDropDownTree"),
+                locPk: getComponentValue("#locPk", "kendoDropDownTree"),
+                deptPk: getComponentValue("#deptPk", "kendoDropDownTree"),
+                useYn: getComponentValue("#useYn", "kendoDropDownList"),
+                cycleTypeCd: getComponentValue("#cycleTypeCd", "kendoDropDownList"),
+                startDate: isDateChecked ? startDate : '',
+                endDate: isDateChecked ? endDate : '',
+
+                isMyTask: isMyTaskChecked ? 'Y' : 'N',
+                isLegal: isLegalChecked ? 'Y' : 'N',
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            console.log(result);
             _this.grid.setData(result);
         }
 
-        resetData() {
+        /*resetData() {
             let _this = this;
             $("#pi_master_grid").data('kendoGrid').refresh();
             FormUtil.resetForm($('#equipmentForm'));
-        }
+        }*/
 
 
         // 엑셀 다운로드
         exportExcel() {
             let gridData = $('#pi_master_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "pm_master.xlsx";
+                e.workbook.fileName = "pi_master.xlsx";
             });
             gridData.saveAsExcel();
         }
@@ -452,6 +680,22 @@
 
     $(document).ready(function () {
         page.searchMainData();
+
+        // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
+        $("#searchFormContent").removeClass("search-expanded");
+
+        // ✅ 버튼 클릭 시 동작
+        $(document).on("click", "#toggleSearchBtn", function () {
+            let searchForm = $("#searchFormContent");
+
+            if (searchForm.hasClass("search-expanded")) {
+                searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
+                $("#toggleSearchBtn").removeClass("expanded");  // 🔹 expanded 클래스 제거
+            } else {
+                searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
+                $("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
+            }
+        });
 
     });
 

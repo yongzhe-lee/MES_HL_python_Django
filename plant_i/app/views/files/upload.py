@@ -1,152 +1,136 @@
 import os
 import uuid
 
-from django.db import  transaction
-from django.http import JsonResponse, HttpResponse
+from django.db import transaction
+from django.http import JsonResponse
 
 from domain.services.common import CommonUtil
 from domain.services.logging import LogWriter
 from domain.models.system import AttachFile
-
 from configurations import settings
 
 
 def upload(context, request):
-    ''' /api/files/upload
-    '''
-    items=[]
+    ''' /api/files/upload '''
     ctxrequest = context.request
     gparam = request.GET
     posparam = request.POST
 
     DataPk = CommonUtil.try_int(posparam.get('dataPk'), 0)
-
     tableName = posparam.get('tableName')
-    attachName = posparam.get('attachName')
+    attachName = posparam.get('attachName') or 'basic'
     onlyOne = posparam.get('onlyOne', 0)
-
-    others = posparam.get('others')   #folder_name
+    others = posparam.get('others') or ''
     accepts = posparam.get('accepts')
     fileIndex = posparam.get('fileIndex', 0)
-    
+    allowedDuple = 'Y' if posparam.get('allowedDuple') == 'true' else 'N'
     action = gparam.get('action', 'save_file')
+
+    path = os.path.join(settings.FILE_UPLOAD_PATH, others)
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     try:
         if action == 'save_file':
-            files = request.FILES['uploadfile']
-            allowedDuple = 'Y' if posparam.get('allowedDuple') == 'true' else 'N'
+            files = request.FILES.getlist('uploadfile')
+            items = []
 
-            if files:
-                if files.size > 52428800: #50mb
-                    message = 'Exceeded the allowed size'
-                    return HttpResponse(status=500, reason=message)
-                ext = files.name.split('.')[-1]
-                ext = ext.lower()
-                if accepts:
-                    if not ext in accepts.split(','):
-                        message = 'This file is not allowed to upload.'
-                        return HttpResponse(status=500, reason=message)
-
-                if ext in ['py', 'js', 'aspx', 'asp', 'jsp', 'php', 'cs', 'ini', 'htaccess','exe','dll']:
-                    message = 'This file is not allowed to upload.'
-                    return HttpResponse(status=500, reason=message)
-
-                path = settings.FILE_UPLOAD_PATH + others + "\\"
-                if not os.path.exists(path):
-                    os.makedirs(path)
-
-                # 2021-04-06 업무룰로 인한 추가
-                if attachName is None:
-                    attachName = 'basic'
-            
+            for file in files:
                 try:
+                    if file.size > 52428800:
+                        raise ValueError('파일 용량은 50MB 이하만 가능합니다.')
+
+                    ext = file.name.split('.')[-1].lower()
+                    if accepts and ext not in accepts.split(','):
+                        raise ValueError('허용되지 않은 파일 형식입니다.')
+                    if ext in ['py', 'js', 'aspx', 'asp', 'jsp', 'php', 'cs', 'ini', 'htaccess', 'exe', 'dll']:
+                        raise ValueError('업로드가 금지된 확장자입니다.')
 
                     with transaction.atomic():
+                        file_name = f'{uuid.uuid4()}.{ext}'
+                        with open(os.path.join(path, file_name), mode='wb') as upload_file:
+                            upload_file.write(file.read())
 
-                        # 1.파일저장
-                        file_name = '%s.%s' % (uuid.uuid4(), ext)
-                        upload_file = open(path + file_name, mode='ab')
-                        upload_file.write(files.read())
-                        upload_file.close()
-
-                        # attachFile 정보 저장
                         attachFile = None
                         if onlyOne:
-                            q = AttachFile.objects.filter(TableName=tableName)
-                            q = q.filter(AttachName=attachName)
-                            q = q.filter(DataPk=DataPk)
-                            q = q.order_by('-id')
-                            attachFile = q.first()
+                            attachFile = AttachFile.objects.filter(
+                                TableName=tableName, AttachName=attachName, DataPk=DataPk
+                            ).order_by('-id').first()
+
+                        count = 0
                         if not attachFile:
-                            af_query = AttachFile.objects.filter(TableName=tableName, AttachName=attachName, DataPk=DataPk, FileName=files.name)
-                            if allowedDuple == 'N':
-                                if af_query.exists():
-                                    message = '이미 동일한 파일이 존재합니다.'
-                                    return JsonResponse({
-                                        'message': message,
-                                        'success': False
-                                        }, safe=False, json_dumps_params={'ensure_ascii':False})
+                            af_query = AttachFile.objects.filter(
+                                TableName=tableName, AttachName=attachName,
+                                DataPk=DataPk, FileName=file.name
+                            )
+                            if allowedDuple == 'N' and af_query.exists():
+                                raise ValueError('이미 동일한 파일이 존재합니다.')
                             count = af_query.count()
 
-                            attachFile = AttachFile()
-                            attachFile.TableName = tableName
-                            attachFile.DataPk = DataPk
-                            attachFile.AttachName = attachName
-                    
+                            attachFile = AttachFile(
+                                TableName=tableName,
+                                DataPk=DataPk,
+                                AttachName=attachName
+                            )
+
                         attachFile.PhysicFileName = file_name
-                        attachFile.FileIndex = 0
-                        attachFile.FileIndex = count
-                        attachFile.FileName = files.name
+                        attachFile.FileName = file.name
                         attachFile.ExtName = ext
                         attachFile.FilePath = path
-                        attachFile.FileSize = int(files.size)
+                        attachFile.FileSize = file.size
+                        attachFile.FileIndex = count
                         attachFile.set_audit(ctxrequest.user)
                         attachFile.save()
 
-                    items = {
-                        'success': True,
-                        'fileExt': ext,
-                        'fileNm': files.name,
-                        'fileSize': files.size,
-                        'fileId': attachFile.id,
-                        'TableName' : attachFile.TableName,
-                        'AttachName' : attachFile.PhysicFileName,
-                        'FileIndex' : attachFile.FileIndex
-                    }
-                    return JsonResponse(items, safe=False, json_dumps_params={'ensure_ascii':False})
+                        items.append({
+                            'success': True,
+                            'fileExt': ext,
+                            'fileNm': file.name,
+                            'fileSize': file.size,
+                            'fileId': attachFile.id,
+                            'TableName': attachFile.TableName,
+                            'AttachName': attachFile.PhysicFileName,
+                            'FileIndex': attachFile.FileIndex
+                        })
 
-                except Exception as ex:
-                    print(str(ex))
-                    return HttpResponse(status=500, reason='No uploaded files')
-            else:
-                return HttpResponse(status=500, reason='No uploaded files')
+                except Exception as e:
+                    items.append({
+                        'success': False,
+                        'fileNm': file.name,
+                        'message': str(e)
+                    })
+
+            return JsonResponse(items, safe=False, json_dumps_params={'ensure_ascii': False})
+
         elif action == 'remove_file':
             file_name = posparam.get('fileName')
+            AttachFile.objects.filter(
+                TableName=tableName,
+                AttachName=attachName,
+                DataPk=DataPk,
+                FileName=file_name,
+                FileIndex=fileIndex
+            ).delete()
 
-            af_query = AttachFile.objects.filter(TableName=tableName, AttachName=attachName, DataPk=DataPk, FileName=file_name, FileIndex=fileIndex)
-            af_query.delete()
-            
-            items = {
+            return JsonResponse({
                 'success': True,
                 'message': '삭제되었습니다'
-            }
-            
-            return JsonResponse(items, safe=False, json_dumps_params={'ensure_ascii':False})
-        
+            }, json_dumps_params={'ensure_ascii': False})
+
         elif action == 'call_attach_file':
-            af_query = AttachFile.objects.filter(TableName=tableName, AttachName=attachName, DataPk=DataPk)
-            af_query = af_query.order_by('FileIndex')
-            af_list = af_query.values()
-            items = {
-                'data': list(af_list),
-                'success': True
-            }
-            return JsonResponse(items, safe=False, json_dumps_params={'ensure_ascii':False})
+            af_query = AttachFile.objects.filter(
+                TableName=tableName,
+                AttachName=attachName,
+                DataPk=DataPk
+            ).order_by('FileIndex')
+            return JsonResponse({
+                'success': True,
+                'data': list(af_query.values())
+            }, json_dumps_params={'ensure_ascii': False})
 
     except Exception as ex:
-        source = 'files/upload : action-{}'.format('')
-        LogWriter.add_dblog('error', source , ex)
-        raise ex
-
-    # 문제 발생시 reason 을 한글이 아닌 영문으로 리턴해야 js 라이버러리가 제대로 동작
-    return HttpResponse(status=500, reason='No uploaded files')
+        LogWriter.add_dblog('error', f'files/upload : action-{action}', ex)
+        return JsonResponse({
+            'success': False,
+            'message': f'파일 업로드 실패: {str(ex)}'
+        }, status=500, json_dumps_params={'ensure_ascii': False})

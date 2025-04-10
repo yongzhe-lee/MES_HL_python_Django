@@ -1,0 +1,438 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+	<div class="content-ui-row">
+		<form class="search-form" id="searchForm">
+			<div class="card-content search">
+				<div class="form-ui">
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_name" data-labelCd="검색키워드 ">검색키워드 </label>
+							<div class="field-wrapper">
+								<input id="srch_equ_name" name="srch_equ_name" />
+							</div>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="card-group-btn search">
+							<button id="btnSearch" class="btn-search">조회</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="content-ui-row connect">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text">
+						<i class="material-symbols-outlined">list_alt</i>
+						<label data-labelCd="설비정보">설비정보</label>
+					</span>
+					<span>
+					</span>
+					<span>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnAdd" class="btn-search">등록</button>
+						<button id="btnSearch" class="btn-search">조회</button>
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div id="equipment_grid" style="height:540px;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+	class EquipmentPage {
+		constructor() {
+			this.grid = null;
+			this.upload = null;
+			this.baseUrl = '/api/kmms/equipment';
+
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			let equipmentGridOption = {
+				autoBind: false,
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{
+						"title": "Select All",
+						"field": "chkSelect",
+						"headerTemplate": "<input type='checkbox' id='header-equipmasterlistgrid' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-equipmasterlistgrid'></label>",
+						"template": "<input type='checkbox' id='#=equip_pk#' class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#=equip_pk#'></label>",
+						"width": "50px",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"headerAttributes": {
+							"style": "text-align: center"
+						},
+						"sortable": false
+					},
+					{
+						"title": "설비PK",
+						"field": "equip_pk",
+						"width": "0",
+						"hidden": true
+					},
+					{
+						"title": "설비코드",
+						"field": "equip_cd",
+						"width": "100px",
+						"encoded": true,
+
+					},
+					{
+						"title": "설비명",
+						"field": "equip_nm",
+						"width": "250px",
+						"encoded": true,
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#">#=equip_nm#</a>'
+					},
+					{
+						"title": "설비위치경로",
+						"field": "up_loc_path",
+						"width": "200px",
+
+					},
+					{
+						"title": "설비위치",
+						"field": "loc_nm",
+						"width": "140px",
+						"hidden": true
+					},
+					{
+						"title": "설비상태",
+						"field": "equip_status_nm",
+						"width": "90px",
+						"encoded": true,
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "설비분류",
+						"field": "equip_class_desc",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "카테고리",
+						"field": "equip_category_desc",
+						"width": "130px",
+						"encoded": true,
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "설비위치",
+						"field": "loc_cd",
+						"width": "0",
+						"hidden": true
+					},
+					{
+						"title": "프로세스",
+						"field": "process_nm",
+						"width": "150px"
+					},
+					{
+						"title": "시스템",
+						"field": "system_nm",
+						"width": "100px"
+					},
+					{
+						"title": "사업부",
+						"field": "business_nm",
+						"width": "120px",
+						"sortable": false,
+						"encoded": true
+					},
+					{
+						"title": "관리부서",
+						"field": "dept_nm",
+						"width": "120px",
+						"encoded": true
+					},
+					{
+						"title": "자산번호",
+						"field": "asset_nos",
+						"width": "100px",
+						"encoded": true
+					},
+					{
+						"title": "중요도(ABC)",
+						"field": "import_rank_nm",
+						"width": "90px",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"encoded": true
+					},
+					{
+						"title": "설치일",
+						"field": "install_dt",
+						"align": "center",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "보전자재",
+						"field": "mtrl_cnt",
+						"width": "90px",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"align": "center",
+						"encoded": true,
+
+					},
+					{
+						"title": "상위설비",
+						"field": "up_equip_nm",
+						"width": "150px",
+						"encoded": true
+					},
+					{
+						"title": "법정관리 설비 여부",
+						"field": "environ_equip_yn",
+						"width": "100px",
+						"encoded": true,
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"template": "# if (environ_equip_yn == true) { # 대상 # } else { #  # } #"
+					},
+					{
+						"title": "정비이력",
+						"field": "wo_history",
+						"width": "100px",
+						"encoded": true,
+						"sortable": false,
+						"attributes": {
+							"style": "text-align: center"
+						},
+
+					},
+					{
+						"title": "고장횟수",
+						"field": "broken_wo_cnt",
+						"width": "100px",
+						"encoded": true,
+						"sortable": false,
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"template": "#=broken_wo_cnt#건"
+					},
+					{
+						"title": "PM마스터",
+						"field": "pm_master",
+						"width": "100px",
+						"encoded": true,
+						"sortable": false,
+						"attributes": {
+							"style": "text-align: center"
+						},
+
+					},
+					{
+						"title": "점검마스터",
+						"field": "ins_master",
+						"width": "100px",
+						"encoded": true,
+						"sortable": false,
+						"attributes": {
+							"style": "text-align: center"
+						},
+
+					},
+					{
+						"title": "사용여부",
+						"field": "use_yn",
+						"width": "100px",
+						"encoded": true,
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"template": "# if (use_yn == true) { # 사용 # } else { # 사용안함 # } #"
+					},
+					{
+						"title": "고장/불용 일시",
+						"field": "breakdown_dt",
+						"width": "0",
+						"hidden": true,
+						"attributes": {
+							"style": "text-align: center"
+						},
+
+					},
+					{
+						"title": "QR 출력",
+						"field": "print",
+						"align": "center",
+						"width": "110px",
+						"sortable": false,
+						"attributes": { "style": "text-align: center" },
+
+					}
+				],
+
+				change: function (e) {
+					_this.showDetail();
+				},
+				dataBound: function (e) {
+					$(".grid-column-link").off("click").on("click", async function (e) {
+						e.preventDefault();
+						let equipPk = $(this).data("equip-pk");
+						if (!equipPk) return;
+
+						// 이미 로드된 경우 재사용
+						if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+							equipMasterPage.getEquipMasterData(equipPk);
+							return;
+						}
+
+						try {
+							// ✅ 1. equipment.html 먼저 append
+							const response = await $.get('/api/kmms/equipment?action=load_modal');
+							$('body').append(response);
+
+							// ✅ 2. DOM 안 imageUploader가 준비될 때까지 대기
+							let waitForUploader = async () => {
+								return new Promise(resolve => {
+									let count = 0;
+									const check = () => {
+										if (window.imageUploader) return resolve();
+										count++;
+										if (count > 50) return resolve(); // 2.5초 대기 후 포기
+										setTimeout(check, 50);
+									};
+									check();
+								});
+							};
+							await waitForUploader();
+
+							// ✅ 3. 이제 EquipMaster 실행
+							window.equipMasterPage = new EquipMaster();
+							equipMasterPage.getEquipMasterData(equipPk);
+
+						} catch (err) {
+							console.error("equipment.html 로드 실패:", err);
+							alert("설비 정보를 불러오는데 실패했습니다.");  // 사용자에게 오류 메시지 표시
+						}
+					});
+
+					for (var i = 0; i < this.columns.length; i++) {
+						this.autoFitColumn(i);
+					};
+
+					// grid 데이터 개수 표시
+					kendoUtil.showGridRowCount(this.element);
+				},
+				height: "540px"
+			};
+			_this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "base",
+				click: function () {
+					_this.searchMainData();
+				}
+			});
+
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					page.exportExcel();
+				}
+			});
+
+			$('#btnClear').kendoButton({
+				themeColor: "base", click: function () {
+					//_this.resetData();
+				}
+			});
+			$('#btnSave').kendoButton({
+				themeColor: "info",
+				click: function () {
+					_this.saveData();
+				}
+			});
+
+		}
+
+		searchMainData() {
+			let _this = this;
+
+			let param = {
+				action: 'read',
+				equipment: $('#srch_equ_name').val(),
+			};
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+			// ✅ Kendo Grid에 데이터 설정
+			let grid = $("#equipment_grid").data("kendoGrid");
+			if (grid) {
+				grid.dataSource.data(result); // ✅ 데이터를 직접 설정
+				grid.refresh(); // ✅ UI 갱신
+			}
+		}
+
+		showDetail() {
+			let _this = this;
+			let data = _this.grid.getSelect();
+			if (data.length > 0) {
+				let selectData = data[0];
+				FormUtil.BindDataForm(selectData, $('#equipmentForm'));
+				console.log("selectData:\n", selectData);
+			}
+		}
+
+		// 엑셀 다운로드
+		exportExcel() {
+			let gridData = $('#equipment_grid').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "equipment.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
+	};
+
+	let page = null;
+	page = new EquipmentPage();
+
+	$(document).ready(function () {
+		page.searchMainData();
+	});
+
+</script>
+
+{% endblock %}
