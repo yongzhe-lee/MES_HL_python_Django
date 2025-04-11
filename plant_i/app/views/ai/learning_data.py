@@ -508,13 +508,14 @@ def learning_data(context):
                 INNER JOIN attach_file af ON af."DataPk" = A.id 
                 AND af."TableName" = 'ds_model'
             ),
-            Parent AS (
+            Master AS (
                 -- 부모 데이터 (항상 표시)
                 SELECT
-                    CONCAT('M_', mm.id) AS tree_id,
+                    CONCAT('MM_', mm.id) AS tree_id,
                     NULL AS tree_master_id,
                     mm.id AS master_id,    
                     CAST(NULL AS INTEGER) AS model_id,  -- 자료형 맞춤
+                    CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
                     e."Name" AS equip_name,
                     mm."Name" AS name,
                     mm."Type" AS type,
@@ -536,13 +537,14 @@ def learning_data(context):
 
             sql += '''
             ),
-            Child AS (
+            Model AS (
                 -- 자식 데이터 (검색어 있을 때만 필터링)
                 SELECT
-                    CONCAT('C_', md.id) AS tree_id,
-                    CONCAT('M_', md."DsMaster_id") AS tree_master_id,
+                    CONCAT('MD_', md.id) AS tree_id,
+                    CONCAT('MM_', md."DsMaster_id") AS tree_master_id,
                     md."DsMaster_id" AS master_id,
                     md.id AS model_id,
+                    CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
                     NULL AS equip_name,
                     md."Name" AS name,
                     md."Type" AS type,
@@ -571,141 +573,64 @@ def learning_data(context):
                     OR UPPER(md."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                 )
                 '''
+            
+            sql += '''
+            ),
+            Train AS (
+                SELECT
+                    CONCAT('MT_', mt.id) AS tree_id,
+                    CONCAT('MD_', mt."DsModel_id") AS tree_master_id,
+                    CAST(NULL AS INTEGER) AS master_id,  -- 자료형 맞춤
+                    mt."DsModel_id" AS model_id,
+                    mt.id AS train_id,
+                    NULL AS equip_name,
+                    CONCAT(mt."AlgorithmType", '_', mt."TrainStatus") AS name,
+                    mt."TaskType" AS type,
+                    mt."Version" AS ver,
+                    mt."Description" AS description,
+                    mt."_created" AS _created,
+                    CAST(NULL AS INTEGER) AS var_count,  -- 자료형 맞춤
+                    NULL AS file_name,
+                    CAST(NULL AS INTEGER) AS file_id     -- 자료형 맞춤
+                FROM ds_model_train mt
+                WHERE 1=1
+            '''
+            if keyword:
+                sql += '''
+                AND (
+                    UPPER(mt."TaskType") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(mt."AlgorithmType") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(mt."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                )
+                '''
 
             sql += '''
             )
-            SELECT * FROM Parent
+            SELECT * FROM Master
             WHERE 1=1
             '''
             if keyword:
                 sql += '''
-                AND master_id IN (SELECT master_id FROM Child)
+                AND master_id IN (SELECT master_id FROM Model)
                 '''
+
             sql += '''
             UNION ALL
-            SELECT * FROM Child
+            SELECT * FROM Model
             '''
+            if keyword:
+                sql += '''
+                AND model_id IN (SELECT model_id FROM Train)
+                '''
 
-            # if keyword:
-            #     sql += '''
-            #     AND (tree_master_id IN (SELECT tree_id FROM Parent) OR tree_id IN (SELECT tree_id FROM Child))
-            #     '''
+            sql += '''
+            UNION ALL
+            SELECT * FROM Train
+            '''
 
             sql += '''
             ORDER BY tree_master_id NULLS FIRST, name ASC;
             '''
-
-            # sql = '''
-            # WITH A AS (
-            #     SELECT md.id, md."Name" AS name, md."Description" AS description, md."Type" AS type, md._created
-            #     FROM ds_model md
-            # ),
-            # B AS (
-            #     SELECT A.id,
-            #            COUNT(mc.*) AS var_count
-            #     FROM A
-            #     INNER JOIN ds_model_col mc ON mc."DsModel_id" = A.id
-            #     GROUP BY A.id
-            # ),
-            # F AS (
-            #     SELECT A.id, af.id AS file_id, af."FileName" AS file_name
-            #     FROM A
-            #     INNER JOIN attach_file af ON af."DataPk" = A.id 
-            #     AND af."TableName" = 'ds_model'
-            # ),
-            # T AS (
-            #     SELECT
-            #         CONCAT('M_', mm.id) AS tree_id,
-            #         NULL AS tree_master_id,
-            #         mm.id AS master_id,    
-            #         NULL AS model_id,
-            #         mm."Name" AS name,
-            #         mm."Type" AS type,
-            #         mm."Type" AS master_type,
-            #         NULL AS ver,
-            #         NULL AS description,
-            #         NULL AS file_path,
-            #         NULL AS algorithm_type,
-            #         mm."_created" AS _created,
-            #         NULL AS var_count,  -- ds_master에는 var_count 없음
-            #         NULL AS file_name,  -- ds_master에는 file_name 없음
-            #         NULL AS file_id     -- ds_master에는 file_id 없음
-            #     FROM ds_master mm
-            #     UNION ALL
-            #     SELECT
-            #         CONCAT('C_', md.id) AS tree_id,
-            #         CONCAT('M_', md."DsMaster_id") AS tree_master_id,
-            #         md."DsMaster_id" AS master_id,
-            #         md.id AS model_id,
-            #         md."Name" AS name,
-            #         md."Type" AS type,
-            #         mm."Type" AS master_type,
-            #         md."Version" AS ver,
-            #         md."Description" AS description,
-            #         md."FilePath" AS file_path,
-            #         tc."AlgorithmType" AS algorithm_type,
-            #         md."_created" AS _created,
-            #         B.var_count AS var_count,  -- 변수 개수 추가
-            #         F.file_name AS file_name,  -- 파일명 추가
-            #         F.file_id AS file_id
-            #     FROM ds_model md
-            #     LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
-            #     LEFT JOIN ds_master mm ON mm.id = md."DsMaster_id"
-            #     LEFT JOIN B ON B.id = md.id  -- 변수 개수 조인 (ds_model_col 반영)
-            #     LEFT JOIN F ON F.id = md.id  -- 파일명 조인
-            #     WHERE 1=1
-            # '''
-            # if keyword:
-            #     sql += '''
-            #     AND (
-            #         UPPER(md."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-            #         OR UPPER(md."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-            #         OR UPPER(md."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-            #     )
-            #     '''
-            # if master_type:
-            #     sql += '''
-            #     AND UPPER(master_type) = UPPER(%(master_type)s)
-            #     '''
-            # sql += '''
-            # ORDER BY tree_master_id NULLS FIRST, name ASC;
-            # '''
-
-            # sql = '''
-            # SELECT
-            #     mm.id AS master_id
-            #     , mm."Name" AS master_name
-            #     , mm."Type" AS master_type
-            #     , mm."_created"
-            #     , COALESCE(md.id, mm.id) AS id
-            #     , md."Name" AS name
-            #     , md."Type" AS type
-            #     , md."SourceName" AS source
-            #     , md."Version" AS ver
-            #     , md."Description" AS description
-            #     , md."FilePath" AS file_path
-            #     , tc."AlgorithmType" AS algorithm_type
-            #     , md."_created" AS model_created
-            # FROM
-            #     ds_master mm                
-            # LEFT OUTER JOIN
-            #     ds_model md ON md."DsMaster_id" = mm.id
-            # LEFT OUTER JOIN
-            #     ds_tag_corr tc ON tc."DsModel_id" = md.id
-            # WHERE 1=1
-            # '''
-            # if master_type:
-            #     sql += '''
-            #     AND UPPER(mm."Type") = UPPER(%(master_type)s)
-            #     '''
-            # if keyword:
-            #     sql +='''
-            #     AND (
-            #         UPPER(mm."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-            #         OR UPPER(mm."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
-            #     )
-            #     '''
-            # sql += '''ORDER BY mm."Type", mm."Name", md."Name" desc'''
 
             dc = {}
             dc['master_type'] = master_type
@@ -1617,44 +1542,53 @@ def learning_data(context):
 
         # 작성중 모델 설정 저장
         elif action == 'save_ds_model_train':
-            md_id = CommonUtil.try_int(posparam.get('md_id'))
             mt_id = CommonUtil.try_int(posparam.get('id'))
+            md_id = CommonUtil.try_int(posparam.get('md_id'))
             # 설정에 필요한 멤버들
-            description = posparam.get('Description')
             task_type = posparam.get('TaskType')
             algorithm_type = posparam.get('AlgorithmType')
-            version = posparam.get('Version', 1)
-            train_status = posparam.get('TrainStatus')
-            
-            if mt_id:
-                mt = DsModelTrain.objects.get(id=mt_id) # 수정이 필요한가?
+            description = posparam.get('Description')
+            # version = posparam.get('Version')
+
+            # 1. 동일 조건으로 필터링된 기존 훈련 정보
+            q = DsModelTrain.objects.filter(
+                DsModel_id=md_id,
+                TaskType=task_type,
+                AlgorithmType=algorithm_type
+            )
+
+            # 2. 기존 정보를 수정할 건지 여부(mt_id가 있고 훈련 설정이 일치할 때)
+            is_editable = mt_id and q.filter(id=mt_id).exists()
+            is_new = not is_editable
+
+            # 3. 객체 준비
+            if is_editable:
+                mt = q.get(id=mt_id)
+
             else:
-                mt = DsModelTrain()
-                # 신규 생성 시 버전관리
-                # 동일 모델, 작업유형, 알고리즘이 이미 있으면 버전 업
-                q = DsModelTrain.objects.filter(DsModel_id=md_id, TaskType=task_type, AlgorithmType=algorithm_type)
-                if q.exists():
-                    old_ver = q.order_by('-Version').first().Version
-                    new_ver = float(old_ver) + 0.1
-                    version = new_ver
+                latest = q.order_by('-Version').first()
+                mt = DsModelTrain(
+                    DsModel_id=md_id,
+                    TaskType=task_type,
+                    AlgorithmType=algorithm_type,
+                    TrainStatus='INITIALIZED',
+                    # 동일한 훈련 정보 객체가 있으면 버전에 + 0.1을 더해서 저장. 없으면(신규) default=1
+                    Version=(float(latest.Version) + 0.1 if latest else 1)
+                )
 
-            mt.DsModel_id = md_id
+            # 4. 공통 처리
             mt.Description = description
-            mt.TaskType = task_type
-            mt.AlgorithmType = algorithm_type
-            mt.TrainStatus = train_status            
-            mt.Version = version
-
             mt.set_audit(user)
+
             mt.save()
-            mt_id = mt.id
 
             # 모델 저장 끝나면 param 저장
 
             # set table_name, data_pk
             # daService = DaService('ds_model', md_id)
  
-            items = {'success': True, 'mt_id':mt_id }
+            items = {'success': True, 'mt_id':mt.id, 
+                     'message': '새 훈련 정보가 생성되었습니다.' if is_new else '기존 훈련 정보가 수정되었습니다.' }
 
         # 작성중. 모델 학습(ai 서버에 작업 요청)
         elif action == 'learning_data':

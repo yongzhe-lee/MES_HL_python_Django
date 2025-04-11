@@ -465,18 +465,20 @@
                                         <i class="material-symbols-outlined">tune</i>
                                         <label data-labelCd="모델 설정">모델 설정</label>
                                     </span>
-                                    <!--<span>
+                                    <span>
                                         <button id="btnSaveTrain" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
                                         <button id="btnTrainStart" title="학습"><i class="material-symbols-outlined">play_arrow</i>학습</button>
-                                    </span>-->
+                                    </span>
                                 </div>
-                                <form class="search-form" id="modelTrainForm">
+                                <form id="modelTrainForm">
                                     <div class="edit-form-ui">
+                                        <input id=id type="hidden" />
+
                                         <div class="col-12">
                                             <div class="form-item align-h">
-                                                <label class="k-label k-form-label" for="cboModelTask" data-labelCd="분석유형">분석유형</label>
+                                                <label class="k-label k-form-label essential" for="TaskType" data-labelCd="분석유형">분석유형</label>
                                                 <div class="field-wrapper">
-                                                    <select id="cboModelTask" name="cboModelTask" class="form-control"></select>
+                                                    <select id="TaskType" name="TaskType" class="form-control" data-msg="분석유형을"></select>
                                                     <small id="taskHint" class="form-text text-muted" style="display:none;">
                                                         <i class="material-symbols-outlined">info</i>
                                                         <span></span>
@@ -484,11 +486,12 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                         <div class="col-12">
                                             <div class="form-item align-h">
-                                                <label class="k-label k-form-label" for="cboAlgoType" data-labelCd="알고리즘">알고리즘</label>
+                                                <label class="k-label k-form-label essential" for="AlgorithmType" data-labelCd="알고리즘">알고리즘</label>
                                                 <div class="field-wrapper">
-                                                    <select id="cboAlgoType" name="cboAlgoType" class="form-control"></select>
+                                                    <select id="AlgorithmType" name="AlgorithmType" class="form-control" data-msg="알고리즘을"></select>
                                                     <small id="algoInfo" class="form-text text-muted" style="display:none;">
                                                         <i class="material-symbols-outlined">info</i>
                                                         <span></span>
@@ -496,28 +499,49 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                         <!-- 동적 하이퍼파라미터 폼 들어갈 자리 -->
                                         <!-- 우선 제이슨으로 받고 나중에 동적 폼으로 변경 -->
                                         <div class="col-12">
                                             <div class="form-item align-h">
-                                                <label class="k-label k-form-label" for="hyperParamForm" data-labelCd="하이퍼파라미터 설정">하이퍼파라미터 설정</label>
+                                                <label class="k-label k-form-label" for="hyperParam" data-labelCd="하이퍼파라미터 설정">하이퍼파라미터 설정</label>
                                                 <div class="field-wrapper">
-                                                    <textarea id="hyperParamForm" name="hyperParamForm"></textarea>
-                                                    <!--<textarea id="hyperParamForm" name="hyperParamForm" class="form-control"></textarea>-->
-                                                    <!--<div id="hyperParamForm" name="hyperParamForm" class="form-control"></div>-->
+                                                    <textarea id="hyperParam" name="hyperParam"></textarea>
+                                                    <!--<textarea id="hyperParam" name="hyperParam" class="form-control"></textarea>-->
+                                                    <!--<div id="hyperParam" name="hyperParam" class="form-control"></div>-->
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-item align-h">
+                                                <label class="k-label k-form-label" for="Description" data-labelCd="비고">비고</label>
+                                                <div class="field-wrapper">
+                                                    <textarea id="Description" name="Description"></textarea>
+                                                    <!--<textarea id="hyperParam" name="hyperParam" class="form-control"></textarea>-->
+                                                    <!--<div id="hyperParam" name="hyperParam" class="form-control"></div>-->
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="TrainStatusWrap" style="display:none;">
+                                            <div class="form-item align-h">
+                                                <label class="k-label k-form-label" for="TrainStatus" data-labelCd="학습상태">학습상태</label>
+                                                <div class="field-wrapper">
+                                                    <input id="TrainStatus" name="TrainStatus" class="form-control"/>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
                             <!-- 실행 버튼 -->
-                                <div class="card-group-btn k-mt-5">
+                                <!--<div class="card-group-btn k-mt-5">
                                     <span></span>
                                     <span>
                                         <button id="btnSaveTrain" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
                                         <button id="btnTrainStart" title="학습"><i class="material-symbols-outlined">play_arrow</i>학습</button>
                                     </span>
-                                </div>
+                                </div>-->
                             </div>
                         </div>
                         <!-- 결과 화면 영역 (오른쪽) -->
@@ -551,64 +575,10 @@
     </div>
 </div>
 {% verbatim %}
-<script type="text/x-kendo-template" id="fileUploadTemplate">
-    <div class="content_wrap popup">
-        <div class="card-content edit">
-            <form id="dsDataForm" class="search-form">
-                <div class="form-ui">
-                    <input type="hidden" id="id" name="id">
-                    <div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label essential" for="Name" data-labelCd="모델명">모델명</label>
-                            <div class="field-wrapper">
-                                <input type="text" id="Name" name="Name" data-msg="모델명을" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="Type" data-labelCd="구분">구분</label>
-                            <div class="field-wrapper">
-                                <input type="text" id="Type" name="Type" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="Description" data-labelCd="비고">비고</label>
-                            <div class="field-wrapper">
-                                <textarea id="Description" name="Description"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            <!-- kendo 첨부파일 -->
-            <div class="card-group-btn k-mt-5">
-                <span class="info-text"><i class="material-symbols-outlined">attach_file</i><label data-labelCd="첨부된 데이터(csv)">첨부된 데이터(csv)</label></span>
-            </div>
-            <form id="fileForm">
-                <div class="form-item align-v">
-                    <div class="field-wrapper">
-                        <div id="da_file_area" name="da_file_area"></div>
-                    </div>
-                </div>
-            </form>
-            <div class="card-group-btn" style="margin-top:10px">
-                <span></span>
-                <span>
-                    <button id="btnSaveModalData"><i class="material-symbols-outlined">save</i>저장</button>
-                    <button id="btnCloseModal" class="btn-cancel">닫기</button>
-                </span>
-            </div>
-        </div>
-    </div>
-</script>
 {% endverbatim %}
 {% endblock %}
 
 {% block scripts %}
-<!--{% include 'common/file_upload.html' %}-->
 <script type="text/javascript">
     class DataSciencePage {
         constructor() {
@@ -855,10 +825,15 @@
             });
 
             // tab12 form 초기화
-            AjaxUtil.fillDropDownOptions($('#cboModelTask'), 'user_code', 'choose', null, 'TASK_TYPE');
-            AjaxUtil.fillDropDownOptions($('#cboAlgoType'), 'user_code', 'choose', null, 'ALGORITHM_TYPE');
-            $('#hyperParamForm').kendoTextArea({
+            AjaxUtil.fillDropDownOptions($('#TaskType'), 'user_code', 'choose', null, 'TASK_TYPE');
+            AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', null, 'ALGORITHM_TYPE');
+            $('#hyperParam').kendoTextArea({
                 rows: 10,
+                maxLength: 200,
+                placeholder: ""
+            });
+            $('#Description').kendoTextArea({
+                rows: 4,
                 maxLength: 200,
                 placeholder: ""
             });
@@ -866,40 +841,53 @@
             // 선택한 알고리즘과 매핑된 분석유형 저장용
             let currentAlgoMappedTasks = [];
 
-            $('#cboModelTask').change(function () {
+            // 분석유형
+            const taskTypeDropdown = $('#TaskType').data('kendoDropDownList');
+            const taskTypeData = taskTypeDropdown.dataSource.data();
+
+            $('#TaskType').change(function () {
                 const taskType = this.value;
                 const groupCode = taskType ? `AI_${taskType}` : 'ALGORITHM_TYPE';
+                const selectedAlgo = $('#AlgorithmType').data('kendoDropDownList').value();
+                const taskHint = $('#taskHint');
 
-                const selectedAlgo = $('#cboAlgoType').data('kendoDropDownList').value();
-
-                // 알고리즘이 선택되어 있고, 매핑된 유형에 현재 task가 없다면
+                // 알고리즘이 선택되어 있고, 현재 선택한 task와 매칭되지 않을 때
                 if (selectedAlgo && taskType && !currentAlgoMappedTasks.includes(taskType)) {
+                    const taskNames = currentAlgoMappedTasks
+                        .map(code => {
+                            const match = taskTypeData.find(row => row.value === code || row.code === code);
+                            return match ? match.text : code;
+                        })
+                        .join(', ');
+
                     Alert.confirm('info', 
-                        '선택하신 분석유형은 현재 선택된 알고리즘과 매핑되지 않습니다.' +
-                        '<br/>확인 버튼을 누르면 알고리즘 목록이 리셋됩니다.', 
+                        '해당 분석유형에 현재 선택되어 있는 알고리즘을 적용할 수 없습니다.' +
+                        '확인 버튼을 누르시면 선택하신 알고리즘 정보가 초기화됩니다.', 
                         () => {
-                            AjaxUtil.fillDropDownOptions($('#cboAlgoType'), 'user_code', 'choose', selectedAlgo, groupCode);
-                            $('#cboAlgoType').data('kendoDropDownList').value('');
-                            $('#cboAlgoType').trigger('change');
+                            // 확인 -> 알고리즘 리셋(리셋이므로 seleted = null)
+                            AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', null, groupCode);
+                            //AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', selectedAlgo, groupCode);
+                            //$('#AlgorithmType').data('kendoDropDownList').value('');
+                            $('#AlgorithmType').trigger('change');
                         },
                         () => {
-                            // 취소: 분석유형 선택을 되돌림
-                            $('#cboModelTask').data('kendoDropDownList').value(''); // 또는 이전값
+                            // 취소 시 -> 알고리즘에 맞는 추천유형 보여주기(현재 선택된 분석유형이 알고리즘과 맞지 않음!)
+                            taskHint.show().find('span').text(`추천 분석유형: ${taskNames}`);
                         }
                     );
                     return; // Alert 후 나머지 실행 막기
                 }
                 
-                AjaxUtil.fillDropDownOptions($('#cboAlgoType'), 'user_code', 'choose', selectedAlgo, groupCode);
+                AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', selectedAlgo, groupCode);
 
-                $('#cboAlgoType').trigger('change');
+                $('#AlgorithmType').trigger('change');
 
             });
 
             let previousAlgoValue = null;
 
-            $('#cboAlgoType').off('change').on('change', function (e) {
-                //$('#cboAlgoType').change(function (e) {
+            $('#AlgorithmType').off('change').on('change', function (e) {
+                //$('#AlgorithmType').change(function (e) {
                 const algo = this.value;
                 console.log('change 발생!', {
                     time: new Date().toISOString(),
@@ -907,7 +895,8 @@
                     triggeredBy: e.originalEvent ? '사용자 또는 trigger' : '스크립트 내부'
                 });
 
-                // 외부 로직 억제(외부 원인 change 호출 방지)
+                // 외부 원인 change 호출 방지
+                // algo가 유효한 값일 때만 이전 값과 비교하여 중복 억제
                 if (algo != '' && algo == previousAlgoValue) {
                     console.log('[중복 억제] same value, skipping...');
                     return;
@@ -915,9 +904,8 @@
 
                 previousAlgoValue = algo;
 
-                const selectedTask = $('#cboModelTask').data('kendoDropDownList').value();
-                const algoList = $('#cboAlgoType').data('kendoDropDownList').dataSource.data();
-                //const algoList = $('#cboAlgoType').data('kendoDropDownList').dataSource.data();
+                const selectedTask = $('#TaskType').data('kendoDropDownList').value();
+                const algoList = $('#AlgorithmType').data('kendoDropDownList').dataSource.data();
                 const taskHint = $('#taskHint');
                 const algoInfo = $('#algoInfo');
 
@@ -929,7 +917,7 @@
 
                 if (selectedTask) {
                     if (algoList.length <= 1) { 
-                        // 선택된 분석유형이 있지만, 알고리즘이 1개 이하일 때(기본 1개. text:전체, value:'')
+                        // 선택된 분석유형이 있지만, 알고리즘이 1개 이하일 때(기본 1개. text:선택, value:'')
                         algoInfo.show().find('span').text('해당 분석 유형에 적합한 알고리즘이 없습니다.');
                         //algoInfo.show();
 
@@ -938,9 +926,10 @@
                     // 리턴을 여기서 안하는 이유는 selectedTask가 있어도 아래를 타야할 때가 있어서 
                 } 
 
-                if (!algo) {
-                    return;
-                }                    
+                //if (!algo) {
+                //    return;
+                //}
+                if (!algo) return;
 
                 const rows = AjaxUtil.getSelectData('user_code', null, algo);
                 const taskTypes = [...new Set(
@@ -954,9 +943,15 @@
                     taskHint.show().find('span').text('해당 알고리즘은 분석 유형과 매핑되어 있지 않습니다.');
                     //taskHint.show();
                 } else {
-                    const taskNames = AjaxUtil.getSelectData('user_code', 'TASK_TYPE')
-                        .filter(t => taskTypes.includes(t.code || t.value))
-                        .map(t => t.text)
+                    //const taskNames = AjaxUtil.getSelectData('user_code', 'TASK_TYPE')
+                    //    .filter(t => taskTypes.includes(t.code || t.value))
+                    //    .map(t => t.text)
+                    //    .join(', ');
+                    const taskNames = taskTypes
+                        .map(code => {
+                            const match = taskTypeData.find(row => row.value === code || row.code === code);
+                            return match ? match.text : code;
+                        })
                         .join(', ');
 
                     console.log(`selectedTask: ${selectedTask} \ntaskTypes: ${taskTypes}`);
@@ -1907,7 +1902,7 @@
                         _this.renderGrid("data_detail_grid", "ds_rows_list");
                         _this.toggleDataCrudButtons();
                     } else {
-                        Alert.alert('', '저장 실패');
+                        Alert.alert('error', '저장 실패');
                     }
                 }
             }
@@ -2071,8 +2066,8 @@
 
                 //_this.modelGrid.grid.refresh();
                 //_this.modelGrid.grid.dataSource.read();
+                //_this.modelGrid.expandAll();
 
-                // _this.modelGrid.expandAll();
                 // 잡았다 요놈. 여기서 아래 에러 발생
                 //Uncaught NotFoundError: Failed to execute 'replaceChild' on 'Node': The node to be replaced is not a child of this node.
 
@@ -2243,7 +2238,27 @@
         }
 
         saveTrainConfig() {
+            let _this = this;
 
+            let url = _this.baseUrl + '?action=save_ds_model_train';
+
+            let data = FormUtil.extractForm($('#modelTrainForm'));
+            data['md_id'] = _this.md_id;
+
+            console.log('form data', data);
+
+            if (checkForm($('#modelTrainForm')) === false) return;
+
+            let fnSuccess = function (resp) {
+                if (resp.success) {
+                    // 팝업 닫으면서 데이터 전달
+                    window.popupData.close(resp);
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
         }
 
         startTrain() {
