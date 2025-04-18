@@ -1,0 +1,391 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-5 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="발생일">발생일</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="line_id" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="line_id" id="line_id"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="equ_id" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="equ_id" id="equ_id"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" placeholder="알람코드, 내용" />
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="Alarm발생이력">Alarm발생이력</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="alarm_history_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">edit_square</i>알람발생상세</span>
+                    <span>
+                    </span>
+                </div>
+
+                <form id="lineForm">
+                    <input type="hidden" id="id" name="id" />
+                    <div class="edit-form-ui">
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="alarm_cd" data-labelCd="Alarm코드">Alaram코드</label>
+                                <div class="field-wrapper">
+                                    <input id="alarm_cd" name="alarm_cd" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="alarm_num" data-labelCd="Alarm번호">Alaram번호</label>
+                                <div class="field-wrapper">
+                                    <input id="alarm_num" name="alarm_num" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="alarm_nm_en" data-labelCd="Alarm명">Alaram명</label>
+                                <div class="field-wrapper">
+                                    <input id="alarm_nm" name="alarm_nm" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="start_dt" data-labelCd="알람발생일시">알람발생일시</label>
+                                <div class="field-wrapper">
+                                    <input id="start_dt" name="start_dt" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="end_dt" data-labelCd="알람종료일시">알람종료일시</label>
+                                <div class="field-wrapper">
+                                    <input id="end_dt" name="end_dt" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="data_date" data-labelCd="전송시간">전송시간</label>
+                                <div class="field-wrapper">
+                                    <input id="data_date" name="data_date" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="details" data-labelCd="추가정보">추가정보</label>
+                                <div class="field-wrapper">
+                                    <textarea id="details" name="details" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <hr />
+                        </div>
+
+                        <div class="card-group-btn">
+                            <span class="info-text"><i class="material-symbols-outlined">notifications_active</i>알람정보</span>
+                            <span>
+                            </span>
+                        </div>
+
+
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="cause" data-labelCd="원인">원인</label>
+                                <div class="field-wrapper">
+                                    <textarea id="cause" name="cause" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remedy" data-labelCd="대책">대책</label>
+                                <div class="field-wrapper">
+                                    <textarea id="remedy" name="remedy" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class EquipmentAlarmHistoryPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/alarm';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                columns: [
+                    { field: "line_nm", title: "라인", width: 80 },
+                    { field: "equ_nm", title: "설비", width: 100 },
+                    { field: "alarm_cd", title: "알람코드", width: 100 },
+                    { field: "alarm_num", title: "알람번호", width: 100 },
+                    { field: "alarm_nm", title: "알람명", width: 200 },
+                    { field: "start_dt", title: "알람발생일시", width: 160 },
+                    { field: "end_dt", title: "알람종료일시", width: 160 },
+                    { field: "data_date", title: "전송일시", width: 160 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                /*
+                dataBound: function (e) {
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
+                    // grid 데이터 개수 표시
+                    //kendoUtil.showGridRowCount(this.element);
+                },
+                */
+                height: "380px"
+            };
+            _this.grid = new Grid($("#alarm_history_grid"), gridOption);
+
+            //search form
+            
+
+            let $line_id = $('#line_id');
+            AjaxUtil.fillDropDownOptions($line_id, 'line', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, $line_id.val());
+
+            $line_id.on('change', function (e) {
+                AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', null, null, $line_id.val());
+            });
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+            //detail form
+            $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+
+        }
+
+        resetData() {
+            let _this = this;
+            $("#alarm_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#alarm_form'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            let alarm_cd = data[0].alarm_cd;
+            let param = {
+                action: 'alarm_detail',
+                alarm_cd: alarm_cd
+            };
+
+            let $form = $('#alarm_form');
+            let fnSuccess = function (result) {
+
+                if (result.success) {
+                    FormUtil.BindDataForm(result.data, $form);
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#alarm_form'));
+
+            let Code = $('#Code').val();
+            let Name = $('#Name').val();
+
+            if (!Code) {
+                Alert.alert('', '라인코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '라인명을 입력해주세요.');
+                return;
+            }
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#id').val(resp.id);
+                    Notify.success('저장되었습니다.');
+                    _this.resetData();
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+        }
+
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#alram_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "line.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let start_dt = $('input[name=start_dt]').val();
+            let end_dt = $('input[name=end_dt]').val();
+
+            let equ_id = $('#equ_id').val();
+            let keyword = $('#keyword').val();            
+
+            let param = {
+                equ_id: equ_id,
+                start_dt: start_dt,
+                end_dt: end_dt,
+                action: 'alarm_history_list',
+                keyword: keyword
+            };
+
+            let $gg = $('#alarm_history_grid');
+            kendo.ui.progress($gg, true);
+            _this.grid.setData([]);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.data);
+                }
+
+                kendo.ui.progress($gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+
+    };
+
+    let page = new EquipmentAlarmHistoryPage();
+
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

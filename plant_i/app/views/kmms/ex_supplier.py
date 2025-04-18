@@ -3,8 +3,6 @@ from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmExSupplier, CmWorkOrderSupplier
-from symbol import factor
-#from django.db import transaction
 
 def ex_supplier(context):
     '''

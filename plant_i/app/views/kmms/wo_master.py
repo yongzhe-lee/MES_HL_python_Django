@@ -6,7 +6,6 @@ from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
 from django.http import JsonResponse
 
-
 def wo_master(context):
     '''
     /api/kmms/wo_master

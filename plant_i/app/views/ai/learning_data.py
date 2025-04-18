@@ -486,34 +486,38 @@ def learning_data(context):
 
             sql = '''
             WITH A AS (
-                SELECT md.id, md."Name" AS name, md."Description" AS description, md."Type" AS type, md._created
+                SELECT 
+                    md.id, 
+                    md."Name" AS name, 
+                    md."Description" AS description, 
+                    md."Type" AS type, 
+                    md._created
                 FROM ds_model md
             ),
             B AS (
-                SELECT A.id,
-                       COUNT(mc.*) AS var_count
+                SELECT 
+                    A.id,
+                    COUNT(mc.*) AS var_count,
+                    COUNT(*) FILTER (WHERE mc."X" = 1 OR mc."Y" = 1) AS using_var_count  -- 25.04.14 추가
                 FROM A
                 INNER JOIN ds_model_col mc ON mc."DsModel_id" = A.id
                 GROUP BY A.id
             ),
-            -- C AS (
-                -- 중복된 AlgorithmType 제거
-                --SELECT DISTINCT ON (tc."DsModel_id") tc."DsModel_id", tc."AlgorithmType"
-                --FROM ds_tag_corr tc
-                --ORDER BY tc."DsModel_id", tc."AlgorithmType"  -- 가장 첫 번째 AlgorithmType 선택
-            -- ),
             F AS (
-                SELECT A.id, af.id AS file_id, af."FileName" AS file_name
+                SELECT 
+                    A.id, 
+                    af.id AS file_id, 
+                    af."FileName" AS file_name
                 FROM A
                 INNER JOIN attach_file af ON af."DataPk" = A.id 
                 AND af."TableName" = 'ds_model'
             ),
             Master AS (
-                -- 부모 데이터 (항상 표시)
                 SELECT
+                    '마스터' AS node_type,
                     CONCAT('MM_', mm.id) AS tree_id,
                     NULL AS tree_master_id,
-                    mm.id AS master_id,    
+                    mm.id AS master_id,
                     CAST(NULL AS INTEGER) AS model_id,  -- 자료형 맞춤
                     CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
                     e."Name" AS equip_name,
@@ -538,8 +542,8 @@ def learning_data(context):
             sql += '''
             ),
             Model AS (
-                -- 자식 데이터 (검색어 있을 때만 필터링)
                 SELECT
+                    '모델데이터' AS node_type,
                     CONCAT('MD_', md.id) AS tree_id,
                     CONCAT('MM_', md."DsMaster_id") AS tree_master_id,
                     md."DsMaster_id" AS master_id,
@@ -547,8 +551,8 @@ def learning_data(context):
                     CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
                     NULL AS equip_name,
                     md."Name" AS name,
-                    md."Type" AS type,
-                    -- mm."Type" AS master_type,
+                    COALESCE(tdt."Name", md."Type") AS type,  -- 분석유형 한글명
+                    --md."Type" AS type,
                     md."DataVersion" AS ver,
                     md."Description" AS description,
                     -- C."AlgorithmType" AS algorithm_type,
@@ -557,11 +561,12 @@ def learning_data(context):
                     F.file_name AS file_name,  
                     F.file_id AS file_id
                 FROM ds_model md
-                --LEFT JOIN C ON C."DsModel_id" = md.id  -- 여기서 중복 제거된 데이터를 가져옴
-                --LEFT JOIN ds_tag_corr tc ON tc."DsModel_id" = md.id
                 LEFT JOIN ds_master mm ON mm.id = md."DsMaster_id"
                 LEFT JOIN B ON B.id = md.id  
-                LEFT JOIN F ON F.id = md.id  
+                LEFT JOIN F ON F.id = md.id
+                LEFT JOIN code tdt ON tdt."CodeGroupCode" = 'TAGDATA_TYPE'
+                    AND tdt."Code" = md."Type"                    
+
                 WHERE 1=1
             '''
 
@@ -570,6 +575,7 @@ def learning_data(context):
                 AND (
                     UPPER(md."Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                     OR UPPER(md."Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(md."DataVersion") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                     OR UPPER(md."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                 )
                 '''
@@ -578,21 +584,28 @@ def learning_data(context):
             ),
             Train AS (
                 SELECT
+                    '학습정보' AS node_type,
                     CONCAT('MT_', mt.id) AS tree_id,
                     CONCAT('MD_', mt."DsModel_id") AS tree_master_id,
                     CAST(NULL AS INTEGER) AS master_id,  -- 자료형 맞춤
                     mt."DsModel_id" AS model_id,
                     mt.id AS train_id,
                     NULL AS equip_name,
-                    CONCAT(mt."AlgorithmType", '_', mt."TrainStatus") AS name,
-                    mt."TaskType" AS type,
+                    CONCAT('[', COALESCE(ts."Name", mt."TrainStatus"), '] ', mt."AlgorithmType") AS name,
+                    COALESCE(tt."Name", mt."TaskType") AS type,  -- 분석유형 한글명
                     mt."Version" AS ver,
                     mt."Description" AS description,
                     mt."_created" AS _created,
-                    CAST(NULL AS INTEGER) AS var_count,  -- 자료형 맞춤
+                    B.using_var_count AS var_count,
+                    --CAST(NULL AS INTEGER) AS var_count,  -- 자료형 맞춤
                     NULL AS file_name,
                     CAST(NULL AS INTEGER) AS file_id     -- 자료형 맞춤
                 FROM ds_model_train mt
+                LEFT JOIN B ON B.id = mt."DsModel_id"
+                LEFT JOIN code ts ON ts."CodeGroupCode" = 'TRAINING_STATUS'
+                    AND ts."Code" = mt."TrainStatus"
+                LEFT JOIN code tt ON tt."CodeGroupCode" = 'TASK_TYPE'
+                    AND tt."Code" = mt."TaskType"
                 WHERE 1=1
             '''
             if keyword:
@@ -600,6 +613,7 @@ def learning_data(context):
                 AND (
                     UPPER(mt."TaskType") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                     OR UPPER(mt."AlgorithmType") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                    OR UPPER(mt."Version") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                     OR UPPER(mt."Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
                 )
                 '''
@@ -617,18 +631,27 @@ def learning_data(context):
             sql += '''
             UNION ALL
             SELECT * FROM Model
+            WHERE 1=1
             '''
             if keyword:
                 sql += '''
-                AND model_id IN (SELECT model_id FROM Train)
+                --AND model_id IN (SELECT model_id FROM Train)
+                AND model_id IN (
+                    SELECT model_id FROM Train  -- 손자(DsModelTrain)가 검색 조건에 걸린 경우 (Model 기준에서는 자식)
+                    UNION
+                    SELECT id FROM ds_model     -- 본인(DsModel)이 검색 조건에 걸린 경우(이 조건이 없으면 손자 검색어 기준으로만 필터링됨)
+                    WHERE
+                        UPPER("Type") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                        OR UPPER("Name") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                        OR UPPER("DataVersion") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                        OR UPPER("Description") LIKE CONCAT('%%', UPPER(%(keyword)s),'%%')
+                )
                 '''
 
             sql += '''
             UNION ALL
             SELECT * FROM Train
-            '''
 
-            sql += '''
             ORDER BY tree_master_id NULLS FIRST, name ASC;
             '''
 
@@ -1557,14 +1580,19 @@ def learning_data(context):
                 AlgorithmType=algorithm_type
             )
 
-            # 2. 기존 정보를 수정할 건지 여부(mt_id가 있고 훈련 설정이 일치할 때)
-            is_editable = mt_id and q.filter(id=mt_id).exists()
+            # 2. 기존 정보를 수정할 건지 여부(mt_id가 있고 모델 학습이 시작되기 전일 때)
+            # is_editable = mt_id and q.filter(id=mt_id).exists()
+            is_editable = (
+                mt_id and
+                # q.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
+                DsModelTrain.objects.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
+            )
             is_new = not is_editable
 
             # 3. 객체 준비
             if is_editable:
-                mt = q.get(id=mt_id)
-
+                # mt = q.get(id=mt_id)
+                mt = DsModelTrain.objects.get(id=mt_id)
             else:
                 latest = q.order_by('-Version').first()
                 mt = DsModelTrain(
@@ -1573,7 +1601,8 @@ def learning_data(context):
                     AlgorithmType=algorithm_type,
                     TrainStatus='INITIALIZED',
                     # 동일한 훈련 정보 객체가 있으면 버전에 + 0.1을 더해서 저장. 없으면(신규) default=1
-                    Version=(float(latest.Version) + 0.1 if latest else 1)
+                    # Version=((float(latest.Version) + float(0.1) if latest else 1)
+                    Version = round(float(latest.Version) + 0.1, 1) if latest else 1.0
                 )
 
             # 4. 공통 처리
@@ -1582,13 +1611,62 @@ def learning_data(context):
 
             mt.save()
 
-            # 모델 저장 끝나면 param 저장
+            # 5. 기존에 저장된 파라미터가 있으면 삭제 후 재저장
+            DsModelParam.objects.filter(DsModelTrain_id=mt.id).delete()
+
+            hyperParams = json.loads(posparam.get('hyperParams', '{}'))
+            param_list = [
+                DsModelParam(
+                    DsModelTrain_id=mt.id,
+                    ParamKey=k,
+                    ParamValue=v
+                )
+                for k, v in hyperParams.items()
+            ]
+            DsModelParam.objects.bulk_create(param_list)
 
             # set table_name, data_pk
             # daService = DaService('ds_model', md_id)
  
             items = {'success': True, 'mt_id':mt.id, 
                      'message': '새 훈련 정보가 생성되었습니다.' if is_new else '기존 훈련 정보가 수정되었습니다.' }
+
+        elif action == 'ds_train_info':
+            ''' 
+            '''
+            mt_id = CommonUtil.try_int(gparam.get('mt_id'))
+
+            sql = ''' 
+            SELECT 
+                mt.id
+                , mt."TaskType"
+                , mt."AlgorithmType"
+                , mt."Description"
+                , mt."Version"
+                , mt."TrainStatus"
+                , ts."Name" AS status_name
+                , mt."ApplyYN"
+                , mt._created
+                , ( 
+                    SELECT json_agg(
+                        json_build_object(
+                            'ParamKey', mp."ParamKey",
+                            'ParamValue', mp."ParamValue"
+                            )
+                        )
+                    FROM ds_model_param mp
+                    WHERE mp."DsModelTrain_id" = mt.id
+                ) AS param_list
+            FROM ds_model_train mt
+            LEFT JOIN code ts ON ts."CodeGroupCode" = 'TRAINING_STATUS'
+                AND ts."Code" = mt."TrainStatus"
+            WHERE mt.id = %(mt_id)s
+            '''
+            dc = {}
+            dc['mt_id'] = mt_id
+            row = DbUtil.get_row(sql, dc)
+
+            return row
 
         # 작성중. 모델 학습(ai 서버에 작업 요청)
         elif action == 'learning_data':

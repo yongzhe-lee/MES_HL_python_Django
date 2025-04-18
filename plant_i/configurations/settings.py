@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import posixpath
-from pathlib import Path
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 
 DBMS_HOST = '10.10.10.231'      # 개발
 #DBMS_HOST = '10.226.236.34'   # 배포
-# DBMS_HOST = 'localhost'
+#DBMS_HOST = 'localhost'
 
 DBMS = 'POSTGRESQL'
 DATABASES = {
@@ -156,9 +156,14 @@ USE_MOBILE_LOGIN = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MOSQUITTO_HOST = 'localhost'
+MAIN_APP_RUN = False
+
+#MOSQUITTO_HOST = "10.226.236.34"
+MOSQUITTO_HOST = "10.10.10.231"
+#MOSQUITTO_HOST = 'localhost'
 MOSQUITTO_WEBSOCKET_PORT =9001
-TOPIC_SYSTEM_EVENT='qmlims_system_event'
+
+TOPIC_SYSTEM_EVENT='klemove_system_event'
 USE_SYSTEM_EVENT = True 
 
 SITE_NAME = 'hlklemove'

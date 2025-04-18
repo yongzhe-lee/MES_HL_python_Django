@@ -1,0 +1,246 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" placeholder="라인명, 라인코드" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="라인 목록">라인 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="line_grid"></div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class LinePage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/line';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                //height: 450,
+                //toolbar: [
+                //    "columns"
+                //],
+                //columnMenu: {
+                //    componentType: "classic",
+                //    autoSize: true,
+                //    clearAllFilters: true,
+                //    columns: {
+                //        sort: "asc",
+                //    }
+                //},
+                columns: [
+                    { field: "Name", title: "라인명", width: 100 },
+                    { field: "Code", title: "라인코드", width: 100 },
+                    { field: "Description", title: "비고", width: 100 },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                dataBound: function (e) {
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#line_grid"), gridOption);
+
+            //search form
+            $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //detail form
+            $('#Name').kendoTextBox();
+            $('#Code').kendoTextBox();
+            $('#Description').kendoTextArea({
+                rows: 4,
+                maxLength: 200,
+                placeholder: ""
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveData();
+                }
+            });
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+                    _this.deleteData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                keyword: $('#keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#line_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#lineForm'));
+        }
+
+        showDetail() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                FormUtil.BindDataForm(selectData, $('#lineForm'));
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#lineForm'));
+
+            let Code = $('#Code').val();
+            let Name = $('#Name').val();
+
+            if (!Code) {
+                Alert.alert('', '라인코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '라인명을 입력해주세요.');
+                return;
+            }
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    $('#id').val(resp.id);
+                    Notify.success('저장되었습니다.');
+                    _this.resetData();
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
+        }
+
+        deleteData() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            if (data.length > 0) {
+                let selectData = data[0];
+                let param = {
+                    id: selectData.id,
+                }
+
+                let funcSucc = function (resp) {
+                    if (resp.success) {
+                        Notify.success('삭제되었습니다.');
+                        _this.resetData();
+                        _this.searchMainData();
+                    } else {
+                        Alert.alert('error', resp.message);
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+            }
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#line_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "line.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    };
+
+    let page = new LinePage();
+
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

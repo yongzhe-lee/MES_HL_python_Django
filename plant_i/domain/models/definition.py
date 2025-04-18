@@ -802,9 +802,14 @@ class Material(models.Model):
 
 class EquipAlarm(models.Model):    
     alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, primary_key=True, null=False, db_comment="알람 코드 (기본키)")
-    Name = models.CharField('알람명', db_column='alarm_nm', max_length=100, db_comment="알람명")
-    Equipment = models.ForeignKey(Equipment, db_column='Equipment_id', on_delete=models.DO_NOTHING, db_comment="설비 ID (참조키)")
     AlarmNumber = models.CharField('알람식별번호', db_column='alarm_num', max_length=50, null=True, db_comment="알람 식별 번호")
+    Equipment = models.ForeignKey(Equipment, db_column='Equipment_id', on_delete=models.DO_NOTHING, db_comment="설비 ID (참조키)")
+    Name = models.CharField('알람명', db_column='alarm_nm', max_length=1000, db_comment="알람명")
+    NameEn = models.CharField('알람명EN', db_column='alarm_nm_en', max_length=1000, db_comment="알람명EN", null=True)    
+    UsedBy = models.CharField('사용모델', db_column='used_by', max_length=2000, null=True, db_comment="사용모델")
+    Cause = models.TextField('발생원인', db_column='cause', null=True, db_comment="발생 원인")
+    CauseEn = models.TextField('발생원인', db_column='cause_en', null=True, db_comment="발생 원인")
+    Remedy = models.TextField('조치방법', db_column='remedy', null=True, db_comment="조치 방법")
     Detail = models.TextField('알람상세', db_column='alarm_detail', null=True, db_comment="알람 상세 내용")
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 정보")
@@ -829,10 +834,14 @@ class EquipAlarm(models.Model):
         ]
 
 class EquipAlarmHistory(models.Model):
-    id  = models.BigAutoField(primary_key=True, db_comment="알람 이력 ID (기본키)")
-    alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, db_comment="알람 코드 (참조키)")
+    id  = models.BigAutoField(primary_key=True, db_comment="알람 이력 ID (기본키)")    
+    alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, db_comment="알람 코드 ") # 릴레이션을 맺지 않는다
     details = models.TextField('알람발생상세내용', db_column='details', null=True, db_comment="알람 발생 상세 내용")
-    data_date = models.DateTimeField('발생일시', db_comment="알람 발생 일시")
+
+    start_dt =  models.DateTimeField('알람발생일시', db_comment="알람발생일시", null =True)
+    end_dt =  models.DateTimeField('알람종료일시', db_comment="알람종료일시", null =True)
+
+    data_date = models.DateTimeField('설비데이터생성일시', db_comment="설비데이터생성일시")
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment="생성 일시")
 
     class Meta:

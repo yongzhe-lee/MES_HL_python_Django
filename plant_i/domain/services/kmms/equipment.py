@@ -241,169 +241,173 @@ class EquipmentService():
 
 		return items
 
-	def get_equipment_detail(self, equip_pk):
+	def get_equipment_findOne(self, equip_pk):
 		sql = ''' 
-			WITH cte AS (
+			
+		WITH cte AS (
 
-		select t.equip_pk
-		, cm_fn_get_incineration(l.loc_pk) as incinerator
+			select t.equip_pk
+			, cm_fn_get_incineration(l.loc_pk) as incinerator
 
-		, t.equip_cd
-		, t.equip_nm
-		, l.loc_pk
-		, l.loc_cd
-		, l.loc_nm
-		, l.up_loc_pk
-		, ul.loc_cd as up_loc_cd
-		, ul.loc_nm as up_loc_nm
-		, case when ul.loc_nm is null then l.loc_nm
-			   else ul.loc_nm ||  ' \ '  || l.loc_nm
-		  end as up_loc_path
-		, t.equip_status
-		, t.equip_status as equip_status_cd
-		, es.code_nm as equip_status_nm
-		, ir.import_rank_cd as import_rank_nm
-		, t.import_rank_pk
-		, ir.import_rank_cd
-		, ec.equip_category_id
-		, ec.equip_category_desc
-		, ec.remark as equip_category_remark
-		, t.ccenter_cd
-		, cc.ccenter_nm
-		, t.dept_pk
-		, d.dept_cd
-		, d.dept_nm
-		, t.up_equip_pk
-		, eu.equip_nm as up_equip_nm
-		, eu.equip_cd as up_equip_cd
-		, t.disposed_type
-		, t.disposed_type as disposed_type_cd
-		, dt.code_nm as disposed_type_nm
-		, t.disposed_date
-		, t.breakdown_dt
-		, t.warranty_dt
-		, t.install_dt
-		, t.asset_nos
-		, t.environ_equip_yn
-		, count(epm.mtrl_pk) as mtrl_cnt
-		, t.use_yn
-		, t.supplier_pk
-		, s.supplier_nm
-		, t.make_dt
-		, t.buy_cost
-		, t.maker_pk
-		, sm.supplier_nm as maker_nm
-		, t.mtrl_pk
-		, m.mtrl_cd
-		, m.mtrl_nm
-		, t.model_number
-		, t.serial_number
-		, t.equip_dsc
-		, t.photo_file_grp_cd
-		, t.doc_file_grp_cd
-		, t.equip_class_path
-		, t.equip_class_desc
-		, t.insert_ts
-		, t.inserter_id
-		, t.inserter_nm
-		, t.update_ts
-		, t.updater_id
-		, t.updater_nm
-		, t.factory_pk
-		, t.system_cd
-		, sc.code_nm as system_nm
-		, t.process_cd
-		, bc.code_nm as process_nm
-		, cm_fn_get_incineration(l.loc_pk) as incinerator
-		, STRING_AGG(esv.equip_spec_value,',') as equip_spec
+			, t.equip_cd
+			, t.equip_nm
+			, l.loc_pk
+			, l.loc_cd
+			, l.loc_nm
+			, l.up_loc_pk
+			, ul.loc_cd as up_loc_cd
+			, ul.loc_nm as up_loc_nm
+			, case when ul.loc_nm is null then l.loc_nm
+				   else ul.loc_nm ||  ' \ '  || l.loc_nm
+			  end as up_loc_path
+			, t.equip_status
+			, t.equip_status as equip_status_cd
+			, es.code_nm as equip_status_nm
+			, ir.import_rank_cd as import_rank_nm
+			, t.import_rank_pk
+			, ir.import_rank_cd
+			, ec.equip_category_id
+			, ec.equip_category_desc
+			, ec.remark as equip_category_remark
+			, t.ccenter_cd
+			, cc.code_nm as ccenter_nm
+			, t.dept_pk
+			, d.dept_cd
+			, d.dept_nm
+			, t.up_equip_pk
+			, eu.equip_nm as up_equip_nm
+			, eu.equip_cd as up_equip_cd
+			, t.disposed_type
+			, t.disposed_type as disposed_type_cd
+			, dt.code_nm as disposed_type_nm
+			, t.disposed_date
+			, t.breakdown_dt
+			, t.warranty_dt
+			, t.install_dt
+			, t.asset_nos
+			, t.environ_equip_yn
+			, count(epm.mtrl_pk) as mtrl_cnt
+			, t.use_yn
+			, t.supplier_pk
+			, s.supplier_nm
+			, t.make_dt
+			, t.buy_cost
+			, t.maker_pk
+			, sm.supplier_nm as maker_nm
+			, t.mtrl_pk
+			, m.mtrl_cd
+			, m.mtrl_nm
+			, t.model_number
+			, t.serial_number
+			, t.equip_dsc
+			, t.photo_file_grp_cd
+			, t.doc_file_grp_cd
+			, t.equip_class_path
+			, t.equip_class_desc
+			, t.insert_ts
+			, t.inserter_id
+			, t.inserter_nm
+			, t.update_ts
+			, t.updater_id
+			, t.updater_nm
+			, t.site_id
+			, t.system_cd
+			, sc.code_nm as system_nm
+			, t.process_cd
+			, bc.code_nm as process_nm
+			, cm_fn_get_incineration(l.loc_pk) as incinerator
+			, STRING_AGG(esv.equip_spec_value,',') as equip_spec
 
-		from cm_equipment t
-		inner join cm_location l on t.loc_pk = l.loc_pk
-		inner join cm_dept d on t.dept_pk = d.dept_pk
-		inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
-		left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
-		left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
-		left outer join cm_cost_center cc on t.ccenter_cd = cc.ccenter_cd
-		left outer join cm_supplier s on t.supplier_pk = s.supplier_pk
-		left outer join cm_equipment eu on t.up_equip_pk = eu.equip_pk
-		left outer join cm_base_code dt on t.disposed_type = dt.code_cd and dt.code_grp_cd = 'DISPOSE_TYPE'
-		left outer join cm_supplier sm on t.maker_pk = sm.supplier_pk
-		left outer join cm_material m on t.mtrl_pk = m.mtrl_pk
-		left outer join cm_location ul on l.up_loc_pk = ul.loc_pk
-		left outer join cm_base_code bc on bc.code_grp_cd = 'EQUIPMENT_PROCESS' and bc.code_cd = t.process_cd
-		left outer join cm_base_code sc on sc.code_grp_cd = 'EQUIP_SYSTEM' and sc.code_cd = t.system_cd
-		left outer join cm_equip_spec esv on t.equip_pk = esv.equip_pk
-		left outer join cm_equip_part_mtrl epm on t.equip_pk = epm.equip_pk
-		where t.del_yn = 'N'
-			AND t.equip_pk = %(equip_pk)s
-		group by t.equip_pk
-		, t.equip_cd
-		, t.equip_nm
-		, l.loc_pk
-		, l.loc_cd
-		, l.loc_nm
-		, t.equip_status
-		, es.code_nm
-		, t.import_rank_pk
-		, ir.import_rank_cd
-		, ec.equip_category_id
-		, ec.equip_category_desc
-		, t.ccenter_cd
-		, cc.ccenter_nm
-		, t.breakdown_dt
-		, t.warranty_dt
-		, t.disposed_type
-		, t.disposed_type
-		, dt.code_nm
-		, t.disposed_date
-		, t.install_dt
-		, t.dept_pk
-		, d.dept_cd
-		, d.dept_nm
-		, t.asset_nos
-		, t.environ_equip_yn
-		, t.up_equip_pk
-		, eu.equip_nm
-		, eu.equip_cd
-		, t.use_yn
-		, t.supplier_pk
-		, s.supplier_nm
-		, t.make_dt
-		, t.buy_cost
-		, t.maker_pk
-		, sm.supplier_nm
-		, t.mtrl_pk
-		, m.mtrl_cd
-		, m.mtrl_nm
-		, t.model_number
-		, t.serial_number
-		, t.equip_dsc
-		, t.photo_file_grp_cd
-		, t.doc_file_grp_cd
-		, t.equip_class_path
-		, t.equip_class_desc
-		, t.insert_ts
-		, t.inserter_id
-		, t.inserter_nm
-		, t.update_ts
-		, t.updater_id
-		, t.updater_nm
-		, l.up_loc_pk
-		, ul.loc_nm
-		, ul.loc_cd
-		, t.factory_pk
-		, t.process_cd
-		, bc.code_nm
-		, t.system_cd
-		, sc.code_nm
-		, ec.remark
+			from cm_equipment t
+			inner join cm_location l on t.loc_pk = l.loc_pk
+			inner join cm_dept d on t.dept_pk = d.dept_pk
+			inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
+			left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
+			left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
+			left outer join cm_base_code cc on t.ccenter_cd = cc.code_cd and cc.code_grp_cd = 'COST_CENTER'
+			left outer join cm_supplier s on t.supplier_pk = s.supplier_pk
+			left outer join cm_equipment eu on t.up_equip_pk = eu.equip_pk
+			left outer join cm_base_code dt on t.disposed_type = dt.code_cd and dt.code_grp_cd = 'DISPOSE_TYPE'
+			left outer join cm_supplier sm on t.maker_pk = sm.supplier_pk
+			left outer join cm_material m on t.mtrl_pk = m.mtrl_pk
+			left outer join cm_location ul on l.up_loc_pk = ul.loc_pk
+			left outer join cm_base_code bc on bc.code_grp_cd = 'EQUIPMENT_PROCESS' and bc.code_cd = t.process_cd
+			left outer join cm_base_code sc on sc.code_grp_cd = 'EQUIP_SYSTEM' and sc.code_cd = t.system_cd
+			left outer join cm_equip_spec esv on t.equip_pk = esv.equip_pk
 
-		)
-		SELECT cte.*
-		, cm_fn_get_dept_path_names(cte.dept_pk) as dept_path_nm
-		, cm_fn_get_dept_business_nm(cte.dept_pk) as business_nm
-	    , '{"QR":"Asset","Code":"' || cte.equip_cd || '","AssetNo":"' || coalesce (cte.asset_nos,'') || '"}' as qrbarcode
-		FROM cte
+			left outer join cm_equip_part_mtrl epm on t.equip_pk = epm.equip_pk
+			where t.del_yn = 'N'
+			
+				AND t.equip_pk = %(equip_pk)s
+
+			group by t.equip_pk
+			, t.equip_cd
+			, t.equip_nm
+			, l.loc_pk
+			, l.loc_cd
+			, l.loc_nm
+			, t.equip_status
+			, es.code_nm
+			, t.import_rank_pk
+			, ir.import_rank_cd
+			, ec.equip_category_id
+			, ec.equip_category_desc
+			, t.ccenter_cd
+			, cc.code_nm
+			, t.breakdown_dt
+			, t.warranty_dt
+			, t.disposed_type
+			, t.disposed_type
+			, dt.code_nm
+			, t.disposed_date
+			, t.install_dt
+			, t.dept_pk
+			, d.dept_cd
+			, d.dept_nm
+			, t.asset_nos
+			, t.environ_equip_yn
+			, t.up_equip_pk
+			, eu.equip_nm
+			, eu.equip_cd
+			, t.use_yn
+			, t.supplier_pk
+			, s.supplier_nm
+			, t.make_dt
+			, t.buy_cost
+			, t.maker_pk
+			, sm.supplier_nm
+			, t.mtrl_pk
+			, m.mtrl_cd
+			, m.mtrl_nm
+			, t.model_number
+			, t.serial_number
+			, t.equip_dsc
+			, t.photo_file_grp_cd
+			, t.doc_file_grp_cd
+			, t.equip_class_path
+			, t.equip_class_desc
+			, t.insert_ts
+			, t.inserter_id
+			, t.inserter_nm
+			, t.update_ts
+			, t.updater_id
+			, t.updater_nm
+			, l.up_loc_pk
+			, ul.loc_nm
+			, ul.loc_cd
+			, t.site_id
+			, t.process_cd
+			, bc.code_nm
+			, t.system_cd
+			, sc.code_nm
+			, ec.remark
+
+			)
+			SELECT cte.*
+			, cm_fn_get_dept_path_names(cte.dept_pk) as dept_path_nm
+			, cm_fn_get_dept_business_nm(cte.dept_pk) as business_nm
+			, '{"QR":"Asset","Code":"' || cte.equip_cd || '","AssetNo":"' || coalesce (cte.asset_nos,'') || '","SiteId":"' || cte.Site_Id || '"}' as qrbarcode
+			FROM cte
         '''
 		data = {}
 		try:

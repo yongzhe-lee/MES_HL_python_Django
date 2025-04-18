@@ -65,7 +65,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\das\__init__.py" />
+    <Compile Include="app\views\definition\alarm.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\definition\bom.py" />
+    <Compile Include="app\views\definition\cm_code.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
     <Compile Include="app\views\interface\equ_result.py">
@@ -86,6 +90,7 @@
     <Compile Include="app\views\kmms\base_code.py" />
     <Compile Include="app\views\kmms\equip_dept_hist.py" />
     <Compile Include="app\views\kmms\equip_group.py" />
+    <Compile Include="app\views\kmms\supplier.py" />
     <Compile Include="app\views\kmms\work_order_approval.py" />
     <Compile Include="app\views\kmms\work_order_hist.py" />
     <Compile Include="app\views\kmms\work_order.py" />
@@ -235,6 +240,7 @@
     <Compile Include="domain\services\file\attach_file.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="domain\services\interface\equipment.py" />
     <Compile Include="domain\services\interface\sap.py" />
     <Compile Include="domain\services\interface\van.py" />
     <Compile Include="domain\services\kmms\pi_master.py" />
@@ -297,6 +303,7 @@
     <Folder Include="app\templates\kmms\" />
     <Folder Include="app\templates\kmms\check\" />
     <Folder Include="app\templates\kmms\equipment\" />
+    <Folder Include="app\templates\kmms\material\" />
     <Folder Include="app\templates\kmms\wo\" />
     <Folder Include="app\templates\kmms\pm\" />
     <Folder Include="app\templates\ai\" />
@@ -359,10 +366,10 @@
     <Folder Include="domain\_sql\function\" />
     <Folder Include="domain\_sql\das_config\" />
     <Folder Include="domain\_sql\aas\" />
-    <Folder Include="domain\_sql\if\" />
-    <Folder Include="domain\_sql\if\equ\" />
     <Folder Include="domain\_sql\interface\" />
+    <Folder Include="domain\_sql\interface\alarm\fuji\" />
     <Folder Include="domain\_sql\interface\equipment\" />
+    <Folder Include="domain\_sql\interface\alarm\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
   </ItemGroup>
@@ -951,6 +958,7 @@
     <Content Include="app\templates\app\index_spa.html" />
     <Content Include="app\templates\app\system.js" />
     <Content Include="app\templates\common\file_upload.html" />
+    <Content Include="app\templates\components\EquipLoc.html" />
     <Content Include="app\templates\components\equipment.html" />
     <Content Include="app\templates\components\FileUpload.html" />
     <Content Include="app\templates\components\ImageUpload.html" />
@@ -958,6 +966,9 @@
     <Content Include="app\templates\dashboard\storyboard.html" />
     <Content Include="app\templates\definition\bom_참고.html" />
     <Content Include="app\templates\definition\bom.html" />
+    <Content Include="app\templates\definition\equipment_alaram_history.html" />
+    <Content Include="app\templates\definition\equipment_alaram.html" />
+    <Content Include="app\templates\kmms\cm_code.html" />
     <Content Include="app\templates\definition\defect_type.html" />
     <Content Include="app\templates\definition\equip_work_hist.html" />
     <Content Include="app\templates\definition\equip_obsolete.html" />
@@ -974,6 +985,12 @@
     <Content Include="app\templates\kmms\equipment\cm_equipment.html" />
     <Content Include="app\templates\kmms\equipment\cm_equip_disposed.html" />
     <Content Include="app\templates\kmms\equipment\cm_equip_workhist.html" />
+    <Content Include="app\templates\kmms\equipment\equipmentGroupList.html" />
+    <Content Include="app\templates\kmms\equipment\locList.html" />
+    <Content Include="app\templates\kmms\material\store_location.html" />
+    <Content Include="app\templates\kmms\material\storLocAddrList.html" />
+    <Content Include="app\templates\kmms\material\supplier.html" />
+    <Content Include="app\templates\kmms\wo\projectList.html" />
     <Content Include="app\templates\kmms\wo\work_order_management.html" />
     <Content Include="app\templates\kmms\wo\work_request_approval.html" />
     <Content Include="app\templates\kmms\wo\work_order_approval.html" />
@@ -981,7 +998,9 @@
     <Content Include="app\templates\kmms\wo\my_work_request.html" />
     <Content Include="app\templates\page\popup\modalModel.html" />
     <Content Include="app\templates\popup\modalEqus.html" />
+    <Content Include="app\templates\popup\modalMyWorkReq.html" />
     <Content Include="app\templates\popup\modalPiMaster.html" />
+    <Content Include="app\templates\popup\modalWoCopy.html" />
     <Content Include="app\templates\popup\modalWoDetail.html" />
     <Content Include="app\templates\popup\modalMaterials.html" />
     <Content Include="app\templates\popup\modalPmCopy.html" />
@@ -992,11 +1011,11 @@
     <Content Include="app\templates\popup\modalPmMaster.html" />
     <Content Include="app\templates\popup\modalEquLocHist.html" />
     <Content Include="app\templates\popup\modalEquLoc.html" />
+    <Content Include="app\templates\popup\modalWoProblem.html" />
+    <Content Include="app\templates\popup\modalWoProject.html" />
     <Content Include="app\templates\sample_page\design.html" />
     <Content Include="app\templates\definition\code.html" />
-    <Content Include="app\templates\kmms\store_location.html" />
     <Content Include="app\templates\definition\material_type.html" />
-    <Content Include="app\templates\kmms\supplier.html" />
     <Content Include="app\templates\definition\equipment.html" />
     <Content Include="app\templates\definition\equip_group.html" />
     <Content Include="app\templates\definition\line.html" />
@@ -1107,6 +1126,8 @@
     <Content Include="domain\_sql\function\fn_minutediff.txt" />
     <Content Include="domain\_sql\function\cm_fn_.txt" />
     <Content Include="domain\_sql\function\fn_user_nm.txt" />
+    <Content Include="domain\_sql\interface\alarm\fuji\e8xxx_KO.xml" />
+    <Content Include="domain\_sql\interface\alarm\fuji\ErrorCodeText_E.txt" />
     <Content Include="domain\_sql\interface\equipment\01_Tim dispensing vision.json" />
     <Content Include="domain\_sql\interface\equipment\02_Housing &amp; PCB Assembly.json" />
     <Content Include="domain\_sql\interface\equipment\03_Cover Screw.json" />
@@ -1121,7 +1142,7 @@
     <Content Include="domain\_sql\interface\equipment\12_Bracket Assembly Check_수정본.json" />
     <Content Include="domain\_sql\interface\equipment\250403 Techways_EOL.json" />
     <Content Include="domain\_sql\interface\equipment\eol.json" />
-    <Content Include="domain\_sql\if\equ\eol.json" />
+    <Content Include="domain\_sql\interface\equipment\example_new.json" />
     <Content Include="domain\_sql\interface\sap_bom.json" />
     <Content Include="domain\_sql\interface\sap_mat.json">
       <SubType>Code</SubType>

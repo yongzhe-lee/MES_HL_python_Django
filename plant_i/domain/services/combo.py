@@ -1,7 +1,7 @@
 import datetime
 from domain import init_once
 from configurations import settings
-from domain.models.cmms import CmEquipCategory
+from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmImportRank, CmProject, CmSupplier
 from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
@@ -27,6 +27,7 @@ class ComboService(object):
         # 알파벳 순서대로 소스를 정리해 놓자.
         cls.__dic_func__ = {
             'code_group': cls.code_group,
+            'cm_code_group': cls.cm_code_group,
             'company': cls.company,
             'das_config' : cls.das_config,
             'das_server' : cls.das_server,
@@ -41,6 +42,7 @@ class ComboService(object):
             'item_type' : cls.item_type,
             'language' : cls.language,
             'line' : cls.line,
+            'line_equipment' : cls.line_equipment,
             'log_type' : cls.log_type,
             'material' : cls.material,
             'menu_folder': cls.menu_folder,
@@ -57,7 +59,11 @@ class ComboService(object):
             'auth_user': cls.auth_user,
             'job_class': cls.job_class,
             'code': cls.code,
+            'cm_code': cls.cm_code,
             'project': cls.project,
+            'cm_project': cls.cm_project,
+            'cm_supplier': cls.cm_supplier,
+            'cm_import_rank': cls.cm_import_rank,
         }
         cls.__initialized__ = True
 
@@ -351,10 +357,33 @@ class ComboService(object):
 
         return items
 
+    @classmethod
+    def cm_code_group(cls, cond1, cond2, cond3):
+        q = CmBaseCodeGroup.objects.values('CodeGroupCode','CodeGrpName')
+        if cond1:
+            q = q.filter(SystemYn=cond1)
+        q = q.order_by('DispOrder')
+
+        items = [{'value': item['CodeGroupCode'], 'text': item['CodeGroupCode'] + '(' + item['CodeGrpName'] + ')' } for item in q]
+
+        return items
+
     # 24.12.23 김하늘 추가
     @classmethod
     def line(cls, cond1, cond2, cond3):
         q = Line.objects.values('id', 'Code', 'Name').order_by('Name')
+        items = [ {'value': item['id'],  'text': item['Code'] + '(' + item['Name'] + ')' } for item in q ]
+        return items
+
+    @classmethod
+    def line_equipment(cls, cond1, cond2, cond3):
+
+        q=None
+        if cond1:
+            q = Equipment.objects.filter(Line_id=cond1).values('id', 'Code', 'Name').order_by('id')
+        else:
+            q = Equipment.objects.all().values('id', 'Code', 'Name').order_by('id')
+
         items = [ {'value': item['id'],  'text': item['Code'] + '(' + item['Name'] + ')' } for item in q ]
         return items
 
@@ -452,9 +481,56 @@ class ComboService(object):
         q = q.order_by('DispOrder', 'Name')
         items = [ {'value': entry['Code'], 'text':entry['Name']} for entry in q ]
         return items
+
+    @classmethod
+    def cm_code (cls, cond1, cond2, cond3):        
+        q = CmBaseCode.objects.values('CodeCd', 'CodeName')        
+        if cond1:
+            if ',' in cond1:
+                cond1 = cond1.replace(' ', '')
+                cond_list = cond1.split(',')
+                q = q.filter(CmBaseCodeGroup=cond_list)
+            else:
+                q = q.filter(CmBaseCodeGroup=cond1)
+        if cond2:
+            if ',' in cond2:
+                cond2 = cond2.replace(' ', '')
+                cond_list = cond2.split(',')
+                q = q.filter(Code__in=cond_list)
+            else:
+                q = q.filter(Code=cond2)
+        if cond3:
+            if ',' in cond3:
+                cond3 = cond3.replace(' ', '')
+                cond_list = cond3.split(',')
+                q = q.exclude(Code__in=cond_list)
+            else:
+                q = q.exclude(Code=cond3)
+        q = q.filter(UseYn='Y')
+        q = q.order_by('DispOrder', 'CodeName')
+        items = [ {'value': entry['CodeCd'], 'text':entry['CodeName']} for entry in q ]
+        return items
     
     @classmethod 
     def project(cls, cond1, cond2, cond3):
         query = Project.objects.values('proj_cd', 'proj_nm').order_by('proj_nm')
         items = [ {'value': entry['proj_cd'], 'text':entry['proj_nm']} for entry in query ]
+        return items
+
+    @classmethod 
+    def cm_project(cls, cond1, cond2, cond3):
+        query = CmProject.objects.values('proj_cd', 'proj_nm').order_by('proj_nm')
+        items = [ {'value': entry['proj_cd'], 'text':entry['proj_nm']} for entry in query ]
+        return items
+
+    @classmethod 
+    def cm_supplier(cls, cond1, cond2, cond3):
+        query = CmSupplier.objects.values('SupplierCode', 'SupplierName').order_by('SupplierName')
+        items = [ {'value': entry['SupplierCode'], 'text':entry['SupplierName']} for entry in query ]
+        return items
+
+    @classmethod
+    def cm_import_rank(cls, cond1, cond2, cond3):
+        query = CmImportRank.objects.values('id', 'ImportRankDesc').order_by('ImportRankDesc')
+        items = [ {'value': entry['id'], 'text':entry['ImportRankDesc']} for entry in query ]
         return items

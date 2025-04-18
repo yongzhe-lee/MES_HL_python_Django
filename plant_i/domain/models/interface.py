@@ -3,6 +3,7 @@ from tabnanny import verbose
 from django.db import models
 from domain.services.date import DateUtil
 
+
 class IFSapMaterial(models.Model):
     '''
     STAB_WERKS	CHAR(4)	플랜트
@@ -303,10 +304,10 @@ class IFMesProductionPlan(models.Model):
           
         ]
 
-
-
 class IFMesProductionResult(models.Model):
     '''
+    설비제어PC 공정데이터 저장정보 헤더
+
     sn	varchar(100)	시리얼번호
     c_sn	varchar(100)	변경시리얼번호
     mat_cd	varchar(20)	품목코드
@@ -356,8 +357,39 @@ class IFMesProductionResult(models.Model):
           
         ]
 
+class IFEquipmentResult(models.Model):
 
-class IFMesEquipmentTestResult(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    sn = models.CharField('대표시리얼번호', max_length=100, null=True)
+    sn_new = models.CharField('변경시리얼번호', max_length=100, null=True) # 하우징 PCB Assembly 에서만 들어온다
+    sn_items = models.JSONField('다중시리얼번호', null=True) # SMT#4 에서만 들어온다
+    pcb_cn = models.CharField('PCB 번호', max_length=20, null=True) # 레이저마킹에서만 들어온다
+    pcb_input = models.CharField('pcb_input', max_length=20, null=True) #smt 전용
+    state =  models.CharField('생산결과', max_length=5, null=True)  # 합부여부
+    # light =  models.JSONField('경광등정보', null=True) DT전용
+    # light_items = models.JSONField('경광등정보', null=True) # 마운터전용 ==> DT전용
+    m_status = models.JSONField('설비가동상태정보', null=True) # 설비상태 {"status" : "run", "start_dt": "", "end_dt": ""}
+    mat_cd = models.CharField('PartNr', max_length=100, null=True) # 품목코드
+    mat_desc = models.CharField('PartDesc', max_length=100, null=True) # SAP에 등록되어 있는 품목설명
+    equ_cd = models.CharField('StationID', max_length=100, null=True) # plant_i 설비코드
+    #mes_equ_cd = models.CharField('StationNo', max_length=100, null=True)
+    bom_ver = models.CharField('bom_ver', max_length=100, null=True)
+    is_alarm = models.BooleanField('is_alarm', default=False, null=True)
+    alarm_items = models.JSONField('알람목록', null=True)  #[{"alarm_cd" : "", "":""} ]
+    module_no = models.CharField('module_no', max_length=100, null=True) # 마운터전용
+    dummy1 = models.CharField('dummy1', max_length=100, null=True)
+    dummy2 = models.CharField('dummy2', max_length=100, null=True)
+    data_date = models.DateField('생성일시')
+
+    class Meta():
+        db_table = 'if_equ_result'
+        verbose_name = 'MES 설비생산데이터 인터페이스'
+        unique_together = [
+            ["equ_cd", "data_date"]
+        ] 
+        
+
+class IFEquipmentResultItem(models.Model):
     '''
     설비측정데이터 인터페이스
     sn	varchar(100)	시리얼번호
@@ -375,43 +407,28 @@ class IFMesEquipmentTestResult(models.Model):
     proc_cd	varchar(20)	실적공정코드
     '''
     id = models.BigAutoField(primary_key=True)
-    sn = models.CharField('시리얼번호', max_length=100)
-    c_sn = models.CharField('변경시리얼번호', max_length=100)
+    EquipmentResult = models.ForeignKey(IFEquipmentResult, on_delete=models.CASCADE, null=True, db_column="rst_id")
     test_item_cd = models.CharField('검사항목코드', max_length=20)
-    test_item_val = models.CharField('항목값', max_length=20)
-    min_val = models.CharField('관리기준하한', max_length=20)
-    max_val = models.CharField('관리기준상한', max_length=20)
-    unit = models.CharField('단위', max_length=5)
-    status = models.CharField('상태', max_length=5)
-    pcb_cn = models.CharField('PCB 번호', max_length=20)
-    equ_cd = models.CharField('설비코드', max_length=20)
-    mat_cd = models.CharField('품목코드', max_length=20)
-    mes_dt = models.DateField('MES일시')
-    proc_cd = models.CharField('실적공정코드', max_length=20)
-        
-
+    test_item_val = models.CharField('항목값', max_length=20, null=True)
+    min_val = models.CharField('관리기준하한', max_length=20, null=True)
+    max_val = models.CharField('관리기준상한', max_length=20, null=True)
+    unit = models.CharField('단위', max_length=5, null=True)
+    failcode = models.CharField('failcode', max_length=2000, null=True)
     _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
+    _created = models.DateTimeField('_created', auto_now_add=True)
     
     class Meta():
-        db_table = 'if_equ_test_result'
+        db_table = 'if_equ_result_item'
         verbose_name = 'MES 설비측정데이터 인터페이스'
         unique_together = [
           
         ]
 
+
 class IFQmsDefect(models.Model):
     '''
+    DB to DB로 변경되었습니다.
+
     qis_pk	int	QIS부적합테이블 PK
     a_date	date	분석일자
     o_date	date	발생일자

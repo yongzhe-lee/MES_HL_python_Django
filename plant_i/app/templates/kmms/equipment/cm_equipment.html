@@ -312,7 +312,7 @@
 						if (!equipPk) return;
 
 						// 이미 로드된 경우 재사용
-						if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+						if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {							
 							equipMasterPage.getEquipMasterData(equipPk);
 							return;
 						}
@@ -329,7 +329,7 @@
 									const check = () => {
 										if (window.imageUploader) return resolve();
 										count++;
-										if (count > 50) return resolve(); // 2.5초 대기 후 포기
+										if (count > 20) return resolve(); // 최대 대기 시간 = 20회 × 50ms = 1000ms = 1초
 										setTimeout(check, 50);
 									};
 									check();

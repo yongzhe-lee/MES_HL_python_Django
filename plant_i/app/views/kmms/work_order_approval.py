@@ -4,8 +4,6 @@ from domain.services.date import DateUtil
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmWorkOrderApproval
-from symbol import factor
-#from django.db import transaction
 
 def work_order_approval(context):
     '''

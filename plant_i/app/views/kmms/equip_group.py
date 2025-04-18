@@ -4,8 +4,6 @@ from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmEquipCategory, CmEquipClassify
-from symbol import factor
-#from django.db import transaction
 
 def equip_group(context):
     '''

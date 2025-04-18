@@ -28,12 +28,7 @@
         <div class="left-panel">
             <div class="card-group-btn">
                 <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="AAS목록">AAS목록</label></span>
-                
-                <div class="aas-menu-btn">
-                    <div class="btn-add-menu">                        
-                        <button id="btnAddRoot" name="addRoot" title="최상위노드추가"><i class="material-symbols-outlined k-button-text add">add</i></button>
-                    </div>
-                </div>
+                <button name="add_child" data-role="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-info" type="button" role="button" aria-disabled="false" tabindex="0"><i class="material-symbols-outlined k-button-text">format_list_bulleted_add</i></button>
             </div>
             <ul class="tree" id="aas_tree">
                 <li>
@@ -144,7 +139,7 @@
                     <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
                     <!--<button name="clear"><i class="material-symbols-outlined">forms_add_on</i></button>-->
                     <button name="save"><i class="material-symbols-outlined">save</i></button>
-                    <!--<button name="delete"><i class="material-symbols-outlined">delete</i></button>-->
+                    <button name="delete"><i class="material-symbols-outlined">delete</i></button>
                     <button name="add_child"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
                 </span>
                 </div>
@@ -1235,6 +1230,14 @@
             toggleBtn.textContent = childUl.classList.contains('hidden') ? '+' : '-';
         }
     }
+
+    $('#aas_tree').on('click', '.tree-node', function (e) {
+        e.stopPropagation(); // 하위 요소 클릭시 중복 이벤트 방지
+
+        $('.tree-node').removeClass('active');
+        $(this).addClass('active');
+    });
+
 </script>
 
 {% endblock %}

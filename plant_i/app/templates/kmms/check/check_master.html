@@ -277,7 +277,7 @@
                 </div>
             </div>
         </form>
-        <div class="content-ui-row connect">
+        <div class="content-ui-row">
             <div class="card-content grid">
                 <div class="card-group-btn">
                     <span class="info-text">
@@ -526,6 +526,7 @@
                 }
             });
 
+            /*
             //choi : test버튼
             $('#btnPopupTest').kendoButton({
                 icon: "pencil",
@@ -540,10 +541,9 @@
                         // 여기서 선택된 데이터를 받아서 처리
                         console.log("선택된 항목:", selectedItem);                        
                     });
-
                 }
             });
-
+            */
 
             $('#chk_my_task').kendoSwitch({
                 checked: false,
@@ -651,12 +651,14 @@
                 isLegal: isLegalChecked ? 'Y' : 'N',
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            console.log(result);
-            _this.grid.setData(result);
+            //for test
+            //let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            //console.log(result);
+            //_this.grid.setData(result);
         }
 
-        /*resetData() {
+        /*
+        resetData() {
             let _this = this;
             $("#pi_master_grid").data('kendoGrid').refresh();
             FormUtil.resetForm($('#equipmentForm'));
@@ -678,6 +680,7 @@
 
     page = new PiMasterPage();
 
+    
     $(document).ready(function () {
         page.searchMainData();
 
@@ -696,9 +699,8 @@
                 $("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
             }
         });
-
     });
-
+    
 </script>
 
 {% endblock %}

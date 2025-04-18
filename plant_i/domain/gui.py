@@ -65,6 +65,8 @@ class GUIConfiguration():
         gui_dc['wm_equipment'] = cls.gui_item('설비', 'definition/equipment.html')
         # gui_dc['wm_equip_obsolete'] = cls.gui_item('불용설비목록', 'definition/equip_obsolete.html')
         # gui_dc['wm_equip_work_hist'] = cls.gui_item('설비별작업이력', 'definition/equip_work_hist.html')
+        gui_dc['wm_equ_alm'] = cls.gui_item('설비Alarm관리', 'definition/equipment_alaram.html')
+        gui_dc['wm_equ_alm_hist'] = cls.gui_item('설비Alarm이력', 'definition/equipment_alaram_history.html')
         gui_dc['wm_tag_group'] = cls.gui_item('태그그룹', 'definition/tag_group.html')
         gui_dc['wm_tag_master'] = cls.gui_item('태그정보', 'definition/tag.html')
         gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')
@@ -81,8 +83,7 @@ class GUIConfiguration():
         gui_dc['wm_pm_master'] = cls.gui_item('PM 마스터', 'kmms/pm/pm_master.html')
         gui_dc['wm_pm_schedule'] = cls.gui_item('PM 작업일정', 'kmms/pm/pm_schedule.html')
 
-        # 설비보전
-        
+        # 설비보전        
         # gui_dc['wm_work_order'] = cls.gui_item('WO관리', 'kmms/work_order.html')
         # gui_dc['wm_pm_work_list'] = cls.gui_item('PM작업목록조회', 'kmms/pm/pm_work_list.html')
         # gui_dc['wm_pm_result'] = cls.gui_item('PM작업결과등록', 'kmms/pm/pm_work_result.html')
@@ -95,20 +96,26 @@ class GUIConfiguration():
         # gui_dc['wm_check_work_daily'] = cls.gui_item('일상점검', 'kmms/check/check_work_daily.html')
         # gui_dc['wm_equ_grade'] = cls.gui_item('설비등급관리', 'kmms/equ_grade.html') 
 
-
         # 업무지원
         gui_dc['wm_calendar'] = cls.gui_item('캘린더', 'definition/meeting_calendar.html') #캘린더
         gui_dc['wm_board'] = cls.gui_item('공지사항', 'definition/notice_board.html') #캘린더
 
-        
-        # 25.01.02 김하늘 추가
+        #CMMS 전용 코드관리
+        gui_dc['wm_cm_code'] = cls.gui_item('기초코드', 'kmms/cm_code.html')
+        #CMMS 전용 자재 관련코드
+        gui_dc['wm_cm_material_loc'] = cls.gui_item('자재보관위치', 'kmms/material/storLocAddrList.html')
+        #CMMS 전용 설비 관련코드
+        gui_dc['wm_cm_equip_loc'] = cls.gui_item('설비위치정보', 'kmms/equipment/locList.html')
+        gui_dc['wm_cm_equip_group'] = cls.gui_item('설비분류', 'kmms/equipment/equipmentGroupList.html')
+         #CMMS 전용 작업지시 관련코드
+        gui_dc['wm_cm_wo_project'] = cls.gui_item('프로젝트', 'kmms/wo/projectList.html')
+
         # 시스템코드(대메뉴) -> 코드관리(명칭 변경)
         gui_dc['wm_code'] = cls.gui_item('기초코드', 'definition/code.html') #부적합정보
         # 코드관리 - 자재관련 코드(중메뉴)
-        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/supplier.html')# 공급업체
-        gui_dc['wm_material_type'] = cls.gui_item('품목유형', 'definition/material_type.html')# 품목유형(코드)
-        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'kmms/store_location.html')# 보관위치 주소(코드)
-
+        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/material/supplier.html')# 공급업체
+        # gui_dc['wm_material_type'] = cls.gui_item('품목유형', 'definition/material_type.html')# 품목유형(코드)
+        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'kmms/material/store_location.html')# 보관위치 주소(코드)
 
         # 시스템관리
         gui_dc['wm_user'] = cls.gui_item('사용자', 'system/user.html') # wm_user 메뉴이름변경불가

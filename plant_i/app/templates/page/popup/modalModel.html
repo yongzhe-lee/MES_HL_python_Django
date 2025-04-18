@@ -93,7 +93,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="Type" data-labelCd="구분">구분</label>
                                 <div class="field-wrapper">
-                                    <input type="text" id="Type" name="Type" />
+                                    <select type="text" id="Type" name="Type" ></select>
                                 </div>
                             </div>
                         </div>
@@ -176,7 +176,8 @@
             _this.md_id = _this.popupData.md_id;
 
             $('#Name').kendoTextBox();
-            $('#Type').kendoTextBox(/*{ enable: false }*/);
+            AjaxUtil.fillDropDownOptions($('#Type'), 'user_code', 'all', null, 'TAGDATA_TYPE')
+            //$('#Type').kendoTextBox(/*{ enable: false }*/);
             $('#DataVersion').kendoTextBox(/*{ enable: false }*/);
             $('#Description').kendoTextArea({
                 rows: 2,

@@ -815,11 +815,11 @@ values
 	, ('RANDOM_FOREST', 'RANDOM_STATE',       '랜덤 시드',           '', NULL, 'Y', 'N', NOW())	
 
 	-- 모델학습상태
-	, ('TRAINING_STATUS', 'INITIALIZED', '초기화',    '모델만 생성된 상태 (파라미터 저장 완료)', 1, 'Y', 'N', NOW())
-	, ('TRAINING_STATUS', 'PENDING',     '대기중',    '학습 요청 완료, 큐에서 대기 중',          2, 'Y', 'N', NOW())
-	, ('TRAINING_STATUS', 'TRAINING',    '학습중',    '학습 프로세스 실행 중',                   3, 'Y', 'N', NOW())
-	, ('TRAINING_STATUS', 'COMPLETED',   '학습완료',  '학습이 성공적으로 완료됨',               4, 'Y', 'N', NOW())
-	, ('TRAINING_STATUS', 'FAILED',      '학습실패',  '학습 실패 (에러 등 발생)',                5, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'INITIALIZED', '설정 완료',	'모델 생성(파라미터 저장 완료)',	1, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'PENDING',     '학습 대기중',	'학습 요청 완료, 큐에서 대기 중',	2, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'TRAINING',    '학습중',		'학습 프로세스 실행 중',			3, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'COMPLETED',   '학습 완료',	'학습이 성공적으로 완료됨',			4, 'Y', 'N', NOW())
+	, ('TRAINING_STATUS', 'FAILED',      '학습 실패',	'학습 실패 (에러 등 발생)',			5, 'Y', 'N', NOW())
 	
 
 	;
@@ -1051,5 +1051,5 @@ INSERT INTO pm_labor (work_hr,disp_order,"_status","_created","_modified","_crea
 -- AI 모델마스터
 alter SEQUENCE ds_master_id_seq restart WITH 1;
 INSERT INTO ds_master ("Name", "Type", "_status", "_created", "_modified", "_creater_id", "_modifier_id", "_creater_nm", "_modifier_nm") VALUES
-	('TEST2', 'MES', NULL, '2025-02-06 14:18:12.035', '2025-02-06 14:18:12.035', 3, 3, NULL, NULL),
-	('TEST1', 'QMS', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);
+	('EQU01_MES', 'MES', NULL, '2025-02-06 14:18:12.035', '2025-02-06 14:18:12.035', 3, 3, NULL, NULL),
+	('EQU02_QMS', 'QMS', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);

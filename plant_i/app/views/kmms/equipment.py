@@ -31,7 +31,7 @@ def equipment(context):
     if action == 'load_modal':
         try:
             equip_pk = gparam.get('equip_pk')
-            equipment_data = equipmentService.get_equipment_detail(equip_pk)
+            equipment_data = equipmentService.get_equipment_findOne(equip_pk)
 
             print("=== 모달 로딩 시작 ===")
             template_path = 'components/equipment.html'
@@ -53,9 +53,9 @@ def equipment(context):
 
         items = equipmentService.searchEquipment(equipment)
 
-    elif action=='detail':
+    elif action=='findOne':
         equip_pk = gparam.get('equip_pk', None)
-        items = equipmentService.get_equipment_detail(equip_pk)
+        items = equipmentService.get_equipment_findOne(equip_pk)
 
     elif action=='read_dispose':
         keyword = gparam.get('keyword', None)

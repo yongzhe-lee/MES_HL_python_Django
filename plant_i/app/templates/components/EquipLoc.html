@@ -1,0 +1,83 @@
+<script type="text/x-kendo-template" id="EquipLocTemplatel">
+    <div class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>설비위치 정보 등록</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+
+                    <!-- 입력 폼 영역 -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>위치코드<span class="required">*</span></label>
+                            <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="locationCode" name="locationCode" />
+                        </div>
+                        <div class="form-group">
+                            <label>위치명<span class="required">*</span></label>
+                            <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="locationName" name="locationName" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>상위위치</label>
+                            <select id="up_location" name="up_location"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>상태<span class="required">*</span></label>
+                            <select id="locStatus" name="locStatus">
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Yes/No 버튼 그룹 -->
+                    <div class="form-row">
+                        <div class="col-auto">
+                            <div class="form-item align-h">
+                                <label for="factoryYN" style="width:60px;">공장여부</label>
+                                <div class="field-wrapper">
+                                    <input type="checkbox" id="factoryYN" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="form-item align-h">
+                                <label for="buildingYN" style="width:60px;">건물여부</label>
+                                <div class="field-wrapper">
+                                    <input type="checkbox" id="buildingYN" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="form-item align-h">
+                                <label for="stockYN" style="width:120px;">보전자재창고여부</label>
+                                <div class="field-wrapper">
+                                    <input type="checkbox" id="stockYN" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 그리드 영역 -->
+                    <div class="grid-section">
+                        <h4>최근 등록된 설비위치</h4>
+                        <div id="recentLocationsGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 버튼 영역 -->
+            <div class="modal-footer">
+                <button type="button" class="btn-save" id="saveBtn">저장</button>
+                <button type="button" class="btn-close" id="closeModal">닫기</button>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+
+	class EquipLocPage{
+        constructor() {
+            this.callback = null;
+            this.baseUrl = '/api/popup/popup_test'
+        }
+        show(callback) { }
+    }
+</script>

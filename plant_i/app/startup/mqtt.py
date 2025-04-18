@@ -1,4 +1,5 @@
-import json, threading, importlib
+
+import json, threading,time, importlib
 from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -32,93 +33,37 @@ class MQTTApplication():
         FacadeMQTTClient.set_topic_handler(settings.TOPIC_DEVICE_EVENT, DeviceMessageHandler.device_event_handler)
 
 
-        '''
-        (1, 'hpc1.load', 'HPC#1 매거진로더', '은일', now(), now(), 1, 1, '', '', 1),
-(2, 'hpc1.flash' , 'HPC#1플래쉬프로그램입력', '코어솔루션', now(), now(), 1, 1, 'PCU111001', '', 1),
-(3, 'hpc1.ict' , 'HPC#1 ICT', '코어솔루션', now(), now(), 1, 1, '', 'PCU112001', 1),
-(4, 'hpc1.coatload', 'HPC#1 PCB코팅로더', 'CJT', now(), now(), 1, 1, '', '', 1),
-(5, 'hpc1.coating1', 'HPC#1 Conformal코팅1', '', now(), now(), 1, 1, '', '', 1),
-(6, 'hpc1.coating2', 'HPC#1 Conformal코팅2', '', now(), now(), 1, 1, '', '', 1),
-(7, 'hpc1.coatvision', 'HPC#1 PCB코팅비젼', '', now(), now(), 1, 1, '', '', 1),
-(8, 'hpc1.pcbrev', 'HPC#1 PCB반전', 'CJT', now(), now(), 1, 1, '', '', 1),
-(9, 'hpc1.curr', 'HPC#1 코팅경화Curing', 'YJE', now(), now(), 1, 1, '', '', 1),
-(10, 'hpc1.frobackload', 'HPC#1 프론트백로더', 'CJT', now(), now(), 1, 1, '', '', 1),
-(11, 'hpc1.uh.load', 'HPC#1 Upper 하우징 로딩', 'CJT', now(), now(), 1, 1, '', '', 1),
-(12, 'hpc1.tim', 'HPC#1 TIM도포', 'CJT', now(), now(), 1, 1, '', '', 1),
-(13, 'hpc1.lh.load', 'HPC#1 Lower하우징로딩', 'CJT', now(), now(), 1, 1, '', '',1),
-(14, 'hpc1.scrwt', 'HPC#1 스크류체결', 'CJT', now(), now(), 1, 1, '', '',1),
-(15, 'hpc1.scrwt.height', 'HPC#1 스크류높이체크', 'CJT', now(), now(), 1, 1, '', '',1),
-(16, 'hpc1.fclip', 'HPC#1 Fan&Clip Fan조립', 'CJT', now(), now(), 1, 1, '', '', 1),
-(17, 'hpc1.fclip.height', 'HPC#1 Fan&Clip 높이체크', 'CJT', now(), now(), 1, 1, '', '', 1),
-(18, 'hpc1.fclip.clip', 'HPC#1 Fan&Clip 클립', 'CJT', now(), now(), 1, 1, '', '', 1),
-(19, 'hpc1.eol1', 'HPC#1 EOL1', '일신', now(), now(), 1, 1, '', '', 1),
-(20, 'hpc1.eol2', 'HPC#1 EOL2', '일신', now(), now(), 1, 1, '', '', 1),
-(21, 'hpc1.pinchk', 'HPC#1 Pin검사', 'CJT', now(), now(), 1, 1, '', '', 1),
-(22, 'hpc1.labeling', 'HPC#1 Pin검사 라벨링', 'CJT', now(), now(), 1, 1, '', '', 1),
-(23, 'hpc1.brackassm', 'HPC#1 브라켓조립', 'CJT', now(), now(), 1, 1, '', '', 1),
-(24, 'hpc1.brackassm.height', 'HPC#1 브라켓높이', 'CJT', now(), now(), 1, 1, '', '', 1)
+        plant_topic_thread = threading.Thread(target=self.mapping_equipment_topic_handler)
+        plant_topic_thread.start()
 
-        '''
+        return
 
+    def mapping_equipment_topic_handler(self):
 
-        dic_rst_topic = {
-            'RST_hpc1.load' : ConrolPCResultMessageHandler.handler,
-            'RST_hpc1.ict' : ConrolPCResultMessageHandler.handler,
-            'RST_hpc1.coatload1' : ConrolPCResultMessageHandler.handler,
-            'RST_hpc1.coatload2' : ConrolPCResultMessageHandler.handler,
-        }
+        print("mapping_equipment_topic_handler ready...")
+        # 10초간 대기, 어플리케이션이 시작되고 django ORM이 초기화될 때까지 대기
+        time.sleep(10)
+        print("mapping_equipment_topic_handler starting...")
 
+        from domain.services.interface.equipment import IFEquipmentResultService
+        if_equ_rst_servide = IFEquipmentResultService()
+        dic_equ_cd = [
+           "hpc1.load","hpc1.flash","hpc1.ict","hpc1.coatload","hpc1.coating1","hpc1.coating2","hpc1.coatvision","hpc1.pcbrev","hpc1.curr","hpc1.frobackload","hpc1.uh.load","hpc1.tim","hpc1.lh.load",
+           "hpc1.scrwt","hpc1.scrwt.height","hpc1.fclip","hpc1.fclip.height","hpc1.fclip.clip", "hpc1.eol1","hpc1.eol2","hpc1.pinchk","hpc1.labeling","hpc1.brackassm","hpc1.brackassm.height",
+           "smt4.loader","smt4.laserrmarking","smt4.sp1","smt4.sp2","smt4.spi","smt4.mnt","smt4.pre-aoi","smt4.reflow","smt4.aoi","smt4.aoireview","smt4.unloader","hpc1.packing"
+        ]
 
-        '''
-        PCU111001	PCU#1 Flash
-        PCU112001	PCU#1 ICT
-        PCU113001	PCU#1 Coating Vision#1
-        PCU114001	PCU#1 Coating Vision#2
-        PCU121001	PCU#1 Housing & PCB Assembly
-        PCU122001	PCU#1 Cover Screw
-        PCU123001	PCU#1 Cover Screw Height
-        PCU124001	PCU#1 Fan Assembly
-        PCU125001	PCU#1 Fan Screw
-        PCU126001	PCU#1 Fan Screw Height
-        PCU127001	PCU#1 Clip Wire Assembly
-        PCU131001	PCU#1 EOL Test#1
-        PCU131002	PCU#1 EOL Test#2
-        PCU132001	PCU#1 Pin Check
-        PCU133001	PCU#1 Labeling
-        PCU134001	PCU#1 Bracket Assembly
-        PCU135001	PCU#1 Bracket Assembly Check
-        PCU151001	PCU#1 Tim Dispensing Vision
+        for equ_cd in dic_equ_cd:
 
+            rst_topic = "rst_" + equ_cd
+            FacadeMQTTClient.set_topic_handler(rst_topic, if_equ_rst_servide.rst_equipment_topic_handler)
 
-        SMT#4 설비코드
-
-        '''
 
 
 
         FacadeMQTTClient.apply_topic_handler()
-
+        print("mapping_equipment_topic_handler finish...")
         return
-
-class ConrolPCResultMessageHandler():
-    def __init__(self):
-        pass
-
-    @classmethod
-    def handler(cls, payload):
-        dic_payload = json.loads(payload)
-
-        equ_cd = dic_payload.get('equ_cd', None)
-        mat_cd = dic_payload.get('mat_cd', None)
-        rev_no = dic_payload.get('rev_no', None)
-
-        try:
-            print("aa")
-        except Exception as ex:
-            print(ex)
-
-        return
-
 
 
 class DeviceMessageHandler():
@@ -129,12 +74,12 @@ class DeviceMessageHandler():
         return
 
     @classmethod
-    def device_data_handler(cls, payload):
+    def device_data_handler(cls, topic, payload):
         '''
         클레무브에서 사용할지 검토필요
         설비별 DT 상태 업데이트 용으로 사용할 떄 설비별 TOPIC으로 분리해서 처리할 필요 있음
         '''
-
+        print(topic)
 
         from domain.models.definition import DASConfig
 
@@ -173,7 +118,7 @@ class DeviceMessageHandler():
         return
 
     @classmethod
-    def device_event_handler(cls, payload):
+    def device_event_handler(cls, topic, payload):
         '''
         parms = {
             'type': 'notify', 
@@ -186,7 +131,8 @@ class DeviceMessageHandler():
         '''
 
         from domain.models.definition import DASConfig
-    
+        print(topic)
+
         dic_payload = json.loads(payload)
         device_id = dic_payload.get('device', None)
         action = dic_payload.get('action', None)

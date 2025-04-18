@@ -79,112 +79,104 @@
 				<div class="tab-content">
 					<!-- 기본정보 탭 컨텐츠 -->
 					<div class="tab-pane active" id="equipMasterForm" style="overflow-y:auto; height: 400px;">
-						<div class="form-row">
-							<div class="form-group col-md-4">
-								<span class="required"><label>설비위치*</label></span>
-								<div class="field-wrapper">
-									<select id="loc_pk" name="loc_pk"></select>
-								</div>
-							</div>
-							<div class="form-group  col-md-4">
-								<span class="required"><label>관리부서*</label></span>
-								<select id="dept_pk" name="dept_pk"></select>
-							</div>
-							<div class="form-group  col-md-4">
-								<label>설비중요도</label>
-								<select id="import_rank_pk" name="import_rank_pk"></select>
+						<div class="form-group col-md-4">							
+							<label for="loc_pk" class="required">설비위치*</label>
+							<button type="button" class="plusbutton" id="equipLocPlus" name="equipLocPlus"></button>
+							<select id="loc_pk" name="loc_pk"></select>
+						</div>
+						<div class="form-group col-md-4">
+							<label for="dept_pk" class="required">관리부서*</label>
+							<button type="button" class="gridbutton" id="mngDept" name="mngDept"></button>
+							<select id="dept_pk" name="dept_pk"></select>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="required">설치일*</label>
+							<input type="date" id="InstallDate" class="form-control" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="InstallDate">
+						</div>
+						<div class="form-group col-md-4">
+							<label>설비중요도</label>
+							<select id="import_rank_pk" name="import_rank_pk"></select>
+						</div>
+						<div class="form-group col-md-4">
+							<label>프로세스</label>
+							<select id="process_cd" name="process_cd"></select>
+						</div>						
+						<div class="form-group col-md-4">
+							<label>제조일</label>
+							<input type="date" id="ProductionYear" class="form-control" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="ProductionYear">
+						</div>
+						<div class="form-group col-md-4">
+							<label>시스템</label>
+							<select id="system_cd" name="system_cd"></select>
+						</div>
+						<div class="form-group col-md-4">
+							<label>자산번호<span class="required">*</span></label>
+							<input type="text" class="form-control" id="asset_nos" name="asset_nos">
+						</div>
+						<div class="form-group col-md-4">
+							<label>상위설비</label>
+							<button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
+							<input type="text" class="form-control" id="upEquip" name="upEquip" readonly>
+						</div>
+						<div class="form-group col-md-4">
+							<label>순환설비자재</label>
+							<button type="button" class="zoombutton" id="recycleMat" name="recycleMat"></button>
+							<input type="text" class="form-control" id="mtrl_nm" name="mtrl_nm" readonly>
+						</div>
+
+						<div class="form-group col-md-4">
+							<label>코스트 센터</label>
+							<select id="ccenterCd" name="ccenterCd"></select>
+						</div>
+						<div class="form-group col-md-4">
+							<label>법정관리 설비 여부</label>
+							<div class="field-wrapper">
+								<input  type="checkbox" id="environEquipYn" name="environEquipYn" />
 							</div>
 						</div>
-						<div class="form-row">
-							<div class="form-group col-md-4">
-								<label>프로세스</label>
-								<select id="process_cd" name="process_cd"></select>
-							</div>
-							<div class="form-group col-md-4">
-								<label>시스템</label>
-								<select id="system_cd" name="system_cd"></select>
-							</div>
-							<div class="form-group col-md-4">
-								<label>제조일</label>
-								<input type="text" class="form-control" id="ProductionYear" name="ProductionYear" readonly>
-							</div>
+						<div class="form-group col-md-4">
+							<label>공급업체</label>
+							<button type="button" class="plusbutton" id="supplyVendor" name="supplyVendor"></button>							
+							<select id="supplier" name="supplier"></select>
 						</div>
-						<div class="form-row">
-							<div class="form-group col-md-4">
-								<label>자산번호<span class="required">*</span></label>
-								<input type="text" class="form-control" id="asset_nos" name="asset_nos" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<label>상위설비</label>
-								<input type="text" class="form-control" id="up_equip_pk" name="up_equip_pk" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<label>순환설비자재</label>
-								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
-							</div>
+						<div class="form-group col-md-4">
+							<label>구매비용</label>
+							<input type="text" class="form-control" id="PurchaseCost" name="PurchaseCost">
 						</div>
-						<div class="form-row">
-							<div class="form-group col-md-4">
-								<label>코스트 센터</label>
-								<select id="ccenter_cd" name="ccenter_cd"></select>
-							</div>
-							<div class="form-group col-md-4">
-								<label>법정관리 설비 여부</label>
-								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<span class="required"><label>설치일*</label></span>
-								<input type="text" class="form-control" id="InstallDate" name="InstallDate" readonly>
-							</div>
+						<div class="form-group col-md-4">
+							<label>보증만료일</label>
+							<input type="text" class="form-control" id="warranty_dt" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="warranty_dt">
 						</div>
-						<div class="form-row">
-							<div class="form-group col-md-4">
-								<label>공급업체</label>
-								<input type="text" class="form-control" id="SupplierName" name="SupplierName" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<label>구매비용</label>
-								<input type="text" class="form-control" id="PurchaseCost" name="PurchaseCost" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<label>보증만료일</label>
-								<input type="text" class="form-control" id="warranty_dt" name="warranty_dt" readonly>
-							</div>
+						<div class="form-group col-md-4">
+							<label>제조사</label>
+							<select id="Maker" name="Maker"></select>
 						</div>
-						<div class="form-row">
-							<div class="form-group col-md-4">
-								<label>제조사명</label>
-								<input type="text" class="form-control" id="Maker" name="Maker" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<label>모델넘버</label>
-								<input type="text" class="form-control" id="Model" name="Model" readonly>
-							</div>
-							<div class="form-group col-md-4">
-								<label>시리얼넘버</label>
-								<input type="text" class="form-control" id="SerialNumber" name="SerialNumber" readonly>
-							</div>
+						<div class="form-group col-md-4">
+							<label>모델넘버</label>
+							<input type="text" class="form-control" id="Model" name="Model">
 						</div>
-						<div class="form-row">
-							<div class="form-group col-md-12">
-								<label>비고</label>
-								<textarea class="form-control" id="Description" name="Description" readonly></textarea>
-							</div>
+						<div class="form-group col-md-4">
+							<label>시리얼넘버</label>
+							<input type="text" class="form-control" id="SerialNumber" name="SerialNumber">
+						</div>
+						<div class="form-group" style="padding: 2px 10px;">
+							<label>비고</label>
+							<textarea class="form-control" id="Description" name="Description"></textarea>
 						</div>
 					</div>
 
 					<!-- 사양(Spec) 탭 컨텐츠 -->
 					<div class="tab-pane" id="equipSpec" style="overflow-y:auto; height: 400px;">
 						<div class="form-row">
-							<div class="form-group">
+							<div class="form-group col-md-4">
 								<label>설비분류</label>
-								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
+								<input type="text" class="form-control" id="equip_class_path" name="equip_class_path" readonly>
 							</div>
-							<div class="form-group">
+							<div class="form-group col-md-8">
 								<label>설비분류 설명</label>
-								<input type="text" class="form-control" id="pmName" name="pmName" readonly>
+								<input type="text" class="form-control" id="equip_class_desc" name="equip_class_desc" readonly>
 							</div>
-						</div>
+						</div>				
 						<div id="equSpecGrid" class="grid">
 						</div>
 					</div>
@@ -250,7 +242,7 @@
 	</div>
 </div>
 <style>
-	
+
 </style>
 
 <script type="text/javascript">
@@ -494,14 +486,59 @@
 				}
 			});
 
-			AjaxUtil.fillDropDownOptions($('#loc_pk'), 'line', 'all', null);
-			AjaxUtil.fillDropDownOptions($('#dept_pk'), 'line', 'all', null);
-			AjaxUtil.fillDropDownOptions($('#import_rank_pk'), 'line', 'all', null);
+			$("#equipLocPlus").kendoButton({
+				icon: "k-i-plus",
+				rounded: "full",
+				click: function () { }
+			});
+			$("#mngDept").kendoButton({
+				icon: "k-i-grid-layout",
+				rounded: "full",
+				click: function () { }
+			});
+			
 
-			AjaxUtil.fillDropDownOptions($('#process_cd'), 'line', 'all', null);
-			AjaxUtil.fillDropDownOptions($('#system_cd'), 'line', 'all', null);
-			AjaxUtil.fillDropDownOptions($('#ccenter_cd'), 'line', 'all', null);
+			AjaxUtil.fillDropDownTreeOptions($('#loc_pk'), 'cm_location', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownOptions($('#import_rank_pk'), 'cm_import_rank', 'all', null);
 
+			AjaxUtil.fillDropDownOptions($('#process_cd'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
+			AjaxUtil.fillDropDownOptions($('#system_cd'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
+
+			$("#ProductionYear").kendoDatePicker({ format: "yyyy-MM-dd" });
+			$("#InstallDate").kendoDatePicker({ format: "yyyy-MM-dd" });
+			$("#warranty_dt").kendoDatePicker({ format: "yyyy-MM-dd" });			
+
+			$("#assetNo").kendoButton({
+				icon: "k-i-plus",		
+				rounded: "full",
+				click: function () { }
+			});
+
+			$("#upLoc").kendoButton({
+				icon: "k-i-zoom-in",
+				rounded: "full",
+				click: function () { }
+			});
+			$("#recycleMat").kendoButton({
+				icon: "k-i-zoom-in",
+				rounded: "full",
+				click: function () { }
+			});
+			$("#supplyVendor").kendoButton({
+				icon: "k-i-plus",
+				rounded: "full",
+				click: function () { }
+			});	
+			
+			AjaxUtil.fillDropDownOptions($('#supplier'), 'cm_supplier', 'all', null);
+			AjaxUtil.fillDropDownOptions($('#Maker'), 'cm_supplier', 'all', null);			
+
+			if (!$("#environEquipYn").data("kendoSwitch")) {
+				$('#environEquipYn').kendoSwitch();
+			}
+
+			AjaxUtil.fillDropDownOptions($('#ccenterCd'), 'cm_code', 'all', null, 'COST_CENTER');
 
 			// 탭 클릭 이벤트
 			$('.tab-button').on('click', function () {
@@ -546,7 +583,7 @@
 
 			// 설비 상세 정보 API 호출
 			let param = {
-				action: 'detail',
+				action: 'findOne',
 				equip_pk: equip_pk,
 			};
 			
@@ -577,23 +614,63 @@
 		}
 
 		bindEquipMasterData(data) {
+			console.log('row_data:',data);
 			// 기본 필드 바인딩
 			const basicFields = {
 				'equip_master_pk': data.equip_pk,
 				'equip_code': data.equip_cd,
-				'equip_name': data.equip_nm,
-				'loc_pk': data.loc_pk,
-				'dept_pk': data.dept_pk,
-				'import_rank_pk': data.import_rank_pk,
-				'process_cd': data.process_cd,
-				'system_cd': data.system_cd,
-
+				'equip_name': data.equip_nm,	
+				'asset_nos': data.asset_nos,
+				'upEquip': data.up_loc_nm,
+				'mtrl_nm': data.mtrl_nm,
+				'ProductionYear': data.make_dt,
+				'InstallDate': data.install_dt,
+				'warranty_dt': data.warranty_dt,
+				PurchaseCost: formatCurrency(data.buy_cost),
+				Model: data.model_number,
+				SerialNumber: data.serial_number,
 			};
 
 			// 기본 필드 값 설정
 			Object.entries(basicFields).forEach(([id, value]) => {
 				$(`#${id}`).val(value);
 			});
+		
+			setTimeout(() => {
+				const environEquipYnSwitch = $("#environEquipYn").data("kendoSwitch");
+				if (environEquipYnSwitch) {			
+					const isChecked = data.environ_equip_yn === 'Y';
+					environEquipYnSwitch.check(isChecked);
+				}
+			}, 100);
+
+
+			// Kendo 컴포넌트 바인딩 함수
+			function bindKendoComponent(selector, value) {
+				setTimeout(function () {
+					let component = $(selector).data("kendoDropDownList") || $(selector).data("kendoDropDownTree");
+					if (component) {
+						component.value(value);
+						component.trigger("change");
+					}
+				}, 100);
+			}
+
+			function formatCurrency(value) {
+				if (!value && value !== 0) return '';
+				return '₩ ' + Number(value).toLocaleString('ko-KR');
+			}
+
+			// 각 컴포넌트 바인딩
+			
+			bindKendoComponent("#loc_pk", data.loc_pk);
+			bindKendoComponent("#dept_pk", data.dept_pk);
+			bindKendoComponent("#import_rank_pk", data.import_rank_pk);
+			bindKendoComponent("#process_cd", data.process_cd);
+			bindKendoComponent("#system_cd", data.system_cd);
+			bindKendoComponent("#ccenterCd", data.ccenter_cd);
+			
+	
 		}
 	}
 

@@ -2091,7 +2091,7 @@ class CmSupplier(models.Model):
     SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
-    DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
+    DelYn = models.CharField(db_column='del_yn', null=True, db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
     InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
@@ -2848,116 +2848,6 @@ class CmBomVer(models.Model):
         db_table = 'cm_bom_ver'
         db_table_comment = 'BOM 버전 정보'
         unique_together = (('CmMaterial', 'BomVer'),)
-
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
- 
-class CmCodeGroup(models.Model):
-    id = models.SmallAutoField(primary_key=True, db_column='code_grp_pk', db_comment='코드그룹 PK')
-    CodeGroupCode = models.CharField(max_length=20, unique=True, db_column='code_grp_cd', db_comment='코드그룹코드')
-    CodeGrpName = models.CharField(max_length=50, db_column='code_grp_nm', db_comment='코드그룹명')
-    CodeGrpDesc = models.CharField(max_length=200, blank=True, null=True, db_column='code_grp_desc', db_comment='코드그룹설명')
-    UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
-    InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
-    InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
-    UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
-    UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
-
-    class Meta:
-        db_table = 'cm_code_grp'
-        db_table_comment = '코드 그룹 정보'
-
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
- 
-class CmCodeMst(models.Model):
-    id = models.SmallAutoField(primary_key=True, db_column='code_pk', db_comment='코드 PK')
-    CmCodeGroup = models.ForeignKey(CmCodeGroup, models.DO_NOTHING, db_column='code_grp_pk', db_comment='코드그룹 PK')
-    CodeCode = models.CharField(max_length=20, db_column='code_cd', db_comment='코드')
-    CodeName = models.CharField(max_length=50, db_column='code_nm', db_comment='코드명')
-    CodeDesc = models.CharField(max_length=200, blank=True, null=True, db_column='code_desc', db_comment='코드설명')
-    CodeSeq = models.SmallIntegerField(db_column='code_seq', db_comment='코드순서')
-    UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
-    InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
-    InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
-    UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
-    UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
-
-    class Meta:
-        db_table = 'cm_code_mst'
-        db_table_comment = '코드 마스터 정보'
-        unique_together = (('CmCodeGroup', 'CodeCode'),)
-
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
- 
-class CmCodeMstHist(models.Model):
-    id = models.BigAutoField(primary_key=True, db_column='code_hist_pk', db_comment='코드이력 PK')
-    CmCodeMst = models.ForeignKey(CmCodeMst, models.DO_NOTHING, db_column='code_pk', db_comment='코드 PK')
-    CmCodeGroup = models.ForeignKey(CmCodeGroup, models.DO_NOTHING, db_column='code_grp_pk', db_comment='코드그룹 PK')
-    CodeCode = models.CharField(max_length=20, db_column='code_cd', db_comment='코드')
-    CodeName = models.CharField(max_length=50, db_column='code_nm', db_comment='코드명')
-    CodeDesc = models.CharField(max_length=200, blank=True, null=True, db_column='code_desc', db_comment='코드설명')
-    CodeSeq = models.SmallIntegerField(db_column='code_seq', db_comment='코드순서')
-    UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
-    InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
-    InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
-    UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
-    UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
-
-    class Meta:
-        db_table = 'cm_code_mst_hist'
-        db_table_comment = '코드 마스터 이력 정보'
-
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
- 
-class CmCodeMstLangHist(models.Model):
-    id = models.BigAutoField(primary_key=True, db_column='code_lang_hist_pk', db_comment='코드언어이력 PK')
-    CmCodeMst = models.ForeignKey(CmCodeMst, models.DO_NOTHING, db_column='code_pk', db_comment='코드 PK')
-    LangCode = models.CharField(max_length=10, db_column='lang_cd', db_comment='언어코드')
-    CodeName = models.CharField(max_length=50, db_column='code_nm', db_comment='코드명')
-    CodeDesc = models.CharField(max_length=200, blank=True, null=True, db_column='code_desc', db_comment='코드설명')
-    InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
-    InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
-    UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
-    UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
-
-    class Meta:
-        db_table = 'cm_code_mst_lang_hist'
-        db_table_comment = '코드 언어 이력 정보'
 
     def set_audit(self, user):
         if self.InserterId is None:

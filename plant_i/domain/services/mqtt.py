@@ -86,7 +86,7 @@ class FacadeMQTTClient(object):
 
         try:
             if topic in cls.__dic_topic_handler:
-                cls.__dic_topic_handler[topic](payload)
+                cls.__dic_topic_handler[topic](topic, payload)
             else:
                 print('topic error :', topic)
 

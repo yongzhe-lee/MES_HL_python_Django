@@ -4,6 +4,7 @@
     small > i.material-symbols-outlined {
         font-size: inherit;
     }
+
 </style>
 {% endblock %}
 {% block content %}
@@ -225,9 +226,9 @@
                                     </span>
                                     <span>
                                         <button id="btnExcelMerged">Excel</button>
-                                        <button id="btnSaveMerged" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                                        <button id="btnSaveMerged"><i class="material-symbols-outlined">save</i>저장</button>
                                         <!-- 삭제 기능 우선 보류. -->
-                                        <button id="btnDeleteMerged" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                                        <button id="btnDeleteMerged"><i class="material-symbols-outlined">delete</i>삭제</button>
                                     </span>
                                 </div>
                                 <form class="search-form" id="searchMergedForm">
@@ -272,9 +273,9 @@
                                 <label data-labelCd="데이터 상세정보">데이터 상세정보</label>
                             </span>
                             <span>
-                                <button id="btnNewData" title="csv등록" style="display:none">csv등록</button>
-                                <button id="btnEditData" title="수정" style="display:none">수정</button>
-                                <button id="btnDeleteData" title="삭제" style="display:none"><i class="material-symbols-outlined">delete</i>삭제</button>
+                                <button id="btnNewData" style="display:none">csv등록</button>
+                                <button id="btnEditData" style="display:none">수정</button>
+                                <button id="btnDeleteData" style="display:none"><i class="material-symbols-outlined">delete</i>삭제</button>
                             </span>
                         </div>
                         <div id="data_detail_grid"></div>
@@ -310,14 +311,14 @@
 
                     <!-- Tab5: 범주형분포확인 -->
                     <div class="tab-contents">
-                        <div class="card-group-btn">
+                        <!--<div class="card-group-btn">
                             <span class="info-text">
                                 <i class="material-symbols-outlined">edit_square</i>
                                 <label data-labelCd="범주형분포확인">범주형분포확인</label>
                             </span>
-                        </div>
-                        <form class="search-form" id="cateVarForm">
-                            <div class="card-content search">
+                        </div>-->
+                        <form class="search-form k-mt-3" id="cateVarForm">
+                            <!--<div class="card-content search">-->
                                 <div class="form-ui">
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <div class="form-item align-h">
@@ -339,9 +340,11 @@
                                         </p>
                                     </div>
                                 </div>
-                            </div>
+                            <!--</div>-->
                         </form>
-                        <div style="text-align:center;"><img id="cat_dist_chart" style="width:90%;" /></div>
+                        <div style="text-align:center;">
+                            <img id="cat_dist_chart" style="width:90%;" />
+                        </div>
                     </div>
 
                     <!-- Tab6: 전처리 -->
@@ -352,7 +355,7 @@
                                 <label data-labelCd="전처리">전처리</label>
                             </span>
                             <span>
-                                <button id="btnSavePreprocess" title="결측치/이상치 제거"><i class="material-symbols-outlined">delete</i>결측치/이상치 제거</button>
+                                <button id="btnSavePreprocess" ><i class="material-symbols-outlined">delete</i>결측치/이상치 제거</button>
                             </span>
                         </div>
                         <div id="ds_col_grid2"></div>
@@ -382,7 +385,7 @@
                                 <label data-labelCd="XY 지정">XY 지정</label>
                             </span>
                             <span>
-                                <button id="btnSaveXY" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                                <button id="btnSaveXY"><i class="material-symbols-outlined">save</i>저장</button>
                             </span>
                         </div>
                         <div id="settingXy_grid"></div>
@@ -465,14 +468,42 @@
                                         <i class="material-symbols-outlined">tune</i>
                                         <label data-labelCd="모델 설정">모델 설정</label>
                                     </span>
-                                    <span>
-                                        <button id="btnSaveTrain" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
-                                        <button id="btnTrainStart" title="학습"><i class="material-symbols-outlined">play_arrow</i>학습</button>
-                                    </span>
+                                    <!--<span>
+                                        <button id="btnResetTrain"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                                        <button id="btnSaveTrain"><i class="material-symbols-outlined">save</i>저장</button>-->
+                                        <!--<button id="btnTrainStart"><i class="material-symbols-outlined">play_arrow</i>학습</button>-->
+                                    <!--</span>-->
                                 </div>
                                 <form id="modelTrainForm">
                                     <div class="edit-form-ui">
                                         <input id=id type="hidden" />
+
+                                        <div class="col-12" id="TrainStatusWrap" style="display:none;">
+                                            <div class="form-item align-h">
+                                                <label class="k-label k-form-label" for="TrainStatus" data-labelCd="학습상태">학습상태</label>
+                                                <div class="field-wrapper">
+                                                    <input id="TrainStatus" name="TrainStatus" type="hidden" />
+                                                    <!--<input id="status_name" name="status_name" class="form-control" />-->
+                                                    <span class="info-text">
+                                                        <!-- 여기에 JS로 아이콘 + 텍스트 조합 삽입 -->
+                                                        <span id="statusDisplay"></span>
+                                                        <button id="btnTrainStart" type="button" class="k-button">
+                                                            <i class="material-symbols-outlined">play_arrow</i>학습
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="ApplyYNWrap" style="display:none;">
+                                            <div class="form-item align-h">
+                                                <label class="k-label k-form-label" for="ApplyYN" data-labelCd="시스템적용 여부">시스템적용 여부</label>
+                                                <div class="field-wrapper">
+                                                    <input id="ApplyYN" name="ApplyYN" />
+                                                    <!--<input id="ApplyYN" name="ApplyYN" class="form-control" />-->
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <div class="col-12">
                                             <div class="form-item align-h">
@@ -502,11 +533,12 @@
 
                                         <!-- 동적 하이퍼파라미터 폼 들어갈 자리 -->
                                         <!-- 우선 제이슨으로 받고 나중에 동적 폼으로 변경 -->
-                                        <div class="col-12">
+                                        <div class="col-12" id="hyperParamWrap" style="display:none;">
                                             <div class="form-item align-h">
                                                 <label class="k-label k-form-label" for="hyperParam" data-labelCd="하이퍼파라미터 설정">하이퍼파라미터 설정</label>
                                                 <div class="field-wrapper">
-                                                    <textarea id="hyperParam" name="hyperParam"></textarea>
+                                                    <div id="hyperParam" name="hyperParam"></div>
+                                                    <!--<div id="hyperParam" name="hyperParam" class="k-rounded-md k-input-solid"></div>-->
                                                     <!--<textarea id="hyperParam" name="hyperParam" class="form-control"></textarea>-->
                                                     <!--<div id="hyperParam" name="hyperParam" class="form-control"></div>-->
                                                 </div>
@@ -524,24 +556,18 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-12" id="TrainStatusWrap" style="display:none;">
-                                            <div class="form-item align-h">
-                                                <label class="k-label k-form-label" for="TrainStatus" data-labelCd="학습상태">학습상태</label>
-                                                <div class="field-wrapper">
-                                                    <input id="TrainStatus" name="TrainStatus" class="form-control"/>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </form>
-                            <!-- 실행 버튼 -->
-                                <!--<div class="card-group-btn k-mt-5">
-                                    <span></span>
-                                    <span>
-                                        <button id="btnSaveTrain" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
-                                        <button id="btnTrainStart" title="학습"><i class="material-symbols-outlined">play_arrow</i>학습</button>
-                                    </span>
-                                </div>-->
+                                <!-- 실행 버튼. col-xx를 주어야 form이랑 동일한 margin 적용 가능 -->
+                                <div class="col-12">
+                                    <div class="card-group-btn k-mt-3">
+                                        <span></span>
+                                        <span>
+                                            <button id="btnResetTrain"><i class="material-symbols-outlined">refresh</i>초기화</button>
+                                            <button id="btnSaveTrain"><i class="material-symbols-outlined">save</i>저장</button>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <!-- 결과 화면 영역 (오른쪽) -->
@@ -553,7 +579,7 @@
                                         <label data-labelCd="모델 학습 결과">모델 학습 결과</label>
                                     </span>
                                     <span>
-                                        <!--<button id="btnDownloadModel" title="모델 다운로드"><i class="material-symbols-outlined">download</i>모델 다운로드</button>-->
+                                        <!--<button id="btnDownloadModel"><i class="material-symbols-outlined">download</i>모델 다운로드</button>-->
                                     </span>
                                 </div>
 
@@ -586,6 +612,7 @@
             this.modelGrid = null;
             this.mm_id = null; // model master_id
             this.md_id = null; // model_id
+            this.mt_id = null; // model train_id
 
             // FileUploadPage 인스턴스를 전역으로 선언
             window.fileUploaderInstance = null;
@@ -610,7 +637,6 @@
         init() {
             this.initUIComponents();
             this.initGrids();
-            //this.searchMainData();
             this.initTabStrip();
         }
 
@@ -627,7 +653,8 @@
                 kendoUtil.saveAsExcel(this.modelGrid, "모델 목록");
             });
 
-            // tab1 form
+            // tab1 ====================================================================
+            // form
             _this.setupDropdowns({
                 lineId: null,
                 equipId: 'cboEquip',
@@ -688,7 +715,7 @@
             _this.bindSearchButton("#btnSearchMerged", "#searchMergedForm", "#merged_tag_grid", "read");
 
 
-            // tab2
+            // tab2 ====================================================================
             // csv기반 모델 등록 버튼
             kendoUtil.bindButton('#btnNewData', 'k-i-save', 'info', () => {
             //kendoUtil.bindButton('#btnNewData', 'file-excel', 'success', () => {
@@ -736,7 +763,8 @@
                 });
             });
 
-            // tab5 범주형 변수 리스트
+            // tab5 ====================================================================
+            // 범주형 변수 리스트
             $('#cate_vari').kendoMultiSelect({
                 dataSource: [], // 
                 //dataSource: _this.fillCategoryVars(),
@@ -753,7 +781,7 @@
                 value: []
             });
 
-            // tab5 범주형 분석 조회 버튼
+            // 범주형 분석 조회 버튼
             kendoUtil.bindButton('#btnCatDistChart', "search", 'base', () => {
                 let items = $("#cate_vari").data("kendoMultiSelect").value() || [];
 
@@ -779,21 +807,24 @@
                 }
             });
 
-            // tab6 전처리 저장 버튼
+            // tab6 ====================================================================
+            // 전처리 저장 버튼
             kendoUtil.bindButton('#btnSavePreprocess', null, 'error', () => {
                 Alert.confirm('', '결측치 및 이상치를 제거하시겠습니까?', () => {
                     _this.saveDsCol();
                 });
             });
 
-            // tab8 x,y 지정 저장 버튼
+            // tab8 ====================================================================
+            // x,y 지정 저장 버튼
             kendoUtil.bindButton('#btnSaveXY', null, 'success', () => {
                 Alert.confirm('', '지정한 X, Y변수를 저장하시겠습니까??', () => {
                     _this.saveDsColXY();
                 });
             });
 
-            // tab11 PCA 차원축소 가능 범위 드롭다운 
+            // tab11 ====================================================================
+            // PCA 차원축소 가능 범위 드롭다운 
             $('#pca_num_dim').kendoDropDownList({
                 dataSource: [],
                 dataTextField: "text",
@@ -810,7 +841,7 @@
                 value: []
             });
 
-            // tab11 pca 실행 버튼
+            // pca 실행 버튼
             kendoUtil.bindButton('#btnPcaApply', null, 'base', () => {
                 let dropdown = $("#pca_num_dim").data("kendoDropDownList");
 
@@ -824,14 +855,20 @@
                 }
             });
 
-            // tab12 form 초기화
+            // tab12 ====================================================================
+            // form 초기화
             AjaxUtil.fillDropDownOptions($('#TaskType'), 'user_code', 'choose', null, 'TASK_TYPE');
             AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', null, 'ALGORITHM_TYPE');
-            $('#hyperParam').kendoTextArea({
-                rows: 10,
-                maxLength: 200,
-                placeholder: ""
+            //AjaxUtil.fillDropDownOptions($('#TrainStatus'), 'user_code', 'choose', null, 'TRAINING_STATUS');
+            $('#status_name').kendoTextBox({ enable: false });
+            $('#ApplyYN').kendoSwitch({
+                checked: false
             });
+            //$('#hyperParam').kendoTextArea({
+            //    rows: 10,
+            //    maxLength: 200,
+            //    placeholder: ""
+            //});
             $('#Description').kendoTextArea({
                 rows: 4,
                 maxLength: 200,
@@ -847,6 +884,7 @@
 
             $('#TaskType').change(function () {
                 const taskType = this.value;
+                console.log("taskType value", taskType);
                 const groupCode = taskType ? `AI_${taskType}` : 'ALGORITHM_TYPE';
                 const selectedAlgo = $('#AlgorithmType').data('kendoDropDownList').value();
                 const taskHint = $('#taskHint');
@@ -879,7 +917,6 @@
                 }
                 
                 AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', selectedAlgo, groupCode);
-
                 $('#AlgorithmType').trigger('change');
 
             });
@@ -887,6 +924,7 @@
             let previousAlgoValue = null;
 
             $('#AlgorithmType').off('change').on('change', function (e) {
+                console.log("바인드 때도 인식되나 테스트");
                 //$('#AlgorithmType').change(function (e) {
                 const algo = this.value;
                 console.log('change 발생!', {
@@ -926,10 +964,10 @@
                     // 리턴을 여기서 안하는 이유는 selectedTask가 있어도 아래를 타야할 때가 있어서 
                 } 
 
-                //if (!algo) {
-                //    return;
-                //}
                 if (!algo) return;
+
+                // 하이퍼파라미터 폼 렌더링
+                _this.renderHyperParamForm(algo);
 
                 const rows = AjaxUtil.getSelectData('user_code', null, algo);
                 const taskTypes = [...new Set(
@@ -941,12 +979,7 @@
 
                 if (!taskTypes.length) {
                     taskHint.show().find('span').text('해당 알고리즘은 분석 유형과 매핑되어 있지 않습니다.');
-                    //taskHint.show();
                 } else {
-                    //const taskNames = AjaxUtil.getSelectData('user_code', 'TASK_TYPE')
-                    //    .filter(t => taskTypes.includes(t.code || t.value))
-                    //    .map(t => t.text)
-                    //    .join(', ');
                     const taskNames = taskTypes
                         .map(code => {
                             const match = taskTypeData.find(row => row.value === code || row.code === code);
@@ -965,7 +998,18 @@
                 }
             }); 
 
-            // tab12 버튼
+            // 버튼
+            kendoUtil.bindButton('#btnResetTrain', null, 'base', () => {
+                // 사용자가 선택한 분석유형에 따른 알고리즘이 바인딩 되어있는 상태이므로 초기화 필요
+                AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', null, 'ALGORITHM_TYPE');
+                if (_this.mt_id) {
+                    const formData = _this.getTrainInfo();
+                    _this.initTrainForm(formData);  // 기존 정보 → new_check 필요 없음
+                } else {
+                    _this.initTrainForm();
+                }
+            });
+
             kendoUtil.bindButton('#btnSaveTrain', null, 'info', () => {
                 Alert.confirm('', '모델 학습 정보를 저장하시겠습니까?', () => {
                     _this.saveTrainConfig();
@@ -977,7 +1021,28 @@
             });
         }
 
-        // 드롭다운 선택 사항에 따른 이벤트 핸들링
+        initGrids() {
+            // 모델 목록 그리드(main grid) 초기화
+            this.modelGrid = new TreeGrid($('#model_grid'), this.getGridOptions('model_grid'));
+            this.searchMainData();
+        }
+
+        initTabStrip() {
+            let _this = this;
+            $("#tabstrip").kendoTabStrip({
+                animation: { open: { effects: "fadeIn" } },
+                activate: function (e) {
+                    let activeTabIndex = $(e.item).index();
+                    _this.loadContentByTab(activeTabIndex, false);
+                }
+            });
+            // 초기 로드시 기본 탭(Tab1, 인덱스 0)과 첫번째 열람 여부를 명시적으로 로드
+            _this.loadContentByTab(0, true);
+        }
+        // init 끝
+
+
+        // tag 드롭다운 선택 사항에 따른 이벤트 핸들링
         setupDropdowns(config) {
             const { lineId, equipId, tagGroupId, tagId, mtrlId } = config;
 
@@ -1044,12 +1109,6 @@
             });
         }
 
-        initGrids() {
-            // 모델 목록 그리드 초기화
-            this.modelGrid = new TreeGrid($('#model_grid'), this.getGridOptions('model_grid'));
-            this.searchMainData();
-        }
-
         getGridOptions(gridName) {
             let _this = this;
             let defaultOption = {
@@ -1082,20 +1141,42 @@
                             // number 쓰면 tree구조 고장남
                             //{ title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
                             { field: 'id', hidden: true },
-                            { field: 'name', title: '모델명', width: 120 },
+                            { field: 'node_type', title: '구분', width: 100 },
+                            { field: 'name', title: '항목명', width: 150 },
+                            { field: 'equip_name', title: '설비', width: 100 },
                             { field: 'type', title: '유형', width: 50 },
-                            { field: 'ver', title: 'Ver', width: 50 },
+                            { field: 'ver', title: 'Ver', width: 100 },
                             { field: 'description', title: '설명', width: 150 },
                             //{ field: 'cycle', title: '모델생성주기', width: 100 },
                             { field: 'var_count', title: '변수개수', width: 60 },
                             { field: 'file_name', title: '원본파일명', width: 150 },
-                            { field: 'algorithm_type', title: 'ML(알고리즘)', width: 100 },
+                            //{ field: 'algorithm_type', title: 'ML(알고리즘)', width: 100 },
                             //{ field: '_created', title: '등록일', width: 100 }
                         ],
                         change: function (e) {
                             let activeTab = $("#tabstrip").data("kendoTabStrip").select().index();
                             // 현재 열려있는 탭에서만 선택된 모델의 데이터 갱신
                             _this.loadContentByTab(activeTab, false);
+                        },
+                        dataBound: function (e) {
+                            const grid = this;
+
+                            // 그리드 행 번호 자동 업데이트
+                            let items = grid.items();
+                            items.each(function (index) {
+                                $(this).find("td:first").html(index + 1);
+                            });
+
+                            kendoUtil.showGridRowCount(grid.element);
+
+                            // 트리 노드 펼치기
+                            if (grid.expandOn) {
+                                const rows = grid.tbody.find(">tr");
+                                rows.each(function () {
+                                    grid.expand(this);
+                                });
+                                grid.expandOn = false;
+                            }
                         },
                         height: "300px"
                     };
@@ -1575,19 +1656,6 @@
             return gridOptions;
         }
 
-        initTabStrip() {
-            let _this = this;
-            $("#tabstrip").kendoTabStrip({
-                animation: { open: { effects: "fadeIn" } },
-                activate: function (e) {
-                    let activeTabIndex = $(e.item).index();
-                    _this.loadContentByTab(activeTabIndex, false);
-                }
-            });
-            // 초기 로드시 기본 탭(Tab1, 인덱스 0)과 첫번째 열람 여부를 명시적으로 로드
-            _this.loadContentByTab(0, true);
-        }
-
         loadContentByTab(tabIndex, first = false) {
             let _this = this;
 
@@ -1661,7 +1729,16 @@
                     _this.loadChartImage("pca_plotly", "pca_evr");
                     break;
                 case 11:
+                    // 학습정보가 있는 경우에는 정보를 불러오고, 없는 경우엔 빈 폼
+                    if (_this.mt_id) {
+                        let formData = _this.getTrainInfo();
+                        _this.initTrainForm(formData);  // 기존 객체 불러오기 → new_check 생략
+                    } else {
+                        _this.initTrainForm(null, { new_check: true });  // 신규 → 명시적 전달
+                    }
+
                     _this.renderGrid("model_create_grid");
+
                     break;
                 default:
                     console.log("해당 탭에 그리드 없음");
@@ -1676,16 +1753,26 @@
                 //if (showAlert && tabIndex !== 0) {
             if (!data || data.length === 0) {
                 if (showAlert) {
-                    if (tabIndex == 1) {
-                        // 데이터 탭에서만
-                        Alert.alert('info',
-                            '상단 목록에서 생성할 모델의 종류(마스터)를 선택해주세요. 이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
+                    switch (tabIndex) {
+                        case 1:
+                            // 데이터 탭
+                            Alert.alert('info',
+                                '상단 목록에서 생성할 모델의 종류(마스터)를 선택해주세요. 이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
 
-                            //'상단 목록에서 생성할 모델의 종류(마스터)를 선택해주세요.'
-                            //+ '<br>이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
-                        );
-                    } else {
-                        Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
+                                //'상단 목록에서 생성할 모델의 종류(마스터)를 선택해주세요.'
+                                //+ '<br>이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
+                            );
+                            break;
+                        case 11:
+                            // 모델 생성 탭
+                            Alert.alert('info',
+                                '상단 목록에서 학습 정보를 생성할 모델을 선택해주세요. 이미 학습 정보를 생성하신 경우, 생성하신 학습 정보를 선택해 주세요.'
+                            );
+                            break;
+
+                        default:
+                            Alert.alert('info', '상단 목록에서 데이터를 조회할 모델을 선택해 주세요.');
+                            break;
                     }
                 }
                 return null;
@@ -1695,6 +1782,7 @@
             console.log("선택된 모델:", selectData);
             _this.mm_id = selectData.master_id;
             _this.md_id = selectData.model_id;
+            _this.mt_id = selectData.train_id; // 25.04.14 추가 (train 정보)
 
             return selectData;
         }
@@ -1898,6 +1986,7 @@
                             _this.makeDbFromFile();
                         }
                         Notify.success('저장되었습니다.');
+                        _this.modelGrid.grid.expandOn = true;
                         _this.searchMainData();
                         _this.renderGrid("data_detail_grid", "ds_rows_list");
                         _this.toggleDataCrudButtons();
@@ -2057,17 +2146,16 @@
                     }
                 }
 
-                //console.log("options", options);
+                console.log("options", options);
                 _this.modelGrid.setTreeDataSource(result, options);
 
                 console.log("✅ 현재 DataSource 데이터 확인:", _this.modelGrid.getData());
 
-                //console.log("_this.modelGrid", _this.modelGrid);
+                _this.modelGrid.grid.autoFitColumn(_this.modelGrid.grid.columns);
+                //_this.modelGrid.grid.autoFitColumn(_this.modelGrid.grid.columns[1]);
 
-                //_this.modelGrid.grid.refresh();
-                //_this.modelGrid.grid.dataSource.read();
+
                 //_this.modelGrid.expandAll();
-
                 // 잡았다 요놈. 여기서 아래 에러 발생
                 //Uncaught NotFoundError: Failed to execute 'replaceChild' on 'Node': The node to be replaced is not a child of this node.
 
@@ -2199,12 +2287,13 @@
         }
 
         saveData() {
+            let _this = this;
             //let data = FormUtil.extractForm($('#detailForm'));
             //if (checkForm($('#detailForm')) === false) return;
-            AjaxUtil.postAsyncData(this.baseUrl + '?action=save', data, (resp) => {
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, (resp) => {
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
-                    this.searchMainData();
+                    _this.searchMainData();
                 } else {
                     Alert.alert('error', resp.message);
                 }
@@ -2223,6 +2312,7 @@
                     if (resp.success) {
                         console.log("들어왔니?3");
                         Notify.success('삭제되었습니다.');
+                        _this.modelGrid.grid.expandOn = true;
                         _this.searchMainData();
                         _this.renderGrid("data_detail_grid", "ds_rows_list");
 
@@ -2237,6 +2327,57 @@
             }
         }
 
+        initTrainForm(formData = null, options = {}) {
+            let _this = this;
+            const $form = $('#modelTrainForm');
+
+            const isNew = options.new_check || !formData?.id;
+            const isEditable = formData?.TrainStatus === 'INITIALIZED';
+
+            //console.log("option", widget.options);
+
+            // 1. 데이터 바인딩 or 리셋
+            if (formData) {
+                FormUtil.BindDataForm(formData, $form);
+
+                const algoValue = formData?.AlgorithmType || $('#AlgorithmType').data('kendoDropDownList')?.value?.();
+                if (algoValue) {
+                    let paramObj = {};
+
+                    // 하이퍼파라미터 값 주입
+                    if (formData.param_list?.length) {
+                        formData.param_list.forEach(p => {
+                            paramObj[p.ParamKey] = p.ParamValue;
+                        });
+                    }
+
+                    // 서버에 저장된 알고리즘 종류에 필요한 하이퍼파라미터 폼을 동적으로 구성
+                    _this.renderHyperParamForm(algoValue, paramObj);
+
+                } else {
+                    _this.renderHyperParamForm();
+
+                }
+
+                _this.renderTrainStatus(formData.TrainStatus, formData.status_name);
+
+            } else {
+                FormUtil.resetForm($form);
+                _this.renderHyperParamForm();
+            }
+
+            // 2. 필드 표시 제어 - 신규 저장 시에는 숨김
+            $('#TrainStatusWrap').toggle(!isNew);
+            $('#ApplyYNWrap').toggle(!isNew);
+
+            // 3. 필드 비활성화 제어
+            $('#TaskType').data('kendoDropDownList')?.enable(isNew || isEditable);
+            $('#AlgorithmType').data('kendoDropDownList')?.enable(isNew || isEditable);
+
+            // 4. 힌트 초기화
+            $('#taskHint, #algoInfo').hide().find('span').text('');
+        }
+
         saveTrainConfig() {
             let _this = this;
 
@@ -2245,14 +2386,40 @@
             let data = FormUtil.extractForm($('#modelTrainForm'));
             data['md_id'] = _this.md_id;
 
-            console.log('form data', data);
+            // 하이퍼파라미터 값 추가
+            const hyperParamForm = $('#hyperParam').data('kendoForm');
+            if (hyperParamForm) {
+                const formData = hyperParamForm.options.formData;
+                const hyperParams = {};
+
+                for (let key in formData) {
+                    if (data.hasOwnProperty(key)) {
+                        const val = data[key];
+                        if (val !== '') {
+                            hyperParams[key] = val;
+                        }
+                        delete data[key]; // 기존 데이터에서 제거 (선택)
+                    }
+                }
+
+                data['hyperParams'] = JSON.stringify(hyperParams);
+            }
+
+            console.log('train form data', data);
 
             if (checkForm($('#modelTrainForm')) === false) return;
 
             let fnSuccess = function (resp) {
                 if (resp.success) {
-                    // 팝업 닫으면서 데이터 전달
-                    window.popupData.close(resp);
+                    Notify.success('저장되었습니다.');
+                    _this.mt_id = resp.mt_id;
+                    _this.modelGrid.grid.expandOn = true;
+                    _this.searchMainData();
+
+                    // 저장후 form 정보 갱신
+                    const formData = _this.getTrainInfo();
+                    _this.initTrainForm(formData);  // 저장 직후는 무조건 기존 정보 → new_check 필요 없음
+
                 } else {
                     Alert.alert('error', resp.message);
                 }
@@ -2260,6 +2427,92 @@
 
             AjaxUtil.postAsyncData(url, data, fnSuccess);
         }
+
+        getTrainInfo() {
+            let _this = this;
+            let url = _this.baseUrl;
+            let param = {
+                action: 'ds_train_info',
+                mt_id: _this.mt_id,
+            };
+
+            let result = AjaxUtil.getSyncData(url, param);
+            console.log("train_result", result);
+
+            return result
+        }
+
+        renderHyperParamForm(algoCode, presetParams = {}) {
+            $('#hyperParamWrap').hide();
+            $('#hyperParam').empty();
+
+            if (!algoCode) return;
+
+            const params = AjaxUtil.getSelectData('user_code', algoCode);
+            console.log("params", params);
+
+            if (!Array.isArray(params) || !params.length) return;
+
+            const items = params.map(p => ({
+                field: p.value,
+                label: p.value.toLowerCase(),
+                editor: "TextBox"
+            }));
+
+            console.log("presetParams", presetParams);
+
+            const formData = {};
+            params.forEach(p => {
+                formData[p.value] = presetParams?.[p.value] ?? '';
+                //formData[p.value] = presetParams?.[p.value] ?? '';
+            });
+
+            $('#hyperParamWrap').show();
+            $('#hyperParam').kendoForm({
+                formData: formData,
+                items: items,
+                buttonsTemplate: "" // 자동으로 생성되는 버튼 방지 
+            });
+
+            // 생성된 후 .k-form 요소에 동적 생성 form 클래스 & border style class 추가
+            $('#hyperParam').closest('.k-form').addClass('form-dynamic k-rounded-md');
+
+        }
+
+        // 학습 상태에 따른 icon & 버튼 상태 바인딩
+        renderTrainStatus(statusCode, statusName) {
+            const $wrap = $('#TrainStatusWrap');
+            const $display = $('#statusDisplay');
+
+            const iconMap = {
+                INITIALIZED: 'inventory',   // 저장됨
+                PENDING: 'schedule',        // 회전 아이콘
+                TRAINING: 'autorenew',      // 취소
+                COMPLETED: 'check_circle',  // 체크
+                FAILED: 'error'             // 에러 느낌
+            };
+
+            const colorMap = {
+                INITIALIZED: 'color: #6c757d',   // inventory → 회색빛, 기본 저장 상태
+                PENDING: 'color: #17a2b8',       // schedule → 파란톤 대기
+                TRAINING: 'color: #ffc107',      // autorenew → 노란색, 동작 중 느낌
+                COMPLETED: 'color: #28a745',     // check_circle → 초록색 성공
+                FAILED: 'color: #dc3545'         // error → 붉은색 실패
+            };
+
+            const icon = iconMap[statusCode] || 'help';
+            const color = colorMap[statusCode] || 'color: #aaa';
+
+            $display.html(`
+                <i class="material-symbols-outlined" style="${color}; vertical-align: middle; margin-right: 3px;">
+                    ${icon}
+                </i>
+                <span style="vertical-align: middle; margin-right: 20px;">${statusName}</span>
+            `);
+
+            $wrap.show();
+        }
+
 
         startTrain() {
 

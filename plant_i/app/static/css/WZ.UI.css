@@ -1565,7 +1565,7 @@ input:-webkit-autofill {
 .k-switch-on .k-switch-track {
     border-color: #40c0f1;
     color: var(--kendo-color-on-primary, white);
-    background-color: #40c0f1;
+    background-color: #40c0f1 !important;
 }
 .k-switch-on .k-switch-track:active {
     border-color: #40c0f1;
@@ -1782,6 +1782,31 @@ input[type="radio"], input[type="checkbox"] {
     flex-shrink: 0;
 }
 
+/* 25.04.17 김하늘 추가 - kendo 자동 생성 form(form-dynamic) 스타일 정의*/
+.form-item .form-dynamic .k-label.k-form-label {
+    /* label과 input box 간 간격 조정 */
+    margin-left: 1px;
+    margin-bottom: 5px;
+    /* label font 색상 부여 & 얇게(세부 설정이므로) */
+    color: #409effd9;
+    font-weight: normal;
+}
+
+.k-form.form-dynamic {
+    /* border로 묶어서 group 상태 강조  */
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #e0e2e7;
+}
+
+.k-form-md.form-dynamic .k-form-field,
+.k-form-md.form-dynamic .k-form-buttons {
+    margin-top: 5px;    /* input box 간 간격 조정*/
+}
+
+/* 여기까지 */
+
 .L-btn-star {
     border-color: #fdce3e;
     color: #c9c9c9;
@@ -1802,9 +1827,8 @@ input[type="radio"], input[type="checkbox"] {
 .modal-footer > .btn {
     padding: 10px 40px !important;
 }
+
 /*AAS 화면*/
-
-
 .panel-container {
     display: flex; /* 좌우 배치를 위해 flex 사용 */
     height: 100vh; /* 화면 전체 높이 */
@@ -1835,28 +1859,13 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /* 왼쪽 패널 (트리 구조) */
-/*
-.btn-add-menu:hover {
-    background-color: #c2dfff;
+.right-panel {
+    height: 100vh; /* 또는 height: 800px; 등 고정값도 가능 */
+    overflow-y: auto; /* 내부 스크롤이 필요한 경우 */
 }
-    */
-.aas-menu-btn {
-    display: flex;
-}
-.btn-add-menu {
-    background: #ecf5ff;
-    color: #409eff;
-    border: 1px solid #b3d8ff;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    min-width: 60px;
-    height: 28px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    padding: 4px 6px;
-    margin-right:4px;
+.left-panel {
+    height: 100vh; /* 또는 height: 800px; 등 고정값도 가능 */
+    overflow-y: auto; /* 내부 스크롤이 필요한 경우 */
 }
 i.material-symbols-outlined.k-button-text.add {
     scale: 0.8;
@@ -1976,7 +1985,7 @@ i.material-symbols-outlined.draft {
 }
 /*file 텍스트 컬러 및 정렬 수정*/
 .prop-title, .file-title {
-    color: #79DBFF;
+    color: #00baff;
     font-weight: bold;
     margin-right: 10px;
 }

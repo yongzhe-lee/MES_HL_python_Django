@@ -4,7 +4,6 @@ from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.services.date import DateUtil
 from domain.models.cmms import CmProject
-#from django.db import transaction
 
 def project(context):
     '''

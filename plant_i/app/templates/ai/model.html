@@ -9,9 +9,17 @@
                 <div class="form-ui">
                     <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select id="cboEquip" name="cboEquip" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboModelType" data-labelCd="모델유형">모델유형</label>
                             <div class="field-wrapper">
-                                <select id="cboModelType" name="cboModelType"></select>
+                                <select id="cboModelType" name="cboModelType" class="form-control"></select>
                             </div>
                         </div>
                     </div>
@@ -19,7 +27,7 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="sch_keyword" name="sch_keyword" />
+                                <input id="sch_keyword" name="sch_keyword" class="form-control"/>
                             </div>
                         </div>
                     </div>
@@ -62,9 +70,9 @@
                     <div class="edit-form-ui">
                         <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="model_type" data-labelCd="모델유형">모델유형</label>
+                                <label class="k-label k-form-label essential" for="equip_id" data-labelCd="설비">설비</label>
                                 <div class="field-wrapper">
-                                    <input id="model_type" name="model_type" />
+                                    <select id="equip_id" name="equip_id" data-msg="설비를" class="form-control"></select>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +80,23 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="model_name" data-labelCd="모델마스터명">모델마스터명</label>
                                 <div class="field-wrapper">
-                                    <input id="model_name" name="model_name" data-msg="모델마스터명을"/>
+                                    <input id="model_name" name="model_name" data-msg="모델마스터명을" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="model_type" data-labelCd="모델유형">모델유형</label>
+                                <div class="field-wrapper">
+                                    <select id="model_type" name="model_type" data-msg="모델유형을" class="form-control"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="cycle" data-labelCd="생성주기">생성주기</label>
+                                <div class="field-wrapper">
+                                    <input id="cycle" name="cycle" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -113,8 +137,10 @@
                 //},
                 columns: [
                     { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                    { field: "equip_name", title: "설비명", width: 150 },
                     { field: "model_type", title: "모델유형", width: 100 },
-                    { field: "model_name", title: "모델마스터명", width: 100 },
+                    { field: "model_name", title: "모델마스터명", width: 150 },
+                    { field: "cycle", title: "생성주기", width: 100 },
                 ],
                 change: function (e) {
                     _this.showDetail();
@@ -137,6 +163,7 @@
             _this.grid = new Grid($("#model_grid"), modelGridOption);
 
             //search form
+            AjaxUtil.fillDropDownOptions($('#cboEquip'), 'equipment', 'all', null);
             AjaxUtil.fillDropDownOptions($('#cboModelType'), 'user_code', 'all', null, 'MODEL_TYPE');
             $('#sch_keyword').kendoTextBox();
             $('#sch_keyword').keypress(function (e) {
@@ -148,9 +175,11 @@
             });
 
             //detail form
+            AjaxUtil.fillDropDownOptions($('#equip_id'), 'equipment', 'all', null);
             $('#model_name').kendoTextBox(); 
-            $('#model_type').kendoTextBox(); //새로 추가되는 유형도 있을 수 있어서 텍스트박스로
-
+            //$('#model_type').kendoTextBox(); //새로 추가되는 유형도 있을 수 있어서 텍스트박스로
+            AjaxUtil.fillDropDownOptions($('#model_type'), 'user_code', 'all', null, 'MODEL_TYPE');
+            $('#cycle').kendoTextBox(); 
 
             //form button
             $('#btnSearch').kendoButton({
@@ -194,6 +223,7 @@
 
             let param = {
                 action: 'read',
+                sch_equipment: $('#cboEquip').val(),
                 sch_model_type: $('#cboModelType').val(),
                 sch_keyword: $('#sch_keyword').val(),
             };
@@ -213,6 +243,7 @@
             let data = _this.grid.getSelect();
             if (data.length > 0) {
                 let selectData = data[0];
+                console.log("selectData", selectData);
                 FormUtil.BindDataForm(selectData, $('#modelForm'));
             }
         }

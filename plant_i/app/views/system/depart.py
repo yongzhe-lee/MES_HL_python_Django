@@ -1,4 +1,5 @@
 from domain.gui import GUIConfiguration
+from domain.models.cmms import CmDept
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 from domain.models.user import Depart
@@ -172,6 +173,34 @@ def depart(context):
             try:
                 # DB에서 부서 정보 조회
                 departments = Depart.objects.filter(UseYN='Y', DelYN='N').values('id', 'Name', 'UpDept_id')
+                #print("📌 부서 데이터 확인:", list(departments))  # 🚀 로그 추가
+
+                # 트리 구조 변환
+                department_tree = build_tree(list(departments))
+
+                # ✅ `{ "items": [...] }` 형식으로 반환
+                result = {"items": department_tree}
+
+            except Exception as e:
+                print("🚨 서버 오류 발생:", str(e))  # 🚀 콘솔에 오류 로그 출력
+                result = {"error": str(e)}
+
+        elif action == 'cm_depart_tree':
+            def build_tree(nodes, parent_id=None):
+                tree = []
+                for node in nodes:
+                    if node["Parent"] == parent_id:
+                        children = build_tree(nodes, node["id"])
+                        tree.append({
+                            "id": node["id"],
+                            "text": node["DeptName"],
+                            "items": children if children else []
+                        })
+                return tree
+
+            try:
+                # DB에서 부서 정보 조회
+                departments = CmDept.objects.filter(UseYn='Y', DelYn='N').values('id', 'DeptName', 'Parent')
                 #print("📌 부서 데이터 확인:", list(departments))  # 🚀 로그 추가
 
                 # 트리 구조 변환

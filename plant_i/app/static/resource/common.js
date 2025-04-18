@@ -1349,8 +1349,14 @@ let AjaxUtil = {
             case 'depart':
                 _url = '/api/system/depart?action=depart_tree';
                 break;
+            case 'cm_depart':
+                _url = '/api/system/depart?action=cm_depart_tree';
+                break;
             case 'location':
                 _url = '/api/definition/location?action=loc_tree';
+                break;
+            case 'cm_location':
+                _url = '/api/definition/location?action=cm_loc_tree';
                 break;
             default:
                 break;
@@ -1549,7 +1555,9 @@ var kendoUtil = {
             // label에 있는 data-labelCd 값을 가져와서 필요 없는 부분 제거
             var labelCdValue = $label.attr('data-labelCd') ? $label.attr('data-labelCd').replace(/\(\d+건\)$/, '').trim() : '';
 
-            var grid = $selector.data("kendoGrid");
+            // 25.04.15 김하늘 (treeGrid도 count할 수 있게 수정)
+            var grid = $selector.data("kendoGrid") || $selector.data("kendoTreeList");
+            //var grid = $selector.data("kendoGrid");
             var rowCount = grid ? grid.dataSource.total() : 0; // 그리드의 총 행 개수
 
             // data-labelCd 속성과 텍스트 값을 업데이트

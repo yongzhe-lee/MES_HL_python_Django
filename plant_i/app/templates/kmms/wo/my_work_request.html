@@ -1,5 +1,43 @@
 {% extends "app/layout.html" %}
 {% block css %}
+<style>
+    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
+    #searchFormContent {
+        overflow: hidden;
+        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
+        transition: height 0.3s ease-in-out;
+    }
+
+    /* ✅ 검색 폼이 펼쳐진 상태 */
+    .search-expanded {
+        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
+    }
+
+    /* ✅ 접기/펼치기 버튼 스타일 */
+    #toggleSearchBtn {
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+    }
+
+        #toggleSearchBtn::before {
+            content: "▼";
+            color: #0d6efd;
+            font-size: 20px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
+        }
+
+        #toggleSearchBtn.expanded::before {
+            content: "▲";
+        }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -7,7 +45,10 @@
     <div class="content-ui-row">
         <form class="search-form" id="searchForm">
             <div class="card-content search">
-                <div class="form-ui">
+                <div class="form-ui-header">
+                    <div id="toggleSearchBtn"></div> <!-- ✅ 삼각형 화살표 버튼 -->
+                </div>
+                <div class="form-ui" id="searchFormContent">
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
@@ -62,7 +103,7 @@
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
-                        <button id="btnAdd">요청작성</button>
+                        <button id="btnAdd" class="btn-search">요청작성</button>
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
@@ -71,162 +112,230 @@
         </div>
 
     </div>
+</div>
 
-    {% verbatim %}
-    {% endverbatim %}
-    {% endblock %}
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
 
-    {% block scripts %}
+{% block scripts %}
 
-    <script type="text/javascript">
-        class WorkOrderPage {
-            constructor() {
-                this.grid = null;
-                this.upload = null;
-                this.baseUrl = '/api/kmms/wo_master';
+{% include '../../popup/modalMyWorkReq.html'%}
+{% include '../../popup/modalEquipMaster.html'%}
+{% include '../../popup/modalEqu.html'%}
+{% include '../../popup/modalWoCopy.html'%}
+{% include '../../popup/modalWoProblem.html'%}
+{% include '../../popup/modalWoProject.html'%}
+{% include 'common/file_upload.html' %}
 
-                this.comboDept = [];
+<script type="text/javascript">
+    class WorkOrderPage {
+        constructor() {
+            this.grid = null;
+            this.upload = null;
+            this.baseUrl = '/api/kmms/wo_master';
 
-                this.init();
+            this.comboDept = [];
+
+            this.init();
+        }
+
+        /**
+        * 모달창 입력란 초기화 함수
+        */
+        resetModalInputs() {
+            // 일반 입력 필드 초기화
+            $("#equip_pk").val("");
+            $("#pm_pk").val("");
+            $("#pmNumber").val("");
+            $("#pmName").val("");
+            $("#work_text").val("");
+            $("#equ_code").val("");
+            $("#equ_name").val("");
+            $("#equ_loc").val("");
+            $("#equ_import").val("");
+            $("#equ_status").val("");
+            $("#equ_env_yn").val("");
+
+            // Kendo UI 컴포넌트 초기화
+            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
+            if (maintenanceTime) {
+                maintenanceTime.value("");
             }
 
-            init() {
-                let _this = this;
-                let equipmentGridOption = {
-                    toolbar: [
-                        "columns"
-                    ],
-                    columnMenu: {
-                        componentType: "classic",
-                        autoSize: true,
-                        clearAllFilters: true,
-                        columns: {
-                            sort: "asc",
-                        }
-                    },
-                    columns: [
-                        { field: 'work_order_no', title: '작업지시번호', width: 100 },
-                        { field: 'work_title', title: '작업제목', width: 150 },
-                        { field: 'wo_status', title: '상태', width: 80 },
-                        { field: 'equip_pk', title: '설비코드', width: 100 },
-                        { field: 'equ_name', title: '설비명', width: 150 },
-                        { field: 'req_dept_name', title: '요청부서', width: 100 },
-                        { field: '_creater_nm', title: '요청자', width: 80 },
-                        { field: '_created', title: '요청일', width: 100 },
-                        { field: 'want_dt', title: '희망일', width: 100 },
-                        { field: 'dept_name', title: '작업부서', width: 100 },
-                        { field: 'work_charger_name', title: '작업담당자', width: 100 },
-                        { field: 'maint_type_cd', title: '보전유형', width: 100 }
-                    ],
-                    dataBound: function (e) {
-                        for (var i = 0; i < this.columns.length; i++) {
-                            this.autoFitColumn(i);
-                        };
-
-                        // grid 데이터 개수 표시
-                        kendoUtil.showGridRowCount(this.element);
-                    },
-                    height: "540px"
-                };
-                _this.grid = new Grid($("#work_order_grid"), equipmentGridOption);
-
-                //search form
-                $('#keyword').kendoTextBox();
-                $('#dept_name').kendoTextBox();
-                $('#dept_name').keypress(function (e) {
-                    // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
-                    if (e.keyCode === 13) {
-                        e.preventDefault();
-                        _this.searchMainData();
-                    }
-                });
-
-                $('#srch_equ_name').kendoTextBox();
-                $('#_creater_nm').kendoTextBox();
-                AjaxUtil.fillDropDownOptions($('#req_dept'), 'depart', 'choose', null); // 관리부서 드롭다운
-
-                let startDt = CommonUtil.getYYYYMMDD(-1);
-                var endDt = CommonUtil.getYYYYMMDD();
-                kendoUtil.kenDateTimePicker($("#srchStartDt"), $("#srchEndDt"), startDt, endDt);
-
-                $('#srch_equ_name').keypress(function (e) {
-                    // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
-                    if (e.keyCode === 13) {
-                        e.preventDefault();
-                        _this.searchMainData();
-                    }
-                });
-
-                //form button
-                $('#btnSearch').kendoButton({
-                    icon: "search",
-                    themeColor: "base",
-                    click: function () {
-                        _this.searchMainData();
-                    }
-                });
-
-                $('#btnAdd').kendoButton({
-                    icon: "pencil",
-                    themeColor: "blue",
-                    spriteCssClass: "k-icon k-foo",
-                    click: function () {
-
-                    }
-                });
-
-                $('#btnExcel').kendoButton({
-                    icon: "file-excel",
-                    themeColor: "success",
-                    click: function () {
-                        page.exportExcel();
-                    }
-                });
-
-                $('#btnClear').kendoButton({
-                    themeColor: "base", click: function () {
-                        _this.resetData();
-                    }
-                });
-
+            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
+            if (execDeptDropdown) {
+                execDeptDropdown.value("");
             }
 
-            searchMainData() {
-                let _this = this;
-
-                let param = {
-                    action: 'read',
-                    keyword: $('#keyword').val(),
-                    req_dept: $('#req_dept').val(),
-                };
-
-                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-                _this.grid.setData(result);
+            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
+            if (pmManagerDropdown) {
+                pmManagerDropdown.value("");
             }
 
-            resetData() {
-                let _this = this;
-                $("#work_order_grid").data('kendoGrid').refresh();
-                FormUtil.resetForm($('#equipmentForm'));
+            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
+            if (pmTypeDropdown) {
+                pmTypeDropdown.value("");
             }
+        }
 
-            // 엑셀 다운로드
-            exportExcel() {
-                let gridData = $('#work_order_grid').data("kendoGrid");
-                gridData.bind("excelExport", function (e) {
-                    e.workbook.fileName = "equipment.xlsx";
-                });
-                gridData.saveAsExcel();
+        init() {
+            let _this = this;
+            let equipmentGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'work_order_no', title: '작업지시번호', width: 100 },
+                    { field: 'work_title', title: '작업제목', width: 150 },
+                    { field: 'wo_status', title: '상태', width: 80 },
+                    { field: 'equip_pk', title: '설비코드', width: 100 },
+                    { field: 'equ_name', title: '설비명', width: 150 },
+                    { field: 'req_dept_name', title: '요청부서', width: 100 },
+                    { field: '_creater_nm', title: '요청자', width: 80 },
+                    { field: '_created', title: '요청일', width: 100 },
+                    { field: 'want_dt', title: '희망일', width: 100 },
+                    { field: 'dept_name', title: '작업부서', width: 100 },
+                    { field: 'work_charger_name', title: '작업담당자', width: 100 },
+                    { field: 'maint_type_cd', title: '보전유형', width: 100 }
+                ],
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#work_order_grid"), equipmentGridOption);
+
+            //search form
+            $('#keyword').kendoTextBox();
+            $('#dept_name').kendoTextBox();
+            $('#dept_name').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            $('#srch_equ_name').kendoTextBox();
+            $('#_creater_nm').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#req_dept'), 'depart', 'choose', null); // 관리부서 드롭다운
+
+            let startDt = CommonUtil.getYYYYMMDD(-1);
+            var endDt = CommonUtil.getYYYYMMDD();
+            kendoUtil.kenDateTimePicker($("#srchStartDt"), $("#srchEndDt"), startDt, endDt);
+
+            $('#srch_equ_name').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnAdd').kendoButton({
+                icon: "k-i-pencil",
+                themeColor: "info",
+                fillMode: "outline",
+                //spriteCssClass: "k-icon k-foo",
+                click: function (e) {
+                    e.preventDefault();
+                    page.resetModalInputs();  // 초기화 함수 호출
+                    $("#modalMyWorkReq").fadeIn();
+                }
+            }).css('visibility', 'visible');
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                keyword: $('#keyword').val(),
+                req_dept: $('#req_dept').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        resetData() {
+            let _this = this;
+            $("#work_order_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#equipmentForm'));
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#work_order_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "equipment.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    };
+
+    let page = null;
+    page = new WorkOrderPage();
+
+    $(document).ready(function () {
+        page.searchMainData();
+
+        // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
+        $("#searchFormContent").removeClass("search-expanded");
+
+        // ✅ 버튼 클릭 시 동작
+        $(document).on("click", "#toggleSearchBtn", function () {
+            let searchForm = $("#searchFormContent");
+
+            if (searchForm.hasClass("search-expanded")) {
+                searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
+                $("#toggleSearchBtn").removeClass("expanded");  // 🔹 expanded 클래스 제거
+            } else {
+                searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
+                $("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
             }
-        };
-
-        let page = null;
-        page = new WorkOrderPage();
-
-        $(document).ready(function () {
-            page.searchMainData();
         });
 
-    </script>
+    });
 
-    {% endblock %}
+</script>
+
+{% endblock %}

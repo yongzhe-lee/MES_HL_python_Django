@@ -11,7 +11,6 @@ from django.utils import timezone
 from datetime import datetime
 import json
 
-
 def pm_master(context):
     '''
     /api/kmms/pm_master

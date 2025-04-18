@@ -3,8 +3,6 @@ from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmWorkOrder, CmEquipment, CmWoLabor, CmWoMtrl, CmWorkOrderSupplier, CmWoFaultLoc, CmWorkOrderHist
-from symbol import factor
-#from django.db import transaction
 
 def work_order(context):
     '''
