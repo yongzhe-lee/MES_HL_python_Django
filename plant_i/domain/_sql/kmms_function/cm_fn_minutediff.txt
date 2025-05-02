@@ -1,0 +1,14 @@
+-- DROP FUNCTION public.cm_fn_minutediff(timestamp, timestamp);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_minutediff(date1 timestamp without time zone, date2 timestamp without time zone)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+declare
+begin
+
+	RETURN (EXTRACT(EPOCH FROM cm_date2) - EXTRACT(EPOCH FROM cm_date1))/60;
+	
+end;
+$function$
+;

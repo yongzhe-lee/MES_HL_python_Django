@@ -1,0 +1,230 @@
+﻿--DROP FUNCTION public.cm_fn_make_schedule_insp(varchar, int8, date, date, varchar);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_make_schedule_insp(p_sche_type character varying, p_chk_mast_pk bigint, p_make_start_date date, p_make_end_date date, p_factory_pk integer)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	v_cycle_type character varying(20); 
+	v_cycle_type_code character varying(10); 
+	v_per_number numeric;
+	v_sched_start_date date;
+	v_next_chk_date date;
+	v_exists_cnt integer = 0;
+	v_start_date date;
+	v_curr_date date;
+	v_plan_date date;
+	v_next_date date;
+    i integer;
+	v_chk_sche_pk bigint;
+	v_exe_cnt integer = 0;
+	v_chk_sche_no bigint;
+	v_last_plan_dt date;
+	v_next_insp_date date;
+	v_error_message varchar(1000);
+	v_holiday_use_yn varchar(1);
+	p_exec_cnt varchar(20);
+begin
+	--                   ֱ            Ʈ       ʴ´ .
+
+	-- *********************************************************
+	--           ٻ   
+	-- 1.    ˻    Ⱓ : p_make_start_date ~ p_make_end_date
+	-- 2.    ˸             ֱ ,      ֱ      ,      ֱ             ȸ
+	-- 3.  ֱ              ϱ .
+	-- 4.  ڵ  ΰ 쿡                 ֱ   ,        ֱ          Ʈ
+	-- 5.  ڵ  ΰ 쿡    ̹    ϵ        Ұ .
+	-- 220329 :  ڵ /           ¥+   ˸    Ͱ   ̹                   ʴ´ .
+	-- 230714 : chk_yn        Ⱦ .AND CHK_YN = 'Y'      
+	-- 230727 :    ʰ       ,  ֱ     Ͽ              ǵ   ,  ֱ     Ͽ              Ѱ         ֱ          Ͽ      
+	-- 230808 : SITE_CONFIG.SCHE_OPS.inspHolidayScheUse        о                        θ  Ȯ      ó  
+	-- 230817 :    ʰ       , 230727    ǵ     
+	-- *********************************************************
+	
+	v_exe_cnt = 0;
+	v_cycle_type = null;
+	v_cycle_type_code = null;
+	v_per_number = null;
+	v_sched_start_date = null;
+	v_next_chk_date = null;
+	v_start_date = null;
+	v_curr_date = null;
+	v_last_plan_dt = null;
+	
+
+	select cycle_type, per_number, sched_start_date, next_chk_date
+		, (CASE WHEN cycle_type = 'CYCLE_TYPE_Y' THEN 'year'
+		   	WHEN cycle_type = 'CYCLE_TYPE_M' THEN 'month' WHEN CYCLE_TYPE = 'CYCLE_TYPE_W' THEN 'week'
+		   	WHEN cycle_type = 'CYCLE_TYPE_D' THEN 'day' ELSE '' END)
+		, cm_fn_get_last_insp_date(chk_mast_pk) AS next_insp_date
+	into v_cycle_type, v_per_number, v_sched_start_date, v_next_chk_date, v_cycle_type_code, v_next_insp_date
+	from cm_equip_chk_mast
+	where chk_mast_pk = p_chk_mast_pk
+	and use_yn = 'Y' and del_yn = 'N' 
+	;
+
+	if v_cycle_type is null then
+		--  ش Ǵ         ó             Ƿ  END
+		v_exe_cnt = 0;
+		p_exec_cnt = '0';
+		return '0';
+	end if;
+	
+	
+	--  ڵ            ִ         Ȯ  .
+	select count(*) into v_exists_cnt
+	from cm_equip_chk_sche t
+	inner join cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk 
+	inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
+	where t.chk_mast_pk = p_chk_mast_pk 
+	and t.chk_sche_type = 'A'
+	and eq.factory_pk = p_factory_pk
+	;	
+	
+	--              
+	select max(t.chk_sche_dt) into v_last_plan_dt
+	from cm_equip_chk_sche t
+	inner join cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk 
+	inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
+	where t.chk_mast_pk = p_chk_mast_pk 
+	and t.chk_sche_type = 'A'
+	and eq.factory_pk = p_factory_pk
+	;	
+	
+	
+	if p_sche_type = 'A' then
+	
+		if v_next_chk_date is null and coalesce(v_exists_cnt, 0) = 0 AND date(V_SCHED_START_DATE) BETWEEN date(P_MAKE_START_DATE) AND date(P_MAKE_END_DATE)  THEN
+			--      ֱ          ,  ֱٻ                 ,  ֱ              Ⱓ      ԵǾ         
+			v_start_date = v_sched_start_date;
+		elsif v_next_chk_date is null and coalesce(v_exists_cnt, 0) = 0 and date(v_sched_start_date) < date(p_make_start_date) then
+			--         ֱⰡ  Ѱǵ     µ ,  ֱⰡ    ú                            ֱ          Ͽ ,  ش   ֱ  Ͽ     Կ  θ  Ȯ   ϰ  ó   Ѵ .
+			select cm_fn_get_next_sche_date(v_sched_start_date, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date;		
+		elsif v_next_chk_date is null and coalesce(v_exists_cnt, 0) > 0  then
+			--      ֱ          ,  ֱٻ              ִ       ֱٻ                       Ⱓ      Ե             
+			select cm_fn_get_next_sche_date(v_last_plan_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date; 
+		elsif v_next_chk_date is not null and coalesce(v_exists_cnt, 0) > 0 and  date(v_next_chk_date) < date(p_make_start_date) then
+			--      ֱ       ְ ,  ֱٻ                   ,    ú         ֱ                  ֱٻ                            
+			select cm_fn_get_next_sche_date(v_last_plan_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date;	
+		elsif v_next_chk_date is not null and coalesce(v_exists_cnt, 0) > 0 and  date(v_next_chk_date) >= date(p_make_start_date) then
+			--      ֱ       ְ ,  ֱٻ                   ,    ú         ֱ                          ֱ                       
+			v_start_date = v_next_chk_date;
+		end if;
+	else
+		v_start_date = p_make_start_date;
+	end if;
+	
+	if v_start_date is null then
+		--     ó          ϴ              Ƿ  END
+		v_exe_cnt = 0;
+		p_exec_cnt = '0';
+		return '0';
+	end if;
+	
+	--   ȸ Ⱓ    , v_start_date        Ϸ     ݺ     ֱ       ϱ .
+	--             :   ȸ Ⱓ     .
+	v_curr_date = v_start_date;
+	i := 1;
+	LOOP
+
+		if v_curr_date > p_make_end_date then
+			--   ¥        Ѱ  
+			EXIT;
+		else
+			/*
+			select (case when cast(sche_opts -> 'inspHolidayScheUse' as text) = 'true' then 'Y' else 'N' end) as inspHolidayScheUse
+			into v_holiday_use_yn
+			from cm_site_config
+			where site = p_factory_pk;	
+			*/
+
+			v_holiday_use_yn = 'N';
+		
+			select case when v_holiday_use_yn = 'Y' then v_curr_date else to_date(cm_fn_get_work_day(TO_CHAR(v_curr_date,'YYYY-MM-DD')),'YYYY-MM-DD') end
+				 , (v_curr_date + concat(v_per_number, ' ', v_cycle_type_code)::interval)
+			into v_plan_date, v_next_date
+			;		
+		
+			v_exists_cnt = 0;
+		
+			--  ڵ         ̹   ߺ          ִ    Ȯ   (   ˸      +    ˰ ȹ  )
+			-- 220329.  ڵ /          ߺ    Ȯ  
+			select count(*) into v_exists_cnt
+			from cm_equip_chk_sche t
+			inner join cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk 
+			inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
+			where t.chk_mast_pk = p_chk_mast_pk 
+			and t.chk_sche_type = 'A'
+			and to_char(t.chk_sche_dt, 'YYYY-MM-DD') = to_char(v_plan_date,'YYYY-MM-DD')
+			and eq.factory_pk = p_factory_pk
+			;	
+			
+			v_chk_sche_pk = 0;
+		
+			if coalesce(v_exists_cnt, 0) = 0 then
+				--      ٸ     .
+				select nextval('equip_chk_sche_chk_sche_pk_seq') into v_chk_sche_pk;
+
+			
+				select coalesce(MAX((
+					select chk_sche_no from (
+						select max(cast(t1.chk_sche_no as integer)) as chk_sche_no 
+						from cm_equip_chk_sche t1
+						inner join cm_equip_chk_mast t2 on t1.chk_mast_pk = t2.chk_mast_pk
+						where t2.site_id = p_site_id
+					) as sub_table)) + 1, '1') into v_chk_sche_no
+				from cm_equip_chk_sche;			
+			
+				insert into cm_equip_chk_sche(chk_sche_pk, chk_sche_dt, chk_sche_no, chk_status, chk_user_pk
+				, dept_pk, chk_mast_pk, chk_sche_type, site_id, insert_ts, inserter_id, inserter_nm) 
+				select v_chk_sche_pk, v_plan_date
+				, v_chk_sche_no
+				, 'CHK_STATUS_N'
+				, chk_user_pk, dept_pk, chk_mast_pk, p_sche_type
+				, p_site_id
+				, current_timestamp, 'system', ' ý   '
+				from cm_equip_chk_mast where chk_mast_pk = p_chk_mast_pk;
+
+				insert into cm_equip_chk_item_mst (chk_item_nm, chk_item_unit_pk, item_idx, lcl, ucl, chk_item_pk, chk_sche_pk) 
+				select chk_item_nm, chk_item_unit_pk, item_idx, lcl, ucl, chk_item_pk, v_chk_sche_pk
+				from cm_equip_chk_item where chk_mast_pk = p_chk_mast_pk;
+
+				insert into cm_equip_chk_rslt(chk_req_type, chk_sche_pk, equip_pk, insert_ts, inserter_id, inserter_nm)
+				select p_sche_type, v_chk_sche_pk, equip_pk, current_timestamp, 'system', ' ý   '
+				from cm_chk_equip where chk_mast_pk = p_chk_mast_pk;
+
+				--  ֱ⸶           Ʈ (last_chk_date, next_chk_date) ,  ڵ  ΰ 쿡  
+				--  ڵ      쿡        ֱ          Ʈ  Ѵ .
+				if p_sche_type = 'A' then
+					update cm_equip_chk_mast
+					set last_chk_date = v_plan_date
+					, next_chk_date = v_next_date
+					where chk_mast_pk = p_chk_mast_pk;
+				end if;
+
+				v_exe_cnt = v_exe_cnt + 1;
+			
+			end if;
+			
+		end if;
+
+		--    ѷ        
+		EXIT WHEN i = 1000;
+
+		v_curr_date = v_next_date;
+		SELECT i+1 into i;
+	END LOOP;	
+			
+	RETURN cast(v_exe_cnt as text);
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('FUNCTION', 'make_schedule_insp', concat('[sche_type] ',  p_sche_type, ' [chk_mast_pk] ',  cast(p_chk_mast_pk as text), ' [MESSAGE] : ', SQLERRM));
+	RETURN null;
+  END;
+  
+end;
+$function$
+;

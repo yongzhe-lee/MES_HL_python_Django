@@ -1,25 +1,33 @@
 {% extends "app/layout.html" %}
+
 {% block css %}
 {% endblock %}
 
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
-        <form class="search-form" id="searchForm">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
             <div class="card-content search">
-                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
                     <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="라인명, 라인코드" />
+                                <input id="sch_keyword" name="sch_keyword" placeholder="업체코드,업체명" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부">사용여부</label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="card-group-btn search">
-                            <button id="btnSearch" class="btn-search">조회</button>
+                            <button id="searchBtn" class="btn-search">조회</button>
                         </div>
                     </div>
                 </div>
@@ -28,7 +36,7 @@
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="라인 목록">라인 목록</label></span>
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
                     <span>
                     </span>
                     <span>
@@ -36,23 +44,72 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="line_grid"></div>
+                <div id="equipmentGroupListGrid"></div>
             </div>
         </div>
-        
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="supplier_pk" name="supplier_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="equip_category_id" data-labelCd="ID">ID</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_category_id" name="equip_category_id" class="k-input k-textbox" placeholder="2자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="equip_category_desc" data-labelCd="카테고리">카테고리</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_category_desc" name="equip_category_desc" placeholder="50자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remark" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <input id="remark" name="remark" placeholder="50자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-
-{% verbatim %}
-{% endverbatim %}
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript">
-    class LinePage {
+    class equipmentGroupListPage {
+
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/definition/line';
+            this.form = null;
+            this.baseUrl = '/api/kmms/equip_group';
 
             this.init();
         }
@@ -61,90 +118,96 @@
             let _this = this;
 
             let gridOption = {
-                //height: 450,
-                //toolbar: [
-                //    "columns"
-                //],
-                //columnMenu: {
-                //    componentType: "classic",
-                //    autoSize: true,
-                //    clearAllFilters: true,
-                //    columns: {
-                //        sort: "asc",
-                //    }
-                //},
-                columns: [
-                    { field: "Name", title: "라인명", width: 100 },
-                    { field: "Code", title: "라인코드", width: 100 },
-                    { field: "Description", title: "비고", width: 100 },
+                toolbar: [
+                    "columns"
                 ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'supplierPk', title: 'supplierPk', hidden: true },
+                    { field: 'equip_category_id', title: 'ID', width: 80 },
+                    { field: 'equip_category_desc', title: '카테고리', width: 100 },
+                    { field: 'remark', title: '설명', width: 80 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
                 change: function (e) {
                     _this.showDetail();
                 },
-                dataBound: function (e) {
-                    //for (var i = 0; i < this.columns.length; i++) {
-                    //    this.autoFitColumn(i);
-                    //};
-                    // grid 데이터 개수 표시
-                    kendoUtil.showGridRowCount(this.element);
-                },
-                height: "540px"
+                height: "430px"
             };
-            _this.grid = new Grid($("#line_grid"), gridOption);
 
-            //search form
-            $('#keyword').kendoTextBox();
-            $('#keyword').keypress(function (e) {
-                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
-                if (e.keyCode === 13) {
-                    e.preventDefault();
-                    _this.searchMainData();
-                }
+            _this.grid = new Grid($('#equipmentGroupListGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today + ".xlsx";
             });
 
-            //detail form
-            $('#Name').kendoTextBox();
-            $('#Code').kendoTextBox();
-            $('#Description').kendoTextArea({
-                rows: 4,
-                maxLength: 200,
-                placeholder: ""
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
             });
 
-            //form button
-            $('#btnSearch').kendoButton({
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'cm_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
+            });
+
+            // form
+            $('#equip_category_id').kendoTextBox();
+            $('#equip_category_desc').kendoTextBox();
+            $('#use_yn').kendoTextBox();
+            $('#remark').kendoTextBox();
+
+            // button
+            $("#searchBtn").kendoButton({
                 icon: "search",
-                themeColor: "base",
                 click: function () {
                     _this.searchMainData();
-                }
-            });
-
-            $('#btnExcel').kendoButton({
-                icon: "file-excel",
-                themeColor: "success",
-                click: function () {
-                    page.exportExcel();
-                }
-            });
-
-            $('#btnClear').kendoButton({
-                themeColor: "base", click: function () {
-                    _this.resetData();
                 }
             });
             $('#btnSave').kendoButton({
-                themeColor: "info",
+                themeColor: 'info',
                 click: function () {
-                    _this.saveData();
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
                 }
             });
-            $('#btnDelete').kendoButton({
-                themeColor: "error",
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
                 click: function () {
-                    _this.deleteData();
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
                 }
             });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
 
         }
 
@@ -152,95 +215,74 @@
             let _this = this;
 
             let param = {
-                action: 'read',
-                keyword: $('#keyword').val(),
+                action: 'findAll',
+                searchText: $('#sch_keyword').val(),
+                useYn: $('#sch_use_yn').val(),
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
         }
 
-        resetData() {
-            let _this = this;
-            $("#line_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#lineForm'));
-        }
-
         showDetail() {
             let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#lineForm'));
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
             }
         }
 
         saveData() {
             let _this = this;
-            let data = FormUtil.extractForm($('#lineForm'));
+            let formData = FormUtil.extractForm($('#detailForm'));
+            console.log("formData:\n", formData);
+            if (checkForm($('#detailForm')) === false) return;
 
-            let Code = $('#Code').val();
-            let Name = $('#Name').val();
-
-            if (!Code) {
-                Alert.alert('', '라인코드를 입력해주세요.');
-                return;
-            } else if (!Name) {
-                Alert.alert('', '라인명을 입력해주세요.');
-                return;
-            }
-
-            let funcSucc = function (resp) {
-                if (resp.success) {
-                    $('#id').val(resp.id);
-                    Notify.success('저장되었습니다.');
-                    _this.resetData();
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
                     _this.searchMainData();
-                } else {
-                    Alert.alert('error', resp.message);
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
                 }
             };
-            AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', formData, fnSuccess);
         }
 
         deleteData() {
             let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
-                let param = {
-                    id: selectData.id,
-                }
-
-                let funcSucc = function (resp) {
-                    if (resp.success) {
-                        Notify.success('삭제되었습니다.');
-                        _this.resetData();
+            let formData = _this.grid.getSelect();
+            if (formData[0].equip_category_id) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
                         _this.searchMainData();
-                    } else {
-                        Alert.alert('error', resp.message);
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
                     }
                 };
-                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { equip_category_id: formData[0].equip_category_id }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
             }
         }
 
-        // 엑셀 다운로드
-        exportExcel() {
-            let gridData = $('#line_grid').data("kendoGrid");
-            gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "line.xlsx";
-            });
-            gridData.saveAsExcel();
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
         }
-    };
+    }
 
-    let page = new LinePage();
-
+    let page = null;
+    page = new equipmentGroupListPage();
     $(document).ready(function () {
         page.searchMainData();
     });
 
 </script>
-
 {% endblock %}

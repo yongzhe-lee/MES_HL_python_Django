@@ -1,0 +1,35 @@
+ DROP FUNCTION public.cm_fn_get_loc_path(int4);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_path(v_factory_pk integer)
+ RETURNS TABLE(loc_pk bigint, path_info_pk bigint, loc_cd character varying, path_info_cd character varying, factory_pk integer)
+ LANGUAGE plpgsql
+AS $function$
+declare 
+    v_rec record;
+begin
+	for v_rec in(
+		WITH cte AS (
+			SELECT x.id AS loc_pk,
+			    unnest(x.path_info_pk) AS path_info_pk,
+			    x.cd AS loc_cd,
+			    unnest(x.path_info) AS path_info_cd,
+			    x.factory_pk
+			FROM (SELECT * FROM cm_fn_get_loc_tree (v_factory_pk)) x
+			ORDER BY x.id
+        )
+		 SELECT cte.loc_pk,
+		    cte.path_info_pk,
+		    cte.loc_cd,
+		    cte.path_info_cd,
+		    cte.factory_pk
+		   from cte
+        ) loop  
+	       	loc_pk := v_rec.loc_pk; 
+	       	path_info_pk := v_rec.path_info_pk; 
+	       	loc_cd := v_rec.loc_cd; 
+	       	path_info_cd := v_rec.path_info_cd; 
+	       	factory_pk := v_rec.factory_pk; 
+       		return next;
+	end loop;
+end; $function$
+;

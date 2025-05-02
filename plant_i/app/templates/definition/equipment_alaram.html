@@ -347,7 +347,11 @@
             _this.grid.setData([]);
             let fnSuccess = function (result) {
                 if (result.success) {
-                    _this.grid.setData(result.data);
+                    try {
+                        _this.grid.setData(result.data);
+                    } catch (e) {
+                        Alert.alert('error', '데이터를 가져오는 중 오류가 발생했습니다.');
+                    }                   
                 }
 
                 kendo.ui.progress($gg, false);

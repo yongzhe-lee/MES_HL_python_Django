@@ -1,0 +1,226 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="line_id" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="line_id" id="line_id"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="topic_kind" data-labelCd="TOPIC구분">TOPIC구분</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="topic_kind" id="topic_kind">
+                                    <option value="rst">RST</option>
+                                    <option value="dt">DT</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="topic" data-labelCd="TOPIC">TOPIC</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="topic" id="topic"></select>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button type="button" id="btnSubscription" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="실시간 메시지내용">실시간 메시지내용</label></span>
+                    <span>
+                    </span>
+                    <span>
+                    </span>
+                </div>
+
+                <div class="edit-form-ui">
+
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <div class="field-wrapper">
+                                <textarea class="form-control" id="txtMessage" style="height:600px"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="/static/resource/paho-mqtt/mqttws31.min.js"></script>
+<script type="text/javascript" src="/static/resource/mqtt.js?v=2000"></script>
+<script type="text/javascript">
+    class TopicDataPage {
+        constructor() {
+
+            this.mqttclient = null;
+
+            this.arr_hpc1_equ = [
+                "hpc1.load",
+                "hpc1.flash",
+                "hpc1.ict",
+                "hpc1.coatload",
+                "hpc1.coating1",
+                "hpc1.coating2",
+                "hpc1.coatvision",
+                "hpc1.pcbrev",
+                "hpc1.curr",
+                "hpc1.frobackload",
+                "hpc1.uh.load",
+                "hpc1.tim",
+                "hpc1.tim.assy",
+                "hpc1.lh.load",
+                "hpc1.scrwt",
+                "hpc1.scrwt.height",
+                "hpc1.fclip",
+                "hpc1.fclip.height",
+                "hpc1.fclip.clip",
+                "hpc1.fclip.screw",
+                "hpc1.eol1",
+                "hpc1.eol2",
+                "hpc1.pinchk",
+                "hpc1.labeling",
+                "hpc1.brackassm",
+                "hpc1.brackassm.height"
+            ];
+            this.arr_smt4_equ = ["smt4.loader", "smt4.laserrmarking", "smt4.sp1", "smt4.sp2", "smt4.spi", "smt4.mnt", "smt4.pre-aoi", "smt4.reflow", "smt4.aoi", "smt4.aoireview", "smt4.unloader", "hpc1.packing"];
+            this.arr_all_equ = this.arr_hpc1_equ.concat(this.arr_smt4_equ);
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            this.rst_topic_items = [];
+            this.$txtMessage = $('#txtMessage');
+            this.$line = $('#line_id');
+            this.$topic_kind = $('#topic_kind');
+            this.$cboTopic = $('#topic');
+
+            AjaxUtil.fillDropDownOptions(this.$line, 'line', null, null, this.$line.val()); // "" : 전체, 1 : hpc1, 2 : smt4
+            this.fillTopicOptions();
+
+            this.$line.on("change", function (e) {
+                _this.fillTopicOptions();
+            });
+
+
+            this.$topic_kind.on("change", function (e) {
+                _this.fillTopicOptions();
+            });
+
+            $('#btnSubscription').on('click', function (e) {
+                _this.startsSubscribe();
+            });
+
+
+        }
+
+        fillTopicOptions() {
+            let _this = this;
+            let line_id = _this.$line.val();            
+
+            let arr = this.arr_all_equ;
+            if (line_id == "1") {
+                arr = this.arr_hpc1_equ;
+
+            } else if (line_id == "2") {
+                arr = this.arr_smt4_equ;
+            }
+            else {
+                alert("오류1");
+            }
+
+            _this.$cboTopic.empty();
+            let opt = '<option value="">선택</option>';
+            _this.$cboTopic.append(opt);
+
+            let topic_kind = _this.$topic_kind.val();
+
+            let topic_prefix = "rst_";
+            if (topic_kind == "dt") {
+                topic_prefix = "dt_";
+            }
+
+            $.each(arr, function (idx, equ_cd) {
+                let rst_topic = topic_prefix + equ_cd;
+                let opt = '<option value="' + rst_topic + '">' + rst_topic + '</option>';
+                _this.$cboTopic.append(opt);
+            });
+        }
+
+        web_event_handler(message) {
+            let _this = this;
+            let mqttData = JSON.parse(message.payloadString);
+            //console.log(mqttData);
+            let txt = mqttData.date + ' :  ' + mqttData.message;
+            this.$txtEventMessage.text(txt);
+        }
+
+        startsSubscribe()
+        {
+            let _this = this;
+            if (gui.main_app_run != "Y") {
+                Alert.alert("설정확인필요", "MQTT기능이 활성화 되어 있지 않습니다.");
+                return;
+            }
+
+            let topic = this.$cboTopic.val()
+
+            if (topic == "") {
+
+                Alert.alert("입력오류", "TOPIC이 설정되지 않았습니다.");
+                return;
+            }
+
+            if (this.mqttclient != null) {
+                if (this.mqttclient.mqttConnected) {
+                    this.mqttclient.disconnect()
+                }
+                this.mqttclient = null;
+            }
+
+            this.mqttclient = new MQTTMessageClient(gui.mqtt_host, gui.mqtt_port);
+            this.mqttclient.setTopicMessageHandler(topic, this.web_event_handler);
+            this.mqttclient.connect();
+        }
+
+    }
+
+    $(document).ready(function () {
+        let page = new TopicDataPage();
+    });
+</script>
+
+{% endblock %}

@@ -102,7 +102,7 @@
                             </div>
                         </div>
                         <!--<div class="col-12 col-sm-6 col-md-4">-->
-                        <div class="col-12 col-sm-6 col-md-12">
+                        <div class="col-12 col-sm-12 col-md-12">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="message" data-labelCd="설명">설명</label>
                                 <div class="field-wrapper">
@@ -113,6 +113,18 @@
                     </div>
                 </form>
             </div>
+            
+            <div class="card-content edit">
+                <hr />
+                <div class="col-12 col-sm-12 col-md-12">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="message" data-labelCd="실시간DAS이벤트">실시간DAS이벤트</label>
+                        <div class="field-wrapper">
+                            <textarea id="txtEventMessage" class="form-control" ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -121,6 +133,8 @@
 {% endblock %}
 
 {% block scripts %}
+<script type="text/javascript" src="/static/resource/paho-mqtt/mqttws31.min.js"></script>
+<script type="text/javascript" src="/static/resource/mqtt.js?v=2000"></script>
 <script type="text/javascript">
     class SystemLogPage {
         constructor() {
@@ -159,7 +173,7 @@
                         this.autoFitColumn(i);
                     };
                 },
-                height: 680
+                height: 500
             };
             _this.grid = new Grid($("#system_log_grid"), systemLogGridOption);
 
@@ -252,14 +266,35 @@
             }
         }
 
+        web_event_handler(message) {
+            let $txtEventMessage = $('#txtEventMessage');
+            let mqttData = JSON.parse(message.payloadString);
+            //console.log(mqttData);
+            let txt = mqttData.date + ' :  ' + mqttData.message;
+            $txtEventMessage.text(txt);
+
+
+        }
+
+        initMqttEventMessage() {
+            if (gui.main_app_run == "Y") {
+                this.mqttclient = new MQTTMessageClient(gui.mqtt_host, gui.mqtt_port);
+                this.mqttclient.setTopicMessageHandler(gui.event_topic, this.web_event_handler);
+                this.mqttclient.connect();
+            }
+        }
+
     };
 
-    let page = null;
 
+
+    let page = new SystemLogPage();
     $(document).ready(function () {
-        page = new SystemLogPage();
-
         page.searchMainData();
+        //hlklemove_device_event
+
+        page.initMqttEventMessage();
+
     });
 
 </script>

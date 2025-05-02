@@ -1,4 +1,3 @@
-from termios import COMMON
 from django import db
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
@@ -7,8 +6,8 @@ from domain.models.cmms import CmEquipCategory, CmEquipClassify
 
 def equip_group(context):
     '''
-    api/kmms/equip_group    외부공급처?
-    김태영 작업중
+    api/kmms/equip_group    ?
+    김태영 
 
     findAll
     findOne
@@ -27,13 +26,6 @@ def equip_group(context):
 
     action = gparam.get('action', 'read') 
 
-    def findDeletableExSupplier(exSupplierPk):
-        q = CmWorkOrderSupplier.objects.filter(CmExSupplier_id=exSupplierPk)
-        if q.first():
-            return 1
-        else:
-            return 0
-
     try:
         if action in ['findAll']:
             showCodeYn = gparam.get('showCodeYn')
@@ -42,11 +34,9 @@ def equip_group(context):
             searchText = gparam.get('searchText')
 
             sql = ''' SELECT t.equip_category_id
+            , concat('[', t.equip_category_id, '] ', t.equip_category_desc) as equip_category_desc
+            , t.equip_category_desc
             '''
-            if showCodeYn == 'Y':
-                sql += ''' , concat('[', t.equip_category_id, '] ', t.equip_category_desc) as equip_category_desc
-                , t.equip_category_desc
-                '''
             sql += ''', t.remark
             , t.use_yn
             , t.insert_ts
@@ -65,20 +55,18 @@ def equip_group(context):
                 '''
             if searchText:
                 sql += ''' AND (
-				UPPER(t.equip_category_id) LIKE ('%' || UPPER('xxx') || '%')
+				UPPER(t.equip_category_id) LIKE ('%%', UPPER(%(searchText)s), '%%')
 				OR
-				UPPER(t.equip_category_desc) LIKE ('%' || UPPER('xxx') || '%')
+				UPPER(t.equip_category_desc) LIKE ('%%', UPPER(%(searchText)s), '%%')
    			    )
                 '''
-
-            sql += ''' order by t.equip_group_nm
+            sql += ''' order by t.equip_category_id
             '''
 
             dc = {}
+            dc['showCodeYn'] = showCodeYn
+            dc['equipCategoryId'] = equipCategoryId
             dc['useYn'] = useYn
-            dc['exSupplierCd'] = exSupplierCd
-            dc['exSupplierNm'] = exSupplierNm
-            dc['exSupplierPkNot'] = exSupplierPkNot
             dc['searchText'] = searchText
 
             items = DbUtil.get_rows(sql, dc)
@@ -118,10 +106,10 @@ def equip_group(context):
             searchText = gparam.get('searchText')
 
             sql = ''' select distinct t.equip_class_pk
-		  		,t.equip_class_id
-		  		,t.equip_class_desc
-		  		,t.hierarchy_path
-		  		,t.category_id
+		        ,t.equip_class_id
+		        ,t.equip_class_desc
+		        ,t.hierarchy_path
+		        ,t.category_id
                 '''
             if types == 'CLASS':
                 sql += ''' , concat(t.category_id,' : ',ec.equip_category_desc) as category
@@ -130,9 +118,9 @@ def equip_group(context):
                 sql += ''' ,concat(t.parent_id, ' : ', ecl.equip_class_desc) as category
                 '''
             sql += ''', t.parent_id,
-		  		,t.class_type,
-			  	,t.factory_pk as site_id,
-		  		,t.use_yn,
+		        ,t.class_type,
+		        ,t.factory_pk as site_id,
+		        ,t.use_yn,
                 ,t.insert_ts,
                 ,t.inserter_id,
                 ,t.update_ts,
@@ -145,12 +133,12 @@ def equip_group(context):
                 '''
             elif types == 'TYPES':
                 sql += ''' left join cm_equip_classify ecl on ecl.class_type ='CLASS' 
-        	    AND ecl.equip_class_id = t.parent_id
+                AND ecl.equip_class_id = t.parent_id
                 '''
             sql += '''AND t.factory_pk = %(factory_pk)s
             '''
             if types:
-        	    sql += ''' AND t.class_type = UPPER(%(types)s)
+                sql += ''' AND t.class_type = UPPER(%(types)s)
                 '''
             if useYn:
                 sql += ''' AND t.use_yn = %(useYn)s
@@ -208,16 +196,17 @@ def equip_group(context):
 
             items = DbUtil.get_row(sql, dc)
 
-        elif action in ['insert', 'update']:
-            equipCategoryId = posparam.get('equipCategoryId')
-            equipCategoryDesc = posparam.get('equipCategoryDesc')
+        elif action in ['save']:
+            equipCategoryId = posparam.get('equip_category_id')
+            equipCategoryDesc = posparam.get('equip_category_desc')
             remark = posparam.get('remark')
-            useYn = posparam.get('useYn')
+            useYn = posparam.get('use_yn')
   
-            if action == 'update':
-                c = CmEquipCategory.objects.get(EquipCategoryCode=idequipCategoryId)
-
-            else:
+            try:
+                c = CmEquipCategory.objects.get(EquipCategoryCode=equipCategoryId)
+                # 기존 데이터가 있는 경우 수정
+            except CmEquipCategory.DoesNotExist:
+                # 기존 데이터가 없는 경우 신규 등록
                 c = CmEquipCategory()
 
             c.EquipCategoryCode = equipCategoryId

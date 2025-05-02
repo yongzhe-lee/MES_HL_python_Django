@@ -1,0 +1,124 @@
+<!-- 손자 모달 (설비 선택) -->
+<div id="modalMatSel" class="modal child-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>자재선택</h4>
+        </div>
+        <div class="modal-body">
+            <div class="search-area">
+                <div class="search-label">검색키워드</div>
+                <input type="text" class="form-control" id="keyword_mat" name="keyword_mat" placeholder="자재코드, 자재명을 입력하세요">
+                <div class="search-label col-md-1">공급업체</div>
+                <input type="text" class="form-control" id="supplier_nm_mat" name="supplier_nm_mat">
+                <div class="search-label col-md-1">자재종류</div>
+                <select id="mtrl_class_cd_mat" name="mtrl_class_cd_mat"></select>
+                <button type="button" class="btn-search" id="btnSearchMat" style="margin-left: 50px;">검색</button>
+            </div>
+            <div id="mat_sel_grid"></div> 
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="btnConfirmMat">확인</button>
+            <button type="button" class="btn-close" id="btnCancelMat">취소</button>
+        </div>
+    </div>
+</div>
+<style>
+</style>
+
+<script type="text/javascript">
+    class MaterialSelPage {
+        constructor() {
+            this.grid = null;
+			this.baseUrl = '/api/kmms/material';
+            this.callback = null;
+            this.init();
+        }
+
+        init() {
+            this.initGrid();
+            this.initButton();
+            this.initEvents();
+        }
+
+        initGrid() {
+            const option = {
+                toolbar: ["columns"],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: { sort: "asc" }
+                },
+                columns: [
+                    { field: '_mtrl_pk', title: '자재PK', hidden: true },
+					{ field: '_mtrl_cd', title: '자재코드', width: 100 },
+					{ field: '_mtrl_nm', title: '자재명', width: 150 },
+					{ field: '_mtrl_class_nm', title: '자재종류', width: 80 },
+					{ field: '_safety_stock_amt', title: '적정재고', width: 100 },
+					{ field: '_amt_unit_nm', title: '단위', width: 100 },
+					{ field: '_mtrl_dsc', title: '자재사양', width: 100 },
+					{ field: '_unit_price', title: '최근단가', width: 100 },
+					{ field: '_unit_price_dt', title: '단가일자', hidden: true },
+					{ field: '_supplier_nm', title: '공급업체', hidden: true }
+                ],               
+                dataBound: function () {
+                    this.autoFitColumns();
+                },
+                height: "440px",
+                scrollable: true,
+            };
+			this.grid = new Grid($("#mat_sel_grid"), option);
+        }
+
+        initButton() {
+            $("#btnConfirmMat").kendoButton({ icon: "k-i-check", themeColor: "base" });
+			$("#btnCancelMat").kendoButton({ icon: "cancel", themeColor: "base" });
+            $("#btnSearchMat").kendoButton({
+                themeColor: "primary",
+                icon: "search",
+                click: () => this.getMatData()
+            });
+
+			AjaxUtil.fillDropDownOptions($('#mtrl_class_cd_mat'), 'cm_base_code', 'all', null, 'MTRL_CLASS');
+        }
+
+        initEvents() {
+			const $modal = $("#modalMatSel");
+
+            $("#btnCancelMat").on("click", (e) => {
+                e.preventDefault();
+                $modal.fadeOut();
+            });
+
+            $("#btnConfirmMat").on("click", () => {               
+                const data = this.grid.getSelect();
+                if (typeof this.callback === 'function') {
+					this.callback(data[0]);
+                }
+                $modal.fadeOut();
+            });
+        }
+
+        getMatData() {
+            const param = {
+                action: 'selectAll',
+				keyword: $('#keyword_mat').val(),
+				supplier: $('#supplier_nm_mat').val(),
+				mtrl_class: $('#mtrl_class_cd_mat').val(),
+            };			
+            const result = AjaxUtil.getSyncData(this.baseUrl, param);
+            this.grid.setData(result);
+        }
+
+        show(callback) {
+            this.callback = callback;
+			$("#modalMatSel").fadeIn();
+            this.getMatData();
+        }
+    }
+
+    let matSelectPage = null;
+    $(document).ready(function () {
+		matSelectPage = new MaterialSelPage();
+    });
+</script>

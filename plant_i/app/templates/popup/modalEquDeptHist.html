@@ -1,4 +1,4 @@
-<div id="modalWindowDept" class="modal">
+<div id="modalWindowDept" class="modal child-modal">
 	<div class="modal-content" style="width: 800px; height: 500px !important;">
 		<div class="modal-header">
 			<h4>설비 부서변경 이력</h4>
@@ -28,16 +28,14 @@
 		}
 
 		init() {
-			const modalDept = $("#modalWindowDept");
-			const closeModalDeptBtn = $("#closeModalDept");
-
-			// 모달 닫기 - 닫기 버튼 클릭
-			closeModalDeptBtn.on("click", () => {
-				modalDept.fadeOut();
-			});
+			const modalDept = $("#modalWindowDept");	
 
 			$("#closeModalDept").kendoButton({
 				themeColor: "base",
+				click: (e) => {
+					e.preventDefault();
+					modalDept.fadeOut();
+				}
 			});
 
 			// Kendo 버튼 초기화
@@ -74,7 +72,7 @@
 			}).data("kendoGrid");
 		}
 
-		getList() {
+		getDeptList() {
 			const self = this;
 			$.ajax({
 				url: this.baseUrl,
@@ -114,11 +112,20 @@
 				}
 			});
 		}
+
+		show(callback) {
+			let _this = this;
+			this.callback = callback;
+
+			$("#modalWindowDept").fadeIn();
+			_this.getDeptList();
+		}
+
 	}
 
-	let equipDeptHist = null;
+	let equipDeptHistPage = null;
 	$(document).ready(function () {
-		equipDeptHist = new EquipDeptHist();
+		equipDeptHistPage = new EquipDeptHist();
 	});
 
 </script>

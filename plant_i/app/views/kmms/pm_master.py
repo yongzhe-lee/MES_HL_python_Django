@@ -1,8 +1,8 @@
 from django.db import transaction
-from domain.models.definition import Equipment, Material
+from domain.models.cmms import CmEquipment, CmJobClass, CmMaterial, CmPm, CmPmLabor, CmPmMtrl, CmWorkOrder
 from domain.models.user import Depart
 from domain.services.sql import DbUtil
-from domain.models.kmms import JobClass, PMWorker, PMMaterial, PreventiveMaintenance, User, WorkOrder
+from domain.models.kmms import User
 from domain.services.kmms.pm_master import PMService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
@@ -24,7 +24,7 @@ def pm_master(context):
 
     pm_master_service = PMService()
 
-    if action=='read':
+    if action=='findAll':
         keyword = gparam.get('keyword', None)  
         equDept = gparam.get('equDept', None)
         equLoc = gparam.get('equLoc', None)
@@ -38,6 +38,10 @@ def pm_master(context):
         isLegal = gparam.get('isLegal', None)
         
         items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
+
+    elif action=='findOne':
+        id = gparam.get('id', None)
+        items = pm_master_service.get_pm_master_findOne(id)
 
     elif action=='read_pm_sch':
         keyword = gparam.get('keyword', None)  
@@ -97,7 +101,7 @@ def pm_master(context):
         try:
 
             if pm_pk:
-                pm = PreventiveMaintenance.objects.filter(pm_pk=pm_pk).first()
+                pm = CmPm.objects.filter(PmPk=pm_pk).first()
                 if not pm:
                     return JsonResponse({
                         'result': False,
@@ -106,28 +110,28 @@ def pm_master(context):
 
             else:
                 # 새 객체 생성
-                pm = PreventiveMaintenance()
+                pm = CmPm()
 
             # 파라미터 가져오기
-            pm_no = generate_pm_number()
+            PmNo = generate_pm_number()
 
             # 데이터 저장
-            pm.pm_no = pm_no
-            pm.Name = posparam.get('pmName')
-            pm.PMType = posparam.get('pmType')            
+            pm.PmNo = PmNo
+            pm.PmName = posparam.get('pmName')
+            pm.PmType = posparam.get('pmType')            
             pm.WorkText = posparam.get('work_text')
-            pm.schedStartDt = posparam.get('sched_start_dt')
+            pm.SchedStartDt = posparam.get('sched_start_dt')
             
             maintenance_time = posparam.get('maintenanceTime')
             if maintenance_time:
-                pm.WorkExpectHour = int(maintenance_time)  # 숫자형으로 변환
+                pm.WorkExpectHr = int(maintenance_time)  # 숫자형으로 변환
             else:
-                pm.WorkExpectHour = None  # 기본값 설정
+                pm.WorkExpectHr = None  # 기본값 설정
 
-            if pm.PMType == 'PM_TYPE_TBM':  # 주기유형이 주기일 경우
-                pm.ScheduleStartDate = posparam.get('sched_start_dt')
+            if pm.PmType == 'PM_TYPE_TBM':  # 주기유형이 주기일 경우
+                pm.SchedStartDt = posparam.get('sched_start_dt')
                 pm.CycleType = posparam.get('cycleType')
-                pm.CyclePerNumber = posparam.get('per_number')
+                pm.PerNumber = posparam.get('per_number')
 
             dept_pk = posparam.get('dept_pk')
             pm_user_pk = posparam.get('pmManager')
@@ -158,36 +162,34 @@ def pm_master(context):
                     'message': f'User with id {pm_user_pk} does not exist.'
                 })
 
-            # Equipment 객체 가져오기
+            # CmEquipment 객체 가져오기
             try:
-                equipment = Equipment.objects.get(id=equip_pk)
-            except Equipment.DoesNotExist:
+                equipment = CmEquipment.objects.get(id=equip_pk)
+            except CmEquipment.DoesNotExist:
                 return JsonResponse({
                     'result': False,
-                    'message': f'Equipment with id {equip_pk} does not exist.'
+                    'message': f'CmEquipment with id {equip_pk} does not exist.'
                 })
 
-            pm.Depart = depart
-            pm.PMUser= user_id
-            pm.Equipment = equipment
+            pm.DeptPk = depart.id
+            pm.PmUserPk= user_id.id
+            pm.CmEquipment = equipment
 
-            pm.UseYN = 'Y'
-            pm.DeleteYN = 'N'
+            pm.UseYn = 'Y'
+            pm.DelYn = 'N'
         
-            if not pm_pk:  # 신규 등록시
-                pm._status = 'C'
-                pm._created = timezone.now()
-                pm._creater_id = request.user.id
-                pm._creater_nm = request.user.username
+            if not pm_pk:  # 신규 등록시     
+                pm.InsertTs = timezone.now()
+                pm.InserterId = request.user.id
+                pm.InserterName = request.user.username
             else:  # 수정시
-                pm._status = 'U'
-                pm._modified = timezone.now()
-                pm._modifier_id = request.user.id
-                pm._modifier_nm = request.user.username
+                pm.UpdateTs = timezone.now()
+                pm.UpdaterId = request.user.id
+                pm.UpdaterName = request.user.username
 
             pm.save()
 
-            items = {'success': True, 'id': pm.pm_pk}
+            items = {'success': True, 'id': pm.PmPk}
 
         except Exception as ex:
             source = 'api/kmms/pm_master, action:{}'.format(action)
@@ -205,19 +207,19 @@ def pm_master(context):
                 job_classes = json.loads(job_classes)
 
             # PreventiveMaintenance 객체 가져오기
-            pm_instance = PreventiveMaintenance.objects.get(pk=pm_pk) 
+            pm_instance = CmPm.objects.get(pk=pm_pk) 
 
             # 저장할 PMWorker 객체 리스트 생성
             pm_labor_list = []
 
             for job_class in job_classes:
                 job_class_pk = int(job_class.get('job_class_pk'))  # job_class_pk를 정수형 변환
-                jc_instance = JobClass.objects.get(pk=job_class_pk)  # JobClass 객체 조회
+                jc_instance =CmJobClass.objects.get(pk=job_class_pk)
 
                 # PMWorker 객체 생성 (아직 DB에 저장하지 않음)
                 pm_labor = PMWorker(
-                    PreventiveMaintenance=pm_instance,  # ForeignKey 필드
-                    JobClass=jc_instance,  # ForeignKey 필드
+                    CmPm=pm_instance,  # ForeignKey 필드
+                    CmJobClass=jc_instance,  # ForeignKey 필드
                     WorkHour=job_class.get('work_hr'),
                     _created=timezone.now()
                 )
@@ -226,10 +228,10 @@ def pm_master(context):
                 pm_labor_list.append(pm_labor)    
                 
             #기존 pm_labor 삭제
-            PMWorker.objects.filter(PreventiveMaintenance=pm_instance).delete()
+            CmPmLabor.objects.filter(CmPm=pm_instance).delete()
 
             # Bulk Insert 실행 (한 번의 쿼리로 저장)
-            PMWorker.objects.bulk_create(pm_labor_list)
+            CmPmLabor.objects.bulk_create(pm_labor_list)
                 
             ##########################################################
             # for job_class in job_classes:
@@ -264,19 +266,19 @@ def pm_master(context):
                 materials = json.loads(materials)
 
             # PreventiveMaintenance 객체 가져오기
-            pm_instance = PreventiveMaintenance.objects.get(pk=pm_pk) 
+            pm_instance = CmPm.objects.get(pk=pm_pk) 
 
             # 저장할 PMWorker 객체 리스트 생성
             pm_mtrl_list = []
 
             for material in materials:
                 mat_pk = int(material.get('mat_pk'))  # mat_pk를 정수형 변환
-                mat_instance = Material.objects.get(pk=mat_pk)  # JobClass 객체 조회
+                mat_instance = CmMaterial.objects.get(pk=mat_pk)
 
                 # PMWorker 객체 생성 (아직 DB에 저장하지 않음)
-                pm_mtrl = PMMaterial(
-                    PreventiveMaintenance=pm_instance,  # ForeignKey 필드
-                    Material=mat_instance,  # not null      
+                pm_mtrl = CmPmMtrl(
+                    CmPm=pm_instance,  # ForeignKey 필드
+                    CmMaterial=mat_instance,  # not null      
                     Amount=material.get('mtrl_qty', 0),  # not null, 기본값 0
 
                     _status='C',  # not null
@@ -289,10 +291,10 @@ def pm_master(context):
                 pm_mtrl_list.append(pm_mtrl)    
                 
             #기존 pm_mtrl 삭제
-            PMMaterial.objects.filter(PreventiveMaintenance=pm_instance).delete()
+            CmPmMtrl.objects.filter(CmPm=pm_instance).delete()
 
             # Bulk Insert 실행 (한 번의 쿼리로 저장)
-            PMMaterial.objects.bulk_create(pm_mtrl_list)    
+            CmPmMtrl.objects.bulk_create(pm_mtrl_list)    
 
             items = {'success': True}
             
@@ -309,7 +311,7 @@ def pm_master(context):
         try:
 
             if work_order_pk:
-                wo = WorkOrder.objects.filter(work_order_pk=work_order_pk).first()
+                wo = CmWorkOrder.objects.filter(work_order_pk=work_order_pk).first()
                 if not wo:
                     return JsonResponse({
                         'result': False,
@@ -318,7 +320,7 @@ def pm_master(context):
 
             else:
                 # 새 객체 생성
-                wo = WorkOrder()
+                wo = CmWorkOrder()
 
             # 데이터 저장      
             # Depart 객체 가져오기
@@ -384,21 +386,21 @@ def generate_pm_number():
     prefix = f"PM-{today}-"
     
     # 오늘 날짜의 마지막 PM 번호 조회
-    today_max_pm = PreventiveMaintenance.objects.filter(
-        pm_no__startswith=prefix,
-        DeleteYN='N'  # 삭제되지 않은 데이터만
-    ).order_by('-pm_no').first()
+    today_max_pm = CmPm.objects.filter(
+        PmNo__startswith=prefix,
+        DelYn='N'  # 삭제되지 않은 데이터만
+    ).order_by('-PmNo').first()
     
     if today_max_pm:
         # 마지막 번호에서 순번 추출하여 1 증가
-        last_sequence = int(today_max_pm.pm_no[-4:])
+        last_sequence = int(today_max_pm.PmNo[-4:])
         new_sequence = str(last_sequence + 1).zfill(4)
     else:
         # 해당 날짜의 첫 번호
         new_sequence = '001'
     
-    pm_no = f"{prefix}{new_sequence}"
-    return pm_no
+    PmNo = f"{prefix}{new_sequence}"
+    return PmNo
 
 
 

@@ -6,8 +6,8 @@ from domain.models.cmms import CmExSupplier, CmWorkOrderSupplier
 
 def ex_supplier(context):
     '''
-    api/kmms/ex_supplier    외부공급처?
-    김태영 작업중
+    api/kmms/ex_supplier    외부업체
+    김태영 
 
     findAll 전체목록조회
     findOne 한건조회
@@ -100,7 +100,7 @@ def ex_supplier(context):
  
 
         elif action == 'findOne':
-            exSupplierPk = gparam.get('exSupplierPk')
+            exSupplierPk = CommonUtil.try_int( gparam.get('exSupplierPk') )
 
             sql = ''' SELECT t.ex_supplier_pk
 		       , t.ex_supplier_nm

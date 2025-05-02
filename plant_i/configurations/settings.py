@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ["*"]
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
 INSTALLED_APPS = [
     'app',                                      # 사용자가 만든 앱 이름
+    'app.startup.MainAppConfig',
     # Add your apps here to enable them         
     #'django.contrib.admin',                     # Django 관리(admin) 사이트
     'django.contrib.auth',                      # 인증(authentication) 시스템 (사용자, 권한 관리)
@@ -152,16 +153,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # 정적 파일을 모아둘 �
 # 개발 중 정적 파일을 찾을 추가 디렉터리 설정
 #STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-USE_MOBILE_LOGIN = False
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+X_FRAME_OPTIONS = 'SAMEORIGIN'#Iframe 오류 관련 수정
 
+USE_MOBILE_LOGIN = False
 MAIN_APP_RUN = False
 
-#MOSQUITTO_HOST = "10.226.236.34"
+#MOSQUITTO_HOST = "10.226.236.32"
 MOSQUITTO_HOST = "10.10.10.231"
 #MOSQUITTO_HOST = 'localhost'
 MOSQUITTO_WEBSOCKET_PORT =9001
+MOSQUITTO_USERNAME = ""
+MOSQUITTO_MQTT_PORT = 1883
+MOSQUITTO_WEBSOCKET_PORT = 9001
 
 TOPIC_SYSTEM_EVENT='klemove_system_event'
 USE_SYSTEM_EVENT = True 
@@ -174,10 +178,11 @@ TOPIC_HMI_DATA = SITE_NAME + '_hmi_data'
 
 HMI_RUNNING_MODE = 'mqtt' # mqtt or database
 
-X_FRAME_OPTIONS = 'SAMEORIGIN'#Iframe 오류 관련 수정
+# AI_API_HOST= "10.10.10.XXX"
+# AI_API_HOST= "10.226.236.35"
+AI_API_HOST= "localhost"
 
 folders = []
-
 FILE_UPLOAD_PATH = 'c:\\temp\\plant_i\\'     #업로드한 파일의 영구저장 장소
 EXTRA_CODE_PATH = 'c:\\temp\\plant_i\\extra\\' # 사용자 정의 코드의 저장 장소
 # 25.03.13 김하늘 추가
@@ -191,15 +196,11 @@ folders.append(FILE_UPLOAD_PATH)
 folders.append(EXTRA_CODE_PATH)
 folders.append(FILE_TEMP_UPLOAD_PATH)
 
-
 SF_LOG_KEY = ''
-
 
 IF_EAI_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJITCBLbGVtb3ZlIiwic3ViIjoiRUFJIiwiY2xpZW50SWQiOiIxNzQwMzg3MzEyMDAwMDEyNTA2IiwiY2xpZW50SVBzIjoiMTAuMjI2LjIzNi4zMjsgMTAuMjI2LjIzNi4zMDsgMTAuMjI2LjIzNi4zMSIsImlhdCI6MTc0MDYyMTA3Mn0.1oNwV640nxAwpWWglIWrpa9-LF2uNgXFpB6uOYKD7G0"
 IF_EAI_MAIN_SERVER = "219.253.223.111"
 IF_EAI_SUB_SERVER = "219.253.223.84"
-
-
 
 for folder in folders:
     if not os.path.exists(folder):
@@ -207,6 +208,3 @@ for folder in folders:
             os.makedirs(folder)
         except Exception as e:
             pass
-
-
-

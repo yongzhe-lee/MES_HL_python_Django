@@ -9,7 +9,7 @@
             <div class="card-content search">
                 <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
-                    <div class="col-12 col-sm-6 col-md-5 col-xl-3">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_date_range" data-labelCd="생산일">생산일</label>
                             <div class="field-wrapper">
@@ -19,7 +19,7 @@
                     </div>
 
 
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-2">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="line_id" data-labelCd="라인">라인</label>
                             <div class="field-wrapper">
@@ -27,7 +27,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-2">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="equ_id" data-labelCd="설비">설비</label>
                             <div class="field-wrapper">
@@ -35,7 +35,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
@@ -44,7 +44,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-md-6 col-lg-2 col-xl-1">
                         <div class="card-group-btn search">
                             <button id="btnSearch" class="btn-search">조회</button>
                         </div>
@@ -78,9 +78,20 @@
                     </span>
                 </div>
                 <div id="equ_result_item_grid"></div>
+                <hr />
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">bug_report</i><label data-labelCd="부적합데이터">부적합데이터</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="equ_defect_item_grid"></div>
             </div>
-            
         </div>
+
     </div>
 </div>
 
@@ -90,12 +101,13 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    class EquipmentAlarmHistoryPage {
+    class EquipmentResultPage {
         constructor() {
             this.grid = null;
             this.baseUrl = '/api/interface/equ_result';
             this.init();
             this.initItem();
+            this.initDefect();
         }
 
         init() {
@@ -103,21 +115,27 @@
             let gridOption = {
                 columns: [
                     { field: "line_nm", title: "라인", width: 80 },
-                    { field: "equ_nm", title: "설비명", width: 100 },
-                    { field: "state", title: "state", width: 100 },
-                    { field: "sn", title: "sn", width: 100 },
+                    { field: "equ_nm", title: "설비명", width: 200 },
+                    { field: "equ_cd", title: "설비코드", width: 200 },                    
+                    { field: "state", title: "불량", width: 100 },
+                    { field: "sn", title: "sn", width: 120 },
                     { field: "sn_new", title: "sn new", width: 100 },
                     { field: "sn_items", title: "sn items", width: 100 },
                     { field: "mat_cd", title: "품목번호", width: 100 },
-                    { field: "mat_nm", title: "품목명", width: 200 },
-                    { field: "bom_ver", title: "BOM Ver.", width: 160 },
-                    { field: "is_alarm", title: "is_alarm", width: 160 },
+                    { field: "mat_desc", title: "품목명", width: 350 },
+                    { field: "pcb_input", title: "PCB input", width: 100 },
+                    { field: "pcb_cn", title: "PCB CN", width: 100 },
+                    { field: "pcb_size", title: "PCB Size", width: 100 },
+                    { field: "pcb_array", title: "PCB Array", width: 100 },
+                    { field: "bom_ver", title: "BOM Ver.", width: 100 },
+                    { field: "is_alarm", title: "is_alarm", width: 100 },
                     { field: "data_date", title: "전송일시", width: 160 },
                 ],
                 change: function (e) {
-                    _this.showResultItem();
+                    _this.showResultItemList();
+                    _this.showDefectItemList();
                 },
-                height: "380px"
+                height: "300px"
             };
             _this.grid = new Grid($("#equ_result_grid"), gridOption);
 
@@ -127,7 +145,7 @@
             AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, $line_id.val());
 
             $line_id.on('change', function (e) {
-                AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', null, null, $line_id.val());
+                AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', "all", null, $line_id.val());
             });
 
 
@@ -186,20 +204,37 @@
             let gridOption = {
                 columns: [
                     { field: "test_item_cd", title: "항목코드", width: 100 },
-                    { field: "test_item_val", title: "항목결과값", width: 100 },
-                    { field: "min_val", title: "MIN", width: 100 },
-                    { field: "max_val", title: "MAX", width: 100 },
-                    { field: "unit", title: "unit", width: 100 },
-                    { field: "failcode", title: "failcode", width: 200 },
-                    { field: "created", title: "알람발생일시", width: 160 },
+                    { field: "test_item_val", title: "항목결과값", width: 80, attributes: { style: "text-align: right" } },
+                    { field: "min_val", title: "MIN", width: 80, attributes: { style: "text-align: right" } },
+                    { field: "max_val", title: "MAX", width: 80, attributes: { style: "text-align: right" } },
+                    { field: "unit", title: "unit", width: 80, attributes: { style: "text-align: center" } },
+                    { field: "failcode", title: "failcode", width: 80, attributes: { style: "text-align: center" } },
+                    { field: "created", title: "저장일시", width: 160 },
                 ],
-                height: "380px"
+                height: "300px"
             };
 
             _this.item_grid = new Grid($("#equ_result_item_grid"), gridOption);
         }
 
-        showResultItem() {
+        initDefect() {
+            //equ_defect_item_grid
+            let _this = this;
+            let gridOption = {
+                columns: [
+                    { field: "defect_cd", title: "부적합코드", width: 100 },
+                    { field: "defect_nm", title: "부적합명", width: 100 },
+                    { field: "component_nm", title: "부품명", width: 100 },
+                    { field: "part_no", title: "부품번호", width: 100 },
+                    { field: "created", title: "생성일", width: 100 },
+                ],
+                height: "200px"
+            };
+
+            _this._defect_item_grid = new Grid($("#equ_defect_item_grid"), gridOption);
+        }
+
+        showResultItemList() {
             let _this = this;
             let data = _this.grid.getSelect();
             let result_id = data[0].id;
@@ -214,6 +249,26 @@
 
                 if (result.success) {
                     _this.item_grid.setData(result.data);
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+        }
+
+        showDefectItemList() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            let result_id = data[0].id;
+            let param = {
+                action: 'defect_item_list',
+                result_id: result_id
+            };
+
+            _this._defect_item_grid.setData([]);
+            let fnSuccess = function (result) {
+
+                if (result.success) {
+                    _this._defect_item_grid.setData(result.data);
                 }
             };
 
@@ -246,6 +301,8 @@
             let $gg = $('#equ_result_grid');
             kendo.ui.progress($gg, true);
             _this.grid.setData([]);
+            _this.item_grid.setData([]);
+            _this._defect_item_grid.setData([]);
             let fnSuccess = function (result) {
                 if (result.success) {
                     _this.grid.setData(result.data);
@@ -258,7 +315,7 @@
         }
     }
 
-let page = new EquipmentAlarmHistoryPage();
+    let page = new EquipmentResultPage();
 $(document).ready(function () {
     page.searchMainData();
 });

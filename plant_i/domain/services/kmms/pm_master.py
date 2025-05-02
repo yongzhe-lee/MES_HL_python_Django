@@ -8,79 +8,116 @@ class PMService():
         return
 
     def get_pm_master_list(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal):
-        items = []
+        tems = []
         dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'pmType': pmType,'applyYn': applyYn,'cycleType': cycleType,'sDay': sDay,'eday': eday,'isMyTask': isMyTask,'isLegal': isLegal}
 
         sql = ''' 
-         SELECT 
-               a.pm_pk
-             , a.pm_no , a.pm_nm 
-             , ve.equip_pk
-             , ve.equ_code, ve.equ_name
-             , ve.import_rank
-             , ve.mng_dept_id
-             , ve.mng_dept_nm
-             , d.id
-             , d."Name" as exec_dept 
-             , ve.loc_id
-             , l.loc_nm as equ_location
-             , au.first_name as pm_manager
-             , c."Name" as pm_type 
-             , c2."Name" as cycle_type 
-         FROM pm a
- 	        inner join (
-                 SELECT e.id AS equip_pk,
-                    e."Code" AS equ_code,
-                    e."Name" AS equ_name,
-                    c."Name" AS import_rank,
-                    e.del_yn,
-                    case when e.environ_equip_yn = 'Y' then 'Y' else 'N' end environ_equip_yn,
-                    e."AssetYN",
-                    e."Depart_id" AS mng_dept_id,
-                    mng."Name" AS mng_dept_nm,
-                    e.loc_pk AS loc_id,
-                    l.loc_nm
-                   FROM equ e
-                     JOIN dept mng ON e."Depart_id" = mng.id
-                     JOIN location l ON e.loc_pk = l.id
-                     LEFT JOIN code c ON c."Code"::text = e.import_rank::text AND c."CodeGroupCode"::text = 'IMPORT_RANK'::text
-                  WHERE e.del_yn::text = 'N'::text
-             ) ve on a.equip_pk = ve.equip_pk        
- 	        inner join dept d on a.dept_pk  = d.id 	     
-            inner join auth_user au on a.pm_user_pk  = au.id  	
- 	        inner join "location" l on ve.loc_id = l.id  	        
-            left join code c on a.pm_type = c."Code" and c."CodeGroupCode" = 'PM_TYPE'
-			left join code c2 on a.cycle_type = c2."Code" and c2."CodeGroupCode" = 'CYCLE_TYPE'
-         WHERE 1 = 1
-        '''
+         with cte as (
+            SELECT t.pm_pk
+                   , t.pm_no
+                   , t.pm_nm
+                   , e.equip_pk
+                   , e.equip_cd
+                   , e.equip_nm
+                   , e.import_rank_pk
+			       , ir.import_rank_cd 				   AS import_rank_nm
+                   , d.dept_pk
+                   , d.dept_nm
+                   , pu.user_pk                        AS pm_user_pk
+                   , fn_user_nm(pu.user_nm, pu.del_yn)                        AS pm_user_nm
+                   , (case when (t.pm_no ~ E'^[0-9]+$') = true then cast(t.pm_no as integer) else 999999 end) as pm_no_sort
+                   , pt.code_cd                        AS pm_type_cd
+                   , pt.code_nm                        AS pm_type_nm
+                   , ct.code_cd                        AS cycle_type_cd
+                   , ct.code_nm                        AS cycle_type_nm
+                   , Concat(t.per_number, ct.code_dsc) AS cycle_display_nm
+                   , t.per_number
+                   , t.last_work_dt
+                   , t.sched_start_dt
+                   , t.first_work_dt
+	               , t.next_chk_date
+                   , t.work_text
+                   , t.work_expect_hr
+                   , t.use_yn
+                   , t.del_yn
+                   , t.insert_ts
+                   , t.inserter_id
+                   , t.inserter_nm
+                   , t.update_ts
+                   , t.updater_id
+                   , t.updater_nm
+		           , eqd.dept_nm as mdept_nm
+			       , l.loc_nm
+		           , ec.equip_category_desc
+				    , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
+				    , (select code_nm from cm_base_code where code_grp_cd = 'EQUIP_SYSTEM' and code_cd = e.system_cd) as system_nm
+
+		    FROM   cm_pm t
+		           INNER JOIN cm_equipment e ON t.equip_pk = e.equip_pk
+		           INNER JOIN cm_location l ON e.loc_pk = l.loc_pk
+		           LEFT OUTER JOIN cm_dept d ON t.dept_pk = d.dept_pk
+		           LEFT OUTER JOIN cm_base_code pt ON t.pm_type = pt.code_cd AND pt.code_grp_cd = 'PM_TYPE'
+		           LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
+		           LEFT OUTER JOIN cm_user_info pu ON t.pm_user_pk = pu.user_pk
+		           LEFT OUTER JOIN cm_dept eqd ON e.dept_pk = eqd.dept_pk
+			       LEFT OUTER JOIN cm_import_rank ir on e.import_rank_pk = ir.import_rank_pk
+				    left outer join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
+		    WHERE  t.del_yn = 'N'
+    		    AND t.use_yn = 'Y'
+            '''
         if keyword:
             sql += ''' 
-            AND a."pm_nm" like CONCAT('%%', %(keyword)s, '%%')
+            AND (
+				UPPER(t.pm_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR
+				UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR
+				UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR
+				UPPER(t.pm_no) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+   			)
             '''
-        if equDept:
+        if cycleType:
             sql += ''' 
-            AND ve.mng_dept_id = %(equDept)s
-            '''
-        if equLoc:
-            sql += ''' 
-            AND ve.loc_id = %(equLoc)s
-            '''
-        if pmDept:
-            sql += ''' 
-            AND a.dept_pk = %(pmDept)s
+            AND ct.code_cd = %(cycleType)s
             '''
         if pmType:
             sql += ''' 
-            AND a.pm_type = %(pmType)s
+            AND pt.code_cd =  %(pmType)s
+            '''
+        if isLegal:
+            sql += ''' 
+            AND e.environ_equip_yn =  %(isLegal)s
+            '''
+        if equDept: #관리부서
+            sql += ''' 
+            AND (
+					eqd.dept_pk = %(equDept)s
+					OR
+					eqd.dept_pk In (select dept_pk from cm_v_dept_path where %(equDept)s = path_info_pk)
+				)
+            '''
+        if pmDept: #실행부서
+            sql += ''' 
+            AND (
+					d.dept_pk = %(pmDept)s
+					OR
+					d.dept_pk In (select dept_pk from cm_v_dept_path where %(pmDept)s = path_info_pk)
+				)
+            '''
+        if equLoc: #설비위치
+            sql += ''' 
+            AND (
+					l.loc_pk = %(equLoc)s					
+				)
+            '''
+        if isMyTask: #나의 담당건
+            sql += '''             
+            AND pu.user_pk = %(isMyTask)s
             '''
         if applyYn:
             sql += ''' 
             AND a.use_yn = %(applyYn)s
-            '''
-
-        if cycleType:
-            sql += ''' 
-            AND a.cycle_type = %(cycleType)s
             '''
 
         # if sDay:
@@ -93,17 +130,22 @@ class PMService():
         #     AND exc.id = %(eday)s
         #     '''
 
-        if isMyTask:
-            sql += ''' 
-            AND a."pm_user_pk" = %(isMyTask)s
-            '''
-        if isLegal:
-            sql += ''' 
-            AND ve."environ_equip_yn" = %(isLegal)s
-            '''
-        sql += ''' 
-            ORDER BY a.pm_no
-            '''
+        sql += '''				
+		)
+        SELECT *
+            , CAST(cm_fn_get_work_day(to_char(cm_fn_get_last_pm_date(sub.pm_pk), 'YYYY-MM-DD')) AS timestamp) as next_chk_date
+
+            , (select count(*)
+                 from work_order wo
+ 				where wo.pm_pk = sub.pm_pk
+			   ) as wo_count
+
+		FROM (
+			table cte  order by pm_no_sort ASC 
+		) sub
+		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		WHERE total_rows != 0
+        '''
 
         try:
             items = DbUtil.get_rows(sql, dic_param)
@@ -249,6 +291,70 @@ class PMService():
             raise ex
 
         return items
+
+    def get_pm_master_findOne(self, id):
+        sql = ''' 
+                SELECT t.pm_pk
+               , t.pm_no
+               , t.pm_nm
+               , e.equip_pk
+               , e.equip_cd
+               , e.equip_nm
+               , d.dept_pk
+               , d.dept_nm
+               , pu.user_pk                        AS pm_user_pk
+               , cm_fn_user_nm(pu.user_nm, pu.del_yn)                        AS pm_user_nm
+               , (case when (t.pm_no ~ E'^[0-9]+$') = true then cast(t.pm_no as integer) else 999999 end) as pm_no_sort
+               , pt.code_cd                        AS pm_type_cd
+               , pt.code_nm                        AS pm_type_nm
+               , ct.code_cd                        AS cycle_type_cd
+               , ct.code_nm                        AS cycle_type_nm
+               , Concat(t.per_number, ct.code_dsc) AS cycle_display_nm
+               , t.per_number
+               , t.last_work_dt
+               , t.sched_start_dt
+               , t.first_work_dt
+
+		        , coalesce(t.next_chk_date
+       			        , CAST(cm_fn_get_work_day(to_char(cm_fn_get_last_pm_date(t.pm_pk), 'YYYY-MM-DD')) AS timestamp)) as next_chk_date
+
+               , cm_fn_get_work_day(to_char(cm_fn_get_last_pm_date(t.pm_pk), 'YYYY-MM-DD')) as next_chk_date
+               , t.work_text
+               , t.work_expect_hr
+               , t.use_yn
+               , t.del_yn
+               , t.insert_ts
+               , t.inserter_id
+               , t.inserter_nm
+               , t.update_ts
+               , t.updater_id
+               , t.updater_nm
+
+        FROM   cm_pm t
+               INNER JOIN cm_equipment e ON t.equip_pk = e.equip_pk
+               INNER JOIN cm_location l ON e.loc_pk = l.loc_pk
+               LEFT OUTER JOIN cm_dept d ON t.dept_pk = d.dept_pk
+               LEFT OUTER JOIN cm_base_code pt ON t.pm_type = pt.code_cd AND pt.code_grp_cd = 'PM_TYPE'
+               LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
+               LEFT OUTER JOIN cm_user_info pu ON t.pm_user_pk = pu.user_pk
+               LEFT OUTER JOIN cm_dept eqd ON e.dept_pk = eqd.dept_pk
+	           LEFT OUTER JOIN cm_import_rank ir on e.import_rank_pk = ir.import_rank_pk
+		        left outer join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
+        WHERE  t.del_yn = 'N'
+
+        AND t.pm_pk = %(id)s       
+
+        '''
+        data = {}
+        try:    
+            items = DbUtil.get_rows(sql, {'id':id})
+            if len(items)>0:
+                data = items[0]
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_master_detail', ex)
+            raise ex
+
+        return data
 
     def get_pm_master_detail(self, id):
         sql = ''' 

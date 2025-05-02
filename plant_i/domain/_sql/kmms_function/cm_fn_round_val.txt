@@ -1,0 +1,9 @@
+-- DROP FUNCTION public.cm_fn_round_val(float8, int4);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_round_val(val1 double precision, val2 integer)
+ RETURNS numeric
+ LANGUAGE sql
+AS $function$
+SELECT round(cast(val1 as numeric), val2)
+$function$
+;

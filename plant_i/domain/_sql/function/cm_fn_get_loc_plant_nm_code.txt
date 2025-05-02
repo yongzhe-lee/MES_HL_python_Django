@@ -1,0 +1,32 @@
+ DROP FUNCTION public.cm_fn_get_loc_plant_nm_code(varchar, varchar);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_plant_nm_code(v_loc_cd character varying, v_factory_pk integer)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	t_nm varchar;
+begin
+
+	WITH recursive cte as (
+		SELECT LOC_PK, UP_LOC_PK, PLANT_YN
+		FROM cm_LOCATION
+		WHERE LOC_CD = v_loc_cd 
+		AND factory_pk = v_factory_pk
+		UNION ALL
+		SELECT L.LOC_PK, L.UP_LOC_PK, L.PLANT_YN
+		from cte
+		LEFT OUTER JOIN cm_LOCATION L ON CTE.UP_LOC_PK = L.LOC_PK
+		WHERE L.LOC_PK IS NOT NULL
+	)
+	select max(case when d.plant_yn = 'Y' then d.loc_nm else '' end) as loc_nm
+	into t_nm
+	from cte
+	inner join cm_location d on cte.loc_pk = d.loc_pk;
+	
+
+	RETURN t_nm;
+	
+end;
+$function$
+;

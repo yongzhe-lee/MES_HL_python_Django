@@ -360,6 +360,8 @@ class GUIPageInfo():
     mqtt_host = ''
     mqtt_web_port = 9001
     device_topic = ''
+    event_topic= ''
+    main_app_run = "N"
     hmi_topic = ''
     system_topic = 'mes21_system_event'
 
@@ -372,13 +374,16 @@ class GUIPageInfo():
         self.mqtt_host = settings.MOSQUITTO_HOST
         self.mqtt_web_port = settings.MOSQUITTO_WEBSOCKET_PORT
         self.device_topic = settings.TOPIC_DEVICE_DATA
-        self.hmi_topic  = settings.TOPIC_HMI_DATA
-            
+        self.event_topic = settings.TOPIC_DEVICE_EVENT
+        self.hmi_topic  = settings.TOPIC_HMI_DATA        
         self.hmi_running_mode = settings.HMI_RUNNING_MODE
         self.action = gparam.get('action')
         self.gui_code = code
         self.gui_name = gui.get('name','')
         self.path_name = gui.get('path_name','')
+
+        if settings.MAIN_APP_RUN:
+            self.main_app_run = "Y"
 
         # get 파라미터를 클래스 멤버로
         for k,v in gparam.items():

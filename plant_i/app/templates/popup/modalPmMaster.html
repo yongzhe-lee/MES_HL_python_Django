@@ -24,31 +24,31 @@
 				</div>
 
 				<div class="form-row">
-					<div class="form-group">
+					<div class="form-group col-md-6">
 						<label>설비코드</label>
 						<input type="hidden" id="equip_pk" name="equip_pk" />
 						<input type="text" class="form-control" id="equ_code" name="equ_code" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-md-6">
 						<label>설비명</label>
 						<input type="text" class="form-control" id="equ_name" name="equ_name" readonly>
 					</div>
 				</div>
 				<div class="form-row">
-					<div class="form-group">
+					<div class="form-group col-md-3">
 						<label>설비위치</label>
 						<input type="hidden" id="equ_loc_pk" name="equ_loc_pk" />
 						<input type="text" class="form-control" id="equ_loc" name="equ_loc" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-md-3">
 						<label>중요도</label>
 						<input type="text" class="form-control" id="equ_import" name="equ_import" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-md-3">
 						<label>설비상태</label>
 						<input type="text" class="form-control" id="equ_status" name="equ_status" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-md-3">
 						<label>법정관리설비</label>
 						<input type="text" class="form-control" id="equ_env_yn" name="equ_env_yn" readonly>
 					</div>
@@ -69,26 +69,26 @@
 						<input type="hidden" id="pm_pk" name="pm_pk">
 						<div class="plan-content">
 							<div class="form-row">
-								<div class="form-group">
-									<label>PM번호</label>
-									<input type="text" class="form-control" id="pmNumber" name="pmNumber" placeholder="PM번호는 자동으로 생성됩니다" readonly>
+								<div class="form-group col-md-6">
+									<label for="pm_no">PM번호</label>
+									<input type="text" class="form-control" id="pm_no" name="pm_no" placeholder="PM번호는 자동으로 생성됩니다" readonly>
 								</div>
-								<div class="form-group">
-									<label>PM명 <span class="required">*</span></label>
-									<input type="text" class="form-control" id="pmName" name="pmName" placeholder="100자 이하로 입력하세요">
+								<div class="form-group col-md-6">
+									<label for="pm_nm">PM명 <span class="required">*</span></label>
+									<input type="text" class="form-control" id="pm_nm" name="pm_nm" placeholder="100자 이하로 입력하세요">
 								</div>
 							</div>
 							<div class="form-row" style="display: flex; width: 100%;">
 								<!-- 왼쪽 고정 영역 -->
 								<div style="display: flex; gap: 20px; width: 350px; min-width: 350px;">
-									<div class="form-group" style="width: 200px; min-width: 200px;">
-										<label>PM유형 <span class="required">*</span></label>
-										<select id="pmType" name="pmType">
+									<div class="form-group col-md-3" style="width: 200px; min-width: 200px;">
+										<label for="pm_type_cd">PM유형 <span class="required">*</span></label>
+										<select id="pm_type_cd" name="pm_type_cd">
 										</select>
 									</div>
-									<div class="form-group" style="width: 120px; min-width: 120px;">
-										<label style="white-space: nowrap;">정비소요시간(시)</label>
-										<input type="number" class="form-control" id="maintenanceTime" name="maintenanceTime" style="text-align: right; padding-right: 20px;" />
+									<div class="form-group col-md-3" style="width: 120px; min-width: 120px;">
+										<label  for="work_expect_hr" style="white-space: nowrap;">정비소요시간(시)</label>
+										<input type="number" class="form-control" id="work_expect_hr" name="work_expect_hr" style="text-align: right; padding-right: 20px;" />
 									</div>
 								</div>
 
@@ -96,42 +96,42 @@
 								<div id="cycleInfo" style="display: none; flex: 1; margin-left: 20px;">
 									<div style="display: flex; gap: 20px;">
 										<!-- 주기시작일 -->
-										<div class="form-group" style="display: flex; flex-direction: column;">
-											<label>주기시작일 <span class="required">*</span></label>
+										<div class="form-group col-md-4" style="display: flex; flex-direction: column;">
+											<label for="sched_start_dt">주기시작일 <span class="required">*</span></label>
 											<div class="field-wrapper">
-												<input type="date" id="schedStartDt" name="schedStartDt" />
+												<input type="date" id="sched_start_dt" name="sched_start_dt" />
 											</div>
 										</div>
 										<!-- 주기단위 -->
-										<div class="form-group" style="display: flex; flex-direction: column;">
-											<label>주기단위 <span class="required">*</span></label>
-											<select id="cycleType" name="cycleType" style="width: 100px;">
+										<div class="form-group col-md-4" style="display: flex; flex-direction: column;">
+											<label for="cycle_type_cd">주기단위 <span class="required">*</span></label>
+											<select id="cycle_type_cd" name="cycle_type_cd" style="width: 100px;">
 											</select>
 										</div>
-										<div class="form-group" style="width: 120px;">
-											<label>반복 <span class="required">*</span></label>
+										<div class="form-group col-md-4" style="width: 120px;">
+											<label for="per_number">반복 <span class="required">*</span></label>
 											<div style="display: flex; align-items: center;">
 												<span style="margin-left: 5px;">매</span>
-												<input id="perNumber" name="perNumber" type="number" class="form-control" style="width: 80px;" />
+												<input id="per_number" name="per_number" type="number" class="form-control" style="width: 80px;" />
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 							<div class="form-row">
-								<div class="form-group">
-									<label>실행부서 <span class="required">*</span></label>
-									<select id="executionDept" name="executionDept">
+								<div class="form-group col-md-6">
+									<label for="dept_pk">실행부서 <span class="required">*</span></label>
+									<select id="dept_pk" name="dept_pk">
 									</select>
 								</div>
-								<div class="form-group">
-									<label>PM담당자 <span class="required">*</span></label>
-									<select id="pmManager" name="pmManager">
+								<div class="form-group col-md-6">
+									<label for="pm_user_pk">PM담당자 <span class="required">*</span></label>
+									<select id="pm_user_pk" name="pm_user_pk">
 										<option value="">PM담당자를 선택하세요</option>
 									</select>
 								</div>
 							</div>
-							<div class="form-group">
+							<div class="form-group col-md-12">
 								<label>작업지침</label>
 								<textarea class="form-control" id="work_text" name="work_text" placeholder="2000자 이하로 입력하세요" maxlength="2000"></textarea>
 								<div class="char-count">0 / 2000 bytes</div>
@@ -337,7 +337,7 @@
 
 			// cycleInfo 표시 여부 체크 함수
 			this.checkCycleInfo = function () {
-				const pmTypeValue = $('#pmType').val();
+				const pmTypeValue = $('#pm_type_cd').val();
 				if (pmTypeValue === 'PM_TYPE_TBM') {
 					$('#cycleInfo').show();
 				} else {
@@ -365,13 +365,13 @@
 				_this.checkCycleInfo();
 			});
 
-			AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
-			AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
-			AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);
-			AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+			AjaxUtil.fillDropDownOptions($('#pm_type_cd'), 'user_code', 'choose', null, 'PM_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($("#dept_pk"), "depart", "select");
+			AjaxUtil.fillDropDownOptions($('#pm_user_pk'), 'auth_user', 'choose', null);
+			AjaxUtil.fillDropDownOptions($('#cycle_type_cd'), 'user_code', 'choose', null, 'CYCLE_TYPE');
 
 			let today = CommonUtil.getYYYYMMDD();
-			$("#schedStartDt").kendoDatePicker({
+			$("#sched_start_dt").kendoDatePicker({
 				value: today,
 				format: "yyyy-MM-dd",
 			});
@@ -381,15 +381,17 @@
 				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
 				click: function (e) {
 					e.preventDefault();
-					pageEquModal.show(function(selectedEqu) {
+					setModalPosition('#modalEqu');
+					equipSelectPage.show(function (selectedEqu) {
+						console.log('data:', selectedEqu );
 						// 선택된 설비 데이터 처리
-						$('#equip_pk').val(selectedEqu.id);
-						$('#equ_code').val(selectedEqu.Code);
-						$('#equ_name').val(selectedEqu.Name);
-						$('#equ_loc_pk').val(selectedEqu.id);
+						$('#equip_pk').val(selectedEqu.equip_pk);
+						$('#equ_code').val(selectedEqu.equip_cd);
+						$('#equ_name').val(selectedEqu.equip_nm);
+						$('#equ_loc_pk').val(selectedEqu.loc_pk);
 						$('#equ_loc').val(selectedEqu.loc_nm);
-						$('#equ_status').val(selectedEqu.Status);
-						$('#equ_import').val(selectedEqu.import_rank);
+						$('#equ_status').val(selectedEqu.equip_status_nm);
+						$('#equ_import').val(selectedEqu.import_rank_nm);
 						$('#equ_env_yn').val(selectedEqu.environ_equip_yn);
 					});
 				}
@@ -398,8 +400,17 @@
 			$("#copyPM").kendoButton({
 				icon: "k-i-copy",// 복사 아이콘
 				click: function (e) {
-					e.preventDefault();
-					$("#modalPmCopy").fadeIn();
+					e.preventDefault();					
+					setModalPosition('#modalPmCopy', { width: '70%', height: '70%' });
+					pmCopyPage.show(function (selectedPm) {
+						console.log('selectedPm:', selectedPm);
+
+						FormUtil.BindDataForm(selectedPm, $('#pmMasterForm'));
+
+						$("#equ_code").val(selectedPm.equip_cd);
+						$("#equ_name").val(selectedPm.equip_nm);						
+
+					});					
 				}
 			});
 
@@ -417,7 +428,8 @@
 				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
 				click: function (e) {
 					e.preventDefault();
-					$("#modalMaterials").fadeIn();
+					setModalPosition('#modalMatSel');
+					matSelectPage.show();
 				}
 			});
 
@@ -478,13 +490,13 @@
 		saveData() {
 			let _this = this;
 			let data = FormUtil.extractForm($('#pmMasterForm'));
-			data.PMType = $("#pmType").val();
-			data.dept_pk = $("#executionDept").data("kendoDropDownTree").value();
-			data.pmManager = $("#pmManager").val();
+			data.PMType = $("#pm_type_cd").val();
+			data.dept_pk = $("#dept_pk").data("kendoDropDownTree").value();
+			data.pmManager = $("#pm_user_pk").val();
 			data.equip_pk = $("#equip_pk").val();
 
 			// 유효성 검사
-			if (!$('#pmName').val()) {
+			if (!$('#pm_nm').val()) {
 				Alert.alert('', 'PM명을 입력해주세요.');
 				return;
 			}
@@ -511,9 +523,9 @@
 
 			// TBM 유형 체크
 			if (data.PMType === 'PM_TYPE_TBM') {
-				const schedStartDt = $("#schedStartDt").val();
-				const cycleType = $("#cycleType").val();
-				const perNumber = $("#perNumber").val();
+				const schedStartDt = $("#sched_start_dt").val();
+				const cycleType = $("#cycle_type_cd").val();
+				const perNumber = $("#per_number").val();
 
 				if (!schedStartDt || !cycleType || !perNumber) {
 					Alert.alert('', '주기 정보를 모두 입력해주세요.');
@@ -757,8 +769,8 @@
 			// 기본 필드 바인딩
 			$("#equip_pk").val(pmData.equip_pk);
 			$("#pm_pk").val(pmData.pm_pk);
-			$("#pmNumber").val(pmData.pm_no);
-			$("#pmName").val(pmData.pm_nm);
+			$("#pm_no").val(pmData.pm_no);
+			$("#pm_nm").val(pmData.pm_nm);
 			$("#work_text").val(pmData.work_text);
 			$("#equ_code").val(pmData.equ_code);
 			$("#equ_name").val(pmData.equ_name);
@@ -766,9 +778,9 @@
 			$("#equ_import").val(pmData.import_rank);
 			$("#equ_status").val(pmData.Status);
 			$("#equ_env_yn").val(pmData.environ_equip_yn);
-			$("#maintenanceTime").val(pmData.work_expect_hr);
-			$("#perNumber").val(pmData.per_number);
-			$("#schedStartDt").val(pmData.sched_start_dt);
+			$("#work_expect_hr").val(pmData.work_expect_hr);
+			$("#per_number").val(pmData.per_number);
+			$("#sched_start_dt").val(pmData.sched_start_dt);
 
 			// Kendo 컴포넌트 바인딩 함수
 			function bindKendoComponent(selector, value) {
@@ -782,10 +794,10 @@
 			}
 
 			// 각 컴포넌트 바인딩
-			bindKendoComponent("#executionDept", pmData.exec_dept);
-			bindKendoComponent("#pmManager", pmData.pm_manager);
-			bindKendoComponent("#pmType", pmData.pm_type);
-			bindKendoComponent("#cycleType", pmData.cycle_type);
+			bindKendoComponent("#dept_pk", pmData.exec_dept);
+			bindKendoComponent("#pm_user_pk", pmData.pm_manager);
+			bindKendoComponent("#pm_type_cd", pmData.pm_type);
+			bindKendoComponent("#cycle_type_cd", pmData.cycle_type);
 
 			// cycleInfo 표시 여부 체크
 			setTimeout(function() {
@@ -849,8 +861,7 @@
 	pmMasterPage = new PmMaster();
 	$(document).ready(function () {
 
-		// pmType 선택 이벤트 핸들러 추가
-		$('#pmType').on('change', function () {
+		$('#pm_type_cd').on('change', function () {
 			pmMasterPage.checkCycleInfo();
 		});
 

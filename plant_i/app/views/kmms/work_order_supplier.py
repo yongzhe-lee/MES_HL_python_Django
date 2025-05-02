@@ -7,7 +7,7 @@ from domain.models.cmms import CmWorkOrderSupplier
 def work_order_supplier(context):
     '''
     api/kmms/work_order_supplier    작업지시 외부업체
-    김태영 작업중
+    김태영 
 
     countBy
     findAll

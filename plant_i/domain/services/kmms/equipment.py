@@ -3,7 +3,6 @@ from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 
 class EquipmentService():
-
 	def __init__(self):
 		return
 
@@ -241,6 +240,303 @@ class EquipmentService():
 
 		return items
 
+	def get_equipment_findAll(self, keyword,dept_pk):
+		sql = ''' 
+			
+		with cte as (
+
+			select t.equip_pk
+			, cm_fn_get_incineration(l.loc_pk) as incinerator
+
+			, t.equip_cd
+			, t.equip_nm
+			, l.loc_pk
+			, l.loc_cd
+			, l.loc_nm
+			, l.up_loc_pk
+			, ul.loc_cd as up_loc_cd
+			, ul.loc_nm as up_loc_nm
+			, case when ul.loc_nm is null then l.loc_nm
+				   else ul.loc_nm ||  ' \ '  || l.loc_nm
+			  end as up_loc_path
+			, t.equip_status
+			, t.equip_status as equip_status_cd
+			, es.code_nm as equip_status_nm
+			, ir.import_rank_cd as import_rank_nm
+			, t.import_rank_pk
+			, ir.import_rank_cd
+			, ec.equip_category_id
+			, ec.equip_category_desc
+			, ec.remark as equip_category_remark
+			, t.ccenter_cd
+			, cc.ccenter_nm
+			, t.dept_pk
+			, d.dept_cd
+			, d.dept_nm
+			, t.up_equip_pk
+			, eu.equip_nm as up_equip_nm
+			, eu.equip_cd as up_equip_cd
+			, t.disposed_type
+			, t.disposed_type as disposed_type_cd
+			, dt.code_nm as disposed_type_nm
+			, t.disposed_date
+			, t.breakdown_dt
+			, t.warranty_dt
+			, t.install_dt
+			, t.asset_nos
+			, t.environ_equip_yn
+			, count(epm.mtrl_pk) as mtrl_cnt
+			, t.use_yn
+			, t.supplier_pk
+			, s.supplier_nm
+			, t.make_dt
+			, t.buy_cost
+			, t.maker_pk
+			, sm.supplier_nm as maker_nm
+			, t.mtrl_pk
+			, m.mtrl_cd
+			, m.mtrl_nm
+			, t.model_number
+			, t.serial_number
+			, t.equip_dsc
+			, t.photo_file_grp_cd
+			, t.doc_file_grp_cd
+			, t.equip_class_path
+			, t.equip_class_desc
+			, t.insert_ts
+			, t.inserter_id
+			, t.inserter_nm
+			, t.update_ts
+			, t.updater_id
+			, t.updater_nm
+			, t.site_id
+			, t.system_cd
+			, sc.code_nm as system_nm
+			, t.process_cd
+			, bc.code_nm as process_nm
+			, cm_fn_get_incineration(l.loc_pk) as incinerator
+			, STRING_AGG(esv.equip_spec_value,',') as equip_spec
+
+			from cm_equipment t
+			inner join cm_location l on t.loc_pk = l.loc_pk
+			inner join cm_dept d on t.dept_pk = d.dept_pk
+			inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
+			left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
+			left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
+			left outer join cm_cost_center cc on t.ccenter_cd = cc.ccenter_cd
+			left outer join cm_supplier s on t.supplier_pk = s.supplier_pk
+			left outer join cm_equipment eu on t.up_equip_pk = eu.equip_pk
+			left outer join cm_base_code dt on t.disposed_type = dt.code_cd and dt.code_grp_cd = 'DISPOSE_TYPE'
+			left outer join cm_supplier sm on t.maker_pk = sm.supplier_pk
+			left outer join cm_material m on t.mtrl_pk = m.mtrl_pk
+			left outer join cm_location ul on l.up_loc_pk = ul.loc_pk
+			left outer join cm_base_code bc on bc.code_grp_cd = 'EQUIPMENT_PROCESS' and bc.code_cd = t.process_cd
+			left outer join cm_base_code sc on sc.code_grp_cd = 'EQUIP_SYSTEM' and sc.code_cd = t.system_cd
+			left outer join cm_equip_spec esv on t.equip_pk = esv.equip_pk
+
+			left outer join cm_equip_part_mtrl epm on t.equip_pk = epm.equip_pk
+			where t.del_yn = 'N'
+			AND t.use_yn = 'Y'
+			AND t.equip_status NOT IN (
+					'ES_DISP'
+            )
+		'''
+		if keyword:
+			sql += ''' 
+			AND (
+				UPPER(t.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR UPPER(t.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+
+					OR ('NCA' = 'NCL' AND UPPER(l.loc_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%'))
+					OR ('NCA' = 'NCA' AND UPPER(t.asset_nos) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%'))
+
+			)
+		'''
+
+		if dept_pk:
+			sql += ''' 
+				AND t.dept_pk =  %(dept_pk)s
+				OR
+				t.dept_pk IN ( select dept_pk from cm_v_dept_path where %(dept_pk)s = path_info_pk)
+			)
+			'''
+
+		sql += '''
+		group by t.equip_pk
+		, t.equip_cd
+		, t.equip_nm
+		, l.loc_pk
+		, l.loc_cd
+		, l.loc_nm
+		, t.equip_status
+		, es.code_nm
+		, t.import_rank_pk
+		, ir.import_rank_cd
+		, ec.equip_category_id
+		, ec.equip_category_desc
+		, t.ccenter_cd
+		, cc.ccenter_nm
+		, t.breakdown_dt
+		, t.warranty_dt
+		, t.disposed_type
+		, t.disposed_type
+		, dt.code_nm
+		, t.disposed_date
+		, t.install_dt
+		, t.dept_pk
+		, d.dept_cd
+		, d.dept_nm
+		, t.asset_nos
+		, t.environ_equip_yn
+		, t.up_equip_pk
+		, eu.equip_nm
+		, eu.equip_cd
+		, t.use_yn
+		, t.supplier_pk
+		, s.supplier_nm
+		, t.make_dt
+		, t.buy_cost
+		, t.maker_pk
+		, sm.supplier_nm
+		, t.mtrl_pk
+		, m.mtrl_cd
+		, m.mtrl_nm
+		, t.model_number
+		, t.serial_number
+		, t.equip_dsc
+		, t.photo_file_grp_cd
+		, t.doc_file_grp_cd
+		, t.equip_class_path
+		, t.equip_class_desc
+		, t.insert_ts
+		, t.inserter_id
+		, t.inserter_nm
+		, t.update_ts
+		, t.updater_id
+		, t.updater_nm
+		, l.up_loc_pk
+		, ul.loc_nm
+		, ul.loc_cd
+		, t.site_id
+		, t.process_cd
+		, bc.code_nm
+		, t.system_cd
+		, sc.code_nm
+		, ec.remark
+
+		)
+
+		SELECT sub.*, c.*
+		, concat(dx.business_nm, ',', dx.team_nm, ',', dx.ban_nm) as dept_path_nm
+		, dx.business_nm as business_nm
+		, (select count(*) from cm_pm as pm where pm.equip_pk = sub.equip_pk and pm.del_yn = 'N') as pm_count
+		, (select count(distinct ecm.chk_mast_pk) from cm_equip_chk_mast ecm
+				inner join cm_chk_equip ce on ecm.chk_mast_pk = ce.chk_mast_pk
+				where ce.equip_pk = sub.equip_pk and ecm.del_yn = 'N') as insp_count
+
+		, coalesce(x.wo_count, 0) as wo_count
+		, coalesce(x.broken_wo_cnt, 0) as broken_wo_cnt
+
+		FROM (
+			table cte
+				order by equip_cd ASC,equip_nm asc				
+
+		) sub
+
+		left outer join (
+			select wo.equip_pk
+			, count(distinct case when wo.wo_status = 'WOS_CL' then wo.work_order_pk else null end) as wo_count
+			, count(distinct case when wo.maint_type_cd = 'MAINT_TYPE_BM'
+									 and ((date(wo.start_dt) >= ((current_date - '1 years'::interval)::date+1) AND date(wo.start_dt) <= current_date)
+											OR
+											(date(wo.end_dt) >= ((current_date - '1 years'::interval)::date+1) AND date(wo.end_dt) <= current_date)) then wo.work_order_pk
+									else null end
+					) as broken_wo_cnt
+			from cm_work_order wo
+			where wo.wo_status not in ('WOS_RW', 'WOS_DL')
+			AND ((date(wo.start_dt) >= ((current_date - '5 years'::interval)::date+1) AND date(wo.start_dt) <= current_date)
+						OR
+						(date(wo.end_dt) >= ((current_date - '5 years'::interval)::date+1) AND date(wo.end_dt) <= current_date))
+			group by wo.equip_pk
+		) x on sub.equip_pk = x.equip_pk
+
+		left outer join (
+			with x as (
+				select unnest(path_info_pk) as path_pk from cm_v_dept
+			)
+			select d.dept_pk
+			, max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
+			, max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
+			, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d.dept_nm else '' end) as ban_nm
+			from x
+			inner join cm_dept d on x.path_pk = d.dept_pk
+			group by d.dept_pk
+		) dx on sub.dept_pk = dx.dept_pk
+
+		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		WHERE total_rows != 0
+        '''
+		data = {}
+		try:
+			data = DbUtil.get_rows(sql, {'keyword':keyword,'dept_pk':dept_pk})
+    
+		except Exception as ex:
+			LogWriter.add_dblog('error','EquipmentService.get_equipment_findAll', ex)
+			raise ex
+
+		return data
+
+	def get_equipment_selectAll(self, keyword,dept_pk):
+		sql = ''' 
+			
+		select t.equip_pk as _equip_pk
+		, t.equip_cd as _equip_cd
+		, t.equip_nm as _equip_nm
+		, l.loc_nm as _loc_nm
+		, es.code_nm as _equip_status_nm 
+		, ir.import_rank_cd as _import_rank_nm		
+		, ec.remark as _equip_category_remark
+		, t.asset_nos as _asset_nos
+		, t.environ_equip_yn as _environ_equip_yn
+		from cm_equipment t		
+		inner join cm_location l on t.loc_pk = l.loc_pk		
+		inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'		
+		left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
+		left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
+		where t.del_yn = 'N'
+			AND t.use_yn = 'Y'
+			AND t.equip_status NOT IN ('ES_DISP')
+		'''
+		if keyword:
+			sql += ''' 
+			AND (
+				UPPER(t.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR UPPER(t.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+
+					OR ('NCA' = 'NCL' AND UPPER(l.loc_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%'))
+					OR ('NCA' = 'NCA' AND UPPER(t.asset_nos) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%'))
+
+			)
+		'''
+
+		if dept_pk:
+			sql += ''' 
+				AND t.dept_pk =  %(dept_pk)s
+				OR
+				t.dept_pk IN ( select dept_pk from cm_v_dept_path where %(dept_pk)s = path_info_pk)
+			
+			'''
+
+		data = {}
+		try:
+			data = DbUtil.get_rows(sql, {'keyword':keyword,'dept_pk':dept_pk})
+    
+		except Exception as ex:
+			LogWriter.add_dblog('error','EquipmentService.get_equipment_selectAll', ex)
+			raise ex
+
+		return data
+
 	def get_equipment_findOne(self, equip_pk):
 		sql = ''' 
 			
@@ -414,7 +710,7 @@ class EquipmentService():
 			data = DbUtil.get_row(sql, {'equip_pk':equip_pk})
     
 		except Exception as ex:
-			LogWriter.add_dblog('error','EquipmentService.get_equipment_list', ex)
+			LogWriter.add_dblog('error','EquipmentService.get_equipment_findOne', ex)
 			raise ex
 
 		return data

@@ -6,7 +6,7 @@ from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
 from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory, Unit
-from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup
+from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup, MaterialGroup
 from domain.models.kmms import JobClass, Project
 from django.contrib.auth.models import User
 
@@ -38,8 +38,8 @@ class ComboService(object):
             'equipment_type' : cls.equipment_type,
             'equip_category' : cls.equip_category,
             'factory' : cls.factory,
-            'item_group' : cls.item_group,
-            'item_type' : cls.item_type,
+            'material_group' : cls.material_group,
+            'mat_type' : cls.mat_type,
             'language' : cls.language,
             'line' : cls.line,
             'line_equipment' : cls.line_equipment,
@@ -60,6 +60,7 @@ class ComboService(object):
             'job_class': cls.job_class,
             'code': cls.code,
             'cm_code': cls.cm_code,
+            'cm_base_code': cls.cm_base_code,
             'project': cls.project,
             'cm_project': cls.cm_project,
             'cm_supplier': cls.cm_supplier,
@@ -326,16 +327,19 @@ class ComboService(object):
 
 
     @classmethod
-    def item_group(cls, cond1, cond2, cond3):
-        q = Material.objects.values('ItemGroup').order_by('ItemGroup').distinct()
-        items = [{'value': item['ItemGroup'], 'text': item['ItemGroup']} for item in q]
+    def material_group(cls, cond1, cond2, cond3):
+        q = MaterialGroup.objects.values('id', "Name").order_by('Name')
+        items = [{'value': item['id'], 'text': item['Name']} for item in q]
         return items
 
 
     @classmethod
-    def item_type(cls, cond1, cond2, cond3):
-        q = Material.objects.values('ItemType').order_by('ItemType').distinct()
-        items = [ {'value': item['ItemType'], 'text':item['ItemType']} for item in q ]
+    def mat_type(cls, cond1, cond2, cond3):
+        
+        items = [ 
+            {"value" : 'product', "text" : "제품"},
+            {"value" : 'semi', "text" : "반제품"},
+        ]
         return items
 
     @classmethod
@@ -510,6 +514,35 @@ class ComboService(object):
         q = q.order_by('DispOrder', 'CodeName')
         items = [ {'value': entry['CodeCd'], 'text':entry['CodeName']} for entry in q ]
         return items
+
+    @classmethod
+    def cm_base_code (cls, cond1, cond2, cond3):        
+        q = CmBaseCode.objects.values('id', 'CodeName')        
+        if cond1:
+            if ',' in cond1:
+                cond1 = cond1.replace(' ', '')
+                cond_list = cond1.split(',')
+                q = q.filter(CmBaseCodeGroup=cond_list)
+            else:
+                q = q.filter(CmBaseCodeGroup=cond1)
+        if cond2:
+            if ',' in cond2:
+                cond2 = cond2.replace(' ', '')
+                cond_list = cond2.split(',')
+                q = q.filter(Code__in=cond_list)
+            else:
+                q = q.filter(Code=cond2)
+        if cond3:
+            if ',' in cond3:
+                cond3 = cond3.replace(' ', '')
+                cond_list = cond3.split(',')
+                q = q.exclude(Code__in=cond_list)
+            else:
+                q = q.exclude(Code=cond3)
+        q = q.filter(UseYn='Y')
+        q = q.order_by('DispOrder', 'CodeName')
+        items = [ {'value': entry['id'], 'text':entry['CodeName']} for entry in q ]
+        return items
     
     @classmethod 
     def project(cls, cond1, cond2, cond3):
@@ -523,10 +556,24 @@ class ComboService(object):
         items = [ {'value': entry['proj_cd'], 'text':entry['proj_nm']} for entry in query ]
         return items
 
-    @classmethod 
+    @classmethod
     def cm_supplier(cls, cond1, cond2, cond3):
-        query = CmSupplier.objects.values('SupplierCode', 'SupplierName').order_by('SupplierName')
-        items = [ {'value': entry['SupplierCode'], 'text':entry['SupplierName']} for entry in query ]
+        q = CmSupplier.objects.filter(DelYn='N')
+
+        if cond1:
+            # Django ORM으로 바꿀 때는 CmBaseCode.CmBaseCodeGroup_id 를 써야 합니다.
+            # Django ForeignKey는 자동으로 뒤에 _id를 붙여서 관리하니까요.
+            valid_comp_types = CmBaseCode.objects.filter(CmBaseCodeGroup_id=cond1).values_list('CodeCd', flat=True)
+            q = q.filter(CompType__in=valid_comp_types)
+
+        if cond2:
+            cond2 = cond2.replace(' ', '')
+            cond_list = cond2.split(',')
+            q = q.filter(CompType__in=cond_list)
+
+        q = q.values('id', 'SupplierName', 'CompType').order_by('SupplierName')
+
+        items = [{'value': entry['id'], 'text': entry['SupplierName']} for entry in q]
         return items
 
     @classmethod

@@ -96,7 +96,7 @@
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="item_group" data-labelCd="자재그룹">자재그룹</label>
+                                <label class="k-label k-form-label" for="item_group" data-labelCd="품목그룹">품목그룹</label>
                                 <div class="field-wrapper">
                                     <input id="item_group" name="item_group" />
                                 </div>
@@ -104,10 +104,9 @@
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="item_type" data-labelCd="자재유형">자재유형</label>
+                                <label class="k-label k-form-label" for="item_type" data-labelCd="품목유형">품목유형</label>
                                 <div class="field-wrapper">
-                                    <select id="item_type" name="item_type">
-                                    </select>                                    
+                                    <select id="item_type" name="item_type"></select>
                                 </div>
                             </div>
                         </div>
@@ -152,7 +151,87 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+                    <hr />
+                    <div></div>
+                    <div class="edit-form-ui">
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="bare pcb">bare pcb</label>
+                                <div class="field-wrapper">
+                                    <input id="bare_pcb_cd" name="pcb_array" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="하위도번">하위도번</label>
+                                <div class="field-wrapper">
+                                    <input id="sub_pcb_cd" name="sub_pcb_cd" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="pcb array">pcb array</label>
+                                <div class="field-wrapper">
+                                    <input id="pcb_array" name="pcb_array" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="Panel Mag.">Panel Mag.</label>
+                                <div class="field-wrapper">
+                                    <input id="panel_mag" name="panel_mag" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="Top/Bottom">Top/Bottom</label>
+                                <div class="field-wrapper">
+                                    <input id="top_bottom" name="top_bottom" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="solder paste">solder paste</label>
+                                <div class="field-wrapper">
+                                    <input id="solder_paste" name="solder_paste" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_price" data-labelCd="SAP Top/Bottom">SAP Top/Bottom</label>
+                                <div class="field-wrapper">
+                                    <input id="sap_top_bottom" name="sap_top_bottom" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </form>
             </div>
         </div>
@@ -288,8 +367,11 @@
                 keyword: $('#keyword').val(),
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+            let fnSuccess = function (result) {
+                _this.grid.setData(result);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);           
 
         }
 

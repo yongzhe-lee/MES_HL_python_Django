@@ -1,0 +1,451 @@
+<div id="modalMaterialMaster" class="modal child-modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>자재마스터 상세정보</h4>
+		</div>
+		<div class="modal-body">
+			<div class="edit-form-ui">
+				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
+					<img src="/static/img/no-image.png" alt="No image" style="width: 200px; height: 200px; ">
+				</div>
+				<div class="col-12 col-sm-6 col-md-6">
+					<div class="form-row">
+						<div class="form-group" style="width: 100%;">
+							<label for="mtrl_cd" class="required" data-labelCd="자재코드">자재코드*</label>
+							<input type="hidden" id="mtrl_pk" value="{{ material.mtrl_pk }}">
+							<input type="text" class="form-control" id="mtrl_cd" name="mtrl_cd">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group" style="width: 100%;">
+							<label for="mtrl_nm" class="required" data-labelCd="자재명">자재명*</label>
+							<input type="text" class="form-control" id="mtrl_nm" name="mtrl_nm">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group" style="width: 100%;">
+							<label for="combo_mtrl_class" class="required" data-labelCd="자재종류">자재종류*</label>
+							<button type="button" class="plusbutton" id="mrtlClassPlus" name="mrtlClassPlus"></button>
+							<div style="display: flex; gap: 5px;">
+								<select id="combo_mtrl_class" name="combo_mtrl_class"></select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
+					<img src="/static/img/qr-sample.png" alt="QR Code" style="width: 200px; height: 200px;">
+				</div>
+			</div>
+
+			<!-- 탭 섹션 -->
+			<div class="section">
+				<div class="tab-group">
+					<button class="tab-button active" data-tab="materialMasterForm" style="background: #1e4f88; color: white; border-color: #1e4f88;">기본정보</button>
+					<button class="tab-button" data-tab="fileTabMat">파일</button>
+					<button class="tab-button" data-tab="logTab">로그</button>
+				</div>
+				<div class="tab-content">
+					<!-- 기본정보 탭 컨텐츠 -->
+					<div class="tab-pane active" id="materialMasterForm">
+						<div class="form-group col-md-3">
+							<label for="safety_stock_amt" data-labelCd="최소재고량">최소재고량</label>
+							<input type="text" class="form-control" id="safety_stock_amt" name="safety_stock_amt">
+						</div>
+						<div class="form-group col-md-3">
+							<label for="stock_amt" data-labelCd="안전재고">안전재고</label>
+							<input type="text" class="form-control" id="safety_amt" name="safety_amt" readonly>
+						</div>
+						<div class="form-group col-md-2">
+							<label for="amt_unit_pk" class="required" data-labelCd="수량단위">수량단위*</label>
+							<button type="button" class="plusbutton" id="amtUnitPlus" name="amtUnitPlus"></button>
+							<select id="amt_unit_pk" name="amt_unit_pk"></select>
+						</div>
+						<div class="form-group col-md-2">
+							<label for="unit_price" data-labelCd="최근 단가">최근 단가</label>
+							<input type="text" class="form-control" id="unit_price" name="unit_price">
+						</div>
+						<div class="form-group col-md-2">
+							<label for="unit_price_dt" data-labelCd="최근 단가일자">최근 단가일자</label>
+							<input type="date" class="form-control" id="unit_price_dt" name="unit_price_dt" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; ">
+						</div>
+						<div class="form-group col-md-12">
+							<label for="mtrl_dsc" class="required" data-labelCd="자재사양">자재사양*</label>
+							<input type="text" class="form-control" id="mtrl_dsc" name="mtrl_dsc" placeholder="4000자 이하로 입력하세요">
+						</div>
+						<div class="form-group col-md-3">
+							<label for="supplier_pk" data-labelCd="공급업체">공급업체</label>
+							<select id="supplier_pk" name="supplier_pk"></select>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="maker_pk" data-labelCd="제조사">제조사</label>
+							<select id="maker_pk" name="maker_pk"></select>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="construction_pk" data-labelCd="시공사">시공사</label>
+							<select id="construction_pk" name="construction_pk"></select>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="equipment_pk" data-labelCd="장비사">장비사</label>
+							<select id="equipment_pk" name="equipment_pk"></select>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="delivery_days" data-labelCd="조달기간">조달기간</label>
+							<input type="text" class="form-control" id="delivery_days" name="delivery_days">
+						</div>
+						<div class="form-group col-md-3">
+							<label for="delivery_type" data-labelCd="조달기간유형">조달기간유형</label>
+							<select id="delivery_type" name="delivery_type"></select>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="erp_mtrl_cd" data-labelCd="ERP 품목코드">ERP 품목코드</label>
+							<input type="text" class="form-control" id="erp_mtrl_cd" name="erp_mtrl_cd">
+						</div>
+						<div class="form-group col-md-3">
+							<label for="allow_add_bom" data-labelCd="설비 Parts로 추가">설비 Parts로 추가</label>
+							<div class="field-wrapper">
+								<input type="checkbox" id="allow_add_bom" name="allow_add_bom" />
+							</div>
+						</div>
+					</div>
+					<!--파일 탭 컨텐츠 -->
+					<div class="tab-pane" id="fileTabMat" style="overflow-y:auto; height: 400px;">
+						{% include 'components/ImageUpload.html' with tableName='cm_material' attachName='image' dataPk=cm_material.mtrl_pk|default:'' %}
+						{% include 'components/FileUpload.html' with tableName='cm_material' attachName='file' dataPk=cm_material.mtrl_pk|default:'' %}
+					</div>
+					<!--로그 탭 컨텐츠 -->
+					<div class="tab-pane" id="logTab" style="overflow-y:auto; height: 400px;">
+						<div id="logGridMat" class="grid"></div>
+					</div>
+				</div>
+				<!-- 버튼 영역 -->
+				<div class="modal-footer">
+					<button type="button" class="btn-delete" id="saveDel">삭제</button>
+					<button type="button" class="btn-save" id="saveBtn">저장</button>
+					<button type="button" class="btn-close" id="closeBtn">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+</style>
+
+{% include 'popup/modalMtrlClassAdd.html' %}
+{% include 'popup/modalAmtUnitAdd.html' %}
+{% include 'popup/modalEquDeptHist.html' %}
+{% include 'popup/modalEquSel.html' %}
+{% include 'popup/modalMatSel.html' %}
+
+<script type="text/javascript">
+	class MaterialMaster {
+		constructor() {
+			this.baseUrl = '/api/kmms/material';
+			this.init();
+		}
+
+		init() {
+			const modal = $("#modalMaterialMaster");
+
+			// 이미지 컨테이너 초기화
+			const imageContainer = modal.find('.col-12.col-sm.col-md-3').first();
+			imageContainer.addClass('image-container');
+
+			AjaxUtil.fillDropDownOptions($('#combo_mtrl_class'), 'cm_code', 'all', null, 'MTRL_CLASS');
+			AjaxUtil.fillDropDownOptions($('#amt_unit_pk'), 'cm_code', 'all', null, 'AMT_UNIT');
+
+			AjaxUtil.fillDropDownOptions($('#supplier_pk'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_S,CP_B');
+			AjaxUtil.fillDropDownOptions($('#maker_pk'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_M,CP_B');
+			AjaxUtil.fillDropDownOptions($('#construction_pk'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_C');
+			AjaxUtil.fillDropDownOptions($('#equipment_pk'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_E');
+
+			AjaxUtil.fillDropDownOptions($('#delivery_type'), 'cm_code', 'all', null, 'PERIOD_TYPE');
+
+			$("#unit_price_dt").kendoDatePicker({ format: "yyyy-MM-dd" });
+
+			if (!$("#allow_add_bom").data("kendoSwitch")) {
+				$('#allow_add_bom').kendoSwitch();
+			}
+
+			// 파일 업로더 초기화
+			if (!window.imageUploader) {
+				window.imageUploader = new ImageUploader();
+			}
+			if (!window.fileUploader) {
+				window.fileUploader = new FileUploader();
+			}
+
+			// 탭 변경 시 이미지/파일 업로더 새로고침
+			$('.tab-button').on('click', function () {
+				const tabId = $(this).data('tab');
+				$('.tab-button').removeClass('active').removeAttr('style');
+				$('.tab-pane').removeClass('active').hide();
+				$(this).addClass('active').css({
+					'background': '#1e4f88',
+					'color': 'white',
+					'border-color': '#1e4f88'
+				});
+				if (tabId) {
+					$('#' + tabId).addClass('active').show();
+					if (tabId === 'fileTabMat') {
+						if (window.imageUploader) window.imageUploader.loadFilesFromServer();
+						if (window.fileUploader) window.fileUploader.loadFilesFromServer();
+					}
+				}
+			});
+
+			$("#mrtlClassPlus").kendoButton({
+				icon: "k-i-plus",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalWindow', { width: '70%', height: '30%' });
+					mtrlClassAddPage.show();
+				}
+			});
+
+			$("#amtUnitPlus").kendoButton({
+				icon: "k-i-plus",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalWindow', { width: '70%', height: '30%' });
+					$("#modalWoProblem").fadeIn();
+				}
+			});
+
+			$('#saveDel').kendoButton({});
+			//$('#notUseBtn').kendoButton({});
+			$('#saveBtn').off('click').kendoButton({
+				click: async function () {
+					if (window.imageUploader) {
+						const imageResult = await window.imageUploader.saveImages();
+					}
+					if (window.fileUploader) {
+						const fileResult = await window.fileUploader.saveFiles();
+					}					// 추가 저장 로직
+
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })					
+				}
+			});
+
+			// 모달 닫기
+			$('#closeBtn').kendoButton({
+				click: () => modal.fadeOut()
+			});
+
+			// ESC 키로 모달 닫기
+			$(document).on('keydown', (e) => {
+				if (e.keyCode === 27) modal.fadeOut();
+			});
+		}
+
+        saveData() {
+			let _this = this;
+            let data = FormUtil.extractForm($('#materialMasterForm'));
+			
+
+
+            // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+
+            let upLocPkValue = getComponentValue("#up_loc_pk", "kendoDropDownTree");
+
+            let formData = FormUtil.extractForm($('#detailForm'));
+            formData.up_loc_pk = upLocPkValue;
+
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = async function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    if (window.imageUploader) {
+                        const imageResult = await window.imageUploader.saveImages();
+                    }
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+			};
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=insert', data, fnSuccess);
+			console.log(data);
+			$("modalMaterialMaster").fadeOut();[]
+        }
+
+		//자재 마스터
+		getMaterialMasterData(mtrl_pk) {
+			let _this = this;
+
+			// 자재 상세 정보 API 호출
+			let param = {
+				action: 'findOne',
+				mtrl_pk: mtrl_pk,
+			};
+
+			let materialData = AjaxUtil.getSyncData('/api/kmms/material', param);
+
+			// 1.1. 기존 데이터 바인딩
+			this.bindMaterialMasterData(materialData);
+
+			if (materialData) {
+				$("#modalMaterialMaster").fadeIn();
+			}
+
+			// ✅ 여기서 imageUploader의 dataPk를 재세팅 후 파일 목록 새로 로드
+			if (window.imageUploader) {
+				window.imageUploader.dataPk = mtrl_pk;
+				window.imageUploader.loadFilesFromServer(() => {
+					showMainImageFromUploader();
+				});
+			}
+
+			// ✅ 여기서 fileUploader의 dataPk를 재세팅 후 파일 목록 새로 로드
+			if (window.fileUploader) {
+				window.fileUploader.dataPk = mtrl_pk;
+				window.fileUploader.loadFilesFromServer(() => {
+					showMainFileFromUploader();
+				});
+			}
+		}
+
+        bindMaterialMasterData(data) {
+            console.log('row_data:', data);
+            // 기본 필드 바인딩
+            const basicFields = {
+                'mtrl_pk': data.mtrl_pk,
+                'mtrl_cd': data.mtrl_cd,
+                'mtrl_nm': data.mtrl_nm,
+                //'combo_mtrl_class': data.mtrl_class_nm,
+                'safety_stock_amt': data.safety_stock_amt,
+                //'amt_unit_pk': data.amt_unit_pk,
+                'unit_price': data.unit_price,
+                'unit_price_dt': data.unit_price_dt,
+				'mtrl_dsc': data.mtrl_dsc,
+                //'supplier_pk': data.supplier_pk,
+                //'maker_pk': data.maker_pk,
+                //'construction_pk': data.construction_pk,
+				//'equipment_pk': data.equipment_pk,
+                'delivery_days': data.delivery_days,
+                //'delivery_type': data.delivery_type,
+                'erp_mtrl_cd': data.erp_mtrl_cd,
+                'allow_add_bom': data.allow_add_bom,
+            };
+
+            // 기본 필드 값 설정
+            Object.entries(basicFields).forEach(([id, value]) => {
+                $(`#${id}`).val(value);
+            });
+
+            setTimeout(() => {
+                const allowAddBomYnSwitch = $("#allow_add_bom").data("kendoSwitch");
+                if (allowAddBomYnSwitch) {
+                    const isChecked = data.allow_add_bom === 'Y';
+                    allowAddBomYnSwitch.check(isChecked);
+                }
+            }, 100);
+
+
+            // Kendo 컴포넌트 바인딩 함수
+            function bindKendoComponent(selector, value) {
+                setTimeout(function () {
+                    let component = $(selector).data("kendoDropDownList") || $(selector).data("kendoDropDownTree");
+                    if (component) {
+                        component.value(value);
+                        component.trigger("change");
+                    }
+                }, 100);
+            }
+
+            function formatCurrency(value) {
+                if (!value && value !== 0) return '';
+                return '₩ ' + Number(value).toLocaleString('ko-KR');
+            }
+
+            // 각 컴포넌트 바인딩
+
+            //bindKendoComponent("#loc_pk", data.loc_pk);
+            bindKendoComponent("#combo_mtrl_class", data.mtrl_class_nm);
+            bindKendoComponent("#amt_unit_pk", data.amt_unit_pk);
+            bindKendoComponent("#supplier_pk", data.supplier_pk);
+            bindKendoComponent("#construction_pk", data.construction_pk);
+			bindKendoComponent("#equipment_pk", data.equipment_pk);
+            bindKendoComponent("#delivery_type", data.delivery_type);
+            bindKendoComponent("#unit_price_dt", data.unit_price_dt);
+        }
+
+	}
+
+	$(document).ready(function () {
+		materialMasterPage = new MaterialMaster();
+	});
+
+	function showMainImageFromUploader() {
+		if (!window.imageUploader) return;
+
+		const imageDataList = window.imageUploader.getImagesData();
+		const mainImage = imageDataList.find(file => file); // 첫 번째 이미지
+
+		const container = document.querySelector('#modalMaterialMaster .image-container');
+		if (container) {
+			if (mainImage) {
+				container.innerHTML = `
+				<img src="${mainImage.src}" alt="${mainImage.name}" style="max-width: 100%; max-height: 100%;">
+			`;
+			} else {
+				// fallback 이미지
+				container.innerHTML = `
+				<div style="text-align: center;">
+					<img src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
+					<div style="margin-top: 10px; color: #999;">No image</div>
+				</div>
+			`;
+			}
+		}
+	}
+
+	function showMainFileFromUploader() {
+		if (!window.fileUploader) return;
+
+		const fileDataList = window.fileUploader.getFilesData();
+		const mainFile = fileDataList.find(file => file); // 첫 번째 파일
+
+		const container = document.querySelector('#modalMaterialMaster .file-container');
+		if (container) {
+			if (mainFile) {
+				container.innerHTML = `
+				<div style="text-align: center;">
+					<i class="fas fa-file" style="font-size: 48px; color: #1e4f88;"></i>
+					<div style="margin-top: 10px; color: #333;">${mainFile.name}</div>
+					<div style="color: #666; font-size: 12px;">${formatFileSize(mainFile.size)}</div>
+				</div>
+			`;
+			} else {
+				// fallback 파일 표시
+				container.innerHTML = `
+				<div style="text-align: center;">
+					<i class="fas fa-file" style="font-size: 48px; color: #999;"></i>
+					<div style="margin-top: 10px; color: #999;">No file</div>
+				</div>
+			`;
+			}
+		}
+	}
+
+	function formatFileSize(bytes) {
+		if (bytes === 0) return '0 Bytes';
+		const k = 1024;
+		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+	}
+</script>
+

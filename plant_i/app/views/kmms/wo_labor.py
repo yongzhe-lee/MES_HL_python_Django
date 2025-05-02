@@ -7,7 +7,7 @@ from domain.models.cmms import CmWoLabor
 def wo_labor(context):
     '''
     api/kmms/wo_labor    작업지시 인력
-    김태영 작업중
+    김태영 
 
     findAll 전체목록조회
     insertBatch
@@ -48,6 +48,30 @@ def wo_labor(context):
 		    left join cm_job_class ujc on ujc.job_class_pk = ui.job_class_pk
 		    WHERE 1 = 1
 		    AND t.work_order_pk = %(workOrderPk)s
+            '''
+
+            dc = {}
+            dc['workOrderPk'] = workOrderPk
+
+            items = DbUtil.get_rows(sql, dc)
+
+        elif action == 'tempFindAll':
+            workOrderPk = gparam.get('workOrderPk')
+
+            sql = ''' 
+            select 1 as work_order_pk
+		    , 1 as work_order_no
+		    , '' as work_title
+		    , 1 as job_class_pk
+		    , '' as job_class_nm
+		    , 100 as wage_cost
+		    , 1 as user_pk
+		    , '수진' user_nm
+		    , '개발팀' dept_nm
+		    , 1 as work_hr
+		    , 1 as labor_dsc
+		    , 1 as labor_price
+		    , 1 as worker_nos
             '''
 
             dc = {}

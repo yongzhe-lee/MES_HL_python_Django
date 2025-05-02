@@ -8,7 +8,7 @@ from domain.models.cmms import CmProject
 def project(context):
     '''
     api/kmms/project 프로젝트
-    김태영 작업중
+    김태영 
 
     findAll 전체목록조회
     findOne 한건조회
@@ -39,7 +39,7 @@ def project(context):
 
     try:
         if action in ['findAll']:
-            siteId = gparam.get('siteId')
+            # siteId = gparam.get('siteId')
             projNm = gparam.get('projNm')
             projPkNot = gparam.get('projPkNot')
             searchText = gparam.get('searchText')
@@ -62,15 +62,15 @@ def project(context):
 		       , t.inserter_id
 		       , t.updater_id
 		    FROM   cm_project t
-		    left join user_profile ui on t.manager_id = cast(ui."User_id" as text)
+		    left join user_profile ui on t.manager_id = cast(ui."User_id" as integer)
 		    left join cm_base_code bc on UPPER(t.status) = upper(bc.code_cd) 
             and upper(bc.code_grp_cd) = 'PRJ_STATUS'
 		    where 1=1
             AND t.factory_pk = %(factory_id)s
             '''
-            if siteId:
-                sql += ''' t.use_yn = %(siteId)s
-                    '''
+            # if siteId:
+            #     sql += ''' t.use_yn = %(siteId)s
+            #         '''
             if projNm:
                 sql += ''' AND UPPER(t.projNm) = UPPER(%(projNm)s)
                 '''            
@@ -83,17 +83,18 @@ def project(context):
    			    )
                 '''
             if status:
-                sql += ''' and UPPER(t.status) = UPPER()%(status)s)
+                sql += ''' and UPPER(t.status) = UPPER(%(status)s)
                     '''
             sql += ''' order by t.proj_nm
             '''
 
             dc = {}
-            dc['siteId'] = siteId
+            # dc['siteId'] = siteId
             dc['projNm'] = projNm
             dc['projPkNot'] = projPkNot
             dc['searchText'] = searchText
             dc['status'] = status
+            dc['factory_id'] = factory_id
 
             items = DbUtil.get_rows(sql, dc)
  
@@ -118,7 +119,7 @@ def project(context):
 		       , t.inserter_id
 		       , t.updater_id
 		    FROM   cm_project t
-		    left join user_profile ui on t.manager_id = cast(ui."User_id" as text)
+		    left join user_profile ui on t.manager_id = cast(ui."User_id" as integer)
 		    left join cm_base_code bc on UPPER(t.status) = upper(bc.code_cd) 
             and upper(bc.code_grp_cd) = 'PRJ_STATUS'
 		    where 1=1
@@ -134,13 +135,13 @@ def project(context):
 
 
         elif action in ['insert', 'update']:
-            projNm = posparam.get('projNm')
-            projCd = posparam.get('projCd')
-            planStartDt = posparam.get('planStartDt')
-            planEndDt = posparam.get('planEndDt')
-            managerId = posparam.get('managerId')
-            projPurpose = posparam.get('projPurpose')
-            projTotCost = posparam.get('projTotCost')
+            projNm = posparam.get('proj_nm')
+            projCd = posparam.get('proj_cd')
+            planStartDt = posparam.get('plan_start_dt')
+            planEndDt = posparam.get('plan_end_dt')
+            managerId = posparam.get('manager_id')
+            projPurpose = posparam.get('proj_purpose')
+            projTotCost = posparam.get('proj_tot_cost')
             status = posparam.get('status')
             siteId = posparam.get('siteId')
             inserterId = posparam.get('inserterId')
@@ -171,7 +172,7 @@ def project(context):
 
 
         elif action == 'delete':
-            projCd = posparam.get('projCd')
+            projCd = posparam.get('proj_cd')
 
             q = CmProject.objects.filter(ProjCode=projCd)
             q = q.filter(Factory_id=factory_id)

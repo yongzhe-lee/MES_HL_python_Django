@@ -7,8 +7,8 @@ from domain.models.cmms import CmWorkOrderHist
 
 def work_order_hist(context):
     '''
-    api/kmms/work_order_hist    외부공급처?
-    김태영 작업중
+    api/kmms/work_order_hist    작업지시 이력 정보
+    김태영 
 
     save
     selectWorkOrderHists

@@ -1,4 +1,4 @@
-<!-- 손자 모달 (설비 선택) - 부모 모달의 자식이 아닌 최상위 div에 배치 -->
+
 <div id="modalEqus" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -9,13 +9,13 @@
         <div class="modal-body">
             <!-- 검색 영역 -->
             <div class="search-area">
-                <div class="search-label">검색키워드111</div>
-                <input type="text" class="form-control" id="keyword_equ" name="keyword_equ" placeholder="설비코드, 설비명, 자산번호 입력">
-                <div class="search-label">관리부서</div>
-                <select id="srch_equ_dept" name="srch_dept">                    
+                <div class="search-label col-auto">검색키워드</div>
+                <input type="text" class="form-control col-auto" id="keyword_equ" name="keyword_equ" placeholder="설비코드, 설비명, 자산번호 입력">
+                <div class="search-label col-auto">관리부서</div>
+                <select id="srch_equ_dept" name="srch_dept" class="col-auo">
                 </select>
                 <button type="button" class="btn-search" id="btnSearchEqu" name="btnSearchEqu">검색</button>
-            </div>   
+            </div>
 
             <!-- 그리드 영역 -->
             <div id="equipmentsGrid"></div>
@@ -23,12 +23,12 @@
             <!-- 선택된 설비 영역 -->
             <div class="bottom-area">
                 <div class="selected-equipment">
-                    <label>선택된 설비</label>
+                    <!--<label>선택된 설비</label>
                     <input type="hidden" id="selectedEquPK" name="selectedEquPK">
-                    <input type="text" id="selectedEquName" name="selectedEquName" readonly>           
+                    <input type="text" id="selectedEquName" name="selectedEquName" readonly>-->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-save" id="btnConfirmEqu">확인</button>
+                    <button type="button" class="btn-save" id="btnConfirmEqu">선택</button>
                     <button type="button" class="btn-close" id="btnCancelEqu">취소</button>
                 </div>
             </div>
@@ -36,401 +36,234 @@
     </div>
 </div>
 
-<style>
-    /* 부모 모달 (자식 모달) 스타일 유지 */
-    #modalPmMaster {
-        z-index: 1001;
-        display: none;
-    }
 
-    /* 손자 모달은 부모 모달보다 높은 z-index를 설정하고 독립적으로 배치 */
-    #modalEqus {
-        display: none;
-        position: absolute; /* ✅ fixed → absolute 변경 */
-        top: 50%;
-        left: 50%;
-        /* transform: translate(-50%, -50%); *//* transform 사용하면 흐릿하게 보임 */
-        margin-top: -42.5vh; /* 전체 높이의 절반 */
-        margin-left: -450px; /* 전체 너비의 절반 */
-        width: 900px;
-        max-width: 95%;
-        background: #fff;
-        z-index: 1001 !important; /* ✅ 손자 모달의 z-index를 부모보다 1 높게 설정 */
-        border-radius: 8px;
-        box-shadow: none !important; /* ✅ 그림자 완전히 제거 */
-        max-height: 85vh;
-        overflow: hidden;
-    }
+    <style>
 
-    /* 손자 모달 내부 컨텐츠 스타일 */
-    #modalEqus .modal-content {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        padding-bottom: 0 !important; /* ✅ 모달 내부 불필요한 패딩 제거 */
-    }
+    </style>
 
-    #modalEqus .modal-body {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        max-height: 75vh; /* ✅ 최대 높이 설정 */
-        overflow: hidden; /* ✅ 내부에서만 스크롤 유지 */
-        padding: 0 !important; /* ✅ 내부 여백 제거 */
-        margin: 0 !important; /* ✅ 모든 margin 제거 */
-    }
+    <script type="text/javascript">
 
-    #equipment_grid {
-        flex-grow: 1; /* ✅ 남는 공간을 채우도록 설정 */
-        overflow-y: auto; /* ✅ 내부에서만 스크롤 */
-        min-height: 200px; /* ✅ 최소 높이 설정 */
-    }
+        class EquipmentsPage {
+            constructor() {
+                this.grid = null;
+                //choi : 2025/04/30 
+                //     : url이 바뀜
+                //this.baseUrl = '/api/definition/equipment';
+                this.baseUrl = '/api/kmms/equipment';
+                this.callback = null;
 
-    .grid-area {
-        flex-grow: 1;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
+                this.dummyData = [
+                    {  }
+                ];
 
-    .paging-area {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-        font-size: 14px;
-    }
+                this.selectedKeyNames = [];
+            }
 
-    /* 검색 영역 스타일 */
-    #modalEqus .search-area {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-        padding: 10px;
-    }
+            init($content) {
+                let _this = this;
 
-    #modalEqus .search-label {
-        font-size: 13px;
-        color: #333;
-        white-space: nowrap;
-        min-width: 70px;
-    }
+                function onChange(arg) {
+                    //console.log("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+                   
+                    _this.selectedKeyNames= this.selectedKeyNames();
+                    console.log("selectedKeyNames", _this.selectedKeyNames);
+                }
 
-    #modalEqus .search-area input,
-    #modalEqus .search-area select {
-        height: 28px;
-        border: 1px solid #ccc;
-        padding: 0 8px;
-    }
-
-    #modalEqus .search-area input {
-        width: 350px;
-    }
-
-    .selected-equipment {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-
-    .selected-equipment label {
-        font-size: 13px;
-        color: #333;
-    }
-
-    .selected-equipment input {
-        flex: 1;
-        height: 28px;
-        border: 1px solid #ccc;
-        padding: 0 8px;
-        background-color: #f5f5f5;
-    }
-
-    .btn-confirm {
-        background: #1e4f88 !important;
-        color: white;
-        border: none !important;
-    }
-
-    .tab-menu {
-        display: flex;
-        border-bottom: 2px solid #1e4f88;
-        margin: 10px 0;
-    }
-
-    .tab-menu .tab {
-        padding: 8px 20px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        color: #666;
-    }
-
-    .tab-menu .tab.active {
-        background: #1e4f88;
-        color: white;
-    }
-</style>
-
-<script type="text/javascript">
-
-    class EquipmentsPage {
-        constructor() {
-            this.grid = null;         
-            this.baseUrl = '/api/definition/equipment';
-
-            this.init();
-        }
-
-        init() {
-            let _this = this;
-            let equipmentsGridOption = {
-                toolbar: [
-                    "columns"
-                ],
-                columnMenu: {
-                    componentType: "classic",
-                    autoSize: true,
-                    clearAllFilters: true,
-                    columns: {
-                        sort: "asc",
-                    }
-                },
-                columns: [
-                    // 기본 정보       
-                    {
-                        title: " ",
-                        template: '<input type="checkbox" class="k-checkbox equip-checkbox" style="width:13px; height:13px;" />',
-                        width: 35,
-                        headerTemplate: '<input type="checkbox" class="k-checkbox header-checkbox" style="width:13px; height:13px;" />'
+                let equipmentsGridOption = {
+                    dataSource: {
+                        data: [],
+                        schema: {
+                            model: {
+                                id: "equip_cd",
+                                fields: {
+                                    equip_cd: { type: "string" },
+                                    equip_nm: { type: "string" },
+                                    equip_status_nm: { type: "date" }
+                                }
+                            }
+                        },
+                        pageSize: 10
                     },
-                    { field: 'Code', title: '설비코드', width: 100 },
-                    { field: 'Name', title: '설비명', width: 150 },
-                    { field: 'Status', title: '설비상태', width: 80 },
-                    { field: 'EquipCategory', title: '카테고리', width: 100 },
-                    { field: 'Location', title: '설비위치', width: 100 },
-                    { field: 'DepartName', title: '관리부서', width: 100 },
-                    { field: 'ManageNumber', title: '관리번호', width: 100 },
-                    { field: 'import_rank', title: '중요도등급', width: 100, hidden: true },
-                    { field: 'environ_equip_yn', title: '환경설비여부', width: 100, hidden: true },
-                ],
 
-                change: function (e) {
-                    _this.showDetail();
-                },
-                dataBound: function (e) {
-                    //for (var i = 0; i < this.columns.length; i++) {
-                        //this.autoFitColumn(i);
-                    //};
+                    toolbar: [
+                        "columns"
+                    ],
+                    columnMenu: {
+                        componentType: "classic",
+                        autoSize: true,
+                        clearAllFilters: true,
+                        columns: {
+                            sort: "asc",
+                        }
+                    },
+                    //pageable: {
+                    //    pageSize: 10,   // 여기서도 설정 가능
+                    ////    refresh: true,
 
-                    // grid 데이터 개수 표시
-                    kendoUtil.showGridRowCount(this.element);
-
-                    // 체크박스 헤더의 체크 상태 초기화
-                    $('.header-checkbox').prop('checked', false);
-
-                    // 체크박스 헤더 클릭 이벤트 처리
-                    $('.header-checkbox').off('click').on('click', function () {
-                        const isChecked = $(this).is(':checked');
-                        $('.equip-checkbox').prop('checked', isChecked);
-                    });
-
-                    // 개별 체크박스 클릭 이벤트
-                    $('.equip-checkbox').off('click').on('click', function (e) {
-                        e.stopPropagation();
-
-                        // 모든 체크박스가 선택되었는지 확인
-                        const allChecked = $('.equip-checkbox').length === $('.equip-checkbox:checked').length;
-                        $('.header-checkbox').prop('checked', allChecked);
-                    });
-
-                },
-                height: "440px",
-                scrollable: true, // ✅ 내부에서만 스크롤 유지
-            };
-            _this.grid = new Grid($("#equipmentsGrid"), equipmentsGridOption);
-
-            this.initButton();
-
-            this.initEvents();
-
-        }
-
-        initButton() {
-
-            $("#btnConfirmEqu").kendoButton({
-                icon: "k-i-check", // 확인 아이콘 (✔️)
-                themeColor: "base"
-            });
-
-            $("#btnCancelEqu").kendoButton({
-                icon: "cancel", // 취소 아이콘 (❌)
-                themeColor: "base"
-            });
+                    //},
+                    pageable: true,
+                    selectable: "multiple, row",
+                    persistSelection: true,  // ✅ 이걸 써야 페이지 바뀌어도 선택 유지됨!
+                    change: onChange,
+                    columns: [
+                        { selectable: true, width: "50px"},
+                        { field: 'equip_cd', title: '설비코드', width: 100 },
+                        { field: 'equip_nm', title: '설비명', width: 150 },
+                        { field: 'equip_status_nm', title: '설비상태', width: 80 },
+                        { field: 'equip_category_desc', title: '카테고리', width: 100 },
+                        { field: 'loc_nm', title: '설비위치', width: 100 },
+                        { field: 'dept_nm', title: '관리부서', width: 100 },
+                        { field: 'equip_pk', title: '관리번호', width: 100 },
+                        { field: 'import_rank_cd', title: '중요도등급', width: 100, hidden: true },
+                        { field: 'environ_equip_yn', title: '환경설비여부', width: 100, hidden: true },
+                    ],
+                    dataBound: function (e) {                        
+                        // grid 데이터 개수 표시
+                        kendoUtil.showGridRowCount(this.element);
+                    },
+                    height: "440px",
+                    scrollable: true, // ✅ 내부에서만 스크롤 유지
+                };
 
 
-            // 검색 버튼을 kendo 버튼으로 변경
-            $("#btnSearchEqu").kendoButton({
-                themeColor: "primary",
-                icon: "search",
-                click: () => {
-                    this.getEquData();
-                }
-            });
-
-            AjaxUtil.fillDropDownTreeOptions($("#srch_equ_dept"), "depart", "select");  
-            
-        }
-
-        initEvents() {
-
-            $('#btnConfirmEqu').on('click', () => {
-                const selectedItems = [];
-                // 체크된 체크박스의 행 데이터 수집
-                $('#equipmentsGrid').find('.equip-checkbox:checked').each(function () {
-                    const $row = $(this).closest('tr');  // 체크박스가 있는 현재 행
-
-                    selectedItems.push({
-                        code: $row.find('td:eq(1)').text().trim(),
-                        name: $row.find('td:eq(2)').text().trim(),
-                        location: $row.find('td:eq(3)').text().trim(),
-                        equipcategory: $row.find('td:eq(3)').text().trim(),
-                        importrank: $row.find('td:eq(3)').text().trim(),                        
-                        status: $row.find('td:eq(3)').text().trim(),
-                    });
-                });
-                if (selectedItems.length === 0) {
-                    Alert.alert('', '설비를 선택해주세요.');
-                    return;
+                //choi : 그리드 초기화
+                let $grid = $("#equipmentsGrid");
+                if ($grid.data("kendoGrid")) {
+                    $grid.data("kendoGrid").destroy();  // ✅ 기존 인스턴스 제거
+                    $grid.empty();                      // ✅ DOM 초기화 (중복 렌더 방지)
                 }
 
-                // choi : 와우 여기서 부모의 equipTable를 바라보고 있네.ㅠㅠㅠ
-                //      : data를 만들고 callback으로 선택된 설비 array를 넘겨주어야 함
-                const tbody = $('#equipTable tbody');
-                tbody.find('.no-data').remove();
 
-                selectedItems.forEach(item => {
-                    // 이미 존재하는 자재인지 확인
-                    const exists = tbody.find('tr').toArray().some(tr =>
-                        $(tr).find('td:eq(0)').text() === item.mat_cd
-                    );
+                // Grid에 setData함수가 있음. 누가 만들어 두었나?
+                //_this.grid = new Grid($("#equipmentsGrid"), equipmentsGridOption);
+                _this.grid = $("#equipmentsGrid").kendoGrid(equipmentsGridOption).data("kendoGrid");
 
-                    if (exists) {
-                        Alert.alert('', `설비코드 ${item.mat_cd}는 이미 추가되어 있습니다.`);
-                        return;
+
+                $("#btnConfirmEqu").kendoButton({
+                    icon: "k-i-check", // 확인 아이콘 (✔️)
+                    themeColor: "base",
+                    click: function () {
+
+                        //key만 보내지 말고 item 집합을 새로 만들어서 보내주어야 하나? 
+                        _this.selectData(_this.selectedKeyNames);
+
+                        $('#modalEqus').fadeOut();
                     }
-
-                    const newRow = `
-                        <tr data-value="${item.code}"> 
-                            <td>${item.code}</td>
-                            <td>${item.name}</td>
-                            <td>${item.location}</td>
-                            <td>${item.equipcategory}</td>
-                            <td>${item.importrank}</td>
-                            <td>${item.status}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.append(newRow);
                 });
 
-                // 모달 닫기
-                $('#modalEqus').fadeOut();
+                $("#btnCancelEqu").kendoButton({
+                    icon: "cancel", // 취소 아이콘 (❌)
+                    themeColor: "base",
+                    click: function () {
+                        //$content.data('kendoWindow').close();
+                        $('#modalEqus').fadeOut();
+                    }
+                });
 
-                // 체크박스 초기화
-                $('.equip-checkbox, .header-checkbox').prop('checked', false);
-            });
 
-            // 검색 필드 엔터 키 이벤트
-            $(".search-form input").on("keypress", (e) => {
-                if (e.which === 13) {
-                    this.grid.dataSource.read();
+                // 검색 버튼을 kendo 버튼으로 변경
+                $("#btnSearchEqu").kendoButton({
+                    themeColor: "primary",
+                    icon: "search",
+                    click: () => {
+                        this.getEquData();
+                    }
+                });
+
+                AjaxUtil.fillDropDownTreeOptions($("#srch_equ_dept"), "depart", "select");
+            }
+
+            getEquData() {
+                let _this = this;
+                let param = {
+                    action: 'findAll',
+                    keyword: $('#keyword_equ').val(),
+                    depart_id: $('#srch_equ_dept').data("kendoDropDownTree").value(),
+                };
+
+                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                console.log(result);
+
+                //choi : 이렇게 하면 datasource에 설정한 옵션들(페이지 사이즈)이 안 먹힘. 이거 사용하지 말자~~~
+                //_this.grid.setData(result);
+
+                _this.resetData();
+
+                //if (grid) {
+                    _this.grid.dataSource.data([]);
+                    _this.grid.dataSource.page(1);
+                    _this.grid.refresh(); // ✅ UI 갱신
+
+                    _this.grid.dataSource.data(result); // ✅ 데이터를 직접 설정
+                    _this.grid.refresh(); // ✅ UI 갱신
+                //}
+            }
+
+            resetData() {
+                
+            }
+
+            selectData(selectedKeyNames) {
+               
+                const grid = $("#equipmentsGrid").data("kendoGrid");
+                const allData = grid.dataSource.data(); // 전체 데이터셋
+
+                // 선택된 키에 해당하는 데이터만 추출
+                const selectedItems = allData.filter(item =>
+                    selectedKeyNames.includes(item.equip_cd)
+                );
+
+                console.log("selectedItems", selectedItems);
+
+                if (typeof this.callback !== 'undefined' && this.callback != null) {
+                    this.callback(selectedItems); // 실제 데이터 객체들을 넘김
                 }
-            });
-        }
+            }
 
 
-        getEquData() {
-            let _this = this;
-            let param = {
-                action: 'read_modal',    
-                keyword: $('#keyword_equ').val(),
-                depart_id: $('#srch_equ_dept').data("kendoDropDownTree").value(),
-            };
+            show(callback) {
+                let _this = this;
+                this.callback = callback;
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            console.log(result);
-            _this.grid.setData(result);
-        }
+                let content = $('#modalEqus').html()
+                let $content = $(content);
 
-        resetData() {
-            let _this = this;
-            $("#equipmentsGrid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#equipmentForm'));
-        }
+                /*
+                // 브라우저 너비의 80%를 팝업 너비로 설정
+                let windowWidth = window.innerWidth * 0.8;
+                                
+                $content.kendoWindow({
+                    width: "800px", // windowWidth
+                    height: "600px",
+                    title: "설비선택",
+                    visible: false,
+                    actions: ["Close"],
+                    close: () => {
+                        // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                    }
+                });
+                */
 
-        showDetail() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];                
-                console.log("selectData:\n", selectData);             
-                $('#selectedEquPK').val(selectData.id);
-                $('#selectedEquName').val(selectData.Name);      
+                _this.init($content);
+                //$content.data("kendoWindow").center().open();
+
+                $('#modalEqus').css({
+                    height: '100%'  // ✅ 원하는 높이로 설정
+                });
+
+                $('#modalEqus').fadeIn();
+
+                _this.getEquData();
 
             }
-        }
-    };  //eof EquipmentsPage
 
-    //let equiPage = null;
-    pageEqusModal = new EquipmentsPage();
+        };  //eof EquipmentsPage
 
-    $(document).ready(function () {
-        // 부모 모달 제어
-        $("#closeModalPmMaster").on("click", function () {
-            $("#modalPmMaster").fadeOut();
+        //let equiPage = null;
+        //pageEqusModal = new EquipmentsPage();
+
+        $(document).ready(function () {
+           
+
         });
-
-        // 자식 모달을 띄울 때 손자 모달 자동 표시되지 않도록 설정
-        // choi : 왜 메인에서 호출하고 여기서도 호출하지???
-        $("#selectEquipment").on("click", function (e) {
-            e.preventDefault();
-            console.log("sub selectEquipment button click");
-            $("#modalEqus").fadeIn();
-            pageEqusModal.getEquData(); // 손자 모달을 열 때 실행???
-        });
-
-        // 손자 모달 닫기
-        $("#btnCancelEqu, #closeModalEqu").on("click", function (e) {
-            e.preventDefault();
-            $("#modalEqus").fadeOut();
-            reset();
-        });
-
-        function reset() {
-            $("#selectedEquPK").val('');
-            $("#selectedEquName").val('');
-        }
-
-        // 자재 행 삭제 함수
-        window.deleteMaterialRow = function (btn) {
-            const tbody = $('#equipTable tbody');
-            $(btn).closest('tr').remove();
-
-            // 모든 행이 삭제되었을 때 no-data 행 추가
-            if (tbody.children().length === 0) {
-                tbody.append(`
-            <tr class="no-data">
-                <td colspan="5">조회된 데이터가 없습니다.</td>
-            </tr>
-        `);
-            }
-        };
-        
-    });
 </script>

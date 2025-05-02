@@ -1,15 +1,12 @@
-import io
-import math
 import json
-import threading
-import urllib, base64
+
+import requests
 from datetime import datetime
 from django.db import transaction
 from configurations import settings
 
 from sklearn.linear_model import LinearRegression
-from domain.models.da import DsModel, DsModelColumn, DsModelData, DsModelParam, DsModelTrain, DsTagCorrelation
-from domain.models.system import AttachFile
+from domain.models.da import DsModel, DsModelColumn, DsModelData, DsModelMetric, DsModelParam, DsModelTrain, DsTagCorrelation
 from domain.services.logging import LogWriter
 from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
@@ -587,7 +584,8 @@ def learning_data(context):
                     '학습정보' AS node_type,
                     CONCAT('MT_', mt.id) AS tree_id,
                     CONCAT('MD_', mt."DsModel_id") AS tree_master_id,
-                    CAST(NULL AS INTEGER) AS master_id,  -- 자료형 맞춤
+                    --CAST(NULL AS INTEGER) AS master_id,  -- 자료형 맞춤
+                    md."DsMaster_id" AS master_id,
                     mt."DsModel_id" AS model_id,
                     mt.id AS train_id,
                     NULL AS equip_name,
@@ -601,6 +599,7 @@ def learning_data(context):
                     NULL AS file_name,
                     CAST(NULL AS INTEGER) AS file_id     -- 자료형 맞춤
                 FROM ds_model_train mt
+                LEFT JOIN ds_model md ON md.id = mt."DsModel_id"
                 LEFT JOIN B ON B.id = mt."DsModel_id"
                 LEFT JOIN code ts ON ts."CodeGroupCode" = 'TRAINING_STATUS'
                     AND ts."Code" = mt."TrainStatus"
@@ -1573,14 +1572,7 @@ def learning_data(context):
             description = posparam.get('Description')
             # version = posparam.get('Version')
 
-            # 1. 동일 조건으로 필터링된 기존 훈련 정보
-            q = DsModelTrain.objects.filter(
-                DsModel_id=md_id,
-                TaskType=task_type,
-                AlgorithmType=algorithm_type
-            )
-
-            # 2. 기존 정보를 수정할 건지 여부(mt_id가 있고 모델 학습이 시작되기 전일 때)
+            # 기존 정보를 수정할 건지 여부(mt_id가 있고 모델 학습이 시작되기 전일 때)
             # is_editable = mt_id and q.filter(id=mt_id).exists()
             is_editable = (
                 mt_id and
@@ -1593,7 +1585,15 @@ def learning_data(context):
             if is_editable:
                 # mt = q.get(id=mt_id)
                 mt = DsModelTrain.objects.get(id=mt_id)
+                mt.TaskType = task_type  # 기존과 다를 수 있음
+                mt.AlgorithmType = algorithm_type
             else:
+                # 조건이 동일한 기존 객체 중 가장 마지막 버전 가져오기
+                q = DsModelTrain.objects.filter(
+                    DsModel_id=md_id,
+                    TaskType=task_type,
+                    AlgorithmType=algorithm_type
+                )
                 latest = q.order_by('-Version').first()
                 mt = DsModelTrain(
                     DsModel_id=md_id,
@@ -1628,8 +1628,9 @@ def learning_data(context):
             # set table_name, data_pk
             # daService = DaService('ds_model', md_id)
  
-            items = {'success': True, 'mt_id':mt.id, 
-                     'message': '새 훈련 정보가 생성되었습니다.' if is_new else '기존 훈련 정보가 수정되었습니다.' }
+            items = {'success': True,
+                    'mt_id':mt.id,
+                    'message': '새 훈련 정보가 생성되었습니다.' if is_new else '기존 훈련 정보가 수정되었습니다.' }
 
         elif action == 'ds_train_info':
             ''' 
@@ -1668,14 +1669,76 @@ def learning_data(context):
 
             return row
 
+        elif action == 'delete_ds_model_train':
+            mt_id = CommonUtil.try_int(posparam.get('mt_id'))
+
+            mt = DsModelTrain.objects.get(id=mt_id)
+
+            # 학습 상태가 시작 전이어야 삭제 허용
+            if mt.TrainStatus != 'INITIALIZED':
+                items = {'success': False, 'message': '이미 학습이 시작된 정보는 삭제할 수 없습니다.'}
+            else:
+                # 연결된 정보 삭제
+                DsModelParam.objects.filter(DsModelTrain_id=mt_id).delete()
+                DsModelMetric.objects.filter(DsModelTrain_id=mt_id).delete()
+                mt.delete()
+
+                items = {'success': True, 'message': '학습 정보 및 연결된 모든 데이터가 삭제되었습니다.'}
+
         # 작성중. 모델 학습(ai 서버에 작업 요청)
-        elif action == 'learning_data':
-            
+        elif action == 'start_learning':
+
+            mt_id = posparam.get('mt_id', 0)
+            mt = DsModelTrain.objects.get(id=mt_id)
+
+            if mt.TrainStatus not in ['INITIALIZED', 'FAILED']:
+                return {'success': False, 'message': '해당 학습은 이미 시작되었거나 완료된 상태입니다.'}
+
+
+            try:
+                # 2. 상태를 준비중으로 변경
+                mt.TrainStatus = 'PENDING'
+                mt.set_audit(user)
+                mt.save()
+
+                # 3. 파라미터 추출
+                param_qs = DsModelParam.objects.filter(DsModelTrain_id=mt.id)
+                param_dict = {p.ParamKey: p.ParamValue for p in param_qs}
+
+                # 4. AI 서버 요청 구성
+                payload = {
+                    # 'action': "train",
+                    'train_id': mt.id,
+                    'model_name': mt.DsModel.Name,
+                    'task_type': mt.TaskType,
+                    'algorithm': mt.AlgorithmType,
+                    'params': param_dict,
+                    'request_user': user, # 따로 인증 처리를 하지 않으므로 유저 정보 함께 보내기
+                }
+
+                api_url = 'api/ai/train_model'
+                if settings.AI_API_HOST!="localhost":
+                    api_url = settings.AI_API_HOST + '/api/ai/train_model'
+
+                response = requests.post(api_url+'?action=train', json=payload)
+                # response = requests.post('10.226.236.34/learning', json=payload)
+                # response.raise_for_status()
+                if response.status_code == 200:
+                    items = {'success': True, "data": mt.id}
+
+            except Exception as e:
+                # 오류 시 상태를 FAILED로 변경
+
+                mt.TrainStatus = 'FAILED'
+                mt.set_audit(user)
+                mt.save()
+                items = {'success': False, 'message': f'AI 서버 요청 실패: {str(e)}',"data": mt.id}
+                return items
+
             # data_svc = DataProcessingService()
             # thread = threading.Thread(target=data_svc.run_model_training)
             # thread.start()
-            
-            items = {'success':True}        
+ 
     except Exception as ex:
         source = '/api/ai/learning_data, action:{}'.format(action)
         LogWriter.add_dblog('error', source , ex)

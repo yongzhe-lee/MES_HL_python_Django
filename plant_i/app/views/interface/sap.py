@@ -7,17 +7,17 @@ from domain.models.interface import IFSapBOM, IFSapMaterial, IFSapMaterialStock,
 
 def sap(context):
     '''
-    /api/interface/sap?action=local_mig
+    /api/interface/sap?action=
     '''
     gparam = context.gparam
     posparam = context.posparam
     request = context.request
     user = request.user
-
     result = {'success' : True, 'message' : ''}
     sap_service = SapInterfaceService()
     action = gparam.get('action')
 
+    source = f'/api/interface/sap?action={action}'
 
     if action=="sap_mat":
 

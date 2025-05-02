@@ -1,320 +1,280 @@
 <!-- 손자 모달 (설비 선택) - 부모 모달의 자식이 아닌 최상위 div에 배치 -->
-<div id="modalPmCopy" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4>PM선택</h4>
-            <button type="button" class="close" id="closeModalPm">&times;</button>
-        </div>
+<div id="modalPmCopy" class="modal child-modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>PM선택</h4>
+			<button type="button" class="close" id="closeModalPm">&times;</button>
+		</div>
 
-        <div class="modal-body">
-            <!-- 검색 영역 -->
-            <div class="search-area">
-                <div class="search-label">검색키워드</div>
-                <input type="text" class="form-control" id="keyword_pm" name="keyword_pm" placeholder="설비코드, 설비명, 자산번호 입력">
-                <div class="search-label">관리부서</div>
-                <select id="srch_pm_dept" name="srch_pm_dept">                    
-                </select>
-                <button type="button" class="btn-search" id="btnSearchPmCopy" name="btnSearchPmCopy">검색</button>
-            </div>   
+		<div class="modal-body">
+			<!-- 검색 영역 -->
+			<div class="search-area">
+				<div class="search-label">검색키워드</div>
+				<input type="text" class="form-control" id="keyword_pm" name="keyword_pm" placeholder="설비코드, 설비명, 자산번호 입력">
+				<div class="search-label col-md-1">관리부서</div>
+				<select id="srch_pm_dept" name="srch_pm_dept">
+				</select>
+				<button type="button" class="btn-search" id="btnSearchPmCopy" name="btnSearchPmCopy">검색</button>
+			</div>
 
-            <!-- 그리드 영역 -->
-            <div id="pmcopy_grid"></div>
+			<!-- 그리드 영역 -->
+			<div id="pmcopy_grid"></div>
 
-            <!-- 선택된 설비 영역 -->
-            <div class="bottom-area">
-                <div class="selected-item">
-                    <label>선택된 항목</label>
-                    <input type="hidden" id="selectedPmPK" name="selectedPmPK">
-                    <input type="text" id="selectedPmName" name="selectedPmName" readonly>           
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-save" id="btnConfirmPm">확인</button>
-                    <button type="button" class="btn-close" id="btnCancelPm">취소</button>
-                </div>
-            </div>
-        </div>
-    </div>
+			<!-- 선택된 설비 영역 -->
+			<div class="bottom-area">
+				<div class="selected-item">
+					<label>선택된 항목</label>
+					<input type="hidden" id="selectedPmPK" name="selectedPmPK">
+					<input type="text" id="selectedPmName" name="selectedPmName" readonly>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn-save" id="btnConfirmPm">확인</button>
+					<button type="button" class="btn-close" id="btnCancelPm">취소</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <style>
-    /* 부모 모달 (자식 모달) 스타일 유지 */
-    #modalPmMaster {
-        z-index: 1001;
-        display: none;
-    }
 
-    /* 손자 모달은 부모 모달보다 높은 z-index를 설정하고 독립적으로 배치 */
-    #modalPmCopy {
-        display: none;
-        position: absolute; /* ✅ fixed → absolute 변경 */
-        top: 50%;
-        left: 50%;
-        /* transform: translate(-50%, -50%); */
-        margin-top: -42.5vh; /* 전체 높이의 절반 */
-        margin-left: -450px; /* 전체 너비의 절반 */
-        width: 900px;
-        max-width: 95%;
-        background: #fff;
-        z-index: 1001 !important; /* ✅ 손자 모달의 z-index를 부모보다 1 높게 설정 */
-        border-radius: 8px;
-        box-shadow: none !important; /* ✅ 그림자 완전히 제거 */
-        max-height: 85vh;
-        overflow: hidden;
-    }
+	#modalPmCopy .search-area input {
+		width: 350px;
+	}
 
-        #modalPmCopy .search-area input {
-            width: 350px;
-        } 
+	/* 손자 모달 내부 컨텐츠 스타일 */
+	#modalPmCopy .modal-content {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
 
-        /* 손자 모달 내부 컨텐츠 스타일 */
-        #modalPmCopy .modal-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
+	#modalPmCopy .modal-body {
+		flex-grow: 1;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
 
-        #modalPmCopy .modal-body {
-            flex-grow: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
+	.grid-area {
+		flex-grow: 1;
+		overflow-y: auto;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+	}
 
-    .grid-area {
-        flex-grow: 1;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
+	.paging-area {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		padding: 10px;
+		font-size: 14px;
+	}
 
-    .paging-area {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-        font-size: 14px;
-    }
+	/* 검색 영역 스타일 */
+	.search-area {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
 
-    /* 검색 영역 스타일 */
-    .search-area {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
+	.search-label {
+		font-size: 13px;
+		color: #333;
+		white-space: nowrap;
+	}
 
-    .search-label {
-        font-size: 13px;
-        color: #333;
-        white-space: nowrap;
-    }
+	.search-area input,
+	.search-area select {
+		height: 28px;
+		border: 1px solid #ccc;
+		padding: 0 8px;
+	}
 
-    .search-area input,
-    .search-area select {
-        height: 28px;
-        border: 1px solid #ccc;
-        padding: 0 8px;
-    }
+	.search-area input {
+		flex: 2;
+	}
 
-    .search-area input {
-        flex: 2;
-    }
+	.search-area select {
+		flex: 1;
+	}
 
-    .search-area select {
-        flex: 1;
-    }
+	.selected-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
 
-    .selected-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
+		.selected-item label {
+			font-size: 13px;
+			color: #333;
+		}
 
-    .selected-item label {
-        font-size: 13px;
-        color: #333;
-    }
-
-    .selected-item input {
-        flex: 1;
-        height: 28px;
-        border: 1px solid #ccc;
-        padding: 0 8px;
-        background-color: #f5f5f5;
-    }
+		.selected-item input {
+			flex: 1;
+			height: 28px;
+			border: 1px solid #ccc;
+			padding: 0 8px;
+			background-color: #f5f5f5;
+		}
 </style>
 
 <script type="text/javascript">
 
-    class PmCopyPage {
-        constructor() {
-            this.grid = null;         
-            this.baseUrl = '/api/kmms/pm_master';
+	class PmCopy {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/pm_master';
+			this.callback = null;
+			this.init();
+		}
 
-            this.init();            
-        }
+		init() {
+			this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
 
-        init() {
-            let _this = this;
-            let pmCopyGridOption = {
-                toolbar: [
-                    "columns"
-                ],
-                columnMenu: {
-                    componentType: "classic",
-                    autoSize: true,
-                    clearAllFilters: true,
-                    columns: {
-                        sort: "asc",
-                    }
-                },
-                columns: [
-                    // 기본 정보                  
-                    { field: 'pm_no', title: 'PM 번호', width: 200 },
+		initGrid() {
+			let _this = this;
+			let pmCopyGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					// 기본 정보
+					{ field: 'pm_no', title: 'PM 번호', width: 200 },
 					{ field: 'pm_nm', title: 'PM명', width: 150 },
-                    { field: 'equip_code', title: '설비코드', width: 100 },
-                    { field: 'equip_name', title: '설비명', width: 150 },
-                    { field: 'install_dept', title: '설치부서', width: 100 },
-                    { field: 'last_pm_date', title: '최종 PM 일', width: 100 },
-                    { field: 'pm_type', title: 'PM 유형', width: 100 },
-                    { field: 'pm_cycle', title: 'PM주기', width: 100 },
-                    { field: 'manager_id', title: '담당자', width: 100 }
-                ],
+					{ field: 'equip_code', title: '설비코드', width: 100 },
+					{ field: 'equip_name', title: '설비명', width: 150 },
+					{ field: 'install_dept', title: '설치부서', width: 100 },
+					{ field: 'last_pm_date', title: '최종 PM 일', width: 100 },
+					{ field: 'pm_type', title: 'PM 유형', width: 100 },
+					{ field: 'pm_cycle', title: 'PM주기', width: 100 },
+					{ field: 'manager_id', title: '담당자', width: 100 }
+				],
 
-                change: function (e) {
-                    _this.showDetail();
-                },
-                dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        //this.autoFitColumn(i);
-                    };
+				change: function (e) {
+					_this.showDetail();
+				},
+				dataBound: function (e) {
+					for (var i = 0; i < this.columns.length; i++) {
+						//this.autoFitColumn(i);
+					};
 
-                    // grid 데이터 개수 표시
-                    kendoUtil.showGridRowCount(this.element);
-                },
-                height: "540px"
-            };
-            _this.grid = new Grid($("#pmcopy_grid"), pmCopyGridOption);
+					// grid 데이터 개수 표시
+					kendoUtil.showGridRowCount(this.element);
+				},
+				height: "540px"
+			};
+			_this.grid = new Grid($("#pmcopy_grid"), pmCopyGridOption);
+		}
 
-            this.initButton();
-            this.getPmData();
-        }
+		initButton() {
 
-        initButton() {
+			$("#btnConfirmPm").kendoButton({
+				icon: "k-i-check", // 확인 아이콘 (✔️)
+			});
 
-            $("#btnConfirmPm").kendoButton({
-                icon: "k-i-check", // 확인 아이콘 (✔️)                
-            });
-
-            $("#btnCancelPm").kendoButton({
-                icon: "cancel", // 취소 아이콘 (❌)
-                themeColor: "base"
-            });
+			$("#btnCancelPm").kendoButton({
+				icon: "cancel", // 취소 아이콘 (❌)
+				themeColor: "base"
+			});
 
 
-            // 검색 버튼을 kendo 버튼으로 변경
-            $("#btnSearchPmCopy").kendoButton({         
-                icon: "search",                 
-                click: () => {
-                    this.getPmData();
-                }
-            });
+			// 검색 버튼을 kendo 버튼으로 변경
+			$("#btnSearchPmCopy").kendoButton({
+				icon: "search",
+				click: () => {
+					this.getPmData();
+				}
+			});
 
-            AjaxUtil.fillDropDownTreeOptions($('#srch_pm_dept'), 'depart', 'select');
-            
-        }
+			AjaxUtil.fillDropDownTreeOptions($('#srch_pm_dept'), 'depart', 'select');
 
+		}
 
-        getPmData() {
-            let _this = this;
-            let param = {
-                action: 'read_modal',    
-                keyword: $('#keyword_pm').val(),
+		initEvents() {
+
+			$("#btnConfirmPm").on("click", () => {
+				const selectedPmID = $('#selectedPmPK').val();
+				const selectedPmName = $('#selectedPmName').val();
+				if (!selectedPmID || !selectedPmName) {
+					alert('PM을 선택해주세요.');
+					return;
+				}
+
+				let param = {
+					action: 'findOne',
+					id: $('#selectedPmPK').val(),
+				};
+
+				let result = AjaxUtil.getSyncData('/api/kmms/pm_master', param);
+
+				if (typeof this.callback === 'function') {
+					this.callback(result);
+				}
+
+				$("#modalPmCopy").fadeOut();
+				reset();
+			});
+
+			$("#btnCancelPm").on("click", function (e) {
+				e.preventDefault();
+				$("#modalPmCopy").fadeOut();
+				reset();
+			});
+
+		}
+
+		getPmData() {
+			let _this = this;
+			let param = {
+				action: 'read_modal',
+				keyword: $('#keyword_pm').val(),
 				dept_pk: $('#srch_pm_dept').data("kendoDropDownTree").value(),
-            };
-            
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
-        }
+			};
 
-        resetData() {
-            let _this = this;
-            $("#pmcopy_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#equipmentForm'));
-        }
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			_this.grid.setData(result);
+		}
 
-        showDetail() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];                
-                console.log("selectData:\n", selectData);
-                $('#selectedPmPK').val(selectData.pm_pk);
-				$('#selectedPmName').val(selectData.pm_nm);      
+		reset() {
+			$("#selectedPmPK").val('');
+			$("#selectedPmName").val('');
+		}
 
-            }
-        }
-    };
+		showDetail() {
+			let _this = this;
+			let data = _this.grid.getSelect();
+			if (data.length > 0) {
+				let selectData = data[0];
+				$('#selectedPmPK').val(selectData.pm_pk);
+				$('#selectedPmName').val(selectData.pm_nm);
+			}
+		}
 
-    let pmCopyPage = null;
-    pmCopyPage = new PmCopyPage();
+		show(callback) {
+			this.callback = callback;
+			$("#modalPmCopy").fadeIn();
+			this.getPmData();
+		}
+	}
 
-    $(document).ready(function () {
-        // 부모 모달 제어
-        $("#closeModalPmMaster").on("click", function () {
-            $("#modalPmMaster").fadeOut();
-        });
+	let pmCopyPage = null;
+	$(document).ready(function () {
+		pmCopyPage = new PmCopy();
+	});
 
-        // 자식 모달을 띄울 때 손자 모달 자동 표시되지 않도록 설정
-        $("#copyPM").on("click", function (e) {
-            e.preventDefault();
-            $("#modalPmCopy").fadeIn();
-            pmCopyPage.getPmData(); // ✅ 손자 모달을 열 때 실행
-        });
-
-        // 손자 모달 닫기
-        $("#btnCancelPm, #closeModalPm").on("click", function (e) {
-            e.preventDefault();
-            $("#modalPmCopy").fadeOut();
-            reset();
-        });
-
-        function reset() {
-            $("#selectedPmPK").val('');
-            $("#selectedPmName").val('');
-        }
-
-        // 손자 모달 선택 확인 버튼
-        $("#btnConfirmPm").on("click", function () {    
-            const selectedPmID = $('#selectedPmPK').val();
-            const selectedPmName = $('#selectedPmName').val();
-            if (!selectedPmID || !selectedPmName) {
-                alert('PM을 선택해주세요.');
-                return;
-            }
-
-            let param = {
-                action: 'detail',
-                id: $('#selectedPmPK').val(),
-            };
-            
-            let result = AjaxUtil.getSyncData('/api/kmms/pm_master', param);
-            console.log('result:', result);
-            
-            // 부모 창의 입력 필드에 값 설정
-            //$('#pmNumber').val(result.pm_no); // PM 번호
-			$('#pmName').val(result.pm_nm); // PM명
-            $('#pmType').val(result.pm_type); // PM유형
-            $('#maintenanceTime').val(result.work_expect_hr); // 정비소요시간
-			$('#executionDept').val(result.dept_pk); // 실행부서 (작업부서 PK)
-            $('#pmManager').val(result.pm_user_pk); // PM담당자
-            $('#workInstructions').val(result.work_text); // 작업지침
-         
-            $("#modalPmCopy").fadeOut();
-
-            reset();
-        });
-    });
 </script>

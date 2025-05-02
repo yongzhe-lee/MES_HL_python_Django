@@ -57,6 +57,7 @@
     </Compile>
     <Compile Include="app\views\ai\defect_inspection.py" />
     <Compile Include="app\views\ai\learning_data_from_tag.py" />
+    <Compile Include="app\views\ai\train_model.py" />
     <Compile Include="app\views\ai\predictive_conversation.py" />
     <Compile Include="app\views\ai\learning_data.py" />
     <Compile Include="app\views\ai\model.py" />
@@ -75,6 +76,9 @@
     <Compile Include="app\views\interface\equ_result.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\views\interface\fuji.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\interface\qms.py">
       <SubType>Code</SubType>
     </Compile>
@@ -84,12 +88,41 @@
     <Compile Include="app\views\interface\van.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\views\kmms\alarm.py" />
+    <Compile Include="app\views\kmms\alarm_box.py" />
+    <Compile Include="app\views\kmms\anuser_ssmtrl.py" />
+    <Compile Include="app\views\kmms\anoti_sms_hist.py" />
+    <Compile Include="app\views\kmms\anoti_mail_hist.py" />
+    <Compile Include="app\views\kmms\alarm_noti_user.py" />
+    <Compile Include="app\views\kmms\chk_equip.py" />
+    <Compile Include="app\views\kmms\equip_chk_sche.py" />
+    <Compile Include="app\views\kmms\equip_chk_rslt.py" />
+    <Compile Include="app\views\kmms\equip_chk_item_rslt.py" />
+    <Compile Include="app\views\kmms\equip_chk_item.py" />
+    <Compile Include="app\views\kmms\equip_chk_item_mst.py" />
+    <Compile Include="app\views\kmms\alarm_noti_grp.py" />
+    <Compile Include="app\views\kmms\material.py" />
+    <Compile Include="app\views\kmms\alarm_actn.py" />
+    <Compile Include="app\views\kmms\pop_info.py" />
+    <Compile Include="app\views\kmms\inspection_report.py" />
+    <Compile Include="app\views\kmms\tag_meas_type.py" />
+    <Compile Include="app\views\kmms\tag.py" />
+    <Compile Include="app\views\kmms\monitor.py" />
     <Compile Include="app\views\kmms\equip_classify.py" />
     <Compile Include="app\views\kmms\equip_category.py" />
     <Compile Include="app\views\kmms\base_code_grp.py" />
     <Compile Include="app\views\kmms\base_code.py" />
     <Compile Include="app\views\kmms\equip_dept_hist.py" />
     <Compile Include="app\views\kmms\equip_group.py" />
+    <Compile Include="app\views\kmms\equipment2.py" />
+    <Compile Include="app\views\kmms\equip_loc_hist.py" />
+    <Compile Include="app\views\kmms\equip_part_mtrl.py" />
+    <Compile Include="app\views\kmms\equip_spec.py" />
+    <Compile Include="app\views\kmms\cost_center.py" />
+    <Compile Include="app\views\kmms\analysis_wo.py" />
+    <Compile Include="app\views\kmms\mapp_loc_mes.py" />
+    <Compile Include="app\views\kmms\location.py" />
+    <Compile Include="app\views\kmms\import_rank.py" />
     <Compile Include="app\views\kmms\supplier.py" />
     <Compile Include="app\views\kmms\work_order_approval.py" />
     <Compile Include="app\views\kmms\work_order_hist.py" />
@@ -243,6 +276,7 @@
     <Compile Include="domain\services\interface\equipment.py" />
     <Compile Include="domain\services\interface\sap.py" />
     <Compile Include="domain\services\interface\van.py" />
+    <Compile Include="domain\services\kmms\material.py" />
     <Compile Include="domain\services\kmms\pi_master.py" />
     <Compile Include="domain\services\kmms\equipment.py" />
     <Compile Include="domain\services\kmms\pm_master.py" />
@@ -257,6 +291,9 @@
     <Compile Include="domain\services\system_definition\tag_data.py" />
     <Compile Include="domain\services\__init__.py" />
     <Compile Include="domain\_sql\interface\equipment\example.json">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\_sql\interface\equipment\hpc1.brackassm.height.json">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\__init__.py" />
@@ -291,6 +328,7 @@
     <Folder Include="app\static\resource\kendo_ui\license-agreements\third-party\" />
     <Folder Include="app\static\resource\kendo_ui\typescript\" />
     <Folder Include="app\static\resource\kendo_ui\vsdoc\" />
+    <Folder Include="app\static\resource\paho-mqtt\" />
     <Folder Include="app\static\resource\windowContainer\" />
     <Folder Include="app\static\resource\windowContainer\css\" />
     <Folder Include="app\static\resource\windowContainer\fonts\" />
@@ -304,6 +342,7 @@
     <Folder Include="app\templates\kmms\check\" />
     <Folder Include="app\templates\kmms\equipment\" />
     <Folder Include="app\templates\kmms\material\" />
+    <Folder Include="app\templates\kmms\report\" />
     <Folder Include="app\templates\kmms\wo\" />
     <Folder Include="app\templates\kmms\pm\" />
     <Folder Include="app\templates\ai\" />
@@ -370,6 +409,7 @@
     <Folder Include="domain\_sql\interface\alarm\fuji\" />
     <Folder Include="domain\_sql\interface\equipment\" />
     <Folder Include="domain\_sql\interface\alarm\" />
+    <Folder Include="domain\_sql\kmms_function\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
   </ItemGroup>
@@ -912,13 +952,20 @@
     <Content Include="app\static\resource\kendo_ui\styles\material-sky.css" />
     <Content Include="app\static\resource\kendo_ui\styles\material-smoke.css" />
     <Content Include="app\static\resource\kendo_ui\typescript\kendo.all.d.ts" />
+    <Content Include="app\templates\popup\modalAmtUnitAdd.html" />
+    <Content Include="app\templates\popup\modalEqus.html" />
+    <Content Include="app\templates\popup\modalEquClassSel.html" />
+    <Content Include="app\templates\popup\modalMtrlClassAdd.html" />
+    <Content Include="run_env_launcher.bat" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all.min.intellisense.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all-vsdoc.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.dataviz.min.intellisense.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.dataviz-vsdoc.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.web.min.intellisense.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.web-vsdoc.js" />
+    <Content Include="app\static\resource\mqtt.js" />
     <Content Include="app\static\resource\nth-tabs.js" />
+    <Content Include="app\static\resource\paho-mqtt\mqttws31.min.js" />
     <Content Include="app\static\resource\windowContainer\css\bootstrap.4.5.min.css" />
     <Content Include="app\static\resource\windowContainer\css\bootstrap.4.min.css" />
     <Content Include="app\static\resource\windowContainer\css\bootstrap.min.css" />
@@ -958,16 +1005,23 @@
     <Content Include="app\templates\app\index_spa.html" />
     <Content Include="app\templates\app\system.js" />
     <Content Include="app\templates\common\file_upload.html" />
-    <Content Include="app\templates\components\EquipLoc.html" />
     <Content Include="app\templates\components\equipment.html" />
     <Content Include="app\templates\components\FileUpload.html" />
     <Content Include="app\templates\components\ImageUpload.html" />
+    <Content Include="app\templates\components\material.html" />
     <Content Include="app\templates\dashboard\main_dash.html" />
     <Content Include="app\templates\dashboard\storyboard.html" />
     <Content Include="app\templates\definition\bom_참고.html" />
     <Content Include="app\templates\definition\bom.html" />
     <Content Include="app\templates\definition\equipment_alaram_history.html" />
     <Content Include="app\templates\definition\equipment_alaram.html" />
+    <Content Include="app\templates\interface\if_reflow_profile.html" />
+    <Content Include="app\templates\interface\if_topic_data.html" />
+    <Content Include="app\templates\interface\if_tension_check.html" />
+    <Content Include="app\templates\interface\if_viscosity_check.html" />
+    <Content Include="app\templates\interface\if_fuji_pickup_rate.html" />
+    <Content Include="app\templates\kmms\check\check_schedule_m.html" />
+    <Content Include="app\templates\kmms\check\check_wo_issued.html" />
     <Content Include="app\templates\kmms\cm_code.html" />
     <Content Include="app\templates\definition\defect_type.html" />
     <Content Include="app\templates\definition\equip_work_hist.html" />
@@ -987,27 +1041,60 @@
     <Content Include="app\templates\kmms\equipment\cm_equip_workhist.html" />
     <Content Include="app\templates\kmms\equipment\equipmentGroupList.html" />
     <Content Include="app\templates\kmms\equipment\locList.html" />
-    <Content Include="app\templates\kmms\material\store_location.html" />
+    <Content Include="app\templates\kmms\material\cm_material.html" />
     <Content Include="app\templates\kmms\material\storLocAddrList.html" />
     <Content Include="app\templates\kmms\material\supplier.html" />
+    <Content Include="app\templates\kmms\pm\pm_schedule_m.html" />
+    <Content Include="app\templates\kmms\report\asset_evaluation_report.html" />
+    <Content Include="app\templates\kmms\report\asset_valuation_statistics.html" />
+    <Content Include="app\templates\kmms\report\category_equipment_status.html" />
+    <Content Include="app\templates\kmms\report\causes_of_each_failure_part.html" />
+    <Content Include="app\templates\kmms\report\conservation_cost_status.html" />
+    <Content Include="app\templates\kmms\report\critical_equipment_status.html" />
+    <Content Include="app\templates\kmms\report\dept_overdue_tasks.html" />
+    <Content Include="app\templates\kmms\report\dept_pm_rate.html" />
+    <Content Include="app\templates\kmms\report\dept_task_compliance_rate.html" />
+    <Content Include="app\templates\kmms\report\dept_work_costs.html" />
+    <Content Include="app\templates\kmms\report\dept_work_request_stats.html" />
+    <Content Include="app\templates\kmms\report\facility_downtime.html" />
+    <Content Include="app\templates\kmms\report\facility_inspection_master.html" />
+    <Content Include="app\templates\kmms\report\facility_maintenance_cost.html" />
+    <Content Include="app\templates\kmms\report\facility_material_usage_history.html" />
+    <Content Include="app\templates\kmms\report\facility_monthly_status.html" />
+    <Content Include="app\templates\kmms\report\facility_mttr_mtbf.html" />
+    <Content Include="app\templates\kmms\report\facility_specifications.html" />
+    <Content Include="app\templates\kmms\report\facility_treatment_status.html" />
+    <Content Include="app\templates\kmms\report\inspection_issues.html" />
+    <Content Include="app\templates\kmms\report\inspection_stats.html" />
+    <Content Include="app\templates\kmms\report\monthly_maintenance_cost.html" />
+    <Content Include="app\templates\kmms\report\outsourced_tasks_count.html" />
+    <Content Include="app\templates\kmms\report\pm_status_by_category.html" />
+    <Content Include="app\templates\kmms\report\pm_wo_completion_rate.html" />
+    <Content Include="app\templates\kmms\report\summary_of_repairs_by_year.html" />
+    <Content Include="app\templates\kmms\report\team_breakdown_costs.html" />
+    <Content Include="app\templates\kmms\report\top_working_hours_wo.html" />
+    <Content Include="app\templates\kmms\report\top_wo_in_work_cost.html" />
+    <Content Include="app\templates\kmms\report\wm_wo_dept_performance.html" />
     <Content Include="app\templates\kmms\wo\projectList.html" />
+    <Content Include="app\templates\kmms\wo\work_order_cancel_list.html" />
+    <Content Include="app\templates\kmms\wo\work_order_hist.html" />
     <Content Include="app\templates\kmms\wo\work_order_management.html" />
+    <Content Include="app\templates\kmms\wo\work_order_pending_list.html" />
     <Content Include="app\templates\kmms\wo\work_request_approval.html" />
     <Content Include="app\templates\kmms\wo\work_order_approval.html" />
     <Content Include="app\templates\kmms\wo\post_work_management.html" />
     <Content Include="app\templates\kmms\wo\my_work_request.html" />
     <Content Include="app\templates\page\popup\modalModel.html" />
-    <Content Include="app\templates\popup\modalEqus.html" />
+    <Content Include="app\templates\popup\modalManSel.html" />
     <Content Include="app\templates\popup\modalMyWorkReq.html" />
     <Content Include="app\templates\popup\modalPiMaster.html" />
     <Content Include="app\templates\popup\modalWoCopy.html" />
     <Content Include="app\templates\popup\modalWoDetail.html" />
-    <Content Include="app\templates\popup\modalMaterials.html" />
+    <Content Include="app\templates\popup\modalMatSel.html" />
     <Content Include="app\templates\popup\modalPmCopy.html" />
-    <Content Include="app\templates\popup\modalEqu.html" />
+    <Content Include="app\templates\popup\modalEquSel.html" />
     <Content Include="app\templates\popup\modalEquDeptHist.html" />
     <Content Include="app\templates\popup\modalOccupations.html" />
-    <Content Include="app\templates\popup\modalEquipMaster.html" />
     <Content Include="app\templates\popup\modalPmMaster.html" />
     <Content Include="app\templates\popup\modalEquLocHist.html" />
     <Content Include="app\templates\popup\modalEquLoc.html" />
@@ -1111,6 +1198,8 @@
     <Content Include="domain\_sql\das_config\제어pc\ict.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="domain\_sql\function\fn_try_to_number.txt" />
+    <Content Include="domain\_sql\function\cm_fn_get_loc_plant_nm_code.txt" />
     <Content Include="domain\_sql\function\fn_datediff.txt" />
     <Content Include="domain\_sql\function\fn_code_name.txt" />
     <Content Include="domain\_sql\function\fn_dateadd.txt" />
@@ -1124,7 +1213,7 @@
     <Content Include="domain\_sql\function\fn_json_lang_text.txt" />
     <Content Include="domain\_sql\function\fn_make_schedule_pm.txt" />
     <Content Include="domain\_sql\function\fn_minutediff.txt" />
-    <Content Include="domain\_sql\function\cm_fn_.txt" />
+    <Content Include="domain\_sql\function\cm_fn_dateadd.txt" />
     <Content Include="domain\_sql\function\fn_user_nm.txt" />
     <Content Include="domain\_sql\interface\alarm\fuji\e8xxx_KO.xml" />
     <Content Include="domain\_sql\interface\alarm\fuji\ErrorCodeText_E.txt" />
@@ -1143,6 +1232,21 @@
     <Content Include="domain\_sql\interface\equipment\250403 Techways_EOL.json" />
     <Content Include="domain\_sql\interface\equipment\eol.json" />
     <Content Include="domain\_sql\interface\equipment\example_new.json" />
+    <Content Include="domain\_sql\interface\equipment\hpc1.flash.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1.ict.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1.load.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1.tim.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\ict.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\interface\sap_bom.json" />
     <Content Include="domain\_sql\interface\sap_mat.json">
       <SubType>Code</SubType>
@@ -1162,6 +1266,21 @@
     <Content Include="domain\_sql\interface\인터페이스계정.txt">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="domain\_sql\kmms_function\cm_fn_make_schedule_insp.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_round_val.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_equip_classify.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_equip_classify_ctg.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_dept_path_names.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_dept_cd_business_nm.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_datediff.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_dept_team_pk.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_minutediff.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_user_nm.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_tree.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_site_loc_tree.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_path.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_plant_nm.txt" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_area_line.txt" />
     <Content Include="domain\_sql\partition\em_tag_dat.txt" />
     <Content Include="domain\_sql\partition\tag_dat.txt" />
     <Content Include="domain\_sql\01.기초데이터.txt" />

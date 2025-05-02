@@ -7,7 +7,7 @@ from domain.models.cmms import CmReliabCodes
 def reliab_code(context):
     '''
     api/kmms/reliab_code    신뢰도 코드 정보
-    김태영 작업중
+    김태영 
 
     findAll 전체목록조회
     findOne 한건조회

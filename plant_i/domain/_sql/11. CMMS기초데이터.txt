@@ -2,7 +2,7 @@
 
 -- 기초 데이터 기초코드그룹 insert 구문
 -- base_code_grp
-INSERT INTO public.cm_base_code_grp (code_grp_cd,code_grp_nm,code_grp_dsc,edit_yn,code_pk_yn,disp_order) VALUES
+INSERT INTO cm_base_code_grp (code_grp_cd,code_grp_nm,code_grp_dsc,edit_yn,code_pk_yn,disp_order) VALUES
 	 ('LOGIN_LOG_TYPE','로그인유형','로그인유형','N','N',1),
 	 ('USER_TYPE','사용자유형 ','사용자유형 (관리자, 파워유저, 작업자, 더미) ','N','Y',2),
 	 ('WEEK_TYPE','요일유형','요일유','N','Y',3),
@@ -60,7 +60,7 @@ INSERT INTO public.cm_base_code_grp (code_grp_cd,code_grp_nm,code_grp_dsc,edit_y
 	 ('USE_YN','사용유무','','',NULL,NULL);
 
 -- base_code
-INSERT INTO public.cm_base_code (code_pk,code_cd,code_nm,code_dsc,grp_cd,code_nm_en,code_nm_ch,code_nm_jp,disp_order,use_yn,insert_ts,inserter_id,inserter_nm,update_ts,updater_id,updater_nm,attr1,code_grp_cd) VALUES
+INSERT INTO cm_base_code (code_pk,code_cd,code_nm,code_dsc,grp_cd,code_nm_en,code_nm_ch,code_nm_jp,disp_order,use_yn,insert_ts,inserter_id,inserter_nm,update_ts,updater_id,updater_nm,attr1,code_grp_cd) VALUES
 	 (1,'AB_GRADE_A','A급(신품)','A급(신품)',NULL,NULL,NULL,NULL,1,'Y','2025-01-14 14:55:13.418453+09','system','SWING(관리자',NULL,NULL,NULL,NULL,'AB_GRADE'),
 	 (2,'AB_GRADE_B','B급(수리품)','B급(수리품)',NULL,NULL,NULL,NULL,2,'Y','2025-01-14 14:55:13.418453+09','system','SWING(관리자',NULL,NULL,NULL,NULL,'AB_GRADE'),
 	 (3,'AT01','교체','교체:신품/예비품으로 교체',NULL,NULL,NULL,NULL,1,'Y','2025-01-14 14:55:13.418453+09','system','SWING(관리자',NULL,NULL,NULL,NULL,'ACTION_TYPE'),
@@ -2764,3 +2764,9 @@ INSERT INTO cm_equipment (equip_pk,equip_cd,equip_nm,equip_category_id,up_equip_
 ALTER TABLE cm_supplier ALTER COLUMN site_id SET DEFAULT '1';
 update cm_supplier set site_id = 1;
 SELECT setval('cm_supplier_supplier_pk_seq', (SELECT MAX(supplier_pk) FROM cm_supplier), true);
+
+SELECT setval('cm_location_loc_pk_seq', (SELECT MAX(loc_pk) FROM cm_location), true);
+SELECT setval('cm_base_code_code_pk_seq', (SELECT MAX(code_pk) FROM cm_base_code), true);
+SELECT setval('cm_equipment_equip_pk_seq', (SELECT MAX(equip_pk) FROM cm_equipment), true);
+
+update cm_equipment set site_id = 1;

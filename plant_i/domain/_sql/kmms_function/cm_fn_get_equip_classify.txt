@@ -1,0 +1,82 @@
+ DROP FUNCTION public.cm_fn_get_equip_classify(int4);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_equip_classify(v_factory_pk integer)
+ RETURNS TABLE(id character varying, up_id character varying, equip_class_id character varying, equip_class_desc character varying, parent_id character varying, equip_class_pk integer, up_equip_class_pk integer, hierarchy_path character varying, path_info character varying, lvl integer, class_type character varying, factory_pk integer)
+ LANGUAGE plpgsql
+AS $function$
+declare 
+    v_rec record;
+begin
+	for v_rec in(
+		WITH RECURSIVE cte AS (
+         SELECT (t1.class_type::text || '_'::text) || t1.equip_class_id::text AS id,
+         	(case when coalesce(t1.parent_id, '') = '' then null else (ut1.class_type::text || '_'::text) || ut1.equip_class_id::text end) AS up_id,
+            t1.equip_class_id,
+            t1.equip_class_desc,
+            ut1.equip_class_id AS parent_id,
+            t1.equip_class_pk,
+            NULL::bigint AS up_equip_class_pk,
+            t1.hierarchy_path,
+            ARRAY[t1.equip_class_id::text] AS path_info,
+            1 AS lvl,
+            t1.class_type,
+            t1.factory_pk as factory_pk
+           FROM cm_equip_classify t1
+           left outer join cm_equip_classify ut1 ON t1.parent_id::text = ut1.equip_class_id::text 
+			and t1.factory_pk = ut1.factory_pk
+          WHERE t1.parent_id IS NULL 
+          AND t1.class_type::text = 'CLASS'::text
+          AND t1.factory_pk = v_factory_pk
+        UNION ALL
+         SELECT (t2.class_type::text || '_'::text) || t2.equip_class_id::text AS id,
+         	(case when coalesce(t2.parent_id, '') = '' then null else (s.class_type::text || '_'::text) || s.equip_class_id::text end) AS up_id,
+            t2.equip_class_id,
+            t2.equip_class_desc,
+            s.equip_class_id AS parent_id,
+            t2.equip_class_pk,
+            s.equip_class_pk AS up_equip_class_pk,
+            t2.hierarchy_path,
+            s.path_info || t2.equip_class_id::text AS path_info,
+            s.lvl + 1,
+            t2.class_type,
+            t2.factory_pk
+           from cte s
+           left outer join cm_equip_classify t2 ON t2.parent_id::text = s.equip_class_id::text
+          AND t2.class_type::text = 'TYPES'::text 
+          AND t2.factory_pk = v_factory_pk
+          AND t2.parent_id IS NOT NULL 
+          AND array_to_string(s.path_info || t2.equip_class_id::text, '\'::text) = t2.hierarchy_path::text
+          where s.factory_pk is not null 
+          and t2.equip_class_id is not null 
+        )
+		 SELECT cte.id,
+		    cte.up_id,
+		    cte.equip_class_id,
+		    cte.equip_class_desc,
+		    cte.parent_id,
+		    cte.equip_class_pk,
+		    cte.up_equip_class_pk,
+		    cte.hierarchy_path,
+		    cte.path_info,
+		    cte.lvl,
+		    cte.class_type,
+		    cte.factory_pk
+		   from cte
+		  ORDER BY cte.path_info
+        ) loop  
+	       	id := v_rec.id; 
+	       	up_id := v_rec.up_id; 
+	       	equip_class_id := v_rec.equip_class_id; 
+	       	equip_class_desc := v_rec.equip_class_desc; 
+	       	parent_id := v_rec.parent_id; 
+	       	equip_class_pk := v_rec.equip_class_pk; 
+	       	up_equip_class_pk := v_rec.up_equip_class_pk; 
+	       	hierarchy_path := v_rec.hierarchy_path; 
+	       	path_info := v_rec.path_info; 
+	       	lvl := v_rec.lvl; 
+	       	class_type := v_rec.class_type; 
+	       	factory_pk := v_rec.factory_pk;  
+       		return next;
+	end loop;
+end; $function$
+;

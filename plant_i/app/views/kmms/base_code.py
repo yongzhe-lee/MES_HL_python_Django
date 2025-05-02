@@ -6,8 +6,8 @@ from domain.models.cmms import CmBaseCode, CmMaterial, CmEquipment, CmEquipChkIt
 
 def base_code(context):
     '''
-    api/kmms/base_code    외부공급처?
-    김태영 작업중
+    api/kmms/base_code    기초코드
+    김태영 
 
     findAll
     findOne
@@ -534,7 +534,7 @@ def base_code(context):
             dc = {}
             dc['codeGrpCd'] = codeGrpCd
             dc['codeCd'] = codeCd
-
+            1
             items = DbUtil.get_rows(sql, dc)
 
         elif action == 'equipStatus':

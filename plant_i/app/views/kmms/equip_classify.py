@@ -6,8 +6,8 @@ from domain.models.cmms import CmBaseCodeGroup
 
 def equip_classify(context):
     '''
-    api/kmms/equip_classify    설비종류
-    김태영 작업중
+    api/kmms/equip_classify    설비분류 정보
+    김태영 
 
     getEquipClassifyList
     getEquipClassifyTree
@@ -69,7 +69,7 @@ def equip_classify(context):
 			     from (select * from cm_fn_get_equip_classify(t.factory_pk) ec
 			     where ec.parent_id = t.equip_class_id
 		        and ec.class_type = 'TYPES'
-		        and ec.site_id = t.site_id
+		        and ec.factory_pk = t.factory_pk
 		        and ec.lvl > t.lvl) as sub_count
 		    from (select * from cm_fn_get_equip_classify(t.factory_pk)) t
 		    WHERE t.factory_pk = %(factory_pk)s
@@ -95,13 +95,13 @@ def equip_classify(context):
 		        T.PATH_INFO,
 		        T.LVL,
 		        T.CLASS_TYPE,
-		        T.SITE_ID,
+		        T.factory_pk,
 		        T.CATEGORY_ID,
 		        (SELECT COUNT(*)
 		            FROM (SELECT * FROM cm_FN_GET_EQUIP_CLASSIFY_CTG(%(factory_pk)s, %(categoryId)s)) EC
 		            WHERE EC.PARENT_ID = T.EQUIP_CLASS_ID
 		            AND EC.CLASS_TYPE = 'TYPES'
-		            AND EC.SITE_ID = T.SITE_ID
+		            AND EC.factory_pk = T.factory_pk
 		            AND EC.LVL > T.LVL) AS SUB_COUNT
 		        FROM cm_FN_GET_EQUIP_CLASSIFY_CTG(%(factory_pk)s, %(categoryId)s) T
 		        ORDER BY T.PATH_INFO
@@ -118,12 +118,12 @@ def equip_classify(context):
 			        T.PATH_INFO,
 			        T.LVL,
 			        T.CLASS_TYPE,
-			        T.SITE_ID,
+			        T.factory_pk,
 			        (SELECT COUNT(*)
 			           FROM ( SELECT * FROM CM_FN_GET_EQUIP_CLASSIFY(%(factory_pk)s)) EC
 			           WHERE EC.PARENT_ID = T.EQUIP_CLASS_ID
 			           AND EC.CLASS_TYPE = 'TYPES'
-			           AND EC.SITE_ID = T.SITE_ID
+			           AND EC.factory_pk = T.factory_pk
 			           AND EC.LVL > T.LVL) AS SUB_COUNT
 				FROM CM_FN_GET_EQUIP_CLASSIFY(%(factory_pk)s) T
 				ORDER BY T.PATH_INFO

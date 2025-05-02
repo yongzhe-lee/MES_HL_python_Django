@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from domain.services.date import DateUtil
-from .system import Site
+from .system import Factory, Site
 
 
 class Depart(models.Model):
@@ -21,6 +21,7 @@ class Depart(models.Model):
     DelYN = models.CharField('삭제여부', max_length=1, default='N', blank=False, null=False, db_comment="삭제 여부 (Y/N)")
     ApplyYN = models.CharField('적용여부', max_length=1, default='N', blank=True, null=True, db_comment="적용 여부 (Y/N)")
     Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, null=True, db_comment="소속된 사이트 정보")
+    Factory = models.ForeignKey(Factory, on_delete=models.DO_NOTHING, null=True, db_comment="소속된 공장")
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 값")
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment="데이터 생성 일시")
@@ -52,6 +53,8 @@ class UserGroup(models.Model):
     Description	= models.CharField('비고', max_length=500, null=True)
     ShiftYn	= models.CharField('교대조여부', max_length=1, null=True)
     Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, null=True)
+    Factory = models.ForeignKey(Factory, on_delete=models.DO_NOTHING, null=True, db_comment="소속된 공장")
+
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)

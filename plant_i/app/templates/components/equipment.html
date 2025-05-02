@@ -3,50 +3,31 @@
 		<div class="modal-header">
 			<h4>설비마스터 상세정보</h4>
 		</div>
-
 		<div class="modal-body">
-			<!-- 대상설비 섹션 -->
-			<div class="equipment-section" style="display: flex; gap: 20px;">
-				<!-- 왼쪽 이미지 영역 -->
-				<div class="equipment-image-section" style="flex: 0 0 250px;">
-					<div class="image-container" style="width: 250px; height: 190px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; background: #f9f9f9;">
-						<div style="text-align: center;">
-							<img src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
-							<div style="margin-top: 10px; color: #999;">No image</div>
+			<div class="edit-form-ui">
+				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
+					<img src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
+				</div>
+				<div class="col-12 col-sm-5 col-md-6" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 200px;">
+					<div class="form-group col-12">
+						<label for="equip_code" class="required">설비코드*</label>
+						<input type="text" class="form-control" id="equip_code" name="equip_code">
+					</div>
+					<div class="form-group col-12">
+						<label for="equip_name" class="required">설비명*</label>
+						<input type="text" class="form-control" id="equip_name" name="equip_name">
+					</div>
+					<div id="div_equip_status" class="form-group col-12" style="display:none;">
+						<label for="txt_equip_status" data-labelCd="설비상태">설비상태</label>
+						<div style="display: flex; align-items: center;">
+							<input type="text" class="form-control" id="txt_equip_status" name="txt_equip_status" style="flex: 0.3;" />
+							<button class="btn" style="background-color: #6c757d; border: 1px solid #6c757d; color: white; margin-left: 20px;">상태변경</button>
 						</div>
 					</div>
 				</div>
-
-				<!-- 중앙 정보 영역 -->
-				<div class="equipment-info-section" style="flex: 1;">
-					<div class="form-row" style="margin-bottom: 10px;">
-						<div class="form-group" style="width: 100%;">
-							<span style="color: red;"><label>설비코드*<i class="fas fa-info-circle" style="color: #666; font-size: 14px;"></i></label></span>
-							<input type="hidden" id="equip_pk" value="{{ equipment.equip_pk }}">
-							<input type="text" class="form-control" id="equip_code" name="equip_code" readonly>
-						</div>
-					</div>
-					<div class="form-row" style="margin-bottom: 10px;">
-						<div class="form-group" style="width: 100%;">
-							<span style="color: red;"><label>설비명*</label></span>
-							<input type="text" class="form-control" id="equip_name" name="equip_name" value="AuSn Granule기">
-						</div>
-					</div>
-					<div class="form-row" style="margin-bottom: 0;">
-						<div class="form-group" style="width: 100%;">
-							<label>설비상태</label>
-							<div style="display: flex; gap: 5px;">
-								<button class="btn" style="width: 120px; background-color: #f9f9f9; border: 1px solid #ddd; color: #333; padding: 6px 12px;">가동중</button>
-								<button class="btn" style="width: 120px; background-color: #6c757d; border: 1px solid #6c757d; color: white; padding: 6px 12px;">상태변경</button>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- 오른쪽 QR코드 영역 -->
-				<div class="equipment-qr-section" style="flex: 0 0 250px;">
+				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
 					<div style="display: flex; flex-direction: column; justify-content: space-between; height: 190px;">
-						<div class="qr-container" style="width: 100%; height: 130px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background-color: white;">
+						<div style="width: 100%; height: 130px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background-color: white;">
 							<img src="/static/img/qr-sample.png" alt="QR Code" style="width: 110px; height: 110px;">
 						</div>
 						<div>
@@ -54,16 +35,16 @@
 								카테고리*
 							</div>
 							<div style="display: flex; gap: 5px;">
-								<input type="text" class="form-control" id="equip_category" name="equip_category" readonly value="O : Office Equipment" style="background-color: #f9f9f9; flex: 1;">
-								<button class="btn" style="min-width: 36px; padding: 0; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">
+								<input type="hidden" id="equip_category_id" name="equip_category_id" />
+								<input type="text" class="form-control" id="equip_category" name="equip_category" style="background-color: #f9f9f9; flex: 1;" readonly>
+								<button id="btnEquipClass" class="btn" style="min-width: 36px; padding: 0; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">
 									<img src="/static/img/folder-icon.png" alt="폴더" style="width: 24px; height: 24px;">
 								</button>
 							</div>
 						</div>
 					</div>
-				</div>			
+				</div>
 			</div>
-
 			<!-- 탭 섹션 -->
 			<div class="section">
 				<div class="tab-group">
@@ -78,91 +59,94 @@
 				</div>
 				<div class="tab-content">
 					<!-- 기본정보 탭 컨텐츠 -->
-					<div class="tab-pane active" id="equipMasterForm" style="overflow-y:auto; height: 400px;">
-						<div class="form-group col-md-4">							
-							<label for="loc_pk" class="required">설비위치*</label>
-							<button type="button" class="plusbutton" id="equipLocPlus" name="equipLocPlus"></button>
-							<select id="loc_pk" name="loc_pk"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label for="dept_pk" class="required">관리부서*</label>
-							<button type="button" class="gridbutton" id="mngDept" name="mngDept"></button>
-							<select id="dept_pk" name="dept_pk"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label class="required">설치일*</label>
-							<input type="date" id="InstallDate" class="form-control" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="InstallDate">
-						</div>
-						<div class="form-group col-md-4">
-							<label>설비중요도</label>
-							<select id="import_rank_pk" name="import_rank_pk"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label>프로세스</label>
-							<select id="process_cd" name="process_cd"></select>
-						</div>						
-						<div class="form-group col-md-4">
-							<label>제조일</label>
-							<input type="date" id="ProductionYear" class="form-control" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="ProductionYear">
-						</div>
-						<div class="form-group col-md-4">
-							<label>시스템</label>
-							<select id="system_cd" name="system_cd"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label>자산번호<span class="required">*</span></label>
-							<input type="text" class="form-control" id="asset_nos" name="asset_nos">
-						</div>
-						<div class="form-group col-md-4">
-							<label>상위설비</label>
-							<button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
-							<input type="text" class="form-control" id="upEquip" name="upEquip" readonly>
-						</div>
-						<div class="form-group col-md-4">
-							<label>순환설비자재</label>
-							<button type="button" class="zoombutton" id="recycleMat" name="recycleMat"></button>
-							<input type="text" class="form-control" id="mtrl_nm" name="mtrl_nm" readonly>
-						</div>
-
-						<div class="form-group col-md-4">
-							<label>코스트 센터</label>
-							<select id="ccenterCd" name="ccenterCd"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label>법정관리 설비 여부</label>
-							<div class="field-wrapper">
-								<input  type="checkbox" id="environEquipYn" name="environEquipYn" />
+					<div class="tab-pane active" id="equipMasterForm">
+						<form id="baseinfoForm">
+							<div class="form-group col-md-4">
+								<label for="loc_pk" class="required" data-labelCd="EquipLoc">설비위치*</label>
+								<button type="button" class="plusbutton" id="equipLocPlus" name="equipLocPlus"></button>
+								<button type="button" class="gridbutton" id="equipLocHist" name="equipLocHist"></button>
+								<select id="loc_pk" name="loc_pk" data-msg="설비위치를" required></select>
 							</div>
-						</div>
-						<div class="form-group col-md-4">
-							<label>공급업체</label>
-							<button type="button" class="plusbutton" id="supplyVendor" name="supplyVendor"></button>							
-							<select id="supplier" name="supplier"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label>구매비용</label>
-							<input type="text" class="form-control" id="PurchaseCost" name="PurchaseCost">
-						</div>
-						<div class="form-group col-md-4">
-							<label>보증만료일</label>
-							<input type="text" class="form-control" id="warranty_dt" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="warranty_dt">
-						</div>
-						<div class="form-group col-md-4">
-							<label>제조사</label>
-							<select id="Maker" name="Maker"></select>
-						</div>
-						<div class="form-group col-md-4">
-							<label>모델넘버</label>
-							<input type="text" class="form-control" id="Model" name="Model">
-						</div>
-						<div class="form-group col-md-4">
-							<label>시리얼넘버</label>
-							<input type="text" class="form-control" id="SerialNumber" name="SerialNumber">
-						</div>
-						<div class="form-group" style="padding: 2px 10px;">
-							<label>비고</label>
-							<textarea class="form-control" id="Description" name="Description"></textarea>
-						</div>
+							<div class="form-group col-md-4">
+								<label for="dept_pk" class="required" data-labelCd="관리부서">관리부서*</label>
+								<button type="button" class="gridbutton" id="mngDept" name="mngDept"></button>
+								<select id="dept_pk" name="dept_pk" data-msg="관리부서를"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label class="required" data-labelCd="설치일">설치일*</label>
+								<input type="date" id="InstallDate" class="form-control" data-msg="설치일을" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="InstallDate">
+							</div>
+							<div class="form-group col-md-4">
+								<label>설비중요도</label>
+								<select id="import_rank_pk" name="import_rank_pk"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>프로세스</label>
+								<select id="process_cd" name="process_cd"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>제조일</label>
+								<input type="date" id="ProductionYear" class="form-control" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="ProductionYear">
+							</div>
+							<div class="form-group col-md-4">
+								<label>시스템</label>
+								<select id="system_cd" name="system_cd"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label for="asset_nos">자산번호</label>
+								<input type="text" class="form-control" id="asset_nos" name="asset_nos">
+							</div>
+							<div class="form-group col-md-4">
+								<label>상위설비</label>
+								<button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
+								<input type="hidden" id="upEquipPk" name="upEquipPk" readonly>
+								<input type="text" class="form-control" id="upEquip" name="upEquip" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label for="mtrl_nm" class="required">순환설비자재*</label>
+								<button type="button" class="zoombutton" id="recycleMat" name="recycleMat"></button>
+								<input type="hidden" class="form-control" id="equip_mtrl_pk" name="equip_mtrl_pk" readonly>
+								<input type="text" class="form-control" data-msg="순환설비자재를"  id="mtrl_nm" name="mtrl_nm" readonly>
+							</div>
+							<div class="form-group col-md-4">
+								<label>코스트 센터</label>
+								<select id="ccenterCd" name="ccenterCd"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label for="environEquipYn" class="required">법정관리 설비 여부</label>
+								<div class="field-wrapper">
+									<input id="environEquipYn" name="environEquipYn" data-msg="법정관리 설비 여부를" />
+								</div>
+							</div>
+							<div class="form-group col-md-4">
+								<label>공급업체</label>
+								<select id="supplier" name="supplier"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>구매비용</label>
+								<input type="number" class="form-control" id="PurchaseCost" name="PurchaseCost">
+							</div>
+							<div class="form-group col-md-4">
+								<label>보증만료일</label>
+								<input type="text" class="form-control" id="warranty_dt" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; " name="warranty_dt">
+							</div>
+							<div class="form-group col-md-4">
+								<label>제조사</label>
+								<select id="Maker" name="Maker"></select>
+							</div>
+							<div class="form-group col-md-4">
+								<label>모델넘버</label>
+								<input type="text" class="form-control" id="Model" name="Model">
+							</div>
+							<div class="form-group col-md-4">
+								<label>시리얼넘버</label>
+								<input type="text" class="form-control" id="SerialNumber" name="SerialNumber">
+							</div>
+							<div class="form-group col-md-11">
+								<label>비고</label>
+								<textarea class="form-control" id="Description" name="Description" placeholder="2000자 이하로 입력하세요" maxlength="2000"></textarea>
+							</div>
+						</form>
 					</div>
 
 					<!-- 사양(Spec) 탭 컨텐츠 -->
@@ -176,7 +160,7 @@
 								<label>설비분류 설명</label>
 								<input type="text" class="form-control" id="equip_class_desc" name="equip_class_desc" readonly>
 							</div>
-						</div>				
+						</div>
 						<div id="equSpecGrid" class="grid">
 						</div>
 					</div>
@@ -208,55 +192,218 @@
 							</div>
 						</div>
 					</div>
+
+					<!--파일 탭 컨텐츠 -->
+					<div class="tab-pane" id="fileTab" style="overflow-y:auto; height: 400px;">
+						{% include 'components/ImageUpload.html' with tableName='cm_equipment' attachName='image' dataPk=cm_equipment.equip_pk|default:'' %}
+						{% include 'components/FileUpload.html' with tableName='cm_equipment' attachName='file' dataPk=cm_equipment.equip_pk|default:'' %}
+					</div>
+
 					<!--PM 탭 컨텐츠 -->
 					<div class="tab-pane" id="pmTab" style="overflow-y:auto; height: 400px;">
 						<div id="pmGrid" class="grid"></div>
 					</div>
+
 					<!--점검 탭 컨텐츠 -->
 					<div class="tab-pane" id="inspectionTab" style="overflow-y:auto; height: 400px;">
 						<div id="inspectionGrid" class="grid"></div>
 					</div>
+
 					<!--로그 탭 컨텐츠 -->
 					<div class="tab-pane" id="logTab" style="overflow-y:auto; height: 400px;">
 						<div id="logGrid" class="grid"></div>
 					</div>
+
 					<!--자산평가 탭 컨텐츠 -->
 					<div class="tab-pane" id="assetEvaluationTab" style="overflow-y:auto; height: 400px;">
 						<div id="assetEvaluationGrid" class="grid"></div>
 					</div>
-					<!--파일 탭 컨텐츠 -->
-					<div class="tab-pane" id="fileTab" style="overflow-y:auto; height: 400px;">
-						{% include 'components/ImageUpload.html' with tableName='equipment' attachName='image' dataPk=equipment.equip_pk|default:'' %}
-						{% include 'components/FileUpload.html' with tableName='equipment' attachName='file' dataPk=equipment.equip_pk|default:'' %}
-					</div>
-				</div>
-				<!-- 버튼 영역 -->
-				<div class="modal-footer">
-					<button type="button" style="background-color: #dc3545 !important; color: white !important; border-color: #d9534f !important; " id="disposedBtn">설비불용처리</button>
-					<button type="button" style="background-color: #dc3545 !important; color: white !important; border-color: #d9534f !important;" id="notUseBtn">사용안함</button>
-					<button type="button" class="btn-save" id="saveBtn">저장</button>
-					<button type="button" class="btn-close" id="closeBtn">닫기</button>
 				</div>
 			</div>
+		</div>
+		<!-- 버튼 영역 -->
+		<div class="modal-footer">
+			<button type="button" style="background-color: #dc3545 !important; color: white !important; border-color: #d9534f !important;" id="disposedBtn">설비불용처리</button>
+			<button type="button" style="background-color: #dc3545 !important; color: white !important; border-color: #d9534f !important;" id="notUseBtn">사용안함</button>
+			<button type="button" class="btn-save" id="saveBtn">저장</button>
+			<button type="button" class="btn-close" id="closeBtn">닫기</button>
 		</div>
 	</div>
 </div>
 <style>
-
 </style>
+
+{% include 'popup/modalEquClassSel.html' %}
+{% include 'popup/modalEquLoc.html' %}
+{% include 'popup/modalEquLocHist.html' %}
+{% include 'popup/modalEquDeptHist.html' %}
+{% include 'popup/modalEquSel.html' %}
+{% include 'popup/modalMatSel.html' %}
 
 <script type="text/javascript">
 	class EquipMaster {
 		constructor() {
 			this.baseUrl = '/api/kmms/equipment';
+			this.equip_pk = null;
+			this.equipStatusYN = false;
+
+			// DropDown Tree와 List 컨트롤 정의
+			this.locPkDropDown = null;
+			this.deptPkDropDown = null;
+			this.importRankDropDown = null;
+			this.processCdDropDown = null;
+			this.systemCdDropDown = null;
+			this.supplierDropDown = null;
+			this.makerDropDown = null;
+			this.ccenterCdDropDown = null;
+
+			// 그리드 컨트롤 정의
+			this.pmGrid = null;
+			this.equSpecGrid = null;
+			this.partsGrid = null;
+			this.inspectionGrid = null;
+			this.logGrid = null;
+			this.assetEvaluationGrid = null;
+
+			// DatePicker 컨트롤 정의
+			this.productionYearPicker = null;
+			this.installDatePicker = null;
+			this.warrantyDatePicker = null;
+
+			// Switch 컨트롤 정의
+			this.environEquipYnSwitch = null;
+
+			// 모달 관련 요소 정의
+			this.modal = null;
+
 			this.init();
 		}
 
 		init() {
-			const modal = $("#modalEquipMaster");
+			const _this = this;  // this 컨텍스트 저장
 
-			// PM 그리드 초기화
-			$("#pmGrid").kendoGrid({
+			// 모달 요소 초기화
+			this.modal = $("#modalEquipMaster");
+
+			// DropDown Tree와 List 초기화
+			this.locPkDropDown = AjaxUtil.fillDropDownTreeOptions($('#loc_pk'), 'cm_location', 'all');
+			this.deptPkDropDown = AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			this.importRankDropDown = AjaxUtil.fillDropDownOptions($('#import_rank_pk'), 'cm_import_rank', 'all', null);
+			this.processCdDropDown = AjaxUtil.fillDropDownOptions($('#process_cd'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
+			this.systemCdDropDown = AjaxUtil.fillDropDownOptions($('#system_cd'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
+			this.supplierDropDown = AjaxUtil.fillDropDownOptions($('#supplier'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_S,CP_B');
+			this.makerDropDown = AjaxUtil.fillDropDownOptions($('#Maker'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_M,CP_B');
+			this.ccenterCdDropDown = AjaxUtil.fillDropDownOptions($('#ccenterCd'), 'cm_code', 'all', null, 'COST_CENTER');
+
+			// DatePicker 초기화
+			this.productionYearPicker = $("#ProductionYear").kendoDatePicker({ format: "yyyy-MM-dd" }).data("kendoDatePicker");
+			this.installDatePicker = $("#InstallDate").kendoDatePicker({ format: "yyyy-MM-dd" }).data("kendoDatePicker");
+			this.warrantyDatePicker = $("#warranty_dt").kendoDatePicker({ format: "yyyy-MM-dd" }).data("kendoDatePicker");
+
+			// Switch 초기화
+			this.environEquipYnSwitch = $("#environEquipYn").kendoSwitch().data("kendoSwitch");
+
+			// 버튼 이벤트 핸들러 설정
+			$("#equipLocPlus").kendoButton({
+				icon: "k-i-plus",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalWindow', { width: '70%', height: '70%' });
+					locationPage.show(function (ctrl) {
+						if (ctrl === 'equip_loc') {
+							AjaxUtil.fillDropDownTreeOptions($('#loc_pk'), 'cm_location', 'all');
+						}
+					});
+				}
+			});
+
+			$("#btnEquipClass").kendoButton({
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalEquClass', { width: '40%', height: '70%' });
+					equipClassPage.show(function (res) {
+						$("#equip_category_id").val(res.equip_category_id);
+						$("#equip_category").val(res.remark);
+					});
+				}
+			});
+
+			$("#equipLocHist").kendoButton({
+				icon: "k-i-grid-layout",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalEquipLocHist', { width: '70%', height: '55%' });
+					equipLocHistPage.show();
+				}
+			});
+
+			$("#mngDept").kendoButton({
+				icon: "k-i-grid-layout",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalWindowDept', { width: '60%', height: '55%' });
+					equipDeptHistPage.show();
+				}
+			});
+
+			$("#upLoc").kendoButton({
+				icon: "k-i-zoom-in",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+					equipSelectPage.show(function (data) {
+						$("#upEquipPk").val(data._equip_pk);
+						$("#upEquip").val(data._equip_nm);
+					});
+				}
+			});
+
+			$("#recycleMat").kendoButton({
+				icon: "k-i-zoom-in",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalMatSel');
+					matSelectPage.show(function (data) {
+						$("#equip_mtrl_pk").val(data._mtrl_pk);
+						$("#mtrl_nm").val(data._mtrl_nm);
+					});
+				}
+			});
+
+			$('#disposedBtn').kendoButton({});
+			$('#notUseBtn').kendoButton({});
+
+			// 기존 이벤트 핸들러 제거
+			$('#saveBtn').off('click');
+			
+			$('#saveBtn').kendoButton({
+				click: function (e) {
+					e.preventDefault();  // 이벤트 기본 동작 방지
+					_this.saveData();
+					//const result = await fetchSomeData(); // 비동기 함수 호출
+				}
+			});
+
+			$('#closeBtn').kendoButton({
+				click: function () {
+					_this.resetForm();
+					_this.modal.fadeOut();
+				}
+			});
+
+			// ESC 키로 모달 닫기
+			$(document).on('keydown', (e) => {
+				if (e.keyCode === 27) this.modal.fadeOut();
+			});
+
+			// 그리드 초기화 코드는 그대로 유지...
+			this.pmGrid = $("#pmGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -266,7 +413,7 @@
 							data: function () {
 								return {
 									action: 'pm',
-									id: $('#equip_pk').val()
+									id: _this.equip_pk
 								};
 							}
 						}
@@ -292,11 +439,11 @@
 					{ field: "use_yn", title: "사용여부", width: 100, attributes: { style: "text-align: center" } }
 				],
 				noRecords: {
-					template: "데이터 없음"
+					template: "조회된 데이터가 없습니다."
 				}
-			});
+			}).data("kendoGrid");
 
-			$("#equSpecGrid").kendoGrid({
+			this.equSpecGrid = $("#equSpecGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -306,7 +453,7 @@
 							data: function () {
 								return {
 									action: 'detail',
-									id: $('#equip_pk').val()
+									id: _this.equip_pk
 								};
 							}
 						}
@@ -315,7 +462,7 @@
 				height: 550,
 				sortable: true,
 				pageable: true,
-				autoBind: false, // 자동 데이터 바인딩 비활성화
+				autoBind: false,
 				columns: [
 					{ field: "no", title: "NO", width: 120 },
 					{ field: "specnm", title: "사양명", width: 120, },
@@ -325,10 +472,9 @@
 				noRecords: {
 					template: "조회된 데이터가 없습니다."
 				}
-			});
+			}).data("kendoGrid");
 
-			// Parts 그리드 초기화
-			$("#partsGrid").kendoGrid({
+			this.partsGrid = $("#partsGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -338,7 +484,7 @@
 							data: function () {
 								return {
 									action: 'parts',
-									id: $('#equip_pk').val()
+									id: _this.equip_pk
 								};
 							}
 						}
@@ -371,10 +517,9 @@
 				noRecords: {
 					template: "조회된 데이터가 없습니다."
 				}
-			});
+			}).data("kendoGrid");
 
-			// 점검 그리드 초기화
-			$("#inspectionGrid").kendoGrid({
+			this.inspectionGrid = $("#inspectionGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -384,7 +529,7 @@
 							data: function () {
 								return {
 									action: 'inspection',
-									id: $('#equip_pk').val()
+									id: _this.equip_pk
 								};
 							}
 						}
@@ -410,12 +555,11 @@
 					{ field: "use_yn", title: "사용여부", width: 100, attributes: { style: "text-align: center" } }
 				],
 				noRecords: {
-					template: "데이터 없음"
+					template: "조회된 데이터가 없습니다."
 				}
-			});
+			}).data("kendoGrid");
 
-			// 자산평가 그리드 초기화
-			$("#assetEvaluationGrid").kendoGrid({
+			this.assetEvaluationGrid = $("#assetEvaluationGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -425,7 +569,7 @@
 							data: function () {
 								return {
 									action: 'asset-evaluation',
-									id: $('#equip_pk').val()
+									id: _this.equip_pk
 								};
 							}
 						}
@@ -448,10 +592,9 @@
 				noRecords: {
 					template: "조회된 데이터가 없습니다."
 				}
-			});
+			}).data("kendoGrid");
 
-			// 로그 그리드 초기화
-			$("#logGrid").kendoGrid({
+			this.logGrid = $("#logGrid").kendoGrid({
 				dataSource: new kendo.data.DataSource({
 					transport: {
 						read: {
@@ -461,7 +604,7 @@
 							data: function () {
 								return {
 									action: 'log',
-									id: $('#equip_pk').val()
+									id: _this.equip_pk
 								};
 							}
 						}
@@ -482,63 +625,9 @@
 					{ field: "log_dt", title: "일시", width: 150, attributes: { style: "text-align: center" } }
 				],
 				noRecords: {
-					template: "데이터 없음"
+					template: "조회된 데이터가 없습니다."
 				}
-			});
-
-			$("#equipLocPlus").kendoButton({
-				icon: "k-i-plus",
-				rounded: "full",
-				click: function () { }
-			});
-			$("#mngDept").kendoButton({
-				icon: "k-i-grid-layout",
-				rounded: "full",
-				click: function () { }
-			});
-			
-
-			AjaxUtil.fillDropDownTreeOptions($('#loc_pk'), 'cm_location', 'all');
-			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
-			AjaxUtil.fillDropDownOptions($('#import_rank_pk'), 'cm_import_rank', 'all', null);
-
-			AjaxUtil.fillDropDownOptions($('#process_cd'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
-			AjaxUtil.fillDropDownOptions($('#system_cd'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
-
-			$("#ProductionYear").kendoDatePicker({ format: "yyyy-MM-dd" });
-			$("#InstallDate").kendoDatePicker({ format: "yyyy-MM-dd" });
-			$("#warranty_dt").kendoDatePicker({ format: "yyyy-MM-dd" });			
-
-			$("#assetNo").kendoButton({
-				icon: "k-i-plus",		
-				rounded: "full",
-				click: function () { }
-			});
-
-			$("#upLoc").kendoButton({
-				icon: "k-i-zoom-in",
-				rounded: "full",
-				click: function () { }
-			});
-			$("#recycleMat").kendoButton({
-				icon: "k-i-zoom-in",
-				rounded: "full",
-				click: function () { }
-			});
-			$("#supplyVendor").kendoButton({
-				icon: "k-i-plus",
-				rounded: "full",
-				click: function () { }
-			});	
-			
-			AjaxUtil.fillDropDownOptions($('#supplier'), 'cm_supplier', 'all', null);
-			AjaxUtil.fillDropDownOptions($('#Maker'), 'cm_supplier', 'all', null);			
-
-			if (!$("#environEquipYn").data("kendoSwitch")) {
-				$('#environEquipYn').kendoSwitch();
-			}
-
-			AjaxUtil.fillDropDownOptions($('#ccenterCd'), 'cm_code', 'all', null, 'COST_CENTER');
+			}).data("kendoGrid");
 
 			// 탭 클릭 이벤트
 			$('.tab-button').on('click', function () {
@@ -551,42 +640,25 @@
 					'border-color': '#1e4f88'
 				});
 				if (tabId) $('#' + tabId).addClass('active').show();
-			});
-
-			$('#disposedBtn').kendoButton({});
-			$('#notUseBtn').kendoButton({});
-			$('#saveBtn').off('click').kendoButton({
-				click: async function () {
-					if (window.imageUploader) {
-						const imageResult = await window.imageUploader.saveImages();
-					}					
-					if (window.fileUploader) {
-						const fileResult = await window.fileUploader.saveFiles();						
-					}					// 추가 저장 로직
+				if (tabId === 'fileTab') {
+					if (window.imageUploader) window.imageUploader.loadFilesFromServer();
+					if (window.fileUploader) window.fileUploader.loadFilesFromServer();
 				}
-			});
-
-			// 모달 닫기
-			$('#closeBtn').kendoButton({
-				click: () => modal.fadeOut()
-			});
-
-			// ESC 키로 모달 닫기
-			$(document).on('keydown', (e) => {
-				if (e.keyCode === 27) modal.fadeOut();
 			});
 		}
 
 		//설비 마스터
-		getEquipMasterData(equip_pk) {			
+		show(equip_pk) {
 			let _this = this;
+			_this.equip_pk = equip_pk;
+			_this.equipStatusYN = _this.equip_pk ? true : false;
 
 			// 설비 상세 정보 API 호출
 			let param = {
 				action: 'findOne',
 				equip_pk: equip_pk,
 			};
-			
+
 			let equipData = AjaxUtil.getSyncData('/api/kmms/equipment', param);
 
 			// 1.1. 기존 데이터 바인딩
@@ -613,13 +685,71 @@
 			}
 		}
 
+		//저장
+		saveData() {
+			let _this = this;
+
+			let data = FormUtil.extractForm($('#baseinfoForm'));
+			data.equipCode = $("#equip_code").val();
+			data.equipName = $("#equip_name").val();
+			data.equipClassPk = $("#equip_category_id").val();
+			data.loc_pk = $("#loc_pk").data("kendoDropDownTree").value();
+			data.dept_pk = $("#dept_pk").data("kendoDropDownTree").value();
+			console.log('data:', data);
+
+			// 폼 외부 필드 유효성 검사
+			if (!data.equipCode) {
+				Alert.alert('', '설비코드를 입력해주세요.');
+				return;
+			}
+
+			if (!data.equipName) {
+				Alert.alert('', '설비명을 입력해주세요.');
+				return;
+			}
+
+			if (!data.equipClassPk) {
+				Alert.alert('', '카테고리를 선택해주세요.');
+				return;
+			}
+
+			if (!data.loc_pk) {
+				Alert.alert('', '설비위치를 선택해주세요.');
+				return;
+			}
+
+			if (!data.dept_pk) {
+				Alert.alert('', '관리부서를 선택해주세요.');
+				return;
+			}
+			if (!$('#InstallDate').val()) {
+				Alert.alert('', '설치일을 선택해주세요.');
+				return;
+			}
+			if (!$('#mtrl_nm').val()) {
+				Alert.alert('', '순환설비자재를 선택해주세요.');
+				return;
+			}
+
+			let fnSuccess = function (res) {
+				if (res.success) {				
+					Alert.alert('', res.message);
+					_this.resetForm();
+					//_this.modal.fadeOut();
+				} else if (!res.success) {
+					Alert.alert('', res.message);
+				}
+			};
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, fnSuccess);
+		}
+
 		bindEquipMasterData(data) {
-			console.log('row_data:',data);
+			console.log('row_data:', data);
 			// 기본 필드 바인딩
 			const basicFields = {
 				'equip_master_pk': data.equip_pk,
 				'equip_code': data.equip_cd,
-				'equip_name': data.equip_nm,	
+				'equip_name': data.equip_nm,
 				'asset_nos': data.asset_nos,
 				'upEquip': data.up_loc_nm,
 				'mtrl_nm': data.mtrl_nm,
@@ -635,25 +765,12 @@
 			Object.entries(basicFields).forEach(([id, value]) => {
 				$(`#${id}`).val(value);
 			});
-		
-			setTimeout(() => {
-				const environEquipYnSwitch = $("#environEquipYn").data("kendoSwitch");
-				if (environEquipYnSwitch) {			
-					const isChecked = data.environ_equip_yn === 'Y';
-					environEquipYnSwitch.check(isChecked);
-				}
-			}, 100);
 
-
-			// Kendo 컴포넌트 바인딩 함수
-			function bindKendoComponent(selector, value) {
-				setTimeout(function () {
-					let component = $(selector).data("kendoDropDownList") || $(selector).data("kendoDropDownTree");
-					if (component) {
-						component.value(value);
-						component.trigger("change");
-					}
-				}, 100);
+			// Kendo Switch 설정
+			const environEquipYnSwitch = $("#environEquipYn").data("kendoSwitch");
+			if (environEquipYnSwitch) {
+				const isChecked = data.environ_equip_yn === 'Y';
+				environEquipYnSwitch.check(isChecked);
 			}
 
 			function formatCurrency(value) {
@@ -661,20 +778,83 @@
 				return '₩ ' + Number(value).toLocaleString('ko-KR');
 			}
 
-			// 각 컴포넌트 바인딩
-			
-			bindKendoComponent("#loc_pk", data.loc_pk);
-			bindKendoComponent("#dept_pk", data.dept_pk);
-			bindKendoComponent("#import_rank_pk", data.import_rank_pk);
-			bindKendoComponent("#process_cd", data.process_cd);
-			bindKendoComponent("#system_cd", data.system_cd);
-			bindKendoComponent("#ccenterCd", data.ccenter_cd);
-			
-	
+			// DropDown 컨트롤 값 설정
+			const setDropDownValue = (dropDown, value) => {
+				if (dropDown && value) {
+					dropDown.value(value);
+					dropDown.trigger("change");
+				}
+			};
+
+			// 각 DropDown 컨트롤 값 설정
+			setDropDownValue(this.locPkDropDown, data.loc_pk);
+			setDropDownValue(this.deptPkDropDown, data.dept_pk);
+			setDropDownValue(this.importRankDropDown, data.import_rank_pk);
+			setDropDownValue(this.processCdDropDown, data.process_cd);
+			setDropDownValue(this.systemCdDropDown, data.system_cd);
+			setDropDownValue(this.supplierDropDown, data.supplier);
+			setDropDownValue(this.makerDropDown, data.maker);
+			setDropDownValue(this.ccenterCdDropDown, data.ccenter_cd);
+		}
+
+		// 모달 초기화 메소드
+		resetForm() {
+			// 기본 입력 필드 초기화
+			$("#modalEquipMaster input[type='text']").val('');
+			$("#modalEquipMaster input[type='number']").val('');
+			$("#modalEquipMaster input[type='date']").val('');
+			$("#modalEquipMaster input[type='hidden']").val('');
+			$("#modalEquipMaster textarea").val('');
+
+			// DropDown 컨트롤 초기화
+			if (this.locPkDropDown) this.locPkDropDown.value('');
+			if (this.deptPkDropDown) this.deptPkDropDown.value('');
+			if (this.importRankDropDown) this.importRankDropDown.value('');
+			if (this.processCdDropDown) this.processCdDropDown.value('');
+			if (this.systemCdDropDown) this.systemCdDropDown.value('');
+			if (this.supplierDropDown) this.supplierDropDown.value('');
+			if (this.makerDropDown) this.makerDropDown.value('');
+			if (this.ccenterCdDropDown) this.ccenterCdDropDown.value('');
+
+			// DatePicker 초기화
+			if (this.productionYearPicker) this.productionYearPicker.value('');
+			if (this.installDatePicker) this.installDatePicker.value('');
+			if (this.warrantyDatePicker) this.warrantyDatePicker.value('');
+
+			// Switch 초기화
+			if (this.environEquipYnSwitch) this.environEquipYnSwitch.check(false);
+
+			// 이미지 초기화
+			if (window.imageUploader && typeof window.imageUploader.clearFiles === 'function') {
+				window.imageUploader.clearFiles();
+			}
+
+			// 파일 초기화
+			if (window.fileUploader && typeof window.fileUploader.clearFiles === 'function') {
+				window.fileUploader.clearFiles();
+			}
+
+			// 그리드 초기화
+			if (this.pmGrid) this.pmGrid.dataSource.data([]);
+			if (this.equSpecGrid) this.equSpecGrid.dataSource.data([]);
+			if (this.partsGrid) this.partsGrid.dataSource.data([]);
+			if (this.inspectionGrid) this.inspectionGrid.dataSource.data([]);
+			if (this.logGrid) this.logGrid.dataSource.data([]);
+			if (this.assetEvaluationGrid) this.assetEvaluationGrid.dataSource.data([]);
+
+			// 기본 이미지로 복원
+			$("#modalEquipMaster img").attr("src", "/static/img/no-image.png");
+
+			// 클래스 속성 초기화
+			this.equip_pk = null;
+			this.equipStatusYN = false;
 		}
 	}
 
-	equipMasterPage = new EquipMaster();
+
+	$(document).ready(function () {
+		equipMasterPage = new EquipMaster();
+	});
 
 	function showMainImageFromUploader() {
 		if (!window.imageUploader) return;
@@ -736,5 +916,19 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
 
+	async function fetchSomeData() {
+		try {
+			if (window.imageUploader) {
+				const imageResult = await window.imageUploader.saveImages();
+			}
+			if (window.fileUploader) {
+				const fileResult = await window.fileUploader.saveFiles();
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			alert(error.message);
+			throw error;
+		}
+	}
 </script>
 

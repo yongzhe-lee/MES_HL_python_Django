@@ -398,6 +398,79 @@
             if (legalSwitch) legalSwitch.value(false);
         }
 
+        searchMainData() {
+            let _this = this;
+
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
+            }
+
+            // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+            console.log('startDate:', startDate);
+            //console.log('date_chk:', $('#date_chk').data("kendoSwitch").checked());
+            console.log('date_chk:', getComponentValue("#date_chk", "kendoSwitch"));
+            var isDateChecked = getComponentValue("#date_chk", "kendoSwitch");
+            var isMyTaskChecked = getComponentValue("#chk_my_task", "kendoSwitch");
+            var isLegalChecked = getComponentValue("#chk_legal", "kendoSwitch");
+
+            let param = {
+                action: 'read',
+                chkMastNo: $('#chkMastNo').val(),
+                searchText: $('#searchText').val(),
+                equipDeptPk: getComponentValue("#equipDeptPk", "kendoDropDownTree"),
+                locPk: getComponentValue("#locPk", "kendoDropDownTree"),
+                deptPk: getComponentValue("#deptPk", "kendoDropDownTree"),
+                useYn: getComponentValue("#useYn", "kendoDropDownList"),
+                cycleTypeCd: getComponentValue("#cycleTypeCd", "kendoDropDownList"),
+                startDate: isDateChecked ? startDate : '',
+                endDate: isDateChecked ? endDate : '',
+
+                isMyTask: isMyTaskChecked ? 'Y' : 'N',
+                isLegal: isLegalChecked ? 'Y' : 'N',
+            };
+
+            //for test
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            console.log(result);
+            _this.grid.setData(result);
+        }
+
+        /*
+        resetData() {
+            let _this = this;
+            $("#pi_master_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#equipmentForm'));
+        }*/
+
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#pi_master_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "pi_master.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+
+
 
         init() {
             let _this = this;
@@ -526,7 +599,7 @@
                 }
             });
 
-            /*
+            
             //choi : test버튼
             $('#btnPopupTest').kendoButton({
                 icon: "pencil",
@@ -543,7 +616,7 @@
                     });
                 }
             });
-            */
+            
 
             $('#chk_my_task').kendoSwitch({
                 checked: false,
@@ -600,79 +673,9 @@
                     _this.searchMainData();
                 }
             });
-        }
+        }//end init()
 
-        searchMainData() {
-            let _this = this;
-
-            // 날짜 데이터 처리
-            let startDate = '';
-            let endDate = '';
-            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
-
-            if (dateRangePicker) {
-                let range = dateRangePicker.range();
-                if (range) {
-                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
-                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
-                }
-            }
-
-            // 안전한 컴포넌트 값 가져오기
-            const getComponentValue = (selector, type) => {
-                try {
-                    const component = $(selector).data(type);
-                    return component ? component.value() : '';
-                } catch (e) {
-                    console.warn(`Failed to get value for ${selector}`, e);
-                    return '';
-                }
-            };
-            console.log('startDate:', startDate);
-            //console.log('date_chk:', $('#date_chk').data("kendoSwitch").checked());
-            console.log('date_chk:', getComponentValue("#date_chk", "kendoSwitch"));
-            var isDateChecked = getComponentValue("#date_chk", "kendoSwitch");
-            var isMyTaskChecked = getComponentValue("#chk_my_task", "kendoSwitch");
-            var isLegalChecked = getComponentValue("#chk_legal", "kendoSwitch");
-
-            let param = {
-                action: 'read',
-                chkMastNo: $('#chkMastNo').val(),
-                searchText: $('#searchText').val(),
-                equipDeptPk: getComponentValue("#equipDeptPk", "kendoDropDownTree"),
-                locPk: getComponentValue("#locPk", "kendoDropDownTree"),
-                deptPk: getComponentValue("#deptPk", "kendoDropDownTree"),
-                useYn: getComponentValue("#useYn", "kendoDropDownList"),
-                cycleTypeCd: getComponentValue("#cycleTypeCd", "kendoDropDownList"),
-                startDate: isDateChecked ? startDate : '',
-                endDate: isDateChecked ? endDate : '',
-
-                isMyTask: isMyTaskChecked ? 'Y' : 'N',
-                isLegal: isLegalChecked ? 'Y' : 'N',
-            };
-
-            //for test
-            //let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            //console.log(result);
-            //_this.grid.setData(result);
-        }
-
-        /*
-        resetData() {
-            let _this = this;
-            $("#pi_master_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#equipmentForm'));
-        }*/
-
-
-        // 엑셀 다운로드
-        exportExcel() {
-            let gridData = $('#pi_master_grid').data("kendoGrid");
-            gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "pi_master.xlsx";
-            });
-            gridData.saveAsExcel();
-        }
+        
 
     };
 

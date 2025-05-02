@@ -1,0 +1,87 @@
+ DROP FUNCTION public.cm_fn_get_equip_classify_ctg(int4, varchar);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_equip_classify_ctg(v_factory_pk integer, v_category_id character varying)
+ RETURNS TABLE(id character varying, up_id character varying, equip_class_id character varying, equip_class_desc character varying, parent_id character varying, equip_class_pk integer, up_equip_class_pk integer, hierarchy_path character varying, path_info character varying, lvl integer, class_type character varying, factory_pk integer, category_id character varying)
+ LANGUAGE plpgsql
+AS $function$
+declare 
+    v_rec record;
+begin
+	for v_rec in(
+		WITH recursive CTE AS (
+		SELECT
+				(T1.CLASS_TYPE || '_' || T1.EQUIP_CLASS_ID) AS ID,
+				CASE WHEN T1.PARENT_ID IS NULL THEN NULL ELSE  (UT1.CLASS_TYPE || '_' || UT1.EQUIP_CLASS_ID)  END AS UP_ID,
+				T1.EQUIP_CLASS_ID,
+				T1.EQUIP_CLASS_DESC,
+				UT1.EQUIP_CLASS_ID AS PARENT_ID,
+				T1.EQUIP_CLASS_PK,
+				null::smallint AS UP_EQUIP_CLASS_PK,
+				T1.HIERARCHY_PATH,
+				T1.EQUIP_CLASS_ID::text AS PATH_INFO,
+				1 AS LVL,
+				T1.CLASS_TYPE,
+				T1.factory_pk as factory_pk,
+				T1.CATEGORY_ID
+			FROM cm_EQUIP_CLASSIFY T1
+			LEFT JOIN cm_EQUIP_CLASSIFY UT1 ON T1.PARENT_ID = UT1.EQUIP_CLASS_ID AND T1.factory_pk = UT1.factory_pk
+			WHERE T1.PARENT_ID IS NULL
+				AND T1.CLASS_TYPE = 'CLASS'
+				AND T1.factory_pk = v_factory_pk
+				AND T1.CATEGORY_ID = V_CATEGORY_ID
+			UNION ALL
+			SELECT
+				(T2.CLASS_TYPE || '_' || T2.EQUIP_CLASS_ID) AS ID,
+				CASE WHEN T2.PARENT_ID IS NULL THEN NULL ELSE  (S.CLASS_TYPE || '_' || S.EQUIP_CLASS_ID)  END AS UP_ID,
+				T2.EQUIP_CLASS_ID,
+				T2.EQUIP_CLASS_DESC,
+				S.EQUIP_CLASS_ID AS PARENT_ID,
+				T2.EQUIP_CLASS_PK,
+				S.EQUIP_CLASS_PK AS UP_EQUIP_CLASS_PK,
+				T2.HIERARCHY_PATH,
+				concat(S.PATH_INFO || ',' || T2.EQUIP_CLASS_ID) AS PATH_INFO,
+				S.LVL + 1,
+				T2.CLASS_TYPE,
+				T2.factory_pk,
+				S.CATEGORY_ID
+			from cte S
+			LEFT JOIN cm_EQUIP_CLASSIFY T2 ON T2.PARENT_ID = S.EQUIP_CLASS_ID
+				AND T2.CLASS_TYPE = 'TYPES'
+				AND T2.factory_pk = v_factory_pk
+				AND T2.PARENT_ID IS NOT NULL
+				AND concat(S.PATH_INFO || ',' || T2.EQUIP_CLASS_ID) = REPLACE(T2.HIERARCHY_PATH, '\', ',')
+			WHERE S.factory_pk IS NOT NULL AND T2.EQUIP_CLASS_ID IS NOT NULL
+		)
+		 SELECT CTE.ID AS ID,
+			CTE.UP_ID AS UP_ID,
+			CTE.EQUIP_CLASS_ID AS EQUIP_CLASS_ID,
+			CTE.EQUIP_CLASS_DESC AS EQUIP_CLASS_DESC,
+			CTE.PARENT_ID AS PARENT_ID,
+			CTE.EQUIP_CLASS_PK AS EQUIP_CLASS_PK,
+			CTE.UP_EQUIP_CLASS_PK AS UP_EQUIP_CLASS_PK,
+			CTE.HIERARCHY_PATH AS HIERARCHY_PATH,
+			CTE.PATH_INFO AS PATH_INFO,
+			CTE.LVL AS LVL,
+			CTE.CLASS_TYPE AS CLASS_TYPE,
+			CTE.factory_pk AS factory_pk,
+			CTE.CATEGORY_ID AS CATEGORY_ID
+			from cte
+			ORDER BY CTE.PATH_INFO
+    ) loop  
+	        id := v_rec.id; 
+	        UP_ID := v_rec.UP_ID; 
+	        EQUIP_CLASS_ID := v_rec.EQUIP_CLASS_ID; 
+	        EQUIP_CLASS_DESC := v_rec.EQUIP_CLASS_DESC; 
+	        PARENT_ID := v_rec.PARENT_ID; 
+	        EQUIP_CLASS_PK := v_rec.EQUIP_CLASS_PK; 
+	        UP_EQUIP_CLASS_PK := v_rec.UP_EQUIP_CLASS_PK; 
+	        HIERARCHY_PATH := v_rec.HIERARCHY_PATH; 
+	        PATH_INFO := v_rec.PATH_INFO; 
+	        LVL := v_rec.LVL; 
+	        CLASS_TYPE := v_rec.CLASS_TYPE; 
+	        factory_pk := v_rec.factory_pk; 
+	        CATEGORY_ID := v_rec.CATEGORY_ID;
+       		return next;
+	end loop;
+end; $function$
+;

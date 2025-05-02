@@ -93,9 +93,8 @@ class LogWriter:
 
     @classmethod
     def add_dblog(cls, logtype, source, ex=None):
-        if isinstance(ex, KeyError):
-            message = 'KeyError:' + str(ex)
-            #message = str(type(ex)) + ':' + str(ex)
+        if isinstance(ex, Exception):
+            message = str(type(ex)) + ':' + str(ex)
         else:
             message = ex
         SystemLog.add_log(logtype, source, message)

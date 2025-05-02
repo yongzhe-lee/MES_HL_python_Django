@@ -7,8 +7,8 @@ from domain.models.cmms import CmWorkOrderApproval
 
 def work_order_approval(context):
     '''
-    api/kmms/work_order_approval  작업지시 결재?
-    김태영 작업중
+    api/kmms/work_order_approval  작업지시 결재
+    김태영 
 
     findOne
     insert

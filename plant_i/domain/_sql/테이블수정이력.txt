@@ -50,3 +50,87 @@
         [ds_model_param]        -- 학습에 사용된 하이퍼파라미터 정보
         [ds_model_metric]       -- 모델 성능(지표 종류 & 점수)
         ( [ds_model_test] )     -- 모델 테스트 정보(우선 주석. 추후 확장)
+
+        -- 변경일   김태영
+        alter table table명
+        add 컬럼명 integer;
+
+-- 25.04-24 tykim
+ALTER TABLE public.cm_alarm_actn 
+ALTER COLUMN actn_user_id TYPE int USING actn_user_id::int;
+
+-- 25-04-25 tykim
+insert_id, updater_id 컬럼의 type을 varchar에서 integer로 변경한다.
+select 문 실행 후
+sql_1 을 실행해서 update set = . commit
+sql_2를 실행해서 alter column type
+select 문 실행해서 리턴 집합이 없으면 성공.
+
+1. inserter_id
+SELECT table_name, column_name
+, concat('update ', table_name, ' set ', column_name, ' = 1',' where  fn_try_to_number(', column_name, '::varchar) is null;') as sql_1
+, concat('ALTER TABLE ', table_name, ' alter column ', column_name, ' type int using ', column_name, '::int;') as sql_2
+, *
+FROM information_schema.columns
+WHERE table_schema = 'public'
+and column_name = 'inserter_id'
+and data_type = 'character varying'
+ORDER BY table_name, ordinal_position;
+
+2. updater_id
+SELECT table_name, column_name
+, concat('update ', table_name, ' set ', column_name, ' = 1',' where  fn_try_to_number(', column_name, '::varchar) is null;') as sql_1
+, concat('ALTER TABLE ', table_name, ' alter column ', column_name, ' type int using ', column_name, '::int;') as sql_2
+, *
+FROM information_schema.columns
+WHERE table_schema = 'public'
+and column_name = 'updater_id'
+and data_type = 'character varying'
+ORDER BY table_name, ordinal_position;
+
+--- cm_pm_mtrl 에서 pm_key 가 unique로 되어 있어서 그 제약을 품. 모델에서는 OneToOne을 ForeignKey로 바꿈.
+ALTER TABLE public.cm_pm_mtrl 
+drop CONSTRAINT cm_pm_mtrl_pm_pk_key ;
+
+-- cm_role_permission 에서 role_cd 에 unique가 걸려 있어서 그 제약을 제거함.
+ALTER TABLE public.cm_role_permission 
+drop CONSTRAINT cm_role_permission_pkey ;
+
+ALTER TABLE cm_role_permission
+ADD COLUMN id SERIAL;
+
+ALTER TABLE cm_role_permission
+ADD PRIMARY KEY (id);
+
+ALTER TABLE public.cm_alarm_actn 
+ALTER COLUMN actn_user_id TYPE int USING actn_user_id::int;
+
+ALTER TABLE public.cm_anoti_mail_hist 
+ALTER COLUMN mail_rcvr_id TYPE int USING mail_rcvr_id::int;
+
+ALTER TABLE public.cm_alarm_actn 
+ALTER COLUMN actn_user_id TYPE int USING actn_user_id::int;
+
+ALTER TABLE public.cm_anoti_sms_hist 
+ALTER COLUMN sms_rcvr_id TYPE int USING sms_rcvr_id::int;
+
+ALTER TABLE public.cm_com_bbs 
+ALTER COLUMN ntcr_user_id TYPE int USING ntcr_user_id::int;
+
+ALTER TABLE public.cm_logins_log 
+ALTER COLUMN login_user_id TYPE int USING login_user_id::int;
+
+ALTER TABLE public.cm_operations_log 
+ALTER COLUMN user_id TYPE int USING user_id::int;
+
+ALTER TABLE public.cm_pinv_loc 
+ALTER COLUMN pinv_loc_user_id TYPE int USING pinv_loc_user_id::int;
+
+ALTER TABLE public.cm_project 
+ALTER COLUMN manager_id TYPE int USING manager_id::int;
+
+ALTER TABLE public.cm_anoti_talk_hist 
+ALTER COLUMN talk_rcvr_id TYPE int USING talk_rcvr_id::int;
+
+ALTER TABLE public.cm_com_comment 
+ALTER COLUMN wrter_user_id TYPE int USING wrter_user_id::int;

@@ -1,0 +1,92 @@
+ DROP FUNCTION public.cm_fn_get_loc_area_line(integer, varchar);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_area_line(v_factory_pk integer, v_lvl_type character varying)
+ RETURNS TABLE(cd character varying, up_cd character varying, id bigint, up_id bigint, label character varying, lvl bigint, path_info character varying, path_info_desc character varying, path_info_pk character varying, lvl_type character varying, sub_count bigint, status_cd character varying, status_nm character varying, factory_pk integer, factory_name character varying, use_yn character varying)
+ LANGUAGE plpgsql
+AS $function$
+declare 
+    v_rec record;
+begin
+	for v_rec in(
+		WITH RECURSIVE CTE AS (
+	        SELECT l.LOC_PK, l.LOC_CD, l.LOC_NM, l.UP_LOC_PK
+	        , l.ISA95_CLASS    
+	        , 1 AS LVL
+	        , l.LOC_PK::text AS PATH_INFO_PK
+	        , l.OUT_ORDER::text AS PATH_INFO_ORDR
+	        , (SELECT COUNT(*) AS COUNT
+	            FROM cm_LOCATION X1
+	            WHERE X1.factory_pk = v_factory_pk 
+				AND X1.DEL_YN = 'N' 
+				AND X1.UP_LOC_PK = l.LOC_PK) AS SUB_COUNT
+	        FROM cm_location l
+	        WHERE upper(l.ISA95_CLASS) = CASE WHEN COALESCE(V_LVL_TYPE, '-') = '-' THEN upper('area') ELSE upper(V_LVL_TYPE) END
+	        AND l.DEL_YN = 'N'
+	        AND l.USE_YN = 'Y'
+	        AND l.factory_pk = v_factory_pk
+	        UNION ALL
+	        SELECT L.LOC_PK, L.LOC_CD, L.LOC_NM, L.UP_LOC_PK, L.ISA95_CLASS,
+	            CTE_1.LVL + 1 as LVL,
+	            (CTE_1.PATH_INFO_PK || ',' || L.LOC_PK)::text AS PATH_INFO_PK,
+	            (CTE_1.PATH_INFO_ORDR || ',' || L.OUT_ORDER || '-' ||L.LOC_CD)::text AS PATH_INFO_ORDR,
+	            (SELECT COUNT(*) AS COUNT
+	                FROM cm_LOCATION X1
+	                WHERE X1.factory_pk = v_factory_pk 
+					AND X1.DEL_YN = 'N' 
+					AND X1.UP_LOC_PK = CTE_1.LOC_PK) AS SUB_COUNT
+	        from cte CTE_1
+	        LEFT JOIN cm_LOCATION L ON L.UP_LOC_PK = CTE_1.LOC_PK
+	        WHERE (
+	        	(
+	        		upper(L.ISA95_CLASS) = CASE WHEN COALESCE(V_LVL_TYPE, '-') = '-' THEN upper('area') ELSE upper(V_LVL_TYPE) END
+        		)
+        		OR upper(L.ISA95_CLASS)  = upper(COALESCE(V_LVL_TYPE, L.ISA95_CLASS))
+        		OR (
+        			upper(L.ISA95_CLASS) IS NULL AND upper(CTE_1.ISA95_CLASS) = upper('line')
+        		)
+        	)
+	        AND L.DEL_YN = 'N'
+	        AND L.USE_YN = 'Y'
+	        AND L.factory_pk = v_factory_pk
+	    )
+	    SELECT
+	        CTE.LOC_CD AS CD,
+	        NULL AS UP_CD,
+	        CTE.LOC_PK AS ID,
+	        CTE.UP_LOC_PK AS UP_ID,
+	        CTE.LOC_NM AS LABEL,
+	        CTE.LVL AS LVL,
+	        NULL AS PATH_INFO,
+	        NULL AS PATH_INFO_DESC,
+	        CTE.PATH_INFO_PK AS PATH_INFO_PK,
+	        CTE.ISA95_CLASS AS LVL_TYPE,
+	        CTE.SUB_COUNT AS SUB_COUNT,
+	        NULL AS STATUS_CD,
+	        NULL AS STATUS_NM,
+	        v_factory_pk AS FACTORY_PK,
+	        NULL AS FACTORY_NAME,
+	        NULL AS USE_YN
+	    from cte
+	    ORDER BY
+	        CTE.PATH_INFO_ORDR
+    ) loop  
+	       	CD := v_rec.CD; 
+	        UP_CD := v_rec.UP_CD; 
+	        ID := v_rec.ID; 
+	        UP_ID := v_rec.UP_ID; 
+	        LABEL := v_rec.LABEL; 
+	        LVL := v_rec.LVL; 
+	        PATH_INFO := v_rec.PATH_INFO; 
+	        PATH_INFO_DESC := v_rec.PATH_INFO_DESC; 
+	        PATH_INFO_PK := v_rec.PATH_INFO_PK; 
+	        LVL_TYPE := v_rec.LVL_TYPE; 
+	        SUB_COUNT := v_rec.SUB_COUNT; 
+	        STATUS_CD := v_rec.STATUS_CD; 
+	        STATUS_NM := v_rec.STATUS_NM; 
+	        FACTORY_PK := v_rec.FACTORY_PK; 
+	        FACTORY_NAME := v_rec.FACTORY_NAME; 
+	        USE_YN := v_rec.USE_YN; 
+       		return next;
+	end loop;
+end; $function$
+;

@@ -1,11 +1,354 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block css %}
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="
+                                   k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="프로젝트명을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="status" data-labelCd="상태">상태</label>
+                            <div class="field-wrapper">
+                                <select id="status" name="status"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="projectListGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="proj_pk" name="proj_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="proj_cd" data-labelCd="프로젝트코드">프로젝트코드</label>
+                                <div class="field-wrapper">
+                                    <input id="proj_cd" name="proj_cd" class="k-input k-textbox" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="proj_nm" data-labelCd="프로젝트명">프로젝트명</label>
+                                <div class="field-wrapper">
+                                    <input id="proj_nm" name="proj_nm" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="proj_tot_cost" data-labelCd="총예산">총예산</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="proj_tot_cost" name="proj_tot_cost" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="plan_start_dt" data-labelCd="계획시작일">계획시작일</label>
+                                <div class="field-wrapper">
+                                    <input id="plan_start_dt" name="plan_start_dt" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="plan_end_dt" data-labelCd="계획마침일">계획마침일</label>
+                                <div class="field-wrapper">
+                                    <input id="plan_end_dt" name="plan_end_dt" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="manager_id" data-labelCd="담당자">담당자</label>
+                                <button type="button" class="zoombutton" id="selectManager" name="selectManager"></button>
+                                <div class="field-wrapper">
+                                    <input type="hidden" id="manager_id" name="manager_id" readonly />
+                                    <input id="manager_nm" name="manager_nm" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="proj_purpose" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <textarea id="proj_purpose" name="proj_purpose" rows="3" placeholder="1000자 이하로 입력하세요" maxlength="1000"></textarea>
+                                    <div class="char-count">0 / 1000 bytes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% include '../../popup/modalManSel.html'%}
+
+<script type="text/javascript">
+    class ProjectListPage {
+
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/project';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'proj_pk', title: 'proj_pk', hidden: true },
+                    { field: 'proj_cd', title: '프로젝트코드', width: 80 },
+                    { field: 'proj_nm', title: '프로젝트명', width: 100 },
+                    { field: 'manager_id', title: 'manager_id', hidden: true },
+                    { field: 'manager_nm', title: '프로젝트 관리자', width: 80 },
+                    { field: 'plan_start_dt', title: '계획 시작일', width: 100 },
+                    { field: 'plan_end_dt', title: '계획 마침일', width: 80 },
+                    { field: 'status', title: '상태', width: 80 },
+                    { field: 'proj_tot_cost', title: '총예산', width: 100 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.grid = new Grid($('#projectListGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#status'), 'cm_code', 'all', null, 'PRJ_STATUS')
+            // 사용여부 dropbox
+            $('#status').change(() => {
+                this.searchMainData();
+            });
+
+            // form
+            $('#proj_cd').kendoTextBox();
+            $('#proj_nm').kendoTextBox();
+            $('#proj_tot_cost').kendoTextBox();
+            $("#plan_start_dt").kendoDatePicker({ format: "yyyy-MM-dd" });
+            $("#plan_end_dt").kendoDatePicker({ format: "yyyy-MM-dd" });
+            $('#manager_nm').kendoTextBox({});
+            $('#proj_purpose').kendoTextBox();
+
+            $('#proj_purpose').on('input', function () {
+                const maxLength = 1000;
+                const currentLength = $(this).val().length;
+                $('.char-count').text(`${currentLength} / ${maxLength} bytes`);
+
+                // 최대 글자수 체크
+                if (currentLength > maxLength) {
+                    $(this).val($(this).val().substring(0, maxLength));
+                }
+            });
+
+            $('#selectManager').kendoButton({
+                themeColor: "base",
+                icon: "k-i-zoom-in", // 줌인 아이콘
+                rounded: "full",
+                size: "small",
+                click: function (e) {
+                    e.preventDefault();
+                    managerSelectPage.show(function (data) {
+                        $("#manager_id").val(data.user_pk);
+                        $("#manager_nm").val(data.user_nm);
+                    });
+                }
+            });
+
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'findAll',
+                searchText: $('#sch_keyword').val(),
+                status: $('#status').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+
+                let purpose = selectData.proj_purpose || '';
+                let currentLength = purpose.length;
+                $('.char-count').text(`${currentLength} / 1000 bytes`);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#detailForm'));
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=insert', formData, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].proj_cd) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { proj_cd: formData[0].proj_cd }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
+        }
+    }
+
+    let page = null;
+    page = new ProjectListPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

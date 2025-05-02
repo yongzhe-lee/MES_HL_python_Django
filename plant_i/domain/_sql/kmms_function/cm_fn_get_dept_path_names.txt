@@ -1,0 +1,26 @@
+ DROP FUNCTION public.cm_fn_get_dept_path_names(int8);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_path_names(cm_v_dept_pk bigint)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	t_business_nm varchar;
+	t_team_nm varchar;
+	t_ban_nm varchar;
+begin
+	with x as (
+		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
+	)
+	select max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
+	, max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
+	, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d.dept_nm else '' end) as ban_nm
+	into t_business_nm, t_team_nm, t_ban_nm
+	from x
+	inner join cm_dept d on x.path_pk = d.dept_pk;
+	
+	RETURN concat(t_business_nm, ',', t_team_nm, ',', t_ban_nm);
+	
+end;
+$function$
+;

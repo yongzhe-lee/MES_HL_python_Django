@@ -612,7 +612,7 @@ let FormUtil = {
         let _this = this;
         let values = {};
         if ($form) {
-            let form = $form.serializeArray();
+            let form = $form.serializeArray();	
             form.map(val => {
                 values[val.name] = val.value;
             });
@@ -625,6 +625,18 @@ let FormUtil = {
                     values[switchName] = switchChk.check() ? 'Y' : 'N';
                 }
             });
+      
+            // kendoDropDownTree 상태 처리
+            $form.find('[data-role="dropdowntree"]').each(function () {
+                let dropdowntreeName = $(this).attr('name');
+                let dropdowntreeWidget = $(this).data("kendoDropDownTree");
+
+                if (dropdowntreeWidget) {
+                    values[dropdowntreeName] = dropdowntreeWidget.value();  // 선택된 값으로 설정
+                }
+            });
+
+
         }
         disabledFields.map(val => {
             values[val] = $form.find('#' + val).val();
@@ -1352,9 +1364,9 @@ let AjaxUtil = {
             case 'cm_depart':
                 _url = '/api/system/depart?action=cm_depart_tree';
                 break;
-            case 'location':
-                _url = '/api/definition/location?action=loc_tree';
-                break;
+            //case 'location':
+            //    _url = '/api/definition/location?action=loc_tree';
+            //    break;
             case 'cm_location':
                 _url = '/api/definition/location?action=cm_loc_tree';
                 break;
@@ -2597,3 +2609,76 @@ $(document).ready(function () {
         });
     };
 })(jQuery);
+
+// 모달 관련 상수 정의
+const MODAL_DEFAULTS = {
+    WIDTH: '70%',
+    HEIGHT: '70%'
+};
+
+/**
+ * 자식 모달창의 크기와 위치를 부모 모달창 기준으로 설정하는 함수
+ * @param {string} childModalSelector - 자식 모달창의 선택자 (예: '#modalWindow')
+ * @param {Object} options - 모달 설정 옵션
+ * @param {string} options.width - 모달창의 너비 (기본값: MODAL_DEFAULTS.WIDTH)
+ * @param {string} options.height - 모달창의 높이 (기본값: MODAL_DEFAULTS.HEIGHT)
+ * @param {number} options.zIndex - z-index 값 (기본값: 부모 z-index + 1)
+ */
+function setModalPosition(childModalSelector, options = { width: '70%', height: '70%' }) {
+    const parentModal = $('.modal:visible').not(childModalSelector);
+    if (!parentModal.length) return;
+
+    const parentRect = parentModal[0].getBoundingClientRect();
+    const childModal = $(childModalSelector);
+    
+    // 기본 옵션값 설정
+    const defaultOptions = {
+        width: options.width,
+        height: options.height,
+        zIndex: parseInt(parentModal.css('z-index')) + 1
+    };
+    
+    const settings = { ...defaultOptions, ...options };
+
+    // 모달과 모달 컨텐츠의 크기를 설정
+    childModal.css({
+        'width': settings.width,
+        'height': settings.height,
+        'max-height': settings.height
+    });
+
+    // 모달 컨텐츠의 크기도 설정
+    childModal.find('.modal-content').css({
+        'height': '100%',
+        'max-height': '100%'
+    });
+
+    // 모달 바디의 크기 설정 (헤더와 푸터 고려)
+    const modalHeader = childModal.find('.modal-header').outerHeight() || 0;
+    const modalFooter = childModal.find('.modal-footer').outerHeight() || 0;
+    childModal.find('.modal-body').css({
+        'height': `calc(100% - ${modalHeader + modalFooter}px)`,
+        'max-height': `calc(100% - ${modalHeader + modalFooter}px)`,
+        'overflow-y': 'auto'
+    });
+
+    // 자식 모달의 실제 크기를 가져옴
+    const childWidth = childModal.outerWidth();
+    const childHeight = childModal.outerHeight();
+
+    // 부모 모달의 중앙 좌표 계산
+    const parentCenterX = parentRect.left + (parentRect.width / 2);
+    const parentCenterY = parentRect.top + (parentRect.height / 2);
+
+    // 자식 모달의 최종 위치 계산 (중앙 정렬)
+    const childLeft = parentCenterX - (childWidth / 2);
+    const childTop = parentCenterY - (childHeight / 2);
+
+    // 위치 및 스타일 적용
+    childModal.css({
+        'position': 'fixed',
+        'top': childTop,
+        'left': childLeft,
+        'z-index': settings.zIndex
+    });
+}

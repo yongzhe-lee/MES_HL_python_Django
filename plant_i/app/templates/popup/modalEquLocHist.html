@@ -1,10 +1,9 @@
-F
-<div id="modalWindowHist" class="modal">
-	<div class="modal-content" style="width: 800px; height: 500px !important;">
+<div id="modalEquipLocHist" class="modal child-modal">
+	<div class="modal-content">
 		<div class="modal-header">
 			<h4>설비 위치변경 이력</h4>
 		</div>
-		<div class="modal-body" style="height: auto; overflow: hidden; max-height: 500px;">
+		<div class="modal-body">
 			<!-- 그리드 영역 -->
 			<div class="grid-section">
 				<div id="locHistGrid">
@@ -30,17 +29,14 @@ F
 		}
 
 		init() {
-			const modalHist = $("#modalWindowHist");
+			const modalHist = $("#modalEquipLocHist");
 
 			$("#closeModalHist").kendoButton({
-				themeColor: "base"
-			});
-
-			const closeModalHistBtn = $("#closeModalHist");
-
-			// 모달 닫기 - 닫기 버튼 클릭
-			closeModalHistBtn.on("click", () => {
-				modalHist.fadeOut();
+				themeColor: "base",
+				click: (e) => {
+					e.preventDefault();
+					modalHist.fadeOut();
+				}
 			});
 
 			// Kendo 버튼 초기화
@@ -79,7 +75,7 @@ F
 			}).data("kendoGrid");
 		}
 
-		getList() {
+		getLocList() {
 			const self = this;
 			$.ajax({
 				url: this.baseUrl,
@@ -119,11 +115,19 @@ F
 				}
 			});
 		}
+
+		show(callback) {
+			let _this = this;
+			this.callback = callback;
+
+			$("#modalEquipLocHist").fadeIn();
+			_this.getLocList();
+		}
 	}
 
 	// 전역 변수 초기화 및 인스턴스 생성
-	let equipLocHist = null;
+	let equipLocHistPage = null;
 	$(document).ready(function () {
-		equipLocHist = new EquipLocHist();
+		equipLocHistPage = new EquipLocHist();
 	});
 </script>

@@ -1,8 +1,8 @@
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
+#from django.db import transaction
 from domain.models.definition import Material
-from django.db import transaction
 from domain.services.definition.material import MaterialService
 
 def material(context):
@@ -25,6 +25,7 @@ def material(context):
     material_service = MaterialService()
     
     action = gparam.get('action', 'read')
+    source = f'/api/definition/material?action={action}'
     try:
         if action =='read':
 
@@ -39,11 +40,19 @@ def material(context):
                 , f."Name" AS factory_name
                 , m."Code" AS material_code
                 , m."Name" AS material_name
+                , m.bare_pcb_cd
+                , m.panel_mag
+                , m.pcb_array
+                , m.sap_top_bottom
+                , m.solder_paste
+                , m.sub_pcb_cd
+                , m.top_bottom
+                , m.use_yn
                 /* ItemType 같은 field 2번 생성하심. 나중에 여쭤보고 삽입 */
                 -- , m."Type" AS material_type
                 , m."Standard" AS standard
-                , m."ItemGroup" AS item_group
-                , m."ItemType" AS item_type
+                , mg."Name" AS mat_grp_nm
+                , m.mat_type
                 , c."Name" AS item_type_nm
                 , m."BasicUnit" AS basic_unit
                 , m."CycleTime" AS cycle_time
@@ -52,6 +61,7 @@ def material(context):
                 , m.supplier_pk as supplier
                 , co."Name" as supplier_nm
             FROM  material m
+                left join mat_grp mg on mg.id=m.mat_grp_id 
                 INNER JOIN factory f on m."Factory_id" = f.id
                 left join code c on UPPER(c."CodeGroupCode") = 'MTRL_TYPE' and m."ItemType" = c."Code"
                 left join company co on m.supplier_pk = co.id
@@ -109,7 +119,7 @@ def material(context):
                 , m."BasicUnit" AS basic_unit
                 , m."CycleTime" AS cycle_time
                 , m."in_price" AS in_price
-                , m."out_price" AS out_price                
+                , m."out_price" AS out_price
                 , m.supplier_pk as supplier
                 , co."Name" as supplier_nm
             FROM  material m
@@ -130,7 +140,7 @@ def material(context):
             material_code = posparam.get('material_code') 
             material_name = posparam.get('material_name') 
             standard = posparam.get('standard')
-            item_group = posparam.get('item_group')
+            mat_grp_id = posparam.get('mat_grp_id')
             item_type = posparam.get('item_type')
             supplier = posparam.get('supplier')
             basic_unit = posparam.get('basic_unit')
@@ -148,7 +158,7 @@ def material(context):
                 material.Code = material_code
                 material.Name = material_name
                 material.Standard = standard
-                material.ItemGroup = item_group
+                material.MAterialGroup_id = mat_grp_id
                 material.ItemType = item_type
                 material.supplier_pk = supplier
                 material.BasicUnit = basic_unit
@@ -174,8 +184,34 @@ def material(context):
 
             result = {'success' : True}
 
+        elif action=="smt_mat_info_excel":
+            import openpyxl
+
+            mat_file = "c:\\temp\\SMT 제품 정보.xlsx"
+            workbook = openpyxl.load_workbook(mat_file)
+            sheet = workbook['제품']
+
+            dic_mat_grp = {}
+
+            for row in sheet.iter_rows(min_row=3, max_row=sheet.max_row):
+                mat_cd = row[0].value
+                mat_nm = row[1].value
+                mat_grp = row[2].value
+
+                print(mat_cd)
+
+                if mat_grp not in dic_mat_grp:
+                    dic_mat_grp[mat_grp] = mat_grp
+
+
+
+            for mg in dic_mat_grp:
+                print(mg)
+
+            workbook.close()
+            
+
     except Exception as ex:
-        source = '/api/definition/material, action:{}'.format(action)
         LogWriter.add_dblog('error', source, ex)
         result = {'success':False, 'message':str(ex) }
 

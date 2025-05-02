@@ -1,11 +1,366 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="
+                                   k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="창고위치, 셀위치를 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부">사용여부</label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_location" data-labelCd="자재창고">자재창고</label>
+                            <div class="field-wrapper">
+                                <select id="sch_location" name="sch_location"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="storLocAddrListGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
 
-</body>
-</html>
+                <form id="detailForm">
+                    <input type="hidden" id="stor_loc_addr_pk" name="stor_loc_addr_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="loc_cd">창고위치</label>
+                                <div class="field-wrapper">
+                                    <select id="loc_cd" name="loc_cd"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="rack_no">랙 번호</label>
+                                <div class="field-wrapper">
+                                    <select id="rack_no" name="rack_no"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="level_no">단 번호</label>
+                                <div class="field-wrapper">
+                                    <select id="level_no" name="level_no"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="col_no">열 번호(시작)</label>
+                                <div class="field-wrapper">
+                                    <select id="col_no" name="col_no"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="end_col_no">열 번호(마침)</label>
+                                <div class="field-wrapper">
+                                    <select id="end_col_no" name="end_col_no"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="out_unavail_yn">출고불가여부</label>
+                                <div class="field-wrapper">
+                                    <input id="out_unavail_yn" name="out_unavail_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class StorLocAddrListPage {
+
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/storLocAddrList';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'stor_loc_addr_pk', title: 'stor_loc_addr_pk', hidden: true },
+                    { field: 'loc_cd', title: '창고위치', width: 80 },
+                    { field: 'loc_cell_addr', title: '셀위치', width: 100 },
+                    { field: 'rack_no', title: '랙번호', width: 80 },
+                    { field: 'level_no', title: '단번호', width: 80 },
+                    { field: 'col_no', title: '열번호', width: 80 },
+                    { field: 'out_unavail_yn', title: '출고불가', width: 80 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                    { field: 'inserter_nm', title: '생성자', width: 80 },
+                    { field: 'insert_ts', title: '생성일', width: 100 },
+                    { field: 'updater_nm', title: '수정자', width: 80 },
+                    { field: 'update_ts', title: '수정일', width: 100 },
+                    { field: 'update_ts', title: 'QR코드출력', width: 80 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.grid = new Grid($('#storLocAddrListGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today +".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'cm_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
+            });
+
+            AjaxUtil.fillDropDownTreeOptions($("#sch_location"), "cm_location", "select");
+            // 자재창고 dropbox
+            $('#sch_location').change(() => {
+                this.searchMainData();
+            });
+
+            // form
+            AjaxUtil.fillDropDownTreeOptions($("#loc_cd"), "cm_location", "select");
+            $("#rack_no").kendoDropDownList({
+                dataSource: [
+                    ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)), // A부터 Z까지
+                    ...Array.from({ length: 4 }, (_, i) => `A${String.fromCharCode(65 + i)}`) // AA, AB, AC, AD
+                    ]
+            });
+            $("#level_no").kendoDropDownList({
+                dataSource: Array.from({ length: 9 }, (_, i) => i + 1),
+            });
+            $("#col_no").kendoDropDownList({
+                dataSource: Array.from({ length: 20 }, (_, i) => i + 1),
+            });
+            $("#end_col_no").kendoDropDownList({
+                dataSource: Array.from({ length: 20 }, (_, i) => i + 1),
+            });
+            $('#out_unavail_yn').kendoSwitch({ checked: true });
+
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+
+            let param = {
+				action: 'findAll',
+				searchText: $('#sch_keyword').val(),
+                useYn: $('#sch_use_yn').val(),
+                equLoc: getComponentValue("#srch_location", "kendoDropDownTree"),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+
+             // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+
+            let locCdValue = getComponentValue("#loc_cd", "kendoDropDownTree");
+
+            let formData = FormUtil.extractForm($('#detailForm'));
+            formData.loc_cd = locCdValue;
+
+            if(checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', formData, fnSuccess);
+            console.log(formData);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].stor_loc_addr_pk) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { stor_loc_addr_pk: formData[0].stor_loc_addr_pk }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
+        }
+    }
+
+    let page = null;
+    page = new StorLocAddrListPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

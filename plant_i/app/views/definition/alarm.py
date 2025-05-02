@@ -35,15 +35,9 @@ def alarm(context):
             ln."Name" as line_nm
             , ea.alarm_cd
             , ea.alarm_nm
-            --, ea.alarm_nm_en
             , ea.alarm_num
-            --, ea.cause
-            --, ea.cause_en
-            --, ea.remedy
-            --, ea.alarm_detail
             , e."Code" as equ_cd
             , e."Name" as equ_nm
-            , ea."_created"
             , to_char(ea._created, 'yyyy-mm-dd hh24:mi:ss') created
             , to_char(ea._modified, 'yyyy-mm-dd hh24:mi:ss') modified
             from equ_alarm ea 
@@ -256,23 +250,23 @@ def alarm(context):
                         last_part = ""
                     elif line.startswith("Display:"):
                         last_part = "disp"
-                        disp = line.split(':')[1].lstrip()
+                        disp = "".join(line.split(':')[1:])
                         if len(disp)==0:
                             disp = alarm_number
                     elif line.startswith("Used by:"):
                         last_part = "mc"
-                        mc = line.split(':')[1].lstrip()
+                        mc = "".join(line.split(':')[1:])
                     elif line.startswith("Details"):
                         last_part = "details"
-                        details = line.split(':')[1].lstrip()
+                        details = "".join(line.split(':')[1:])
                     elif line.startswith("Cause:"):
-                        cause = line.split(':')[1].lstrip()
+                        cause = "".join(line.split(':')[1:])
                         last_part = "cause"
                     elif line.startswith("Remedy:"):
-                        remedy = line.split(':')[1].lstrip()
+                        remedy = "".join(line.split(':')[1:])
                         last_part = "remedy"
                     else:
-                        # ¸¶Áö¸·¿¡ ÀĞ¾ú´ø °ÍÀÌ ¹ºÁö È®ÀÎ
+                        # ë§ˆì§€ë§‰ì— ì½ì—ˆë˜ ê²ƒì´ ë­”ì§€ í™•ì¸
                         if last_part == "disp":
                             disp = disp + line
                         elif last_part == "mc":

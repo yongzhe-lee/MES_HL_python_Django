@@ -1,0 +1,20 @@
+ DROP FUNCTION public.cm_fn_get_dept_cd_business_nm(text, int4);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_cd_business_nm(cm_v_dept_cd text, v_factory_pk integer)
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+declare
+	business_nm text;
+begin
+	select "Name" 
+	into business_nm 
+	from dept 
+	where upper("Code") = upper(cm_v_dept_cd)
+	 and "Factory_id" = v_factory_pk
+	;
+
+	return business_nm;
+end;
+$function$
+;

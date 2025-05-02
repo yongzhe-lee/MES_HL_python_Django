@@ -159,13 +159,13 @@
         transition: all 0.3s ease; /* 부드러운 색상 전환 효과 */
     }
 
-    #btnAdd.k-button:hover {
-        cursor: pointer;
-        background-color: #0d6efd; /* 호버시 파란색 배경 */
-        color: #ffffff; /* 호버시 흰색 글자 */
-        opacity: 0.9;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
-    }
+        #btnAdd.k-button:hover {
+            cursor: pointer;
+            background-color: #0d6efd; /* 호버시 파란색 배경 */
+            color: #ffffff; /* 호버시 흰색 글자 */
+            opacity: 0.9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+        }
 </style>
 {% endblock %}
 
@@ -245,7 +245,7 @@
 {% block scripts %}
 
 {% include '../../popup/modalPmMaster.html'%}
-{% include '../../popup/modalEqu.html'%}
+{% include '../../popup/modalEquSel.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
 {% include '../../popup/modalMaterials.html'%}
@@ -281,10 +281,10 @@
                     { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
                     { field: 'pm_no', title: 'PM 번호', width: 150 },
                     {
-						field: "pm_nm",
+                        field: "pm_nm",
                         title: "PM명",
                         width: 200,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
                     },
                     { field: 'equ_code', title: '설비코드', width: 120 },
                     { field: 'equ_name', title: '설비명', width: 150 },
@@ -366,7 +366,7 @@
                 $("#modalPmMaster").fadeIn(); // ✅ 모달 표시
                 $("#pm_pk").val(pmData.pm_pk);
                 $("#pmNumber").val(pmData.pm_no);
-				$("#pmName").val(pmData.pm_nm);
+                $("#pmName").val(pmData.pm_nm);
                 $("#pmType").val(pmData.pm_type);
                 $("#maintenanceTime").val(pmData.maintenance_time);
                 $("#executionDept").data("kendoDropDownTree").value(pmData.exec_dept);

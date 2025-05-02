@@ -7,7 +7,7 @@ from domain.models.cmms import CmWoFaultLoc
 def wo_fault_loc(context):
     '''
     api/kmms/wo_fault_loc    작업지시 고장위치
-    김태영 작업중
+    김태영 
 
     findAll 전체목록조회
     findOne 없음

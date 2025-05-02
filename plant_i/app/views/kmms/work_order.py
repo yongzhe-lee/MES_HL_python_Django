@@ -7,7 +7,7 @@ from domain.models.cmms import CmWorkOrder, CmEquipment, CmWoLabor, CmWoMtrl, Cm
 def work_order(context):
     '''
     api/kmms/work_order   작업지시 
-    김태영 작업중
+    김태영 
 
     findAll
     searchAll

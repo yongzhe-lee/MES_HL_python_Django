@@ -474,9 +474,14 @@
                                         <!--<button id="btnTrainStart"><i class="material-symbols-outlined">play_arrow</i>학습</button>-->
                                     <!--</span>-->
                                 </div>
+                                <div class="col-auto" id="noDataMsg" style="display:none">
+                                    <p>
+                                        * 먼저 데이터 탭에서 학습 데이터를 등록해 주세요.
+                                    </p>
+                                </div>
                                 <form id="modelTrainForm">
                                     <div class="edit-form-ui">
-                                        <input id=id type="hidden" />
+                                        <input id="id" name="id" type="hidden" />
 
                                         <div class="col-12" id="TrainStatusWrap" style="display:none;">
                                             <div class="form-item align-h">
@@ -560,11 +565,15 @@
                                 </form>
                                 <!-- 실행 버튼. col-xx를 주어야 form이랑 동일한 margin 적용 가능 -->
                                 <div class="col-12">
-                                    <div class="card-group-btn k-mt-3">
+                                    <div class="card-group-btn k-mt-3" id="trainBtnWrap">
                                         <span></span>
                                         <span>
                                             <button id="btnResetTrain"><i class="material-symbols-outlined">refresh</i>초기화</button>
-                                            <button id="btnSaveTrain"><i class="material-symbols-outlined">save</i>저장</button>
+                                            <button id="btnSaveTrain">
+                                                <i class="material-symbols-outlined">save</i>
+                                                <span class="btn-label">저장</span>
+                                            </button>
+                                            <button id="btnDeleteTrain" style="display:none"><i class="material-symbols-outlined">delete</i>삭제</button>
                                         </span>
                                     </div>
                                 </div>
@@ -1011,13 +1020,35 @@
             });
 
             kendoUtil.bindButton('#btnSaveTrain', null, 'info', () => {
-                Alert.confirm('', '모델 학습 정보를 저장하시겠습니까?', () => {
-                    _this.saveTrainConfig();
-                });
+                if (!_this.md_id) {
+                    Alert.alert('info', "학습 정보를 생성할 모델, 또는 수정할 학습 정보를 선택해주세요.");
+                } else {
+                    const btn_action = _this.mt_id ? '수정' : '저장';
+
+                    Alert.confirm('', `모델 학습 정보를 ${btn_action}하시겠습니까?`, () => {
+                        _this.saveTrainConfig();
+                    });
+                }
+            });
+
+            kendoUtil.bindButton('#btnDeleteTrain', null, 'error', () => {
+                if (_this.mt_id) {
+                    Alert.confirm('', '모델 학습 정보를 삭제하시겠습니까?', () => {
+                        _this.deleteTrainConfig();
+                    });
+                } else {
+                    Alert.alert('info', "삭제할 학습 정보를 선택해주세요. 단, 학습이 진행중이거나 완료된 정보는 삭제할 수 없습니다.")
+                }
             });
 
             kendoUtil.bindButton('#btnTrainStart', null, 'success', () => {
-                _this.startTrain();
+                if (_this.mt_id) {
+                    Alert.confirm('', 'AI 학습을 시작하시겠습니까?', () => {
+                        _this.startTrain();
+                    });
+                } else {
+                    Alert.alert('info', "먼저 학습 정보를 선택해주세요.")
+                }
             });
         }
 
@@ -1736,7 +1767,7 @@
                     } else {
                         _this.initTrainForm(null, { new_check: true });  // 신규 → 명시적 전달
                     }
-
+                    _this.updateTrainButtons();
                     _this.renderGrid("model_create_grid");
 
                     break;
@@ -2301,43 +2332,75 @@
         }
 
         deleteModel() {
-            console.log("들어왔니?1");
             let _this = this;
 
             console.log("_this.md_id", _this.md_id);
             if (_this.md_id) {
-                console.log("들어왔니?2");
 
                 AjaxUtil.postAsyncData(this.baseUrl + '?action=delete_ds_model', { md_id: _this.md_id }, (resp) => {
                     if (resp.success) {
-                        console.log("들어왔니?3");
                         Notify.success('삭제되었습니다.');
                         _this.modelGrid.grid.expandOn = true;
                         _this.searchMainData();
                         _this.renderGrid("data_detail_grid", "ds_rows_list");
 
-                        _this.md_id = null;
+                        _this.md_id = null; // 새 선택이 있기 전까지 현재 데이터가 md_id를 가지고 있게 되므로 수동 처리
                         _this.toggleDataCrudButtons();
-                    } else {
-                        console.log("들어왔니?4");
-
+                    }
+                    else {
                         Alert.alert('error', resp.message);
                     }
                 });
             }
         }
 
+        updateTrainButtons() {
+            let _this = this;
+
+            const hasTrainId = !!_this.mt_id;
+
+            // 삭제 버튼 표시 여부 제어
+            $('#btnDeleteTrain').toggle(hasTrainId);
+
+            // 저장 버튼 텍스트 업데이트
+            const $btnSave = $('#btnSaveTrain');
+            const label = hasTrainId ? '수정' : '저장';
+            $btnSave.find('.btn-label').text(label);
+
+        }
+
         initTrainForm(formData = null, options = {}) {
             let _this = this;
             const $form = $('#modelTrainForm');
+            const $btn = $('#trainBtnWrap');
+            const $msg = $('#noDataMsg');
+
+            if (!_this.md_id) {
+                $form.hide();
+                $btn.hide();
+                $msg.show();
+                return;
+            }
+
+            $form.show();
+            $btn.show();
+            $msg.hide();
 
             const isNew = options.new_check || !formData?.id;
             const isEditable = formData?.TrainStatus === 'INITIALIZED';
 
             //console.log("option", widget.options);
 
-            // 1. 데이터 바인딩 or 리셋
             if (formData) {
+                // 데이터 리셋 후 바인딩
+                const taskType = formData?.TaskType;
+                const algoType = formData?.AlgorithmType;
+
+                // 분석유형을 기준으로 알고리즘 목록만 먼저 초기화(form바인딩시 자동으로 반영되지 않음)
+                const groupCode = taskType ? `AI_${taskType}` : 'ALGORITHM_TYPE';
+                AjaxUtil.fillDropDownOptions($('#AlgorithmType'), 'user_code', 'choose', algoType, groupCode);
+
+                // 이후 전체 form 데이터 바인딩
                 FormUtil.BindDataForm(formData, $form);
 
                 const algoValue = formData?.AlgorithmType || $('#AlgorithmType').data('kendoDropDownList')?.value?.();
@@ -2346,6 +2409,7 @@
 
                     // 하이퍼파라미터 값 주입
                     if (formData.param_list?.length) {
+                        console.log("getTrainInfo로 얻어온 param_list", formData.param_list);
                         formData.param_list.forEach(p => {
                             paramObj[p.ParamKey] = p.ParamValue;
                         });
@@ -2420,6 +2484,7 @@
                     const formData = _this.getTrainInfo();
                     _this.initTrainForm(formData);  // 저장 직후는 무조건 기존 정보 → new_check 필요 없음
 
+                    _this.updateTrainButtons();
                 } else {
                     Alert.alert('error', resp.message);
                 }
@@ -2443,40 +2508,73 @@
         }
 
         renderHyperParamForm(algoCode, presetParams = {}) {
-            $('#hyperParamWrap').hide();
-            $('#hyperParam').empty();
+            const $formContainer = $('#hyperParam');
+            const $formWrap = $('#hyperParamWrap');
+
+            // 1. 숨김 처리 및 초기화
+            $formWrap.hide();
+            $formContainer.empty();
 
             if (!algoCode) return;
 
+            // 2. 서버에서 파라미터 정의 가져오기
             const params = AjaxUtil.getSelectData('user_code', algoCode);
-            console.log("params", params);
+            console.log("algoCode로 얻어온 params", params);
 
             if (!Array.isArray(params) || !params.length) return;
 
+            // 3. formData 구성 (presetParams에 값이 있으면 바인딩)
+            const formData = {};
+            params.forEach(p => {
+                const key = p.value; // ex) "RANDOM_STATE"
+                formData[key] = presetParams?.[key] ?? '';
+                //formData[p.value] = presetParams?.[p.value] ?? '';
+            });
+            //params.forEach(p => formData[p.value] = '');
+            //console.log("presetParams", presetParams);
+
+
+            // 4. 폼 항목 구성
             const items = params.map(p => ({
                 field: p.value,
                 label: p.value.toLowerCase(),
                 editor: "TextBox"
             }));
 
-            console.log("presetParams", presetParams);
+            console.log("formData", formData);
+            console.log("items", items);
 
-            const formData = {};
-            params.forEach(p => {
-                formData[p.value] = presetParams?.[p.value] ?? '';
-                //formData[p.value] = presetParams?.[p.value] ?? '';
-            });
+            // 5. 기존 kendoForm 제거
+            const existing = $formContainer.data('kendoForm');
+            if (existing) {
+                existing.destroy();
+                $formContainer.empty();
+            }
 
-            $('#hyperParamWrap').show();
+            // 6. 컨테이너 비우고 새 폼 생성
             $('#hyperParam').kendoForm({
                 formData: formData,
                 items: items,
                 buttonsTemplate: "" // 자동으로 생성되는 버튼 방지 
             });
 
-            // 생성된 후 .k-form 요소에 동적 생성 form 클래스 & border style class 추가
-            $('#hyperParam').closest('.k-form').addClass('form-dynamic k-rounded-md');
+            // 7. 생성 후 각 필드에 수동 값 주입 (보장용)
+            const newForm = $formContainer.data('kendoForm');
+            if (newForm && typeof newForm.options.formData === 'object') {
+                for (const key in formData) {
+                    const input = $formContainer.find(`[name="${key}"]`);
+                    if (input.length) input.val(formData[key]);
+                }
+            }
+            console.log("kendoForm new 객체 찍어보기", newForm);
 
+            // 7. 생성된 후 .k-form 요소에 동적 생성 form 클래스 & border style class 추가
+            $('#hyperParam').closest('.k-form').addClass('form-dynamic k-rounded-md');
+            $formWrap.show();
+
+            $('#hyperParam').find('input').each(function () {
+                console.log($(this).attr('name'), $(this).val());
+            });
         }
 
         // 학습 상태에 따른 icon & 버튼 상태 바인딩
@@ -2513,11 +2611,41 @@
             $wrap.show();
         }
 
-
-        startTrain() {
-
+        deleteTrainConfig() {
+            let _this = this;
+            if (_this.mt_id) {
+                AjaxUtil.postAsyncData(this.baseUrl + '?action=delete_ds_model_train',
+                    { mt_id: _this.mt_id }, (resp) => {
+                        if (resp.success) {
+                            Notify.success('삭제되었습니다.');
+                            _this.modelGrid.grid.expandOn = true;
+                            _this.searchMainData();
+                            _this.mt_id = null;
+                            _this.initTrainForm();
+                        } else {
+                            Alert.alert('error', resp.message);
+                        }
+                });
+            } 
         }
 
+        startTrain() {
+            let _this = this;
+            if (_this.mt_id) {
+                AjaxUtil.postAsyncData(this.baseUrl + '?action=start_learning',
+                    { mt_id: _this.mt_id }, (resp) => {
+                        if (resp.success) {
+                            Notify.success('모델 학습을 요청했습니다.');
+                            _this.modelGrid.grid.expandOn = true;
+                            _this.searchMainData();
+                            const formData = _this.getTrainInfo();
+                            _this.initTrainForm(formData);
+                        } else {
+                            Alert.alert('error', resp.message);
+                        }
+                });
+            } 
+        }
 
     }
 

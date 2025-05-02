@@ -60,18 +60,18 @@ class CmAlarm(models.Model):
 
 class CmAlarmAction(models.Model):
     id = models.AutoField(primary_key=True, db_column='alarm_actn_pk', db_comment='알람조치 PK')
-    ActnDt = models.DateTimeField(db_column='actn_dt', db_comment='조치일시')
-    ActnUserId = models.CharField(max_length=20, db_column='actn_user_id', db_comment='조치자 ID')
+    ActionnDt = models.DateTimeField(db_column='actn_dt', db_comment='조치일시')
+    ActionUserId = models.IntegerField(db_column='actn_user_id', db_comment='조치자 ID')
     CmEquipment = models.ForeignKey('CmEquipment', models.DO_NOTHING, db_column='equip_pk', db_comment='설비 PK')
     AlarmStatus = models.CharField(max_length=10, blank=True, null=True, db_column='alarm_status', db_comment='알람상태')
     AlarmCause = models.CharField(max_length=10, db_column='alarm_cause', db_comment='알람원인')
-    ActnType = models.CharField(max_length=10, db_column='actn_type', db_comment='조치유형')
-    ActnRemark = models.CharField(max_length=400, blank=True, null=True, db_column='actn_remark', db_comment='조치비고')
+    ActionType = models.CharField(max_length=10, db_column='actn_type', db_comment='조치유형')
+    ActionRemark = models.CharField(max_length=400, blank=True, null=True, db_column='actn_remark', db_comment='조치비고')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -84,7 +84,7 @@ class CmAlarmAction(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
 
 class CmAlarmBox(models.Model):
@@ -98,10 +98,10 @@ class CmAlarmBox(models.Model):
     LeftScaleFull = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True, db_column='left_scale_full', db_comment='좌측스케일전체')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -115,7 +115,7 @@ class CmAlarmBox(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
 
 class CmAlarmNotiGroup(models.Model):
@@ -132,9 +132,9 @@ class CmAlarmNotiGroup(models.Model):
     Remark = models.CharField(max_length=200, blank=True, null=True, db_column='remark', db_comment='비고')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertDt = models.DateTimeField(auto_now_add=True, db_column='insert_dt', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateDt = models.DateTimeField(blank=True, null=True, db_column='update_dt', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_alarm_noti_grp'
@@ -150,14 +150,15 @@ class CmAlarmNotiGroup(models.Model):
         return
  
 class CmAlarmNotiUser(models.Model):
+    id = models.AutoField(primary_key=True)
     CmAlarmNotiGroup = models.ForeignKey('CmAlarmNotiGroup', models.DO_NOTHING, db_column='alarm_noti_grp_pk', db_comment='알람알림그룹 PK')
     UserPk = models.IntegerField(db_column='user_pk', db_comment='사용자 PK')
     NotiYn = models.CharField(db_column='noti_yn', db_comment='알림여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True,  null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -170,10 +171,11 @@ class CmAlarmNotiUser(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnUserSsMtrl(models.Model):
+    id = models.AutoField(primary_key=True)
     CmAlarmNotiGroup = models.ForeignKey('CmAlarmNotiGroup', models.DO_NOTHING, db_column='alarm_noti_grp_pk', db_comment='알람알림그룹 PK')
     UserPk = models.SmallIntegerField(db_column='user_pk', db_comment='사용자 PK')
     CmMaterial = models.ForeignKey('CmMaterial', models.DO_NOTHING, db_column='mtrl_pk', db_comment='자재 PK')
@@ -189,7 +191,7 @@ class CmAnotiMailHist(models.Model):
     MailContent = models.TextField(blank=True, null=True, db_column='mail_content', db_comment='메일내용')
     MailSndrAddr = models.CharField(max_length=40, db_column='mail_sndr_addr', db_comment='메일발신자주소')
     MailRcvrAddr = models.CharField(max_length=40, db_column='mail_rcvr_addr', db_comment='메일수신자주소')
-    MailRcvrId = models.CharField(max_length=20, blank=True, null=True, db_column='mail_rcvr_id', db_comment='메일수신자 ID')
+    MailRcvrId = models.IntegerField(null=True, db_column='mail_rcvr_id', db_comment='메일수신자 ID')
     ResultType = models.CharField(db_column='result_type', db_comment='결과유형')
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
@@ -197,9 +199,9 @@ class CmAnotiMailHist(models.Model):
     SendRmk = models.CharField(max_length=200, blank=True, null=True, db_column='send_rmk', db_comment='발송비고')
     ErrorCnt = models.SmallIntegerField(db_column='error_cnt', db_comment='에러건수')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_mail_hist'
@@ -211,7 +213,7 @@ class CmAnotiMailHist(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnotiSmsHist(models.Model):
@@ -220,7 +222,7 @@ class CmAnotiSmsHist(models.Model):
     SmsContent = models.CharField(max_length=150, db_column='sms_content', db_comment='SMS내용')
     SmsSndrNo = models.CharField(max_length=15, db_column='sms_sndr_no', db_comment='SMS발신번호')
     SmsRcvrNo = models.CharField(max_length=15, db_column='sms_rcvr_no', db_comment='SMS수신번호')
-    SmsRcvrId = models.CharField(max_length=30, blank=True, null=True, db_column='sms_rcvr_id', db_comment='SMS수신자 ID')
+    SmsRcvrId = models.IntegerField(null=True, db_column='sms_rcvr_id', db_comment='SMS수신자 ID')
     ResultType = models.CharField(db_column='result_type', db_comment='결과유형')
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
@@ -228,9 +230,9 @@ class CmAnotiSmsHist(models.Model):
     SendRmk = models.CharField(max_length=200, blank=True, null=True, db_column='send_rmk', db_comment='발송비고')
     ErrorCnt = models.SmallIntegerField(db_column='error_cnt', db_comment='에러건수')
     InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_sms_hist'
@@ -242,54 +244,54 @@ class CmAnotiSmsHist(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
-class CmAttachFile(models.Model):
-    id = models.AutoField(primary_key=True, db_column='file_pk', db_comment='파일 PK')
-    CmAttachFileGroup = models.ForeignKey('CmAttachFileGroup', models.DO_NOTHING, db_column='file_grp_cd', db_comment='파일그룹코드')
-    FileOrgName = models.CharField(max_length=300, db_column='file_org_nm', db_comment='원본파일명')
-    FileStreName = models.CharField(max_length=300, blank=True, null=True, db_column='file_stre_nm', db_comment='저장파일명')
-    FileExt = models.CharField(max_length=20, blank=True, null=True, db_column='file_ext', db_comment='파일확장자')
-    FileSize = models.BigIntegerField(blank=True, null=True, db_column='file_size', db_comment='파일크기(Byte)')
-    RootPath = models.CharField(max_length=300, blank=True, null=True, db_column='root_path', db_comment='루트경로')
-    FileStreCours = models.CharField(max_length=300, blank=True, null=True, db_column='file_stre_cours', db_comment='저장경로')
-    FileNote = models.CharField(max_length=100, blank=True, null=True, db_column='file_note', db_comment='파일설명')
-    AttachType = models.CharField(max_length=20, blank=True, null=True, db_column='attach_type', db_comment='첨부타입')
-    AttachPk = models.IntegerField(blank=True, null=True, db_column='attach_pk', db_comment='첨부대상 PK')
-    InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterPk = models.SmallIntegerField(blank=True, null=True, db_column='inserter_pk', db_comment='등록자 PK')
+# class CmAttachFile(models.Model):
+#     id = models.AutoField(primary_key=True, db_column='file_pk', db_comment='파일 PK')
+#     CmAttachFileGroup = models.ForeignKey('CmAttachFileGroup', models.DO_NOTHING, db_column='file_grp_cd', db_comment='파일그룹코드')
+#     FileOrgName = models.CharField(max_length=300, db_column='file_org_nm', db_comment='원본파일명')
+#     FileStreName = models.CharField(max_length=300, blank=True, null=True, db_column='file_stre_nm', db_comment='저장파일명')
+#     FileExt = models.CharField(max_length=20, blank=True, null=True, db_column='file_ext', db_comment='파일확장자')
+#     FileSize = models.BigIntegerField(blank=True, null=True, db_column='file_size', db_comment='파일크기(Byte)')
+#     RootPath = models.CharField(max_length=300, blank=True, null=True, db_column='root_path', db_comment='루트경로')
+#     FileStreCours = models.CharField(max_length=300, blank=True, null=True, db_column='file_stre_cours', db_comment='저장경로')
+#     FileNote = models.CharField(max_length=100, blank=True, null=True, db_column='file_note', db_comment='파일설명')
+#     AttachType = models.CharField(max_length=20, blank=True, null=True, db_column='attach_type', db_comment='첨부타입')
+#     AttachPk = models.IntegerField(blank=True, null=True, db_column='attach_pk', db_comment='첨부대상 PK')
+#     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
+#     InserterPk = models.SmallIntegerField(blank=True, null=True, db_column='inserter_pk', db_comment='등록자 PK')
 
-    class Meta:
-        db_table = 'cm_attach_file'
-        db_table_comment = '첨부파일'
+#     class Meta:
+#         db_table = 'cm_attach_file'
+#         db_table_comment = '첨부파일'
 
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
+#     def set_audit(self, user):
+#         if self.InserterId is None:
+#             self.InserterId = user.id
+#             self.InserterName = user.username
+#         #self.UpdaterId = user.id
+#         #self.UpdaterName = user.username
+#         #self.UpdateTs = DateUtil.get_current_datetime()
+#         return
  
-class CmAttachFileGroup(models.Model):
-    id = models.CharField(primary_key=True, max_length=50, db_column='attach_file_grp_cd', db_comment='첨부파일그룹코드')
-    InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용여부')
+# class CmAttachFileGroup(models.Model):
+#     id = models.CharField(primary_key=True, max_length=50, db_column='attach_file_grp_cd', db_comment='첨부파일그룹코드')
+#     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
+#     UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용여부')
 
-    class Meta:
-        db_table = 'cm_attach_file_grp'
-        db_table_comment = '첨부파일그룹'
+#     class Meta:
+#         db_table = 'cm_attach_file_grp'
+#         db_table_comment = '첨부파일그룹'
 
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
+#     def set_audit(self, user):
+#         if self.InserterId is None:
+#             self.InserterId = user.id
+#             self.InserterName = user.username
+#         #self.UpdaterId = user.id
+#         #self.UpdaterName = user.username
+#         #self.UpdateDt = DateUtil.get_current_datetime()
+#         return
  
 class CmBaseCode(models.Model):
     id = models.SmallAutoField(primary_key=True, db_column='code_pk', db_comment='코드 PK')
@@ -304,10 +306,10 @@ class CmBaseCode(models.Model):
     DispOrder = models.SmallIntegerField(blank=True, null=True, db_column='disp_order', db_comment='표시순서')
     UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True,  null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
     Attr1 = models.CharField(max_length=100, blank=True, null=True, db_column='attr1', db_comment='속성1')
 
@@ -322,7 +324,7 @@ class CmBaseCode(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 
@@ -339,16 +341,17 @@ class CmBaseCodeGroup(models.Model):
         db_table_comment = '코드그룹'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 
 class CmChkEquip(models.Model):
+    id = models.AutoField(primary_key=True)
     CmEquipChkMaster = models.ForeignKey('CmEquipChkMaster', models.DO_NOTHING, db_column='chk_mast_pk', db_comment='설비점검마스터 PK')
     CmEquipment = models.ForeignKey('CmEquipment', models.DO_NOTHING, db_column='equip_pk', db_comment='설비 PK')
 
@@ -357,12 +360,12 @@ class CmChkEquip(models.Model):
         db_table_comment = '점검대상설비'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 
@@ -375,9 +378,9 @@ class CmChkItemTemplate(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_chk_item_template'
@@ -390,7 +393,7 @@ class CmChkItemTemplate(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmComBbs(models.Model):
@@ -409,14 +412,14 @@ class CmComBbs(models.Model):
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제 여부')
     NttStartDate = models.DateField(blank=True, null=True, db_column='ntt_start_date', db_comment='게시 시작일')
     NttEndDate = models.DateField(blank=True, null=True, db_column='ntt_end_date', db_comment='게시 종료일')
-    NtcrUserId = models.CharField(max_length=50, db_column='ntcr_user_id', db_comment='작성자 ID')
+    NtcrUserId = models.IntegerField(db_column='ntcr_user_id', db_comment='작성자 ID')
     NtcrUserName = models.CharField(max_length=20, db_column='ntcr_user_nm', db_comment='작성자명')
     AtchFileGroupCode = models.CharField(max_length=50, blank=True, null=True, db_column='atch_file_grp_cd', db_comment='첨부파일 그룹코드')
     InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -429,7 +432,7 @@ class CmComBbs(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmComBbsMaster(models.Model):
@@ -446,10 +449,10 @@ class CmComBbsMaster(models.Model):
     UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -462,21 +465,21 @@ class CmComBbsMaster(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmComComment(models.Model):
     id = models.AutoField(primary_key=True, db_column='cmmt_id', db_comment='댓글 ID')
     CmComBbs = models.ForeignKey('CmComBbs', models.DO_NOTHING, db_column='ntt_id', db_comment='게시글 ID')
-    WrterUserId = models.CharField(max_length=20, db_column='wrter_user_id', db_comment='작성자 ID')
+    WrterUserId = models.IntegerField(db_column='wrter_user_id', db_comment='작성자 ID')
     WrterName = models.CharField(max_length=50, db_column='wrter_nm', db_comment='작성자명')
     Answer = models.CharField(max_length=200, db_column='answer', db_comment='댓글 내용')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -489,7 +492,7 @@ class CmComComment(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmCostCenter(models.Model):
@@ -499,10 +502,10 @@ class CmCostCenter(models.Model):
     IsDeletable = models.CharField(max_length=1, null=True, blank=True, db_column='is_deletable', db_comment='완전삭제가능여부')
     UseYn = models.CharField(max_length=1, default='Y', db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, null=True, blank=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now=True, null=True, blank=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, null=True, blank=True, db_column='updater_id', db_comment='수정자ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, null=True, blank=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -515,7 +518,7 @@ class CmCostCenter(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 
@@ -535,12 +538,12 @@ class CmDashBoardItem(models.Model):
         db_table_comment = '대시보드 항목'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 
@@ -559,10 +562,10 @@ class CmDept(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
     CostViewAuth = models.CharField(blank=True, null=True, db_column='cost_view_auth', db_comment='비용 보기 권한')
 
@@ -576,7 +579,7 @@ class CmDept(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 
@@ -588,12 +591,12 @@ class CmDummyMonth(models.Model):
         db_table_comment = '가상 월 마스터'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 class CmEquipCategory(models.Model):
@@ -602,9 +605,9 @@ class CmEquipCategory(models.Model):
     Remark = models.CharField(max_length=100, blank=True, null=True, db_column='remark', db_comment='비고')
     UseYn = models.CharField(max_length=1, db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_equip_category'
@@ -616,7 +619,7 @@ class CmEquipCategory(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkItem(models.Model):
@@ -630,11 +633,12 @@ class CmEquipChkItem(models.Model):
     Method = models.CharField(max_length=100, blank=True, null=True, db_column='method', db_comment='점검방법')
     Guide = models.CharField(max_length=150, blank=True, null=True, db_column='guide', db_comment='점검기준')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
+    DailyReportItemCd = models.CharField(max_length=50, db_column='daily_report_item_cd', db_comment='데일리리포트아이템코드')
 
     class Meta:
         db_table = 'cm_equip_chk_item'
@@ -646,10 +650,11 @@ class CmEquipChkItem(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkItemMst(models.Model):
+    id = models.AutoField(primary_key=True)
     #ChkSchePk = models.BigIntegerField(primary_key=True, db_column='chk_sche_pk', db_comment='점검스케줄 PK')
     CmEquipChkSche = models.ForeignKey('CmEquipChkSche', models.DO_NOTHING, db_column='chk_sche_pk', db_comment='점검스케줄 PK')
     #ChkItemPk = models.BigIntegerField(db_column='chk_item_pk', db_comment='점검항목 PK')
@@ -666,15 +671,16 @@ class CmEquipChkItemMst(models.Model):
         unique_together = (('CmEquipChkSche', 'CmEquipChkItem'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkItemRslt(models.Model):
+    id = models.AutoField(primary_key=True)
     CmEquipChkRslt = models.ForeignKey('CmEquipChkRslt', models.DO_NOTHING, db_column='chk_rslt_pk', db_comment='점검결과 PK')
     CmEquipChkItem = models.ForeignKey('CmEquipChkItem', models.DO_NOTHING, db_column='chk_item_pk', db_comment='점검항목 PK')
     CmEquipChkSche = models.ForeignKey('CmEquipChkSche', models.DO_NOTHING, db_column='chk_sche_pk', db_comment='점검스케줄 PK')
@@ -689,12 +695,12 @@ class CmEquipChkItemRslt(models.Model):
         unique_together = (('CmEquipChkRslt', 'CmEquipChkItem'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkMaster(models.Model):
@@ -716,10 +722,10 @@ class CmEquipChkMaster(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
     DailyReportCode = models.CharField(max_length=50, blank=True, null=True, db_column='daily_report_cd', db_comment='일일보고 코드')
     DailyReportTypeCode = models.CharField(max_length=50, blank=True, null=True, db_column='daily_report_type_cd', db_comment='일일보고 유형 코드')
@@ -735,7 +741,7 @@ class CmEquipChkMaster(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkRslt(models.Model):
@@ -743,16 +749,16 @@ class CmEquipChkRslt(models.Model):
     CmEquipChkSche = models.ForeignKey('CmEquipChkSche', models.DO_NOTHING, db_column='chk_sche_pk', db_comment='점검스케줄 PK')
     CmEquipment = models.ForeignKey('CmEquipment', models.DO_NOTHING, db_column='equip_pk', db_comment='설비 PK')
     ChkReqType = models.CharField(blank=True, null=True, db_column='chk_req_type', db_comment='점검요청유형')
-    ChkItemTot = models.SmallIntegerField(blank=True, null=True, db_column='chk_item_tot', db_comment='전체 점검항목 수')
+    chkitemtot = models.SmallIntegerField(blank=True, null=True, db_column='chk_item_tot', db_comment='전체 점검항목 수')
     AbnItemCnt = models.SmallIntegerField(blank=True, null=True, db_column='abn_item_cnt', db_comment='이상 항목 수')
     ChkRslt = models.CharField(blank=True, null=True, db_column='chk_rslt', db_comment='점검결과')
     RsltDsc = models.CharField(max_length=500, blank=True, null=True, db_column='rslt_dsc', db_comment='결과 설명')
     ChkRsltFileGroupCode = models.CharField(max_length=50, blank=True, null=True, db_column='chk_rslt_file_grp_cd', db_comment='첨부파일 그룹코드')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -765,7 +771,7 @@ class CmEquipChkRslt(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkSche(models.Model):
@@ -782,10 +788,10 @@ class CmEquipChkSche(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterNm = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -799,7 +805,7 @@ class CmEquipChkSche(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipChkScheSendLog(models.Model):
@@ -812,12 +818,12 @@ class CmEquipChkScheSendLog(models.Model):
         db_table_comment = '설비 점검 스케줄 전송 로그'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 class CmEquipClassify(models.Model):
@@ -832,9 +838,9 @@ class CmEquipClassify(models.Model):
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     UseYn = models.CharField(max_length=1, db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_equip_classify'
@@ -847,7 +853,7 @@ class CmEquipClassify(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipDeptHist(models.Model):
@@ -856,7 +862,7 @@ class CmEquipDeptHist(models.Model):
     EquipDeptBefore = models.CharField(max_length=200, db_column='equip_dept_bef', db_comment='변경전 관리부서')
     EquipDeptAfter = models.CharField(max_length=200, db_column='equip_dept_aft', db_comment='변경후 관리부서')
     InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
 
     class Meta:
@@ -867,9 +873,9 @@ class CmEquipDeptHist(models.Model):
         if self.InserterId is None:
             self.InserterId = user.id
             self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipLocHist(models.Model):
@@ -878,7 +884,7 @@ class CmEquipLocHist(models.Model):
     EquipLocBefore = models.CharField(max_length=200, db_column='equip_loc_bef', db_comment='변경전 설비위치')
     EquipLocAfter = models.CharField(max_length=200, db_column='equip_loc_aft', db_comment='변경후 설비위치')
     InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
 
     class Meta:
@@ -889,12 +895,13 @@ class CmEquipLocHist(models.Model):
         if self.InserterId is None:
             self.InserterId = user.id
             self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipPartMtrl(models.Model):
+    id = models.AutoField(primary_key=True)
     CmEquipment = models.ForeignKey('CmEquipment', models.DO_NOTHING, db_column='equip_pk', db_comment='설비 PK')
     CmMaterial = models.ForeignKey('CmMaterial', models.DO_NOTHING, db_column='mtrl_pk', db_comment='자재 PK')
     Amt = models.SmallIntegerField(null=True, blank=True, db_column='amt', db_comment='구성수량')
@@ -902,10 +909,10 @@ class CmEquipPartMtrl(models.Model):
     UseYn = models.CharField(max_length=1, db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(max_length=1, db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(null=True, auto_now_add=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, null=True, blank=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, null=True, blank=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -919,7 +926,7 @@ class CmEquipPartMtrl(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipSpec(models.Model):
@@ -929,10 +936,10 @@ class CmEquipSpec(models.Model):
     EquipSpecUnit = models.CharField(max_length=20, blank=True, null=True, db_column='equip_spec_unit', db_comment='사양단위')
     EquipSpecValue = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value', db_comment='사양값')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -946,7 +953,7 @@ class CmEquipSpec(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipment(models.Model):
@@ -984,10 +991,10 @@ class CmEquipment(models.Model):
     UseYn = models.CharField(max_length=1, db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(max_length=1, db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
     ProcessCode = models.CharField(max_length=20, blank=True, null=True, db_column='process_cd', db_comment='프로세스 코드')
     SystemCode = models.CharField(max_length=20, blank=True, null=True, db_column='system_cd', db_comment='시스템 코드')
@@ -1004,7 +1011,7 @@ class CmEquipment(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmErrorLog(models.Model):
@@ -1022,9 +1029,9 @@ class CmErrorLog(models.Model):
         if self.InserterId is None:
             self.InserterId = user.id
             self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmExSupplier(models.Model):
@@ -1048,10 +1055,10 @@ class CmExSupplier(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1063,9 +1070,9 @@ class CmExSupplier(models.Model):
         if self.InserterId is None:
             self.InserterId = user.id
             self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmHelpFaq(models.Model):
@@ -1076,10 +1083,10 @@ class CmHelpFaq(models.Model):
     LangCode = models.CharField(max_length=20, blank=True, null=True, db_column='lang_cd', db_comment='언어코드')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1092,7 +1099,7 @@ class CmHelpFaq(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmHelpItem(models.Model):
@@ -1113,15 +1120,16 @@ class CmHelpItem(models.Model):
         db_table_comment = '헬프 항목 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmHolidayCustom(models.Model):
+    id = models.AutoField(primary_key=True)
     NationCode = models.CharField(max_length=10, db_column='nation_cd', db_comment='국가코드')
     YearVal = models.CharField(max_length=4, db_column='year_val', db_comment='년도')
     MonthVal = models.CharField(max_length=2, db_column='month_val', db_comment='월')
@@ -1136,12 +1144,12 @@ class CmHolidayCustom(models.Model):
         unique_together = (('NationCode', 'YearVal', 'MonthVal', 'DayVal'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmHolidayInfo(models.Model):
@@ -1158,12 +1166,12 @@ class CmHolidayInfo(models.Model):
         unique_together = (('NationCode', 'YearVal', 'MonthVal', 'DayVal'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmI18N(models.Model):
@@ -1176,15 +1184,16 @@ class CmI18N(models.Model):
         db_table_comment = '국제화 기본 메시지'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmI18NDtl(models.Model):
+    id = models.AutoField(primary_key=True)
     LangType = models.CharField(max_length=5, db_column='lang_type', db_comment='언어유형')
     LangCode = models.CharField(max_length=100, db_column='lang_code', db_comment='언어코드')
     LangMsg = models.CharField(max_length=200, db_column='lang_msg', db_comment='언어메시지')
@@ -1195,12 +1204,12 @@ class CmI18NDtl(models.Model):
         unique_together = (('LangType', 'LangCode'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmI18NLang(models.Model):
@@ -1212,12 +1221,12 @@ class CmI18NLang(models.Model):
         db_table_comment = '국제화 언어 유형'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmIfErpAssetInfo(models.Model):
@@ -1269,10 +1278,10 @@ class CmImportRank(models.Model):
     UseYn = models.CharField(max_length=1, blank=True, null=True, db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(max_length=1, blank=True, null=True, db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1285,7 +1294,7 @@ class CmImportRank(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmJobClass(models.Model):
@@ -1296,10 +1305,10 @@ class CmJobClass(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1312,7 +1321,7 @@ class CmJobClass(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmLabelRptForm(models.Model):
@@ -1327,10 +1336,10 @@ class CmLabelRptForm(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1344,7 +1353,7 @@ class CmLabelRptForm(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmLocMapMarker(models.Model):
@@ -1352,9 +1361,9 @@ class CmLocMapMarker(models.Model):
     MarkerType = models.CharField(db_column='marker_type', db_comment='마커 유형')
     MarkerInfo = models.TextField(db_column='marker_info', db_comment='마커 정보')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_loc_map_marker'
@@ -1367,7 +1376,7 @@ class CmLocMapMarker(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmLocation(models.Model):
@@ -1387,10 +1396,10 @@ class CmLocation(models.Model):
     DelYn = models.CharField(max_length=1, db_column='del_yn', default='N', null=True, blank=True, db_comment='삭제 여부')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, null=True, blank=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now=True, null=True, blank=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, null=True, blank=True, db_column='updater_id', db_comment='수정자ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, null=True, blank=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1404,7 +1413,7 @@ class CmLocation(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
     def __str__(self):
@@ -1412,7 +1421,7 @@ class CmLocation(models.Model):
 
 class CmLoginsLog(models.Model):
     id = models.BigAutoField(primary_key=True, db_column='logins_pk', db_comment='로그인이력 PK')
-    LoginUserId = models.CharField(max_length=20, db_column='login_user_id', db_comment='로그인사용자 ID')
+    LoginUserId = models.IntegerField(db_column='login_user_id', db_comment='로그인사용자 ID')
     EventTs = models.DateTimeField(db_column='event_ts', db_comment='이벤트일시')
     EventType = models.CharField(max_length=2, db_column='event_type', db_comment='이벤트유형')
     LoginReason = models.CharField(max_length=200, blank=True, null=True, db_column='login_reason', db_comment='로그인이유')
@@ -1429,12 +1438,12 @@ class CmLoginsLog(models.Model):
         db_table_comment = '로그인이력 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmMaterial(models.Model):
@@ -1460,10 +1469,10 @@ class CmMaterial(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
     MtrlBarcode = models.CharField(max_length=300, blank=True, null=True, db_column='mtrl_barcode', db_comment='자재 바코드')
     ConstructionPk = models.SmallIntegerField(blank=True, null=True, db_column='construction_pk', db_comment='공사 PK')
@@ -1481,7 +1490,7 @@ class CmMaterial(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmMenu(models.Model):
@@ -1495,10 +1504,10 @@ class CmMenu(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1511,7 +1520,7 @@ class CmMenu(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmMtrlInout(models.Model):
@@ -1539,10 +1548,10 @@ class CmMtrlInout(models.Model):
    # SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1555,10 +1564,11 @@ class CmMtrlInout(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmMtrlSubstitute(models.Model):
+    id = models.AutoField(primary_key=True)
     #MtrlPk = models.IntegerField(primary_key=True, db_column='mtrl_pk', db_comment='자재 PK')
     CmMaterial = models.ForeignKey('CmMaterial', models.DO_NOTHING, db_column='mtrl_pk', db_comment='자재 PK')
     #MtrlSubstitutePk = models.IntegerField(db_column='mtrl_substitute_pk', db_comment='대체 자재 PK')
@@ -1571,15 +1581,16 @@ class CmMtrlSubstitute(models.Model):
         unique_together = (('CmMaterial', 'CmMaterialSubstitute'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmMttrMtbfInfo(models.Model):
+    id = models.AutoField(primary_key=True)
     InfoYear = models.CharField(max_length=4, db_column='info_year', db_comment='년도')
     InfoType = models.CharField(max_length=4, db_column='info_type', db_comment='정보 타입')
     EquipCode = models.CharField(max_length=20, db_column='equip_cd', db_comment='설비 코드')
@@ -1594,17 +1605,17 @@ class CmMttrMtbfInfo(models.Model):
         unique_together = (('InfoYear', 'InfoType', 'EquipCode', 'Factory_id'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmOperationsLog(models.Model):
     id = models.BigAutoField(primary_key=True, db_column='operations_pk', db_comment='작업이력 PK')
-    UserId = models.CharField(max_length=20, db_column='user_id', db_comment='사용자 ID')
+    UserId = models.IntegerField(db_column='user_id', db_comment='사용자 ID')
     ActionCode = models.CharField(max_length=8, db_column='action_cd', db_comment='작업 코드')
     ActionTs = models.DateTimeField(db_column='action_ts', db_comment='작업 일시')
     MenuId = models.CharField(max_length=10, db_column='menu_id', db_comment='메뉴 ID')
@@ -1621,12 +1632,12 @@ class CmOperationsLog(models.Model):
         db_table_comment = '작업이력 로그'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPermission(models.Model):
@@ -1635,9 +1646,9 @@ class CmPermission(models.Model):
     PermissionDsc = models.CharField(max_length=400, blank=True, null=True, db_column='permission_dsc', db_comment='권한 설명')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_permission'
@@ -1649,7 +1660,7 @@ class CmPermission(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPinvLoc(models.Model):
@@ -1660,15 +1671,15 @@ class CmPinvLoc(models.Model):
     LocCode = models.CharField(max_length=30, db_column='loc_cd', db_comment='위치 코드')
     PinvLocStatus = models.CharField(max_length=10, db_column='pinv_loc_status', db_comment='상태')
     PinvLocDate = models.DateTimeField(blank=True, null=True, db_column='pinv_loc_date', db_comment='실사일시')
-    PinvLocUserId = models.CharField(max_length=50, blank=True, null=True, db_column='pinv_loc_user_id', db_comment='실사자 ID')
+    PinvLocUserId = models.IntegerField(null=True, db_column='pinv_loc_user_id', db_comment='실사자 ID')
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     DelYn = models.CharField(blank=True, null=True, db_column='del_yn', db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -1681,10 +1692,11 @@ class CmPinvLoc(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPinvLocMtrl(models.Model):
+    id = models.AutoField(primary_key=True)
     CmPinvLoc = models.ForeignKey(CmPinvLoc, models.DO_NOTHING, db_column='pinv_loc_pk', db_comment='실사위치 PK')
     MtrlCode = models.CharField(max_length=40, db_column='mtrl_cd', db_comment='자재 코드')
     OwnDeptCode = models.CharField(max_length=20, blank=True, null=True, db_column='own_dept_cd', db_comment='소유 부서 코드')
@@ -1702,16 +1714,16 @@ class CmPinvLocMtrl(models.Model):
         unique_together = (('MtrlCode', 'CmPinvLoc', 'LocCode', 'StockUprice', 'AbGrade', 'LocCellAddr', 'StockedDt'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPm(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pm_pk', db_comment='PM PK')
+    PmPk = models.AutoField(primary_key=True, db_column='pm_pk', db_comment='PM PK')
     PmNo = models.CharField(db_column='pm_no', max_length=20, db_comment='PM 번호')
     PmName = models.CharField(db_column='pm_nm', max_length=100, db_comment='PM 명')
     PmNoSort = models.IntegerField(db_column='pm_no_sort', null=True, blank=True, db_comment='PM 번호 소팅')
@@ -1732,10 +1744,10 @@ class CmPm(models.Model):
     UseYn = models.CharField(db_column='use_yn', max_length=1, db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', max_length=1, db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(db_column='inserter_id', max_length=20, db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(db_column='inserter_nm', max_length=50, null=True, blank=True, db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, db_column='update_ts', null=True, blank=True, db_comment='수정일시')
-    UpdaterId = models.CharField(db_column='updater_id', max_length=20, null=True, blank=True, db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(db_column='updater_nm', max_length=50, null=True, blank=True, db_comment='수정자명')
 
     class Meta:
@@ -1749,10 +1761,11 @@ class CmPm(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPmLabor(models.Model):
+    id = models.AutoField(primary_key=True)
     CmPm = models.ForeignKey(CmPm, models.DO_NOTHING, db_column='pm_pk', db_comment='PM PK')
     CmJobClass = models.ForeignKey(CmJobClass, models.DO_NOTHING, db_column='job_class_pk', db_comment='직종 PK')
     WorkHr = models.DecimalField(db_column='work_hr', max_digits=7, decimal_places=2, null=True, blank=True, db_comment='작업시간')
@@ -1764,16 +1777,18 @@ class CmPmLabor(models.Model):
         unique_together = (('CmJobClass', 'CmPm'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPmMtrl(models.Model):
-    CmPm = models.OneToOneField(CmPm, models.DO_NOTHING, db_column='pm_pk', db_comment='PM PK')
+    id = models.AutoField(primary_key=True)
+    #CmPm = models.OneToOneField(CmPm, models.DO_NOTHING, db_column='pm_pk', db_comment='PM PK')
+    CmPm = models.ForeignKey(CmPm, models.DO_NOTHING, db_column='pm_pk', db_comment='PM PK')
     CmMaterial = models.ForeignKey(CmMaterial, models.DO_NOTHING, db_column='mtrl_pk', db_comment='자재 PK')
     Amt = models.SmallIntegerField(db_column='amt', default=0, db_comment='소요량')
 
@@ -1783,12 +1798,12 @@ class CmPmMtrl(models.Model):
         unique_together = (('CmPm', 'CmMaterial'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPmScheSendLog(models.Model):
@@ -1801,12 +1816,12 @@ class CmPmScheSendLog(models.Model):
         db_table_comment = 'PM 스케줄 발송 로그'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmPopInfo(models.Model):
@@ -1829,12 +1844,12 @@ class CmPopInfo(models.Model):
         db_table_comment = '팝업 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmProgram(models.Model):
@@ -1850,12 +1865,12 @@ class CmProgram(models.Model):
         db_table_comment = '프로그램 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmProject(models.Model):
@@ -1864,16 +1879,16 @@ class CmProject(models.Model):
     ProjName = models.CharField(max_length=200, db_column='proj_nm', db_comment='프로젝트 명')
     PlanStartDt = models.DateField(db_column='plan_start_dt', db_comment='계획 시작일')
     PlanEndDt = models.DateField(db_column='plan_end_dt', db_comment='계획 종료일')
-    ManagerId = models.CharField(max_length=20, blank=True, null=True, db_column='manager_id', db_comment='담당자 ID')
+    ManagerId = models.IntegerField(null=True, db_column='manager_id', db_comment='담당자 ID')
     ProjPurpose = models.CharField(max_length=4000, blank=True, null=True, db_column='proj_purpose', db_comment='프로젝트 목적')
     ProjTotCost = models.IntegerField(blank=True, null=True, db_column='proj_tot_cost', db_comment='총 비용')
     Status = models.CharField(max_length=8, db_column='status', db_comment='상태')
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_project'
@@ -1886,10 +1901,11 @@ class CmProject(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmReliabCodes(models.Model):
+    id = models.AutoField(primary_key=True)
     ReliabCode = models.CharField(max_length=8, db_column='reliab_cd', db_comment='신뢰도 코드')
     ReliabName = models.CharField(max_length=50, db_column='reliab_nm', db_comment='신뢰도 명')
     Types = models.CharField(db_column='types', db_comment='타입')
@@ -1898,9 +1914,9 @@ class CmReliabCodes(models.Model):
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     UseYn = models.CharField(db_column='use_yn', db_comment='사용 여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_reliab_codes'
@@ -1913,7 +1929,7 @@ class CmReliabCodes(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmRole(models.Model):
@@ -1927,15 +1943,16 @@ class CmRole(models.Model):
         db_table_comment = '역할 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmRoleMenu(models.Model):
+    id = models.AutoField(primary_key=True)
     RoleCode = models.CharField(max_length=4, db_column='role_cd', db_comment='역할 코드')
     CmMenu = models.ForeignKey('CmMenu', models.DO_NOTHING, db_column='menu_id', db_comment='메뉴 ID')
     ReadYn = models.CharField(db_column='read_yn', db_comment='읽기 권한 여부')
@@ -1947,30 +1964,12 @@ class CmRoleMenu(models.Model):
         unique_together = (('RoleCode', 'CmMenu'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
-        return
- 
-class CmRolePermission(models.Model):
-    RoleCode = models.CharField(max_length=4, db_column='role_cd', primary_key=True, db_comment='역할 코드')
-    CmPermission = models.ForeignKey('CmPermission', models.DO_NOTHING, db_column='permission_id', db_comment='권한 ID')
-
-    class Meta:
-        db_table = 'cm_role_permission'
-        db_table_comment = '역할별 권한 설정'
-        unique_together = (('RoleCode', 'CmPermission'),)
-
-    def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmScheLog(models.Model):
@@ -2004,12 +2003,12 @@ class CmSiteConfig(models.Model):
         db_table_comment = '사이트별 설정 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmSites(models.Model):
@@ -2020,9 +2019,9 @@ class CmSites(models.Model):
     CcuCount = models.SmallIntegerField(db_column='ccu_count', db_comment='CCU 수')
     MapDrawFileCode = models.CharField(max_length=50, blank=True, null=True, db_column='map_draw_file_cd', db_comment='맵 그리기 파일 코드')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_sites'
@@ -2034,7 +2033,7 @@ class CmSites(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmStorLocAddr(models.Model):
@@ -2047,10 +2046,10 @@ class CmStorLocAddr(models.Model):
     OutUnavailYn = models.CharField(db_column='out_unavail_yn', db_comment='출고 불가 여부')
     UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용 여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2064,7 +2063,7 @@ class CmStorLocAddr(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmSupplier(models.Model):
@@ -2093,10 +2092,10 @@ class CmSupplier(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     DelYn = models.CharField(db_column='del_yn', null=True, db_comment='삭제여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2110,7 +2109,7 @@ class CmSupplier(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmSysOpt(models.Model):
@@ -2122,12 +2121,12 @@ class CmSysOpt(models.Model):
         db_table_comment = '시스템 옵션 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmTag(models.Model):
@@ -2153,10 +2152,10 @@ class CmTag(models.Model):
     DispOrder = models.SmallIntegerField(blank=True, null=True, db_column='disp_order', db_comment='표시 순서')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2164,12 +2163,12 @@ class CmTag(models.Model):
         db_table_comment = '태그 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmTagData(models.Model):
@@ -2184,12 +2183,12 @@ class CmTagData(models.Model):
         db_table_comment = '태그 실시간 데이터'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmTagMeasType(models.Model):
@@ -2200,10 +2199,10 @@ class CmTagMeasType(models.Model):
     DispOrder = models.SmallIntegerField(db_column='disp_order', db_comment='표시순서')
     UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2216,10 +2215,11 @@ class CmTagMeasType(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmUserDashboard(models.Model):
+    id = models.AutoField(primary_key=True)
     UserPk = models.IntegerField(db_column='user_pk', db_comment='사용자 PK')
     DashboardItemPk = models.SmallIntegerField(db_column='dashboard_item_pk', db_comment='대시보드 항목 PK')
     PosiX = models.IntegerField(blank=True, null=True, db_column='posi_x', db_comment='X 좌표')
@@ -2232,15 +2232,16 @@ class CmUserDashboard(models.Model):
         unique_together = (('UserPk', 'DashboardItemPk'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmUserFav(models.Model):
+    id = models.AutoField(primary_key=True)
     UserPk = models.IntegerField(db_column='user_pk', db_comment='사용자 PK')
     CmMenu = models.ForeignKey(CmMenu, models.DO_NOTHING, db_comment='메뉴')
     DispOrdr = models.SmallIntegerField(null=True, db_column='disp_ordr', db_comment='표시순서')
@@ -2251,12 +2252,12 @@ class CmUserFav(models.Model):
         unique_together = (('UserPk', 'CmMenu'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmUserInfo(models.Model):
@@ -2286,10 +2287,10 @@ class CmUserInfo(models.Model):
     UseYn = models.CharField(db_column='use_yn', db_comment='사용 여부')
     DelYn = models.CharField(db_column='del_yn', db_comment='삭제 여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2302,10 +2303,11 @@ class CmUserInfo(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmUserRole(models.Model):
+    id = models.AutoField(primary_key=True)
     UserPk = models.IntegerField(db_column='user_pk', db_comment='사용자 PK')
     CmRole = models.ForeignKey('CmRole', models.DO_NOTHING, db_column='role_cd', db_comment='권한 코드')
 
@@ -2315,12 +2317,12 @@ class CmUserRole(models.Model):
         unique_together = (('UserPk', 'CmRole'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmUserTokenStore(models.Model):
@@ -2342,15 +2344,16 @@ class CmUserTokenStore(models.Model):
         db_table_comment = '사용자 토큰 저장소'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmVDeptPk(models.Model):
+    id = models.AutoField(primary_key=True)
     Max = models.SmallIntegerField(blank=True, null=True, db_column='max', db_comment='최대 부서 PK')
 
     class Meta:
@@ -2358,21 +2361,22 @@ class CmVDeptPk(models.Model):
         db_table_comment = '부서 PK 뷰'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmWoFaultLoc(models.Model):
+    id = models.AutoField(primary_key=True)
     CmWorkOrder = models.ForeignKey('CmWorkOrder', models.DO_NOTHING, db_column='work_order_pk', db_comment='작업지시 PK')
     FaultLocCode = models.CharField(max_length=20, db_column='fault_loc_cd', db_comment='고장위치 코드')
     FaultLocDesc = models.CharField(max_length=100, blank=True, null=True, db_column='fault_loc_desc', db_comment='고장위치 설명')
     CauseCode = models.CharField(max_length=8, db_column='cause_cd', db_comment='고장 원인 코드')
     InsertDt = models.DateTimeField(db_column='insert_dt', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
 
     class Meta:
         db_table = 'cm_wo_fault_loc'
@@ -2382,14 +2386,15 @@ class CmWoFaultLoc(models.Model):
     def set_audit(self, user):
         if self.InserterId is None:
             self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+            # self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 
 class CmWoLabor(models.Model):
+    id = models.AutoField(primary_key=True)
     CmWorkOrder = models.ForeignKey('CmWorkOrder', models.DO_NOTHING, db_column='work_order_pk', db_comment='작업지시 PK')
     EmpPk = models.IntegerField(db_column='emp_pk', null=True, db_comment='사용자 PK')
     CmJobClass = models.ForeignKey(CmJobClass, models.DO_NOTHING, db_column='job_class_pk', blank=True, null=True, db_comment='직종 PK')
@@ -2405,16 +2410,17 @@ class CmWoLabor(models.Model):
         unique_together = (('CmWorkOrder', 'EmpPk', 'CmJobClass'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 
 class CmWoMtrl(models.Model):
+    id = models.AutoField(primary_key=True)
     CmWorkOrder = models.ForeignKey('CmWorkOrder', models.DO_NOTHING, db_column='work_order_pk', db_comment='작업지시 PK')
     CmMaterial = models.ForeignKey(CmMaterial, models.DO_NOTHING, db_column='mtrl_pk', db_comment='자재 PK')
     UnitPrice = models.DecimalField(max_digits=9, decimal_places=0, db_column='unit_price', db_comment='단가')
@@ -2431,12 +2437,12 @@ class CmWoMtrl(models.Model):
         unique_together = (('CmWorkOrder', 'CmMaterial', 'UnitPrice', 'LocCode', 'OwnDeptCode', 'AbGrade'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmWorkOrder(models.Model):
@@ -2489,10 +2495,10 @@ class CmWorkOrder(models.Model):
     IfSendYn = models.CharField(blank=True, null=True, db_column='if_send_yn', db_comment='IF 전송 여부')
     TempNo = models.CharField(max_length=100, blank=True, null=True, db_column='temp_no', db_comment='임시번호')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
     CostType = models.CharField(max_length=20, blank=True, null=True, db_column='cost_type', db_comment='비용유형')
     QualityImpactYn = models.CharField(blank=True, null=True, db_column='quality_impact_yn', db_comment='품질영향 여부')
@@ -2508,7 +2514,7 @@ class CmWorkOrder(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmWorkOrderApproval(models.Model):
@@ -2546,12 +2552,12 @@ class CmWorkOrderApproval(models.Model):
         db_table_comment = '작업지시 결재 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmWorkOrderHist(models.Model):
@@ -2569,15 +2575,16 @@ class CmWorkOrderHist(models.Model):
         db_table_comment = '작업지시 이력 정보'
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmWorkOrderSupplier(models.Model):
+    id = models.AutoField(primary_key=True)
     CmWorkOrder = models.ForeignKey(CmWorkOrder, models.DO_NOTHING, db_column='work_order_pk', db_comment='작업지시 PK')
     CmExSupplier = models.ForeignKey(CmExSupplier, models.DO_NOTHING, db_column='ex_supplier_pk', db_comment='외부업체 PK')
     Cost = models.BigIntegerField(blank=True, null=True, db_column='cost', db_comment='외주비용')
@@ -2588,12 +2595,12 @@ class CmWorkOrderSupplier(models.Model):
         unique_together = (('CmWorkOrder', 'CmExSupplier'),)
 
     def set_audit(self, user):
-        if self.InserterId is None:
-            self.InserterId = user.id
-            self.InserterName = user.username
-        self.UpdaterId = user.id
-        self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        # if self.InserterId is None:
+        #     self.InserterId = user.id
+        #     self.InserterName = user.username
+        # self.UpdaterId = user.id
+        # self.UpdaterName = user.username
+        # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnotiTalkHist(models.Model):
@@ -2602,7 +2609,7 @@ class CmAnotiTalkHist(models.Model):
     TalkContent = models.CharField(max_length=150, db_column='talk_content', db_comment='알림톡내용')
     TalkSndrNo = models.CharField(max_length=15, db_column='talk_sndr_no', db_comment='알림톡발신번호')
     TalkRcvrNo = models.CharField(max_length=15, db_column='talk_rcvr_no', db_comment='알림톡수신번호')
-    TalkRcvrId = models.CharField(max_length=30, blank=True, null=True, db_column='talk_rcvr_id', db_comment='알림톡수신자 ID')
+    TalkRcvrId = models.IntegerField(null=True, db_column='talk_rcvr_id', db_comment='알림톡수신자 ID')
     ResultType = models.CharField(db_column='result_type', db_comment='결과유형')
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
@@ -2610,9 +2617,9 @@ class CmAnotiTalkHist(models.Model):
     SendRmk = models.CharField(max_length=200, blank=True, null=True, db_column='send_rmk', db_comment='발송비고')
     ErrorCnt = models.SmallIntegerField(db_column='error_cnt', db_comment='에러건수')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_talk_hist'
@@ -2624,7 +2631,7 @@ class CmAnotiTalkHist(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnotiTalkTmpl(models.Model):
@@ -2638,9 +2645,9 @@ class CmAnotiTalkTmpl(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_talk_tmpl'
@@ -2652,7 +2659,7 @@ class CmAnotiTalkTmpl(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnotiTalkTmplVar(models.Model):
@@ -2665,9 +2672,9 @@ class CmAnotiTalkTmplVar(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_talk_tmpl_var'
@@ -2679,7 +2686,7 @@ class CmAnotiTalkTmplVar(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnotiTalkTmplVarVal(models.Model):
@@ -2690,9 +2697,9 @@ class CmAnotiTalkTmplVarVal(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_talk_tmpl_var_val'
@@ -2704,7 +2711,7 @@ class CmAnotiTalkTmplVarVal(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAnotiTalkTmplVarValHist(models.Model):
@@ -2715,9 +2722,9 @@ class CmAnotiTalkTmplVarValHist(models.Model):
     #SiteId = models.CharField(max_length=20, db_column='site_id', db_comment='사이트 ID')
     Factory_id = models.IntegerField(null=True, db_column='factory_pk',  db_comment="공장id")
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
 
     class Meta:
         db_table = 'cm_anoti_talk_tmpl_var_val_hist'
@@ -2729,7 +2736,7 @@ class CmAnotiTalkTmplVarValHist(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmArea(models.Model):
@@ -2740,10 +2747,10 @@ class CmArea(models.Model):
     AreaDesc = models.CharField(max_length=200, blank=True, null=True, db_column='area_desc', db_comment='구역설명')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2756,17 +2763,18 @@ class CmArea(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAreaEquip(models.Model):
+    id = models.AutoField(primary_key=True)
     CmArea = models.ForeignKey(CmArea, models.DO_NOTHING, db_column='area_pk', db_comment='구역 PK')
     CmEquipment = models.ForeignKey('CmEquipment', models.DO_NOTHING, db_column='equip_pk', db_comment='설비 PK')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2780,17 +2788,18 @@ class CmAreaEquip(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAreaMtrl(models.Model):
+    id = models.AutoField(primary_key=True)
     CmArea = models.ForeignKey(CmArea, models.DO_NOTHING, db_column='area_pk', db_comment='구역 PK')
     CmMaterial = models.ForeignKey('CmMaterial', models.DO_NOTHING, db_column='mtrl_pk', db_comment='자재 PK')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2804,17 +2813,18 @@ class CmAreaMtrl(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmAreaUser(models.Model):
+    id = models.AutoField(primary_key=True)
     CmArea = models.ForeignKey(CmArea, models.DO_NOTHING, db_column='area_pk', db_comment='구역 PK')
     UserPk = models.IntegerField(db_column='user_pk', db_comment='사용자 PK')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2828,7 +2838,7 @@ class CmAreaUser(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  
 class CmBomVer(models.Model):
@@ -2838,10 +2848,10 @@ class CmBomVer(models.Model):
     BomDesc = models.CharField(max_length=200, blank=True, null=True, db_column='bom_desc', db_comment='BOM설명')
     UseYn = models.CharField(db_column='use_yn', db_comment='사용여부')
     InsertTs = models.DateTimeField(auto_now_add=True, db_column='insert_ts', db_comment='등록일시')
-    InserterId = models.CharField(max_length=20, db_column='inserter_id', db_comment='등록자 ID')
+    InserterId = models.IntegerField(db_column='inserter_id', db_comment='등록자 ID')
     InserterName = models.CharField(max_length=50, blank=True, null=True, db_column='inserter_nm', db_comment='등록자명')
     UpdateTs = models.DateTimeField(auto_now_add=True, null=True, db_column='update_ts', db_comment='수정일시')
-    UpdaterId = models.CharField(max_length=20, blank=True, null=True, db_column='updater_id', db_comment='수정자 ID')
+    UpdaterId = models.IntegerField(null=True, db_column='updater_id', db_comment='수정자 ID')
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
@@ -2855,6 +2865,6 @@ class CmBomVer(models.Model):
             self.InserterName = user.username
         self.UpdaterId = user.id
         self.UpdaterName = user.username
-        self.UpdateDt = DateUtil.get_current_datetime()
+        self.UpdateTs = DateUtil.get_current_datetime()
         return
  

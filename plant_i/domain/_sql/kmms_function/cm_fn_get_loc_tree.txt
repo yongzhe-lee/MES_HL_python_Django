@@ -1,0 +1,74 @@
+-- DROP FUNCTION public.cm_fn_get_loc_tree(int4);
+
+ DROP FUNCTION public.cm_fn_get_loc_tree(int4);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_tree(v_factory_pk integer)
+ RETURNS TABLE(cd character varying, up_cd character varying, id bigint, up_id bigint, label character varying, lvl integer, path_info text[], path_info_desc text[], path_info_pk bigint[], lvl_type character varying, sub_count integer, status_cd character varying, status_nm character varying, factory_pk integer, factory_name character varying, use_yn character)
+ LANGUAGE plpgsql
+AS $function$
+declare 
+    v_rec record;
+begin
+	for v_rec in(
+		WITH cte AS (
+			SELECT t.cd,
+			        CASE
+			            WHEN t.up_id is NULL THEN NULL::text
+			            ELSE t.up_cd
+			        END AS up_cd,
+			    t.id,
+			    t.up_id,
+			    t.label as "label",
+			    t.lvl - 1 AS lvl,
+			    array_remove(t.path_info, t.factory_pk::text) AS path_info,
+			    array_remove(t.path_info_desc, t.factory_name::text) AS path_info_desc,
+			    array_remove(t.path_info_pk, 0::bigint) AS path_info_pk,
+			    t.lvl_type,
+			    t.sub_count,
+			    t.status_cd,
+			    t.status_nm,
+			    t.factory_pk,
+			    t.factory_name,
+			    t.use_yn
+			FROM (SELECT * FROM cm_fn_get_site_loc_tree (v_factory_pk)) t
+			WHERE upper(t.lvl_type) = upper('location')::text
+        )
+		 SELECT cte.cd,
+		    cte.up_cd,
+		    cte.id,
+		    cte.up_id,
+		    cte.label as "label",
+		    cte.lvl,
+		    cte.path_info,
+		    cte.path_info_desc,
+		    cte.path_info_pk,
+		    cte.lvl_type,
+		    cte.sub_count,
+		    cte.status_cd,
+		    cte.status_nm,
+		    cte.factory_pk,
+		    cte.factory_name,
+		    cte.use_yn
+		   from cte
+        ) loop  
+	       	cd := v_rec.cd; 
+	       	up_cd := v_rec.up_cd; 
+	       	id := v_rec.id; 
+	       	up_id := v_rec.up_id; 
+	       	label := v_rec.label; 
+	       	lvl := v_rec.lvl; 
+	       	path_info := v_rec.path_info; 
+	       	path_info_desc := v_rec.path_info_desc; 
+	       	path_info_pk := v_rec.path_info_pk; 
+	       	lvl_type := v_rec.lvl_type; 
+	       	sub_count := v_rec.sub_count; 
+	       	status_cd := v_rec.status_cd; 
+	       	status_nm := v_rec.status_nm; 
+	       	factory_pk := v_rec.factory_pk; 
+	       	factory_name := v_rec.factory_name; 
+	       	use_yn := v_rec.use_yn; 
+       		return next;
+	end loop;
+end; $function$
+;
+;

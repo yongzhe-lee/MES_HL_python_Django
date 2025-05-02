@@ -141,12 +141,10 @@
 {% block scripts %}
 
 {% include '../../popup/modalPmMaster.html'%}
-{% include '../../popup/modalEquipMaster.html'%}
-{% include '../../popup/modalEqu.html'%}
+{% include '../../popup/modalEquSel.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
-{% include '../../popup/modalMaterials.html'%}
-{% include 'common/file_upload.html' %}
+{% include '../../popup/modalMatSel.html'%}
 
 <script type="text/javascript">
     class PmMasterPage {
@@ -268,19 +266,19 @@
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
                     },
                     {
-                        field: 'equ_code',
+                        field: 'equip_cd',
                         title: '설비코드',
                         width: 100,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#">#=equ_code#</a>'
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#">#=equip_cd#</a>'
                     },
-                    { field: 'equ_name', title: '설비명', width: 150 },
-                    { field: 'import_rank', title: '중요도', width: 80 },
-                    { field: 'exec_dept', title: '실행부서', width: 100 },
+                    { field: 'equip_nm', title: '설비명', width: 150 },
+                    { field: 'import_rank_nm', title: '중요도', width: 80 },
+                    { field: 'dept_nm', title: '실행부서', width: 100 },
                     { field: 'mng_dept_nm', title: '관리부서', width: 100 },
-                    { field: 'equ_location', title: '설비위치', width: 120 },
-                    { field: 'pm_manager', title: 'PM 담당자', width: 100 },
-                    { field: 'pm_type', title: 'PM 유형', width: 80 },
-                    { field: 'cycle_type', title: '주기', width: 50 }
+                    { field: 'loc_nm', title: '설비위치', width: 120 },
+                    { field: 'pm_user_nm', title: 'PM 담당자', width: 100 },
+                    { field: 'pm_type_nm', title: 'PM 유형', width: 80 },
+                    { field: 'cycle_type_nm', title: '주기', width: 50 }
                 ],
 
                 dataBound: function (e) {
@@ -288,11 +286,11 @@
                         e.preventDefault();
                         let pmPk = $(this).data("pm-pk");
                         let equipPk = $(this).data("equip-pk");
-						
+
                         if (pmPk) {
-							pmMasterPage.getPmMasterModal(pmPk);
+                            pmMasterPage.getPmMasterModal(pmPk);
                         } else if (equipPk) {
-							equipMasterPage.getEquipMasterData(equipPk);
+                            equipSelectPage.getEquipMasterData(equipPk);
                         }
                     });
                 },
@@ -413,7 +411,7 @@
                 };
 
                 let param = {
-                    action: 'read',
+                    action: 'findAll',
                     keyword: $('#keyword').val() || '',
                     equDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
                     equLoc: getComponentValue("#srch_location", "kendoDropDownTree"),

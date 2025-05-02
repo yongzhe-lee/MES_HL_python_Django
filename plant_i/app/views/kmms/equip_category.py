@@ -6,8 +6,8 @@ from domain.models.cmms import CmBaseCodeGroup
 
 def equip_category(context):
     '''
-    api/kmms/equip_category    기초코드그룹
-    김태영 작업중
+    api/kmms/equip_category    설비 카테고리 정보6
+    김태영 
 
     getEquipCategoryList
     getUseEquipCategoryList
@@ -21,8 +21,9 @@ def equip_category(context):
     action = gparam.get('action', 'read') 
 
     try:
-        if action == 'getEquipCategoryList':
-            useYn = gparam.get('useYn')
+        if action == 'getEquipCategoryList':            
+            keyword = gparam.get('keyword', None)
+            useYn = gparam.get('useYn', None)
 
             sql = ''' SELECT t.equip_category_id
 			, t.equip_category_desc
@@ -37,9 +38,17 @@ def equip_category(context):
 		    FROM cm_equip_category t
 		    INNER JOIN user_profile iu on iu."User_id" = t.inserter_id
 		    LEFT JOIN user_profile uu on uu."User_id"  = t.updater_id
-            WHERE 1 = 1
-            AND t.use_yn = 'Y'
+            WHERE 1 = 1          
             '''
+
+            if keyword:
+                sql += ''' 
+                 (
+				          UPPER(t.equip_category_id) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				    OR UPPER(t.equip_category_desc) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+                    OR UPPER(t.remark) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+                )
+                '''
             if useYn:
                 sql += ''' AND t.use_yn = %(useYn)s
                 '''
@@ -48,6 +57,7 @@ def equip_category(context):
             '''
 
             dc = {}
+            dc['keyword'] = keyword
             dc['useYn'] = useYn
 
             items = DbUtil.get_rows(sql, dc)

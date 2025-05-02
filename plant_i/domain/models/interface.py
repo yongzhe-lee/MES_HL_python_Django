@@ -1,4 +1,3 @@
-from pyexpat import model
 from tabnanny import verbose
 from django.db import models
 from domain.services.date import DateUtil
@@ -304,88 +303,40 @@ class IFMesProductionPlan(models.Model):
           
         ]
 
-class IFMesProductionResult(models.Model):
-    '''
-    설비제어PC 공정데이터 저장정보 헤더
-
-    sn	varchar(100)	시리얼번호
-    c_sn	varchar(100)	변경시리얼번호
-    mat_cd	varchar(20)	품목코드
-    equ_cd	varchar(20)	설비코드
-    line_cd	varchar(20)	라인코드
-    proc_cd	varchar(20)	실적공정코드
-    wo_num	varchar(30	작업지시번호
-    bom_ver	varchar(5)	BOM버전
-    status	varchar(1)	상태
-    mes_dt	date	MES일시
-    array_num	varchar(20)	배열번호
-    pcb_cn	varchar(20)	PCB 번호
-
-    '''
-    id = models.BigAutoField(primary_key=True)
-    sn = models.CharField('시리얼번호', max_length=100)
-    c_sn = models.CharField('변경시리얼번호', max_length=100)
-    mat_cd = models.CharField('품목코드', max_length=20)
-    equ_cd = models.CharField('설비코드', max_length=20)
-    line_cd = models.CharField('라인코드', max_length=20)
-    proc_cd = models.CharField('실적공정코드', max_length=20)
-    wo_num = models.CharField('작업지시번호', max_length=30)
-    bom_ver = models.CharField('BOM버전', max_length=5)
-    status = models.CharField('상태', max_length=1)
-    mes_dt = models.DateField('MES일시')
-    array_num = models.CharField('배열번호', max_length=20)
-    pcb_cn = models.CharField('PCB 번호', max_length=20)
-
-
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
-    class Meta():
-        db_table = 'if_mes_prod_result'
-        verbose_name = 'MES 생산이력 인터페이스'
-        unique_together = [
-          
-        ]
 
 class IFEquipmentResult(models.Model):
 
     id = models.BigAutoField(primary_key=True)
+    equ_cd = models.CharField('StationID', max_length=100, null=True) # plant_i 설비코드
+    data_date = models.DateTimeField('생성일시')
     sn = models.CharField('대표시리얼번호', max_length=100, null=True)
     sn_new = models.CharField('변경시리얼번호', max_length=100, null=True) # 하우징 PCB Assembly 에서만 들어온다
     sn_items = models.JSONField('다중시리얼번호', null=True) # SMT#4 에서만 들어온다
-    pcb_cn = models.CharField('PCB 번호', max_length=20, null=True) # 레이저마킹에서만 들어온다
-    pcb_input = models.CharField('pcb_input', max_length=20, null=True) #smt 전용
+    pcb_cn = models.CharField('PCB 번호', max_length=100, null=True) # 레이저마킹에서만 들어온다
+    pcb_input = models.DateTimeField('pcb_input', null=True) #smt 전용
+    pcb_size = models.CharField('pcb size', max_length=100, null=True) #smt 전용
+    pcb_ww = models.CharField('pcb ww', max_length=100, null=True) #smt 전용(레이저마킹)
+    pcb_array = models.CharField('pcb_array', max_length=100, null=True) #smt 전용
     state =  models.CharField('생산결과', max_length=5, null=True)  # 합부여부
     # light =  models.JSONField('경광등정보', null=True) DT전용
     # light_items = models.JSONField('경광등정보', null=True) # 마운터전용 ==> DT전용
     m_status = models.JSONField('설비가동상태정보', null=True) # 설비상태 {"status" : "run", "start_dt": "", "end_dt": ""}
     mat_cd = models.CharField('PartNr', max_length=100, null=True) # 품목코드
-    mat_desc = models.CharField('PartDesc', max_length=100, null=True) # SAP에 등록되어 있는 품목설명
-    equ_cd = models.CharField('StationID', max_length=100, null=True) # plant_i 설비코드
+    mat_desc = models.CharField('PartDesc', max_length=100, null=True) # SAP에 등록되어 있는 품목설명    
     #mes_equ_cd = models.CharField('StationNo', max_length=100, null=True)
     bom_ver = models.CharField('bom_ver', max_length=100, null=True)
     is_alarm = models.BooleanField('is_alarm', default=False, null=True)
     alarm_items = models.JSONField('알람목록', null=True)  #[{"alarm_cd" : "", "":""} ]
+    flow_meter_items = models.JSONField('유량계정보', null=True) # 마운터전용 {"flow_meter1":1, "flow_meter2":2}
     module_no = models.CharField('module_no', max_length=100, null=True) # 마운터전용
     dummy1 = models.CharField('dummy1', max_length=100, null=True)
-    dummy2 = models.CharField('dummy2', max_length=100, null=True)
-    data_date = models.DateField('생성일시')
+    dummy2 = models.CharField('dummy2', max_length=100, null=True)    
 
     class Meta():
         db_table = 'if_equ_result'
         verbose_name = 'MES 설비생산데이터 인터페이스'
         unique_together = [
-            ["equ_cd", "data_date"]
+            ["equ_cd", "data_date","sn"]
         ] 
         
 
@@ -408,21 +359,83 @@ class IFEquipmentResultItem(models.Model):
     '''
     id = models.BigAutoField(primary_key=True)
     EquipmentResult = models.ForeignKey(IFEquipmentResult, on_delete=models.CASCADE, null=True, db_column="rst_id")
-    test_item_cd = models.CharField('검사항목코드', max_length=20)
-    test_item_val = models.CharField('항목값', max_length=20, null=True)
-    min_val = models.CharField('관리기준하한', max_length=20, null=True)
-    max_val = models.CharField('관리기준상한', max_length=20, null=True)
-    unit = models.CharField('단위', max_length=5, null=True)
+    test_item_cd = models.CharField('검사항목코드', max_length=100)
+    test_item_val = models.CharField('항목값', max_length=500, null=True)
+    min_val = models.CharField('관리기준하한', max_length=500, null=True)
+    max_val = models.CharField('관리기준상한', max_length=500, null=True)
+    unit = models.CharField('단위', max_length=20, null=True)
     failcode = models.CharField('failcode', max_length=2000, null=True)
     _status = models.CharField('_status', max_length=10, null=True)
     _created = models.DateTimeField('_created', auto_now_add=True)
     
+
     class Meta():
         db_table = 'if_equ_result_item'
         verbose_name = 'MES 설비측정데이터 인터페이스'
         unique_together = [
-          
+          ["EquipmentResult", "test_item_cd"]
         ]
+
+class IFEquipemntDefectItems(models.Model):
+    '''
+    결함코드
+    결함명
+    컴포넌트명(포지션)
+    부품번호
+    '''
+
+    id = models.BigAutoField(primary_key=True)
+    EquipmentResult = models.ForeignKey(IFEquipmentResult, on_delete=models.CASCADE, null=True, db_column="rst_id")
+    defect_cd = models.CharField('결함코드', max_length=20, null=True)
+    defect_nm = models.CharField('결함명', max_length=100, null=True)
+    component_nm = models.CharField('컴포넌트명(포지션)', max_length=100, null=True)
+    part_no = models.CharField('부품번호', max_length=100, null=True)
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created = models.DateTimeField('_created', auto_now_add=True)
+    _modified = models.DateTimeField('_modfied', auto_now=True)
+
+    class Meta():
+        db_table = 'if_equ_defect_item'
+        verbose_name = 'MES 설비부적합데이터 인터페이스'
+        unique_together = [
+            ["EquipmentResult", "defect_cd"]
+        ]
+
+class IFMounterFeederRate(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    job = models.CharField("job", max_length=200, null=True)
+    equ_cd = models.CharField('설비코드', max_length=50, null=True)
+    machine = models.CharField('머신코드', max_length=50, null=True)
+    position = models.CharField('포지션', max_length=50, null=True)
+    partNumber = models.CharField('부품번호', max_length=50, null=True)
+    fidl = models.CharField('FIDL', max_length=50, null=True)
+    pickup = models.IntegerField('픽업수', null=True)
+    no_pickup = models.IntegerField('픽업실패수', null=True)
+    usage = models.IntegerField('사용횟수', null=True)
+    reject = models.IntegerField('리젝수', null=True)
+    error = models.IntegerField('에러수', null=True)
+    dislodge = models.IntegerField('이탈수', null=True)
+    rescan = models.IntegerField('리스캔수', null=True)
+    lcr = models.IntegerField('LCR수', null=True)
+    pickup_ratio = models.DecimalField('픽업비율', max_digits=5, decimal_places=2, null=True)
+    reject_ratio = models.DecimalField('리젝비율', max_digits=5, decimal_places=2, null=True)
+    error_ratio = models.DecimalField('에러비율', max_digits=5, decimal_places=2, null=True)
+    dislodge_ratio = models.DecimalField('이탈비율', max_digits=5, decimal_places=2, null=True)
+    success_ratio = models.DecimalField('성공비율', max_digits=5, decimal_places=2, null=True)
+
+    data_date = models.DateTimeField('생성일시')
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created = models.DateTimeField('_created', auto_now_add=True)
+    _modified = models.DateTimeField('_modfied', auto_now=True)
+
+    class Meta():
+        db_table = 'if_mnt_feeder_rate'
+        verbose_name = 'mouter feeder rate'
+        unique_together = [
+            ["machine", "position","data_date"]
+        ]
+    
 
 
 class IFQmsDefect(models.Model):

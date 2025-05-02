@@ -6,8 +6,8 @@ from domain.models.cmms import CmEquipDeptHist
 
 def equip_dept_hist(context):
     '''
-    api/kmms/equip_dept_hist    설비관리부서 변경이력?
-    김태영 작업중
+    api/kmms/equip_dept_hist    설비관리부서 변경이력
+    김태영 
 
     findAll
     delete

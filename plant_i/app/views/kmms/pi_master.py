@@ -15,6 +15,15 @@ import json
 def pi_master(context):
     '''
     /api/kmms/pi_master
+    
+    작성명 : 점검마스터정보
+    작성자 : 최성열
+    작성일 : 
+    비고 :
+
+    -수정사항-
+    수정일             작업자     수정내용
+
     '''
     items = []
     gparam = context.gparam;
@@ -25,6 +34,7 @@ def pi_master(context):
 
     pi_master_service = PIService()
 
+    #저장의 경우 mybatis의 쿼리를 적용하지 않고 ORM으로 등록한다
     if action=='save':
         # 데이터 저장 로직        
         chk_mast_pk = posparam.get('chk_mast_pk')# pk 값을 가져옵니다. 없으면 None
@@ -44,27 +54,18 @@ def pi_master(context):
 
             # 파라미터 가져오기
             
-            chk_mast_no = pi_master_service.generate_pi_number()
+            result = pi_master_service.selectMaxEquipChkMastNo()
 
-            # 데이터 저장
-            pi.ChkMastNo = chk_mast_no
-            pi.ChkMastNm = posparam.get('piName')          
+            # 데이터 저장2
+            pi.ChkMastNo = result["max_no"];    
+            pi.ChkMastName = posparam.get('piName')          
             pi.WorkText = posparam.get('work_text')
-            pi.SchedStartDate = posparam.get('sched_start_dt')
+            pi.SchedStartDate = posparam.get('schedStartDt')
             pi.CycleType = posparam.get('cycleType')
-            pi.PerNumber = posparam.get('per_number')
+            pi.PerNumber = posparam.get('perNumber')
 
             dept_pk = posparam.get('dept_pk')
             chk_user_pk = posparam.get('piManager')
-    
-            # 설비 필수값 체크
-            '''
-            if not equip_pk:
-                return JsonResponse({
-                    'result': False,
-                    'message': '설비를 선택해주세요.'
-                })
-            '''
             
             # Depart 객체 가져오기
             try:
@@ -83,23 +84,11 @@ def pi_master(context):
                     'result': False,
                     'message': f'User with id {chk_user_pk} does not exist.'
                 })
-
-            # Equipment 객체 가져오기
-            '''
-            try:
-                equipment = Equipment.objects.get(id=equip_pk)
-            except Equipment.DoesNotExist:
-                return JsonResponse({
-                    'result': False,
-                    'message': f'Equipment with id {equip_pk} does not exist.'
-                })
-            '''
             
             pi.DeptPk = dept_pk
             pi.ChkUserPk= chk_user_pk
-            #pi.Equipment = equipment
-
-            #pi.SiteId = '1'
+            
+            pi.SiteId = '1'
             pi.UseYn = 'Y'
             pi.DelYn = 'N'           
         
@@ -114,7 +103,7 @@ def pi_master(context):
 
             pi.save()
 
-            items = {'success': True, 'id': pi.chk_mast_pk}
+            items = {'success': True, 'id': pi.id}
 
         except Exception as ex:
             source = 'api/kmms/pi_master, action:{}'.format(action)
@@ -134,7 +123,7 @@ def pi_master(context):
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
         isLegal = gparam.get('isLegal', None)
         
-        items = pi_master_service.get_pi_master_list(searchText, equipDeptPk, locPk, deptPk, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate)
+        items = pi_master_service.findAll(searchText, equipDeptPk, locPk, deptPk, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate)
 
     
 

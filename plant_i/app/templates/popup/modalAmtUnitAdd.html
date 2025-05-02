@@ -1,0 +1,184 @@
+﻿<div id="modalAmtUnitAdd" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>현상코드 등록</h4>
+        </div>
+        <div class="modal-body">
+            <form id="occForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>직종명 <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="occuName" name="occuName" placeholder="25자 이하로 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label>현상코드명 <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="maintenanceTime" name="maintenanceTime" placeholder="50자 이하로 입력하세요">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group second-group">
+                        <label>사이트 <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="occuName" name="occuName" readonly>
+                    </div>
+                </div>
+            </form>
+            <!-- 그리드 영역 -->
+            <div class="grid-section">
+                <h4>최근 등록된 현상코드</h4>
+                <div id="occupations_grid"></div>
+            </div>
+        </div>
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="saveOccuBtn">저장</button>
+            <button type="button" class="btn-close" id="closeOccuModal">닫기</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 손자 모달 크기 조정 (데이터가 많아도 여유롭게 보이도록 확대) */
+    #modalAmtUnitAdd {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 750px;
+        max-width: 95%;
+        height: 500px;
+        max-height: 85vh;
+        z-index: 1003; /* 부모 모달보다 높은 값 */
+        box-shadow: none !important; /* 바깥쪽 그림자 완전 제거 */
+        border: none !important; /* 테두리 제거 */
+    }
+
+        /* 입력 필드 정렬 */
+        #modalAmtUnitAdd .form-row {
+            align-items: center;
+            gap: 15px;
+        }
+
+    /* 비율 조정 */
+    .modalAmtUnitAdd .form-group {
+        flex: 1;
+    }
+
+    .form-group:first-child {
+        flex: 1;
+    }
+
+    .form-group:last-child {
+        flex: 2;
+    }
+
+    #modalAmtUnitAdd .second-group {
+        flex: 0.33;
+    }
+
+    #modalAmtUnitAdd .modal-body {
+        overflow-y: hidden !important; /* 스크롤 제거 */
+    }
+</style>
+
+<script type="text/javascript">
+    class OccuMaster {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/kmms/job_class';
+            this.modal = $("#modalAmtUnitAdd"); // 모달 변수 저장
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            // ✅ Kendo Grid 초기화 (유지)
+            this.grid = $("#occupations_grid").kendoGrid({
+                columns: [
+                    { field: 'job_class_nm', title: '현상코드', width: 100 },
+                    { field: 'wage_cost', title: '현상코드명', width: 150 },
+                    { field: 'wage_cost', title: '최근등록일', width: 150 },
+                ],
+                selectable: true,
+                scrollable: false, // ✅ 스크롤 제거
+                dataSource: {
+                    transport: {
+                        read: function (options) {
+                            $.ajax({
+                                url: "/api/kmms/job_class?action=read",
+                                type: "GET",
+                                success: function (result) {
+                                    options.success(result);
+                                }
+                            });
+                        }
+                    }
+                }
+            }).data("kendoGrid");
+
+            // ✅ 저장 버튼 이벤트
+            $("#saveOccuBtn").kendoButton({
+                icon: "k-i-save",
+                click: function (e) {
+                    e.preventDefault();
+                    _this.saveData();
+                }
+            });
+
+			$("#closeOccuModal").kendoButton({
+				click: function (e) {
+                    e.preventDefault();
+					_this.modal.fadeOut();
+				}
+            });
+
+            // ✅ 모달 외부 클릭 시 닫기
+            $(document).off("click").on("click", function (e) {
+                if (!$(e.target).closest(".modal-content").length && _this.modal.is(":visible")) {
+                    console.log("모달 외부 클릭됨!"); // 디버깅 로그 확인
+                    _this.modal.fadeOut();
+                }
+            });
+        }
+
+        saveData() {
+            let _this = this;
+            let data = FormUtil.extractForm($('#occForm'));
+
+            let Name = $('#occuName').val();
+            if (!Name) {
+                Alert.alert('', '직종명을 입력해주세요.');
+                return;
+            }
+
+            let funcSucc = function (resp) {
+                if (resp.success) {
+                    Notify.success('저장되었습니다.');
+                    _this.resetData();
+                    // ✅ 최신 데이터 갱신 (occupations_grid 리프레시)
+                    _this.refreshOccupationsGrid();
+
+                    // 부모 페이지의 그리드 갱신
+                    page.searchMainData();
+                } else {
+                    Alert.alert('error', resp.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+            _this.modal.fadeOut();
+        }
+
+        refreshOccupationsGrid() {
+            this.grid.dataSource.read(); // ✅ 최신 데이터 불러오기
+            this.grid.refresh(); // ✅ 화면 갱신
+        }
+
+        resetData() {
+            FormUtil.resetForm($('#occForm'));
+        }
+    }
+
+    // ✅ 인스턴스 생성 (이제 $(document).ready() 필요 없음!)
+    let occuMaster = new OccuMaster();
+
+</script>

@@ -7,7 +7,7 @@ from domain.models.cmms import CmWoMtrl
 def wo_mtrl(context):
     '''
     api/kmms/wo_mtrl    작업지시 자재
-    김태영 작업중
+    김태영 
 
     findAll 전체목록조회
     findWorkOrdersByMtrl 자재를 참조하고 있는 작업지시 목록

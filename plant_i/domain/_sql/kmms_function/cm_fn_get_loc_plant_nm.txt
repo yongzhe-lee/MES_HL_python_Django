@@ -1,0 +1,30 @@
+-- DROP FUNCTION public.cm_fn_get_loc_plant_nm(int8, int4);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_plant_nm(v_loc_pk bigint, v_factory_pk integer)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	t_nm varchar;
+begin
+
+	with recursive cte as  ( 
+		select loc_pk, up_loc_pk, plant_yn
+		from cm_location
+		where loc_pk = v_loc_pk
+		union all
+		select l.loc_pk, l.up_loc_pk, l.plant_yn
+		from cte
+		left join cm_location l on cte.up_loc_pk = l.loc_pk
+		where l.loc_pk is not null
+	)
+	select max(case when d.plant_yn = 'Y' then d.loc_nm else '' end) as loc_nm
+	into t_nm
+	from cte
+	inner join cm_location d on cte.loc_pk = d.loc_pk;
+	
+	RETURN coalesce(t_nm, '');
+	
+end;
+$function$
+;

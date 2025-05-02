@@ -36,7 +36,7 @@
 					<span>
 						<!-- 오른쪽 버튼 영역-->
 						<button id="btnAdd" class="btn-search">등록</button>
-						<button id="btnSearch" class="btn-search">조회</button>
+						<button id="btnSearch" class="btn-search k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">조회</button>
 						<button id="btnExcel">Excel</button>
 					</span>
 				</div>
@@ -50,7 +50,7 @@
 {% endblock %}
 {% block scripts %}
 <script type="text/javascript">
-	class EquipmentPage {
+	class CmEquipmentPage {
 		constructor() {
 			this.grid = null;
 			this.upload = null;
@@ -313,7 +313,7 @@
 
 						// 이미 로드된 경우 재사용
 						if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {							
-							equipMasterPage.getEquipMasterData(equipPk);
+							equipMasterPage.show(equipPk);
 							return;
 						}
 
@@ -339,7 +339,7 @@
 
 							// ✅ 3. 이제 EquipMaster 실행
 							window.equipMasterPage = new EquipMaster();
-							equipMasterPage.getEquipMasterData(equipPk);
+							equipMasterPage.show(equipPk);
 
 						} catch (err) {
 							console.error("equipment.html 로드 실패:", err);
@@ -362,7 +362,7 @@
 				icon: "search",
 				themeColor: "base",
 				click: function () {
-					_this.searchMainData();
+					page.searchMainData();
 				}
 			});
 
@@ -383,6 +383,41 @@
 				themeColor: "info",
 				click: function () {
 					_this.saveData();
+				}
+			});
+
+			$('#btnAdd').kendoButton({
+				icon: "plus",
+				themeColor: "base",
+				click: async function () {
+					try {
+						// ✅ 1. equipment.html 먼저 append
+						const response = await $.get('/api/kmms/equipment?action=load_modal');
+						$('body').append(response);
+
+						// ✅ 2. DOM 안 imageUploader가 준비될 때까지 대기
+						let waitForUploader = async () => {
+							return new Promise(resolve => {
+								let count = 0;
+								const check = () => {
+									if (window.imageUploader) return resolve();
+									count++;
+									if (count > 20) return resolve(); // 최대 대기 시간 = 20회 × 50ms = 1000ms = 1초
+									setTimeout(check, 50);
+								};
+								check();
+							});
+						};
+						await waitForUploader();
+
+						// ✅ 3. 이제 EquipMaster 실행
+						window.equipMasterPage = new EquipMaster();
+						$("#modalEquipMaster").fadeIn();
+
+					} catch (err) {
+						console.error("equipment.html 로드 실패:", err);
+						alert("설비 정보를 불러오는데 실패했습니다.");
+					}
 				}
 			});
 
@@ -427,7 +462,7 @@
 	};
 
 	let page = null;
-	page = new EquipmentPage();
+	page = new CmEquipmentPage();
 
 	$(document).ready(function () {
 		page.searchMainData();

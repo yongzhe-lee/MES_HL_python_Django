@@ -13,7 +13,11 @@ let gui = {
     template_key: '{{gui.template_key}}',
     action: '{{gui.action}}',
     system_topic: '{{gui.system_topic}}',
+    event_topic: '{{gui.event_topic}}',
     path_name: '{{gui.path_name}}',
+    mqtt_host: '{{gui.mqtt_host}}',
+    main_app_run: '{{gui.main_app_run}}',
+    mqtt_port: parseInt('{{gui.mqtt_web_port}}')
 };
 
 let gparam = '{{ gparam }}';

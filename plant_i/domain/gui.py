@@ -41,37 +41,15 @@ class GUIConfiguration():
         gui_dc['wm_asset'] = cls.gui_item('Asset조회', 'aas/asset.html')
         gui_dc['wm_aasx'] = cls.gui_item('AASX관리', 'aas/aasx.html')
 
-        #cmms 설비정보
+        #################################################  KMMS  #####################################################
+        #설비정보
         gui_dc['wm_cm_equipment'] = cls.gui_item('설비마스터', 'kmms/equipment/cm_equipment.html')
         gui_dc['wm_cm_equip_disposed'] = cls.gui_item('불용설비', 'kmms/equipment/cm_equip_disposed.html')
         gui_dc['wm_cm_equip_workhist'] = cls.gui_item('설비별작업이력', 'kmms/equipment/cm_equip_workhist.html')
 
-        #기준정보
-        gui_dc['wm_factory'] = cls.gui_item('공장', 'definition/factory.html')#라인정보
-        gui_dc['wm_line'] = cls.gui_item('라인', 'definition/line.html')#라인정보
-        gui_dc['wm_process'] = cls.gui_item('공정', 'definition/process.html')#공정정보
-        gui_dc['wm_material'] = cls.gui_item('품목정보', 'definition/material.html') #품목정보
-        gui_dc['wm_bom'] = cls.gui_item('BOM', 'definition/bom.html') #BOM
-        gui_dc['wm_company'] = cls.gui_item('업체', 'definition/company.html')#업체
-        gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'definition/holiday.html')#휴일 스케줄
-        gui_dc['wm_defect'] = cls.gui_item('부적합정보', 'definition/defect.html') #부적합정보
-        gui_dc['wm_shift'] = cls.gui_item('조교대정보', 'definition/shift.html')#조교대정보
-        gui_dc['wm_line_inactive'] = cls.gui_item('비가동일정정보', 'definition/line_inactive.html')#비가동정보
-        gui_dc['wm_model_change'] = cls.gui_item('기종변경정보', 'definition/model_change.html')#기종변경정보
+        #cmms 정비자재
+        gui_dc['wm_cm_material'] = cls.gui_item('자재마스터', 'kmms/material/cm_material.html')
 
-
-        # 설비관리
-        gui_dc['wm_equip_group'] = cls.gui_item('설비그룹', 'definition/equip_group.html')
-        gui_dc['wm_equipment'] = cls.gui_item('설비', 'definition/equipment.html')
-        # gui_dc['wm_equip_obsolete'] = cls.gui_item('불용설비목록', 'definition/equip_obsolete.html')
-        # gui_dc['wm_equip_work_hist'] = cls.gui_item('설비별작업이력', 'definition/equip_work_hist.html')
-        gui_dc['wm_equ_alm'] = cls.gui_item('설비Alarm관리', 'definition/equipment_alaram.html')
-        gui_dc['wm_equ_alm_hist'] = cls.gui_item('설비Alarm이력', 'definition/equipment_alaram_history.html')
-        gui_dc['wm_tag_group'] = cls.gui_item('태그그룹', 'definition/tag_group.html')
-        gui_dc['wm_tag_master'] = cls.gui_item('태그정보', 'definition/tag.html')
-        gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')
-
-        # KMMS
         #작업지시
         gui_dc['wm_my_work_request'] = cls.gui_item('나의작업요청', 'kmms/wo/my_work_request.html')
         gui_dc['wm_work_order_management'] = cls.gui_item('작업지시관리', 'kmms/wo/work_order_management.html')
@@ -79,73 +57,105 @@ class GUIConfiguration():
         gui_dc['wm_work_order_approval'] = cls.gui_item('작업지시승인', 'kmms/wo/work_order_approval.html')
         gui_dc['wm_post_work_management'] = cls.gui_item('사후작업관리', 'kmms/wo/post_work_management.html')
 
-        #예방정비
+        #예방정비(PM)
         gui_dc['wm_pm_master'] = cls.gui_item('PM 마스터', 'kmms/pm/pm_master.html')
         gui_dc['wm_pm_schedule'] = cls.gui_item('PM 작업일정', 'kmms/pm/pm_schedule.html')
+        gui_dc['wm_pm_work'] = cls.gui_item('PM 마스터별 WO', 'kmms/pm/pm_work_list.html')
+        gui_dc['wm_pm_schedule_m'] = cls.gui_item('PM 일정생성(수동)', 'kmms/pm/pm_schedule_m.html')
 
-        # 설비보전        
-        # gui_dc['wm_work_order'] = cls.gui_item('WO관리', 'kmms/work_order.html')
-        # gui_dc['wm_pm_work_list'] = cls.gui_item('PM작업목록조회', 'kmms/pm/pm_work_list.html')
-        # gui_dc['wm_pm_result'] = cls.gui_item('PM작업결과등록', 'kmms/pm/pm_work_result.html')
-        # gui_dc['wm_pm_result_list'] = cls.gui_item('PM작업결과조회', 'kmms/pm/pm_work_result_list.html')
+        #작업이력
+        gui_dc['wm_wo_hist'] = cls.gui_item('WO 작업이력 조회', 'kmms/wo/work_order_hist.html')
+        gui_dc['wm_wo_cancel'] = cls.gui_item('취소된 WO 목록', 'kmms/wo/work_order_cancel_list.html')
+        gui_dc['wm_wo_pending'] = cls.gui_item('미처리 WO 목록', 'kmms/wo/work_order_pending_list.html')
+
+        # 예방점검(PI)
         gui_dc['wm_check_master'] = cls.gui_item('점검마스터관리', 'kmms/check/check_master.html')
-        gui_dc['wm_check_schedule'] = cls.gui_item('점검 작업일정', 'kmms/check/check_schedule.html')
-        # gui_dc['wm_check_work_list'] = cls.gui_item('점검작업조회', 'kmms/check/check_work_list.html')
-        # gui_dc['wm_check_result'] = cls.gui_item('점검작업결과등록', 'kmms/check/check_result.html')
-        # gui_dc['wm_check_result_list'] = cls.gui_item('점검작업결과조회', 'kmms/check/check_result_list.html')
-        # gui_dc['wm_check_work_daily'] = cls.gui_item('일상점검', 'kmms/check/check_work_daily.html')
-        # gui_dc['wm_equ_grade'] = cls.gui_item('설비등급관리', 'kmms/equ_grade.html') 
+        gui_dc['wm_check_schedule'] = cls.gui_item('점검 작업일정', 'kmms/check/check_schedule.html')        
+        gui_dc['wm_check_result'] = cls.gui_item('점검 결과 조회', 'kmms/check/check_result.html')
+        gui_dc['wm_check_wo_issued'] = cls.gui_item('점검이상 발행WO', 'kmms/check/ check_wo_issued.html')
+        gui_dc['wm_check_schedule_m'] = cls.gui_item('점검 일정생성(수동)', 'kmms/check/check_schedule_m.html')
+        gui_dc['wm_check_work_list'] = cls.gui_item('PI/WO 현황', 'kmms/check/check_work_list.html')        
 
-        # 업무지원
-        gui_dc['wm_calendar'] = cls.gui_item('캘린더', 'definition/meeting_calendar.html') #캘린더
-        gui_dc['wm_board'] = cls.gui_item('공지사항', 'definition/notice_board.html') #캘린더
-
-        #CMMS 전용 코드관리
+        #코드관리
         gui_dc['wm_cm_code'] = cls.gui_item('기초코드', 'kmms/cm_code.html')
-        #CMMS 전용 자재 관련코드
-        gui_dc['wm_cm_material_loc'] = cls.gui_item('자재보관위치', 'kmms/material/storLocAddrList.html')
-        #CMMS 전용 설비 관련코드
+        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/material/supplier.html')       
+        gui_dc['wm_cm_material_loc'] = cls.gui_item('자재보관위치', 'kmms/material/storLocAddrList.html')        
         gui_dc['wm_cm_equip_loc'] = cls.gui_item('설비위치정보', 'kmms/equipment/locList.html')
-        gui_dc['wm_cm_equip_group'] = cls.gui_item('설비분류', 'kmms/equipment/equipmentGroupList.html')
-         #CMMS 전용 작업지시 관련코드
+        gui_dc['wm_cm_equip_group'] = cls.gui_item('설비분류', 'kmms/equipment/equipmentGroupList.html')       
         gui_dc['wm_cm_wo_project'] = cls.gui_item('프로젝트', 'kmms/wo/projectList.html')
 
-        # 시스템코드(대메뉴) -> 코드관리(명칭 변경)
-        gui_dc['wm_code'] = cls.gui_item('기초코드', 'definition/code.html') #부적합정보
-        # 코드관리 - 자재관련 코드(중메뉴)
-        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/material/supplier.html')# 공급업체
-        # gui_dc['wm_material_type'] = cls.gui_item('품목유형', 'definition/material_type.html')# 품목유형(코드)
-        gui_dc['wm_material_location'] = cls.gui_item('보관위치', 'kmms/material/store_location.html')# 보관위치 주소(코드)
+        #설비통계        
+        gui_dc['wm_facility_monthly_status'] = cls.gui_item('설비별 월간 고장현황', 'kmms/report/facility_monthly_status.html')
+        gui_dc['wm_monthly_maintenance_cost'] = cls.gui_item('설비별 월간 정비비용', 'kmms/report/monthly_maintenance_cost.html')
+        gui_dc['wm_facility_treatment_status'] = cls.gui_item('기간별 불용처리 설비 현황', 'kmms/report/facility_treatment_status.html')
+        gui_dc['wm_facility_mttr_mtbf'] = cls.gui_item('설비별 MTTR/MTBF', 'kmms/report/facility_mttr_mtbf.html')
+        gui_dc['wm_category_equipment_status'] = cls.gui_item('카테고리별 설비 현황', 'kmms/report/category_equipment_status.html')
+        gui_dc['wm_critical_equipment_status'] = cls.gui_item('중요도별 설비 고장 현황', 'kmms/report/critical_equipment_status.html')
+        gui_dc['wm_facility_maintenance_cost'] = cls.gui_item('설비별 정비비용', 'kmms/report/facility_maintenance_cost.html')
+        gui_dc['wm_facility_downtime'] = cls.gui_item('설비별 고장시간', 'kmms/report/facility_downtime.html')
+        gui_dc['wm_facility_specifications'] = cls.gui_item('설비별 사양 목록', 'kmms/report/facility_specifications.html')
+        gui_dc['wm_asset_valuation_statistics'] = cls.gui_item('자산평가 통계', 'kmms/report/asset_valuation_statistics.html')
+        gui_dc['wm_asset_evaluation_report'] = cls.gui_item('자산평가 보고서', 'kmms/report/asset_evaluation_report.html')
 
-        # 시스템관리
-        gui_dc['wm_user'] = cls.gui_item('사용자', 'system/user.html') # wm_user 메뉴이름변경불가
-        gui_dc['wm_user_group'] = cls.gui_item('사용자그룹', 'system/user_group.html')   # wm_user_group 메뉴이름변경불가
-        gui_dc['wm_user_group_menu'] = cls.gui_item('메뉴권한', 'system/user_group_menu.html')  # wm_user_group_menu 메뉴이름변경불가
-        gui_dc['wm_storyboard_config'] = cls.gui_item('스토리보드설정', 'system/storyboard_config.html')
-        gui_dc['wm_depart'] = cls.gui_item('부서', 'system/depart.html')  
-        gui_dc['wm_login_log'] = cls.gui_item('로그인로그', 'system/login_log.html') # 로그인로그
-        gui_dc['wm_menu_log'] = cls.gui_item('메뉴로그', 'system/menu_log.html') # 메뉴로그
-        gui_dc['wm_system_log'] = cls.gui_item('시스템로그', 'system/system_log.html') # 시스템로그
-        # gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'system/holiday.html')  
-        
+        #작업통계
+        gui_dc['wm_wo_dept_performance'] = cls.gui_item('부서별 기간별 WO 발행 실적', 'kmms/report/wm_wo_dept_performance.html')
+        gui_dc['wm_dept_work_costs'] = cls.gui_item('부서별 기간별 작업비용', 'kmms/report/dept_work_costs.html')
+        gui_dc['wm_top_working_hours_wo'] = cls.gui_item('작업시간 상위 WO', 'kmms/report/top_working_hours_wo.html')
+        gui_dc['wm_conservation_cost_status'] = cls.gui_item('보전비용 현황', 'kmms/report/conservation_cost_status.html')
+        gui_dc['wm_top_wo_in_work_cost'] = cls.gui_item('작업비용 상위 WO', 'kmms/report/top_wo_in_work_cost.html')
+        gui_dc['wm_outsourced_tasks_count'] = cls.gui_item('아웃소싱 작업건수', 'kmms/report/outsourced_tasks_count.html')
+        gui_dc['wm_dept_pm_rate'] = cls.gui_item('부서별 예방 정비율', 'kmms/report/dept_pm_rate.html')
+        gui_dc['wm_team_breakdown_costs'] = cls.gui_item('팀별 고장비용 현황', 'kmms/report/team_breakdown_costs.html')
+        gui_dc['wm_dept_overdue_tasks'] = cls.gui_item('부서별 기간별 지연작업 목록', 'kmms/report/dept_overdue_tasks.html')
+        gui_dc['wm_dept_task_compliance_rate'] = cls.gui_item('부서별 기간별 작업 준수율', 'kmms/report/dept_task_compliance_rate.html')
+        gui_dc['wm_causes_of_each_failure_part'] = cls.gui_item('고장부위별 원인', 'kmms/report/causes_of_each_failure_part.html')
+        gui_dc['wm_dept_work_request_stats'] = cls.gui_item('부서별 작업 요청 통계', 'kmms/report/dept_work_request_stats.html')
+        gui_dc['wm_facility_material_usage_history'] = cls.gui_item('설비별 자재사용 이력', 'kmms/report/facility_material_usage_history.html')
+        gui_dc['wm_summary_of_repairs_by_year'] = cls.gui_item('연도별 수선 Summary', 'kmms/report/summary_of_repairs_by_year.html')
 
-        #문서/게시판 관리
-        #gui_dc['wm_rpt_form'] = cls.gui_item('보고서 설정 관리', 'master/document/rpt_form.html')#보고서 설정 관리
+        #PM통계
+        gui_dc['wm_pm_status_by_category'] = cls.gui_item('카테고리별 PM현황', 'kmms/report/pm_status_by_category.html')
+        gui_dc['wm_pm_wo_completion_rate'] = cls.gui_item('부서별 PM WO 완료율', 'kmms/report/pm_wo_completion_rate.html')
+
+        #점검통계
+        gui_dc['wm_facility_inspection_master'] = cls.gui_item('설비종류별 점검마스터', 'kmms/report/facility_inspection_master.html')
+        gui_dc['wm_inspection_issues'] = cls.gui_item('점검결과 이상 설비목록', 'kmms/report/inspection_issues.html')
+        gui_dc['wm_inspection_stats'] = cls.gui_item('점검 수행 통계', 'kmms/report/inspection_stats.html')
+
+        #################################################  MES  #####################################################
+        #기준정보
+        gui_dc['wm_factory'] = cls.gui_item('공장', 'definition/factory.html')
+        gui_dc['wm_line'] = cls.gui_item('라인', 'definition/line.html')
+        gui_dc['wm_process'] = cls.gui_item('공정', 'definition/process.html')
+        gui_dc['wm_material'] = cls.gui_item('품목(자재)', 'definition/material.html') 
+        gui_dc['wm_bom'] = cls.gui_item('BOM', 'definition/bom.html')
+        gui_dc['wm_defect'] = cls.gui_item('부적합정보', 'definition/defect.html')
+        gui_dc['wm_shift'] = cls.gui_item('조교대정보', 'definition/shift.html')
+        gui_dc['wm_line_inactive'] = cls.gui_item('비가동일정정보', 'definition/line_inactive.html')
+        gui_dc['wm_model_change'] = cls.gui_item('기종변경정보', 'definition/model_change.html')        
+        gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'definition/holiday.html')#휴일 스케줄
+        # gui_dc['wm_company'] = cls.gui_item('업체', 'definition/company.html')#업체 
+
+        # 설비관리
+        gui_dc['wm_equip_group'] = cls.gui_item('설비그룹', 'definition/equip_group.html')
+        gui_dc['wm_equipment'] = cls.gui_item('설비', 'definition/equipment.html')
+        gui_dc['wm_equ_alm'] = cls.gui_item('설비Alarm관리', 'definition/equipment_alaram.html')
+        gui_dc['wm_equ_alm_hist'] = cls.gui_item('설비Alarm이력', 'definition/equipment_alaram_history.html')
+        gui_dc['wm_tag_group'] = cls.gui_item('태그그룹', 'definition/tag_group.html')
+        gui_dc['wm_tag_master'] = cls.gui_item('태그정보', 'definition/tag.html')
+        gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')
 
         # 데이터분석
-        # 공정데이터 24.11.20 추가 김하늘
         gui_dc['wm_tag_data_current'] = cls.gui_item('태그데이터현황', 'tagdata/tag_current.html')
-        gui_dc['wm_tag_boxplot'] = cls.gui_item('상자수염그림', 'tagdata/tag_boxplot.html')
-        #gui_dc['wm_tag_brush_trend'] = cls.gui_item('데이터트렌드2', 'tagdata/tag_brush_trend.html')
         gui_dc['wm_tag_data_list'] = cls.gui_item('태그데이터조회', 'tagdata/tagdata_list.html')
-        gui_dc['wm_tag_histogram'] = cls.gui_item('히스토그램', 'tagdata/tag_histogram.html')
-        gui_dc['wm_tag_scatter'] = cls.gui_item('산점도', 'tagdata/tag_scatter.html')
         gui_dc['wm_tag_summary'] = cls.gui_item('데이터통계', 'tagdata/tag_statistics.html')
-        #gui_dc['wm_tag_sync_trend'] = cls.gui_item('데이터트렌드3', 'tagdata/tag_sync_trend.html')
         gui_dc['wm_tag_trend'] = cls.gui_item('데이터트렌드', 'tagdata/tag_trend.html')
+        gui_dc['wm_tag_boxplot'] = cls.gui_item('상자수염그림', 'tagdata/tag_boxplot.html')        
+        gui_dc['wm_tag_histogram'] = cls.gui_item('히스토그램', 'tagdata/tag_histogram.html')
+        gui_dc['wm_tag_scatter'] = cls.gui_item('산점도', 'tagdata/tag_scatter.html')        
         gui_dc['wm_regression_a'] = cls.gui_item('산점도-회귀분석', 'tagdata/regression_a.html')
 
-        # AI    25.01.20 김하늘 추가
+        # AI 
         gui_dc['wm_ai_model'] = cls.gui_item('모델 관리', 'ai/model.html')
         gui_dc['wm_ai_tag_group'] = cls.gui_item('AI시스템 운영관리', 'ai/tag_group.html')
         gui_dc['wm_ai_tag'] = cls.gui_item('AI시스템 참조데이터 관리', 'ai/tag.html')
@@ -154,11 +164,33 @@ class GUIConfiguration():
         gui_dc['wm_learning_data_info'] = cls.gui_item('학습데이터 정보', 'ai/learning_data_info.html')
         gui_dc['wm_learning_data_from_tag'] = cls.gui_item('학습데이터 정보(태그)', 'ai/learning_data_from_tag.html')
 
+        # 업무지원
+        gui_dc['wm_calendar'] = cls.gui_item('캘린더', 'definition/meeting_calendar.html')
+        gui_dc['wm_board'] = cls.gui_item('공지사항', 'definition/notice_board.html')
+
+        # 시스템코드
+        gui_dc['wm_code'] = cls.gui_item('기초코드', 'definition/code.html')         
+
+        # 시스템관리
+        gui_dc['wm_user'] = cls.gui_item('사용자', 'system/user.html')
+        gui_dc['wm_user_group'] = cls.gui_item('사용자그룹', 'system/user_group.html') 
+        gui_dc['wm_user_group_menu'] = cls.gui_item('메뉴권한', 'system/user_group_menu.html')        
+        gui_dc['wm_depart'] = cls.gui_item('부서', 'system/depart.html')  
+        gui_dc['wm_storyboard_config'] = cls.gui_item('스토리보드설정', 'system/storyboard_config.html')
+        gui_dc['wm_login_log'] = cls.gui_item('로그인로그', 'system/login_log.html')
+        gui_dc['wm_menu_log'] = cls.gui_item('메뉴로그', 'system/menu_log.html')
+        gui_dc['wm_system_log'] = cls.gui_item('시스템로그', 'system/system_log.html')
+
         # I/F 이력조회, ERP, 생산설비측정데이터, QMS, VAN, 인사정보
         gui_dc['wm_if_sap'] = cls.gui_item('SAP', 'interface/if_sap.html')
-        gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
         gui_dc['wm_if_qms'] = cls.gui_item('QMS', 'interface/if_qms.html')
         gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')
+        gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
+        gui_dc['wm_if_fuji_pickup_rate'] = cls.gui_item('Fuji 마운터', 'interface/if_fuji_pickup_rate.html')
+        gui_dc['wm_if_viscosity_check'] = cls.gui_item('SMT점도측정', 'interface/if_viscosity_check.html')
+        gui_dc['wm_if_tension_check'] = cls.gui_item('SMT텐션체크', 'interface/if_tension_check.html')
+        gui_dc['wm_if_reflow_profile'] = cls.gui_item('Reflow Profile', 'interface/if_reflow_profile.html')
+        gui_dc['wm_if_topic_data'] = cls.gui_item('TOPIC데이터확인', 'interface/if_topic_data.html')
 
         # kendo ui 샘플화면
         gui_dc['wm_sample_test'] = cls.gui_item('샘플화면(test)', 'sample_page/test.html')

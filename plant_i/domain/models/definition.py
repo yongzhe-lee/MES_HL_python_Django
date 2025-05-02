@@ -1,5 +1,3 @@
-from pyexpat import model
-from tabnanny import verbose
 from django.db import models
 from domain.services.date import DateUtil
 from .system import space_check, Site, Factory, Unit
@@ -768,15 +766,52 @@ class ElecMeterData(models.Model):
     def save_data(cls, tag_code, data_date, data_value):
         return cls.objects.create(tag_code=tag_code, data_date=data_date, data_value=data_value)
 
+
+class MaterialGroup(models.Model):
+    id  = models.AutoField(primary_key=True, db_comment="기본키")
+    Code = models.CharField('그룹코드', max_length=50, unique=True, db_comment="품목 코드")  # 개별 고유 제약 적용
+    Name = models.CharField('그룹명', max_length=100, unique=True, db_comment="품목명")  # 개별 고유 제약 적용
+    Description = models.CharField('비고', max_length=2000, null=True)
+    _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 정보")
+    _created = models.DateTimeField('_created', auto_now_add=True, db_comment="생성 일시")
+    _modified = models.DateTimeField('_modified', auto_now=True, null=True, db_comment="수정 일시")
+    _creater_id = models.IntegerField('_creater_id', null=True, db_comment="생성자 ID")
+    _modifier_id = models.IntegerField('_modifier_id', null=True, db_comment="수정자 ID")
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta:
+        db_table = 'mat_grp'
+        verbose_name = '품목그룹'
+        db_table_comment = '품목그룹 관리 테이블'
+
+
+
 class Material(models.Model):
     id  = models.AutoField(primary_key=True, db_comment="기본키")
     Factory = models.ForeignKey(Factory, on_delete=models.DO_NOTHING, db_comment="공장 ID (참조키)")
     Code = models.CharField('품목코드', max_length=50, validators=[space_check], unique=True, db_comment="품목 코드")  # 개별 고유 제약 적용
     Name = models.CharField('품목명', max_length=100, unique=True, db_comment="품목명")  # 개별 고유 제약 적용
     Standard = models.CharField('규격', max_length=1000, db_comment="품목 규격")
-    ItemGroup = models.CharField('자재그룹', max_length=9, null=True, db_comment="자재 그룹")
-    ItemType = models.CharField('품목유형', max_length=15, null=True, db_comment="품목 유형")
+    #ItemGroup = models.CharField('자재그룹', max_length=9, null=True, db_comment="자재 그룹")
+    MaterialGroup = models.ForeignKey(MaterialGroup, on_delete=models.DO_NOTHING, db_comment="품목 그룹", null=True, db_column="mat_grp_id")
+    MaterialType = models.CharField('품목유형', max_length=15, null=True, db_comment="품목 유형", db_column="mat_type")
     BasicUnit = models.CharField('기본단위', max_length=3, null=True, db_comment="기본 단위")
+
+    sub_pcb_cd = models.CharField('하위도번', max_length=50, db_comment="하위도번코드", null=True, db_column="sub_pcb_cd")
+    bare_pcb_cd = models.CharField('bare pcb', max_length=50, db_comment="bare pcb", null=True, db_column="bare_pcb_cd")
+    pcb_array = models.SmallIntegerField('PCB Array', null=True, db_comment="PCB Array")
+    panel_mag = models.SmallIntegerField('Panel Mag', null=True, db_comment="Panel Mag")
+    top_bottom = models.CharField('Top/Bottom', max_length=50, null=True, db_comment="Top/Bottom")
+    solder_paste = models.CharField('Solder Paste', max_length=50, null=True, db_comment="Solder Paste")
+    sap_top_bottom = models.SmallIntegerField('SAP Top/Bottom', null=True, db_comment="SAP Top/Bottom")
+    use_yn = models.CharField('사용여부', max_length=1, default='Y', db_comment="사용 여부")
+
     CycleTime = models.DecimalField('c/t', decimal_places=3, max_digits=10, null=True, db_comment="Cycle Time (생산 주기 시간)")
     in_price = models.DecimalField('입고금액', decimal_places=3, max_digits=10, null=True, db_comment="입고 금액")
     out_price = models.DecimalField('출고금액', decimal_places=3, max_digits=10, null=True, db_comment="출고 금액")
@@ -836,10 +871,13 @@ class EquipAlarm(models.Model):
 class EquipAlarmHistory(models.Model):
     id  = models.BigAutoField(primary_key=True, db_comment="알람 이력 ID (기본키)")    
     alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, db_comment="알람 코드 ") # 릴레이션을 맺지 않는다
+    part_nm = models.CharField('부품명', db_column='part_nm', max_length=100, db_comment="부품명", null=True)
+    onoff = models.CharField('알람상태', db_column='onoff', max_length=1, db_comment="알람 상태", null=True)
     details = models.TextField('알람발생상세내용', db_column='details', null=True, db_comment="알람 발생 상세 내용")
 
     start_dt =  models.DateTimeField('알람발생일시', db_comment="알람발생일시", null =True)
     end_dt =  models.DateTimeField('알람종료일시', db_comment="알람종료일시", null =True)
+    rst_id = models.BigIntegerField("설비결과번호", db_comment="설비결과번호", db_column="rst_id", null=True) # 설비결과와 연결
 
     data_date = models.DateTimeField('설비데이터생성일시', db_comment="설비데이터생성일시")
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment="생성 일시")
