@@ -234,63 +234,8 @@
 				if (tabId) $('#' + tabId).addClass('active').show();
 
 				// switch-case로 탭별 분기 처리
-				switch (tabId) {
-					case 'equipSpec':
-						if (_this.mtrl_pk) {
-							var param = {
-								action: 'findAll',
-								equipPk: _this.mtrl_pk
-							};
-							let equipSpecData = AjaxUtil.getSyncData('/api/kmms/equip_spec', param);
-							_this.bindEquipSpec(equipSpecData);
-						}
-						break;
-					case 'equipPartsBom':
-						if (_this.mtrl_pk) {
-							var paramParts = {
-								action: 'getEquipPartMtrls',
-								equipPk: _this.mtrl_pk
-							};
-
-							let equipPartsData = AjaxUtil.getSyncData('/api/kmms/equip_part_mtrl', paramParts);
-							_this.bindEquipParts(equipPartsData);
-
-							// BOM 그리드 데이터 가져오기
-							var paramBom = {
-								action: 'getEquipBomTree',
-								equip_cd: _this.equip_cd
-							};
-
-							let equipBomData = AjaxUtil.getSyncData('/api/kmms/equip_part_mtrl', paramBom);
-							_this.bindEquipBom(equipBomData);
-						}
-						break;
-					case 'logTab':
-						if (_this.mtrl_pk && _this.logGridMat) {
-							_this.logGridMat.dataSource.read();
-						}
-						break;
-					case 'pmTab':
-						if (_this.mtrl_pk && _this.pmGrid) {
-							var param = {
-								action: 'getEquipPmList',
-								mtrl_pk: _this.mtrl_pk
-							};
-							let equipPmData = AjaxUtil.getSyncData(_this.baseUrl, param);
-							_this.pmGrid.dataSource.data(equipPmData);
-						}
-						break;
-					case 'inspectionTab':
-						if (_this.mtrl_pk && _this.inspectionGrid) {
-							_this.inspectionGrid.dataSource.read();
-						}
-						break;
-					case 'assetEvaluationTab':
-						if (_this.mtrl_pk && _this.assetEvaluationGrid) {
-							_this.assetEvaluationGrid.dataSource.read();
-						}
-						break;
-					case 'fileTab':
+				switch (tabId) {		
+					case 'fileTabMat':
 						if (_this.mtrl_pk) {
 							if (window.imageUploader) {
 								window.imageUploader.dataPk = _this.mtrl_pk;
@@ -306,6 +251,17 @@
 								});
 							}
 
+						}
+						break;
+					case 'logTab':
+						if (_this.mtrl_pk && _this.logGridMat) {
+							_this.logGridMat.dataSource.read();
+						}
+						break;
+					default:
+						if (_this.mtrl_pk) {
+							// 기본정보
+							this.showMatThumbmail(_this.mtrl_pk);
 						}
 						break;
 				}

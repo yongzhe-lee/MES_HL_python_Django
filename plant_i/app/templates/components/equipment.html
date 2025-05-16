@@ -785,7 +785,7 @@
 						}
 						break;
 					case 'fileTab':
-						if (_this.equip_pk) {					
+						if (_this.equip_pk) {	
 							if (window.imageUploader) {
 								window.imageUploader.dataPk = _this.equip_pk;
 								window.imageUploader.loadFilesFromServer(() => {
@@ -800,6 +800,12 @@
 								});
 							}
 
+						}
+						break;
+					default:
+						if (_this.equip_pk) {
+							// 기본정보
+							this.bindEquipMasterData(_this.equip_pk);
 						}
 						break;
 				}
