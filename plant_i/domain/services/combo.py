@@ -1,7 +1,7 @@
 import datetime
 from domain import init_once
 from configurations import settings
-from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmImportRank, CmProject, CmSupplier
+from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmEquipClassify, CmImportRank, CmProject, CmSupplier, CmUserInfo
 from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
@@ -33,6 +33,8 @@ class ComboService(object):
             'das_server' : cls.das_server,
             'device_type' : cls.device_type,
             'depart': cls.depart,
+            'data_month' : cls.data_month,
+            'data_year' : cls.data_year,
             'equipment' : cls.equipment,
             'equipment_group' : cls.equipment_group,
             'equipment_type' : cls.equipment_type,
@@ -49,6 +51,7 @@ class ComboService(object):
             'menu_item': cls.menu_item,
             # 'plant': cls.plant,
             'site': cls.site,
+            'smt_line' : cls.smt_line,
             'system_code': cls.system_code,
             'system_code_type': cls.system_code_type,
             'tag': cls.tag,            
@@ -65,6 +68,10 @@ class ComboService(object):
             'cm_project': cls.cm_project,
             'cm_supplier': cls.cm_supplier,
             'cm_import_rank': cls.cm_import_rank,
+            'cm_equip_category': cls.cm_equip_category,
+            'cm_equip_classify': cls.cm_equip_classify,
+            'cm_depart': cls.cm_depart,
+            'cm_user_info': cls.cm_user_info,
         }
         cls.__initialized__ = True
 
@@ -165,6 +172,11 @@ class ComboService(object):
         items = [{'value': item['code'], 'text': item['value']} for item in q]
         return items 
 
+    @classmethod
+    def smt_line(cls, cond1, cond2, cond3):
+        q = Line.objects.filter(smt_yn='Y').values('id', 'Code', 'Name').order_by('Name')
+        items = [ {'value': item['id'],  'text': item['Code'] + '(' + item['Name'] + ')' } for item in q ]
+        return items
 
     @classmethod
     def system_code(cls, cond1, cond2, cond3):
@@ -227,6 +239,28 @@ class ComboService(object):
         '''
         data = DbUtil.get_rows(sql)
         items = [ {'value': entry['id'], 'text':entry['Name']} for entry in data ]
+        return items
+
+    @classmethod
+    def data_month(cls, cond1, cond2, cond3):
+        items = []
+        for i in range(1, 13):
+            text = f"{i}월"
+            item = { 'value':str(i), 'text': text }
+            items.append(item)
+        return items
+
+
+    @classmethod
+    def data_year(cls, cond1, cond2, cond3):
+        today = datetime.datetime.today()
+        this_year = int(today.strftime('%Y'))
+        
+        items = []
+            
+        for i in range(this_year, 2024, -1):
+            item = { 'value':str(i), 'text':i }
+            items.append(item)
         return items
 
 
@@ -580,4 +614,46 @@ class ComboService(object):
     def cm_import_rank(cls, cond1, cond2, cond3):
         query = CmImportRank.objects.values('id', 'ImportRankDesc').order_by('ImportRankDesc')
         items = [ {'value': entry['id'], 'text':entry['ImportRankDesc']} for entry in query ]
+        return items
+
+    @classmethod
+    def cm_equip_category(cls, cond1, cond2, cond3):
+        query = CmEquipCategory.objects.values('EquipCategoryCode', 'EquipCategoryDesc').order_by('EquipCategoryDesc')
+        items = [ {'value': entry['EquipCategoryCode'], 'text':entry['EquipCategoryDesc']} for entry in query ]
+        return items
+
+    @classmethod
+    def cm_equip_classify(cls, cond1, cond2, cond3):
+        sql = '''
+        select distinct "parent_id" as value, "parent_id" as text from cm_equip_classify
+        where "parent_id" is not null
+        '''
+        items = DbUtil.get_rows(sql)
+        return items
+
+    @classmethod
+    def cm_depart(cls, cond1, cond2, cond3):
+        sql = ''' 
+        select 
+            dept_pk, "dept_cd" , "dept_nm"
+        from cm_dept d 
+        order by "dept_nm"
+        '''
+        data = DbUtil.get_rows(sql)
+        items = [ {'value': entry['dept_pk'], 'text':entry['dept_nm']} for entry in data ]
+        return items
+
+    @classmethod
+    def cm_user_info(cls, cond1, cond2, cond3):
+        """
+        콤보박스 데이터 조회 (cm_user_info 테이블 사용)
+        """
+        sql = ''' 
+        select 
+            user_pk, "login_id" , "user_nm"
+        from cm_user_info
+        order by "user_nm"
+        '''
+        data = DbUtil.get_rows(sql)
+        items = [ {'value': entry['user_pk'], 'text':entry['user_nm']} for entry in data ]
         return items

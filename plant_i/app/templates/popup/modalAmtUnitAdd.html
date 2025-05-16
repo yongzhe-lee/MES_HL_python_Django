@@ -1,184 +1,171 @@
-﻿<div id="modalAmtUnitAdd" class="modal">
+﻿<div id="modalAmtUnitAdd" class="modal child-modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h4>현상코드 등록</h4>
+            <h4>수량단위 등록</h4>
         </div>
         <div class="modal-body">
-            <form id="occForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>직종명 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="occuName" name="occuName" placeholder="25자 이하로 입력하세요">
+            <form id="AmtUnitAddForm">
+                <div class="form-section">
+                    <!-- 입력 폼 영역 -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="code" class="required">수량단위코드*</label>
+                            <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="code" name="code" />
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="required">수량단위명*</label>
+                            <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="name" name="name" />
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>현상코드명 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="maintenanceTime" name="maintenanceTime" placeholder="50자 이하로 입력하세요">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group second-group">
-                        <label>사이트 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="occuName" name="occuName" readonly>
+                    <!-- 그리드 영역 -->
+                    <div class="grid-section">
+                        <h4>최근 등록된 수량단위</h4>
+                        <div id="recentAmtUnitGrid"></div>
                     </div>
                 </div>
             </form>
-            <!-- 그리드 영역 -->
-            <div class="grid-section">
-                <h4>최근 등록된 현상코드</h4>
-                <div id="occupations_grid"></div>
-            </div>
         </div>
         <!-- 버튼 영역 -->
         <div class="modal-footer">
-            <button type="button" class="btn-save" id="saveOccuBtn">저장</button>
-            <button type="button" class="btn-close" id="closeOccuModal">닫기</button>
+            <button type="button" class="btn-save" id="saveBtnAmtUnitAdd">저장</button>
+            <button type="button" class="btn-close" id="closeModalAmtUnitAdd">닫기</button>
         </div>
     </div>
 </div>
 
 <style>
-    /* 손자 모달 크기 조정 (데이터가 많아도 여유롭게 보이도록 확대) */
-    #modalAmtUnitAdd {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 750px;
-        max-width: 95%;
-        height: 500px;
-        max-height: 85vh;
-        z-index: 1003; /* 부모 모달보다 높은 값 */
-        box-shadow: none !important; /* 바깥쪽 그림자 완전 제거 */
-        border: none !important; /* 테두리 제거 */
+
+    /* 공통 레이아웃 */
+    .form-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
     }
 
-        /* 입력 필드 정렬 */
-        #modalAmtUnitAdd .form-row {
-            align-items: center;
-            gap: 15px;
-        }
 
-    /* 비율 조정 */
-    .modalAmtUnitAdd .form-group {
+    .field-wrapper {
         flex: 1;
+        max-width: 208px;
+        display: flex;
+        gap: 0px;
+        align-items: center;
     }
 
-    .form-group:first-child {
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        align-items: center; /* 모든 요소를 세로 중앙 정렬 */
+    }
+
+    .form-group {
         flex: 1;
-    }
-
-    .form-group:last-child {
-        flex: 2;
-    }
-
-    #modalAmtUnitAdd .second-group {
-        flex: 0.33;
-    }
-
-    #modalAmtUnitAdd .modal-body {
-        overflow-y: hidden !important; /* 스크롤 제거 */
     }
 </style>
 
 <script type="text/javascript">
-    class OccuMaster {
+    let amtUnitAddPage = null;
+    class AmtUnitAddPage {
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/kmms/job_class';
-            this.modal = $("#modalAmtUnitAdd"); // 모달 변수 저장
+            this.baseUrl = '/api/definition/cm_code';
+            this.callback = null;
             this.init();
         }
 
         init() {
-            let _this = this;
+            const modal = $("#modalAmtUnitAdd");
+            const closeModalBtn = $("#closeModal");
 
-            // ✅ Kendo Grid 초기화 (유지)
-            this.grid = $("#occupations_grid").kendoGrid({
+            $("#saveBtnAmtUnitAdd").kendoButton({
+                icon: "k-i-save",
+                themeColor: "base",
+                click: (e) => {
+                    e.preventDefault();
+                    this.saveAmtUnit();
+                    modal.fadeOut();
+                }
+            });
+
+            $("#closeModalAmtUnitAdd").kendoButton({
+                themeColor: "base",
+                click: (e) => {
+                    e.preventDefault();
+                    modal.fadeOut();
+                }
+            });
+
+            // 그리드 초기화
+            this.grid = $("#recentAmtUnitGrid").kendoGrid({
                 columns: [
-                    { field: 'job_class_nm', title: '현상코드', width: 100 },
-                    { field: 'wage_cost', title: '현상코드명', width: 150 },
-                    { field: 'wage_cost', title: '최근등록일', width: 150 },
+                    { field: 'id', hidden: true, width: 150 },
+                    { field: 'code', title: '수량단위코드', width: 100 },
+                    { field: 'name', title: '수량단위명', width: 150 },
+                    { field: 'remark', title: '설명', width: 150 },
                 ],
                 selectable: true,
-                scrollable: false, // ✅ 스크롤 제거
-                dataSource: {
-                    transport: {
-                        read: function (options) {
-                            $.ajax({
-                                url: "/api/kmms/job_class?action=read",
-                                type: "GET",
-                                success: function (result) {
-                                    options.success(result);
-                                }
-                            });
-                        }
-                    }
-                }
             }).data("kendoGrid");
 
-            // ✅ 저장 버튼 이벤트
-            $("#saveOccuBtn").kendoButton({
-                icon: "k-i-save",
-                click: function (e) {
-                    e.preventDefault();
-                    _this.saveData();
-                }
-            });
-
-			$("#closeOccuModal").kendoButton({
-				click: function (e) {
-                    e.preventDefault();
-					_this.modal.fadeOut();
-				}
-            });
-
-            // ✅ 모달 외부 클릭 시 닫기
-            $(document).off("click").on("click", function (e) {
-                if (!$(e.target).closest(".modal-content").length && _this.modal.is(":visible")) {
-                    console.log("모달 외부 클릭됨!"); // 디버깅 로그 확인
-                    _this.modal.fadeOut();
-                }
-            });
         }
 
-        saveData() {
+        searchAmtUnitData() {
             let _this = this;
-            let data = FormUtil.extractForm($('#occForm'));
 
-            let Name = $('#occuName').val();
-            if (!Name) {
-                Alert.alert('', '직종명을 입력해주세요.');
-                return;
-            }
-
-            let funcSucc = function (resp) {
-                if (resp.success) {
-                    Notify.success('저장되었습니다.');
-                    _this.resetData();
-                    // ✅ 최신 데이터 갱신 (occupations_grid 리프레시)
-                    _this.refreshOccupationsGrid();
-
-                    // 부모 페이지의 그리드 갱신
-                    page.searchMainData();
-                } else {
-                    Alert.alert('error', resp.message);
-                }
+            let param = {
+                action: 'read',
+                code_grp_code: 'AMT_UNIT',
             };
 
-            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
-            _this.modal.fadeOut();
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setDataSource(new kendo.data.DataSource({
+                data: result
+            }));
         }
 
-        refreshOccupationsGrid() {
-            this.grid.dataSource.read(); // ✅ 최신 데이터 불러오기
-            this.grid.refresh(); // ✅ 화면 갱신
+        saveAmtUnit() {
+            let _this = this;
+
+            let AmtUnitAddFormData = FormUtil.extractForm($('#AmtUnitAddForm'));
+            AmtUnitAddFormData.code_grp_code = "AMT_UNIT";
+            AmtUnitAddFormData.use_yn = "Y";
+            console.log('AmtUnitAddFormData:', AmtUnitAddFormData);
+            if (checkForm($('#AmtUnitAddForm')) === false) return;
+
+            let fnSuccessAmtUnitAdd = function (res) {
+                if (res.success) {
+                    if (_this.callback) {
+                        _this.callback('amt_unit');
+                    }
+                    _this.searchAmtUnitData();
+                    _this.resetAmtUnitAddForm();
+                    Alert.alert('', '저장되었습니다.');
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', AmtUnitAddFormData, fnSuccessAmtUnitAdd);
         }
 
-        resetData() {
-            FormUtil.resetForm($('#occForm'));
+        resetAmtUnitAddForm() {
+            // 입력 필드 초기화
+            $("#code").val('');
+            $("#name").val('');
         }
+
+        show(callback) {
+            let _this = this;
+            this.callback = callback;
+
+            $("#modalAmtUnitAdd").fadeIn();
+            _this.searchAmtUnitData();
+        }
+
     }
 
-    // ✅ 인스턴스 생성 (이제 $(document).ready() 필요 없음!)
-    let occuMaster = new OccuMaster();
+    amtUnitAddPage = new AmtUnitAddPage();
+    $(document).ready(function () {
+        amtUnitAddPage.searchAmtUnitData();
+    });
 
 </script>

@@ -130,8 +130,7 @@ def location(context):
 
             try:
                 # DB에서 부서 정보 조회
-                locations = CmLocation.objects.values('LocPk', 'LocName', 'UpLocPk')
-                print("📌 설비위치 데이터 확인:", list(locations))  # 🚀 로그 추가
+                locations = CmLocation.objects.values('LocPk', 'LocName', 'UpLocPk')         
 
                 # 트리 구조 변환
                 loc_tree = build_tree(list(locations))

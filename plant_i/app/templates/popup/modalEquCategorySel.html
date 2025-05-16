@@ -1,0 +1,129 @@
+<!-- 손자 모달 (설비 선택) -->
+<div id="modalEquCategorySel" class="modal child-modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>카테고리선택</h4>
+		</div>
+		<div class="modal-body">
+			<div class="search-area">
+				<div class="search-label">검색키워드</div>
+				<input type="text" class="form-control" id="keyword_equ_category" name="keyword_equ_category" placeholder="카테고리">			
+				<button type="button" class="btn-search" id="btnSearchEquCategory">검색</button>
+			</div>
+			<div id="equip_category_sel_grid"></div>
+			<div class="bottom-area">
+				<div class="form-item">
+					<label for="selectedEquCategoryName">선택된 카테고리</label>
+					<div class="col-md-4">						
+						<input type="text" class="form-control" id="selectedEquCategoryName" readonly>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn-save" id="btnConfirmEquCategory">확인</button>
+			<button type="button" class="btn-close" id="btnCancelEquCategory">취소</button>
+		</div>
+	</div>
+</div>
+<style>
+</style>
+
+<script type="text/javascript">
+	class EquipCategorySelPage {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/equip_category';
+			this.callback = null;
+			this.init();
+		}
+
+		init() {
+			this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
+
+		initGrid() {
+			const option = {
+				toolbar: ["columns"],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: { sort: "asc" }
+				},
+				columns: [
+					{ field: 'equip_category_id', title: 'ID', width: 100 },
+					{ field: 'equip_category_desc', title: '코드', width: 200 },
+					{ field: 'remark', title: '카테고리', width: 200 },
+				],
+				change: () => this.showDetail(),		
+				height: "440px",
+				scrollable: true,
+			};
+			this.grid = new Grid($("#equip_category_sel_grid"), option);
+		}
+
+		initButton() {
+			$("#btnConfirmEquCategory").kendoButton({ icon: "k-i-check", themeColor: "base" });
+			$("#btnCancelEquCategory").kendoButton({ icon: "cancel", themeColor: "base" });
+			$("#btnSearchEquCategory").kendoButton({
+				themeColor: "primary",
+				icon: "search",
+				click: () => this.getEquClassData()
+			});
+		}
+
+		initEvents() {
+			const $modal = $("#modalEquCategorySel");
+
+			$("#btnConfirmEquCategory").on("click", () => {
+				const data = this.grid.getSelect();
+				if (typeof this.callback === 'function') {
+					this.callback(data[0]);
+				}
+				$modal.fadeOut();
+			});
+
+			$("#btnCancelEquCategory").on("click", (e) => {
+				e.preventDefault();
+				$modal.fadeOut();
+				this.resetEquipCategory();
+			});
+
+		}
+
+		getEquCagegoryData() {
+			const param = {
+				action: 'getEquipCategoryList',
+				keyword: $('#keyword_equ_category').val()				
+			};
+			const result = AjaxUtil.getSyncData(this.baseUrl, param);
+			this.grid.setData(result);
+		}
+
+		showDetail() {
+			const data = this.grid.getSelect();
+			if (data.length > 0) {
+				$('#selectedEquCategoryName').val(data[0].remark);
+			}
+		}
+
+		resetEquipCategory() {
+			$('#selectedEquCategoryName').val('');
+		}
+
+		show(callback) {
+			this.callback = callback;
+			$("#modalEquCategorySel").fadeIn();
+			this.getEquCagegoryData();
+		}
+	}
+
+	let equipCategoryPage = null;
+
+	$(document).ready(function () {
+		equipCategoryPage = new EquipCategorySelPage();
+	});
+</script>

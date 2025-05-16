@@ -2868,3 +2868,21 @@ class CmBomVer(models.Model):
         self.UpdateTs = DateUtil.get_current_datetime()
         return
  
+class CmAssetVal(models.Model):
+    AssetVal_pk = models.BigAutoField(primary_key=True, db_column='asset_val_pk', db_comment=' PK')    
+    AssetVal_nm = models.CharField(max_length=100, db_column='asset_val_nm', db_comment='자산평가명')
+    AssetVal_dt = models.DateTimeField(auto_now_add=True, null=True, db_column='asset_val_dt', db_comment='등록일시')
+    AssetNo = models.CharField(max_length=100, db_column='asset_no', db_comment='자산번호')
+
+    class Meta:
+        db_table = 'cm_asset_val'
+        db_table_comment = '자산평가'
+
+class CmAssetValDetail(models.Model):
+    AssetValPk = models.BigAutoField(primary_key=True, db_column='asset_val_pk', db_comment=' PK')    
+    AssetGrade = models.CharField(max_length=100, db_column='asset_grade', db_comment='자산평가명')    
+    AstAssetStatus = models.CharField(max_length=100, db_column='last_asset_status', db_comment='자산상태')
+
+    class Meta:
+        db_table = 'cm_asset_val_detail'
+        db_table_comment = '자산평가상세'

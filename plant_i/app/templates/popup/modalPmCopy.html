@@ -72,35 +72,6 @@
 		font-size: 14px;
 	}
 
-	/* 검색 영역 스타일 */
-	.search-area {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-bottom: 10px;
-	}
-
-	.search-label {
-		font-size: 13px;
-		color: #333;
-		white-space: nowrap;
-	}
-
-	.search-area input,
-	.search-area select {
-		height: 28px;
-		border: 1px solid #ccc;
-		padding: 0 8px;
-	}
-
-	.search-area input {
-		flex: 2;
-	}
-
-	.search-area select {
-		flex: 1;
-	}
-
 	.selected-item {
 		display: flex;
 		align-items: center;
@@ -127,6 +98,8 @@
 	class PmCopy {
 		constructor() {
 			this.grid = null;
+			this.srchPmDept = null;
+
 			this.baseUrl = '/api/kmms/pm_master';
 			this.callback = null;
 			this.init();
@@ -201,7 +174,7 @@
 				}
 			});
 
-			AjaxUtil.fillDropDownTreeOptions($('#srch_pm_dept'), 'depart', 'select');
+			this.srchPmDept = AjaxUtil.fillDropDownTreeOptions($('#srch_pm_dept'), 'cm_depart', 'select');
 
 		}
 
@@ -253,6 +226,8 @@
 		reset() {
 			$("#selectedPmPK").val('');
 			$("#selectedPmName").val('');
+
+			this.srchPmDept = null;
 		}
 
 		showDetail() {

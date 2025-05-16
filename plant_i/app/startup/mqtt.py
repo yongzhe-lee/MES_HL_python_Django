@@ -46,6 +46,8 @@ class MQTTApplication():
         print("mapping_equipment_topic_handler starting...")
 
         from domain.services.interface.equipment import IFEquipmentResultService
+        from domain.services.interface.mounter import IFFujiMounterService
+
         if_equ_rst_servide = IFEquipmentResultService()
         arr_equ_cd = [
            "hpc1.load","hpc1.flash","hpc1.ict",
@@ -65,7 +67,9 @@ class MQTTApplication():
             rst_topic = "rst_" + equ_cd
             FacadeMQTTClient.set_topic_handler(rst_topic, if_equ_rst_servide.rst_equipment_topic_handler)
 
-
+        # mounter feeder rate 관련 데이터 수신
+        if_equ_rst_servide = IFFujiMounterService()
+        FacadeMQTTClient.set_topic_handler(settings.TOPIC_MNT_FEED_RATE, if_equ_rst_servide.smt_mnt_pickup_rate_topic_handler)
 
 
         FacadeMQTTClient.apply_topic_handler()

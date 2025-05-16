@@ -1,0 +1,131 @@
+
+<div id="modalScheMakeConfirm" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>점검일정생성</h4>
+        </div>
+
+        <div class="modal-body">
+            <!-- 검색 영역 -->
+            <!--<div class="search-area">-->
+                <div class="form-item align-h">
+                    <label class="k-label k-form-label" for="chk_last_chk_date">점검생성범위</label>
+                    <div id="create_date_range"></div>
+                </div>
+            <!--</div>-->
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="btnConfirmSchedulePeriod">선택</button>
+            <button type="button" class="btn-close" id="btnCancelSchedulePeriod">취소</button>
+        </div>
+    </div>
+</div>
+
+
+    <style>
+
+    </style>
+
+    <script type="text/javascript">
+
+        class ScheduleConfirmPage {
+            constructor() {
+                this.callback = null;
+
+                let content = $('#modalScheMakeConfirm').html()
+                let $content = $(content);
+
+                this.init($content);
+
+            }
+
+            init($content) {
+                let _this = this;
+
+                //search form
+                $("#create_date_range").kendoDateRangePicker({
+                    range: {
+                        start: new Date(),
+                        end: new Date()
+                    },
+                    change: function (e) {
+
+                    },
+                    format: "yyyy-MM-dd",
+                    labels: false,
+                    startField: "start_date",
+                    endField: "end_date"
+                });
+
+                $("#btnConfirmSchedulePeriod").kendoButton({
+                    icon: "k-i-check", // 확인 아이콘 (✔️)
+                    themeColor: "base",
+                    click: function () {
+                        _this.selectData();
+                        $('#modalScheMakeConfirm').fadeOut();
+                    }
+                });
+
+                $("#btnCancelSchedulePeriod").kendoButton({
+                    icon: "cancel", // 취소 아이콘 (❌)
+                    themeColor: "base",
+                    click: function () {
+                        $('#modalScheMakeConfirm').fadeOut();
+                    }
+                });
+            }
+
+            resetData() {
+                
+            }
+
+            selectData() {
+               
+                // 날짜 데이터 처리
+                let startDate = '';
+                let endDate = '';
+                let dateRangePicker = $("#create_date_range").data("kendoDateRangePicker");
+
+                if (dateRangePicker) {
+                    let range = dateRangePicker.range();
+                    if (range) {
+                        startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                        endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                    }
+                }
+
+                console.log("startDate", startDate);
+                console.log("endDate", endDate);
+
+                if (typeof this.callback !== 'undefined' && this.callback != null) {
+                    this.callback(startDate, endDate); // 실제 데이터 객체들을 넘김
+                }
+            }
+
+
+            show(callback) {
+                let _this = this;
+                this.callback = callback;
+
+                $('#modalScheMakeConfirm').css({
+                    width: '50%',
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)'
+                });
+
+                $('#modalScheMakeConfirm').fadeIn();
+            }
+
+        };  //eof EquipmentsPage
+
+        //let equiPage = null;
+        //pageEqusModal = new EquipmentsPage();
+
+        $(document).ready(function () {
+           
+
+        });
+</script>

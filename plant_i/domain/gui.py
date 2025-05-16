@@ -70,10 +70,10 @@ class GUIConfiguration():
 
         # 예방점검(PI)
         gui_dc['wm_check_master'] = cls.gui_item('점검마스터관리', 'kmms/check/check_master.html')
-        gui_dc['wm_check_schedule'] = cls.gui_item('점검 작업일정', 'kmms/check/check_schedule.html')        
+        gui_dc['wm_check_schedule'] = cls.gui_item('점검 작업일정', 'kmms/check/check_schedule.html')       
         gui_dc['wm_check_result'] = cls.gui_item('점검 결과 조회', 'kmms/check/check_result.html')
         gui_dc['wm_check_wo_issued'] = cls.gui_item('점검이상 발행WO', 'kmms/check/ check_wo_issued.html')
-        gui_dc['wm_check_schedule_m'] = cls.gui_item('점검 일정생성(수동)', 'kmms/check/check_schedule_m.html')
+        gui_dc['wm_create_inspection_schedule_manual'] = cls.gui_item('점검 일정생성(수동)', 'kmms/check/check_schedule_m.html')
         gui_dc['wm_check_work_list'] = cls.gui_item('PI/WO 현황', 'kmms/check/check_work_list.html')        
 
         #코드관리
@@ -186,9 +186,9 @@ class GUIConfiguration():
         gui_dc['wm_if_qms'] = cls.gui_item('QMS', 'interface/if_qms.html')
         gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')
         gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
-        gui_dc['wm_if_fuji_pickup_rate'] = cls.gui_item('Fuji 마운터', 'interface/if_fuji_pickup_rate.html')
-        gui_dc['wm_if_viscosity_check'] = cls.gui_item('SMT점도측정', 'interface/if_viscosity_check.html')
-        gui_dc['wm_if_tension_check'] = cls.gui_item('SMT텐션체크', 'interface/if_tension_check.html')
+        gui_dc['wm_if_mnt_pickup_rate'] = cls.gui_item('마운터 Pickup Rate', 'interface/if_mnt_pickup_rate.html')
+        gui_dc['wm_if_viscosity_check'] = cls.gui_item('솔더점도측정', 'interface/if_viscosity_check.html')
+        gui_dc['wm_if_tension_check'] = cls.gui_item('스텐실텐션체크', 'interface/if_tension_check.html')
         gui_dc['wm_if_reflow_profile'] = cls.gui_item('Reflow Profile', 'interface/if_reflow_profile.html')
         gui_dc['wm_if_topic_data'] = cls.gui_item('TOPIC데이터확인', 'interface/if_topic_data.html')
 

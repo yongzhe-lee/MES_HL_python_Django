@@ -1,20 +1,20 @@
-﻿<div id="modalWindow" class="modal child-modal">
+﻿<div id="modalMtrlClassAdd" class="modal child-modal">
     <div class="modal-content">
         <div class="modal-header">
             <h4>자재종류 정보 등록</h4>
         </div>
         <div class="modal-body">
-            <form id="EquLocForm">
+            <form id="MtrlClassAddForm">
                 <div class="form-section">
                     <!-- 입력 폼 영역 -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="loc_cd" class="required">위치코드*</label>
-                            <input type="text" class="form-control" placeholder="25자 이하로 입력하세요" id="loc_cd" name="loc_cd" />
+                            <label for="code" class="required">자재종류코드*</label>
+                            <input type="text" class="form-control" placeholder="25자 이하로 입력하세요" id="code" name="code" />
                         </div>
                         <div class="form-group">
-                            <label for="loc_nm" class="required">위치명*</label>
-                            <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="loc_nm" name="loc_nm" />
+                            <label for="name" class="required">자재종류명*</label>
+                            <input type="text" class="form-control" placeholder="50자 이하로 입력하세요" id="name" name="name" />
                         </div>
                     </div>
                 </div>
@@ -22,31 +22,13 @@
         </div>
         <!-- 버튼 영역 -->
         <div class="modal-footer">
-            <button type="button" class="btn-save" id="saveBtnEquLoc">저장</button>
-            <button type="button" class="btn-close" id="closeModalEquLoc">닫기</button>
+            <button type="button" class="btn-save" id="saveBtnMtrlClassAdd">저장</button>
+            <button type="button" class="btn-close" id="closeModalMtrlClassAdd">닫기</button>
         </div>
     </div>
 </div>
 
 <style>
-
-    /* 공통 레이아웃 */
-    .form-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-
-
-    .field-wrapper {
-        flex: 1;
-        max-width: 208px;
-        display: flex;
-        gap: 0px;
-        align-items: center;
-    }
-
     .form-row {
         display: flex;
         flex-wrap: wrap;
@@ -63,81 +45,69 @@
     let mtrlClassAddPage = null;
     class MtrlClassAddPage {
         constructor() {
-            this.baseUrl = '/api/kmms/location';
+            this.baseUrl = '/api/definition/cm_code';
             this.callback = null;
             this.init();
         }
 
         init() {
-            const modal = $("#modalWindow");
+            const modal = $("#modalMtrlClassAdd");
             const closeModalBtn = $("#closeModal");
 
-            $("#saveBtnEquLoc").kendoButton({
+            $("#saveBtnMtrlClassAdd").kendoButton({
                 icon: "k-i-save",
                 themeColor: "base",
                 click: (e) => {
                     e.preventDefault();
-                    this.saveLocation();
+                    this.saveMtrlClass();
                     modal.fadeOut();
                 }
             });
 
-            $("#closeModalEquLoc").kendoButton({
+            $("#closeModalMtrlClassAdd").kendoButton({
                 themeColor: "base",
                 click: (e) => {
                     e.preventDefault();
                     modal.fadeOut();
                 }
             });
-
-            // 추가 버튼 Kendo 초기화
-            $("#btnModalOpen").kendoButton({
-                icon: "plus",
-                themeColor: "base",
-                size: "small",
-                click: (e) => {
-                    e.preventDefault();
-                    modal.fadeIn();
-                }
-            });
-
         }
 
-        saveLocation() {
+        saveMtrlClass() {
             let _this = this;
 
-            let EquLocFormData = FormUtil.extractForm($('#EquLocForm'));
-            console.log('EquLocFormData:', EquLocFormData);
-            if (checkForm($('#EquLocForm')) === false) return;
+            let MtrlClassAddFormData = FormUtil.extractForm($('#MtrlClassAddForm'));
+            MtrlClassAddFormData.code_grp_code = "MTRL_CLASS";
+            MtrlClassAddFormData.use_yn = "Y";
+            console.log('MtrlClassAddFormData:', MtrlClassAddFormData);
+            if (checkForm($('#MtrlClassAddForm')) === false) return;
 
-            let fnSuccessEquLoc = function (res) {
+            let fnSuccessMtrlClassAdd = function (res) {
                 if (res.success) {
                     if (_this.callback) {
-                        _this.callback('equip_loc');
+                        _this.callback('mtrl_class');
                     }
-                    _this.resetEquLocForm();
+                    _this.resetMtrlClassAddForm();
                     Alert.alert('', '저장되었습니다.');
                 } else if (!res.success) {
                     Alert.alert('', res.message);
                 }
             };
-            AjaxUtil.postAsyncData(_this.baseUrl + '?action=insert', EquLocFormData, fnSuccessEquLoc);
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', MtrlClassAddFormData, fnSuccessMtrlClassAdd);
         }
 
-        resetEquLocForm() {
+        resetMtrlClassAddForm() {
             // 입력 필드 초기화
-            $("#loc_cd").val('');
-            $("#loc_nm").val('');
-            $("#up_loc_pk").val('');
+            $("#code").val('');
+            $("#name").val('');
         }
 
         show(callback) {
             let _this = this;
             this.callback = callback;
 
-            $("#modalWindow").fadeIn();
+            $("#modalMtrlClassAdd").fadeIn();
         }
-
     }
 
     mtrlClassAddPage = new MtrlClassAddPage();

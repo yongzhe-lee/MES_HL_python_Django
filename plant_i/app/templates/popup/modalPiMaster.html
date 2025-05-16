@@ -123,6 +123,9 @@
 					<div id="piCheckItem" style="display: none;">
 						<div class="section-header" style="display: flex; justify-content: flex-end;">
 							<div class="button-group">
+								<button type="button" id="addEmptyCheckItem" name="addEmptyCheckItem">
+									빈항목추가
+								</button>
 								<button type="button" id="addCheckItem" name="addCheckItem">
 									점검항목추가
 								</button>
@@ -215,21 +218,21 @@
 			</div>
 		</td>
 		<td id="colChkItemNm" class="text-right bg-edit-cell">
-			<input type="text" class="form-control chkItemNm" maxlength="100" value= #=item.chkItemNm#  />
+			<input type="text" class="form-control chkItemNm" maxlength="100" value="#= item.chkItemNm #" />
 		</td>
 		<td id="colLcl" class="text-right bg-edit-cell">
-			<input type="text" class="form-control lcl" maxlength="100" value= #=item.lcl#  />
+			<input type="text" class="form-control lcl" maxlength="100" value="#= item.lcl #"/>
 		</td>
 		<td id="colUcl" class="text-right bg-edit-cell">
-			<input type="text" class="form-control ucl" maxlength="100" value= #=item.ucl#  />
+			<input type="text" class="form-control ucl" maxlength="100" value="#= item.ucl #"/>
 		</td>
 		<td id="chkItemUnitPk" class="text-right bg-edit-cell">
 			<select class="chkItemUnitSelect" data-index="#= index #">
 				<option value="">단위선택</option>
 				# for (var i = 0; i < chkItemUnitData.length; i++) { #
-				<option value="#= chkItemUnitData[i].codePk #"
-					# if (item.chkItemUnitPk == chkItemUnitData[i].codePk) { # selected # } #>
-					#= chkItemUnitData[i].codeNm #
+				<option value="#= chkItemUnitData[i].value #"
+					# if (item.chkItemUnitPk == chkItemUnitData[i].value) { # selected # } #>
+					#= chkItemUnitData[i].text #
 				</option>
 				# } #
 			</select>
@@ -255,8 +258,7 @@
     }
 	*/
 
-    /*choi : modal-content가 350px로 되어 있어 100%로 강제로 늘린다
-    */
+    /* choi : modal-content가 350px로 되어 있어 100%로 강제로 늘린다 */
     .modal .tab-content {
         height: 100% !important;
     }
@@ -383,29 +385,217 @@
 
 			//점검항목 array
 			this.chkItemGrid = [];
-			this.chkItemUnitList = [];
-
-			//for test
-			let checkItemUnit =
-			[
-				{
-				codePk: "KG",
-				codeNm: "KG"
-				},
-                {
-                codePk: "TON",
-                codeNm: "TON"
-                },
-			];
-			this.chkItemUnitList.push(...checkItemUnit);
-			//for test
+			this.chkItemUnitList = [];			
 
 			//choi : callback이 여러번 발생하여 한번만 선언하게 전역으로 선언함
-            this.popup = new EquipmentsPage();
+            this.popupEquipments = new EquipmentsPage();
 
+			//added by choi : 2025/05/08
+			this.popupItems = new ItemsPage();
 
 			this.init();
 		}
+
+        init() {
+            let _this = this;
+            const modal = $("#modalPiMaster");
+
+            // cycleInfo 표시 여부 체크 함수
+            this.checkCycleInfo = function () {
+                const pmTypeValue = $('#pmType').val();
+                if (pmTypeValue === 'PM_TYPE_TBM') {
+                    $('#cycleInfo').show();
+                } else {
+                    $('#cycleInfo').hide();
+                }
+            };
+
+            // 데이터 로드 함수
+            this.loadPmData = function (pmPk) {
+                let param = {
+                    action: 'read',
+                    pm_pk: pmPk
+                };
+
+                let result = AjaxUtil.getSyncData(this.baseUrl, param);
+                if (result) {
+                    // FormUtil.fillForm($('#piMasterForm'), result);
+                    // 데이터 로드 직후 cycleInfo 체크
+                    setTimeout(() => this.checkCycleInfo(), 0);
+                }
+            };
+
+            // 모달이 표시될 때마다 cycleInfo 체크
+            modal.on('show', function () {
+                _this.checkCycleInfo();
+            });
+
+            //AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
+            AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
+            AjaxUtil.fillDropDownOptions($('#piManager'), 'auth_user', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+			//AjaxUtil.fillDropDownOptions($('#selJobClass'), 'job_class', 'choose', null);
+
+
+			//for test
+			/*
+            let checkItemUnit =
+                [
+                    {
+                        codePk: "KG",
+                        codeNm: "KG"
+                    },
+                    {
+                        codePk: "TON",
+                        codeNm: "TON"
+                    },
+                ];
+            this.chkItemUnitList.push(...checkItemUnit);
+			//for test
+			*/
+
+			this.chkItemUnitList = [];
+
+			let param = {
+                combo_type: "cm_base_code",
+                cond1: "CHK_ITEM_UNIT",
+                cond2: "",
+                cond3: "",
+            };
+            let result = AjaxUtil.getSyncData("/api/system/combo", param);
+			console.log(result);
+
+            this.chkItemUnitList.push(...result);
+
+
+
+            let today = CommonUtil.getYYYYMMDD();
+            $("#schedStartDt").kendoDatePicker({
+                value: today,
+                format: "yyyy-MM-dd",
+            });
+
+            //-----------------점검기본 초기화
+            _this.bindMainEvents();
+
+            //-----------------eof 점검기본 초기화
+
+
+            //-----------------계획 초기화
+
+            //-----------------eof 계획 초기화
+
+
+
+            //------------------설비 Kendo 템플릿 초기화
+            _this.templateEquip = kendo.template($("#tblChkEquipTemp").html());
+
+            // 2개의 데이타를 준비하고 piCheckTable에 삽입
+            $("#piEquipTable").html(_this.templateEquip({
+                data: _this.chkEquipGrid
+            }));
+
+            _this.tableReorder4Equip();
+
+            _this.bindChkEquipTemplateEvents();
+            //------------------end of 설비 Kendo 템플릿 초기화
+
+
+            //------------------점검항목 Kendo 템플릿 초기화
+            _this.template = kendo.template($("#tblChkItemTemp").html());
+
+            // 2개의 데이타를 준비하고 piCheckTable에 삽입
+            $("#piCheckTable").html(_this.template({
+                data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
+            }));
+
+            //빈항목추가 버튼 이벤트 추가
+            $('#addEmptyCheckItem').kendoButton({
+                themeColor: "base",
+                icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+                click: function (e) {
+                    e.preventDefault();
+
+                    //빈 항목 추가
+                    let checkItemData =
+                    {
+                        itemIdx: "",     //이 값은 html에서 값을 가져와야 함
+                        chkItemNm: "",
+                        lcl: "",
+                        ucl: "",
+                        chkItemUnitPk: "",
+                        guide: "",
+                        method: "",
+                        chkItemPk: "",
+                        dailyReportItemCd: ""
+                    };
+
+                    _this.chkItemGrid.push(checkItemData);
+
+                    console.log("_this.chkItemGrid:", _this.chkItemGrid);
+
+                    // 렌더링 결과를 piCheckTable에 삽입
+                    $("#piCheckTable").html(_this.template({
+                        data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
+                    }));
+
+                    _this.tableReorder('tblChkItem', 'colItemIdx');
+                }
+            });
+
+            //점검항목추가 버튼 이벤트 추가
+            $('#addCheckItem').kendoButton({
+                themeColor: "base",
+                icon: "k-i-plus", // 기어 아이콘 (설비 관련)
+                click: function (e) {
+                    e.preventDefault();
+
+                    //점검항목 선택 팝업창을 띄운다
+                    //callback이중방지를 위해 전역 변수로 한번만 선언할까??      
+                    setModalPosition('#chkMastItemPop', { width: '70%', height: '70%' });
+                    _this.popupItems.show(function (selectedItems) {
+                        // 여기서 선택된 데이터를 받아서 처리
+                        console.log("선택된 항목:", selectedItems.length, selectedItems);
+                        console.log("before 기존 항목:", _this.chkItemGrid.length, _this.chkItemGrid);
+
+                        selectedItems.forEach(selItem => {
+                            const exists = _this.chkItemGrid.some(item => item.chkItemNm === selItem.chk_item);
+							if (!exists) {
+
+                                //빈 항목 추가
+                                let checkItemData =
+                                {
+									itemIdx: "",     //이 값은 html에서 값을 가져와야 함
+									chkItemNm: selItem.chk_item,
+                                    lcl: "",
+									ucl: "",
+                                    chkItemUnitPk: selItem.chk_item_unit_pk,
+                                    guide: "",
+                                    method: "",
+                                    chkItemPk: "",
+                                    dailyReportItemCd: ""
+                                };
+
+								_this.chkItemGrid.push(checkItemData);
+                            }
+                        });
+
+                        console.log("after기존 항목:", _this.chkItemGrid.length, _this.chkItemGrid);
+
+                        // 렌더링 결과를 piCheckTable에 삽입
+                        $("#piCheckTable").html(_this.template({
+                            data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
+                        }));
+
+                        _this.tableReorder('tblChkItem', 'colItemIdx');
+                    });
+                }
+            });
+
+
+            //----------------------end of 점검항목추가
+
+        }//end init()
 
 		bindMainEvents() {
 			let _this = this;
@@ -551,7 +741,7 @@
 
 					//callback이중방지를 위해 전역 변수로 한번만 선언할까??      
                     setModalPosition('#modalEqus', { width: '95%', height: '90%' });
-                    _this.popup.show(function (selectedEquips) {
+                    _this.popupEquipments.show(function (selectedEquips) {
 						// 여기서 선택된 데이터를 받아서 처리
                         console.log("선택된 항목:", selectedEquips.length, selectedEquips);
                         console.log("before 기존 항목:", _this.chkEquipGrid.length, _this.chkEquipGrid);
@@ -628,10 +818,10 @@
 			});
 
 			$('#piCheckTable').off('click', '.btn-chkitem-down').on('click', '.btn-chkitem-down', function () {
-                const index = $(this).data('uid');
-				console.log(`다운클릭:`, index);
+				const index = $(this).data('uid');
+				if (index === _this.chkItemGrid.length - 1) return; // 배열 마지막 번째 항목은 아래로 못 옮기므로 종료
 
-				//_this.moveDown(nIndex);
+				console.log(`다운클릭:`, index);
 
                 var $tr = $('#chkitem_rows_' + index).closest('tr'); // 현재 tr
                 var $next = $tr.next(); // 다음 tr
@@ -659,10 +849,9 @@
 			$('#piCheckTable').off('click', '.btn-chkitem-up').on('click', '.btn-chkitem-up', function () {
 				const index = $(this).data('uid');
 
-                if (index === 0) return; // 배열 첫 번째 항목은 위로 못 옮기므로 종료
-				  
-				//console.log(`업클릭:`, index);
-				//_this.moveUp(nIndex);
+                if (index === 0) return; // 배열 첫 번째 항목은 위로 못 옮기므로 종료				  
+
+				console.log(`업클릭:`, index);
 
                 var $tr = $('#chkitem_rows_' + index).closest('tr'); // 해당 행
                 var $prev = $tr.prev(); // 이전 행
@@ -730,21 +919,7 @@
 				}
 			});
 
-			//$('#piCheckTable').off('change', '.chkItemUnitSelect').on('change', '.chkItemUnitSelect', function () {
-			//	const $tr = $(this).closest('tr');
-			//	const rowIndex = $tr.index();  // tbody 기준 몇 번째 tr인지
-
-			//	console.log('현재 selected 인덱스:', rowIndex);
-
-			//	const value = $(this).val();               // 변경된 값
-			//	console.log("selectbox value=", value);
-
-			//	if (_this.chkItemGrid && _this.chkItemGrid[rowIndex]) {
-			//		_this.chkItemGrid[rowIndex].chkItemUnitPk = value;  // 데이터 반영
-			//	}
-
-			//	console.log(_this.chkItemGrid);
-			//});
+			
 
             $("#piCheckTable").find(".chkItemUnitSelect").each(function () {
 				const $select = $(this);
@@ -760,9 +935,9 @@
                 // KendoDropDownList 설정
                 $select.kendoDropDownList({
                     dataSource: _this.chkItemUnitData,         // 전역 혹은 상위에서 접근 가능한 단위 리스트
-                    dataTextField: "codeNm",
-                    dataValueField: "codePk",
-                    optionLabel: "단위선택",
+                    dataTextField: "value",
+                    dataValueField: "text",
+                    //optionLabel: "단위선택",
                     value: selectedValue,                // 기존 선택값 유지
 					change: function () {
 
@@ -787,78 +962,15 @@
 			});			
 		}
 
-
-		moveUp(index) {
-			var $tr = $('#chkitem_rows_' + index).closest('tr'); // 해당 행
-			var $prev = $tr.prev(); // 이전 행
-
-			if ($prev.length) {
-				$prev.before($tr); // 이전 tr 앞에 현재 tr 삽입 (위로 이동)
-			}
-
-			// 정렬 후 후처리 함수 호출 (예: 순번 다시 매기기)
-			this.tableReorder('tblChkItem', 'colItemIdx');
-		}
-
-		moveDown(index) {
-			var $tr = $('#chkitem_rows_' + index).closest('tr'); // 현재 tr
-			var $next = $tr.next(); // 다음 tr
-
-			if ($next.length) {
-				$next.after($tr); // 다음 tr 뒤에 현재 tr 삽입 (아래로 이동)
-			}
-
-			// 정렬 후 후처리 함수 호출 (예: 순번 다시 매기기)
-			this.tableReorder('tblChkItem', 'colItemIdx');
-		}
-
 		tableReorder(tableId, orderColClass) {
 			let _this = this;
 			$('#' + tableId + ' tbody tr').each(function (i) {
-				$(this).find('.' + orderColClass).text(i + 1);  // ← class 기준으로 변경
+				$(this).find('.' + orderColClass).text(i + 1);  // ← class 기준으로 order번호를 변경
 			});
 
 			//choi : 새롭게 정렬된 tr에 바인딩을 새로함
 			_this.bindChkItemTemplateEvents();
-
 			
-
-			//choi : tableReorder할때 기존에 적용했던 kendo스타일이 죽어 버림. 그래서 다시 설정해 주어야 함
-			//console.log("find2=", $("#piCheckTable").find(".chkItemUnitSelect"))
-//			$("#piCheckTable").find(".chkItemUnitSelect").each(function () {
-//				//console.log("chkItemUnitSelect 재설정")
-//				const $select = $(this);
-				
-//                // 현재 선택된 값 기억
-//				const currentValue = $select.val();
-//                console.log("selectboxValue:", currentValue);
-
-//                // DropDown 다시 생성하면서 value를 재설정
-//				//$select.kendoDropDownList({
-//    //                dataSource: _this.chkItemUnitList,
-//    //                value: currentValue
-//				//});
-
-
-//				//모양만 설정해 준다
-//				$select.kendoDropDownList({
-//					dataSource: _this.chkItemUnitList,
-//					dataTextField: "codeNm",
-//					dataValueField: "codePk",
-//					optionLabel: "단위선택",
-//                    value: currentValue,
-////					change: function () {
-////					    const selectedValue = this.value();
-////						console.log("index:", index, "selected:", selectedValue);
-////					    if (_this.chkItemGrid && _this.chkItemGrid[index]) {
-////					        _this.chkItemGrid[index].chkItemNm = selectedValue;  // 데이터 반영
-////}
-////					}
-//				});
-
-
-				
-//			})
 		}
 
 		saveData() {
@@ -892,20 +1004,32 @@
 				return;
 			}
 
+			//선택한 설비정보 array중 equip_pk를 꺼내 ,로 구분해 준다
+			data.chkEquips = this.chkEquipGrid.map(item => item.equip_pk).join(','); // 문자열
+
+			//선택한 점검항목 정보를 꺼낸다
+			//data.equipChkItems = this.chkItemGrid; //json array
+            data.equipChkItems = JSON.stringify(this.chkItemGrid);
+			console.log("data.equipChkItems:", data.equipChkItems);
+
 			let funcSucc = function (resp) {
 				if (resp.success) {
 					// 기본 정보 저장 성공 시 작업 인력 저장 진행
 
 					console.log("saveData resp:", resp)
 
-					// choi : 일단 제거
-					//_this.savePmLalor(resp);
+					// choi : 다음으로 설비를 저장한다
+					_this.saveEquip(resp);
 				} else {
 					Alert.alert('error', resp.message);
 				}
 			};
 
 			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+
+
+
+
 			$("#modalPiMaster").fadeOut();
 		}
 
@@ -915,198 +1039,6 @@
 			// 폼 리셋 후 cycleInfo 체크
 			// this.checkCycleInfo();
 		}
-
-		savePmLalor(resp) {
-			let _this = this;
-			let jobClassData = [];
-			$('#jobClassTable tbody tr').not('.no-data').each(function () {
-				const job_class_pk = $(this).data('value');
-				let work_hr = $(this).find('input[type="number"]').val();
-				work_hr = work_hr || 0;
-				jobClassData.push({
-					job_class_pk: job_class_pk,
-					work_hr: work_hr
-				});
-			});
-
-			// 작업 인력 데이터가 없는 경우 바로 자재 저장으로 진행
-			if (jobClassData.length === 0) {
-				_this.savePmMtrl(resp);
-				return;
-			}
-
-			let data = {
-				job_classes: JSON.stringify(jobClassData),
-				pm_pk: resp.id
-			};
-
-			let funcSucc2 = function (resp2) {
-				if (resp2.success) {
-					_this.savePmMtrl(resp);
-				} else {
-					Alert.alert('error', resp2.message);
-				}
-			}
-
-			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_job_classes', data, funcSucc2);
-		}
-
-		savePmMtrl(resp) {
-			let _this = this;
-			let materialData = [];
-			$('#materialTable tbody tr').not('.no-data').each(function () {
-				const mat_pk = $(this).data('value');
-				let mtrl_qty = $(this).find('input[type="number"]').val();
-				mtrl_qty = mtrl_qty || 0;
-				materialData.push({
-					mat_pk: mat_pk,
-					mtrl_qty: mtrl_qty
-				});
-			});
-
-			// 자재 데이터가 없는 경우 바로 완료 처리
-			if (materialData.length === 0) {
-				_this.finalizeSave();
-				return;
-			}
-
-			let data = {
-				materials: JSON.stringify(materialData),
-				pm_pk: resp.id
-			};
-
-			let funcSucc3 = function (resp3) {
-				if (resp3.success) {
-					_this.finalizeSave();
-				} else {
-					Alert.alert('error', resp3.message);
-				}
-			}
-
-			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_materials', data, funcSucc3);
-		}
-
-
-		init() {
-			let _this = this;
-			const modal = $("#modalPiMaster");
-
-			// cycleInfo 표시 여부 체크 함수
-			this.checkCycleInfo = function () {
-				const pmTypeValue = $('#pmType').val();
-				if (pmTypeValue === 'PM_TYPE_TBM') {
-					$('#cycleInfo').show();
-				} else {
-					$('#cycleInfo').hide();
-				}
-			};
-
-			// 데이터 로드 함수
-			this.loadPmData = function (pmPk) {
-				let param = {
-					action: 'read',
-					pm_pk: pmPk
-				};
-
-				let result = AjaxUtil.getSyncData(this.baseUrl, param);
-				if (result) {
-					// FormUtil.fillForm($('#piMasterForm'), result);
-					// 데이터 로드 직후 cycleInfo 체크
-					setTimeout(() => this.checkCycleInfo(), 0);
-				}
-			};
-
-			// 모달이 표시될 때마다 cycleInfo 체크
-			modal.on('show', function () {
-				_this.checkCycleInfo();
-			});
-
-			//AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
-			AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
-			AjaxUtil.fillDropDownOptions($('#piManager'), 'auth_user', 'choose', null);
-			AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
-			//AjaxUtil.fillDropDownOptions($('#selJobClass'), 'job_class', 'choose', null);
-
-			let today = CommonUtil.getYYYYMMDD();
-			$("#schedStartDt").kendoDatePicker({
-				value: today,
-				format: "yyyy-MM-dd",
-			});
-
-			//-----------------점검기본 초기화
-			_this.bindMainEvents();
-
-			//-----------------eof 점검기본 초기화
-
-
-			//-----------------계획 초기화
-
-			//-----------------eof 계획 초기화
-
-
-
-			//------------------설비 Kendo 템플릿 초기화
-			_this.templateEquip = kendo.template($("#tblChkEquipTemp").html());
-
-			// 2개의 데이타를 준비하고 piCheckTable에 삽입
-			$("#piEquipTable").html(_this.templateEquip({
-				data: _this.chkEquipGrid
-			}));
-
-			_this.tableReorder4Equip();
-
-			_this.bindChkEquipTemplateEvents();
-			//------------------end of 설비 Kendo 템플릿 초기화
-
-
-			//------------------점검항목 Kendo 템플릿 초기화
-			_this.template = kendo.template($("#tblChkItemTemp").html());
-
-			// 2개의 데이타를 준비하고 piCheckTable에 삽입
-			$("#piCheckTable").html(_this.template({
-				data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
-			}));
-
-            //점검항목 버튼 이벤트 추가(1회만)
-            $('#addCheckItem').kendoButton({
-                themeColor: "base",
-                icon: "k-i-plus", // 기어 아이콘 (설비 관련)
-                click: function (e) {
-                    e.preventDefault();
-
-                    //항목 추가
-                    //for test choi : test데이터 연결
-                    let checkItemData =
-                    {
-                        itemIdx: 1,
-                        chkItemNm: "압력 체크",
-                        lcl: "10",
-                        ucl: "50",
-                        chkItemUnitPk: "KG",
-                        guide: "10~50 psi 유지",
-                        method: "게이지로 측정",
-                        chkItemPk: 101,
-                    };
-
-                    _this.chkItemGrid.push(checkItemData);
-
-                    // 렌더링 결과를 piCheckTable에 삽입
-                    $("#piCheckTable").html(_this.template({
-                        data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
-                    }));
-
-                    _this.tableReorder('tblChkItem', 'colItemIdx');
-                }
-			});
-
-			//왜 여기서 호출했지???
-			//this.tableReorder('tblChkItem', 'colItemIdx');
-
-			
-			//----------------------end of 점검항목추가
-
-		}//end init()
-
 
 
 		finalizeSave() {

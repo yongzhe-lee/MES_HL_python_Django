@@ -79,7 +79,7 @@
                                 <div class="card-group-btn">
                                     <span class="info-text">
                                         <i class="material-symbols-outlined">list_alt</i>
-                                        <label data-labelCd="설비 태그">설비 태그</label>
+                                        <label data-labelCd="태그 목록">태그 목록</label>
                                     </span>
                                 </div>
                                 <form class="search-form" id="searchTagForm">
@@ -93,6 +93,15 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-auto">
+                                                <div class="form-item align-h">
+                                                    <label class="k-label k-form-label" for="cboDataSource" data-labelCd="데이터소스">데이터소스</label>
+                                                    <div class="field-wrapper">
+                                                        <select id="cboDataSource" name="cboDataSource" class="form-control"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div class="col-auto">
                                                 <div class="form-item align-h">
                                                     <label class="k-label k-form-label" for="cboTagGroup" data-labelCd="태그그룹">태그그룹</label>
@@ -119,7 +128,7 @@
                                 </form>
                                 <div id="tag_grid" style="width: 100%"></div>
                             </div>
-                            <!-- tab1 - mes form & grid -->
+                             <!--tab1 - mes form & grid 
                             <div class="content-ui-row connect">
                                 <div class="card-group-btn">
                                     <span class="info-text k-mt-5">
@@ -164,7 +173,7 @@
                                 </form>
                                 <div id="mes_tag_grid" style="width: 100%"></div>
                             </div>
-                            <!-- tab1 - qms form & grid -->
+                             tab1 - qms form & grid 
                             <div class="content-ui-row connect">
                                 <div class="card-group-btn">
                                     <span class="info-text k-mt-5">
@@ -208,14 +217,8 @@
                                     </div>
                                 </form>
                                 <div id="qms_tag_grid" style="width: 100%"></div>
-                            </div>
+                            </div>-->
                         </div>
-                        <!-- 그래프 영역 (Tab1의 오른쪽 영역) -->
-                        <!--<div class="col-12 col-md-6 col-xl-4">
-            <div class="content-ui-column connect">
-                <div id="chart"></div>
-            </div>
-        </div>-->
                         <!-- 최종 태그 집합 (Tab1의 오른쪽 영역) -->
                         <div class="col-12 col-md-6">
                             <div class="content-ui-column connect">
@@ -1261,10 +1264,13 @@
                             { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
                             { field: 'line', title: '라인', width: 100 },
                             { field: 'equipment_name', title: '설비명', width: 150 },
-                            { field: 'material', title: '품목', width: 100 },
-                            { field: 'P/N', title: '합부결과', width: 100 },
+                            { field: 'data_src', title: '데이터소스', width: 100 },
+                            { field: 'tag_code', title: '태그코드', width: 100 },
+                            { field: 'tag_name', title: '태그명', width: 100 },
+                        //    { field: 'material', title: '품목', width: 100 },   태그코드
+                        //    { field: 'P/N', title: '합부결과', width: 100 },  값은 나중에 끌어옴
                         ],
-                        height: "1000px"
+                        height: "300px"
                     };
                     break;
 
@@ -1707,9 +1713,9 @@
             // 탭 인덱스에 따라 해당 탭의 컨테이너를 초기화 또는 갱신
             switch (tabIndex) {
                 case 0:
-                    _this.renderGrid("tag_grid", "tag");
-                    _this.renderGrid("mes_tag_grid", "mes");
-                    _this.renderGrid("qms_tag_grid", "qms");
+                    //_this.renderGrid("tag_grid", "tag");
+                    //_this.renderGrid("mes_tag_grid", "mes");
+                    //_this.renderGrid("qms_tag_grid", "qms");
                     _this.renderGrid("merged_tag_grid", "merged_tag");
                     break;
                 case 1:

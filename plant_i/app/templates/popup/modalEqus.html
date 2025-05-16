@@ -57,6 +57,12 @@
                 ];
 
                 this.selectedKeyNames = [];
+
+                let content = $('#modalEqus').html()
+                let $content = $(content);
+
+                this.init($content);
+
             }
 
             init($content) {
@@ -78,7 +84,7 @@
                                 fields: {
                                     equip_cd: { type: "string" },
                                     equip_nm: { type: "string" },
-                                    equip_status_nm: { type: "date" }
+                                    equip_status_nm: { type: "string" }
                                 }
                             }
                         },
@@ -225,27 +231,7 @@
                 let _this = this;
                 this.callback = callback;
 
-                let content = $('#modalEqus').html()
-                let $content = $(content);
-
-                /*
-                // 브라우저 너비의 80%를 팝업 너비로 설정
-                let windowWidth = window.innerWidth * 0.8;
-                                
-                $content.kendoWindow({
-                    width: "800px", // windowWidth
-                    height: "600px",
-                    title: "설비선택",
-                    visible: false,
-                    actions: ["Close"],
-                    close: () => {
-                        // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
-                    }
-                });
-                */
-
-                _this.init($content);
-                //$content.data("kendoWindow").center().open();
+                
 
                 $('#modalEqus').css({
                     height: '100%'  // ✅ 원하는 높이로 설정

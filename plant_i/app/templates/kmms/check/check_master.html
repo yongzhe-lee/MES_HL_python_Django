@@ -308,10 +308,10 @@
 {% include '../../popup/modalPiMaster.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
-{% include '../../popup/modalMaterials.html'%}
 {% include 'common/file_upload.html' %}
 {% include '../../popup/modalEqus.html'%}
 {% include '../../popup/popup_test.html'%}
+{% include '../../popup/modalItems.html'%}
 
 <script type="text/javascript">
     class PiMasterPage {
@@ -432,7 +432,7 @@
             var isLegalChecked = getComponentValue("#chk_legal", "kendoSwitch");
 
             let param = {
-                action: 'read',
+                action: 'findAll',
                 chkMastNo: $('#chkMastNo').val(),
                 searchText: $('#searchText').val(),
                 equipDeptPk: getComponentValue("#equipDeptPk", "kendoDropDownTree"),
@@ -497,8 +497,8 @@
                     },
                     { field: 'dept_nm', title: '점검부서', width: 100 },
                     { field: 'chk_user_nm', title: '점검담당자', width: 100 },
-                    { field: 'chk_equip_cnt', title: '점검설비수량', width: 100 },
-                    { field: 'chk_item_cnt', title: '점검항목수량', width: 100 },
+                    { field: 'chk_equip_item_cnt', title: '점검설비수량', width: 100 },
+                    { field: 'equip_chk_item_cnt', title: '점검항목수량', width: 100 },
                     {
                         field: 'cycle_display_nm',
                         title: '주기',
@@ -599,7 +599,7 @@
                 }
             });
 
-            
+
             //choi : test버튼
             $('#btnPopupTest').kendoButton({
                 icon: "pencil",
@@ -612,11 +612,11 @@
 
                     popup.show(function (selectedItem) {
                         // 여기서 선택된 데이터를 받아서 처리
-                        console.log("선택된 항목:", selectedItem);                        
+                        console.log("선택된 항목:", selectedItem);
                     });
                 }
             });
-            
+
 
             $('#chk_my_task').kendoSwitch({
                 checked: false,
@@ -675,7 +675,7 @@
             });
         }//end init()
 
-        
+
 
     };
 
@@ -683,7 +683,7 @@
 
     page = new PiMasterPage();
 
-    
+
     $(document).ready(function () {
         page.searchMainData();
 
@@ -703,7 +703,7 @@
             }
         });
     });
-    
+
 </script>
 
 {% endblock %}

@@ -122,7 +122,7 @@ def upload(context, request):
                 TableName=tableName,
                 AttachName=attachName,
                 DataPk=DataPk
-            ).order_by('FileIndex')
+            ).order_by('-id')
             return JsonResponse({
                 'success': True,
                 'data': list(af_query.values())

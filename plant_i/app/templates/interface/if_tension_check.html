@@ -1,7 +1,7 @@
 {% extends "app/layout.html" %}
 {% block css %}
-{% endblock %}
 
+{% endblock %}
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
@@ -9,7 +9,7 @@
             <div class="card-content search">
                 <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
-                    <div class="col-12 col-sm-6 col-md-5 col-xl-3">
+                    <div class="col-12 col-md-6 col-lg-5 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_date_range" data-labelCd="생산일">생산일</label>
                             <div class="field-wrapper">
@@ -18,8 +18,7 @@
                         </div>
                     </div>
 
-
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="line_id" data-labelCd="라인">라인</label>
                             <div class="field-wrapper">
@@ -27,24 +26,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="equ_id" data-labelCd="설비">설비</label>
-                            <div class="field-wrapper">
-                                <select class="form-control" name="equ_id" id="equ_id"></select>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="알람코드, 내용" />
-
+                                <input id="keyword" name="keyword" placeholder="스텐실코드검색" />
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                         <div class="card-group-btn search">
                             <button id="btnSearch" class="btn-search">조회</button>
                         </div>
@@ -63,34 +53,131 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="equ_result_grid"></div>
+                <div id="tension_grid"></div>
             </div>
         </div>
+
+
+
         <div class="content-ui-row connect">
-            <div class="card-content grid">
+            <div class="card-content edit">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">scale</i><label data-labelCd="설비측정데이터">설비측정데이터</label></span>
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>스텐실 텐션 입력</span>
                     <span>
-                    </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <button id="btnExcel">Excel</button>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
                     </span>
                 </div>
-                <div id="equ_result_item_grid"></div>
-                <hr />
-                <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">bug_report</i><label data-labelCd="부적합데이터">부적합데이터</label></span>
-                    <span>
-                    </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <button id="btnExcel">Excel</button>
-                    </span>
-                </div>
-                <div id="equ_defect_item_grid"></div>
+                <form id="inputForm">
+
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtDataDate" data-labelCd="작업일">작업일</label>
+                                <div class="field-wrapper">
+                                    <input id="txtDataDate" name="DataDate" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="prod_plan" data-labelCd="생산계획">생산계획</label>
+                                <div class="field-wrapper" style="display:flex">
+                                    <input type="hidden" id="prod_plan_pk" name="prod_plan_pk" />
+                                    <input id="prod_plan" type="text" name="prod_plan" />
+                                    <button id="btnShowProdPlan" style="width: 40px;"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtScanBarcode" data-labelCd="스텐실바코드">스텐실바코드</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtScanBarcode" name="barcode" class="form-control" placeholder="스캔입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtTensionValue1" data-labelCd="텐션값1">텐션값1</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="txtTensionValue1" name="tension_value1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtTensionValue1" data-labelCd="텐션값2">텐션값2</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="txtTensionValue2" name="tension_value2" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtTensionValue3" data-labelCd="텐션값3">텐션값3</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="txtTensionValue3" name="tension_value3" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtTensionValue4" data-labelCd="텐션값4">텐션값4</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="txtTensionValue4" name="tension_value4" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtTensionValue5" data-labelCd="텐션값5">텐션값5</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="txtTensionValue5" name="tension_value5" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtWorker" data-labelCd="작업자">작업자</label>
+                                <div class="field-wrapper">
+                                    <input type="hidden" id="worker_pk" name="worker_pk" />
+                                    <input type="text" id="txtWorker" name="worker_nm" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtResult" data-labelCd="결과">결과</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtResult" name="result" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="txtDefectReason" data-labelCd="불량사유">불량사유</label>
+                                <div class="field-wrapper">
+                                    <textarea id="txtDefectReason" name="defect_reason" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
             </div>
         </div>
+
 
     </div>
 </div>
@@ -101,13 +188,11 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    class EquipmentResultPage {
+    class StencilTensionPage {
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/interface/equ_result';
+            this.baseUrl = '/api/interface/tension';
             this.init();
-            this.initItem();
-            this.initDefect();
         }
 
         init() {
@@ -115,38 +200,27 @@
             let gridOption = {
                 columns: [
                     { field: "line_nm", title: "라인", width: 80 },
-                    { field: "equ_nm", title: "설비명", width: 200 },
-                    { field: "state", title: "불량", width: 100 },
-                    { field: "sn", title: "sn", width: 120 },
-                    { field: "sn_new", title: "sn new", width: 100 },
-                    { field: "sn_items", title: "sn items", width: 100 },
-                    { field: "mat_cd", title: "품목번호", width: 100 },
-                    { field: "mat_desc", title: "품목명", width: 350 },
-                    { field: "pcb_input", title: "PCB input", width: 100 },
-                    { field: "pcb_cn", title: "PCB CN", width: 100 },
-                    { field: "pcb_size", title: "PCB Size", width: 100 },
-                    { field: "pcb_array", title: "PCB Array", width: 100 },
-                    { field: "bom_ver", title: "BOM Ver.", width: 100 },
-                    { field: "is_alarm", title: "is_alarm", width: 100 },
-                    { field: "data_date", title: "전송일시", width: 160 },
+                    { field: "plan_date", title: "생산계획일", width: 100 },
+                    { field: "mat_cd", title: "생산품번", width: 150 },
+                    { field: "barcode", title: "스텐실", width: 150 },
+                    { field: "data_date", title: "측정일시", width: 100 },
+                    { field: "tension_value1", title: "T1", width: 100 },
+                    { field: "tension_value2", title: "T2", width: 120 },
+                    { field: "tension_value3", title: "T3", width: 100 },
+                    { field: "tension_value4", title: "T4", width: 100 },
+                    { field: "tension_value5", title: "T5", width: 100 },
+                    { field: "result", title: "결과", width: 100 },
+                    { field: "worker_nm", title: "작업자", width: 100 },
+                    { field: "defect_reason", title: "불량사유", width: 200 },
                 ],
-                change: function (e) {
-                    _this.showResultItemList();
-                    _this.showDefectItemList();
-                },
-                height: "300px"
+                change: function (e) {},
+                height: "400px"
             };
-            _this.grid = new Grid($("#equ_result_grid"), gridOption);
+            this.grid = new Grid($("#tension_grid"), gridOption);
 
 
             let $line_id = $('#line_id');
-            AjaxUtil.fillDropDownOptions($line_id, 'line', 'all', null);
-            AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, $line_id.val());
-
-            $line_id.on('change', function (e) {
-                AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', "all", null, $line_id.val());
-            });
-
+            AjaxUtil.fillDropDownOptions($line_id, 'smt_line', 'all', null);
 
             //search form
             $("#srch_date_range").kendoDateRangePicker({
@@ -175,8 +249,6 @@
                 }
             });
 
-
-
             //form button
             $('#btnSearch').kendoButton({
                 icon: "search",
@@ -194,91 +266,51 @@
                 }
             });
 
+            $("#btnShowProdPlan").kendoButton({
+                icon: "search",
+                themeColor: "base"
+            });
+
+            $('#prod_plan').kendoTextBox();
+
+            $("#txtDataDate").kendoDatePicker({
+                dateInput: true,
+                value : new Date()
+            });
 
 
-        }
+            $("#txtTensionValue1").kendoNumericTextBox({
+                decimals: 2,
+                restrictDecimals: true
+            });
 
-        initItem() {
-            let _this = this;
-            let gridOption = {
-                columns: [
-                    { field: "test_item_cd", title: "항목코드", width: 100 },
-                    { field: "test_item_val", title: "항목결과값", width: 80, attributes: { style: "text-align: right" } },
-                    { field: "min_val", title: "MIN", width: 80, attributes: { style: "text-align: right" } },
-                    { field: "max_val", title: "MAX", width: 80, attributes: { style: "text-align: right" } },
-                    { field: "unit", title: "unit", width: 80, attributes: { style: "text-align: center" } },
-                    { field: "failcode", title: "failcode", width: 80, attributes: { style: "text-align: center" } },
-                    { field: "created", title: "저장일시", width: 160 },
-                ],
-                height: "300px"
-            };
+            $("#txtTensionValue2").kendoNumericTextBox({
+                decimals: 2,
+                restrictDecimals: true
+            });
+            $("#txtTensionValue3").kendoNumericTextBox({
+                decimals: 2,
+                restrictDecimals: true
+            });
+            $("#txtTensionValue4").kendoNumericTextBox({
+                decimals: 2,
+                restrictDecimals: true
+            });
+            $("#txtTensionValue5").kendoNumericTextBox({
+                decimals: 2,
+                restrictDecimals: true
+            });
 
-            _this.item_grid = new Grid($("#equ_result_item_grid"), gridOption);
-        }
-
-        initDefect() {
-            //equ_defect_item_grid
-            let _this = this;
-            let gridOption = {
-                columns: [
-                    { field: "defect_cd", title: "부적합코드", width: 100 },
-                    { field: "defect_nm", title: "부적합명", width: 100 },
-                    { field: "component_nm", title: "부품명", width: 100 },
-                    { field: "part_no", title: "부품번호", width: 100 },
-                    { field: "created", title: "생성일", width: 100 },
-                ],
-                height: "200px"
-            };
-
-            _this._defect_item_grid = new Grid($("#equ_defect_item_grid"), gridOption);
-        }
-
-        showResultItemList() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            let result_id = data[0].id;
-            let param = {
-                action: 'result_item_list',
-                result_id: result_id
-            };
+            $('#txtWorker').val(userinfo.username);
 
 
-            _this.item_grid.setData([]);
-            let fnSuccess = function (result) {
-
-                if (result.success) {
-                    _this.item_grid.setData(result.data);
-                }
-            };
-
-            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
-        }
-
-        showDefectItemList() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            let result_id = data[0].id;
-            let param = {
-                action: 'defect_item_list',
-                result_id: result_id
-            };
-
-            _this._defect_item_grid.setData([]);
-            let fnSuccess = function (result) {
-
-                if (result.success) {
-                    _this._defect_item_grid.setData(result.data);
-                }
-            };
-
-            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
         }
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#alram_grid').data("kendoGrid");
+            let gridData = $('#tension_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "line.xlsx";
+                e.workbook.fileName = "tension.xlsx";
             });
             gridData.saveAsExcel();
         }
@@ -287,26 +319,23 @@
             let _this = this;
             let start_dt = $('input[name=start_dt]').val();
             let end_dt = $('input[name=end_dt]').val();
-            let equ_id = $('#equ_id').val();
+            let line_id = $('#line_id').val();
             let keyword = $('#keyword').val();
             let param = {
-                equ_id: equ_id,
                 start_dt: start_dt,
                 end_dt: end_dt,
+                line_id : line_id,
                 action: 'read',
                 keyword: keyword
             };
 
-            let $gg = $('#equ_result_grid');
+            let $gg = $('#tension_grid');
             kendo.ui.progress($gg, true);
             _this.grid.setData([]);
-            _this.item_grid.setData([]);
-            _this._defect_item_grid.setData([]);
             let fnSuccess = function (result) {
                 if (result.success) {
                     _this.grid.setData(result.data);
                 }
-
                 kendo.ui.progress($gg, false);
             };
 
@@ -314,7 +343,7 @@
         }
     }
 
-    let page = new EquipmentResultPage();
+    let page = new StencilTensionPage();
 $(document).ready(function () {
     page.searchMainData();
 });

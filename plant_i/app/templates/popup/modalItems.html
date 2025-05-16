@@ -1,0 +1,248 @@
+
+<div id="chkMastItemPop" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>점검항목선택</h4>
+            <button type="button" class="close" id="closeModal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- 검색 영역 -->
+            <div class="search-area">
+                <div class="search-label col-auto">검색키워드</div>
+                <input type="text" class="form-control col-auto" id="keyword_item" name="keyword_item" placeholder="점검항목명">                
+                <button type="button" class="btn-search" id="btnSearchItems">검색</button>
+            </div>
+
+            <!-- 그리드 영역 -->
+            <div id="itemsGrid"></div>
+
+            <!-- 선택된 점검항목 영역 -->
+            <div class="bottom-area">
+                <div class="selected-equipment">
+                    <!--<label>선택된 설비</label>
+                    <input type="hidden" id="selectedEquPK" name="selectedEquPK">
+                    <input type="text" id="selectedEquName" name="selectedEquName" readonly>-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-save" id="btnConfirm">선택</button>
+                    <button type="button" class="btn-close" id="btnCancel">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <style>
+
+    </style>
+
+    <script type="text/javascript">
+
+        class ItemsPage {
+            constructor() {
+                this.grid = null;
+                //choi : 2025/04/30 
+                //     : url이 바뀜
+                //this.baseUrl = '/api/definition/equipment';
+                this.baseUrl = '/api/kmms/pi_master';
+                this.callback = null;
+
+                this.dummyData = [
+                    {  }
+                ];
+
+                this.selectedKeyNames = [];
+            }
+
+            init($content) {
+                let _this = this;
+
+                function onChange(arg) {
+                    //console.log("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+                   
+                    _this.selectedKeyNames= this.selectedKeyNames();
+                    console.log("selectedKeyNames", _this.selectedKeyNames);
+                }
+
+                let GridOption = {
+                    dataSource: {
+                        data: [],
+                        schema: {
+                            model: {
+                                id: "template_id",
+                                fields: {
+                                    template_id: { type: "number" },
+                                    chk_item: { type: "string" },
+                                    unit: { type: "string" },
+                                    chk_item_unit_pk: { type: "number" }
+                                }
+                            }
+                        },
+                        pageSize: 10
+                    },
+
+                    toolbar: [
+                        "columns"
+                    ],
+                    columnMenu: {
+                        componentType: "classic",
+                        autoSize: true,
+                        clearAllFilters: true,
+                        columns: {
+                            sort: "asc",
+                        }
+                    },
+                    //pageable: {
+                    //    pageSize: 10,   // 여기서도 설정 가능
+                    ////    refresh: true,
+
+                    //},
+                    pageable: true,
+                    selectable: "multiple, row",
+                    persistSelection: true,  // ✅ 이걸 써야 페이지 바뀌어도 선택 유지됨!
+                    change: onChange,
+                    columns: [
+                        { selectable: true, width: "50px"},
+                        { field: 'chk_item', title: '항목명', width: 100 },
+                        { field: 'unit', title: '단위', width: 150 },
+                        { field: 'template_id', title: 'template_id', width: 100, hidden: true },
+                        { field: 'chk_item_unit_pk', title: 'chk_item_unit_pk', width: 10, hidden: true }
+                    ],
+                    dataBound: function (e) {                        
+                        // grid 데이터 개수 표시
+                        kendoUtil.showGridRowCount(this.element);
+                    },
+                    height: "440px",
+                    scrollable: true, // ✅ 내부에서만 스크롤 유지
+                };
+
+
+                //choi : 그리드 초기화
+                let $grid = $("#itemsGrid");
+                if ($grid.data("kendoGrid")) {
+                    $grid.data("kendoGrid").destroy();  // ✅ 기존 인스턴스 제거
+                    $grid.empty();                      // ✅ DOM 초기화 (중복 렌더 방지)
+                }
+
+
+                // Grid에 setData함수가 있음. 누가 만들어 두었나?
+                //_this.grid = new Grid($("#itemsGrid"), GridOption);
+                _this.grid = $("#itemsGrid").kendoGrid(GridOption).data("kendoGrid");
+
+
+                $("#btnConfirm").kendoButton({
+                    icon: "k-i-check", // 확인 아이콘 (✔️)
+                    themeColor: "base",
+                    click: function () {
+
+                        //key만 보내지 말고 item 집합을 새로 만들어서 보내주어야 하나? 
+                        _this.selectData(_this.selectedKeyNames);
+
+                        $('#chkMastItemPop').fadeOut();
+                    }
+                });
+
+
+                $("#btnCancel").kendoButton({
+                    icon: "cancel", // 취소 아이콘 (❌)
+                    themeColor: "base",
+                    click: function () {
+                        //$content.data('kendoWindow').close();
+                        $('#chkMastItemPop').fadeOut();
+                    }
+                });
+
+                // 검색 버튼을 kendo 버튼으로 변경
+                $("#btnSearchItems").kendoButton({
+                    icon: "search",
+                    themeColor: "primary",
+                    click: function () {
+                        //console.log("click btnSearch");
+                        _this.getData();
+                    }
+                });                
+
+            }//end init
+
+            //java source : equip-chk-item-template-mapper.xml
+            getData() {
+                console.log("getData");
+
+                let param = {
+                    action: 'equipChkItemTemplatefindAll',
+                    keyword: $('#keyword_item').val(),
+                };
+
+                let result = AjaxUtil.getSyncData(this.baseUrl, param);
+                console.log(result);
+
+                //choi : 이렇게 하면 datasource에 설정한 옵션들(페이지 사이즈)이 안 먹힘. 이거 사용하지 말자~~~
+                //_this.grid.setData(result);
+
+                this.resetData();
+
+                //if (grid) {
+                    this.grid.dataSource.data([]);
+                    this.grid.dataSource.page(1);
+                    this.grid.refresh(); // ✅ UI 갱신
+
+                    this.grid.dataSource.data(result); // ✅ 데이터를 직접 설정
+                    this.grid.refresh(); // ✅ UI 갱신
+                //}
+            }
+
+            resetData() {
+                
+            }
+
+            selectData(selectedKeyNames) {
+               
+                const grid = $("#itemsGrid").data("kendoGrid");
+                const allData = grid.dataSource.data(); // 전체 데이터셋
+
+                console.log("allData:", allData);
+
+                // 선택된 키에 해당하는 데이터만 추출
+                const selectedItems = allData.filter(item =>
+                    selectedKeyNames.map(Number).includes(item.template_id)
+                );
+
+                console.log("selectedItems", selectedItems);
+
+                if (typeof this.callback !== 'undefined' && this.callback != null) {
+                    this.callback(selectedItems); // 실제 데이터 객체들을 넘김
+                }
+            }
+
+
+            show(callback) {
+                let _this = this;
+                _this.callback = callback;
+
+                let content = $('#chkMastItemPop').html()
+                let $content = $(content);               
+
+                _this.init($content);
+
+                //$('#chkMastItemPop').css({
+                //    height: '100%'  // ✅ 원하는 높이로 설정
+                //});
+
+                $('#chkMastItemPop').fadeIn();
+
+                _this.getData();
+
+            }
+
+        };  //eof ItemsPage
+
+        //let equiPage = null;
+        //pageEqusModal = new ItemssPage();
+
+        $(document).ready(function () {
+           
+
+        });
+</script>

@@ -2,18 +2,23 @@
 <div id="modalEquClass" class="modal child-modal">
 	<div class="modal-content">
 		<div class="modal-header">
-			<h4>카테고리선택</h4>
+			<h4>설비분류 선택</h4>
 		</div>
 		<div class="modal-body">
-			<div class="search-area">
+			<div class="search-area" style="display:flex;">				
 				<div class="search-label">검색키워드</div>
-				<input type="text" class="form-control" id="keyword_equ_class" name="keyword_equ_class" placeholder="카테고리">			
-				<button type="button" class="btn-search" id="btnSearchEquClass">검색</button>
+				<input type="text" class="form-control" id="keyword_equ_class" name="keyword_equ_class" placeholder="설비종류,설비유형">
+				<button type="button" class="btn-search" id="btnSearchEquClass" style="margin-left: 50px;">검색</button>
+				<div style="margin-left: auto;">
+					<label for="equ_class_category_sel">카테고리</label>
+					<input type="hidden" id="equ_class_category_id" name="equ_class_category_id" >
+					<input type="text" class="form-control" id="equ_class_category_sel" name="equ_class_category_sel" readonly>
+				</div>				
 			</div>
 			<div id="equip_class_sel_grid"></div>
 			<div class="bottom-area">
 				<div class="form-item">
-					<label for="selectedEquClassName">선택된 카테고리</label>
+					<label for="selectedEquClassName">선택된 설비분류</label>
 					<div class="col-md-4">						
 						<input type="text" class="form-control" id="selectedEquClassName" readonly>
 					</div>
@@ -32,9 +37,10 @@
 <script type="text/javascript">
 	class EquipClassSelPage {
 		constructor() {
-			this.grid = null;
-			this.baseUrl = '/api/kmms/equip_category';
+			this.gridEquipClass = null;
+			this.baseUrl = '/api/kmms/equip_classify';
 			this.callback = null;
+			this.categoryPk = null;
 			this.init();
 		}
 
@@ -46,23 +52,47 @@
 
 		initGrid() {
 			const option = {
-				toolbar: ["columns"],
-				columnMenu: {
-					componentType: "classic",
-					autoSize: true,
-					clearAllFilters: true,
-					columns: { sort: "asc" }
+				dataSource: {
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							data: () => ({
+								action: 'findClassifyTree',
+								keyword: $('#keyword_equ_class').val(),
+								categoryId: $("#equ_class_category_id").val()
+							})
+						}
+					},
+					schema: {
+						model: {
+							id: "id",
+							parentId: "up_id",
+							fields: {
+								up_id: { field: "up_id", nullable: true },
+								id: { field: "id" },
+								equip_class_pk: { field: "equip_class_pk" }
+							},
+							expanded: true
+						}
+					}
 				},
+				height: 440,
+				filterable: true,
+				sortable: true,
 				columns: [
-					{ field: 'equip_category_id', title: 'ID', width: 100 },
-					{ field: 'equip_category_desc', title: '코드', width: 200 },
-					{ field: 'remark', title: '카테고리', width: 200 },
+					{ field: "equip_class_pk", hidden: true},
+					{ field: "id", title: "코드", width: 200 }
 				],
-				change: () => this.showDetail(),		
-				height: "440px",
-				scrollable: true,
+				selectable: true,
+				change: (e) => {
+					const selectedItem = this.gridEquipClass.dataItem(this.gridEquipClass.select());
+					if (selectedItem) {
+						$('#selectedEquClassName').val(selectedItem.id);
+					}
+				}
 			};
-			this.grid = new Grid($("#equip_class_sel_grid"), option);
+			this.gridEquipClass = $("#equip_class_sel_grid").kendoTreeList(option).data("kendoTreeList");
 		}
 
 		initButton() {
@@ -71,17 +101,15 @@
 			$("#btnSearchEquClass").kendoButton({
 				themeColor: "primary",
 				icon: "search",
-				click: () => this.getEquClassData()
 			});
 		}
 
 		initEvents() {
 			const $modal = $("#modalEquClass");
-
 			$("#btnConfirmEquClass").on("click", () => {
-				const data = this.grid.getSelect();
-				if (typeof this.callback === 'function') {
-					this.callback(data[0]);
+				const data = this.gridEquipClass.dataItem(this.gridEquipClass.select());
+				if (typeof this.callback === 'function') {		
+					this.callback(data);
 				}
 				$modal.fadeOut();
 			});
@@ -91,33 +119,21 @@
 				$modal.fadeOut();
 				this.resetEquipCklas();
 			});
-
-		}
-
-		getEquClassData() {
-			const param = {
-				action: 'getEquipCategoryList',
-				keyword: $('#keyword_equ_class').val()				
-			};
-			const result = AjaxUtil.getSyncData(this.baseUrl, param);
-			this.grid.setData(result);
-		}
-
-		showDetail() {
-			const data = this.grid.getSelect();
-			if (data.length > 0) {
-				$('#selectedEquClassName').val(data[0].remark);
-			}
 		}
 
 		resetEquipCklas() {
 			$('#selectedEquClassName').val('');
 		}
 
-		show(callback) {
+		show(callback, categoryPk, categoryValue) {
 			this.callback = callback;
+			this.categoryPk = categoryPk;
+			if (categoryValue) {
+				$("#equ_class_category_id").val(categoryPk);
+				$("#equ_class_category_sel").val(categoryValue);
+			}
 			$("#modalEquClass").fadeIn();
-			this.getEquClassData();
+			
 		}
 	}
 

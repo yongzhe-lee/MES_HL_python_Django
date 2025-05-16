@@ -75,6 +75,7 @@ TEMPLATES = [
         },
     },
 ]
+
 if DEBUG:
     default_loaders = [
         "django.template.loaders.filesystem.Loader",
@@ -102,9 +103,12 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DBMS_HOST = '10.10.10.231'      # 개발
-#DBMS_HOST = '10.226.236.34'   # 배포
+DBMS_HOST = '10.10.10.231'    # 개발
 #DBMS_HOST = 'localhost'
+#DBMS_HOST = '10.226.236.32'   # 배포DB_포워딩(테스트용)
+
+DBMS_PORT = 5432  # 일반
+# DBMS_PORT = 15432   # 배포_포워딩(테스트용)
 
 DBMS = 'POSTGRESQL'
 DATABASES = {
@@ -114,7 +118,7 @@ DATABASES = {
         'NAME':'plant_i',
         'USER': 'plant_i',
         'PASSWORD' : 'plant_i',
-        'PORT' : 5432
+        'PORT' : DBMS_PORT
     }
 }
 
@@ -175,6 +179,7 @@ SITE_NAME = 'hlklemove'
 TOPIC_DEVICE_DATA = SITE_NAME + '_device_data'
 TOPIC_DEVICE_EVENT = SITE_NAME + '_device_event'
 TOPIC_HMI_DATA = SITE_NAME + '_hmi_data'
+TOPIC_MNT_FEED_RATE = "mnt_feeder_rate_data"
 
 HMI_RUNNING_MODE = 'mqtt' # mqtt or database
 

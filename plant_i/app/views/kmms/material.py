@@ -1,5 +1,5 @@
 from django.db import transaction
-from domain.models.cmms import CmMaterial
+from domain.models.cmms import CmMaterial, CmSupplier
 from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
 from domain.services.kmms.material import MaterialService
@@ -29,7 +29,7 @@ def material(context):
     materialService = MaterialService()
 
     # ✅ 첨부파일 모달을 HTML 문자열로 응답
-    if action == 'load_modal':
+    if action=='load_modal':
         try:
             data_pk = gparam.get('mtrl_pk')
 
@@ -90,51 +90,88 @@ def material(context):
         mtrl_class = gparam.get('mtrl_class', None)
         items = materialService.get_material_selectAll(keyword, supplier, mtrl_class)
 
-    elif action in ['insert', 'update']:
-        id = CommonUtil.try_int(posparam.get('mtrl_pk'))
-        MtrlCode = posparam.get('mtrl_cd')
-        MtrlName = posparam.get('mtrl_nm')
-        MtrlClassCodePk = CommonUtil.try_int(posparam.get('mtrl_class_cd_pk'))
-        MtrlDsc = posparam.get('mtrl_dsc')
-        MakerPk = CommonUtil.try_int(posparam.get('maker_pk'))
-        SafetyStockAmt = posparam.get('safety_stock_amt')
-        AmtUnitPk = posparam.get('amt_unit_pk')
-        UnitPrice = CommonUtil.try_int(posparam.get('unit_price'))
-        UnitPriceDt = posparam.get('unit_price_dt')
-        CmSupplier = CommonUtil.try_int(posparam.get('supplier_pk'))
-        DeliveryDays = CommonUtil.try_int(posparam.get('delivery_days'))
-        DeliveryType = posparam.get('delivery_type')
-        ErpMtrlCode = posparam.get('erp_mtrl_cd')
-        AllowAddBom = posparam.get('allow_add_bom')
-        ConstructionPk = CommonUtil.try_int(posparam.get('construction_pk'))
-        EquipmentPk = CommonUtil.try_int(posparam.get('equipment_pk'))
+    elif action=='save':
+        try:
+            id = CommonUtil.try_int(posparam.get('mtrl_pk'))
+            MtrlCode = posparam.get('MtrlCode')
+            MtrlName = posparam.get('MtrlName')
+            MtrlClassCodePk = posparam.get('MtrlClassCodePk')
+            MtrlDsc = posparam.get('mtrl_dsc')
+            MakerPk = posparam.get('maker_pk')
+            SafetyStockAmt = posparam.get('safety_stock_amt') or 0
+            AmtUnitPk = posparam.get('amt_unit_pk')
+            UnitPrice = posparam.get('unit_price')
+            UnitPriceDt = posparam.get('unit_price_dt')
+            SupplierPk = posparam.get('supplier_pk')
+            DeliveryDays = posparam.get('delivery_days')
+            DeliveryType = posparam.get('delivery_type')
+            ErpMtrlCode = posparam.get('erp_mtrl_cd')
+            AllowAddBom = posparam.get('allow_add_bom')
+            ConstructionPk = posparam.get('construction_pk')
+            EquipmentPk = posparam.get('equipment_pk')
   
-        if id:
-            c = CmMaterial.objects.get(id=id)
+            if id:
+                c = CmMaterial.objects.get(id=id)
 
-        else:
-            c = CmMaterial()
+            else:
+                c = CmMaterial()
 
-        c.MtrlCode = MtrlCode
-        c.MtrlName = MtrlName
-        c.MtrlClassCodePk = MtrlClassCodePk
-        c.MtrlDsc = MtrlDsc
-        c.MakerPk = MakerPk
-        c.SafetyStockAmt = SafetyStockAmt
-        c.AmtUnitPk = AmtUnitPk
-        c.UnitPrice = UnitPrice
-        c.UnitPriceDt = UnitPriceDt
-        c.CmSupplier = CmSupplier
-        c.DeliveryDays = DeliveryDays
-        c.DeliveryType = DeliveryType
-        c.ErpMtrlCode = ErpMtrlCode
-        c.AllowAddBom = AllowAddBom
-        c.ConstructionPk = ConstructionPk
-        c.EquipmentPk = EquipmentPk
+            c.MtrlCode = MtrlCode
+            c.MtrlName = MtrlName
+            c.MtrlClassCodePk = MtrlClassCodePk
+            c.MtrlDsc = MtrlDsc
+            c.MakerPk = MakerPk
+            c.SafetyStockAmt = SafetyStockAmt
+            c.AmtUnitPk = AmtUnitPk 
+            c.UnitPrice = UnitPrice
+            c.DeliveryDays = DeliveryDays
+            c.DeliveryType = DeliveryType
+            c.ErpMtrlCode = ErpMtrlCode
+            c.AllowAddBom = AllowAddBom
+            c.ConstructionPk = ConstructionPk
+            c.EquipmentPk = EquipmentPk
 
-        c.set_audit(user)
-        c.save()
+            if SupplierPk:
+                c.CmSupplier = CmSupplier.objects.get(id=SupplierPk)
 
-        return {'success': True, 'message': '자재의 정보가 수정되었습니다.'}
+            # 날짜 필드 처리
+            def validate_date(date_str, field_name):
+                if not date_str:
+                    return None
+                try:
+                    return datetime.strptime(date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    raise ValueError(f"'{field_name}'은(는) YYYY-MM-DD 형식이어야 합니다.")
+
+            try:
+                c.UnitPriceDt = validate_date(UnitPriceDt, '보증일자')
+            except ValueError as e:
+                return {'success': False, 'message': str(e)}
+        
+            c.SiteId = 1
+            c.UseYn = 'Y'
+            c.DelYn = 'N'
+            c.set_audit(user)
+            c.save()
+
+            return {'success': True, 'message': '자재의 정보가 저장되었습니다.'}
+        except Exception as ex:
+            source = 'api/kmms/material, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
+    elif action=='delete':
+        try:
+            id = posparam.get('mtrl_pk')
+            CmMaterial.objects.filter(id=id).delete()
+            items = {'success': True}
+        except Exception as ex:
+            source = 'api/kmms/material, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
+    elif action=='log':
+        mtrl_pk = gparam.get('mtrl_pk', None)
+        items = materialService.get_material_log(mtrl_pk) 
 
     return items   

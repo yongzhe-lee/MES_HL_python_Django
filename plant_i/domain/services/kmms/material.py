@@ -363,3 +363,28 @@ class MaterialService():
 			raise ex
 
 		return data
+
+	def get_material_log(self, mtrl_pk):
+		sql = ''' 
+			SELECT USER_NM, LOG_TYPE, LOG_HISTORY, LOG_DATE
+			FROM (
+				SELECT INSERTER_NM AS USER_NM, '정보' AS LOG_TYPE, '자재정보 생성' AS LOG_HISTORY, TO_CHAR(INSERT_TS ,'YYYY-MM-DD HH24:MI') AS LOG_DATE
+				FROM CM_MATERIAL
+				WHERE MTRL_PK = %(mtrl_pk)s
+				UNION ALL
+				SELECT UPDATER_NM AS USER_NM, '정보' AS LOG_TYPE, '자재정보 수정' AS log_history, TO_CHAR(UPDATE_TS ,'YYYY-MM-DD HH24:MI') AS LOG_DATE
+				FROM CM_MATERIAL
+				WHERE MTRL_PK = %(mtrl_pk)s
+				AND UPDATE_TS IS NOT NULL
+			) total
+			ORDER BY LOG_DATE DESC
+        '''
+		data = {}
+		try:
+			data = DbUtil.get_rows(sql, {'mtrl_pk':mtrl_pk})
+    
+		except Exception as ex:
+			LogWriter.add_dblog('error','MaterialService.get_material_log', ex)
+			raise ex
+
+		return data

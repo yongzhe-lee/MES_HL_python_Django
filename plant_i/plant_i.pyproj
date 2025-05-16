@@ -85,7 +85,13 @@
     <Compile Include="app\views\interface\sap.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\views\interface\tension.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\interface\van.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\interface\viscosity.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\kmms\alarm.py" />
@@ -114,7 +120,6 @@
     <Compile Include="app\views\kmms\base_code.py" />
     <Compile Include="app\views\kmms\equip_dept_hist.py" />
     <Compile Include="app\views\kmms\equip_group.py" />
-    <Compile Include="app\views\kmms\equipment2.py" />
     <Compile Include="app\views\kmms\equip_loc_hist.py" />
     <Compile Include="app\views\kmms\equip_part_mtrl.py" />
     <Compile Include="app\views\kmms\equip_spec.py" />
@@ -274,6 +279,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\services\interface\equipment.py" />
+    <Compile Include="domain\services\interface\mounter.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\interface\sap.py" />
     <Compile Include="domain\services\interface\van.py" />
     <Compile Include="domain\services\kmms\material.py" />
@@ -294,6 +302,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\_sql\interface\equipment\hpc1.brackassm.height.json">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\_sql\interface\equipment\hpc1.fclip.screw.json">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\__init__.py" />
@@ -409,6 +420,8 @@
     <Folder Include="domain\_sql\interface\alarm\fuji\" />
     <Folder Include="domain\_sql\interface\equipment\" />
     <Folder Include="domain\_sql\interface\alarm\" />
+    <Folder Include="domain\_sql\interface\fuji\" />
+    <Folder Include="domain\_sql\interface\fuji\pickuprate\" />
     <Folder Include="domain\_sql\kmms_function\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
@@ -953,10 +966,22 @@
     <Content Include="app\static\resource\kendo_ui\styles\material-smoke.css" />
     <Content Include="app\static\resource\kendo_ui\typescript\kendo.all.d.ts" />
     <Content Include="app\templates\popup\modalAmtUnitAdd.html" />
+    <Content Include="app\templates\popup\modalEquCategorySel.html" />
     <Content Include="app\templates\popup\modalEqus.html" />
     <Content Include="app\templates\popup\modalEquClassSel.html" />
+    <Content Include="app\templates\popup\modalItems.html" />
+    <Content Include="app\templates\popup\modalMatMultiSel.html" />
     <Content Include="app\templates\popup\modalMtrlClassAdd.html" />
-    <Content Include="run_env_launcher.bat" />
+    <Content Include="app\templates\popup\modalMtrlCopy.html" />
+    <Content Include="app\templates\popup\modalScheMakeConfirm.html" />
+    <Content Include="domain\_sql\05.dummy_date.txt" />
+    <Content Include="domain\_sql\interface\fuji\AOI_Insp_End.json" />
+    <Content Include="domain\_sql\interface\fuji\AOI_Machine_Error.json" />
+    <Content Include="domain\_sql\interface\fuji\AOI_Machine_State.json" />
+    <Content Include="domain\_sql\interface\fuji\SPI_Insp_End.json" />
+    <Content Include="domain\_sql\interface\fuji\SPI_Machine_Error.json" />
+    <Content Include="domain\_sql\interface\fuji\SPI_Machine_State.json" />
+    <Content Include="domain\_sql\kmms_function\cm_fn_all.txt" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all.min.intellisense.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all-vsdoc.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.dataviz.min.intellisense.js" />
@@ -1019,7 +1044,7 @@
     <Content Include="app\templates\interface\if_topic_data.html" />
     <Content Include="app\templates\interface\if_tension_check.html" />
     <Content Include="app\templates\interface\if_viscosity_check.html" />
-    <Content Include="app\templates\interface\if_fuji_pickup_rate.html" />
+    <Content Include="app\templates\interface\if_mnt_pickup_rate.html" />
     <Content Include="app\templates\kmms\check\check_schedule_m.html" />
     <Content Include="app\templates\kmms\check\check_wo_issued.html" />
     <Content Include="app\templates\kmms\cm_code.html" />
@@ -1231,6 +1256,8 @@
     <Content Include="domain\_sql\interface\equipment\12_Bracket Assembly Check_수정본.json" />
     <Content Include="domain\_sql\interface\equipment\250403 Techways_EOL.json" />
     <Content Include="domain\_sql\interface\equipment\eol.json" />
+    <Content Include="domain\_sql\interface\equipment\eol1.json" />
+    <Content Include="domain\_sql\interface\equipment\eol2.json" />
     <Content Include="domain\_sql\interface\equipment\example_new.json" />
     <Content Include="domain\_sql\interface\equipment\hpc1.flash.json">
       <SubType>Code</SubType>
@@ -1239,6 +1266,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\interface\equipment\hpc1.load.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1.pinchk.json">
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\interface\equipment\hpc1.tim.json">

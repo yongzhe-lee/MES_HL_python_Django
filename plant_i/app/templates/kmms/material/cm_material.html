@@ -26,9 +26,9 @@
 					</div>
 					<div class="col-12 col-sm-6 col-md-4">
 						<div class="form-item align-h L-form-item align-h">
-							<label class="k-label k-form-label" for="sch_mtrl_class_nm" data-labelCd="자재종류">자재종류</label>
+							<label class="k-label k-form-label" for="sch_mtrl_class_pk" data-labelCd="자재종류">자재종류</label>
 							<div class="field-wrapper">
-								<select id="sch_mtrl_class_nm" name="sch_mtrl_class_nm"></select>
+								<select id="sch_mtrl_class_pk" name="sch_mtrl_class_pk"></select>
 							</div>
 						</div>
 					</div>
@@ -123,18 +123,18 @@
 					{
 						"title": "자재명",
 						"field": "mtrl_nm",
-						"width": "200px",
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-mtrl-pk="#=mtrl_pk#">#=mtrl_nm#</a>'
+						"width": "250px",
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-mtrl-pk="#=mtrl_pk#" data-tab="materialMasterTab">#=mtrl_nm#</a>'
 					},
 					{
 						"title": "자재사양",
 						"field": "mtrl_dsc",
-						"width": "160px"
+						"width": "200px"
 					},
 					{
 						"title": "자재종류",
 						"field": "mtrl_class_nm",
-						"width": "120px"
+						"width": "140px"
 					},
 					{
 						"title": "최소재고량",
@@ -143,7 +143,7 @@
 							"style": "text-align: right"
 						},
 						"type": "number",
-						"width": "100px",
+						"width": "120px",
 						"template": "#=kendo.toString(safety_stock_amt, 'n0')#"
 					},
 					{
@@ -162,7 +162,7 @@
 						"attributes": {
 							"style": "text-align: right"
 						},
-						"width": "80px"
+						"width": "100px"
 					},
 					{
 						"title": "최근단가",
@@ -181,7 +181,7 @@
 					{
 						"title": "공급업체",
 						"field": "supplier_nm",
-						"width": "120px",
+						"width": "150px",
 						"template": "#= supplier_nm == null ? '' : '<span onclick=\"goDetail(\\'materialmasterlistgrid\\', {supplier_pk:' + supplier_pk + ', supplier_nm:\\'' + supplier_nm + '\\'}, \\'onSupplierView\\')\" class=\"my-kendo-cell-go\">' + supplier_nm + '</span>' #"
 					},
 					{
@@ -208,29 +208,7 @@
 						"template": "#= use_yn ? '사용' : '사용안함' #"
 					},
 				],
-				change: function (e) {
-					_this.showDetail();
-				},
 				dataBound: function (e) {
-					$(".grid-column-link").off("click").on("click", async function (e) {
-						e.preventDefault();
-
-						let mtrlPk = $(this).data("mtrl-pk");
-						if (!mtrlPk) return;
-
-						// 이미 로드된 경우 재사용
-						if ($('#modalMaterialMaster').length > 0 && typeof materialMasterPage !== 'undefined') {
-							materialMasterPage.getMaterialMasterData(mtrlPk);
-							return;
-						}
-
-						_this.loadMaterialMasterModal(mtrlPk);
-					});
-
-					for (var i = 0; i < this.columns.length; i++) {
-						this.autoFitColumn(i);
-					};
-
 					// grid 데이터 개수 표시
 					kendoUtil.showGridRowCount(this.element);
 				},
@@ -238,21 +216,54 @@
 			};
 			_this.grid = new Grid($("#material_grid"), materialGridOption);
 
+            $(document).on("click", ".grid-column-link", async function (e) {
+				e.preventDefault();		
+				let mtrlPk = $(this).data("mtrl-pk");
+				if (!mtrlPk) return;
+
+				// 이미 로드된 경우 재사용
+				if ($('#modalMaterialMaster').length > 0 && typeof materialMasterPage !== 'undefined') {
+					materialMasterPage.show(mtrlPk);
+					return;
+				}
+
+                try {
+                    // ✅ 1. material.html 먼저 append
+                    const response = await $.get('/api/kmms/material?action=load_modal');
+                    $('body').append(response);
+
+                    // ✅ 2. DOM 안 imageUploader가 준비될 때까지 대기
+                    let waitForUploader = async () => {
+                        return new Promise(resolve => {
+                            let count = 0;
+                            const check = () => {
+                                if (window.imageUploader) return resolve();
+                                count++;
+                                if (count > 20) return resolve(); // 최대 대기 시간 = 20회 × 50ms = 1000ms = 1초
+                                setTimeout(check, 50);
+                            };
+                            check();
+                        });
+                    };
+                    await waitForUploader();
+
+                    // ✅ 3. 이제 MaterialMaster 실행
+                    window.materialMasterPage = new MaterialMaster();
+					materialMasterPage.show(mtrlPk);
+
+                } catch (err) {
+                    console.error("material.html 로드 실패:", err);
+                    alert("자재 정보를 불러오는데 실패했습니다.");
+                }
+			});
+
 			// form
 			$('#sch_keyword').kendoTextBox();
 			AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'cm_code', 'all', null, 'USE_YN');
-			AjaxUtil.fillDropDownOptions($('#sch_mtrl_class_nm'), 'cm_code', 'all', null, 'MTRL_CLASS');
+			AjaxUtil.fillDropDownOptions($('#sch_mtrl_class_pk'), 'cm_base_code', 'all', null, 'MTRL_CLASS');
 			$('#sch_supplier_nm').kendoTextBox();
 			$('#sch_maker_nm').kendoTextBox();
 			$('#sch_mtrl_dsc').kendoTextBox();
-
-			$('#btnAdd').kendoButton({
-				icon: "plus",
-				themeColor: "base",
-				click: async function () {
-					_this.loadMaterialMasterModal();
-				}
-			});
 
 			$('#btnSearch').kendoButton({
 				icon: "search",
@@ -282,63 +293,56 @@
 				}
 			});
 
-		}
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            kendoUtil.bindEnterKey('#sch_supplier_nm', () => this.searchMainData());
+            kendoUtil.bindEnterKey('#sch_maker_nm', () => this.searchMainData());
+            kendoUtil.bindEnterKey('#sch_mtrl_dsc', () => this.searchMainData());
 
-		async loadMaterialMasterModal(mtrlPk = null) {
-			try {
-				// ✅ 1. material.html 먼저 append
-				const response = await $.get('/api/kmms/material?action=load_modal');
-				$('body').append(response);
+			$('#btnAdd').kendoButton({
+				icon: "plus",
+				themeColor: "base",
+				click: async function () {
+					try {
+						// ✅ 1. material.html 먼저 append
+						const response = await $.get('/api/kmms/material?action=load_modal');
+						$('body').append(response);
 
-				// ✅ 2. DOM 안 imageUploader가 준비될 때까지 대기
-				let waitForUploader = async () => {
-					return new Promise(resolve => {
-						let count = 0;
-						const check = () => {
-							if (window.imageUploader) return resolve();
-							count++;
-							if (count > 20) return resolve(); // 최대 대기 시간 = 20회 × 50ms = 1000ms = 1초
-							setTimeout(check, 50);
+						// ✅ 2. DOM 안 imageUploader가 준비될 때까지 대기
+						let waitForUploader = async () => {
+							return new Promise(resolve => {
+								let count = 0;
+								const check = () => {
+									if (window.imageUploader) return resolve();
+									count++;
+									if (count > 20) return resolve(); // 최대 대기 시간 = 20회 × 50ms = 1000ms = 1초
+									setTimeout(check, 50);
+								};
+								check();
+							});
 						};
-						check();
-					});
-				};
-				await waitForUploader();
+						await waitForUploader();
 
-				// ✅ 3. 이제 MaterialMaster 실행
-				window.materialMasterPage = new MaterialMaster();
-				console.log(window.materialMasterPage);
+						// ✅ 3. 이제 MaterialMaster 실행
+						window.materialMasterPage = new MaterialMaster();
+						$("#modalMaterialMaster").fadeIn(); // 추가 버튼 클릭 시 모달 보이게 함
 
-				if (mtrlPk) {
-					materialMasterPage.getMaterialMasterData(mtrlPk);
-				} else {
-					$("#modalMaterialMaster").fadeIn(); // 추가 버튼 클릭 시 모달 보이게 함
+					} catch (err) {
+						console.error("material.html 로드 실패:", err);
+						alert("자재 정보를 불러오는데 실패했습니다.");
+					}
 				}
-
-			} catch (err) {
-				console.error("material.html 로드 실패:", err);
-				alert("자재 정보를 불러오는데 실패했습니다.");
-			}
+			});
 		}
 
 		searchMainData() {
 			let _this = this;
 
-			const getComponentValue = (selector, type) => {
-				try {
-					const component = $(selector).data(type);
-					return component ? component.value() : '';
-				} catch (e) {
-					console.warn(`Failed to get value for ${selector}`, e);
-					return '';
-				}
-			};
-
 			let param = {
 				action: 'findAll',
 				keyword: $('#sch_keyword').val() || '',
-				useYn: getComponentValue('#sch_use_yn', "kendoDropDownList"),
-				matClassPk: getComponentValue('#sch_mtrl_class_nm', "kendoDropDownList"),
+                useYn: $('#sch_use_yn').val(),
+                matClassPk: $('#sch_mtrl_class_pk').val(),
 				supplierNm: $('#sch_supplier_nm').val(),
 				makerNm: $('#sch_maker_nm').val(),
 				matDsc: $('#sch_mtrl_dsc').val(),
@@ -351,16 +355,6 @@
 			if (grid) {
 				grid.dataSource.data(result); // ✅ 데이터를 직접 설정
 				grid.refresh(); // ✅ UI 갱신
-			}
-		}
-
-		showDetail() {
-			let _this = this;
-			let data = _this.grid.getSelect();
-			if (data.length > 0) {
-				let selectData = data[0];
-				FormUtil.BindDataForm(selectData, $('#equipmentForm'));
-				console.log("selectData:\n", selectData);
 			}
 		}
 

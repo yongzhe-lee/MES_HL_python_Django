@@ -135,7 +135,6 @@ class IFSapMaterialStock(models.Model):
           
         ]
 
-
 class IFSapPcbRandomNumber(models.Model):
     id = models.AutoField(primary_key=True)
     stab_mblnr = models.CharField('입고번호', max_length=10)
@@ -167,12 +166,9 @@ class IFSapPcbRandomNumber(models.Model):
           
         ]
 
-
-
-
 class IFMesLine(models.Model):
-
     '''
+    사용하지 않음, 삭제예정
     line_cd	varchar(20)	라인코드
     line_nm	varchar(200)	라인명
     '''
@@ -203,6 +199,7 @@ class IFMesLine(models.Model):
 
 class IFMesProcess(models.Model):
     '''
+    사용하지 않음 삭제예정
     proc_cd	varchar(20)	공정코드
     proc_nm	varchar(200)	공정명
 
@@ -232,13 +229,12 @@ class IFMesProcess(models.Model):
           
         ]
 
-
 class IFMesEquipment(models.Model):
     '''
+    사용하지 않음, 삭제예정
     equ_cd	varchar(20)	설비코드
     equ_nm	varchar(200)	설비명
     line_cd	varchar(20)	라인코드
-
     '''
     id = models.AutoField(primary_key=True)
     equ_cd = models.CharField('설비코드', max_length=20)
@@ -267,6 +263,7 @@ class IFMesEquipment(models.Model):
 
 class IFMesProductionPlan(models.Model):
     '''
+    생산계획
     plan_date	date	계획일
     line_cd	varchar(20)	라인코드
     order	int	순서
@@ -303,9 +300,10 @@ class IFMesProductionPlan(models.Model):
           
         ]
 
-
 class IFEquipmentResult(models.Model):
-
+    '''
+    제어PC 설비데이터
+    '''
     id = models.BigAutoField(primary_key=True)
     equ_cd = models.CharField('StationID', max_length=100, null=True) # plant_i 설비코드
     data_date = models.DateTimeField('생성일시')
@@ -331,6 +329,7 @@ class IFEquipmentResult(models.Model):
     module_no = models.CharField('module_no', max_length=100, null=True) # 마운터전용
     dummy1 = models.CharField('dummy1', max_length=100, null=True)
     dummy2 = models.CharField('dummy2', max_length=100, null=True)    
+    _created = models.DateTimeField('_created', auto_now=True)
 
     class Meta():
         db_table = 'if_equ_result'
@@ -338,7 +337,6 @@ class IFEquipmentResult(models.Model):
         unique_together = [
             ["equ_cd", "data_date","sn"]
         ] 
-        
 
 class IFEquipmentResultItem(models.Model):
     '''
@@ -402,7 +400,7 @@ class IFEquipemntDefectItems(models.Model):
             ["EquipmentResult", "defect_cd"]
         ]
 
-class IFMounterFeederRate(models.Model):
+class IFMounterPickupRate(models.Model):
     id = models.BigAutoField(primary_key=True)
     job = models.CharField("job", max_length=200, null=True)
     equ_cd = models.CharField('설비코드', max_length=50, null=True)
@@ -430,13 +428,11 @@ class IFMounterFeederRate(models.Model):
     _modified = models.DateTimeField('_modfied', auto_now=True)
 
     class Meta():
-        db_table = 'if_mnt_feeder_rate'
-        verbose_name = 'mouter feeder rate'
+        db_table = 'if_mnt_pickup_rate'
+        verbose_name = 'mouter pickup rate'
         unique_together = [
             ["machine", "position","data_date"]
         ]
-    
-
 
 class IFQmsDefect(models.Model):
     '''
@@ -506,8 +502,6 @@ class IFQmsDefect(models.Model):
         unique_together = [
           
         ]
-
-
 
 class IFVanInterface(models.Model):
 
@@ -596,8 +590,6 @@ class IFVanInterface(models.Model):
         verbose_name = 'VAN PCB 수입검사결과 인터페이스'
         unique_together = [
         ]
-
-
 
 class VanReport(models.Model):
     
@@ -710,8 +702,6 @@ class VanItemResult(models.Model):
         verbose_name = 'VAN PCB 성적서항목결과'
         unique_together = [
         ]
-
-
 
 class IFLog(models.Model):
 

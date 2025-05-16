@@ -96,6 +96,7 @@ class DsModelColumn(models.Model):
     Y = models.SmallIntegerField('Y변수Y(1)', null=True, db_comment='Y변수 여부')
     tag_code = models.CharField('태그코드', max_length=50, db_comment='태그 코드 (참조키)', null=True) # 25.03.28 추가 relationship X
     alarm_code = models.CharField('알람코드', max_length=50, db_comment="알람 코드 (참조키)", null=True) # 25.03.28 추가 relationship X
+    Source = models.CharField('데이터소스', max_length=50, null=True, db_comment='데이터 소스')   # 25.05.15 추가
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment='데이터 상태')
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment='생성일시')

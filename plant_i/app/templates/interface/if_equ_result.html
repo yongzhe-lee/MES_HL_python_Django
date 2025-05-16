@@ -9,7 +9,7 @@
             <div class="card-content search">
                 <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
-                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_date_range" data-labelCd="생산일">생산일</label>
                             <div class="field-wrapper">
@@ -19,7 +19,7 @@
                     </div>
 
 
-                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="line_id" data-labelCd="라인">라인</label>
                             <div class="field-wrapper">
@@ -27,7 +27,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="equ_id" data-labelCd="설비">설비</label>
                             <div class="field-wrapper">
@@ -37,9 +37,20 @@
                     </div>
                     <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="불량여부">불량여부</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="defect_yn" id="cboDefectYN">
+                                    <option value="">전체</option>
+                                    <option value="Y">부적합만</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="알람코드, 내용" />
+                                <input id="keyword" name="keyword" placeholder="품번, 품목명" />
 
                             </div>
                         </div>
@@ -178,6 +189,8 @@
 
 
 
+            $('#cboDefectYN').kendoDropDownList({});
+
             //form button
             $('#btnSearch').kendoButton({
                 icon: "search",
@@ -194,8 +207,6 @@
                     page.exportExcel();
                 }
             });
-
-
 
         }
 
@@ -290,11 +301,14 @@
             let end_dt = $('input[name=end_dt]').val();
             let equ_id = $('#equ_id').val();
             let keyword = $('#keyword').val();
+            let defect_yn = $('#cboDefectYN').val();
+
             let param = {
                 equ_id: equ_id,
                 start_dt: start_dt,
                 end_dt: end_dt,
                 action: 'read',
+                defect_yn: defect_yn,
                 keyword: keyword
             };
 

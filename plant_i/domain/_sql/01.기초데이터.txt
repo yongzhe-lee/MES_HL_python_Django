@@ -450,8 +450,7 @@ values
 , ('AI_TIMESERIES',     '시계열 분석',  'N', 'TASK_TYPE=TIMESERIES에 해당하는 알고리즘 그룹',     'Y', 'N', NOW())
 , ('AI_OTHERS',         '기타',         'N', 'TASK_TYPE=OTHERS에 해당하는 알고리즘 그룹',         'Y', 'N', NOW())
 -- AI 데이터 유형 추가
-, ('AI_DATA_TYPE', 'AI데이터유형','Y','AI데이터유형','Y','N',now())
-
+, ('AI_DATA_SOURCE',	'AI원천데이터',	'Y', 'AI원천데이터유형',	'Y', 'N', now())
 ;
 
 
@@ -500,9 +499,9 @@ values
 	,('USE_YN', 'Y', '사용', '', 1, 'Y', 'N', NOW()) 
 	,('USE_YN', 'N', '미사용', '', 2, 'Y', 'N', NOW())
 
-	-- 그룹코드: MODEL_TYPE (모델유형)
-	,('MODEL_TYPE', 'MES', 'MES', '모델유형', 1, 'Y', 'N', NOW())
-	,('MODEL_TYPE', 'QMS', 'QMS', '모델유형', 2, 'Y', 'N', NOW())
+	-- 그룹코드: MODEL_TYPE (모델유형) 25.05.08 수정
+	,('MODEL_TYPE', 'Q-factor', 'Q-factor', '모델유형', 1, 'Y', 'N', NOW())
+	,('MODEL_TYPE', 'KMMS', 'KMMS', '모델유형', 2, 'Y', 'N', NOW())
 
 	-- 예방정비유형: PM_TYPE
 	,('PM_TYPE', 'PM_TYPE_TBM', 'TBM', '', 1, 'Y', 'N', NOW()) 
@@ -772,10 +771,14 @@ values
 	, ('TRAINING_STATUS', 'FAILED',      '학습 실패',	'학습 실패 (에러 등 발생)',			5, 'Y', 'N', NOW())
 	
 	-- AI데이터유형
-	, ('AI_DATA_TYPE', 'TAG_GN', '태그데이터',	'일반 태그데이터',	1, 'Y', 'N', NOW())	
-	, ('AI_DATA_TYPE', 'TAG_EM', '전력량계데이터',	'전력량계 태그데이터',	2, 'Y', 'N', NOW())	
-	, ('AI_DATA_TYPE', 'VISCOSITY', '점도',		'도료의 점성 정도',	3, 'Y', 'N', NOW())	
-	, ('AI_DATA_TYPE', 'TENTION', '장력',		'납을 당기는 정도',	4, 'Y', 'N', NOW())	
+	, ('AI_DATA_SOURCE', 'PLC', 'PLC태그',	'PLC태그데이터',	1, 'Y', 'N', NOW())	
+	, ('AI_DATA_SOURCE', 'EM', '전력량계',	'전력량계 태그데이터',	2, 'Y', 'N', NOW())
+	, ('AI_DATA_SOURCE', 'MES', 'MES',		'MES데이터',	3, 'Y', 'N', NOW())	
+	, ('AI_DATA_SOURCE', 'QMS', 'QMS',		'QMS데이터',	4, 'Y', 'N', NOW())		
+	, ('AI_DATA_SOURCE', 'VISCOSITY', '점도',	'도료의 점성 정도',	5, 'Y', 'N', NOW())	
+	, ('AI_DATA_SOURCE', 'TENTION', '장력',		'납을 당기는 정도',	6, 'Y', 'N', NOW())	
+	, ('AI_DATA_SOURCE', 'PROFILE', '프로파일',	'프로파일데이터',	7, 'Y', 'N', NOW())	
+	, ('AI_DATA_SOURCE', 'USER', '사용자설정',	'사용자설정데이터',	8, 'Y', 'N', NOW())	
 
 	;
 
@@ -1061,8 +1064,9 @@ INSERT INTO pm_labor (work_hr,disp_order,"_status","_created","_modified","_crea
 --	 (2.000,'C','2025-03-18 17:49:05.471268+09','2025-03-18 17:49:05.471268+09',1,NULL,'yullin',NULL,1,1);
 
 
--- AI 모델마스터
+-- AI 모델마스터	25.05.08 수정
 alter SEQUENCE ds_master_id_seq restart WITH 1;
 INSERT INTO ds_master ("Name", "Type", "_status", "_created", "_modified", "_creater_id", "_modifier_id", "_creater_nm", "_modifier_nm") VALUES
-	('EQU01_MES', 'MES', NULL, '2025-02-06 14:18:12.035', '2025-02-06 14:18:12.035', 3, 3, NULL, NULL),
-	('EQU02_QMS', 'QMS', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);
+	('hpc1_플래쉬_Q', 'Q-factor', NULL, '2025-02-06 14:18:12.035', '2025-02-06 14:18:12.035', 3, 3, NULL, NULL),
+	('hpc1_매거진_Q', 'Q-factor', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);
+	('hpc1_ICT_Q', 'Q-factor', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);

@@ -159,45 +159,6 @@
         }
 
         /**
-         * 모달창 입력란 초기화 함수
-         */
-        resetModalInputs() {
-            // 일반 입력 필드 초기화
-            $("#equip_pk").val("");
-            $("#pm_pk").val("");
-            $("#pmNumber").val("");
-            $("#pmName").val("");
-            $("#work_text").val("");
-            $("#equ_code").val("");
-            $("#equ_name").val("");
-            $("#equ_loc").val("");
-            $("#equ_import").val("");
-            $("#equ_status").val("");
-            $("#equ_env_yn").val("");
-
-            // Kendo UI 컴포넌트 초기화
-            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
-            if (maintenanceTime) {
-                maintenanceTime.value("");
-            }
-
-            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
-            if (execDeptDropdown) {
-                execDeptDropdown.value("");
-            }
-
-            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
-            if (pmManagerDropdown) {
-                pmManagerDropdown.value("");
-            }
-
-            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
-            if (pmTypeDropdown) {
-                pmTypeDropdown.value("");
-            }
-        }
-
-        /**
          * 그리드와 검색 조건을 초기화하는 함수
          */
         resetData() {
@@ -269,7 +230,7 @@
                         field: 'equip_cd',
                         title: '설비코드',
                         width: 100,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#">#=equip_cd#</a>'
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_cd#</a>'
                     },
                     { field: 'equip_nm', title: '설비명', width: 150 },
                     { field: 'import_rank_nm', title: '중요도', width: 80 },
@@ -282,15 +243,31 @@
                 ],
 
                 dataBound: function (e) {
-                    $(".grid-column-link").off("click").on("click", function (e) {
-                        e.preventDefault();
-                        let pmPk = $(this).data("pm-pk");
-                        let equipPk = $(this).data("equip-pk");
+                    $(".grid-column-link").off("click").on("click", async function (e) {
+                        try {
+                            e.preventDefault();
+                            let pmPk = $(this).data("pm-pk");
+                            let equipPk = $(this).data("equip-pk");               
+                            if (pmPk) {
+                                setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
+                                pmMasterPage.show(pmPk);
+                            } else if (equipPk) {
+                                // 기존 팝업/인스턴스 완전 제거
+                                $('#modalEquipMaster').remove();
+                                window.equipMasterPage = undefined;
 
-                        if (pmPk) {
-                            pmMasterPage.getPmMasterModal(pmPk);
-                        } else if (equipPk) {
-                            equipSelectPage.getEquipMasterData(equipPk);
+                                // 팝업 append
+                                const response = await $.get('/api/kmms/equipment?action=load_modal');
+                                $('body').append(response);
+
+                                // 인스턴스 생성 및 show
+                                window.equipMasterPage = new EquipMaster();
+                                window.equipMasterPage.show(equipPk);
+                  
+                            }
+                        } catch (error) {
+                            console.error('Error in click handler:', error);
+                            alert('설비 마스터를 불러오는 중 오류가 발생했습니다.');
                         }
                     });
                 },
@@ -300,11 +277,10 @@
 
             $('#keyword').kendoTextBox();
 
-            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "location", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "select");
-
-            AjaxUtil.fillDropDownOptions($('#serchPmType'), 'user_code', 'choose', null, 'PM_TYPE');
+            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "cm_depart", "select");
+            AjaxUtil.fillDropDownOptions($('#serchPmType'), 'cm_base_code', 'choose', null, 'PM_TYPE');
 
             $("#srchApplyYn").kendoDropDownList({
                 dataSource: [
@@ -365,8 +341,8 @@
                 fillMode: "outline",    // outline 스타일로 변경
                 click: function (e) {
                     e.preventDefault();
-                    page.resetModalInputs();  // 초기화 함수 호출
-                    $("#modalPmMaster").fadeIn();
+                    setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
+					pmMasterPage.show(function (res) {});
                 }
             }).css('visibility', 'visible');
 
@@ -382,9 +358,7 @@
             }).css('visibility', 'visible');
         }
 
-        searchMainData() {
-            let _this = this;
-
+        searchMainData() {    
             try {
                 // 날짜 데이터 처리
                 let startDate = '';
@@ -425,9 +399,9 @@
                     isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
                 };
 
-                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                let result = AjaxUtil.getSyncData(this.baseUrl, param);
                 if (result) {
-                    _this.grid.setData(result);
+                    this.grid.setData(result);
                 }
             } catch (error) {
                 console.error('Error in searchMainData:', error);

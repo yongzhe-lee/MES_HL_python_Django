@@ -8,11 +8,73 @@
 		<form class="search-form" id="searchForm">
 			<div class="card-content search">
 				<div class="form-ui">
-					<div class="col-auto">
+					<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
-							<label class="k-label k-form-label" for="srch_equ_name" data-labelCd="검색키워드 ">검색키워드 </label>
+							<label class="k-label k-form-label" for="srch_equ_name" data-labelCd="검색키워드">검색키워드</label>
 							<div class="field-wrapper">
 								<input id="srch_equ_name" name="srch_equ_name" />
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_status" data-labelCd="설비상태">설비상태</label>
+							<div class="field-wrapper">
+								<select id="srch_equ_status" name="srch_equ_status"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_process" data-labelCd="프로세스">프로세스</label>
+							<div class="field-wrapper">
+								<select id="srch_equ_process" name="srch_equ_process"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_system" data-labelCd="시스템 ">시스템 </label>
+							<div class="field-wrapper">
+								<select id="srch_equ_system" name="srch_equ_system"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-3 col-md-2">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_chk_legal">법정관리설비</label>
+							<input id="srch_chk_legal" name="srch_chk_legal">
+						</div>
+					</div>
+					<div class="col-12 col-sm-3 col-md-2">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_use_yn" data-labelCd="사용여부">사용여부</label>
+							<div class="field-wrapper">
+								<select id="srch_use_yn" name="srch_use_yn"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-3 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="설비위치">설비위치</label>
+							<div class="field-wrapper">
+								<select id="srch_equ_loc" name="srch_equ_loc"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-3 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_category" data-labelCd="카테고리">카테고리</label>
+							<div class="field-wrapper">
+								<select id="srch_equ_category" name="srch_equ_category"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equ_supplier" data-labelCd="공급업체">공급업체</label>
+							<div class="field-wrapper">
+								<select id="srch_equ_supplier" name="srch_equ_supplier"></select>
 							</div>
 						</div>
 					</div>
@@ -105,14 +167,14 @@
 					{
 						"title": "설비명",
 						"field": "equip_nm",
-						"width": "250px",
+						"width": "300px",
 						"encoded": true,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#">#=equip_nm#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_nm#</a>'
 					},
 					{
 						"title": "설비위치경로",
 						"field": "up_loc_path",
-						"width": "200px",
+						"width": "350px",
 
 					},
 					{
@@ -124,7 +186,7 @@
 					{
 						"title": "설비상태",
 						"field": "equip_status_nm",
-						"width": "90px",
+						"width": "120px",
 						"encoded": true,
 						"attributes": {
 							"style": "text-align: center"
@@ -133,7 +195,7 @@
 					{
 						"title": "설비분류",
 						"field": "equip_class_desc",
-						"width": "120px",
+						"width": "150px",
 						"attributes": {
 							"style": "text-align: center"
 						}
@@ -173,7 +235,7 @@
 					{
 						"title": "관리부서",
 						"field": "dept_nm",
-						"width": "120px",
+						"width": "250px",
 						"encoded": true
 					},
 					{
@@ -300,63 +362,65 @@
 						"attributes": { "style": "text-align: center" },
 
 					}
-				],
-
-				change: function (e) {
-					_this.showDetail();
-				},
+				],			
 				dataBound: function (e) {
-					$(".grid-column-link").off("click").on("click", async function (e) {
-						e.preventDefault();
-						let equipPk = $(this).data("equip-pk");
-						if (!equipPk) return;
-
-						// 이미 로드된 경우 재사용
-						if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {							
-							equipMasterPage.show(equipPk);
-							return;
-						}
-
-						try {
-							// ✅ 1. equipment.html 먼저 append
-							const response = await $.get('/api/kmms/equipment?action=load_modal');
-							$('body').append(response);
-
-							// ✅ 2. DOM 안 imageUploader가 준비될 때까지 대기
-							let waitForUploader = async () => {
-								return new Promise(resolve => {
-									let count = 0;
-									const check = () => {
-										if (window.imageUploader) return resolve();
-										count++;
-										if (count > 20) return resolve(); // 최대 대기 시간 = 20회 × 50ms = 1000ms = 1초
-										setTimeout(check, 50);
-									};
-									check();
-								});
-							};
-							await waitForUploader();
-
-							// ✅ 3. 이제 EquipMaster 실행
-							window.equipMasterPage = new EquipMaster();
-							equipMasterPage.show(equipPk);
-
-						} catch (err) {
-							console.error("equipment.html 로드 실패:", err);
-							alert("설비 정보를 불러오는데 실패했습니다.");  // 사용자에게 오류 메시지 표시
-						}
-					});
-
-					for (var i = 0; i < this.columns.length; i++) {
-						this.autoFitColumn(i);
-					};
-
-					// grid 데이터 개수 표시
+					// 그리드 데이터 개수 표시만 처리
 					kendoUtil.showGridRowCount(this.element);
 				},
 				height: "540px"
 			};
 			_this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+
+			// 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
+			$(document).on("click", ".grid-column-link", async function (e) {
+				e.preventDefault();
+				let equipPk = $(this).data("equip-pk");
+				if (!equipPk) return;
+
+				// 이미 로드된 경우 재사용
+				if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {							
+					equipMasterPage.show(equipPk);
+					return;
+				}
+
+				try {
+					const response = await $.get('/api/kmms/equipment?action=load_modal');
+					$('body').append(response);
+
+					// imageUploader가 준비될 때까지 대기
+					let waitForUploader = async () => {
+						return new Promise(resolve => {
+							let count = 0;
+							const check = () => {
+								if (window.imageUploader) return resolve();
+								count++;
+								if (count > 20) return resolve();
+								setTimeout(check, 50);
+							};
+							check();
+						});
+					};
+					await waitForUploader();
+
+					window.equipMasterPage = new EquipMaster();
+					equipMasterPage.show(equipPk);
+
+				} catch (err) {
+					console.error("equipment.html 로드 실패:", err);
+					alert("설비 정보를 불러오는데 실패했습니다.");
+				}
+			});
+
+            // search form
+            $('#srch_equ_name').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#srch_equ_status'), 'cm_code', 'all', null, 'EQUIP_STATUS');
+            AjaxUtil.fillDropDownOptions($('#srch_equ_process'), 'cm_code', 'all', null, 'USE_YN');
+            AjaxUtil.fillDropDownOptions($('#srch_equ_system'), 'cm_code', 'all', null, 'USE_YN');
+			AjaxUtil.fillDropDownOptions($('#srch_use_yn'), 'cm_code', 'all', null, 'USE_YN');
+            AjaxUtil.fillDropDownTreeOptions($('#srch_equ_loc'), 'cm_location', 'all');
+			AjaxUtil.fillDropDownOptions($('#srch_equ_category'), 'cm_equip_category', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#srch_equ_supplier'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_S,CP_B');
+            $('#srch_chk_legal').kendoSwitch({ checked: false });
 
 			$('#btnSearch').kendoButton({
 				icon: "search",
@@ -420,7 +484,6 @@
 					}
 				}
 			});
-
 		}
 
 		searchMainData() {

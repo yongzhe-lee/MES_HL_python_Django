@@ -47,7 +47,7 @@ def fuji(context):
             , imfr.dislodge_ratio 
             , imfr.success_ratio
             , to_char(imfr.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_date
-            from if_mnt_feeder_rate imfr
+            from if_mnt_pickup_rate imfr
             left join equ e on e."Code" = imfr.equ_cd
             where imfr.data_date between %(start_dt)s and %(end_dt)s
             '''

@@ -1,0 +1,269 @@
+﻿<div id="modalMtrlCopy" class="modal child-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>자재선택</h4>
+        </div>
+
+        <div class="modal-body">
+            <!-- 검색 영역 -->
+			<div class="search-area">
+				<div class="search-label">검색키워드</div>
+				<input type="text" class="form-control" id="keyword_mtrl" name="keyword_mtrl" placeholder="자재코드, 자재명을 입력하세요">
+				<div class="search-label col-md-1">자재종류</div>
+				<select id="srch_mtrl_class" name="srch_mtrl_class">
+				</select>
+				<div class="search-label">공급업체</div>
+				<input type="text" class="form-control" id="srch_spplier_nm" name="srch_spplier_nm" placeholder="공급업체명을 입력하세요">
+				<button type="button" class="btn-search" id="btnSearchMtrlCopy" name="btnSearchMtrlCopy">검색</button>
+			</div>
+
+            <!-- 그리드 영역 -->
+            <div id="mtrl_copy_grid"></div>
+
+            <!-- 선택된 설비 영역 -->
+            <div class="bottom-area">
+                <div class="selected-item">
+                    <label>선택된 자재</label>
+                    <input type="hidden" id="selectedMtrlPk" name="selectedMtrlPk">
+                    <input type="text" id="selectedMtrlName" name="selectedMtrlName" readonly>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-save" id="btnConfirmMtrlCopy">확인</button>
+                    <button type="button" class="btn-close" id="btnCancelMtrlCopy">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    #modalMtrlCopy .search-area input {
+        width: 350px;
+    }
+
+    /* 손자 모달 내부 컨텐츠 스타일 */
+    #modalMtrlCopy .modal-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    #modalMtrlCopy .modal-body {
+        flex-grow: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .grid-area {
+        flex-grow: 1;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .paging-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* 검색 영역 스타일 */
+    .search-area {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .search-label {
+        font-size: 13px;
+        color: #333;
+        white-space: nowrap;
+    }
+
+    .search-area input,
+    .search-area select {
+        height: 28px;
+        border: 1px solid #ccc;
+        padding: 0 8px;
+    }
+
+    .search-area input {
+        flex: 2;
+    }
+
+    .search-area select {
+        flex: 1;
+    }
+
+    .selected-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+        .selected-item label {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .selected-item input {
+            flex: 1;
+			width: 400px;
+            height: 28px;
+            border: 1px solid #ccc;
+            padding: 0 8px;
+            background-color: #f5f5f5;
+        }
+</style>
+
+<script type="text/javascript">
+
+	class MtrlCopy {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/material';
+			this.callback = null;
+			this.init();
+		}
+
+		init() {
+			this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
+
+		initGrid() {
+			let _this = this;
+			let mtrlCopyGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					// 기본 정보
+                    { field: 'mtrl_cd', title: '자재코드', width: 100 },
+                    { field: 'mtrl_nm', title: '자재명', width: 150 },
+                    { field: 'mtrl_class_nm', title: '자재종류', width: 100 },
+                    { field: 'supplier_nm', title: '최근공급업체', width: 150 },
+                    { field: 'amt_unit_nm', title: '단위', width: 100 },
+                    { field: 'mtrl_dsc', title: '자재사양', width: 150 },
+				],
+
+				change: function (e) {
+					_this.showDetail();
+				},
+			};
+			_this.grid = new Grid($("#mtrl_copy_grid"), mtrlCopyGridOption);
+		}
+
+		initButton() {
+
+			$("#btnConfirmMtrlCopy").kendoButton({
+				icon: "k-i-check", // 확인 아이콘 (✔️)
+			});
+
+			$("#btnCancelMtrlCopy").kendoButton({
+				icon: "cancel", // 취소 아이콘 (❌)
+				themeColor: "base"
+			});
+
+
+			// 검색 버튼을 kendo 버튼으로 변경
+			$("#btnSearchMtrlCopy").kendoButton({
+				icon: "search",
+				click: () => {
+					this.getMtrlData();
+				}
+			});
+            
+            AjaxUtil.fillDropDownOptions($('#srch_mtrl_class'), 'cm_base_code', 'all', null, 'MTRL_CLASS');
+		}
+
+		initEvents() {
+			let _this = this;
+			$("#btnConfirmMtrlCopy").on("click", () => {
+				const selectedMtrlPk = $('#selectedMtrlPk').val();
+				const selectedMtrlName = $('#selectedMtrlName').val();
+                if (!selectedMtrlPk || !selectedMtrlName) {
+					alert('자재를 선택해주세요.');
+					return;
+				}
+
+				let param = {
+					action: 'findOne',
+					mtrl_pk: $('#selectedMtrlPk').val(),
+				};
+
+				let result = AjaxUtil.getSyncData('/api/kmms/material', param);
+
+				if (typeof this.callback === 'function') {
+					this.callback(result);
+				}
+
+				$("#modalMtrlCopy").fadeOut();
+				_this.reset();
+			});
+
+			$("#btnCancelMtrlCopy").on("click", function (e) {
+				e.preventDefault();
+				$("#modalMtrlCopy").fadeOut();
+				_this.reset();
+			});
+
+		}
+
+        getMtrlData() {
+			let _this = this;
+			let param = {
+				action: 'findAll',
+				keyword: $('#keyword_mtrl').val(),
+				matClassPk: $('#srch_mtrl_class').val(),
+                supplierNm: $('#srch_spplier_nm').val(),
+			};
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			_this.grid.setData(result);
+		}
+
+		reset() {
+			$("#selectedMtrlPk").val('');
+			$("#selectedMtrlName").val('');
+		}
+
+		showDetail() {
+			let _this = this;
+			let data = _this.grid.getSelect();
+			if (data.length > 0) {
+				let selectData = data[0];
+				$('#selectedMtrlPk').val(selectData.mtrl_pk);
+				$('#selectedMtrlName').val(selectData.mtrl_nm);
+			}
+		}
+
+		show(callback) {
+			this.callback = callback;
+			$("#modalMtrlCopy").fadeIn();
+            this.getMtrlData();
+		}
+	}
+
+	let mtrlCopyPage = null;
+	$(document).ready(function () {
+		mtrlCopyPage = new MtrlCopy();
+	});
+
+</script>

@@ -1,6 +1,7 @@
 from django.db import transaction
-from domain.models.cmms import CmEquipment, CmJobClass, CmMaterial, CmPm, CmPmLabor, CmPmMtrl, CmWorkOrder
+from domain.models.cmms import CmDept, CmEquipment, CmJobClass, CmMaterial, CmPm, CmPmLabor, CmPmMtrl, CmUserInfo, CmWorkOrder
 from domain.models.user import Depart
+from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
 from domain.models.kmms import User
 from domain.services.kmms.pm_master import PMService
@@ -58,9 +59,9 @@ def pm_master(context):
         
         items = pm_master_service.get_pm_sch_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
 
-    elif action=='detail':
-        id = gparam.get('id', None)
-        items = pm_master_service.get_pm_master_detail(id)
+    # elif action=='detail':
+    #     id = gparam.get('id', None)
+    #     items = pm_master_service.get_pm_master_detail(id)
 
     elif action=='detail_pm_labor':
         id = gparam.get('id', None)
@@ -117,59 +118,28 @@ def pm_master(context):
 
             # 데이터 저장
             pm.PmNo = PmNo
-            pm.PmName = posparam.get('pmName')
-            pm.PmType = posparam.get('pmType')            
+            pm.PmName = posparam.get('pm_nm')
+            pm.PmType = posparam.get('pm_type_cd')            
             pm.WorkText = posparam.get('work_text')
-            pm.SchedStartDt = posparam.get('sched_start_dt')
             
-            maintenance_time = posparam.get('maintenanceTime')
-            if maintenance_time:
-                pm.WorkExpectHr = int(maintenance_time)  # 숫자형으로 변환
+            work_expect_hr = posparam.get('work_expect_hr')
+            if work_expect_hr:
+                pm.WorkExpectHr = int(work_expect_hr)  # 숫자형으로 변환
             else:
                 pm.WorkExpectHr = None  # 기본값 설정
 
             if pm.PmType == 'PM_TYPE_TBM':  # 주기유형이 주기일 경우
                 pm.SchedStartDt = posparam.get('sched_start_dt')
-                pm.CycleType = posparam.get('cycleType')
-                pm.PerNumber = posparam.get('per_number')
+                pm.CycleType = posparam.get('cycle_type_cd')
+                pm.PerNumber = CommonUtil.try_int(posparam.get('per_number'))
 
-            dept_pk = posparam.get('dept_pk')
-            pm_user_pk = posparam.get('pmManager')
-            equip_pk = posparam.get('equip_pk')
-    
-            # 설비 필수값 체크
-            if not equip_pk:
-                return JsonResponse({
-                    'result': False,
-                    'message': '설비를 선택해주세요.'
-                })
+            dept_pk = CommonUtil.try_int(posparam.get('dept_pk'))
+            pm_user_pk = CommonUtil.try_int(posparam.get('pm_user_pk'))
+            equip_pk = CommonUtil.try_int(posparam.get('equip_pk'))
 
-            # Depart 객체 가져오기
-            try:
-                depart = Depart.objects.get(id=dept_pk)
-            except Depart.DoesNotExist:
-                return JsonResponse({
-                    'result': False,
-                    'message': f'Depart with id {dept_pk} does not exist.'
-                })
-
-            # User 객체 가져오기
-            try:
-                user_id = User.objects.get(id=pm_user_pk)
-            except User.DoesNotExist:
-                return JsonResponse({
-                    'result': False,
-                    'message': f'User with id {pm_user_pk} does not exist.'
-                })
-
-            # CmEquipment 객체 가져오기
-            try:
-                equipment = CmEquipment.objects.get(id=equip_pk)
-            except CmEquipment.DoesNotExist:
-                return JsonResponse({
-                    'result': False,
-                    'message': f'CmEquipment with id {equip_pk} does not exist.'
-                })
+            depart = CmDept.objects.get(id=dept_pk)
+            user_id = CmUserInfo.objects.get(id=pm_user_pk)
+            equipment = CmEquipment.objects.get(id=equip_pk)
 
             pm.DeptPk = depart.id
             pm.PmUserPk= user_id.id

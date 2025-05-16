@@ -654,14 +654,12 @@ let FormUtil = {
 
     // 데이터를 Form내부 Control 에 바인딩 (name으로 매칭)
     BindDataForm: function (_resultSet, $form) {
-        //console.log('BindDataForm', _resultSet);
-        $.each(_resultSet, function (key, value) {
+        jQuery.each(_resultSet, function (key, value) {
             // 빈스트링으로 오는 값은 반드시 null 값으로 치환한다. 또는 json 에서 null 로 넘겨준다
             // 치환하지 않고 빈스트링값('') 으로 처리하면 input[value=] 이렇게 되어 오류 발생함.
             if (key === '') value = null;
-            if (value === '') value = null;
-
-            //console.log('form ke', key);
+            if (value === '') value = null;       
+            
             var $frmCtl = $form.find('[name=' + key + ']');
 
             if ($frmCtl.length == 0)
@@ -678,25 +676,17 @@ let FormUtil = {
                     switchChk.check(value === "Y"); // "Y"면 check true, "N"이면 false
                 }
             } else if (tagName == 'SELECT') {
-
-                //if ($('#' + key).is(':disabled')) { $('#' + key).removeAttr('disabled'); }
                 if ($frmCtl.is(':disabled')) { $frmCtl.removeAttr('disabled'); }
-                //$('#' + key + ' > option').each(function () {
-                //$('#' + key + ' > option').each(function () {
-                //    $(this).removeProp('selected');
-                //});
-                //$('#' + key + ' > option[value=' + value + ']').prop('selected', true);
-                //_f$formorm.find('[name=' + key + '] > option[value=' + value + ']').prop('selected', true);
                 $frmCtl.val(value);
 
-                // kendoDropDownList || kendoComboBox 바인딩 처리
                 if ($frmCtl.attr("data-role") === "dropdownlist") {
                     let kendoDropDown = $frmCtl.data("kendoDropDownList");
                     if (kendoDropDown) {
                         // 데이터가 로드되었는지 확인
                         if (kendoDropDown.dataSource.data().length === 0) {
                             // 데이터가 아직 로드되지 않은 경우, dataBound 이벤트 후에 값 설정
-                            kendoDropDown.one("dataBound", function() {
+                            kendoDropDown.one("dataBound", function () {
+                                console.log('kendoDropDownList_xxx1');
                                 kendoDropDown.value(value);
                             });
                         } else {
@@ -716,15 +706,9 @@ let FormUtil = {
                         }
                     }
                 } else if ($frmCtl.attr("data-role") === "dropdowntree") {
-                    let kendoCombo = $frmCtl.data("kendoDropDownTree");
-                    if (kendoCombo) {
-                        if (kendoCombo.dataSource.data().length === 0) {
-                            kendoCombo.one("dataBound", function () {
-                                kendoCombo.value(value);
-                            });
-                        } else {
-                            kendoCombo.value(value);
-                        }
+                    let kendoDropDownTree = $frmCtl.data("kendoDropDownTree");
+                    if (kendoDropDownTree) {
+                        kendoDropDownTree.value(value);
                     }
                 } else {
                     // 일반 SELECT 요소인 경우에만 val() 사용
@@ -732,17 +716,13 @@ let FormUtil = {
                 }
 
             } else if (tagName == 'INPUT' || tagName == 'TEXTAREA') {
-
                 if ($frmCtl.is(':disabled')) { $frmCtl.removeAttr('disabled'); }
-                if (type_name == 'checkbox') {
-                    //console.log('bind checkbox', value);
+                if (type_name == 'checkbox') {                    
                     let checkValue = $frmCtl.val();
-                    //console.log('checkbox value', checkValue);
                     if (checkValue != undefined)
                         $frmCtl.prop('checked', value == checkValue);
                     else
-                        $frmCtl.prop('checked', value);
-                    //$frmCtl.attr('checked', value);
+                        $frmCtl.prop('checked', value);                   
                 } else if (type_name == 'radio') {
                     $frmCtl.removeAttr('checked');
                     var $radioCtl = $('input:radio[name=' + key + ']:input[value=' + value + ']');
@@ -897,6 +877,9 @@ let FormUtil = {
                         break;
                     case 'dropdownlist':
                         widget = $(this).data('kendoDropDownList');
+                        break;
+                    case 'dropdowntree':
+                        widget = $(this).data('kendoDropDownTree');
                         break;
                     case 'combobox':
                         widget = $(this).data('kendoComboBox');
@@ -1364,15 +1347,19 @@ let AjaxUtil = {
             case 'cm_depart':
                 _url = '/api/system/depart?action=cm_depart_tree';
                 break;
-            //case 'location':
-            //    _url = '/api/definition/location?action=loc_tree';
-            //    break;
             case 'cm_location':
                 _url = '/api/definition/location?action=cm_loc_tree';
                 break;
             default:
                 break;
         }
+
+        // 이미 DropDownTree가 있으면 destroy 후 재초기화
+        if ($combo.data('kendoDropDownTree')) {
+            $combo.data('kendoDropDownTree').destroy();
+            $combo.show();
+        }
+
         $combo.kendoDropDownTree({
             dataSource: {
                 transport: {
@@ -1382,7 +1369,6 @@ let AjaxUtil = {
                         dataType: "json"
                     }
                 },
-                //서버에서 받은 JSON 데이터를 가공하는 역할
                 schema: {
                     data: function (response) {
                         return response.items || [];  // ✅ 'items' 안의 데이터만 반환

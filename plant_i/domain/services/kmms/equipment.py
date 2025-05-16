@@ -1,4 +1,4 @@
-from configurations import settings
+﻿from configurations import settings
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 
@@ -489,15 +489,17 @@ class EquipmentService():
 	def get_equipment_selectAll(self, keyword,dept_pk):
 		sql = ''' 
 			
-		select t.equip_pk as _equip_pk
-		, t.equip_cd as _equip_cd
-		, t.equip_nm as _equip_nm
-		, l.loc_nm as _loc_nm
-		, es.code_nm as _equip_status_nm 
-		, ir.import_rank_cd as _import_rank_nm		
+		select t.equip_pk
+		, t.equip_cd
+		, t.equip_nm
+		, t.loc_pk
+		, l.loc_nm
+		, es.code_nm as equip_status_nm 
+		, t.import_rank_pk
+		, ir.import_rank_desc as import_rank_nm
 		, ec.remark as _equip_category_remark
 		, t.asset_nos as _asset_nos
-		, t.environ_equip_yn as _environ_equip_yn
+		, t.environ_equip_yn
 		from cm_equipment t		
 		inner join cm_location l on t.loc_pk = l.loc_pk		
 		inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'		
@@ -711,6 +713,103 @@ class EquipmentService():
     
 		except Exception as ex:
 			LogWriter.add_dblog('error','EquipmentService.get_equipment_findOne', ex)
+			raise ex
+
+		return data
+
+	def getEquipPmList(self, equip_pk):
+		sql = ''' 
+			
+		with cte as (
+			SELECT p.pm_pk
+				 , p.equip_pk
+				 , p.pm_no 							/* pm번호 */
+				 , p.pm_nm 							/* PM명 */
+				 , p.dept_pk
+				 , d.dept_nm					  	/* PM부서 */
+				 , p.pm_user_pk
+				 , cm_fn_user_nm(pmu.user_nm, pmu.del_yn) as pm_user_nm		/* PM 담당자 */
+				 , p.pm_type
+				 , pt.code_nm as pm_type_nm	 		/* PM유형 */
+				 , p.per_number 					/* 주기 */
+				 , p.cycle_type
+				 , ct.code_nm as cycle_type_nm		/* 주기단위 */
+			     , p.next_chk_date
+			     , p.last_work_dt					/* 최근 일정생성일 */
+				 , p.use_yn	 						/* 사용여부 */
+			from cm_pm p
+			inner join cm_equipment t on p.equip_pk = t.equip_pk
+			left outer join cm_dept d on p.dept_pk = d.dept_pk
+			left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
+			left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
+			left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+			where t.del_yn = 'N'
+    		and t.use_yn = 'Y'
+ 			and t.equip_pk = %(equip_pk)s
+			order by p.pm_pk asc
+		)
+		SELECT COUNT(*) OVER() AS total_rows,
+				*
+		FROM (
+			table cte
+
+		) sub
+		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		WHERE total_rows != 0
+        '''
+		data = {}
+		try:
+			data = DbUtil.get_rows(sql, {'equip_pk':equip_pk})
+    
+		except Exception as ex:
+			LogWriter.add_dblog('error','EquipmentService.get_equipment_findOne', ex)
+			raise ex
+
+		return data
+
+	def get_equipment_log(self, equip_pk):
+		sql = ''' 
+			
+			SELECT INSERTER_NM, log_type, log_history, log_date
+			from  (
+					SELECT E.INSERTER_NM, '불용처리' as log_type, '불용처리 = ' || B.CODE_NM  AS log_history, TO_CHAR(E.INSERT_TS, 'YYYY-MM-DD HH24:MI') AS log_date
+					FROM cm_equipment E
+					INNER JOIN cm_base_code B ON E.DISPOSED_TYPE = B.CODE_CD AND B.CODE_GRP_CD = 'DISPOSE_TYPE'
+					WHERE EQUIP_PK = %(equip_pk)s
+					UNION ALL
+					SELECT INSERTER_NM, '정보' as log_type, '설비정보 생성' AS log_history, TO_CHAR(INSERT_TS ,'YYYY-MM-DD HH24:MI') AS log_date
+					FROM cm_equipment
+					WHERE EQUIP_PK = %(equip_pk)s
+					UNION ALL
+					SELECT UPDATER_NM, '정보' as log_type, '설비정보 수정' AS log_history, TO_CHAR(UPDATE_TS, 'YYYY-MM-DD HH24:MI') AS log_date
+					FROM cm_equipment
+					WHERE EQUIP_PK = %(equip_pk)s
+					AND UPDATE_TS IS NOT NULL
+					UNION ALL
+					SELECT INSERTER_NM, log_type, log_history, log_date
+					FROM (
+						SELECT INSERTER_NM, '관리부서' as log_type, '설비부서 변경 : ' || EQUIP_DEPT_BEF || ' to ' || EQUIP_DEPT_AFT AS log_history, TO_CHAR(INSERT_TS, 'YYYY-MM-DD HH24:MI') AS log_date
+						FROM cm_equip_dept_hist
+						WHERE EQUIP_PK = %(equip_pk)s
+						ORDER BY INSERT_TS DESC
+					) AS EQUIP_DEPT_HIST
+					UNION ALL
+					SELECT INSERTER_NM, log_type, log_history, log_date
+					FROM (
+						SELECT INSERTER_NM, '설비위치' as log_type, '설비위치 변경 : ' || EQUIP_LOC_BEF || ' to ' || EQUIP_LOC_AFT AS log_history, TO_CHAR(INSERT_TS ,'YYYY-MM-DD HH24:MI') AS log_date
+						FROM cm_equip_loc_hist
+						WHERE EQUIP_PK = %(equip_pk)s
+						ORDER BY INSERT_TS DESC
+					) AS EQUIP_LOC_HIST
+			) total
+			ORDER BY log_date DESC
+        '''
+		data = {}
+		try:
+			data = DbUtil.get_rows(sql, {'equip_pk':equip_pk})
+    
+		except Exception as ex:
+			LogWriter.add_dblog('error','EquipmentService.get_equipment_log', ex)
 			raise ex
 
 		return data

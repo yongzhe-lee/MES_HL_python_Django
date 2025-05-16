@@ -7,10 +7,46 @@ class PIService():
     def __init__(self):
         return
 
-    #점검조회
-    def findAll(self, keyword, equDept, equLoc, pmDept, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate):
+    #점검마스터조회
+    #modified by choi : 2025/05/13  파라미터를 dictionary에 넣어서 전달한다
+    #def findAll(self, keyword, equDept, equLoc, pmDept, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate):
+    def findAll(self, dcparam):
         items = []
-        dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'isMyTask': isMyTask,'isLegal': isLegal,'useYn':useYn, 'cycleTypeCd':cycleTypeCd, 'chkMastNo':chkMastNo,'startDate':startDate,'endDate':endDate}
+
+        searchText = dcparam.get('searchText',None)
+        equipDeptPk = dcparam.get('equipDeptPk',None)
+        locPk = dcparam.get('locPk',None)
+        deptPk = dcparam.get('deptPk',None)
+        isMyTask = dcparam.get('isMyTask',None)
+        environEquipYn = dcparam.get('environEquipYn',None)
+        useYn = dcparam.get('useYn',None)
+        cycleTypeCd = dcparam.get('cycleTypeCd',None) 
+        chkMastNo = dcparam.get('chkMastNo',None)
+        startDate = dcparam.get('startDate',None)
+        endDate = dcparam.get('endDate',None)
+
+        #이건 뭐지?? 여러 화면에서 조회조건이 들어오는 것 같음
+        chkMastNm = dcparam.get('chkMastNm',None)
+        chkUserPk= dcparam.get('chkUserPk',None)
+        equipPk = dcparam.get('equipPk',None)
+        chkMastPk = dcparam.get('chkMastPk',None)
+        chkMastPkNot = dcparam.get('chkMastPkNot',None)
+        lastChkDateFrom = dcparam.get('lastChkDateFrom',None)
+        lastChkDateTo = dcparam.get('lastChkDateTo',None)
+
+        dic_param = {
+            'searchText': searchText,
+            'equDept': equipDeptPk,
+            'equLoc': locPk,
+            'deptPk': deptPk,
+            'isMyTask': isMyTask,
+            'environEquipYn': environEquipYn,
+            'useYn':useYn, 
+            'cycleTypeCd':cycleTypeCd, 
+            'chkMastNo':chkMastNo,
+            'startDate':startDate,
+            'endDate':endDate
+            }
 
         sql = ''' 
          select t.chk_mast_pk
@@ -55,116 +91,84 @@ class PIService():
 			LEFT OUTER JOIN cm_location l on e.loc_pk = l.loc_pk
 			LEFT OUTER JOIN cm_dept ed on e.dept_pk = ed.dept_pk
 		WHERE  t.del_yn = 'N'
-        '''
-
-        '''
-        <if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(useYn)">
-    		AND t.use_yn = #{useYn}
-    	</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(searchText)">
-			AND (
-				UPPER(t.chk_mast_nm) LIKE CONCAT('%',UPPER(#{searchText}),'%')
+        '''        
+        if useYn:
+            sql += ''' AND t.use_yn = %(useYn)s 
+            '''
+        if searchText:
+            sql += ''' AND (
+                UPPER(t.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+                OR
+                UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+                OR
+                UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+            )
+            '''
+		
+        if deptPk and deptPk > 0:
+            sql += ''' AND (
+					d.dept_pk = %(deptPk)s
+					OR
+					d.dept_pk In (select dept_pk from v_dept_path where %(deptPk)s = path_info_pk)
+				)
+            '''
+		
+        if equipDeptPk and equipDeptPk > 0 :
+            sql += ''' AND (
+					ed.dept_pk = %(equipDeptPk)s
+					OR
+					ed.dept_pk In (select dept_pk from v_dept_path where %(equipDeptPk)s = path_info_pk)
+				)
+			'''
+        if locPk and locPk > 0 :
+            sql += ''' AND (
+				l.loc_pk = %(locPk)s
 				OR
-				UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(#{searchText}),'%')
-				OR
-				UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(#{searchText}),'%')
-   			)
-		</if>
-		<if test="deptPk != null and deptPk > 0 ">
-			<![CDATA[
-				AND (
-					d.dept_pk = #{deptPk}
-					OR
-					d.dept_pk In (select dept_pk from v_dept_path where #{deptPk} = path_info_pk)
-				)
-			]]>
-		</if>
-		<if test="equipDeptPk != null and equipDeptPk > 0 ">
-			<![CDATA[
-				AND (
-					ed.dept_pk = #{equipDeptPk}
-					OR
-					ed.dept_pk In (select dept_pk from v_dept_path where #{equipDeptPk} = path_info_pk)
-				)
-			]]>
-		</if>
-		<if test="locPk != null and locPk > 0 ">
-			<![CDATA[
-				AND (
-					l.loc_pk = #{locPk}
-					OR
-					l.loc_pk In (select loc_pk from (select * from fn_get_loc_path(#{siteId})) x where #{locPk} = path_info_pk)
-				)
-			]]>
-		</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(cycleTypeCd)">
-			AND ct.code_cd = #{cycleTypeCd}
-		</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(environEquipYn)">
-			AND e.environ_equip_yn = #{environEquipYn}
-		</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(chkMastNo)">
-			AND t.chk_mast_no = #{chkMastNo}
-		</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(chkMastNm)">
-			AND t.chk_mast_nm = #{chkMastNm}
-		</if>
-		<if test="chkUserPk != null and chkUserPk > 0 ">
-			AND cu.user_pk = #{chkUserPk}
-		</if>
-		<if test="equipPk != null and equipPk > 0 ">
-			AND e.equip_pk = #{equipPk}
-		</if>
-		<if test="chkMastPk != null and chkMastPk > 0 ">
-			AND t.chk_mast_pk = #{chkMastPk}
-		</if>
-		<if test="chkMastPkNot != null and chkMastPkNot > 0 ">
-			<![CDATA[
-				AND t.chk_mast_pk <> #{chkMastPkNot}
-			]]>
-		</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(lastChkDateFrom) and @com.yullin.swing.common.SwingUtil@isNotEmpty(lastChkDateTo)">
-			<![CDATA[
-				AND date(t.last_chk_date) BETWEEN to_date(#{lastChkDateFrom}, 'YYYY-MM-DD') AND to_date(#{lastChkDateTo}, 'YYYY-MM-DD')
-			]]>
-		</if>
-		<if test="@com.yullin.swing.common.SwingUtil@isNotEmpty(startDate) and @com.yullin.swing.common.SwingUtil@isNotEmpty(endDate)">
-			<![CDATA[
-				AND date(coalesce(t.next_chk_date,cast(fn_get_regular_day(t.sched_start_date::date, t.sched_start_date::date, t.per_number, ct.code_cd) as date)))
-					BETWEEN to_date(#{startDate}, 'YYYY-MM-DD') AND to_date(#{endDate}, 'YYYY-MM-DD')
-			]]>
-		</if>
-        '''
-        
-        # if keyword:
-        #     sql += ''' 
-        #     AND a."pm_nm" like CONCAT('%%', %(keyword)s, '%%')
-        #     '''
-        # if equDept:
-        #     sql += ''' 
-        #     AND mng.id = %(equDept)s
-        #     '''
-        # if equLoc:
-        #     sql += ''' 
-        #     AND l.id = %(equLoc)s
-        #     '''
-        # if pmDept:
-        #     sql += ''' 
-        #     AND exc.id = %(pmDept)s
-        #     '''
-        # if isMyTask:
-        #     sql += ''' 
-        #     AND a."pm_user_pk" = %(isMyTask)s
-        #     '''
-        # if isLegal:
-        #     sql += ''' 
-        #     AND e."environ_equip_yn" = %(isLegal)s
-        #     '''
-        # sql += ''' 
-        #     ORDER BY a.pm_no
-        #     '''
+				l.loc_pk In (select loc_pk from (select * from fn_get_loc_path(%(siteId)s)) x where %(locPk)s = path_info_pk)
+			)
+            '''
+		
+        if cycleTypeCd :
+            sql += '''  AND ct.code_cd = %(cycleTypeCd)s 
+            '''
+		        
+        if environEquipYn == 'Y':			
+            sql += '''  AND e.environ_equip_yn = %(environEquipYn)s
+		    '''
+		
+        if chkMastNo and chkMastNo > 0 :
+            sql += '''  AND t.chk_mast_no = %(chkMastNo)s
+            '''
 
+        if chkMastNm :			
+            sql += '''  AND t.chk_mast_nm = %(chkMastNm)s
+            '''
+		
+        if chkUserPk and chkUserPk > 0 :
+            sql += '''  AND cu.user_pk = %(chkUserPk)s
+            '''
+		
+        if equipPk and equipPk > 0 :
+            sql += '''  AND e.equip_pk = %(equipPk)s
+            '''
+		
+        if chkMastPk and chkMastPk > 0 :
+            sql += '''  AND t.chk_mast_pk = %(chkMastPk)s
+		    '''
+		
+        if chkMastPkNot and chkMastPkNot > 0 :
+            sql += '''  AND t.chk_mast_pk <> %(chkMastPkNot)s
+			'''
+		
+        if lastChkDateFrom and lastChkDateTo :
+            sql += '''  AND date(t.last_chk_date) BETWEEN to_date(%(lastChkDateFrom)s, 'YYYY-MM-DD') AND to_date(%(lastChkDateTo)s, 'YYYY-MM-DD')
+			'''
 
+        if startDate and endDate :
+            sql += '''  
+            AND date(coalesce(t.next_chk_date,cast(fn_get_regular_day(t.sched_start_date::date, t.sched_start_date::date, t.per_number, ct.code_cd) as date)))
+				BETWEEN to_date(%(startDate)s, 'YYYY-MM-DD') AND to_date(%(endDate)s, 'YYYY-MM-DD')
+            '''
 
         sql +='''
             GROUP BY t.chk_mast_pk
@@ -206,7 +210,7 @@ class PIService():
 
         return items
 
-    # max 점검번호를 가져온다
+    # 점검마스터 max 점검번호를 가져온다
     def selectMaxEquipChkMastNo(self):
         sql = ''' 
             select coalesce(MAX((select chk_mast_no
@@ -214,7 +218,7 @@ class PIService():
 				    SELECT max(cast(chk_mast_no as integer)) as chk_mast_no
 				    FROM cm_equip_chk_mast
 				    WHERE (chk_mast_no ~ E'^[0-9]+$') = true
-				    --AND site_id = #{siteId}
+				    --AND site_id = %(siteId}
 				) as sub_table
 			)) + 1, '1') as max_no
 			from cm_equip_chk_mast
@@ -283,7 +287,7 @@ class PIService():
                 AND (UPPER(pm."pm_nm") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
                     or UPPER(e."Name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
         	        or UPPER(e."Code") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
-        )
+                    )
             '''
         if dept_pk:
             sql+=''' 
@@ -321,4 +325,11 @@ class PIService():
         return items
 
 
+
+    #==================점검설비관련====================
+
+
+
+
+    #==================점검항목관련====================
 

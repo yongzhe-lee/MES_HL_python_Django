@@ -597,6 +597,14 @@ INSERT INTO cm_equip_category (equip_category_id,equip_category_desc,remark,use_
 	 ('U','Utilities','유틸리티','N','2024-08-05 09:22:33.040346','system','2024-08-05 09:24:51.579178','system1'),
 	 ('X','Auxiliaries','보조장치','N','2024-02-20 17:50:50.9517','system','2024-08-05 09:24:58.46901','system1');
 
+INSERT INTO cm_equip_classify (equip_class_pk,equip_class_id,equip_class_desc,hierarchy_path,category_id,parent_id,class_type,factory_pk,use_yn,insert_ts,inserter_id,update_ts,updater_id) 
+VALUES
+	 (1,'a1','a1','a1','M',NULL,'CLASS',1,'Y','2025-05-08 17:16:28.932187',1,NULL,NULL),
+	 (2,'a2','a2','a2','O',NULL,'CLASS',1,'Y','2025-05-08 17:16:50.812813',1,NULL,NULL),
+	 (3,'b1','b1','a1\b1',NULL,'a1','TYPES',1,'Y','2025-05-08 17:17:47.021642',1,NULL,NULL),
+	 (4,'b11','b11','a1\b11',NULL,'a1','TYPES',1,'Y','2025-05-08 17:40:04.137088',1,NULL,NULL),
+	 (5,'a11','a11','a11','M',NULL,'CLASS',1,'Y','2025-05-08 17:41:46.897385',1,NULL,NULL);
+
 INSERT INTO cm_import_rank (import_rank_pk,import_rank_cd,import_rank_desc,use_yn,del_yn,insert_ts,inserter_id,inserter_nm,update_ts,updater_id,updater_nm) VALUES
 	 (4,'S','S 급','N','N','2024-02-20 17:49:43.88444','system','SWING(관리자',NULL,NULL,NULL),
 	 (1,'A','A 급','Y','N','2024-02-20 17:49:43.88444','system','SWING(관리자','2024-10-21 22:05:30.925202','system1','관리자1'),
@@ -1385,7 +1393,7 @@ Ni-Cd PORESO',NULL,0,30,NULL,NULL,386,NULL,NULL,NULL,NULL,NULL,'Y','SE2553','Y',
 	 (807,'MT0050','신선 5호기 브레이크 패드',150,'DC / 24V',NULL,2,30,6,'2024-08-27',242,30,'D',NULL,NULL,NULL,'Y','WEZON','Y','N','2024-05-07 15:01:54.249451','system','관리자',NULL,NULL,NULL,'MT0050',NULL,NULL,NULL),
 	 (808,'MT0080','TEST01',150,NULL,NULL,0,26,8,'2024-08-27',242,NULL,NULL,NULL,NULL,NULL,'N','WEZON','Y','N','2024-06-26 16:02:48.06016','system','관리자','2024-06-26 16:03:06.01661','system','관리자','MT0080',255,256,NULL);
 
-INSERT INTO public.cm_supplier (supplier_pk,supplier_cd,supplier_nm,ceo_nm,charger_nm,charger_tel,charger2_nm,charger2_tel,comp_type,business_class_nm,supplier_dsc,nation,"local",zip_code,address1,address2,phone,fax,homepage,email_addr,site_id,factory_pk,use_yn,del_yn,insert_ts,inserter_id,inserter_nm,update_ts,updater_id,updater_nm) VALUES
+INSERT INTO cm_supplier (supplier_pk,supplier_cd,supplier_nm,ceo_nm,charger_nm,charger_tel,charger2_nm,charger2_tel,comp_type,business_class_nm,supplier_dsc,nation,"local",zip_code,address1,address2,phone,fax,homepage,email_addr,site_id,factory_pk,use_yn,del_yn,insert_ts,inserter_id,inserter_nm,update_ts,updater_id,updater_nm) VALUES
 	 (235,'SP0001','NACHI','김대표','김담당','010-1234-5678',NULL,NULL,'CP_S',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'010-1234-5678',NULL,NULL,NULL,'WEZON',NULL,'Y','N','2024-05-07 15:01:45.959467+09','system','관리자',NULL,NULL,NULL),
 	 (236,'SP0002','금성 특수 고무','김대표','김담당','010-1234-5678',NULL,NULL,'CP_S',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'010-1234-5678',NULL,NULL,NULL,'WEZON',NULL,'Y','N','2024-05-07 15:01:45.959467+09','system','관리자',NULL,NULL,NULL),
 	 (237,'SP0003','렉스턴','김대표','김담당','010-1234-5678',NULL,NULL,'CP_S',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'010-1234-5678',NULL,NULL,NULL,'WEZON',NULL,'Y','N','2024-05-07 15:01:45.959467+09','system','관리자',NULL,NULL,NULL),
@@ -2760,6 +2768,39 @@ INSERT INTO cm_equipment (equip_pk,equip_cd,equip_nm,equip_category_id,up_equip_
 	 (1412,'ICB-5','세차동 제어 케이블','I',NULL,487,'ES_OPER','SE2553','CAB\\\\CB','케이블',38,NULL,NULL,'2001-10-31',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5,'N',NULL,NULL,NULL,NULL,NULL,'Y','N','2024-09-02 08:00:30.177694','system','관리자','2024-11-18 13:36:56.13191','system','관리자','EP017','ES33',NULL),
 	 (876,'YPE00009','3차원 측정기','X',NULL,409,'ES_OPER','WEZON','',NULL,27,'AT1000285','2019-04-01','2019-04-01',NULL,2150000,NULL,NULL,NULL,NULL,235,NULL,NULL,3,'N','CP430',NULL,NULL,NULL,NULL,'Y','N','2024-05-07 15:38:27.445134','system','관리자',NULL,NULL,NULL,'EP002','temp','AVS01'),
 	 (880,'YPE00013','AuSn Granule기','O',NULL,427,'ES_OPER','WEZON','',NULL,22,'AM1001918','2019-04-01','2019-04-01',NULL,2150000,NULL,NULL,NULL,NULL,235,'66c43565-8aae-4f31-a740-5a6133874614','39d3d432-7f4e-461f-9ad5-030cd540e6e2',3,'N','CP360',NULL,NULL,NULL,NULL,'Y','N','2024-05-07 15:38:27.445134','system','관리자','2025-04-01 17:44:21.083061','system','관리자','EP010','temp',NULL);
+
+
+INSERT INTO cm_user_info 
+(user_pk,user_nm,dept_pk,user_type,login_id,user_password,admin_yn,use_lang_cd,factory_pk,temp_password_yn,user_mail,user_phone,job_class_pk,emp_no,job_pos,leader_yn,salt,allow_login,site_change_yn,notify_wo_rejected,notify_wo_closed,notify_wo_assigned,use_yn,del_yn,insert_ts,inserter_id,inserter_nm,update_ts,updater_id,updater_nm) VALUES
+	 (70,'김학영',33,'UA','hy1119.kim','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','hy1119.kim@samsung.com','',NULL,'','프로','Y','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-08-28 14:50:10.618678',1,'관리자'),
+	 (71,'강민형',33,'UA','minh61.kang','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','minh61.kang@samsung.com','',NULL,'','프로','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-08-28 14:50:10.618678',1,'관리자'),
+	 (72,'대원엔지니어링 운전팀',37,'UP','dw.op','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','','',NULL,'','프로','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-08-28 14:50:10.618678',1,'관리자'),
+	 (48,'이과장',24,'UP','A9001','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'A9001','과장','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자','2024-05-07 15:47:34.276939',1,'관리자'),
+	 (47,'정사원',23,'UC','A5030','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'A5030','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (49,'원대리',25,'UC','B9005','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B9005','대리','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (50,'김사원',26,'UC','8655','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'8655','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (53,'류사원',23,'UC','B0032','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B0032','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (52,'김과장',28,'UP','B5019','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B5019','과장','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자','2024-06-27 13:17:48.245665',1,'관리자'),
+	 (51,'김대리',27,'UA','8731','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'8731','대리','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자','2024-06-27 16:30:47.866224',1,'관리자'),
+	 (65,'강흥석',34,'UA','hsk.kang','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','hsk.kang@samsung.com1','',NULL,'','프로','Y','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-08-28 14:50:10.618678',1,'관리자'),
+	 (66,'손형준',34,'UA','hjun.son','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','hjun.son@samsung.com1','',NULL,'','프로','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-08-28 14:50:10.618678',1,'관리자'),
+	 (67,'류형박',35,'UA','hyongbak.ryu','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','hyongbak.ryu@samsung.com1','',NULL,'','프로','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-08-28 14:50:10.618678',1,'관리자'),
+	 (73,'대원엔지니어링 정비팀1',38,'UP','dw.mt1','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','mjhwang@wezon.com1','',NULL,'','','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 14:34:19.470448',1,'관리자','2024-11-18 20:01:14.066286',1,'관리자1'),
+	 (76,'테스트2',22,'UC','system2','80f048b7b86aa421c04e8ec2041d662cec6e28dd5dbe812b8f803d292dd60f19','N','ko',1,'N',NULL,'',NULL,NULL,NULL,'N','2YP6U366HG','Y','N','Y','Y','Y','Y','N','2024-09-05 17:14:06.648801',1,'관리자','2024-09-05 17:15:55.703032',1,'관리자'),
+	 (60,'이부장',24,'UP','B1053','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','mjhwang@wezon.com1','010-1234-5678',NULL,'B1053','부장','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자','2024-05-07 15:47:12.492897',1,'관리자'),
+	 (78,'박춘수',34,'UA','test','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',1,'N','test@samsung.com1','',NULL,'','프로','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-28 14:50:10.618',1,'관리자','2024-08-28 15:03:01.592',1,'관리자1'),
+	 (64,'관리자1',34,'UA',1,'204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','Y','ko',1,'N','','025557033',NULL,'-','매니저','Y','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-08-01 13:50:12.808845',1,'SE2553(관리자)','2024-10-28 17:48:44.59536',1,'관리자1'),
+	 (54,'이차장',24,'UC','9153','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'9153','차장','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (55,'안사원',25,'UC','A2021','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'A2021','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (56,'성사원',26,'UC','B9004','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B9004','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (57,'류대리',27,'UC','B7026','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B7026','대리','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (58,'김차장',28,'UC','B4032','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B4032','차장','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (59,'오부장',23,'UC','B3035','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B3035','부장','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (62,'김사원',26,'UC','A0023','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'A0023','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (63,'나사원',27,'UC','B4021','204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','N','ko',NULL,'N','jhhu@wezon.com','010-1234-5678',NULL,'B4021','사원','N','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-05-07 14:55:07.906278',1,'관리자',NULL,NULL,NULL),
+	 (1,'관리자',1,'UA',1,'204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f','Y','ko',NULL,'N','jhhu@wezon.com','025557033',NULL,'-','매니저','Y','WEZONCMMSU','Y','N','Y','Y','Y','Y','N','2024-02-20 17:50:44.080684',1,'SWING(관리자)',NULL,NULL,NULL);
+
+
 
 ALTER TABLE cm_supplier ALTER COLUMN site_id SET DEFAULT '1';
 update cm_supplier set site_id = 1;

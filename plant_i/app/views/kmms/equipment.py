@@ -1,4 +1,5 @@
 from django.db import transaction
+from app.views.kmms import equip_spec
 from domain.models.cmms import CmDept, CmEquipCategory, CmEquipment, CmImportRank, CmLocation, CmMaterial, CmSupplier
 from domain.services.sql import DbUtil
 from domain.services.kmms.equipment import EquipmentService
@@ -14,6 +15,103 @@ import os
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
+
+def handle_equipment_specs(equipment_id, posparam, request):
+    """
+    설비 사양 데이터를 처리하는 메소드
+    Args:
+        equipment_id: 설비 ID
+        posparam: POST 파라미터
+        request: HTTP 요청 객체
+    """
+    from app.views.kmms.equip_spec import equip_spec
+
+    # 기존 사양 데이터 전체 삭제
+    delete_context = type('Context', (), {})()
+    delete_context.gparam = {'action': 'delete'}
+    delete_context.posparam = {'equipPk': equipment_id}
+    delete_context.request = request
+    equip_spec(delete_context)
+
+    # form-urlencoded 방식 specList 파싱 함수
+    def parse_spec_list(posparam):
+        spec_list = []
+        idx = 0
+        while True:
+            key_prefix = f'specList[{idx}]'
+            specnm = posparam.get(f'{key_prefix}[specnm]')
+            unit = posparam.get(f'{key_prefix}[unit]')
+            spec = posparam.get(f'{key_prefix}[spec]')
+            if specnm is None:
+                break
+            spec_list.append({
+                'specnm': specnm,
+                'unit': unit,
+                'spec': spec
+            })
+            idx += 1
+        return spec_list
+
+    # 새 사양 데이터 insert
+    spec_list = parse_spec_list(posparam)
+    for spec in spec_list:
+        insert_context = type('Context', (), {})()
+        insert_context.gparam = {'action': 'insert'}
+        insert_context.posparam = {
+            'equipPk': equipment_id,
+            'equipSpecNm': spec.get('specnm'),
+            'equipSpecUnit': spec.get('unit'),
+            'equipSpecValue': spec.get('spec')
+        }
+        insert_context.request = request
+        equip_spec(insert_context)
+
+def handle_equip_part_mtrl(equipment_id, posparam, request):
+    """
+    설비 자재 데이터를 처리하는 메소드
+    Args:
+        equipment_id: 설비 ID
+        posparam: POST 파라미터
+        request: HTTP 요청 객체
+    """
+    from app.views.kmms.equip_part_mtrl import equip_part_mtrl
+
+    # 기존 데이터 전체 삭제
+    delete_context = type('Context', (), {})()
+    delete_context.gparam = {'action': 'delete'}
+    delete_context.posparam = {'equipPk': equipment_id}
+    delete_context.request = request
+    equip_part_mtrl(delete_context)
+
+    # form-urlencoded 방식 partList 파싱 함수
+    def parse_part_mtrl_list(posparam):
+        part_mtrl_list = []
+        idx = 0
+        while True:
+            key_prefix = f'partsList[{idx}]'
+            mtrlPk = posparam.get(f'{key_prefix}[_mtrl_pk]')
+            amt = posparam.get(f'{key_prefix}[_safety_stock_amt]')
+            if mtrlPk is None:
+                break
+            part_mtrl_list.append({
+                'mtrlPk': mtrlPk,           
+                'amt': amt,
+            })
+            idx += 1
+        return part_mtrl_list
+
+    # 새 사양 데이터 insert
+    part_mtrl_list = parse_part_mtrl_list(posparam)
+    for part_mtrl in part_mtrl_list:
+        insert_context = type('Context', (), {})()
+        insert_context.gparam = {'action': 'insert'}
+        insert_context.posparam = {
+            'equipPk': equipment_id,
+            'mtrlPk': part_mtrl.get('mtrlPk'),
+            'amt': part_mtrl.get('amt')
+        }
+        insert_context.request = request
+        equip_part_mtrl(insert_context)
 
 def equipment(context):
     '''
@@ -89,16 +187,24 @@ def equipment(context):
         equip_pk = gparam.get('equip_pk', None)
         items = equipmentService.get_equipment_findOne(equip_pk)
 
+    elif action=='getEquipPmList':
+        equip_pk = gparam.get('equip_pk', None)
+        items = equipmentService.getEquipPmList(equip_pk)
+
+    elif action=='log':
+        equip_pk = gparam.get('equip_pk', None)
+        items = equipmentService.get_equipment_log(equip_pk)    
+
     elif action in ['save', 'update']:
-        id = CommonUtil.try_int(posparam.get('id'))
+        id = CommonUtil.try_int(posparam.get('equip_pk'))
         equipCode = posparam.get('equipCode')
         equipName = posparam.get('equipName')
-        equipClassPk = posparam.get('equipClassPk')
+        equip_category_id = posparam.get('equip_category_id')
         locPK = posparam.get('loc_pk')
         deptPK = posparam.get('dept_pk')
         upEquipPk = posparam.get('upEquipPk', None)        
-        environEquipYn = posparam.get('environEquipYn')        
-        equip_mtrl_pk = posparam.get('equip_mtrl_pk') #순환설비자재
+        environEquipYn = posparam.get('environ_equip_yn', None)        
+        equip_mtrl_pk = posparam.get('mtrl_pk') #순환설비자재
         import_rank_pk = posparam.get('import_rank_pk', None)        
         process_cd = posparam.get('process_cd')
         supplier = posparam.get('supplier', None)
@@ -106,14 +212,16 @@ def equipment(context):
         upEquip_pk = posparam.get('upEquip_pk')
         warranty_dt = posparam.get('warranty_dt')
         Description = posparam.get('Description')
-        InstallDate = posparam.get('InstallDate')
+        InstallDate = posparam.get('install_dt')
         Maker = posparam.get('Maker')
         Model = posparam.get('Model')
-        ProductionYear = posparam.get('ProductionYear')
+        ProductionYear = posparam.get('make_dt')
         PurchaseCost = posparam.get('PurchaseCost')
         SerialNumber = posparam.get('SerialNumber')
         asset_nos = posparam.get('asset_nos')
         ccenterCd = posparam.get('ccenterCd')
+        EquipClassPath = posparam.get('EquipClassPath')
+        EquipClassDesc = posparam.get('EquipClassDesc')
 
         c = None
         try:
@@ -125,7 +233,7 @@ def equipment(context):
             c.EquipCode = equipCode
             c.EquipName = equipName
             # 설비 카테고리 처리
-            c.CmEquipCategory = CmEquipCategory.objects.get(EquipCategoryCode=equipClassPk)
+            c.CmEquipCategory = CmEquipCategory.objects.get(EquipCategoryCode=equip_category_id)
             c.SiteId = 1;
         
             c.CmLocation = CmLocation.objects.get(LocPk=locPK)   ## 위치코드
@@ -185,9 +293,18 @@ def equipment(context):
             c.EnvironEquipYn = environEquipYn
             c.UseYn = 'Y'
             c.DelYn = 'N'
+
+            c.EquipClassPath = EquipClassPath
+            c.EquipClassDesc = EquipClassDesc
+
             c.set_audit(user)
             c.save()
             print("PK:", c.id)  # 저장 후 PK가 할당되는지 확인
+
+            if c.id:
+                handle_equipment_specs(c.id, posparam, request)
+
+                handle_equip_part_mtrl(c.id, posparam, request)
 
             return {'success': True, 'message': '설비마스터 정보가 저장되었습니다.'}
         except Exception as e:

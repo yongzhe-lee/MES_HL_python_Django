@@ -22,8 +22,10 @@ def equ_result(context):
             start_dt = gparam.get('start_dt')
             end_dt = gparam.get('end_dt') + " 23:59:59"
             equ_id= gparam.get('equ_id')
+            defect_yn = gparam.get("defect_yn")
+            keyword = gparam.get('keyword') # 품번이나 품목명
 
-            dic_param = { 'start_dt' : start_dt, "end_dt" : end_dt , "equ_id" : equ_id}
+            dic_param = { 'start_dt' : start_dt, "end_dt" : end_dt , "equ_id" : equ_id, "keyword" : keyword}
 
             sql='''
             select
@@ -55,6 +57,15 @@ def equ_result(context):
                 sql+='''
                 and e.id = %(equ_id)s
                 '''
+            if defect_yn=="Y":
+                sql+='''
+                and ier.state !='0'
+                '''
+            if keyword:
+                sql+='''
+                and ( upper(ier.mat_cd) like concat('%%', upper(%(keyword)s), '%%')  or  upper(ier.mat_desc) like concat('%%', upper(%(keyword)s), '%%') )
+                '''
+
             sql+='''
             order by ier.data_date desc
             '''

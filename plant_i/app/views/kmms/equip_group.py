@@ -6,7 +6,7 @@ from domain.models.cmms import CmEquipCategory, CmEquipClassify
 
 def equip_group(context):
     '''
-    api/kmms/equip_group    ?
+    api/kmms/equip_group    설비분류
     김태영 
 
     findAll
@@ -51,13 +51,13 @@ def equip_group(context):
 			    AND UPPER(t.equip_category_desc) = 'abc'
                 '''
             if useYn:
-                sql += ''' and t.use_yn = 'Y'
+                sql += ''' and t.use_yn = %(useYn)s
                 '''
             if searchText:
                 sql += ''' AND (
-				UPPER(t.equip_category_id) LIKE ('%%', UPPER(%(searchText)s), '%%')
+				UPPER(t.equip_category_id) LIKE CONCAT('%%', UPPER(%(searchText)s), '%%')
 				OR
-				UPPER(t.equip_category_desc) LIKE ('%%', UPPER(%(searchText)s), '%%')
+				UPPER(t.equip_category_desc) LIKE CONCAT('%%', UPPER(%(searchText)s), '%%')
    			    )
                 '''
             sql += ''' order by t.equip_category_id
@@ -117,16 +117,16 @@ def equip_group(context):
             elif types == 'TYPES':
                 sql += ''' ,concat(t.parent_id, ' : ', ecl.equip_class_desc) as category
                 '''
-            sql += ''', t.parent_id,
-		        ,t.class_type,
-		        ,t.factory_pk as site_id,
-		        ,t.use_yn,
-                ,t.insert_ts,
-                ,t.inserter_id,
-                ,t.update_ts,
+            sql += ''', t.parent_id
+		        ,t.class_type
+		        ,t.factory_pk as site_id
+		        ,t.use_yn
+                ,t.insert_ts
+                ,t.inserter_id
+                ,t.update_ts
                 ,t.updater_id
             FROM cm_equip_classify t
-            where 1 = 1
+
             '''
             if types == 'CLASS':
                 sql += ''' left join cm_equip_category ec on ec.equip_category_id = t.category_id
@@ -135,7 +135,9 @@ def equip_group(context):
                 sql += ''' left join cm_equip_classify ecl on ecl.class_type ='CLASS' 
                 AND ecl.equip_class_id = t.parent_id
                 '''
-            sql += '''AND t.factory_pk = %(factory_pk)s
+            sql += '''
+            where 1=1 
+            AND t.factory_pk = %(factory_pk)s
             '''
             if types:
                 sql += ''' AND t.class_type = UPPER(%(types)s)
@@ -145,9 +147,9 @@ def equip_group(context):
                 '''
             if searchText:
                 sql += ''' AND (
-				UPPER(t.equip_class_id) LIKE ('%' || UPPER(%(searchText)s) || '%')
+				UPPER(t.equip_class_id) LIKE CONCAT('%%', UPPER(%(searchText)s), '%%')
 				OR
-				UPPER(t.equip_class_desc) LIKE ('%' || UPPER(%(searchText)s) || '%')
+				UPPER(t.equip_class_desc) LIKE CONCAT('%%', UPPER(%(searchText)s), '%%')
 				)
                 '''
 
@@ -158,7 +160,7 @@ def equip_group(context):
             dc['useYn'] = useYn
             dc['searchText'] = searchText
 
-            items = DbUtil.get_row(sql, dc)
+            items = DbUtil.get_rows(sql, dc)
 
         elif action == 'classifyFindOne':
             equipClassPk = gparam.get('equipClassPk')
@@ -219,28 +221,29 @@ def equip_group(context):
             return {'success': True, 'message': '설비 카테고리 정보가 수정되었습니다.'}
 
         elif action in ['insertEquipClassify', 'updateEquipClassify']:
-            equipClassPk = CommonUtil.try_int( posparam.get('equipClassPk') )
-            equipClassId = posparam.get('equipClassId')
-            equipClassDesc = posparam.get('equipClassDesc')
-            hierarchyPath = posparam.get('hierarchyPath')
-            categoryId = posparam.get('categoryId')
-            parentId = posparam.get('parentId')
-            classType = posparam.get('classType')
-            useYn = posparam.get('useYn')
+            equipClassPk = CommonUtil.try_int( posparam.get('equip_class_pk') )
+            equipClassId = posparam.get('equip_class_id')
+            equipClassDesc = posparam.get('equip_class_desc')
+            hierarchyPath = posparam.get('hierarchy_path')
+            categoryId = posparam.get('category_id')
+            parentId = posparam.get('parent_id')
+            classType = posparam.get('class_type')
+            useYn = posparam.get('use_yn')
   
-            if action == 'update':
-                c = CmEquipClassify.objects.get(EquipClassCode=equipClassPk)
+            try:
+               c = CmEquipClassify.objects.get(id=equipClassPk)
+            
+            except CmEquipClassify.DoesNotExist:
+                c = CmEquipClassify()            
 
-            else:
-                c = CmEquipClassify()
-
-            c.EquipCategoryCode = equipClassId
-            c.EquipCategoryDesc = equipClassDesc
+            c.EquipClassCode = equipClassId
+            c.EquipClassDesc = equipClassDesc
             c.HierarchyPath = hierarchyPath
             c.CategoryCode = categoryId
             c.ParentCode = parentId
             c.ClassType = classType
             c.UseYn = useYn
+            c.Factory_id = factory_id
             c.set_audit(user)
             c.save()
 

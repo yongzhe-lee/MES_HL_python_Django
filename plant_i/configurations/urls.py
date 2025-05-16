@@ -36,7 +36,7 @@ urlpatterns = [
     path('test/', SystemDefaultRenderer.test, name='test'),
     path('setup/', SystemDefaultRenderer.setup, name='setup'),
 
-    path('api/alive', SystemDefaultRenderer.alive,name="alive"),
+    path('api/alive', SystemDefaultRenderer.alive, name="alive"),
     path('api/files/<str:view_name>', FilesView.as_view()),
     path('api/<str:task_name>/<str:view_name>', ApiModuleView.as_view(), name='api'),
 

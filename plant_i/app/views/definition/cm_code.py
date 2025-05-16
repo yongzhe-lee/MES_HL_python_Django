@@ -40,7 +40,6 @@ def cm_code(context):
             INNER JOIN 
                 cm_base_code_grp cg ON c."code_grp_cd" = cg."code_grp_cd" 
             WHERE 1=1 
-                AND c."use_yn" = 'Y'
             '''
             if code_grp_code:
                 sql += '''

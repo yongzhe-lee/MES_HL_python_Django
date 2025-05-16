@@ -20,8 +20,8 @@
 					</div>
 					<div class="form-row">
 						<div class="form-group">
-							<label for="up_loc_pk">상위위치</label>
-							<select id="up_loc_pk" name="up_loc_pk"></select>
+							<label for="upLocPk">상위위치</label>
+							<select id="upLocPk" name="upLocPk"></select>
 						</div>
 						<div class="form-group">
 							<label for="loc_status" class="required">상태*</label>
@@ -122,7 +122,7 @@
 			$("#building_yn").kendoSwitch();
 			$("#spshop_yn").kendoSwitch();
 
-			AjaxUtil.fillDropDownTreeOptions($("#up_loc_pk"), "cm_location", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#upLocPk"), "cm_location", "select");
 			AjaxUtil.fillDropDownOptions($("#loc_status"), 'user_code', 'select', null, 'EQU_STATUS');
 
 			$("#saveBtnEquLoc").kendoButton({
@@ -181,26 +181,7 @@
 					}
 				}
 			}).data("kendoGrid");
-
-			// 더블클릭 이벤트를 별도로 바인딩
-			$("#recentLocationsGrid tbody").on("dblclick", "tr", function (e) {
-				const grid = $("#recentLocationsGrid").data("kendoGrid");
-				const dataItem = grid.dataItem(this);
-
-				if (dataItem) {
-					const locPkElement = document.getElementById("loc_pk");
-					const locationElement = document.getElementById("Location");
-
-					if (locPkElement && locationElement) {
-						locPkElement.value = dataItem.id;
-						locationElement.value = dataItem.loc_nm;
-						modal.fadeOut();  // 모달 창 닫기
-					} else {
-						alert("필요한 HTML 요소(loc_pk 또는 Location)가 페이지에 없습니다.");
-					}
-				}
-
-			});
+	
 		}
 
 		searchLocationData() {
@@ -243,7 +224,7 @@
 			// 입력 필드 초기화
 			$("#loc_cd").val('');
 			$("#loc_nm").val('');
-			$("#up_loc_pk").val('');
+			$("#upLocPk").val('');
 			$("#plant_yn").kendoSwitch({
 				checked: false // 기본값: 체크 해제
 			});

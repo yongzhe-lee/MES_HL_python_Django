@@ -1,0 +1,208 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="생산일">생산일</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="equ_id" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="equ_id" id="equ_id">
+                                    <option value="">전체</option>
+                                    <option value="37">smt4.mnt1</option>
+                                    <option value="38">smt4.mnt2</option>
+                                    <option value="39">smt4.mnt3</option>
+                                    <option value="40">smt4.mnt4</option>
+                                    <option value="41">smt4.mnt5</option>
+                                    <option value="42">smt4.mnt6</option>
+                                    <option value="43">smt4.mnt7</option>
+                                    <option value="44">smt4.mnt8</option>
+                                    <option value="45">smt4.mnt9</option>
+                                    <option value="46">smt4.mnt10</option>
+                                    <option value="47">smt4.mnt11</option>
+                                    <option value="48">smt4.mnt12</option>
+                                    <option value="49">smt4.mnt13</option>
+                                    <option value="50">smt4.mnt14</option>
+                                    <option value="51">smt4.mnt15</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="마운터 픽업레이트">마운터 픽업레이트</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="pickup_rate_grid"></div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class FujiPickupRatePage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/interface/fuji';
+            this.init();
+
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                columns: [
+                    { field: "job", title: "job", width: 80 },
+                    { field: "position", title: "position", width: 200 },
+                    { field: "partNumber", title: "partNumber", width: 100 },
+                    { field: "fidl", title: "fidl", width: 120 },
+                    { field: "pickup", title: "픽업횟수", width: 100 },
+                    { field: "no_pickup", title: "픽업실패횟수", width: 100 },
+                    { field: "usage", title: "사용횟수", width: 100 },
+                    { field: "reject", title: "Reject 횟수", width: 100 },
+                    { field: "error", title: "에러횟수", width: 100 },
+                    { field: "dislodge", title: "이탈횟수", width: 100 },
+                    { field: "rescan", title: "리스캔 횟수", width: 100 },
+                    { field: "lcr", title: "lcr", width: 100 },
+                    { field: "pickup_ratio", title: "pickup(%)", width: 100 },
+                    { field: "reject_ratio", title: "reject(%)", width: 100 },
+                    { field: "error_ration", title: "error(%)", width: 100 },
+                    { field: "dislodge_ration", title: "dislodge(%)", width: 100 },
+                    { field: "success_ratio", title: "success(%)", width: 100 },
+                    { field: "data_date", title: "전송일시", width: 160 },
+                ],
+                change: function (e) {
+                    _this.showResultItemList();
+                    _this.showDefectItemList();
+                },
+                height: "500px"
+            };
+            _this.grid = new Grid($("#pickup_rate_grid"), gridOption);
+
+            AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, 2);
+
+            $('#equ_id').on('change', function (e) {
+                _this.searchMainData();
+            });
+
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnResultExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+
+
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#pickup_rate_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "fuji_pickup_rate.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+
+        searchMainData() {
+            let _this = this;
+            let start_dt = $('input[name=start_dt]').val();
+            let end_dt = $('input[name=end_dt]').val();
+            let equ_id = $('#equ_id').val();
+            let param = {
+                equ_id: equ_id,
+                start_dt: start_dt,
+                end_dt: end_dt,
+                action: 'read'
+            };
+
+            let $gg = $('#pickup_rate_grid');
+            kendo.ui.progress($gg, true);
+            _this.grid.setData([]);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.data);
+                }
+
+                kendo.ui.progress($gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+    }
+
+    let page = new FujiPickupRatePage();
+$(document).ready(function () {
+    page.searchMainData();
+});
+
+</script>
+
+{% endblock %}

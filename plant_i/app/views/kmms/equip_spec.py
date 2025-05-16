@@ -39,7 +39,7 @@ def equip_spec(context):
             dc = {}
             dc['equipPk'] = equipPk
 
-            items = DbUtil.get_row(sql, dc)
+            items = DbUtil.get_rows(sql, dc)
 
 
         elif action == 'insert':
