@@ -2811,3 +2811,9 @@ SELECT setval('cm_base_code_code_pk_seq', (SELECT MAX(code_pk) FROM cm_base_code
 SELECT setval('cm_equipment_equip_pk_seq', (SELECT MAX(equip_pk) FROM cm_equipment), true);
 
 update cm_equipment set site_id = 1;
+
+SELECT setval('cm_work_order_approval_work_order_approval_pk_seq', (SELECT MAX(work_order_approval_pk) FROM cm_work_order_approval), true);
+SELECT setval('cm_work_order_work_order_pk_seq', (SELECT MAX(work_order_pk) FROM cm_work_order), true);
+SELECT setval('cm_wo_labor_id_seq', (SELECT MAX(id) FROM cm_wo_labor), true);
+SELECT setval('cm_wo_mtrl_id_seq', (SELECT MAX(id) FROM cm_wo_mtrl), true);
+SELECT setval('cm_work_order_hist_work_order_hist_pk_seq', (SELECT MAX(work_order_hist_pk) FROM cm_work_order_hist), true);

@@ -12,7 +12,7 @@
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_name" data-labelCd="검색키워드">검색키워드</label>
 							<div class="field-wrapper">
-								<input id="srch_equ_name" name="srch_equ_name" />
+								<input id="srch_equ_name" name="srch_equ_name" placeholder="설비코드, 설비명, 자산번호 입력" />
 							</div>
 						</div>
 					</div>
@@ -40,21 +40,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-12 col-sm-3 col-md-2">
-						<div class="form-item align-h">
-							<label class="k-label k-form-label" for="srch_chk_legal">법정관리설비</label>
-							<input id="srch_chk_legal" name="srch_chk_legal">
-						</div>
-					</div>
-					<div class="col-12 col-sm-3 col-md-2">
-						<div class="form-item align-h">
-							<label class="k-label k-form-label" for="srch_use_yn" data-labelCd="사용여부">사용여부</label>
-							<div class="field-wrapper">
-								<select id="srch_use_yn" name="srch_use_yn"></select>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-sm-3 col-md-3">
+					<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="설비위치">설비위치</label>
 							<div class="field-wrapper">
@@ -62,7 +48,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-12 col-sm-3 col-md-3">
+					<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_category" data-labelCd="카테고리">카테고리</label>
 							<div class="field-wrapper">
@@ -70,7 +56,15 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-auto">
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_equip_class_path" data-labelCd="설비분류">설비분류</label>
+							<div class="field-wrapper">
+								<select id="srch_equip_class_path" name="srch_equip_class_path"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_supplier" data-labelCd="공급업체">공급업체</label>
 							<div class="field-wrapper">
@@ -78,9 +72,18 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-auto">
-						<div class="card-group-btn search">
-							<button id="btnSearch" class="btn-search">조회</button>
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_use_yn" data-labelCd="사용여부">사용여부</label>
+							<div class="field-wrapper">
+								<select id="srch_use_yn" name="srch_use_yn"></select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srch_environ_equip_yn">법정관리설비</label>
+							<input id="srch_environ_equip_yn" name="srch_environ_equip_yn">
 						</div>
 					</div>
 				</div>
@@ -98,7 +101,7 @@
 					<span>
 						<!-- 오른쪽 버튼 영역-->
 						<button id="btnAdd" class="btn-search">등록</button>
-						<button id="btnSearch" class="btn-search k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">조회</button>
+						<button id="btnSearch" class="btn-search">조회</button>
 						<button id="btnExcel">Excel</button>
 					</span>
 				</div>
@@ -287,7 +290,7 @@
 						"attributes": {
 							"style": "text-align: center"
 						},
-						"template": "# if (environ_equip_yn == true) { # 대상 # } else { #  # } #"
+						"template": "# if (environ_equip_yn == 'Y') { # 대상 # } else { #  # } #"
 					},
 					{
 						"title": "정비이력",
@@ -341,7 +344,7 @@
 						"attributes": {
 							"style": "text-align: center"
 						},
-						"template": "# if (use_yn == true) { # 사용 # } else { # 사용안함 # } #"
+						"template": "# if (use_yn == 'Y') { # 사용 # } else { # 사용안함 # } #"
 					},
 					{
 						"title": "고장/불용 일시",
@@ -414,13 +417,14 @@
             // search form
             $('#srch_equ_name').kendoTextBox();
             AjaxUtil.fillDropDownOptions($('#srch_equ_status'), 'cm_code', 'all', null, 'EQUIP_STATUS');
-            AjaxUtil.fillDropDownOptions($('#srch_equ_process'), 'cm_code', 'all', null, 'USE_YN');
-            AjaxUtil.fillDropDownOptions($('#srch_equ_system'), 'cm_code', 'all', null, 'USE_YN');
+            AjaxUtil.fillDropDownOptions($('#srch_equ_process'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
+            AjaxUtil.fillDropDownOptions($('#srch_equ_system'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
 			AjaxUtil.fillDropDownOptions($('#srch_use_yn'), 'cm_code', 'all', null, 'USE_YN');
             AjaxUtil.fillDropDownTreeOptions($('#srch_equ_loc'), 'cm_location', 'all');
 			AjaxUtil.fillDropDownOptions($('#srch_equ_category'), 'cm_equip_category', 'all', null);
+            AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all');
             AjaxUtil.fillDropDownOptions($('#srch_equ_supplier'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_S,CP_B');
-            $('#srch_chk_legal').kendoSwitch({ checked: false });
+            $('#srch_environ_equip_yn').kendoSwitch({ checked: false });
 
 			$('#btnSearch').kendoButton({
 				icon: "search",
@@ -435,18 +439,6 @@
 				themeColor: "success",
 				click: function () {
 					page.exportExcel();
-				}
-			});
-
-			$('#btnClear').kendoButton({
-				themeColor: "base", click: function () {
-					//_this.resetData();
-				}
-			});
-			$('#btnSave').kendoButton({
-				themeColor: "info",
-				click: function () {
-					_this.saveData();
 				}
 			});
 
@@ -491,8 +483,19 @@
 
 			let param = {
 				action: 'read',
-				equipment: $('#srch_equ_name').val(),
+				keyword: $('#srch_equ_name').val(),
+                equip_status: $('#srch_equ_status').val(),
+                process_cd: $('#srch_equ_process').val(),
+                system_cd: $('#srch_equ_system').val(),
+                loc_pk: $('#srch_equ_loc').data("kendoDropDownTree").value(),
+                equip_category_id: $('#srch_equ_category').val(),
+                equip_class_path: $('#srch_equip_class_path').data("kendoDropDownTree").value(),
+				supplier_pk: $('#srch_equ_supplier').val(),
+                use_yn: $('#srch_use_yn').val(),
+                environ_equip_yn: $('#srch_environ_equip_yn').data("kendoSwitch").check() ? 'Y' : 'N'
 			};
+
+			console.log('param: ', param);
 
 			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
 

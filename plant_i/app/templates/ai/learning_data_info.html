@@ -5,6 +5,19 @@
         font-size: inherit;
     }
 
+    .tab_con_box {
+/*        height: 550px;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        justify-content: center;*/
+        height: 550px;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -71,175 +84,79 @@
                         <li>모델생성</li>
                     </ul>
                     <!-- ======================================= 이하 tab 컨텐츠 ======================================= -->
-                    <!-- Tab1: 태그집합생성 -->
+                    <!-- Tab1: 태그집합생성 해당 탭에서만 지정할 스타일이어서 엘리먼트 단계에서 정의 -->
                     <div class="tab-contents">
                         <!-- tab1 - tag form & grid -->
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-sm-4 col-md-5">
+                        <!--<div class="col-12 col-sm-5 col-md-5">-->
                             <div class="content-ui-row connect">
                                 <div class="card-group-btn">
                                     <span class="info-text">
                                         <i class="material-symbols-outlined">list_alt</i>
-                                        <label data-labelCd="태그 목록">태그 목록</label>
+                                        <label data-labelCd="변수 목록">변수 목록</label>
                                     </span>
                                 </div>
-                                <form class="search-form" id="searchTagForm">
-                                    <div class="card-content search">
-                                        <div class="form-ui">
-                                            <div class="col-auto">
+                                <div id="tag_grid" style="width: inherit"></div>
+                            </div>
+                        </div>
+                        <!-- 최종 태그 집합 (Tab1의 오른쪽 영역) -->
+                        <div class="col-12 col-sm-1">
+                        <!--<div class="col-1 align-middle text-center">-->
+                            <div class="tab_con_box">
+                            <!--<div class="tab_con_box" style="height:500px;">-->
+                                <!--<br /><br /><br /><br /><br /><br /><br /><br />-->
+                                <button id="btnDelVar"><i class="material-symbols-outlined">delete</i>&lt;==</button>
+                                <!--<br /><br />-->
+                                <button id="btnAddVar"><i class="material-symbols-outlined">add</i>==&gt;</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-5 col-md-6">
+                        <!--<div class="col-12 col-sm-6 col-md-6">-->
+                            <div class="content-ui-column connect">
+                                <div class="card-content edit">
+                                    <div class="card-group-btn">
+                                        <span class="info-text">
+                                            <i class="material-symbols-outlined">list_alt</i>
+                                            <label data-labelCd="최종 태그 집합">최종 태그 집합</label>
+                                        </span>
+                                        <span>
+                                            <button id="btnExcelMerged">Excel</button>
+                                            <button id="btnSaveMerged"><i class="material-symbols-outlined">save</i>저장</button>
+                                            <!-- 삭제 기능 우선 보류. -->
+                                            <button id="btnDeleteMerged"><i class="material-symbols-outlined">delete</i>삭제</button>
+                                        </span>
+                                    </div>
+                                    <form class="search-form" id="searchMergedForm">
+                                        <div class="edit-form-ui">
+                                            <input type="hidden" id="id" name="id">
+                                            <div class="col-12 col-md-12 col-lg-6">
                                                 <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
+                                                    <label class="k-label k-form-label essential" for="Name" data-labelCd="모델명">모델명</label>
                                                     <div class="field-wrapper">
-                                                        <select id="cboEquip" name="cboEquip" class="form-control"></select>
+                                                        <input type="text" id="Name" name="Name" data-msg="모델명을" />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-auto">
+                                            <div class="col-12 col-md-12 col-lg-6">
                                                 <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboDataSource" data-labelCd="데이터소스">데이터소스</label>
+                                                    <label class="k-label k-form-label" for="Type" data-labelCd="구분">구분</label>
                                                     <div class="field-wrapper">
-                                                        <select id="cboDataSource" name="cboDataSource" class="form-control"></select>
+                                                        <select type="text" id="Type" name="Type"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-12 col-lg-6">
+                                                <div class="form-item align-h">
+                                                    <label class="k-label k-form-label" for="DataVersion" data-labelCd="데이터 버전">데이터 버전</label>
+                                                    <div class="field-wrapper">
+                                                        <input id="DataVersion" name="DataVersion" />
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="col-auto">
+                                            <div class="col-12 col-md-12 col-lg-6">
                                                 <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboTagGroup" data-labelCd="태그그룹">태그그룹</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboTagGroup" name="cboTagGroup" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboTag" name="cboTag" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="card-group-btn search">
-                                                    <button id="btnSearchTag" class="btn-search">조회</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                                <div id="tag_grid" style="width: 100%"></div>
-                            </div>
-                             <!--tab1 - mes form & grid 
-                            <div class="content-ui-row connect">
-                                <div class="card-group-btn">
-                                    <span class="info-text k-mt-5">
-                                        <i class="material-symbols-outlined">list_alt</i>
-                                        <label data-labelCd="MES 데이터">MES 데이터</label>
-                                    </span>
-                                </div>
-                                <form class="search-form" id="searchMesForm">
-                                    <div class="card-content search">
-                                        <div class="form-ui">
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboLineMES" data-labelCd="라인">라인</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboLineMES" name="cboLineMES" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboEquipMES" data-labelCd="설비">설비</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboEquipMES" name="cboEquipMES" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboMtrlMES" data-labelCd="품목">품목</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboMtrlMES" name="cboMtrlMES" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="card-group-btn search">
-                                                    <button id="btnSearchMES" class="btn-search">조회</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                                <div id="mes_tag_grid" style="width: 100%"></div>
-                            </div>
-                             tab1 - qms form & grid 
-                            <div class="content-ui-row connect">
-                                <div class="card-group-btn">
-                                    <span class="info-text k-mt-5">
-                                        <i class="material-symbols-outlined">list_alt</i>
-                                        <label data-labelCd="QMS 데이터">QMS 데이터</label>
-                                    </span>
-                                </div>
-                                <form class="search-form" id="searchQmsForm">
-                                    <div class="card-content search">
-                                        <div class="form-ui">
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboLineQMS" data-labelCd="라인">라인</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboLineQMS" name="cboLineQMS" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboEquipQMS" data-labelCd="설비">설비</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboEquipQMS" name="cboEquipQMS" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" for="cboMtrlQMS" data-labelCd="품목">품목</label>
-                                                    <div class="field-wrapper">
-                                                        <select id="cboMtrlQMS" name="cboMtrlQMS" class="form-control"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="card-group-btn search">
-                                                    <button id="btnSearchQMS" class="btn-search">조회</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                                <div id="qms_tag_grid" style="width: 100%"></div>
-                            </div>-->
-                        </div>
-                        <!-- 최종 태그 집합 (Tab1의 오른쪽 영역) -->
-                        <div class="col-12 col-md-6">
-                            <div class="content-ui-column connect">
-                                <div class="card-group-btn">
-                                    <span class="info-text">
-                                        <i class="material-symbols-outlined">list_alt</i>
-                                        <label data-labelCd="최종 태그 집합">최종 태그 집합</label>
-                                    </span>
-                                    <span>
-                                        <button id="btnExcelMerged">Excel</button>
-                                        <button id="btnSaveMerged"><i class="material-symbols-outlined">save</i>저장</button>
-                                        <!-- 삭제 기능 우선 보류. -->
-                                        <button id="btnDeleteMerged"><i class="material-symbols-outlined">delete</i>삭제</button>
-                                    </span>
-                                </div>
-                                <form class="search-form" id="searchMergedForm">
-                                    <div class="card-content search">
-                                        <div class="form-ui">
-                                            <div class="col-auto">
-                                                <div class="form-item align-h">
-                                                    <label class="k-label k-form-label" data-labelCd="기간"> 기간</label>
+                                                    <label class="k-label k-form-label" data-labelCd="데이터 수집기간">데이터 수집기간</label>
                                                     <div class="field-wrapper">
                                                         <div id="srchDt">
                                                             <div class="input-group-append">
@@ -256,15 +173,24 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-12">
+                                                <div class="form-item align-h">
+                                                    <label class="k-label k-form-label" for="model_desc" data-labelCd="비고">비고</label>
+                                                    <div class="field-wrapper">
+                                                        <textarea id="model_desc" name="model_desc"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="col-auto">
                                                 <div class="card-group-btn search">
-                                                    <button class="btn-search" id="btnSearchMerged">조회</button>
+                                                    <!--<button class="btn-search" id="btnSearchMerged">조회</button>-->
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </form>
-                                <div id="merged_tag_grid"></div>
+                                    </form>
+                                    <!-- tag_col에 저장될 데이터 -->
+                                </div>
+                                <div id="merged_tag_grid" style="width:inherit"></div>
                             </div>
                         </div>
                     </div>
@@ -624,6 +550,7 @@
             this.modelGrid = null;
             this.mm_id = null; // model master_id
             this.md_id = null; // model_id
+            this.equ_id = null; // equip_id
             this.mt_id = null; // model train_id
 
             // FileUploadPage 인스턴스를 전역으로 선언
@@ -667,36 +594,65 @@
 
             // tab1 ====================================================================
             // form
-            _this.setupDropdowns({
-                lineId: null,
-                equipId: 'cboEquip',
-                tagGroupId: 'cboTagGroup',
-                tagId: 'cboTag',
-                mtrlId: null
+            //_this.setupDropdowns({
+            //    lineId: null,
+            //    equipId: 'cboEquip',
+            //    tagGroupId: 'cboTagGroup',
+            //    tagId: 'cboTag',
+            //    mtrlId: null
+            //});
+            //_this.setupDropdowns({
+            //    lineId: 'cboLineMES',
+            //    equipId: 'cboEquipMES',
+            //    tagGroupId: null,
+            //    tagId: null,
+            //    mtrlId: 'cboMtrlMES'
+            //});
+            //_this.setupDropdowns({
+            //    lineId: 'cboLineQMS',
+            //    equipId: 'cboEquipQMS',
+            //    tagGroupId: null,
+            //    tagId: null,
+            //    mtrlId: 'cboMtrlQMS'
+            //});
+            //AjaxUtil.fillDropDownOptions($('#cboDataSource'), 'source_type', 'choose', null, null);
+            //AjaxUtil.fillDropDownOptions($('#cboEquResult'), 'source_type', 'choose', null, null);
+
+            // 변수목록->최종태그집합 del
+            $('#btnDelVar').kendoButton({
+                click: function () {
+                    _this.deleteVar();
+                }
             });
-            _this.setupDropdowns({
-                lineId: 'cboLineMES',
-                equipId: 'cboEquipMES',
-                tagGroupId: null,
-                tagId: null,
-                mtrlId: 'cboMtrlMES'
+
+            // 변수목록->최종태그집합 add
+            $('#btnAddVar').kendoButton({
+                click: function () {
+                    _this.addVar();
+                }
             });
-            _this.setupDropdowns({
-                lineId: 'cboLineQMS',
-                equipId: 'cboEquipQMS',
-                tagGroupId: null,
-                tagId: null,
-                mtrlId: 'cboMtrlQMS'
+
+            $('#Name').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#Type'), 'user_code', 'all', null, 'TAGDATA_TYPE')
+            //$('#Type').kendoTextBox(/*{ enable: false }*/);
+            $('#DataVersion').kendoTextBox(/*{ enable: false }*/);
+            $('#model_desc').kendoTextArea({
+                rows: 3,
+                maxLength: 200,
+                placeholder: ""
             });
+
             $("#srchStartDt").kendoDatePicker({
                 format: "yyyy-MM-dd",
                 value: new Date(new Date().setDate(new Date().getDate() - 7))
-            }).closest(".k-datepicker").css("width", "140px");
+            })
+            //}).closest(".k-datepicker").css("width", "140px");
 
             $("#srchEndDt").kendoDatePicker({
                 format: "yyyy-MM-dd",
                 value: new Date()
-            }).closest(".k-datepicker").css("width", "140px");
+            })
+            //}).closest(".k-datepicker").css("width", "140px");
 
             // tab1 button
             // 저장 버튼 설정
@@ -1076,6 +1032,97 @@
         // init 끝
 
 
+        saveMenuList() {
+            let _this = this;
+            let items = [];
+            let order = 10;
+            let folderID = '';
+            let meneItem = _this.menuGrid.getData()
+            if (meneItem.length == 0) {
+                Alert.alert('', '저장할 메뉴 항목이 없습니다.');
+                return;
+            }
+            if (confirm("메뉴를 저장하시겠습니까?")) {
+                $.each(meneItem, function (idx, item) {
+                    items.push({ folder_id: item.folder_id, menu_code: item.menu_code, menu_name: item.menu_name, _order: order });
+                    folderID = item.folder_id;
+                    order += 10;
+                });
+
+                let fnsuccess = function (result) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.getFolderMenu(folderID);
+                };
+
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=menu_list_save', { menus: JSON.stringify(items) }, fnsuccess);
+            }
+        }
+
+        addVar() {
+            let _this = this;
+            let selectedGUIItems = _this.guiUseGrid.getSelect();
+            let selectFolderData = _this.folderGrid.getSelect();
+            if (selectedGUIItems.length > 0) {
+                if (selectFolderData.length == 0) {
+                    Alert.alert('', '선택된 폴더가 없습니다.');
+                    return;
+                }
+            }
+            else {
+                Alert.alert('', '선택된 소스메뉴가 없습니다.');
+                return;
+            }
+
+
+            let guiItem = selectedGUIItems[0];
+            let folderID = selectFolderData[0].folder_id;
+
+            let data = {
+                MenuCode: guiItem.menu_code,
+                Folder_id: folderID
+            };
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.getFolderMenu(folderID);
+                    _this.getGuiMenu();
+                }
+            };
+
+            if (confirm('추가하시겠습니까?')) {
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=menu_save', data, fnsuccess);
+            }
+        }
+
+        deleteVar() {
+            let _this = this;
+            let folderID = '';
+            let menuItems = [];
+            let selectedMenuItems = _this.menuGrid.getSelect();
+            if (selectedMenuItems.length == 0) {
+                Alert.alert('', '선택된 소스메뉴가 없습니다.');
+                return;
+            }
+
+            $.each(selectedMenuItems, function (idx, item) {
+                menuItems.push({ MenuCode: item.menu_code, Folder_id: item.folder_id });
+                folderID = item.folder_id;
+            });
+
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.getFolderMenu(folderID);
+                    _this.getGuiMenu();
+                } else {
+                    Alert.alert('', '에러가 발생했습니다.');
+                }
+            };
+
+            if (confirm('삭제하시겠습니까?')) {
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=menu_delete', { menus: JSON.stringify(menuItems) }, fnsuccess);
+            }
+        }
+
+
         // tag 드롭다운 선택 사항에 따른 이벤트 핸들링
         setupDropdowns(config) {
             const { lineId, equipId, tagGroupId, tagId, mtrlId } = config;
@@ -1217,15 +1264,30 @@
                     break;
 
                 case 'tag_grid':
+                    let notSelected = '상단 목록에서 모델을 생성할 마스터를 선택해주세요.';
                     specificOption = {
                         pageable: false,
                         columns: [
                             { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            { field: 'equipment_name', title: '설비명', width: 125 },
-                            { field: 'tag_group_name', title: '태그그룹명', width: 125 },
-                            { field: 'tag_name', title: '태그명', width: 200 }
+                        //    { field: 'equipment_name', title: '설비명', width: 125 },
+                        //    { field: 'tag_group_name', title: '태그그룹명', width: 125 },
+                            { field: 'data_source', title: '데이터소스', width: 100 },
+                            { field: 'var_code', title: '변수코드', width: 200 },
+                            { field: 'var_name', title: '변수명', width: 200 },
+                        //    { field: 'var_type', title: '변수유형', width: 100 },
                         ],
-                        height: "200px"
+                        height: "510px",
+                        noRecords: {
+                            template: `<div style='position: absolute; top: 0; left: 0; width: 100 %; padding: 10px; text- align: left;'> ${notSelected} </div>`
+                        },
+                        dataBound: function (e) {
+                            let items = this.items();
+                            items.each(function (index) {
+                                $(this).find("td:first").html(index + 1);
+                            });
+
+                            kendoUtil.showGridRowCount(this.element);
+                        }
                     };
                     break;
 
@@ -1261,16 +1323,22 @@
                     specificOption = {
                         pageable: false,
                         columns: [
-                            { title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
-                            { field: 'line', title: '라인', width: 100 },
-                            { field: 'equipment_name', title: '설비명', width: 150 },
-                            { field: 'data_src', title: '데이터소스', width: 100 },
-                            { field: 'tag_code', title: '태그코드', width: 100 },
-                            { field: 'tag_name', title: '태그명', width: 100 },
-                        //    { field: 'material', title: '품목', width: 100 },   태그코드
-                        //    { field: 'P/N', title: '합부결과', width: 100 },  값은 나중에 끌어옴
+                            // 이 형태로 받아서 tag_col에 먼저 넣기
+                            { selectable: true, width: 30, attributes: { style: "display: flex; justify-content:center;" }, headerAttributes: { style: "display: flex; justify-content:center;" } },
+                            //{ title: 'No', template: (dataItem) => `<div>${dataItem.index + 1}</div>`, width: 50, attributes: { style: 'text-align: center' } },
+                            //{ field: 'line', title: '라인', width: 100 },
+                            //{ field: 'equipment_name', title: '설비명', width: 150 },
+                            { field: 'data_source', title: '데이터소스', width: 100 },
+                            { field: 'var_code', title: '변수코드', width: 200 },
+                            { field: 'var_name', title: '변수명', width: 200 },
+                            //{ field: 'var_type', title: '변수유형', width: 100 },
+                            { field: 'var_index', title: '순서', width: 100 },
+                            //{ field: 'tag_name', title: '태그명', width: 100 },
+                            //{ field: 'material', title: '품목', width: 100 },   태그코드
+                            //{ field: 'P/N', title: '합부결과', width: 100 },  값은 나중에 끌어옴
                         ],
-                        height: "300px"
+                        height: "300px",
+                        dataBound: null
                     };
                     break;
 
@@ -1339,24 +1407,6 @@
                                 },
                                 // 임의로 editor 형식으로 변환되는 것 방지
                                 editable: () => false
-                                //editor: function (container, options) {
-                                //    $('<select name="' + options.field + '"></select>')
-                                //        .appendTo(container)
-                                //        .kendoDropDownList({
-                                //            text: "선택",
-                                //            dataSource: _this.mission_proc_options,
-                                //            dataTextField: "name",
-                                //            dataValueField: "code",
-                                //            value: options.model.MissingValProcess,
-                                //            optionLabel: {
-                                //                name: "선택",
-                                //                code: ""
-                                //            },
-                                //            change: function (e) {
-                                //                options.model.set("MissingValProcess", e.sender.value());
-                                //            }
-                                //        });
-                                //}
                             },
                             {
                                 field: "DropOutLow",
@@ -1382,46 +1432,12 @@
                                         //    width: "100%"
                                         });
                                 }
-                                //template: function (dataItem) {
-                                //    return dataItem.DropOutLow !== null && dataItem.DropOutLow !== undefined ? dataItem.DropOutLow : "입력";
-                                //},
-                                //editor: function (container, options) {
-                                //    $('<input name="' + options.field + '"/>')
-                                //        .appendTo(container)
-                                //        .kendoNumericTextBox({
-                                //            format: "n2",
-                                //            decimals: 2,
-                                //            step: 0.01,
-                                //            value: options.model[options.field] || null,
-                                //            change: function (e) {
-                                //                let newValue = e.sender.value();
-                                //                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
-                                //            }
-                                //        });
-                                //}
                             },
                             {
                                 field: "DropOutUpper",
                                 title: "이상치상한",
                                 width: 100,
                                 attributes: { style: "text-align: center" },
-                                //template: function (dataItem) {
-                                //    return dataItem.DropOutUpper !== null && dataItem.DropOutUpper !== undefined ? dataItem.DropOutUpper : "입력";
-                                //},
-                                //editor: function (container, options) {
-                                //    $('<input name="' + options.field + '"/>')
-                                //        .appendTo(container)
-                                //        .kendoNumericTextBox({
-                                //            format: "n2",
-                                //            decimals: 2,
-                                //            step: 0.01,
-                                //            value: options.model[options.field] || null,
-                                //            change: function (e) {
-                                //                let newValue = e.sender.value();
-                                //                options.model.set(options.field, newValue); // 🚀 값 바로 반영 (검증 없음)
-                                //            }
-                                //        });
-                                //}
                                 template: function (dataItem) {
                                     let value = dataItem.DropOutUpper ?? "";
                                     let displayValue = value == null ? "입력" : value; // ✅ 값이 없으면 "입력" 표시
@@ -1472,44 +1488,6 @@
                                     }
                                 });
                             });
-
-                            //// TextBox 바인딩 (DropOutLow)
-                            //grid.tbody.find("input[name='DropOutLow']").each(function () {
-                            //    let input = $(this);
-                            //    let row = input.closest("tr");
-                            //    let dataItem = grid.dataItem(row);
-
-                            //    input.kendoTextBox({
-                            //        format: "n8",
-                            //        decimals: 8,
-                            //        value: dataItem.DropOutLow ?? null, // ✅ 값이 없으면 placeholder로 "입력" 표시
-                            //        placeholder: "입력", // ✅ placeholder 추가
-                            //        change: function (e) {
-                            //            let newValue = e.sender.value().trim();
-                            //            dataItem.set("DropOutLow", newValue == "" ? null : newValue); // ✅ 빈 값이면 "입력" 표시
-                            //        },
-                            //        width: "100%"
-                            //    });
-                            //});
-
-                            //// TextBox 바인딩 (DropOutUpper)
-                            //grid.tbody.find("input[name='DropOutUpper']").each(function () {
-                            //    let input = $(this);
-                            //    let row = input.closest("tr");
-                            //    let dataItem = grid.dataItem(row);
-
-                            //    input.kendoTextBox({
-                            //        format: "n8",
-                            //        decimals: 8,
-                            //        value: dataItem.DropOutUpper ?? null, // ✅ 값이 없으면 placeholder로 "입력" 표시
-                            //        placeholder: "입력", // ✅ placeholder 추가
-                            //        change: function (e) {
-                            //            let newValue = e.sender.value().trim();
-                            //            dataItem.set("DropOutUpper", newValue == "" ? null : newValue); // ✅ 빈 값이면 "입력" 표시
-                            //        },
-                            //        width: "100%"
-                            //    });
-                            //});
 
                             // 그리드 행 번호 자동 업데이트
                             let items = grid.items();
@@ -1624,18 +1602,6 @@
                                 console.log("checked3", checked);
                             });
 
-                            //// Y 전체 선택 버튼 이벤트 (Y는 단일 선택이라 없음)
-                            //$("#y_all_check").on("click", function () {
-                            //    let checked = $(this).prop("checked");
-                            //    // data 업데이트
-                            //    console.log("checked1", checked);
-                            //    grid.dataSource.data().forEach(item => item.set("Y", checked ? 1 : 0));
-                            //    // UI 업데이트 (체크박스 상태)
-                            //    console.log("checked2", checked);
-                            //    $('input[name="chkbx_y"]').prop("checked", checked);
-                            //    console.log("checked3", checked);
-                            //});
-
                             // 행 번호 추가
                             items.each(function (index) {
                                 $(this).find("td:first").html(index + 1);
@@ -1713,7 +1679,7 @@
             // 탭 인덱스에 따라 해당 탭의 컨테이너를 초기화 또는 갱신
             switch (tabIndex) {
                 case 0:
-                    //_this.renderGrid("tag_grid", "tag");
+                    _this.renderGrid("tag_grid", "variable_candidates", { equ_id: _this.equ_id });
                     //_this.renderGrid("mes_tag_grid", "mes");
                     //_this.renderGrid("qms_tag_grid", "qms");
                     _this.renderGrid("merged_tag_grid", "merged_tag");
@@ -1794,7 +1760,7 @@
                         case 1:
                             // 데이터 탭
                             Alert.alert('info',
-                                '상단 목록에서 생성할 모델의 종류(마스터)를 선택해주세요. 이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
+                                '상단 목록에서 모델을 생성할 마스터를 선택해주세요. 이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
 
                                 //'상단 목록에서 생성할 모델의 종류(마스터)를 선택해주세요.'
                                 //+ '<br>이미 모델을 생성하신 경우, 데이터를 조회할 모델을 선택해 주세요.'
@@ -1819,13 +1785,14 @@
             console.log("선택된 모델:", selectData);
             _this.mm_id = selectData.master_id;
             _this.md_id = selectData.model_id;
+            _this.equ_id = selectData.equip_id;
             _this.mt_id = selectData.train_id; // 25.04.14 추가 (train 정보)
 
             return selectData;
         }
 
 
-        renderGrid(gridId, action) {
+        renderGrid(gridId, action, extraParam=null) {
             let _this = this;
             let grid = $("#" + gridId).data("kendoGrid");
             let options = this.getGridOptions(gridId);
@@ -1842,7 +1809,12 @@
 
             // API 호출: action 값이 전달되면 공통 업데이트 함수 호출
             if (action) {
-                _this.updateGridData(gridId, action, { md_id: _this.md_id });
+                if (extraParam) {
+                    _this.updateGridData(gridId, action, extraParam);
+
+                } else {
+                    _this.updateGridData(gridId, action, { md_id: _this.md_id });
+                }
             }
         }
 

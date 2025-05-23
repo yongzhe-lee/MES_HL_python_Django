@@ -54,22 +54,6 @@ def material(context):
             print("상세 오류:\n", traceback.format_exc())
             return error_msg  # 오류 메시지 문자열 직접 반환
 
-    elif action=='load_component': 
-        try:
-            pageName = gparam.get('pageName')
-
-            template_path = 'components/' + pageName
-            context = {
-                'request': request,
-            }
-            html = render_to_string(template_path, context)
-            return html 
-
-        except Exception as e:
-            import traceback
-            error_msg = f"템플릿 렌더링 오류: {str(e)}"
-            return error_msg  # 오류 메시지 문자열 직접 반환
-
     elif action=='findAll': 
         keyword = gparam.get('keyword', None)
         useYn = gparam.get('useYn', None)

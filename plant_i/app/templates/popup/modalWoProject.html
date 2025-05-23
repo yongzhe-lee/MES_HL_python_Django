@@ -5,31 +5,33 @@
         </div>
         <div class="modal-body">
             <form id="occForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>프로젝트코드 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="occuName" name="occuName" placeholder="15자 이하로 입력하세요">
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group col-12 col-md-6">
+                            <label>프로젝트코드 <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="occuName" name="occuName" placeholder="15자 이하로 입력하세요">
+                        </div>
+                        <div class="form-group col-12 col-md-6">
+                            <label>프로젝트명 <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="maintenanceTime" name="maintenanceTime" placeholder="100자 이하로 입력하세요">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>프로젝트명 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="maintenanceTime" name="maintenanceTime" placeholder="100자 이하로 입력하세요">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>사이트 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="occuName" name="occuName" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>계획시작일/마침일 <span class="required">*</span></label>
-                        <div id="daterangepicker" title="daterangepicker"></div>
+                    <div class="form-row">
+                        <div class="form-group col-12 col-md-6">
+                            <label>사이트 <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="occuName" name="occuName" readonly>
+                        </div>
+                        <div class="form-group  col-12 col-md-6">
+                            <label>계획시작일/마침일 <span class="required">*</span></label>
+                            <div id="daterangepicker" title="daterangepicker"></div>
+                        </div>
                     </div>
                 </div>
             </form>
             <!-- 그리드 영역 -->
             <div class="grid-section">
                 <h4>최근 등록된 프로젝트</h4>
-                <div id="occupations_grid"></div>
+                <div id="project_occupations_grid"></div>
             </div>
         </div>
         <!-- 버튼 영역 -->
@@ -55,52 +57,6 @@
         border: none !important; /* 테두리 제거 */
     }
 
-        /* 손자 모달 내부 컨텐츠 */
-        #modalWoProject .modal-content {
-            height: 100%;
-        }
-
-    .modalWoProject .form-group {
-        flex: 1;
-    }
-
-        .form-group:first-child {
-            flex: 1;
-        }
-
-        .form-group:last-child {
-            flex: 2;
-        }
-
-    /* 테이블 스타일 */
-    #modalWoProject .grid-section {
-        margin-top: 20px;
-        flex: 1;
-        overflow: hidden !important;
-        height: calc(100% - 100px); /* 상단 폼 영역을 제외한 나머지 높이 */
-    }
-
-    #occupations_grid {
-        height: auto !important;
-        overflow-y: hidden !important; /* 내부 스크롤 제거 */
-    }
-
-        #occupations_grid th,
-        #occupations_grid td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-
-        #occupations_grid th {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-
-    #modalWoProject .modal-body {
-        overflow-y: hidden !important; /* 스크롤 제거 */
-    }
 </style>
 
 <script type="text/javascript">
@@ -116,7 +72,7 @@
             let _this = this;
 
             // ✅ Kendo Grid 초기화 (유지)
-            this.grid = $("#occupations_grid").kendoGrid({
+            this.grid = $("#project_occupations_grid").kendoGrid({
                 columns: [
                     { field: 'job_class_nm', title: '프로젝트 코드', width: 100 },
                     { field: 'wage_cost', title: '프로젝트명', width: 150 },
@@ -187,7 +143,7 @@
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
                     _this.resetData();
-                    // ✅ 최신 데이터 갱신 (occupations_grid 리프레시)
+                    // ✅ 최신 데이터 갱신 (project_occupations_grid 리프레시)
                     _this.refreshOccupationsGrid();
 
                     // 부모 페이지의 그리드 갱신

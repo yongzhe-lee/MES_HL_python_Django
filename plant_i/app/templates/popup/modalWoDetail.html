@@ -7,41 +7,29 @@
 		<div class="modal-body">			
 			<!-- 결재 라인 -->
 			<div class="appLine-section">
-				<div class="navigation-menu">
-					<span class="menu-item pm-icon">PM</span>
-					<span class="menu-separator">>></span>
-					<span class="menu-item">작업요청</span>
-					<span class="menu-separator">></span>
-					<span class="menu-item">요청승인</span>
-					<span class="menu-separator">></span>
-					<span class="menu-item">작업승인</span>
-					<span class="menu-separator">></span>
-					<span class="menu-item">작업완료</span>
-					<span class="menu-separator">></span>
-					<span class="menu-item">WO 완료</span>
-				</div>
+				{% include 'components/WoApprovalLine.html' with dataPk=work_order_pk  %}
 			</div>
 			<!-- 대상설비 섹션 -->
 			<div class="equipment-section">
 				<div class="form-row">					
 					<input type="hidden" id="tabId" name="tabId" />
-					<div class="form-group">
+					<div class="form-group col-12">
 						<label>작업제목</label>
 						<input type="text" class="form-control" id="sum_work_title" name="sum_work_title" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-12">
 						<label>작업유형</label>
 						<input type="text" class="form-control" id="sum_wo_type_nm" name="sum_wo_type_nm" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-12">
 						<label>보전유형</label>
 						<input type="text" class="form-control" id="sum_maint_type_nm" name="sum_maint_type_nm" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-12">
 						<label>요청자</label>
 						<input type="text" class="form-control" id="sum__creater_nm" name="sum__creater_nm" readonly>
 					</div>
-					<div class="form-group">
+					<div class="form-group col-12">
 						<label>희망일</label>
 						<input type="text" class="form-control" id="sum_want_dt" name="sum_	want_dt" readonly>
 					</div>
@@ -107,17 +95,17 @@
 						<input type="hidden" id="work_order_pk" name="work_order_pk" />
 						<div class="tab-pane active" id="workInfo" style="display: block; overflow-y:auto; height: 400px;">
 							<div class="form-row">
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>작업부서<span class="required">*</span></label>
 									<input type="hidden" id="wo_dept_pk" name="wo_dept_pk">
 									<input type="text" class="form-control" id="wo_dept_nm" name="wo_dept_nm">
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>작업담당자<span class="required">*</span></label>
 									<input type="text" class="form-control" id="wo_work_charger_nm" name="wo_work_charger_nm">
 									<select id="wo_work_charger_sel" name="wo_work_charger_sel"></select>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>작업계획일<span class="required">*</span></label>
 									<div class="date-range-input">
 										<input type="text" class="form-control" id="wo_plan_dt" name="wo_plan_dt">
@@ -126,41 +114,41 @@
 										<input type="date" id="wo_plan_end_dt" name="wo_plan_end_dt" />
 									</div>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>보전유형<span class="required">*</span></label>
 									<input type="hidden"id="wo_maint_type_cd" name="wo_maint_type_cd">
 									<input type="text" class="form-control" id="wo_maint_type_nm" name="wo_maint_type_nm">
 								</div>
 							</div>
 							<div class="form-row">
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>현상<span class="required">*</span></label>
 									<input type="text" class="form-control" id="wo_problem_nm" name="wo_problem_nm">
 									<select id="wo_problem_sel" name="wo_problem_sel"></select>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>원인<span class="required">*</span></label>
 									<input type="text" class="form-control" id="wo_cause_nm" name="wo_cause_nm">
 									<select id="wo_cause_sel" name="wo_cause_sel"></select>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>조치<span class="required">*</span></label>
 									<input type="text" class="form-control" id="wo_remedy_nm" name="wo_remedy_nm">
 									<select id="wo_remedy_sel" name="wo_remedy_sel"></select>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>프로젝트</label>
 									<input type="text" class="form-control" id="wo_proj_nm" name="wo_proj_nm">
 									<select id="wo_proj_sel" name="wo_proj_sel"></select>
 								</div>
 							</div>
 							<div class="form-row">
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>작업구분<span class="required">*</span></label>
 									<input type="text" class="form-control" id="wo_work_src_nm" name="wo_work_src_nm">
 									<select id="wo_work_src_sel" name="wo_work_src_sel"></select>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12">
 									<label>작업기간(시작~종료)<span class="required">*</span></label>
 									<div class="date-range-input">
 										<input type="text" class="form-control" id="wo_start_end_dt" name="wo_start_end_dt">
@@ -198,10 +186,20 @@
 </div>
 
 <style>
-	.required {
-		color: #e74c3c;
-		margin-left: 3px;
+	.form-group {
+		flex: 1;
 	}
+
+    textarea.form-control {
+        min-height: 80px;
+        resize: none;
+        line-height: 1.4;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-left: 3px;
+    }
 
 	.grid {
 		width: 100%;
@@ -247,39 +245,6 @@
 		z-index: 1000;
 	}
 
-	.navigation-menu {
-		display: flex;
-		align-items: center;
-		padding: 5px 10px;
-		background-color: #f5f5f5;
-		border: 1px solid #ddd;
-	}
-
-	.menu-item {
-		padding: 2px 8px;
-		font-size: 12px;
-		color: #666;
-	}
-
-	.menu-item.active {
-		font-weight: bold;
-		color: #000;
-	}
-
-	.menu-item.pm-icon {
-		background-color: #4CAF50;
-		color: white;
-		padding: 2px 8px;
-		border-radius: 3px;
-	}
-
-	.menu-separator {
-		color: #999;
-		margin: 0 5px;
-		font-size: 11px;
-	}
-
-
 	.detail-table {
 		width: 100%;
 		border-collapse: collapse;
@@ -324,6 +289,16 @@
 	class WorkOrder {
 		constructor() {
 			this.baseUrl = '/api/kmms/pm_master';
+
+			this.woTypeNm = '';
+			this.apprLines = '';
+			this.stateCd = '';
+			this.classRQ = '';
+			this.classOC = '';
+			this.classAP = '';
+			this.classCM = '';
+			this.classCL = '';
+
 			this.init();
 		}
 
@@ -453,9 +428,9 @@
 		}
 
 		//작업 결과
-		getWorkOrderData(work_order_pk, idx) {			
+		show(work_order_pk, idx) {
 			let _this = this;
-		
+
 			// work_order_pk 설정
 			$('#work_order_pk').val(work_order_pk);
 
@@ -464,11 +439,21 @@
 				action: 'read_work_order_summary',
 				id: work_order_pk,
 			};
-			let woSummaryData = AjaxUtil.getSyncData(_this.baseUrl, param);
-			console.log(woSummaryData);
-		
+			let woSummaryData = AjaxUtil.getSyncData(_this.baseUrl, param);		
+
+			this.showApprovalLine(woSummaryData);
+
 			// 1.1. summary 데이터
 			this.bindWoSummaryData(woSummaryData);
+
+			/*(이력포함 전체 appr_line(OC, AP, CM, CL)) */
+			let paramApprLine = {
+				action: 'getFullApprLine',
+				workOrderPk: work_order_pk,
+			};
+			let appr_line = AjaxUtil.getSyncData('/api/kmms/work_order', paramApprLine);
+			console.log(appr_line);//RQ,AP,CM,CL      이 데이터를 가지고 결제선을 그려라
+	
 
 			// TODO: 요청정보 데이터 바인딩
 			this.getWoRequestData(woSummaryData);
@@ -478,11 +463,11 @@
 
 			if (woSummaryData) {
 				$("#modalWoDetail").fadeIn();
-				
+
 				// 작업내역 탭을 기본으로 활성화
 				switch (idx) {
 					case 1:
-						$("#tabId").val('reqInfo');						
+						$("#tabId").val('reqInfo');
 						$('#workInfo input, #workInfo textarea').prop('readonly', true);
 						break;
 					case 2:
@@ -495,7 +480,7 @@
 					default:
 						$("#tabId").val('logInfo');
 						break;
-				}	
+				}
 
 				this.activateTab($("#tabId").val(), woSummaryData);
 
@@ -580,10 +565,28 @@
 				});
 
 			}
+		}		
+
+		showApprovalLine(data) {
+			// 네비게이션 메뉴 활성화 상태 초기화
+			$('.navigation-menu .menu-item').removeClass('active');
+
+			// 작업 상태에 따른 메뉴 활성화
+			const menuMap = {
+				'작업요청': '작업요청',
+				'요청승인': '요청승인',
+				'작업승인': '작업승인',
+				'작업완료': '작업완료',
+				'WO완료': 'WO 완료',
+			};
+
+			if (menuMap[data.wo_status_nm]) {
+				$(`.navigation-menu .menu-item:contains('${menuMap[data.wo_status_nm]}')`).addClass('active');
+			}
 		}
 
 		bindWoSummaryData(data) {
-			
+			console.log('bindWoSummaryData:', data);
 			 //기본 필드 바인딩
 			const basicFields = {
 				'work_order_pk': data.work_order_pk,
@@ -598,24 +601,9 @@
 			// 기본 필드 값 설정
 			Object.entries(basicFields).forEach(([id, value]) => {
 				$(`#${id}`).val(value);
-			});
-
-			// 네비게이션 메뉴 활성화 상태 초기화
-			$('.navigation-menu .menu-item').removeClass('active');
-
-			// 작업 상태에 따른 메뉴 활성화
-			const menuMap = {
-				'작업요청': '작업요청',
-				'요청승인': '요청승인',
-				'작업승인': '작업승인',
-				'작업완료': '작업완료',
-				'WO완료': 'WO 완료'
-			};
-
-			if (menuMap[data.wo_status_nm]) {
-				$(`.navigation-menu .menu-item:contains('${menuMap[data.wo_status_nm]}')`).addClass('active');
-			}
+			});			
 		}
+
 		// 요청정보 데이터 바인딩
 		getWoRequestData(data) {
 		
@@ -671,6 +659,9 @@
 		}
 	}
 
-	woDetailPage = new WorkOrder();
+	let woDetailPage = null;
 
+	$(document).ready(function () {
+		woDetailPage = new WorkOrder();
+	});
 </script>

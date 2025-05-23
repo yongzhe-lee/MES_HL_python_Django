@@ -20,76 +20,75 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>WO 번호</label>
                         <input type="hidden" id="wo_pk" name="wo_pk" />
                         <input type="text" class="form-control" id="wo_code" name="wo_code" readonly placeholder="요청 후 번호 생성">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>설비 <span class="required">*</span></label>
                         <button type="button" class="zoombutton" id="selectEquipment" name="selectEquipment"></button>
                         <input type="text" class="form-control" id="equ_name" name="equ_name" readonly placeholder="관련 설비를 선택하세요">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>설비위치</label>
                         <input type="text" class="form-control" id="equ_loc_pk" name="equ_loc_pk" readonly>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>보증만료일</label>
                         <input type="text" class="form-control" id="expiration_date" name="expiration_date" readonly>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group second-group">
+                    <div class="form-group second-group col-md-8">
                         <label>작업제목 <span class="required">*</span></label>
                         <input type="text" class="form-control" id="equ_loc" name="equ_loc" placeholder="200자 이하로 입력하세요">
                     </div>
-                    <div class="form-group second-group">
+                    <div class="form-group second-group col-md-4">
                         <label>보전유형 <span class="required">*</span></label>
                         <select id="pmType" name="pmType"></select>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>작업부서 <span class="required">*</span></label>
                         <select id="executionDept" name="executionDept"></select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>작업담당자 <span class="required">*</span></label>
                         <select id="pmManager" name="pmManager">
                             <option value="">작업담당자를 선택하세요</option>
                         </select>
                     </div>
-                    <div class="form-group" style="display: flex; flex-direction: column;">
+                    <div class="form-group col-md-3" style="display: flex; flex-direction: column;">
                         <label>희망일자(마침) <span class="required">*</span></label>
                         <div class="field-wrapper">
                             <input type="date" id="schedStartDt" name="schedStartDt" />
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <label>고장일시 <span class="required">*</span></label>
                         <div class="field-wrapper">
                             <input type="date" id="schedEndDt" name="schedEndDt" />
                         </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="form-row" style="justify-content: flex-start;">
+                    <div class="form-group col-12 col-md-3">
                         <label>현상 <span class="required">*</span></label>
                         <button type="button" class="plusbutton" id="selectProblem" name="selectProblem"></button>
                         <select id="woProblem" name="woProblem"></select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-12 col-md-3">
                         <label>작업구분</label>
                         <select id="woType" name="woType"></select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-12 col-md-3">
                         <label>프로젝트</label>
                         <button type="button" class="plusbutton" id="selectProject" name="selectProject"></button>
                         <select id="projectName" name="projectName"></select>
                     </div>
                 </div>
-
             </div>
 
             <!-- 요청정보 섹션 -->
@@ -107,7 +106,7 @@
                         </section>
                     </div>
                     <!-- 파일 탭 컨텐츠 -->
-                    <div class="tab-pane" id="fileTab" style="overflow-y:auto; height: 400px;">
+                    <div class="tab-pane" id="fileTab" style="height: 400px;">
                         {% include 'components/FileUpload.html' %}
                     </div>
                 </div>
@@ -123,53 +122,10 @@
 </div>
 
 <style>
-    /* ✅ 부모 모달의 z-index */
-    #modalMyWorkReq {
-        z-index: 1000 !important;
-    }
 
-    /* 비율 조정 */
-    .form-group {
-        flex: 1;
-        min-width: 0;
-        margin-bottom: 0px;
-    }
-
-        .form-group:first-child {
-            flex: 0.8;
-        }
-
-        .form-group:last-child {
-            flex: 1.2;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            height: 24px;
-        }
-
-    .modalMyWorkReq .second-group {
-        flex: 1;
-        min-width: 0;
-        margin-bottom: 0px;
-    }
-
-    .modalMyWorkReq .second-group:first-child {
-        flex: 2.7 !important;
-    }
-
-    .modalMyWorkReq .second-group:last-child {
-        flex: 1.1 !important;
-    }
-
-    .section {
-        background: #fff;
-        margin-bottom: 20px;
-        height: auto;
-    }
+.modal-body {
+    overflow-y: auto; 
+}
 
 </style>
 
@@ -217,7 +173,7 @@
                 _this.checkCycleInfo();
             });
 
-            AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
+            AjaxUtil.fillDropDownOptions($('#pmType'), 'cm_code', 'all', null, 'MAINT_TYPE');
             AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
             AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);
             AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
@@ -233,7 +189,7 @@
 
             $("#schedEndDt").kendoDateTimePicker({
                 value: today,
-                format: "yyyy-MM-dd",
+                format: "yyyy-MM-dd HH:mm:ss"
             });
 
             $("#copyWO").kendoButton({
@@ -468,6 +424,11 @@
                 const tabId = $(this).data('tab');
                 $('.tab-button').removeClass('active').removeAttr('style');
                 $('.tab-pane').removeClass('active').hide();
+                $(this).addClass('active').css({
+                    'background': '#1e4f88',
+                    'color': 'white',
+                    'border-color': '#1e4f88'
+                });
                 if (tabId) $('#' + tabId).addClass('active').show();
             });
         }

@@ -22,9 +22,22 @@ def wo_master(context):
     if action=='read':
         keyword = gparam.get('keyword', None)
         req_dept = gparam.get('req_dept', None)
-        _creater_id = user.id
+       # rqst_user_nm = gparam.get('rqst_user_nm', None)
+       # rqst_user_nm = gparam.get('rqst_user_nm', None)
+       # req_dept = gparam.get('req_dept', None)
+       # req_dept = gparam.get('req_dept', None)
         
-        items = workorder_service.get_work_order_list(keyword, req_dept, _creater_id)
+
+        try:
+            items = workorder_service.get_work_order_list(keyword, req_dept)
+        #    items = workorder_service.get_work_order_list(keyword, req_dept, rqst_user_nm, wo_status, maint_type_cd, dept_pk, problem_cd, cause_cd)
+        except Exception as ex:
+            source = 'api/kmms/work_order, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
+
+
 
     elif action=='detail':
         id = gparam.get('id', None)

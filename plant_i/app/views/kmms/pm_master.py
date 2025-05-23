@@ -33,8 +33,8 @@ def pm_master(context):
         pmType = gparam.get('pmType', None)
         applyYn = gparam.get('applyYn', None)
         cycleType = gparam.get('cycleType', None)
-        sDay = gparam.get('sDay', None)
-        eday = gparam.get('eday', None)
+        sDay = gparam.get('start_date', None)
+        eday = gparam.get('end_date', None)
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
         isLegal = gparam.get('isLegal', None)
         
@@ -44,7 +44,7 @@ def pm_master(context):
         id = gparam.get('id', None)
         items = pm_master_service.get_pm_master_findOne(id)
 
-    elif action=='read_pm_sch':
+    elif action=='pm_sche_findAll':
         keyword = gparam.get('keyword', None)  
         equDept = gparam.get('equDept', None)
         equLoc = gparam.get('equLoc', None)
@@ -52,16 +52,27 @@ def pm_master(context):
         pmType = gparam.get('pmType', None)
         applyYn = gparam.get('applyYn', None)
         cycleType = gparam.get('cycleType', None)
-        sDay = gparam.get('sDay', None)
-        eday = gparam.get('eday', None)
+        sDay = gparam.get('start_date', None)
+        eday = gparam.get('end_date', None)
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else None
         isLegal = gparam.get('isLegal', None)
         
-        items = pm_master_service.get_pm_sch_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
+        items = pm_master_service.pm_sche_findAll(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
 
-    # elif action=='detail':
-    #     id = gparam.get('id', None)
-    #     items = pm_master_service.get_pm_master_detail(id)
+    elif action=='pm_work_findAll':
+        keyword = gparam.get('keyword', None)  
+        equDept = gparam.get('equDept', None)
+        equLoc = gparam.get('equLoc', None)
+        pmDept = gparam.get('pmDept', None)
+        pmType = gparam.get('pmType', None)
+        applyYn = gparam.get('applyYn', None)
+        cycleType = gparam.get('cycleType', None)
+        sDay = gparam.get('start_date', None)
+        eday = gparam.get('end_date', None)
+        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else None
+        isLegal = gparam.get('isLegal', None)
+        
+        items = pm_master_service.pm_work_findAll(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
 
     elif action=='detail_pm_labor':
         id = gparam.get('id', None)
@@ -86,7 +97,7 @@ def pm_master(context):
     elif action=='read_work_order_summary':
         work_order_pk = gparam.get('id', None)
 
-        items = pm_master_service.get_work_order_summary(work_order_pk)
+        items = pm_master_service.pm_work_findOne(work_order_pk)
 
     # PM 작업 결과 로그
     elif action=='read_work_order_hist':
@@ -348,6 +359,17 @@ def pm_master(context):
             source = 'api/kmms/pm_master, action:{}'.format(action)
             LogWriter.add_dblog('error', source, ex)
             raise ex
+
+    elif action=='executeMakeSchedulePm':
+        sche_type = posparam.get('sche_type', None)
+        pm_pk_list = posparam.get('pm_pks', None)
+        if pm_pk_list and isinstance(pm_pk_list, str):
+            pm_pk_list = pm_pk_list.split(',')
+        else:
+            pm_pk_list = []
+        start_date = posparam.get('start_date', None)
+        end_date = posparam.get('end_date', None)
+        items = pm_master_service.executeMakeSchedulePm(sche_type, pm_pk_list, start_date, end_date)
 
     return items
 

@@ -1,6 +1,5 @@
 
 import json, threading,time, importlib
-from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 
 from configurations import settings
@@ -69,7 +68,7 @@ class MQTTApplication():
 
         # mounter feeder rate 관련 데이터 수신
         if_equ_rst_servide = IFFujiMounterService()
-        FacadeMQTTClient.set_topic_handler(settings.TOPIC_MNT_FEED_RATE, if_equ_rst_servide.smt_mnt_pickup_rate_topic_handler)
+        FacadeMQTTClient.set_topic_handler(settings.TOPIC_MNT_PICKUP_RATE, if_equ_rst_servide.smt_mnt_pickup_rate_topic_handler)
 
 
         FacadeMQTTClient.apply_topic_handler()

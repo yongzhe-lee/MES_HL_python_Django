@@ -31,11 +31,15 @@ class IFEquipmentResultService():
         sn_new = dic_payload.get('sn_new', None)
         sn_items = dic_payload.get('sn_items', [])
         equ_cd = dic_payload.get('stationID', None)
+        if equ_cd is None:
+            equ_cd = dic_payload.get('StationID', None)
+
         mat_cd = dic_payload.get('PartNr', None)
         mat_desc = dic_payload.get('PartDesc', None)
         bom_ver = dic_payload.get('bom_ver', None)
         m_status = dic_payload.get('M_status', None)
         str_data_date = dic_payload.get('data_date', None)
+        data_date = None
         pcb_cn=dic_payload.get('pcb_cn', None)
         pcb_input = dic_payload.get('pcb_input', None)
         pcb_size=dic_payload.get('pcb_size', None)
@@ -116,24 +120,21 @@ class IFEquipmentResultService():
 
             if is_alarm:
                 for alarm_item in alarm_items:
+
+                    # [{"onoff": 1, "end_dt": null, "start_dt": "2025-05-19T16:35:04+09:00", "alarm_msg": "Unable to locate the target object. (Additional)", "module_no": "15", "alarm_code": "8000D760", "part_number": "N20.004-00"}]
                     equip_alarm_history = EquipAlarmHistory()
                     equip_alarm_history.alarm_code = alarm_item.get("alarm_code", "")
-                    equip_alarm_history.alarm_desc = alarm_item.get("alarm_desc", "")
+                    equip_alarm_history.details = alarm_item.get("alarm_msg", "")
+                    equip_alarm_history.module_no = alarm_item.get("module_no", None)
+                    equip_alarm_history.part_number = alarm_item.get("part_number", None)
+                    onoff = alarm_item.get("onoff", None)
+                    if onoff:
+                        equip_alarm_history.onoff = str(onoff)
 
-                    equip_alarm_history.rst_id = equ_result.id
-
+                    
                     str_start_dt = alarm_item.get("start_dt", None)
                     str_end_dt = alarm_item.get("end_dt", None)
                     
-                    equ_cd = alarm_item.get("partNumber", None)
-                    onoff = alarm_item.get("onoff", None)
-
-                    if onoff:
-                        equip_alarm_history.onoff = onoff
-
-                    if equ_cd:
-                        equip_alarm_history.equ_cd = equ_cd
-
                     if str_start_dt:
                         try:
                             start_dt = datetime.strptime(str_start_dt,'%Y-%m-%dT%H:%M:%S%z')
@@ -147,9 +148,9 @@ class IFEquipmentResultService():
                             equip_alarm_history.end_dt = end_dt
                         except Exception as eddex:
                             LogWriter.add_dblog("error", source, eddex)
-                      
 
-                    equip_alarm_history.alarm_time = data_date
+                    equip_alarm_history.rst_id = equ_result.id
+                    equip_alarm_history.data_date = data_date
                     equip_alarm_history.save()
 
         except Exception as ex:

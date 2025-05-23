@@ -72,7 +72,7 @@
                 sortable: false,
                 filterable: false,
                 columns: [
-                    { field: "name", title: "메뉴명", width: 100, editable: false },
+                    { field: "name", title: "메뉴명", width: 200, editable: false },
                     {
                         field: "r",
                         headerTemplate: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" id="r_all_check"/> <label for="r_all_check">읽기</label>',
@@ -94,6 +94,11 @@
                     for (var i = 0; i < this.columns.length; i++) {
                         this.autoFitColumn(i);
                     }; 
+                },
+                expand: function(e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    }
                 },
                 height: "700px"
             };

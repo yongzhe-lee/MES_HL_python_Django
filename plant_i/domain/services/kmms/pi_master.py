@@ -7,8 +7,8 @@ class PIService():
     def __init__(self):
         return
 
-    #Á¡°Ë¸¶½ºÅÍÁ¶È¸
-    #modified by choi : 2025/05/13  ÆÄ¶ó¹ÌÅÍ¸¦ dictionary¿¡ ³Ö¾î¼­ Àü´ŞÇÑ´Ù
+    #ì ê²€ë§ˆìŠ¤í„°ì¡°íšŒ
+    #modified by choi : 2025/05/13  íŒŒë¼ë¯¸í„°ë¥¼ dictionaryì— ë„£ì–´ì„œ ì „ë‹¬í•œë‹¤
     #def findAll(self, keyword, equDept, equLoc, pmDept, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate):
     def findAll(self, dcparam):
         items = []
@@ -25,7 +25,7 @@ class PIService():
         startDate = dcparam.get('startDate',None)
         endDate = dcparam.get('endDate',None)
 
-        #ÀÌ°Ç ¹¹Áö?? ¿©·¯ È­¸é¿¡¼­ Á¶È¸Á¶°ÇÀÌ µé¾î¿À´Â °Í °°À½
+        #ì´ê±´ ë­ì§€?? ì—¬ëŸ¬ í™”ë©´ì—ì„œ ì¡°íšŒì¡°ê±´ì´ ë“¤ì–´ì˜¤ëŠ” ê²ƒ ê°™ìŒ
         chkMastNm = dcparam.get('chkMastNm',None)
         chkUserPk= dcparam.get('chkUserPk',None)
         equipPk = dcparam.get('equipPk',None)
@@ -210,7 +210,209 @@ class PIService():
 
         return items
 
-    # Á¡°Ë¸¶½ºÅÍ max Á¡°Ë¹øÈ£¸¦ °¡Á®¿Â´Ù
+    #ì ê²€ ì£¼ê¸° ì‹œë®¬ë ˆì´ì…˜
+    def selectEquipChkScheSimulationCycleByMon(self, deptPk, userPk,calSearchType):
+        sql = ''' 
+        /* selectEquipChkScheSimulationCycleByMon [equip-check-mast-mapper.xml] */
+
+         with recursive scheview as (
+				SELECT t1.chk_mast_pk
+			       	, t1.sched_start_date
+			       	, t1.sched_start_date as curr_date
+			       	, t1.cycle_type
+			       	, t1.per_number
+			       	, d.dept_pk
+			       	, d.dept_nm
+			       	, u.user_pk
+			       	, cm_fn_user_nm(u.user_nm, u.del_yn) as user_nm
+					, cm_fn_dateadd(date(t1.sched_start_date), replace(replace(replace(replace(replace(t1.cycle_type, 'CYCLE_TYPE_', ''), 'M', 'month'), 'Y', 'year'), 'W', 'week'), 'D', 'day'), t1.per_number) as next_date
+				FROM cm_equip_chk_mast t1
+				inner JOIN cm_dept d ON t1.dept_pk = d.dept_pk
+				inner JOIN cm_user_info u ON t1.chk_user_pk = u.user_pk
+				WHERE t1.use_yn = 'Y' and t1.del_yn = 'N'
+                '''
+
+        if deptPk :
+            sql += '''  
+                AND (
+						d.dept_pk = %(deptPk)s 
+						OR
+						d.dept_pk In (select dept_pk from v_dept_path where %(deptPk)s  = path_info_pk)
+					)
+            
+            '''
+
+        if userPk :
+            sql += '''  AND u.user_pk = %(userPk)s 
+            '''
+
+        sql += '''
+				
+				UNION ALL
+				SELECT t2.chk_mast_pk
+				   	, t2.sched_start_date
+				   	, t2.next_date AS next_date
+				   	, t2.cycle_type
+				   	, t2.per_number
+				   	, t2.dept_pk
+				   	, t2.dept_nm
+				   	, t2.user_pk
+				   	, t2.user_nm
+					, cm_fn_dateadd(date(t2.next_date), replace(replace(replace(replace(replace(t2.cycle_type, 'CYCLE_TYPE_', ''), 'M', 'month'), 'Y', 'year'), 'W', 'week'), 'D', 'day'), t2.per_number) as next_date
+				FROM scheview t2
+				WHERE t2.next_date <= to_date('20250531', 'YYYYMMDD')
+			)
+			, schelist as (
+				SELECT p.chk_mast_pk
+				       , p.sched_start_date
+				       , p.sched_start_date AS next_date
+				       , p.cycle_type
+				       , p.per_number
+				       , d.dept_pk
+				       , d.dept_nm
+				       , u.user_pk
+				       , u.user_nm
+				FROM cm_equip_chk_mast p
+				inner JOIN cm_dept d ON p.dept_pk = d.dept_pk
+				inner JOIN cm_user_info u ON p.chk_user_pk = u.user_pk
+				WHERE p.use_yn = 'Y' AND p.del_yn = 'N'
+				AND p.sched_start_date between to_date('20250427', 'YYYYMMDD') and to_date('20250531', 'YYYYMMDD')
+                '''
+
+        if deptPk :
+            sql += '''  
+                AND (
+						d.dept_pk = %(deptPk)s 
+						OR
+						d.dept_pk In (select dept_pk from v_dept_path where %(deptPk)s  = path_info_pk)
+					)
+            
+            '''
+
+        if userPk :
+            sql += '''  AND u.user_pk = %(userPk)s 
+            '''
+
+        sql += '''
+				UNION ALL
+				SELECT chk_mast_pk
+				       , sched_start_date
+				       , next_date
+				       , cycle_type
+				       , per_number
+				       , dept_pk
+				       , dept_nm
+				       , user_pk
+				       , user_nm
+				FROM scheview
+				WHERE next_date between to_date('20250427', 'YYYYMMDD') and to_date('20250531', 'YYYYMMDD')
+			)
+			, cte as
+			(
+				SELECT to_char(next_date, 'YYYY-MM-DD') as sche_dt
+					   , to_char(next_date, 'YYYY-MM-DD') as sche_dt_label
+				       , dept_pk
+				       , dept_nm
+				       , user_pk
+				       , user_nm
+				       , Count(*) AS cnt
+				FROM   schelist
+				GROUP  BY to_char(next_date, 'YYYY-MM-DD')
+				          , dept_pk
+				          , dept_nm
+				          , user_pk
+				          , user_nm
+			)
+			SELECT 
+			    1 AS id, '' as type ,
+			    user_nm || ' (' || cnt || 'ê±´)' AS title,
+			    sche_dt::date AS start,         -- ë‚ ì§œë§Œ, time ì œê±°
+			    sche_dt::date AS "end",         -- í•„ë“œëª…ì´ ì˜ˆì•½ì–´ë¼ë©´ ìŒë”°ì˜´í‘œ
+			    true AS isAllDay
+			FROM cte
+			ORDER BY sche_dt;
+         '''
+       
+        try:
+            items = []
+            dic_param = {
+                'deptPk': deptPk,
+                'userPk': userPk,
+                'calSearchType': calSearchType,
+            }
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
+            raise ex
+
+        return items
+
+    def selectEquipChkScheSimulationByMon(self, calDeptPk, calChkUserPk,calSearchType):
+        sql = ''' 
+         /* selectEquipChkScheSimulationByMon [equip-check-mast-mapper.xml] */
+
+             select to_char(t.sched_start_date ,'YYYYMMDD') as sche_dt
+			    , to_char(t.sched_start_date,'YYYY-MM-DD') as sche_dt_label
+			    , d.dept_pk
+			    , d.dept_nm
+			    , cu.user_pk
+			    , cm_fn_user_nm(cu.user_nm, cu.del_yn) as user_nm
+			    , count(*) as cnt
+		    from cm_equip_chk_mast t
+		    inner join cm_dept d on t.dept_pk = d.dept_pk
+		    inner join cm_user_info cu on t.chk_user_pk = cu.user_pk
+		    where 1=1
+            --and t.sched_start_date BETWEEN to_date('20250427', 'YYYYMMDD') AND to_date('20250531', 'YYYYMMDD')
+          '''
+
+        if calDeptPk :
+            sql += '''
+
+				    AND (
+					    d.dept_pk = calDeptPk
+					    OR
+					    d.dept_pk In (select dept_pk from cm_v_dept_path where calDeptPk = path_info_pk)
+				    )
+        '''
+
+        if calChkUserPk :
+            sql += '''
+				    AND cu.user_pk = %(calChkUserPk)s
+            '''
+
+        if calSearchType :
+            sql += '''
+				    AND 1=1
+         '''
+
+        sql += '''
+		    group by t.sched_start_date
+		    , d.dept_pk
+		    , d.dept_nm
+		    , cu.user_pk
+		    , cu.user_nm
+		    , cu.del_yn
+			
+         '''
+
+        sql +='''
+            ORDER  BY to_char(next_date, 'YYYY-MM-DD')
+            '''
+        try:
+            items = []
+            dic_param = {
+                'calDeptPk': calDeptPk,
+                'calChkUserPk': calChkUserPk,
+                'calSearchType': calSearchType,
+            }
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
+            raise ex
+
+        return items
+
+    # ì ê²€ë§ˆìŠ¤í„° max ì ê²€ë²ˆí˜¸ë¥¼ ê°€ì ¸ì˜¨ë‹¤
     def selectMaxEquipChkMastNo(self):
         sql = ''' 
             select coalesce(MAX((select chk_mast_no
@@ -232,7 +434,6 @@ class PIService():
             raise ex
 
         return result
-
 
     def get_pm_master_detail(self, id):
         sql = ''' 
@@ -324,12 +525,10 @@ class PIService():
 
         return items
 
-
-
-    #==================Á¡°Ë¼³ºñ°ü·Ã====================
+    #==================ì ê²€ì„¤ë¹„ê´€ë ¨====================
 
 
 
 
-    #==================Á¡°ËÇ×¸ñ°ü·Ã====================
+    #==================ì ê²€í•­ëª©ê´€ë ¨====================
 

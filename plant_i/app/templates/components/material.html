@@ -4,6 +4,14 @@
 			<h4>자재마스터 상세정보</h4>
 		</div>
 		<div class="modal-body">
+			<div class="top-section">
+				<div class="section-header">
+					<span></span>
+					<button type="button" class="btn-copy" id="copyMtrl" name="copyMtrl">
+						자재복사
+					</button>
+				</div>
+			</div>
 			<div class="edit-form-ui">
 				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
 					<img id="matThumbmail" src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
@@ -130,6 +138,14 @@
 	</div>
 </div>
 
+<style>
+
+.modal-body {
+    overflow-y: auto; 
+}
+
+</style>
+
 {% include 'popup/modalMtrlClassAdd.html' %}
 {% include 'popup/modalAmtUnitAdd.html' %}
 {% include 'popup/modalMtrlCopy.html' %}
@@ -177,11 +193,6 @@
 			this.unit_price_dt = $("#unit_price_dt").kendoDatePicker({ format: "yyyy-MM-dd" }).data("kendoDatePicker");
 
 			$("#allow_add_bom").kendoSwitch().data("kendoSwitch");
-
-			// ESC 키로 모달 닫기
-			$(document).on('keydown', (e) => {
-				if (e.keyCode === 27) this.modal.fadeOut();
-			});
 
 			this.logGridMat = $("#logGridMat").kendoGrid({
 				dataSource: {
@@ -267,6 +278,25 @@
 				}
 			});
 
+            $("#copyMtrl").kendoButton({
+                icon: "k-i-copy",// 복사 아이콘
+                click: function (e) {
+                    e.preventDefault();
+                    setModalPosition('#modalMtrlCopy', { width: '70%', height: '70%' });
+                    mtrlCopyPage.show(function (selectedMtrl) {
+                        console.log('selectedMtrl:', selectedMtrl);
+
+                        FormUtil.BindDataForm(selectedMtrl, $('#materialMasterForm'));
+
+                        _this.mtrl_pk = selectedMtrl.mtrl_pk;
+                        _this.showMatThumbmail(selectedMtrl.mtrl_pk);
+                        $("#mtrl_cd").val(selectedMtrl.mtrl_cd);
+                        $("#mtrl_nm").val(selectedMtrl.mtrl_nm);
+                        $('#mtrl_class_pk').data("kendoDropDownList").value(selectedMtrl.mtrl_class_pk);
+                    });
+                }
+            });
+
 			$("#mrtlClassPlus").kendoButton({
 				icon: "k-i-plus",
 				rounded: "full",
@@ -339,22 +369,6 @@
 					_this.modal.fadeOut();
 				}
 			});
-
-			// 팝업이 열릴 때 깨지는 컨트롤만 명시적으로 Kendo 위젯을 직접 초기화 (이미 적용된 경우는 건드리지 않음)
-			setTimeout(function () {
-				var $locPk = $('#loc_pk');
-				if ($locPk.length && !$locPk.data('kendoDropDownTree')) {
-					AjaxUtil.fillDropDownTreeOptions($locPk, 'cm_location', 'all');
-				}
-				var $deptPk = $('#dept_pk');
-				if ($deptPk.length && !$deptPk.data('kendoDropDownTree')) {
-					AjaxUtil.fillDropDownTreeOptions($deptPk, 'cm_depart', 'all');
-				}
-				var $environSwitch = $('#environ_equip_yn');
-				if ($environSwitch.length && !$environSwitch.data('kendoSwitch')) {
-					$environSwitch.kendoSwitch();
-				}
-			}, 100);
 		}
 
 		//저장

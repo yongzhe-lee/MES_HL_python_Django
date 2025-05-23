@@ -605,13 +605,11 @@ def pi_master(context):
         if chkScheNo:
             sql += ''' AND ecs.chk_sche_no = %(chkScheNo)s
             '''
-    #    else:
-    #         sql += '''                 
-				# AND date(case when %(chkStatus)s = 'CHK_STATUS_Y' then ecs.chk_dt 
-    #                     else ecs.chk_sche_dt end) >= to_date(%(startDate)s, 'YYYY-MM-DD')
-				# AND date(case when %(chkStatus)s = 'CHK_STATUS_Y' then ecs.chk_dt 
-    #                 else ecs.chk_sche_dt end) <= to_date(%(endDate)s, 'YYYY-MM-DD')
-    #         '''
+        else:
+           sql += '''                 
+				AND date(case when coalesce(%(chkStatus)s, '') = 'CHK_STATUS_Y' then ecs.chk_dt else ecs.chk_sche_dt end) >= to_date(%(startDate)s, 'YYYY-MM-DD')
+               and date(case when coalesce(%(chkStatus)s, '') = 'CHK_STATUS_Y' then ecs.chk_dt else ecs.chk_sche_dt end) <= to_date(%(endDate)s, 'YYYY-MM-DD')
+            '''
          
             # AND case when %(chkStatus)s = 'CHK_STATUS_NP' then bc.grp_cd 
             #              else bc.code_cd 
@@ -622,10 +620,11 @@ def pi_master(context):
             #              else %(chkStatus)s 
             #         end
 
+        
         if chkStatus:
             sql += ''' AND ecs.chk_status = %(chkStatus)s
             '''
-
+        
         if deptPk and deptPk > 0:
             sql += ''' AND (
 					d.id = %(deptPk)s
@@ -690,6 +689,19 @@ def pi_master(context):
             raise ex
         return {'success': True, 'data': items}
 
+    elif action == 'selectEquipChkScheSimulationCycleByMon':
+        calDeptPk = gparam.get('calDeptPk', None)
+        calChkUserPk = gparam.get('calChkUserPk', None)
+        calSearchType = gparam.get('calSearchType', None)
+
+        items = pi_master_service.selectEquipChkScheSimulationCycleByMon(calDeptPk, calChkUserPk,calSearchType )
+
+    elif action == 'selectEquipChkScheSimulationByMon':
+        calDeptPk = gparam.get('calDeptPk', None)
+        calChkUserPk = gparam.get('calChkUserPk', None)
+        calSearchType = gparam.get('calSearchType', None)
+
+        items = pi_master_service.selectEquipChkScheSimulationByMon(calDeptPk, calChkUserPk,calSearchType )
 
     return items
 

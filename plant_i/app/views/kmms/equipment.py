@@ -123,6 +123,7 @@ def equipment(context):
     action = gparam.get('action', 'read')
     request = context.request
     user = request.user
+    factory_id = 1
 
     equipmentService = EquipmentService()
 
@@ -152,26 +153,19 @@ def equipment(context):
             print("상세 오류:\n", traceback.format_exc())
             return error_msg  # 오류 메시지 문자열 직접 반환
 
-    elif action=='load_component': 
-        try:
-            pageName = gparam.get('pageName')
-
-            template_path = 'components/' + pageName
-            context = {
-                'request': request,
-            }
-            html = render_to_string(template_path, context)
-            return html 
-
-        except Exception as e:
-            import traceback
-            error_msg = f"템플릿 렌더링 오류: {str(e)}"
-            return error_msg  # 오류 메시지 문자열 직접 반환
-
     elif action=='read': 
-        equipment = gparam.get('equipment', None)
+        keyword = gparam.get('keyword', None)
+        equip_status = gparam.get('equip_status', None)
+        process_cd = gparam.get('process_cd', None)
+        system_cd = gparam.get('system_cd', None)
+        loc_pk = gparam.get('loc_pk', None)
+        equip_category_id = gparam.get('equip_category_id', None)
+        equip_class_path = gparam.get('equip_class_path', None)
+        supplier_pk = gparam.get('supplier_pk', None)
+        use_yn = gparam.get('use_yn', None)
+        environ_equip_yn = gparam.get('environ_equip_yn', None)
 
-        items = equipmentService.searchEquipment(equipment)
+        items = equipmentService.searchEquipment(keyword, equip_status, process_cd, system_cd, loc_pk, equip_category_id, equip_class_path, supplier_pk, use_yn, environ_equip_yn)
 
     elif action=='findAll':
         keyword = gparam.get('keyword', None)

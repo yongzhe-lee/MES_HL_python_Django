@@ -1,4 +1,5 @@
 from domain.services.date import DateUtil
+from domain.services.interface.mounter import IFFujiMounterService
 from domain.services.sql import DbUtil
 
 
@@ -28,6 +29,7 @@ def fuji(context):
             sql='''
             select
             imfr.id
+            , imfr.job
             , imfr.equ_cd
             , imfr.machine
             , imfr."position"
@@ -64,6 +66,11 @@ def fuji(context):
             result["data"] = data
 
    
+        elif action=="test":
+           service = IFFujiMounterService()
+           count = service.test()
+           result['success'] = True
+           result["data"] = count
 
         else:
             raise Exception("잘못된 호출")

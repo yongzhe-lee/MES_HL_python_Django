@@ -485,10 +485,8 @@
 
 		saveData() {
 			let _this = this;
-			let data = FormUtil.extractForm($('#pmMasterForm'));
-			data.equip_pk = $("#equip_pk").val();
-			data.pm_type_cd = $('#pm_type_cd').val();
-			data.dept_pk = $('#pm_dept_pk').val();
+			let data = FormUtil.extractForm($('#pmMasterForm'));			
+			data.equip_pk = $("#equip_pk").val();		
 
 			if (!data.equip_pk) {
 				Alert.alert('', '설비를 선택해주세요.');
@@ -635,7 +633,13 @@
 
 		//pm 마스터
 		show(pmId) {
-			let _this = this;	
+			let _this = this;
+			
+			// '계획' 탭 항상 active 처리
+			$('.tab-button').removeClass('active');
+			$('.tab-pane').removeClass('active').hide();
+			$('.tab-button[data-tab="pmMasterForm"]').addClass('active');
+			$('#pmMasterForm').addClass('active').show();
 
 			if (pmId > 0) {	
 				$('.button-group').hide();

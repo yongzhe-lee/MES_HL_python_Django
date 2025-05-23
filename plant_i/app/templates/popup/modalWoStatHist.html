@@ -1,0 +1,84 @@
+﻿<div id="modalWoStatHist" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>작업상태이력</h4>
+        </div>
+        <div class="modal-body">
+            <form id="WoStatHistForm">
+                <div class="form-section">
+                    <!-- 그리드 영역 -->
+                    <div class="grid-section">
+                        <div id="recentAmtUnitGrid"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 버튼 영역 -->
+        <div class="modal-footer">
+            <button type="button" class="btn-close" id="closemodalWoStatHist">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let woStatHistPage = null;
+    class WoStatHistPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/cm_code';
+            this.init();
+        }
+
+        init() {
+            const modal = $("#modalWoStatHist");
+            const closeModalBtn = $("#closeModal");
+
+            $("#closemodalWoStatHist").kendoButton({
+                themeColor: "base",
+                click: (e) => {
+                    e.preventDefault();
+                    modal.fadeOut();
+                }
+            });
+
+            // 그리드 초기화
+            this.grid = $("#recentAmtUnitGrid").kendoGrid({
+                columns: [
+                    { field: 'id', hidden: true, width: 150 },
+                    { field: 'code', title: '수량단위코드', width: 100 },
+                    { field: 'name', title: '수량단위명', width: 150 },
+                    { field: 'remark', title: '설명', width: 150 },
+                ],
+                selectable: true,
+            }).data("kendoGrid");
+
+        }
+
+        searchAmtUnitData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                code_grp_code: 'AMT_UNIT',
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setDataSource(new kendo.data.DataSource({
+                data: result
+            }));
+        }
+
+        show() {
+            let _this = this;
+
+            $("#modalWoStatHist").fadeIn();
+            _this.searchAmtUnitData();
+        }
+
+    }
+
+    $(document).ready(function () {
+        woStatHistPage = new WoStatHistPage();
+    });
+
+</script>

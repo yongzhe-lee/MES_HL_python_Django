@@ -1,139 +1,153 @@
 {% extends "app/layout.html" %}
 {% block css %}
 <style>
-    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
-    #searchFormContent {
-        overflow: hidden;
-        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
-        transition: height 0.3s ease-in-out;
-    }
+	/* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
+	#searchFormContent {
+		overflow: hidden;
+		height: 50px; /* ✅ 한 줄만 보이도록 설정 */
+		transition: height 0.3s ease-in-out;
+	}
 
-    /* ✅ 검색 폼이 펼쳐진 상태 */
-    .search-expanded {
-        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
-    }
+	/* ✅ 검색 폼이 펼쳐진 상태 */
+	.search-expanded {
+		height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
+	}
 
-    /* ✅ 접기/펼치기 버튼 스타일 */
-    #toggleSearchBtn {
-        width: 20px;
-        height: 20px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-    }
+	/* ✅ 접기/펼치기 버튼 스타일 */
+	#toggleSearchBtn {
+		width: 20px;
+		height: 20px;
+		border: none;
+		background: transparent;
+		cursor: pointer;
+		position: relative;
+	}
 
-        #toggleSearchBtn::before {
-            content: "▼";
-            color: #0d6efd;
-            font-size: 20px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
-        }
+		#toggleSearchBtn::before {
+			content: "▼";
+			color: #0d6efd;
+			font-size: 20px;
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
+		}
 
-        #toggleSearchBtn.expanded::before {
-            content: "▲";
-        }
+		#toggleSearchBtn.expanded::before {
+			content: "▲";
+		}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="content-wrap">
-    <div class="content-ui-row">
-        <form id="searchForm" class="search-form">
-            <div class="card-content search">
-                <div class="form-ui-header">
-                    <div id="toggleSearchBtn"></div> <!-- ✅ 삼각형 화살표 버튼 -->
-                </div>
-                <div class="form-ui" id="searchFormContent">
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">검색키워드</label>
-                            <input id="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">관리부서</label>
-                            <select id="srch_dept" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">설비위치</label>
-                            <select id="srch_location" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">실행 부서</label>
-                            <select id="srch_dept_type" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">PM유형</label>
-                            <select id="serchPmType" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">적용여부</label>
-                            <select id="srchApplyYn" style="width: 200px;">
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">주기단위</label>
-                            <select id="srchPeriodUnit" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">다음 주기일</label>
-                            <div id="srch_date_range"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
-                            <input id="chk_my_task" name="chk_my_task">
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="chk_legal">법정관리설비</label>
-                            <input id="chk_legal" name="chk_legal">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-        <div class="content-ui-row connect">
-            <div class="card-content grid">
-                <div class="card-group-btn">
-                    <span class="info-text">
-                        <i class="material-symbols-outlined">list_alt</i>
-                        <label data-labelCd="PM 작업일정">PM 작업일정</label>
-                    </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <button id="btnAdd" class="btn-search">등록</button>
-                        <button id="btnSearch" class="btn-search">조회</button>
-                        <button id="btnExcel">Excel</button>
-                    </span>
-                </div>
-                <div id="pm_master_grid"></div>
-            </div>
-        </div>
-
-    </div>
+	<div class="content-ui-row">
+		<form id="searchForm" class="search-form">
+			<div class="card-content search">
+				<div class="form-ui-header">
+					<div id="toggleSearchBtn"></div> <!-- ✅ 삼각형 화살표 버튼 -->
+				</div>
+				<div class="form-ui" id="searchFormContent">
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">검색키워드</label>
+							<input id="keyword" name="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">관리부서</label>
+							<select id="srch_dept" name="equDept" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">설비위치</label>
+							<select id="srch_location" name="equLoc" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">실행 부서</label>
+							<select id="srch_pmDept" name="pmDept" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">PM유형</label>
+							<select id="serchPmType" name="pmType" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">적용여부</label>
+							<select id="srchApplyYn" name="applyYn" style="width: 200px;">
+							</select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">주기단위</label>
+							<select id="srchPeriodUnit" name="cycleType" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">다음 주기일</label>
+							<div id="srch_date_range"></div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
+							<input id="chk_my_task" name="isMyTask">
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="chk_legal">법정관리설비</label>
+							<input id="chk_legal" name="isLegal">
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="content-ui-row connect">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text">
+						<i class="material-symbols-outlined">list_alt</i>
+						<label data-labelCd="PM 마스터">PM 마스터</label>
+					</span>
+					<span>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnMakeSchedule" class="btn-search">PM일정생성</button>
+						<button id="btnSearch" class="btn-search">조회</button>
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div id="pm_master_grid"></div>
+			</div>
+		</div>
+	</div>
 </div>
-
+<!-- PM일정생성 Kendo Window 팝업 -->
+<div id="makePmScheWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="col-auto">
+		<form id="rangeDateForm">
+			<div class="form-item align-h">
+				<input type="hidden" name="sche_type" value="M" />
+				<label class="k-label k-form-label">생성기간</label>
+				<div id="makePmScheRange"></div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-save" id="btnMakeScheduleModal">PM일정생성</button>
+		<button type="button" class="btn-close" id="btnCancelScheduleModal">취소</button>
+	</div>
+</div>
 {% verbatim %}
 {% endverbatim %}
 {% endblock %}
@@ -141,347 +155,304 @@
 {% block scripts %}
 
 {% include '../../popup/modalPmMaster.html'%}
-
 {% include '../../popup/modalEquSel.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
-{% include '../../popup/modalWoDetail.html'%}
-{% include 'common/file_upload.html' %}
+{% include '../../popup/modalMatSel.html'%}
 
 <script type="text/javascript">
-    class PmSchedulePage {
-        constructor() {
-            this.grid = null;
-            this.upload = null;
-            this.baseUrl = '/api/kmms/pm_master';
+	class PmMasterPage {
+		constructor() {
+			this.grid = null;
+			this.upload = null;
+			this.baseUrl = '/api/kmms/pm_master';
 
-            this.comboDept = [];
+			this.comboDept = [];
 
-            this.init();
-        }
+			this.init();
+		}
 
-        /**
-         * 모달창 입력란 초기화 함수
-         */
-        resetModalInputs() {
-            // 일반 입력 필드 초기화
-            $("#equip_pk").val("");
-            $("#pm_pk").val("");
-            $("#pmNumber").val("");
-            $("#pmName").val("");
-            $("#work_text").val("");
-            $("#equ_code").val("");
-            $("#equ_name").val("");
-            $("#equ_loc").val("");
-            $("#equ_import").val("");
-            $("#equ_status").val("");
-            $("#equ_env_yn").val("");
+		/**
+		 * 그리드와 검색 조건을 초기화하는 함수
+		 */
+		resetData() {
+			// 그리드 초기화
+			if (this.grid) {
+				this.grid.setData([]);
+			}
+			FormUtil.resetForm($("#searchForm"));
+		}
 
-            // Kendo UI 컴포넌트 초기화
-            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
-            if (maintenanceTime) {
-                maintenanceTime.value("");
-            }
+		init() {
+			let _this = this;
+			let equipmentGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				selectable: "multiple, row",
+				columns: [
+					{ selectable: true, width: "50px" },
+					{ field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
+					{ field: 'pm_no', title: 'PM 번호', width: 120 },
+					{
+						field: "pm_nm",
+						title: "PM명",
+						width: 150,
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
+					},
+					{ field: 'pm_type_nm', title: 'PM 유형', width: 80 },
+					{ field: 'equip_cd', title: '설비코드', width: 100 },
+					{ field: 'equip_nm', title: '설비명', width: 150 },
+					{ field: 'equip_cd', title: '카테고리', width: 100 },
+					{ field: 'equip_cd', title: '프로세스', width: 100 },
+					{ field: 'equip_cd', title: '시스템', width: 100 },
+					{ field: 'dept_nm', title: '실행부서', width: 100 },
+					{ field: 'equip_cd', title: '최종 PM 생성일', width: 100 },
+					{ field: 'cycle_type_nm', title: '주기', width: 50 }
+				],
 
-            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
-            if (execDeptDropdown) {
-                execDeptDropdown.value("");
-            }
+				dataBound: function (e) {
+					$(".grid-column-link").off("click").on("click", async function (e) {
+						try {
+							e.preventDefault();
+							let pmPk = $(this).data("pm-pk");
+							let equipPk = $(this).data("equip-pk");
+							if (pmPk) {
+								setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
+								pmMasterPage.show(pmPk);
+							} else if (equipPk) {
+								// 기존 팝업/인스턴스 완전 제거
+								$('#modalEquipMaster').remove();
+								window.equipMasterPage = undefined;
 
-            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
-            if (pmManagerDropdown) {
-                pmManagerDropdown.value("");
-            }
+								// 팝업 append
+								const response = await $.get('/api/kmms/equipment?action=load_modal');
+								$('body').append(response);
 
-            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
-            if (pmTypeDropdown) {
-                pmTypeDropdown.value("");
-            }
-        }
+								// 인스턴스 생성 및 show
+								window.equipMasterPage = new EquipMaster();
+								window.equipMasterPage.show(equipPk);
 
-        /**
-         * 그리드와 검색 조건을 초기화하는 함수
-         */
-        resetData() {
-            // 그리드 초기화
-            if (this.grid) {
-                this.grid.setData([]);
-            }
+							}
+						} catch (error) {
+							console.error('Error in click handler:', error);
+							alert('설비 마스터를 불러오는 중 오류가 발생했습니다.');
+						}
+					});
+				},
+				height: "540px"
+			};
+			_this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
 
-            // 검색 조건 초기화
-            $("#keyword").val("");
+			$('#keyword').kendoTextBox();
 
-            // Kendo 컴포넌트 초기화
-            let srchDept = $("#srch_dept").data("kendoDropDownTree");
-            if (srchDept) srchDept.value("");
+			$("#makePmScheRange").kendoDateRangePicker({
+				range: {
+					start: new Date(),
+					end: new Date(new Date().setMonth(new Date().getMonth() + 3))
+				},
+				format: "yyyy-MM-dd",
+				labels: false,
+				startField: "start_date",
+				endField: "end_date"
+			});
 
-            let srchLocation = $("#srch_location").data("kendoDropDownTree");
-            if (srchLocation) srchLocation.value("");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_pmDept"), "cm_depart", "select");
+			AjaxUtil.fillDropDownOptions($('#serchPmType'), 'cm_base_code', 'choose', null, 'PM_TYPE');
 
-            let srchDeptType = $("#srch_dept_type").data("kendoDropDownTree");
-            if (srchDeptType) srchDeptType.value("");
+			$("#srchApplyYn").kendoDropDownList({
+				dataSource: [
+					{ text: "전체", value: "" },
+					{ text: "적용", value: "Y" },
+					{ text: "미적용", value: "N" },
+				],
+				dataTextField: "text",
+				dataValueField: "value"
+			});
 
-            let serchPmType = $("#serchPmType").data("kendoDropDownList");
-            if (serchPmType) serchPmType.value("");
+			$("#srchPeriodUnit").kendoDropDownList({
+				dataSource: [
+					{ text: "선택", value: "" },
+					{ text: "년", value: "Y" },
+					{ text: "월", value: "M" },
+					{ text: "주", value: "W" },
+					{ text: "일", value: "D" },
+				],
+				dataTextField: "text",
+				dataValueField: "value"
+			});
 
-            let srchApplyYn = $("#srchApplyYn").data("kendoDropDownList");
-            if (srchApplyYn) srchApplyYn.value("");
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					page.exportExcel();
+				}
+			});
 
-            let srchPeriodUnit = $("#srchPeriodUnit").data("kendoDropDownList");
-            if (srchPeriodUnit) srchPeriodUnit.value("");
+			$('#chk_my_task').kendoSwitch({
+				checked: false
+			});
 
-            let dateRange = $("#srch_date_range").data("kendoDateRangePicker");
-            if (dateRange) dateRange.range({
-                start: new Date(),
-                end: new Date()
-            });
+			$('#chk_legal').kendoSwitch({
+				checked: false
+			});
 
-            // 스위치 초기화
-            let myTaskSwitch = $("#chk_my_task").data("kendoSwitch");
-            if (myTaskSwitch) myTaskSwitch.value(false);
+			// PM일정생성 Kendo Window 초기화
+			$("#makePmScheWindow").kendoWindow({			
+				title: "PM일정생성",
+				visible: false,
+				modal: true,
+				actions: [],
+				appendTo: "body"
+			});
 
-            let legalSwitch = $("#chk_legal").data("kendoSwitch");
-            if (legalSwitch) legalSwitch.value(false);
-        }
+			//search form
+			$("#srch_date_range").kendoDateRangePicker({
+				range: {
+					start: new Date(),
+					end: new Date(new Date().setMonth(new Date().getMonth() + 3))
+				},
+				change: function (e) {
 
-        init() {
-            let _this = this;
-            let equipmentGridOption = {
-                toolbar: [
-                    "columns"
-                ],
-                columnMenu: {
-                    componentType: "classic",
-                    autoSize: true,
-                    clearAllFilters: true,
-                    columns: {
-                        sort: "asc",
-                    }
-                },
-                columns: [
-                    { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
-                    {
-                        field: 'work_order_no',
-                        title: 'WO 번호',
-                        width: 80,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
-                    },
-                    {
-                        field: 'pm_no',
-                        title: 'PM 번호',
-                        width: 150,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
-                    },
-                    {
-                        field: "work_title",
-                        title: "작업제목",
-                        width: 150,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-title-pk="#=work_order_pk#">#=work_title#</a>'
-                    },
-                    { field: 'equ_code', title: '설비코드', width: 100 },
-                    { field: 'equ_name', title: '설비명', width: 150 },
-                    { field: 'import_rank', title: '중요도', width: 80 },
-                    { field: 'exec_dept', title: '실행부서', width: 100 },
-                    { field: 'mng_dept_nm', title: '관리부서', width: 100 },
-                    { field: 'equ_location', title: '설비위치', width: 120 },
-                    { field: 'pm_manager', title: 'PM 담당자', width: 100 },
-                    { field: 'pm_type', title: 'PM 유형', width: 80 },
-                    { field: 'cycle_type', title: '주기', width: 50 }
-                ],
-                dataBound: function (e) {
-                    $(".grid-column-link").off("click").on("click", function (e) {
-                        e.preventDefault();
+				},
+				format: "yyyy-MM-dd",
+				labels: false,
+				startField: "start_date",
+				endField: "end_date"
+			});
 
-                        let woNoPk = $(this).data("wo-no-pk");
-                        let pmPk = $(this).data("pm-pk");
-                        let woTitlePk = $(this).data("wo-title-pk");
+			$('#btnMakeSchedule').kendoButton({
+				icon: "k-i-pencil",
+				themeColor: "info",     // info 테마 사용
+				fillMode: "outline",    // outline 스타일로 변경
+				click: function (e) {
+					e.preventDefault();					
+					// pm_master_grid에서 선택된 row가 있는지 확인
+					var grid = $("#pm_master_grid").data("kendoGrid");
+					var selected = grid.select();
+					if (selected.length === 0) {
+						Alert.alert('', '일정 생성을 위한 PM 마스터를 그리드 목록에서 선택해 주세요.');
+						return;
+					}
 
-                        if (woNoPk) {
-                            woDetailPage.getWorkOrderData(woNoPk, 1);
-                        }
-                        else if (pmPk) {
-                            pmMasterPage.getPmMasterModal(pmPk);
-                        }
-                        else if (woTitlePk) {
-                            woDetailPage.getWorkOrderData(woTitlePk, 2);
-                        }
-                    });
-                },
-                height: "540px"
-            };
-            _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
+					// 체크된 row가 있을 때 실행할 코드 작성 (여기에 일정 생성 로직 추가)
+					var wnd = $("#makePmScheWindow").data("kendoWindow");
+					if (!wnd) {
+						$("#makePmScheWindow").kendoWindow({
+							width: "300px",
+							title: "PM일정생성",
+							visible: false,
+							modal: true,
+							actions: [],
+							appendTo: "body"
+						});
+						wnd = $("#makePmScheWindow").data("kendoWindow");
+					}
+					wnd.open().center();
+				}
+			}).css('visibility', 'visible');
 
-            $('#keyword').kendoTextBox();
 
-            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "location", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "select");
+			$('#btnMakeScheduleModal').kendoButton({
+				icon: "k-i-pencil",
+				themeColor: "info",     // info 테마 사용
+				fillMode: "outline",    // outline 스타일로 변경
+				click: (e) => {
+					e.preventDefault();
+					let pm_schedule_param = FormUtil.extractForm($("#rangeDateForm"));
 
-            AjaxUtil.fillDropDownOptions($('#serchPmType'), 'user_code', 'choose', null, 'PM_TYPE');
+					var grid = $("#pm_master_grid").data("kendoGrid");
+					var selected = grid.select();
+					var selectedData = [];
+					selected.each(function() {
+						var dataItem = grid.dataItem(this);
+						selectedData.push(dataItem);
+					});
+					pm_schedule_param.pm_pks = selectedData.map(row => row.pm_pk).join(',');
 
-            $("#srchApplyYn").kendoDropDownList({
-                dataSource: [
-                    { text: "전체", value: "" },
-                    { text: "적용", value: "Y" },
-                    { text: "미적용", value: "N" },
-                ],
-                dataTextField: "text",
-                dataValueField: "value"
-            });
+					let fnSuccess = function (res) {
+						Alert.alert('', 'PM 일정이 수동으로 생성되었습니다.');
+					};
+					console.log('pm_schedule_param:', pm_schedule_param);
+					AjaxUtil.postAsyncData('/api/kmms/pm_master' + '?action=executeMakeSchedulePm', pm_schedule_param, fnSuccess);
 
-            $("#srchPeriodUnit").kendoDropDownList({
-                dataSource: [
-                    { text: "선택", value: "" },
-                    { text: "년", value: "Y" },
-                    { text: "월", value: "M" },
-                    { text: "주", value: "W" },
-                    { text: "일", value: "D" },
-                ],
-                dataTextField: "text",
-                dataValueField: "value"
-            });
+				}
+			}).css('visibility', 'visible');
 
-            $('#btnExcel').kendoButton({
-                icon: "file-excel",
-                themeColor: "success",
-                click: function () {
-                    page.exportExcel();
-                }
-            });
+			$("#btnCancelScheduleModal").kendoButton({
+				icon: "k-i-cancel",
+				themeColor: "base",
+				click: function () {
+					$("#makePmScheWindow").data("kendoWindow").close();
+				}
+			});
 
-            $('#chk_my_task').kendoSwitch({
-                checked: false
-            });
+			//form button
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "info",     // info 테마 사용
+				fillMode: "outline",    // outline 스타일로 변경
+				content: "조회",
+				click: function () {
+					_this.searchMainData();
+				}
+			}).css('visibility', 'visible');
+		}
 
-            $('#chk_legal').kendoSwitch({
-                checked: false
-            });
+		searchMainData() {
+			let pm_search_param = FormUtil.extractForm($("#searchForm"));
+			pm_search_param.action = 'findAll';
 
-            //search form
-            $("#srch_date_range").kendoDateRangePicker({
-                range: {
-                    start: new Date(),
-                    end: new Date()
-                },
-                change: function (e) {
+			let result = AjaxUtil.getSyncData(this.baseUrl, pm_search_param);
+			if (result) {
+				this.grid.setData(result);
+			}
+		}
 
-                },
-                format: "yyyy-MM-dd",
-                labels: false,
-                startField: "start_date",
-                endField: "end_date"
-            });
+		// 엑셀 다운로드
+		exportExcel() {
+			let gridData = $('#pm_master_grid').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "pm_master.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
 
-            $('#btnAdd').kendoButton({
-                icon: "k-i-pencil",
-                themeColor: "info",     // info 테마 사용
-                fillMode: "outline",    // outline 스타일로 변경
-                click: function (e) {
-                    e.preventDefault();
-                    page.resetModalInputs();  // 초기화 함수 호출
-                    $("#modalPmMaster").fadeIn();
-                }
-            }).css('visibility', 'visible');
+	};
 
-            //form button
-            $('#btnSearch').kendoButton({
-                icon: "search",
-                themeColor: "info",     // info 테마 사용
-                fillMode: "outline",    // outline 스타일로 변경
-                content: "조회",
-                click: function () {
-                    _this.searchMainData();
-                }
-            }).css('visibility', 'visible');
-        }
+	let page = new PmMasterPage();
 
-        searchMainData() {
-            let _this = this;
+	$(document).ready(function () {
+		page.searchMainData();
 
-            try {
-                // 날짜 데이터 처리
-                let startDate = '';
-                let endDate = '';
-                let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+		// ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
+		$("#searchFormContent").removeClass("search-expanded");
 
-                if (dateRangePicker) {
-                    let range = dateRangePicker.range();
-                    if (range) {
-                        startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
-                        endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
-                    }
-                }
+		// ✅ 버튼 클릭 시 동작
+		$(document).on("click", "#toggleSearchBtn", function () {
+			let searchForm = $("#searchFormContent");
 
-                // 안전한 컴포넌트 값 가져오기
-                const getComponentValue = (selector, type) => {
-                    try {
-                        const component = $(selector).data(type);
-                        return component ? component.value() : '';
-                    } catch (e) {
-                        console.warn(`Failed to get value for ${selector}`, e);
-                        return '';
-                    }
-                };
+			if (searchForm.hasClass("search-expanded")) {
+				searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
+				$("#toggleSearchBtn").removeClass("expanded");  // 🔹 expanded 클래스 제거
+			} else {
+				searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
+				$("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
+			}
+		});
 
-                let param = {
-                    action: 'read_pm_sch',
-                    keyword: $('#keyword').val() || '',
-                    equDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
-                    equLoc: getComponentValue("#srch_location", "kendoDropDownTree"),
-                    pmDept: getComponentValue("#srch_dept_type", "kendoDropDownTree"),
-                    pmType: getComponentValue("#serchPmType", "kendoDropDownList"),
-                    applyYn: getComponentValue("#srchApplyYn", "kendoDropDownList"),
-                    cycleType: getComponentValue("#srchPeriodUnit", "kendoDropDownList"),
-                    sDay: startDate,
-                    eday: endDate,
-                    isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
-                    isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
-                };
-
-                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-                if (result) {
-                    _this.grid.setData(result);
-                }
-            } catch (error) {
-                console.error('Error in searchMainData:', error);
-            }
-        }
-
-        // 엑셀 다운로드
-        exportExcel() {
-            let gridData = $('#pm_master_grid').data("kendoGrid");
-            gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "pm_master.xlsx";
-            });
-            gridData.saveAsExcel();
-        }
-
-    };
-
-    let page = null;
-
-    page = new PmSchedulePage();
-
-    $(document).ready(function () {
-        page.searchMainData();
-
-        // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
-        $("#searchFormContent").removeClass("search-expanded");
-
-        // ✅ 버튼 클릭 시 동작
-        $(document).on("click", "#toggleSearchBtn", function () {
-            let searchForm = $("#searchFormContent");
-
-            if (searchForm.hasClass("search-expanded")) {
-                searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
-                $("#toggleSearchBtn").removeClass("expanded");  // 🔹 expanded 클래스 제거
-            } else {
-                searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
-                $("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
-            }
-        });
-
-    });
+	});
 
 </script>
 

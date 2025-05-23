@@ -475,6 +475,11 @@ def learning_data(context):
             회귀분석식 조회 : ds_y_regression_list
             /* 25.02.10 김하늘 추가 */
             모델마스터조회: ds_model_tree_list
+            변수후보조회: variable_candidates
+            데이터파일저장(태그집합) : save_ds_model_from_tag
+            모델(데이터)삭제: delete_ds_model
+            학습정보조회: ds_train_info
+            모델학습요청: start_learning
         '''
         # 25.02.10 김하늘 추가
         if action == "ds_model_tree_list":
@@ -517,6 +522,7 @@ def learning_data(context):
                     mm.id AS master_id,
                     CAST(NULL AS INTEGER) AS model_id,  -- 자료형 맞춤
                     CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
+                    e.id AS equip_id,
                     e."Name" AS equip_name,
                     mm."Name" AS name,
                     mm."Type" AS type,
@@ -546,6 +552,7 @@ def learning_data(context):
                     md."DsMaster_id" AS master_id,
                     md.id AS model_id,
                     CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
+                    CAST(NULL AS INTEGER) AS equip_id,
                     NULL AS equip_name,
                     md."Name" AS name,
                     COALESCE(tdt."Name", md."Type") AS type,  -- 분석유형 한글명
@@ -588,6 +595,7 @@ def learning_data(context):
                     md."DsMaster_id" AS master_id,
                     mt."DsModel_id" AS model_id,
                     mt.id AS train_id,
+                    CAST(NULL AS INTEGER) AS equip_id,
                     NULL AS equip_name,
                     CONCAT('[', COALESCE(ts."Name", mt."TrainStatus"), '] ', mt."AlgorithmType") AS name,
                     COALESCE(tt."Name", mt."TaskType") AS type,  -- 분석유형 한글명
@@ -659,6 +667,125 @@ def learning_data(context):
             dc['keyword'] = keyword
         
             items = DbUtil.get_rows(sql, dc)  
+
+        if action == 'variable_candidates':
+            equipment_id = CommonUtil.try_int(gparam.get('equ_id'))
+
+            if equipment_id:
+                # 추후에 설비별로 분기 나눠줄 것(mes, qms, 점도데이터 사용 여부 등)
+                # 해당 태그가 아예 존재하지 않을 때 전체 코드 생기는 거 분기해서 처리할 것
+                sql = '''
+                with PLC as (
+                    SELECT
+                        'PLC' AS data_source,
+                        'ALL_PLC' AS var_code,
+                        'PLC태그 전체' AS var_name
+	                UNION all
+	                select
+		                'PLC' as data_source
+		                , t.tag_code as var_code
+		                , t.tag_name as var_name
+	                from tag t
+	                -- tag에 data_src_id 다 들어가기 전까지 보류
+	                --	left outer join data_src ds on t.data_src_id = ds.id
+	                --	where ds."SourceType" = 'PLC'
+	                where 1=1
+		                and tag_code NOT ILIKE '%%em%%'
+		                and t."Equipment_id" = %(equipment_id)s
+	                ),
+                EM as (
+                    SELECT
+                        'EM' AS data_source,
+                        'ALL_EM' AS var_code,
+                        'EM태그 전체' AS var_name	
+   	                UNION all     
+	                select
+		                'EM' as data_source
+		                , t.tag_code as var_code
+		                , t.tag_name as var_name
+	                from tag t
+	                -- tag에 data_src_id 다 들어가기 전까지 보류
+	                --	left outer join data_src ds on t.data_src_id = ds.id
+	                --	where ds."SourceType" = 'EM'
+	                where 1=1
+		                and tag_code LIKE '%%em%%'
+		                and t."Equipment_id" = %(equipment_id)s	
+	                ),	
+                MES as (
+	                SELECT * 
+	                FROM (
+	                    VALUES
+	                        ('MES', 'mat_cd', '품목코드'),
+	                        ('MES', 'bom_ver', 'BOM_VER'),
+	                        ('MES', 'state', 'MES검사결과(합부)')
+                    ) as ier(data_source, var_code, var_name)
+                ),
+                MES_ITEM as (
+	                SELECT * 
+	                FROM (
+	                    values
+	                        ('MES_ITEM', 'test_item_cd', '테스트코드'),
+	                        ('MES_ITEM', 'test_item_val', '테스트값'),
+	                        ('MES_ITEM', 'min_val', '테스트하한값'),
+	                        ('MES_ITEM', 'max_val', '테스트상한값')
+                    ) as ieri(data_source, var_code, var_name)
+                ),
+                QMS as (
+	                SELECT * 
+	                FROM (
+	                    VALUES
+	                        ('QMS', 'mat_cd', '품목코드'),
+	                        ('QMS', 'bom_ver', 'BOM_VER'),
+	                        ('QMS', 'state', 'QMS검사결과(합부)')
+                    ) as iqr(data_source, var_code, var_name)
+                ),
+                Viscosity as (
+	                SELECT * 
+	                FROM (
+	                    VALUES
+	                        ('Viscosity', 'storage_temp', '보관규격체크'),
+	                        ('Viscosity', 'agi_cond', '교반조건체크'),
+	                        ('Viscosity', 'clean_check', '세척확인'),
+	                        ('Viscosity', 'refr_in_date', '냉장고입고일자'),
+	                        ('Viscosity', 'visc_value', '점도값')
+                    ) as visc(data_source, var_code, var_name)
+                ),
+                Tention as (
+	                SELECT * 
+	                FROM (
+	                    VALUES
+	                        ('Tention', 'barcode', '바코드'),
+	                        ('Tention', 'tension_value1', 'Tension Value 1'),
+	                        ('Tention', 'tension_value2', 'Tension Value 2'),
+	                        ('Tention', 'tension_value3', 'Tension Value 3'),
+	                        ('Tention', 'tension_value4', 'Tension Value 4'),
+	                        ('Tention', 'tension_value5', 'Tension Value 5'),
+	                        ('Tention', 'Result', '점도값'),
+	                        ('Tention', 'worker_id', '작업자'),
+	                        ('Tention', 'defect_reason', '불량사유')
+                    ) as tent(data_source, var_code, var_name)
+                )
+                select * from PLC
+                union all
+                select * from EM
+                union all
+                select * from MES
+                union all
+                select * from MES_ITEM
+                union all
+                select * from QMS
+                union all
+                select * from Viscosity
+                union all
+                select * from Tention
+                ''';
+
+                dc = {}
+                dc['equipment_id'] = equipment_id
+        
+                items = DbUtil.get_rows(sql, dc) 
+            else:
+                items = {}
 
         if action == 'save_ds_model':
             # md_id = posparam.get('id')

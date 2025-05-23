@@ -1,11 +1,358 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
+{% block css %}
+<style>
+    .zoombutton {
+        background: #409EFF !important;
+        color: white !important;
+        border: none !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        width: 22px !important;
+        height: 22px !important;
+    }
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+        .zoombutton:hover {
+            background: #2980b9 !important;
+        }
+</style>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명" />
+                            </div>
+                            <button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="req_dept" data-labelCd="작업부서">작업부서</label>
+                            <div class="field-wrapper">
+                                <select id="req_dept" name="req_dept"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="요청기간">요청기간</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="maint_code" data-labelCd="보전유형">보전유형</label>
+                            <div class="field-wrapper">
+                                <select id="maint_code" name="maint_code"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4 col-md-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_environ_equip_only">법정관리설비</label>
+                            <input id="srch_environ_equip_only" name="srch_environ_equip_only">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="작업요청">작업요청</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="work_order_grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+
+{% include '../../popup/modalMyWorkReq.html'%}
+{% include '../../popup/modalWoDetail.html'%}
+{% include '../../popup/modalWoStatHist.html'%}
+{% include '../../popup/modalEquSel.html'%}
+{% include '../../popup/modalWoCopy.html'%}
+{% include '../../popup/modalWoProblem.html'%}
+{% include '../../popup/modalWoProject.html'%}
+
+<script type="text/javascript">
+    class WorkOrderPage {
+        constructor() {
+            this.grid = null;
+            this.upload = null;
+            this.baseUrl = '/api/kmms/wo_master';
+
+            this.comboDept = [];
+
+            this.init();
+        }
+
+        /**
+        * 모달창 입력란 초기화 함수
+        */
+        resetModalInputs() {
+            // 일반 입력 필드 초기화
+            $("#equip_pk").val("");
+            $("#pm_pk").val("");
+            $("#pmNumber").val("");
+            $("#pmName").val("");
+            $("#work_text").val("");
+            $("#equ_code").val("");
+            $("#equ_name").val("");
+            $("#equ_loc").val("");
+            $("#equ_import").val("");
+            $("#equ_status").val("");
+            $("#equ_env_yn").val("");
+
+            // Kendo UI 컴포넌트 초기화
+            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
+            if (maintenanceTime) {
+                maintenanceTime.value("");
+            }
+
+            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
+            if (execDeptDropdown) {
+                execDeptDropdown.value("");
+            }
+
+            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
+            if (pmManagerDropdown) {
+                pmManagerDropdown.value("");
+            }
+
+            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
+            if (pmTypeDropdown) {
+                pmTypeDropdown.value("");
+            }
+        }
+
+        init() {
+            let _this = this;
+            let woGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'work_order_pk', title: 'WOPK', width: 0, hidden: true },
+                    { field: 'wo_type_nm', title: '유형', width: 80 },
+                    { field: 'work_order_no', title: '작업지시번호', width: 120, template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>' },
+                    { field: 'work_title', title: '작업제목' },
+                    { field: 'equip_cd', title: '설비코드', width: 150 },
+                    { field: 'equip_nm', title: '설비명', width: 150 },
+                    { field: 'loc_nm', title: '설비위치', width: 150 },
+                    { field: 'start_end_period', title: '작업기간', width: 200, hidden: true },
+                    { field: 'rqst_dt', title: '요청일', width: 200 },
+                    { field: 'req_dept_nm', title: '요청부서', width: 100, hidden: true },
+                    { field: 'cancel_user_nm', title: '취소자', width: 100 },
+                    { field: 'maint_type_nm', title: '보전유형', width: 100 },
+                    { field: 'wo_status_nm', title: '상태', width: 100, template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-status-pk="#=work_order_pk#">#=wo_status_nm#</a>' },
+                    { field: 'cancel_reason', title: '취소사유', width: 150 }
+                ],
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#work_order_grid"), woGridOption);
+
+            // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
+            // 임시 저장일 경우에만 클릭이 가능하고 클릭할 경우 편집 팝업 기능 필요
+            $(document).on("click", ".grid-column-link", async function (e) {
+                e.preventDefault();
+
+                let woNoPk = $(this).data("wo-no-pk");
+                let woTitlePk = $(this).data("wo-title-pk");
+                let woStatusPk = $(this).data("wo-status-pk");
+
+                if (woNoPk) {
+                    woDetailPage.show(woNoPk, 1);
+                } else if (woTitlePk) {
+                    page.resetModalInputs();
+                    $("#modalMyWorkReq").fadeIn();
+                } else if (woStatusPk) {
+                    woStatHistPage.show();
+                }
+
+
+                //e.preventDefault();
+                //let workOrderPk = $(this).data("work-order-pk");
+                //if (!workOrderPk) return;
+
+                //// 이미 로드된 경우 재사용
+                //if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+                //    equipMasterPage.show(workOrderPk);
+                //    return;
+                //}
+
+                //try {
+                //    const response = await $.get('/api/kmms/equipment?action=load_modal');
+                //    $('body').append(response);
+
+                //    // imageUploader가 준비될 때까지 대기
+                //    let waitForUploader = async () => {
+                //        return new Promise(resolve => {
+                //            let count = 0;
+                //            const check = () => {
+                //                if (window.imageUploader) return resolve();
+                //                count++;
+                //                if (count > 20) return resolve();
+                //                setTimeout(check, 50);
+                //            };
+                //            check();
+                //        });
+                //    };
+                //    await waitForUploader();
+
+                //    window.equipMasterPage = new EquipMaster();
+                //    equipMasterPage.show(workOrderPk);
+
+                //} catch (err) {
+                //    console.error("equipment.html 로드 실패:", err);
+                //    alert("설비 정보를 불러오는데 실패했습니다.");
+                //}
+            });
+
+            //search form
+            $("#upLoc").kendoButton({
+                icon: "k-i-zoom-in",
+                rounded: "full",
+                click: function (e) {
+                    e.preventDefault();
+                    setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                    equipSelectPage.show(function (data) {
+                        //$("#up_loc_pk").val(data._equip_pk);
+                        //$("#up_loc_nm").val(data._equip_nm);
+                    });
+                }
+            });
+            $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+            AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
+
+            $('#srch_environ_equip_only').kendoSwitch({ checked: false });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+        }
+
+        // 로직 완성 필요
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'read',
+                keyword: $('#keyword').val(),
+                req_dept: $("#req_dept").data("kendoDropDownTree").value(),
+                //rqst_user_nm: $('#rqst_user_nm').val(),
+                //wo_status: $('#wo_status').val(),
+                //maint_type_cd: $('#maint_code').val(),
+                //dept_pk = $("#dept_pk").data("kendoDropDownTree").value(),
+                //problem_cd: $('#problem_cd').val(),
+                //cause_cd: $('#cause_cd').val(),
+
+                //srch_wo_no_only: $('#srch_wo_no_only').data("kendoSwitch").check() ? 'Y' : 'N'
+                //srch_my_req_only: $('#srch_my_req_only').data("kendoSwitch").check() ? 'Y' : 'N'
+                //srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
+                //srch_non_del_only: $('#srch_non_del_only').data("kendoSwitch").check() ? 'Y' : 'N'
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#work_order_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "equipment.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    };
+
+    let page = null;
+    page = new WorkOrderPage();
+
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+
+{% endblock %}

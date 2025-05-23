@@ -873,7 +873,7 @@ class EquipAlarm(models.Model):
 class EquipAlarmHistory(models.Model):
     id  = models.BigAutoField(primary_key=True, db_comment="알람 이력 ID (기본키)")    
     alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, db_comment="알람 코드 ") # 릴레이션을 맺지 않는다
-    part_nm = models.CharField('부품명', db_column='part_nm', max_length=100, db_comment="부품명", null=True)
+    part_number = models.CharField('부품명', db_column='part_number', max_length=100, db_comment="파트번호", null=True)
     module_no = models.CharField('module_no', max_length=100, null=True) # 마운터전용
     onoff = models.CharField('알람상태', db_column='onoff', max_length=1, db_comment="알람 상태", null=True)
     details = models.TextField('알람발생상세내용', db_column='details', null=True, db_comment="알람 발생 상세 내용")

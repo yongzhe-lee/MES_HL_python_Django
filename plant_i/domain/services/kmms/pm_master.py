@@ -155,7 +155,7 @@ class PMService():
 
         return items
 
-    def get_pm_sch_list(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal):
+    def pm_sche_findAll(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal):
         items = []
         dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'pmType': pmType,'applyYn': applyYn,'cycleType': cycleType,'sDay': sDay,'eday': eday,'isMyTask': isMyTask,'isLegal': isLegal}
 
@@ -282,6 +282,210 @@ class PMService():
         #     '''
         sql += ''' 
             ORDER BY COALESCE(NULLIF(work_order_no, ''), '0')::INTEGER DESC
+            '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
+            raise ex
+
+        return items
+
+    def pm_work_findAll(self, keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal):
+        items = []
+        dic_param = {'keyword': keyword,'equDept': equDept,'equLoc': equLoc,'pmDept': pmDept,'pmType': pmType,'applyYn': applyYn,'cycleType': cycleType,'sDay': sDay,'eday': eday,'isMyTask': isMyTask,'isLegal': isLegal}
+
+        sql = ''' 
+                    with cte as (
+
+		            select t.work_order_pk
+				            , t.work_order_no
+				            , t.work_title
+				            , t.work_text
+				            , t.work_order_sort
+				            , t.req_dept_pk
+				            , rd.dept_nm as req_dept_nm
+				            , rd.tpm_yn as req_dept_tpm_yn
+				            , t.dept_pk
+				            , wd.dept_nm as dept_nm
+				            , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
+				            , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+				            , t.work_charger_pk
+				            , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+				            , mt.code_cd as maint_type_cd
+				            , mt.code_nm as maint_type_nm
+				            , ws.code_cd as wo_status_cd
+				            , ws.code_nm as wo_status_nm
+				            , t.plan_start_dt
+				            , t.plan_end_dt
+				            , t.start_dt
+				            , t.end_dt
+				            , t.want_dt
+				            , t.equip_pk
+				            , e.equip_cd
+				            , e.equip_nm
+				            , ed.dept_pk as equip_dept_pk
+				            , ed.dept_nm as equip_dept_nm
+				            , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
+				            , t.pm_pk
+				            , p.pm_no
+				            , p.pm_nm
+				            , pt.code_nm                        AS pm_type_nm
+				            , p.work_text as pm_work_text
+				            , t.chk_rslt_pk
+				            , ecs.chk_sche_pk
+				            , ecs.chk_sche_no
+				            , ecm.chk_mast_nm
+				            , ecm.chk_mast_pk
+				            , ecs.chk_sche_dt
+				            , l.loc_nm
+				            , t.req_info
+				            , t.wo_type
+				            , t.rqst_insp_yn
+				            , t.rqst_dpr_yn
+				            , wt.code_nm as wo_type_nm
+				            , t.breakdown_dt
+				            , t.breakdown_min
+				            , wsc.code_cd as work_src_cd
+				            , wsc.code_nm as work_src_nm
+				            , t.tot_cost
+				            , t.mtrl_cost
+				            , t.labor_cost
+				            , t.outside_cost
+				            , t.etc_cost
+				            , t.problem_cd
+				            , wp.reliab_nm as problem_nm
+				            , t.cause_cd
+				            , wc.reliab_nm as cause_nm
+				            , t.remedy_cd
+				            , wr.reliab_nm as remedy_nm
+				            , prj.proj_cd
+				            , prj.proj_nm
+				            , t.wo_file_grp_cd
+				            , t.req_info_img_grp_cd
+				            , t.work_text_img_grp_cd
+				            , t.pm_req_type
+				            , t.req_dept_busi_cd
+				            , t.appr_line
+				            , t.appr_line_next
+				            , t.work_order_approval_pk
+				            , woa.reg_dt
+				            , woa.rqst_dt
+				            , woa.rqst_user_nm
+				            , woarqstd.dept_pk as rqst_dept_pk
+				            , woarqstd.dept_nm as rqst_dept_nm
+				            , woa.cancel_dt
+				            , woa.cancel_user_nm
+				            , woa.accept_dt
+				            , woa.appr_dt
+				            , woa.finish_dt
+				            , substring(t.appr_line, 1,2) as wo_start_type
+				            , cm_fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
+				            , t.insert_ts
+				            , e.environ_equip_yn
+				            , e.equip_status as equip_stauts_cd
+				            , e.import_rank_pk
+				            , ir.import_rank_cd
+				            , e.up_equip_pk
+				            , ue.equip_nm AS up_equip_name
+				            , ec.equip_category_id
+				            , ec.equip_category_desc
+        		            , ec.remark
+				            , e.equip_class_path
+				            , e.equip_class_desc
+				            , av.code_nm as first_asset_status
+				            , av.code_cd as first_asset_status_cd
+            --				, cm_fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
+				            , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
+				            , (select code_nm from cm_base_code where code_grp_cd = 'EQUIP_SYSTEM' and code_cd = e.system_cd) as system_nm
+				            , l.loc_nm
+				            , es.ex_supplier_nm
+				            , woa.cancel_reason
+				            , t.cost_type
+				            , (select code_nm from cm_base_code where code_cd = t.cost_type and code_grp_cd = 'WO_COST_TYPE') as cost_type_nm
+
+            from cm_work_order t
+			            inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
+			            inner join cm_base_code mt on t.maint_type_cd = mt.code_cd and mt.code_grp_cd = 'MAINT_TYPE'
+			            inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
+			            inner join cm_equipment e on t.equip_pk = e.equip_pk
+			            inner join cm_location l on e.loc_pk = l.loc_pk
+			            left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
+			            left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
+			            left outer join cm_dept wd on t.dept_pk = wd.dept_pk
+			            left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
+			            left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
+			            left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
+			            left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
+			            left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
+			            left outer join cm_pm p on t.pm_pk = p.pm_pk
+			            left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+			            left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
+			            left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
+			            left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+			            left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
+			            left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
+			            left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
+			            left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
+			            left outer join cm_project prj on t.proj_cd = prj.proj_cd
+			            left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
+			            left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+			            left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
+			            left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
+			            left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
+			            left outer join cm_base_code av on av.code_cd = e.first_asset_status and av.code_grp_cd = 'ASSET_VAL_STATUS'
+			            left outer join cm_work_order_supplier wos on wos.work_order_pk = t.work_order_pk
+			            left outer join cm_ex_supplier es on es.ex_supplier_pk = wos.ex_supplier_pk
+		            where 1 = 1
+         
+            '''
+        if keyword:
+            sql += ''' 
+            AND a."pm_nm" like CONCAT('%%', %(keyword)s, '%%')
+            '''
+        if equDept:
+            sql += ''' 
+            AND ve.mng_dept_id = %(equDept)s
+            '''
+        if equLoc:
+            sql += ''' 
+            AND ve.loc_id = %(equLoc)s
+            '''
+        if pmDept:
+            sql += ''' 
+            AND a.dept_pk = %(pmDept)s
+            '''
+        if pmType:
+            sql += ''' 
+            AND pt.code_cd = %(pmType)s
+            '''
+        if applyYn:
+            sql += ''' 
+            AND a.use_yn = %(applyYn)s
+            '''
+
+        if cycleType:
+            sql += ''' 
+            AND a.cycle_type = %(cycleType)s
+            '''
+
+        sql += ''' 
+
+            AND (
+				t.plan_start_dt >= to_date(REPLACE(%(sDay)s, '-', ''), 'YYYYMMDD') AND t.plan_start_dt <= to_date(REPLACE(%(eday)s, '-', ''), 'YYYYMMDD')
+			)
+            '''
+
+        sql += ''' 
+                )
+		    SELECT *
+		    FROM ( table cte order by plan_start_dt ASC  ) sub
+		    RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		    WHERE total_rows != 0
+            '''
+        sql += ''' 
+            order by pm_no desc, cast(work_order_no as INTEGER) desc
             '''
 
         try:
@@ -542,129 +746,152 @@ class PMService():
 
         return items
 
-    def get_work_order_summary(self, work_order_pk):
+    def pm_work_findOne(self, work_order_pk):
         items = []
         dic_param = {'work_order_pk':work_order_pk}
 
         sql = ''' 
-              select 		
-				t.work_order_pk
-				, t.work_order_no
-				, t.work_title
-				, t.work_text
-				, t.work_order_sort
-				, t.req_dept_pk
-				, rd."Name" as req_dept_nm
-				, t.dept_pk
-				, wd."Name" as dept_nm
-				, t.work_charger_pk
-				, wcu."Name" as work_charger_nm
-				, mt."Code" as maint_type_cd
-				, mt."Name" as maint_type_nm
-				, ws."Code" as wo_status
-				, ws."Name" as wo_status_nm
-				, t.plan_start_dt
-				, t.plan_end_dt
-				, t.start_dt
-				, t.end_dt
-				, t.want_dt
-				, t.equip_pk
-				, e."Code" as equip_cd
-				, e."Name" as equip_nm
-				, ed.id as equip_dept_pk
-				, ed."Name" as equip_dept_nm
-				, to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
-				, t.pm_pk
-				, p.pm_no
-				, p.pm_nm
-				, pt."Name"                        AS pm_type_nm
-				, p.work_text as pm_work_text
-				, t.chk_rslt_pk
-				, l.loc_nm
-				, t.req_info
-				, t.wo_type
-				, t.rqst_insp_yn
-				, t.rqst_dpr_yn
-				, wt."Name" as wo_type_nm
-				, t.breakdown_dt
-				, t.breakdown_hr
-				, wsc."Code" as work_src_cd
-				, wsc."Name" as work_src_nm
-				, t.tot_cost
-				, t.mtrl_cost
-				, t.labor_cost
-				, t.outsourcing_cost
-				, t.etc_cost
-		        , t.problem_cd
-		        , wp."Name" as problem_nm
-		        , t.cause_cd
-		        , wc."Name" as cause_nm
-		        , t.remedy_cd
-		        , wr."Name" as remedy_nm
-				, prj.proj_cd
-				, prj.proj_nm
-				, t.wo_file_grp_cd
-				, t.pm_req_type
-				, t.appr_line
-				, t.appr_line_next
-				, t.work_order_approval_pk
-				, woa.reg_dt
-				, woa.rqst_dt
-				, woa.rqst_user_nm
-				, woa.cancel_dt
-				, woa.cancel_user_nm
-				, woa.accept_dt
-				, woa.appr_dt
-				, woa.finish_dt
-				, substring(t.appr_line, 1,2) as wo_start_type
-				, fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
-				, t._created
-				, e.environ_equip_yn
-				, e."Status" as equip_stauts_cd
-				, e.import_rank
-				, e.up_equip_pk
-				, ue."Name" AS up_equip_name
-				, ec.equip_category_id
-        		, ec.remark
-				, e.equip_class_path
-				, e.equip_class_desc
-				, av."Name" as first_asset_status
-				, av."Code" as first_asset_status_cd
-				, fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
-				, (select "Name" from code where "CodeGroupCode" = 'EQUIPMENT_PROCESS' and "Code" = e.process_cd) as process_nm
-				, (select "Name" from code where "CodeGroupCode" = 'EQUIP_SYSTEM' and "Code" = e.system_cd) as system_nm
-				, l2.loc_nm as up_loc_nm
-				, woa.cancel_reason
-                , t._creater_nm
-		from work_order t
-			inner join work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
-			inner join code mt on t.maint_type_cd = mt."Code" and mt."CodeGroupCode" = 'MAINT_TYPE'
-			inner join code ws on t.wo_status = ws."Code" and ws."CodeGroupCode" = 'WO_STATUS'
-			inner join equ e on t.equip_pk = e.id
-			inner join location l on e.loc_pk = l.id
-            left join location l2 on l.up_loc_pk = l2.id
-			left join equip_category ec on e.equip_category_id = ec.equip_category_id
-			left outer join dept ed on e."Depart_id"  = ed.id
-			left outer join dept wd on t.dept_pk = wd.id
-			left outer join dept rd on t.req_dept_pk = rd.id
-			left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
-            left outer join code wp on t.problem_cd = wp."Code" and wp."CodeGroupCode" = 'PC'
-	        left outer join code wc on t.cause_cd = wc."Code" and wc."CodeGroupCode" = 'CC'
-	        left outer join code wr on t.remedy_cd = wr."Code" and wr."CodeGroupCode" = 'RC'
-			left outer join pm p on t.pm_pk = p.pm_pk
-			left outer join code ct on p.cycle_type = ct."Code" and ct."CodeGroupCode" = 'CYCLE_TYPE'
-			left outer join code pt on p.pm_type  = pt."Code" and pt."CodeGroupCode" = 'PM_TYPE'
-			left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
-			left outer join user_profile wou on t.work_charger_pk = wou."User_id"
-			left outer join code wsc on t.work_src_cd = wsc."Code" and wsc."CodeGroupCode" = 'WORK_SRC'
-			left outer join project prj on t.proj_cd = prj.proj_cd
-			left outer join user_profile woarqstu on woa.rqst_user_pk = woarqstu."User_id"			
-			left outer join code wt on t.wo_type = wt."Code" and wt."CodeGroupCode" = 'WO_TYPE'
-			left outer join equ ue on e.UP_EQUIP_PK  = ue.id
-			left outer join code av on av."Code" = e.first_asset_status and av."CodeGroupCode" = 'ASSET_VAL_STATUS'
+                  select t.work_order_pk
+			    , t.work_order_no
+			    , t.work_title
+			    , t.work_text
+			    , t.work_order_sort
+			    , t.req_dept_pk
+			    , rd.dept_nm as req_dept_nm
+			    , rd.tpm_yn as req_dept_tpm_yn
+			    , t.dept_pk
+			    , wd.dept_nm as dept_nm
+			    , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
+			    , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+			    , t.work_charger_pk
+			    , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+			    , mt.code_cd as maint_type_cd
+			    , mt.code_nm as maint_type_nm
+			    , ws.code_cd as wo_status_cd
+			    , ws.code_nm as wo_status_nm
+			    , t.plan_start_dt
+			    , t.plan_end_dt
+			    , t.start_dt
+			    , t.end_dt
+			    , t.want_dt
+			    , t.equip_pk
+			    , e.equip_cd
+			    , e.equip_nm
+			    , ed.dept_pk as equip_dept_pk
+			    , ed.dept_nm as equip_dept_nm
+			    , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
+			    , t.pm_pk
+			    , p.pm_no
+			    , p.pm_nm
+			    , pt.code_nm                        AS pm_type_nm
+			    , p.work_text as pm_work_text
+			    , t.chk_rslt_pk
+			    , ecs.chk_sche_pk
+			    , ecs.chk_sche_no
+			    , ecm.chk_mast_nm
+			    , ecm.chk_mast_pk
+			    , ecs.chk_sche_dt
+			    , l.loc_nm
+			    , t.req_info
+			    , t.wo_type
+			    , t.rqst_insp_yn
+			    , t.rqst_dpr_yn
+			    , wt.code_nm as wo_type_nm
+			    , t.breakdown_dt
+			    , t.breakdown_min
+			    , wsc.code_cd as work_src_cd
+			    , wsc.code_nm as work_src_nm
+			    , t.tot_cost
+			    , t.mtrl_cost
+			    , t.labor_cost
+			    , t.outside_cost
+			    , t.etc_cost
+			    , t.problem_cd
+			    , wp.reliab_nm as problem_nm
+			    , t.cause_cd
+			    , wc.reliab_nm as cause_nm
+			    , t.remedy_cd
+			    , wr.reliab_nm as remedy_nm
+			    , prj.proj_cd
+			    , prj.proj_nm
+			    , t.wo_file_grp_cd
+			    , t.req_info_img_grp_cd
+			    , t.work_text_img_grp_cd
+			    , t.pm_req_type
+			    , t.req_dept_busi_cd
+			    , t.appr_line
+			    , t.appr_line_next
+			    , t.work_order_approval_pk
+			    , woa.reg_dt
+			    , woa.rqst_dt
+			    , woa.rqst_user_nm
+			    , woarqstd.dept_pk as rqst_dept_pk
+			    , woarqstd.dept_nm as rqst_dept_nm
+			    , woa.cancel_dt
+			    , woa.cancel_user_nm
+			    , woa.accept_dt
+			    , woa.appr_dt
+			    , woa.finish_dt
+			    , substring(t.appr_line, 1,2) as wo_start_type
+			    , cm_fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
+			    , t.insert_ts
+			    , e.environ_equip_yn
+			    , e.equip_status as equip_stauts_cd
+			    , e.import_rank_pk
+			    , ir.import_rank_cd
+			    , e.up_equip_pk
+			    , ue.equip_nm AS up_equip_name
+			    , ec.equip_category_id
+			    , ec.equip_category_desc
+    		    , ec.remark
+			    , e.equip_class_path
+			    , e.equip_class_desc
+			    , av.code_nm as first_asset_status
+			    , av.code_cd as first_asset_status_cd
+			    , cm_fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
+			    , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
+			    , (select code_nm from cm_base_code where code_grp_cd = 'EQUIP_SYSTEM' and code_cd = e.system_cd) as system_nm
+			    , l.loc_nm
+			    , es.ex_supplier_nm
+			    , woa.cancel_reason
+			    , t.cost_type
+			    , (select code_nm from cm_base_code where code_cd = t.cost_type and code_grp_cd = 'WO_COST_TYPE') as cost_type_nm
 
-		where 1 = 1
-		AND t.work_order_pk =  %(work_order_pk)s
+	    from cm_work_order t
+		    inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
+		    inner join cm_base_code mt on t.maint_type_cd = mt.code_cd and mt.code_grp_cd = 'MAINT_TYPE'
+		    inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
+		    inner join cm_equipment e on t.equip_pk = e.equip_pk
+		    inner join cm_location l on e.loc_pk = l.loc_pk
+		    left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
+		    left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
+		    left outer join cm_dept wd on t.dept_pk = wd.dept_pk
+		    left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
+		    left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
+		    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
+		    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
+		    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
+		    left outer join cm_pm p on t.pm_pk = p.pm_pk
+		    left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+		    left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
+		    left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
+		    left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+		    left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
+		    left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
+		    left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
+		    left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
+		    left outer join cm_project prj on t.proj_cd = prj.proj_cd
+		    left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
+		    left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+		    left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
+		    left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
+		    left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
+		    left outer join cm_base_code av on av.code_cd = e.first_asset_status and av.code_grp_cd = 'ASSET_VAL_STATUS'
+		    left outer join cm_work_order_supplier wos on wos.work_order_pk = t.work_order_pk
+		    left outer join cm_ex_supplier es on es.ex_supplier_pk = wos.ex_supplier_pk
+	    where 1 = 1
+
+	    AND t.work_order_pk = %(work_order_pk)s
             ;
         '''
 
@@ -730,6 +957,32 @@ class PMService():
                 raise ex
 
         return exec_cnt
+
+    def executeMakeSchedulePm(self, sche_type, pm_pk_list, start_date, end_date):
+        sql = ''' 
+                select fn_make_schedule_pm(%(sche_type)s
+                , %(pm_pk)s
+                , to_date(%(start_date)s, 'YYYYMMDD')
+                , to_date(%(end_date)s, 'YYYYMMDD')
+                , '1')
+        '''
+        results = []
+        try:
+            for pm_pk in pm_pk_list:
+                params = {
+                    'sche_type': sche_type,
+                    'pm_pk': pm_pk,
+                    'start_date': start_date.replace('-', ''),
+                    'end_date': end_date.replace('-', '')
+                }
+                items = DbUtil.get_rows(sql, params)
+                if items:
+                    results.append(items[0])
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.executeMakeSchedulePm', ex)
+            raise ex
+
+        return results
 
 
 

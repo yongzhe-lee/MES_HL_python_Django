@@ -401,11 +401,15 @@ class IFEquipemntDefectItems(models.Model):
         ]
 
 class IFMounterPickupRate(models.Model):
+    '''
+    마운터 픽업률
+    '''
     id = models.BigAutoField(primary_key=True)
     job = models.CharField("job", max_length=200, null=True)
     equ_cd = models.CharField('설비코드', max_length=50, null=True)
     machine = models.CharField('머신코드', max_length=50, null=True)
     position = models.CharField('포지션', max_length=50, null=True)
+    module_no = models.CharField('모듈번호', max_length=50, null=True)
     partNumber = models.CharField('부품번호', max_length=50, null=True)
     fidl = models.CharField('FIDL', max_length=50, null=True)
     pickup = models.IntegerField('픽업수', null=True)
@@ -415,7 +419,7 @@ class IFMounterPickupRate(models.Model):
     error = models.IntegerField('에러수', null=True)
     dislodge = models.IntegerField('이탈수', null=True)
     rescan = models.IntegerField('리스캔수', null=True)
-    lcr = models.IntegerField('LCR수', null=True)
+    lcr = models.DecimalField('LCR수', max_digits=10, decimal_places=2, null=True)
     pickup_ratio = models.DecimalField('픽업비율', max_digits=5, decimal_places=2, null=True)
     reject_ratio = models.DecimalField('리젝비율', max_digits=5, decimal_places=2, null=True)
     error_ratio = models.DecimalField('에러비율', max_digits=5, decimal_places=2, null=True)

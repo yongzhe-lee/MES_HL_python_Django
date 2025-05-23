@@ -1019,7 +1019,7 @@ class CmErrorLog(models.Model):
     ErrorLogType = models.CharField(max_length=50, db_column='error_log_type', db_comment='에러 로그 유형')
     ErrorLogTitle = models.CharField(max_length=200, db_column='error_log_title', db_comment='에러 제목')
     ErrorLogDesc = models.TextField(db_column='error_log_desc', db_comment='에러 설명')
-    InsertTs = models.DateTimeField(db_column='insert_ts', db_comment='등록일시')
+    InsertTs = models.DateTimeField(db_column='insert_ts', null=True, db_comment='등록일시')
 
     class Meta:
         db_table = 'cm_error_log'
@@ -1153,7 +1153,7 @@ class CmHolidayCustom(models.Model):
         return
  
 class CmHolidayInfo(models.Model):
-    NationCode = models.CharField(primary_key=True, max_length=10, db_column='nation_cd', db_comment='국가코드')
+    NationCode = models.CharField(max_length=10, db_column='nation_cd', db_comment='국가코드')
     YearVal = models.CharField(max_length=4, db_column='year_val', db_comment='년도')
     MonthVal = models.CharField(max_length=2, db_column='month_val', db_comment='월')
     DayVal = models.CharField(max_length=2, db_column='day_val', db_comment='일')
@@ -1163,16 +1163,7 @@ class CmHolidayInfo(models.Model):
     class Meta:
         db_table = 'cm_holiday_info'
         db_table_comment = '국가별 공휴일 정보'
-        unique_together = (('NationCode', 'YearVal', 'MonthVal', 'DayVal'),)
-
-    def set_audit(self, user):
-        # if self.InserterId is None:
-        #     self.InserterId = user.id
-        #     self.InserterName = user.username
-        # self.UpdaterId = user.id
-        # self.UpdaterName = user.username
-        # self.UpdateTs = DateUtil.get_current_datetime()
-        return
+        managed = False  # ❗ 이걸로 Django가 마이그레이션 하지 않도록 함 , 01.기초데이터에서 직접 insert 실행하고 save() 가 추가로 없으므로      
  
 class CmI18N(models.Model):
     LangCode = models.CharField(primary_key=True, max_length=100, db_column='lang_code', db_comment='언어코드')
@@ -2486,8 +2477,8 @@ class CmWorkOrder(models.Model):
     PmReqType = models.CharField(db_column='pm_req_type', db_comment='PM 요청유형')
     ProjCode = models.CharField(db_column='proj_cd', blank=True, null=True, db_comment='프로젝트 코드')
     WorkOrderSort = models.BigIntegerField(blank=True, null=True, db_column='work_order_sort', db_comment='작업정렬순서')
-    RqstInspYn = models.CharField(db_column='rqst_insp_yn', db_comment='검사요청 여부')
-    RqstDprYn = models.CharField(db_column='rqst_dpr_yn', db_comment='DPR요청 여부')
+    RqstInspYn = models.CharField(db_column='rqst_insp_yn', null=True, db_comment='검사요청 여부')
+    RqstDprYn = models.CharField(db_column='rqst_dpr_yn', null=True, db_comment='DPR요청 여부')
     ApprLine = models.CharField(max_length=50, blank=True, null=True, db_column='appr_line', db_comment='결재라인')
     ApprLineNext = models.CharField(max_length=10, blank=True, null=True, db_column='appr_line_next', db_comment='다음 결재자')
     CmWorkOrderApproval = models.ForeignKey('CmWorkOrderApproval', models.DO_NOTHING, db_column='work_order_approval_pk', db_comment='작업지시 결재 PK')

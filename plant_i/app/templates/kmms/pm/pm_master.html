@@ -52,44 +52,44 @@
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">검색키워드</label>
-                            <input id="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
+                            <input id="keyword" name="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">관리부서</label>
-                            <select id="srch_dept" style="width: 200px;"></select>
+                            <select id="srch_dept" name="equDept" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">설비위치</label>
-                            <select id="srch_location" style="width: 200px;"></select>
+                            <select id="srch_location" name="equLoc" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">실행 부서</label>
-                            <select id="srch_dept_type" style="width: 200px;"></select>
+                            <select id="srch_pmDept" name="pmDept" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">PM유형</label>
-                            <select id="serchPmType" style="width: 200px;"></select>
+                            <select id="serchPmType" name="pmType" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">적용여부</label>
-                            <select id="srchApplyYn" style="width: 200px;">
+                            <select id="srchApplyYn" name="applyYn" style="width: 200px;">
                             </select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">주기단위</label>
-                            <select id="srchPeriodUnit" style="width: 200px;"></select>
+                            <select id="srchPeriodUnit" name="cycleType" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
@@ -101,13 +101,13 @@
                     <div class="col-md-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
-                            <input id="chk_my_task" name="chk_my_task">
+                            <input id="chk_my_task" name="isMyTask">
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="chk_legal">법정관리설비</label>
-                            <input id="chk_legal" name="chk_legal">
+                            <input id="chk_legal" name="isLegal">
                         </div>
                     </div>
                 </div>
@@ -166,41 +166,7 @@
             if (this.grid) {
                 this.grid.setData([]);
             }
-
-            // 검색 조건 초기화
-            $("#keyword").val("");
-
-            // Kendo 컴포넌트 초기화
-            let srchDept = $("#srch_dept").data("kendoDropDownTree");
-            if (srchDept) srchDept.value("");
-
-            let srchLocation = $("#srch_location").data("kendoDropDownTree");
-            if (srchLocation) srchLocation.value("");
-
-            let srchDeptType = $("#srch_dept_type").data("kendoDropDownTree");
-            if (srchDeptType) srchDeptType.value("");
-
-            let serchPmType = $("#serchPmType").data("kendoDropDownList");
-            if (serchPmType) serchPmType.value("");
-
-            let srchApplyYn = $("#srchApplyYn").data("kendoDropDownList");
-            if (srchApplyYn) srchApplyYn.value("");
-
-            let srchPeriodUnit = $("#srchPeriodUnit").data("kendoDropDownList");
-            if (srchPeriodUnit) srchPeriodUnit.value("");
-
-            let dateRange = $("#srch_date_range").data("kendoDateRangePicker");
-            if (dateRange) dateRange.range({
-                start: new Date(),
-                end: new Date()
-            });
-
-            // 스위치 초기화
-            let myTaskSwitch = $("#chk_my_task").data("kendoSwitch");
-            if (myTaskSwitch) myTaskSwitch.value(false);
-
-            let legalSwitch = $("#chk_legal").data("kendoSwitch");
-            if (legalSwitch) legalSwitch.value(false);
+			FormUtil.resetForm($("#searchForm"));
         }
 
         init() {
@@ -248,14 +214,17 @@
                             e.preventDefault();
                             let pmPk = $(this).data("pm-pk");
                             let equipPk = $(this).data("equip-pk");               
-                            if (pmPk) {
+                            if (pmPk) {								
                                 setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
                                 pmMasterPage.show(pmPk);
-                            } else if (equipPk) {
+                                return; // pmPk가 있을 경우 여기서 함수 종료
+                            }
+                            
+                            if (equipPk) {
                                 // 기존 팝업/인스턴스 완전 제거
                                 $('#modalEquipMaster').remove();
                                 window.equipMasterPage = undefined;
-
+                                
                                 // 팝업 append
                                 const response = await $.get('/api/kmms/equipment?action=load_modal');
                                 $('body').append(response);
@@ -263,7 +232,6 @@
                                 // 인스턴스 생성 및 show
                                 window.equipMasterPage = new EquipMaster();
                                 window.equipMasterPage.show(equipPk);
-                  
                             }
                         } catch (error) {
                             console.error('Error in click handler:', error);
@@ -279,7 +247,7 @@
 
             AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "select");
             AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
-			AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "cm_depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_pmDept"), "cm_depart", "select");
             AjaxUtil.fillDropDownOptions($('#serchPmType'), 'cm_base_code', 'choose', null, 'PM_TYPE');
 
             $("#srchApplyYn").kendoDropDownList({
@@ -358,53 +326,13 @@
             }).css('visibility', 'visible');
         }
 
-        searchMainData() {    
-            try {
-                // 날짜 데이터 처리
-                let startDate = '';
-                let endDate = '';
-                let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+        searchMainData() {  
+			let pm_search_param = FormUtil.extractForm($("#searchForm"));
+			pm_search_param.action = 'findAll';
 
-                if (dateRangePicker) {
-                    let range = dateRangePicker.range();
-                    if (range) {
-                        startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
-                        endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
-                    }
-                }
-
-                // 안전한 컴포넌트 값 가져오기
-                const getComponentValue = (selector, type) => {
-                    try {
-                        const component = $(selector).data(type);
-                        return component ? component.value() : '';
-                    } catch (e) {
-                        console.warn(`Failed to get value for ${selector}`, e);
-                        return '';
-                    }
-                };
-
-                let param = {
-                    action: 'findAll',
-                    keyword: $('#keyword').val() || '',
-                    equDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
-                    equLoc: getComponentValue("#srch_location", "kendoDropDownTree"),
-                    pmDept: getComponentValue("#srch_dept_type", "kendoDropDownTree"),
-                    pmType: getComponentValue("#serchPmType", "kendoDropDownList"),
-                    applyYn: getComponentValue("#srchApplyYn", "kendoDropDownList"),
-                    cycleType: getComponentValue("#srchPeriodUnit", "kendoDropDownList"),
-                    sDay: startDate,
-                    eday: endDate,
-                    isMyTask: $('#chk_my_task').is(':checked') ? 'Y' : 'N',
-                    isLegal: $('#chk_legal').is(':checked') ? 'Y' : 'N',
-                };
-
-                let result = AjaxUtil.getSyncData(this.baseUrl, param);
-                if (result) {
-                    this.grid.setData(result);
-                }
-            } catch (error) {
-                console.error('Error in searchMainData:', error);
+			let result = AjaxUtil.getSyncData(this.baseUrl, pm_search_param);
+            if (result) {
+                this.grid.setData(result);
             }
         }
 
@@ -419,18 +347,16 @@
 
     };
 
-    let page = null;
-
-    page = new PmMasterPage();
+    let page = new PmMasterPage();
 
     $(document).ready(function () {
         page.searchMainData();
-
+		
         // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
         $("#searchFormContent").removeClass("search-expanded");
 
         // ✅ 버튼 클릭 시 동작
-        $(document).on("click", "#toggleSearchBtn", function () {
+        $(document).on("click", "#toggleSearchBtn", function () {  
             let searchForm = $("#searchFormContent");
 
             if (searchForm.hasClass("search-expanded")) {

@@ -103,9 +103,11 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DBMS_HOST = '10.10.10.231'    # 개발
+#DBMS_HOST = '10.226.236.34'   # 배포DB
 #DBMS_HOST = 'localhost'
-#DBMS_HOST = '10.226.236.32'   # 배포DB_포워딩(테스트용)
+DBMS_HOST = '10.10.10.231'    # 개발
+
+
 
 DBMS_PORT = 5432  # 일반
 # DBMS_PORT = 15432   # 배포_포워딩(테스트용)
@@ -164,9 +166,9 @@ USE_MOBILE_LOGIN = False
 MAIN_APP_RUN = False
 
 #MOSQUITTO_HOST = "10.226.236.32"
-MOSQUITTO_HOST = "10.10.10.231"
 #MOSQUITTO_HOST = 'localhost'
-MOSQUITTO_WEBSOCKET_PORT =9001
+MOSQUITTO_HOST = "10.10.10.231"
+
 MOSQUITTO_USERNAME = ""
 MOSQUITTO_MQTT_PORT = 1883
 MOSQUITTO_WEBSOCKET_PORT = 9001
@@ -179,7 +181,7 @@ SITE_NAME = 'hlklemove'
 TOPIC_DEVICE_DATA = SITE_NAME + '_device_data'
 TOPIC_DEVICE_EVENT = SITE_NAME + '_device_event'
 TOPIC_HMI_DATA = SITE_NAME + '_hmi_data'
-TOPIC_MNT_FEED_RATE = "mnt_feeder_rate_data"
+TOPIC_MNT_PICKUP_RATE = "mnt_pickup_rate_data"
 
 HMI_RUNNING_MODE = 'mqtt' # mqtt or database
 

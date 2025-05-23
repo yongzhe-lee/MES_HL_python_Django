@@ -107,6 +107,9 @@
     <Compile Include="app\views\kmms\equip_chk_item.py" />
     <Compile Include="app\views\kmms\equip_chk_item_mst.py" />
     <Compile Include="app\views\kmms\alarm_noti_grp.py" />
+    <Compile Include="app\views\kmms\holiday.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\kmms\material.py" />
     <Compile Include="app\views\kmms\alarm_actn.py" />
     <Compile Include="app\views\kmms\pop_info.py" />
@@ -284,6 +287,7 @@
     </Compile>
     <Compile Include="domain\services\interface\sap.py" />
     <Compile Include="domain\services\interface\van.py" />
+    <Compile Include="domain\services\kmms\holiday.py" />
     <Compile Include="domain\services\kmms\material.py" />
     <Compile Include="domain\services\kmms\pi_master.py" />
     <Compile Include="domain\services\kmms\equipment.py" />
@@ -305,6 +309,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\_sql\interface\equipment\hpc1.fclip.screw.json">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\_sql\interface\equipment\rst_hpc1.xxxx.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\_sql\interface\mes\03.active_work_order.json">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\__init__.py" />
@@ -422,6 +432,7 @@
     <Folder Include="domain\_sql\interface\alarm\" />
     <Folder Include="domain\_sql\interface\fuji\" />
     <Folder Include="domain\_sql\interface\fuji\pickuprate\" />
+    <Folder Include="domain\_sql\interface\mes\" />
     <Folder Include="domain\_sql\kmms_function\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
@@ -965,6 +976,8 @@
     <Content Include="app\static\resource\kendo_ui\styles\material-sky.css" />
     <Content Include="app\static\resource\kendo_ui\styles\material-smoke.css" />
     <Content Include="app\static\resource\kendo_ui\typescript\kendo.all.d.ts" />
+    <Content Include="app\templates\components\WoApprovalLine.html" />
+    <Content Include="app\templates\kmms\holidayCustom.html" />
     <Content Include="app\templates\popup\modalAmtUnitAdd.html" />
     <Content Include="app\templates\popup\modalEquCategorySel.html" />
     <Content Include="app\templates\popup\modalEqus.html" />
@@ -974,13 +987,58 @@
     <Content Include="app\templates\popup\modalMtrlClassAdd.html" />
     <Content Include="app\templates\popup\modalMtrlCopy.html" />
     <Content Include="app\templates\popup\modalScheMakeConfirm.html" />
+    <Content Include="app\templates\popup\modalWoStatHist.html" />
     <Content Include="domain\_sql\05.dummy_date.txt" />
+    <Content Include="domain\_sql\interface\equipment\dt_smt4.laserrmarking.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\dt_smt4.mnt.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\dummy.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\mnt_pickup_rate_data.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\rst_smt4.laserrmarking.json" />
+    <Content Include="domain\_sql\interface\equipment\rst_smt4.mnt.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\function\cm_fn_all.txt" />
     <Content Include="domain\_sql\interface\fuji\AOI_Insp_End.json" />
     <Content Include="domain\_sql\interface\fuji\AOI_Machine_Error.json" />
     <Content Include="domain\_sql\interface\fuji\AOI_Machine_State.json" />
     <Content Include="domain\_sql\interface\fuji\SPI_Insp_End.json" />
     <Content Include="domain\_sql\interface\fuji\SPI_Machine_Error.json" />
     <Content Include="domain\_sql\interface\fuji\SPI_Machine_State.json" />
+    <Content Include="domain\_sql\interface\mes\02.fpy_data.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\01.lot_history.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\06.product_plan_all.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\05.product_plan_excel.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\04.work_order_list.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\07.oee_plant.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\08.oee_line_group.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\09.oee_line_team.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\mes\10.oee_line_analysis.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\kmms_function\cm_fn_all.txt" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all.min.intellisense.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all-vsdoc.js" />
@@ -1224,7 +1282,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\function\fn_try_to_number.txt" />
-    <Content Include="domain\_sql\function\cm_fn_get_loc_plant_nm_code.txt" />
     <Content Include="domain\_sql\function\fn_datediff.txt" />
     <Content Include="domain\_sql\function\fn_code_name.txt" />
     <Content Include="domain\_sql\function\fn_dateadd.txt" />
@@ -1238,7 +1295,6 @@
     <Content Include="domain\_sql\function\fn_json_lang_text.txt" />
     <Content Include="domain\_sql\function\fn_make_schedule_pm.txt" />
     <Content Include="domain\_sql\function\fn_minutediff.txt" />
-    <Content Include="domain\_sql\function\cm_fn_dateadd.txt" />
     <Content Include="domain\_sql\function\fn_user_nm.txt" />
     <Content Include="domain\_sql\interface\alarm\fuji\e8xxx_KO.xml" />
     <Content Include="domain\_sql\interface\alarm\fuji\ErrorCodeText_E.txt" />

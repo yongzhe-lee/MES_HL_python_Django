@@ -55,7 +55,7 @@ class GUIConfiguration():
         gui_dc['wm_work_order_management'] = cls.gui_item('작업지시관리', 'kmms/wo/work_order_management.html')
         gui_dc['wm_work_request_approval'] = cls.gui_item('작업요청승인', 'kmms/wo/work_request_approval.html')
         gui_dc['wm_work_order_approval'] = cls.gui_item('작업지시승인', 'kmms/wo/work_order_approval.html')
-        gui_dc['wm_post_work_management'] = cls.gui_item('사후작업관리', 'kmms/wo/post_work_management.html')
+        gui_dc['wm_post_work_management'] = cls.gui_item('작업일보관리', 'kmms/wo/post_work_management.html')
 
         #예방정비(PM)
         gui_dc['wm_pm_master'] = cls.gui_item('PM 마스터', 'kmms/pm/pm_master.html')
@@ -83,6 +83,7 @@ class GUIConfiguration():
         gui_dc['wm_cm_equip_loc'] = cls.gui_item('설비위치정보', 'kmms/equipment/locList.html')
         gui_dc['wm_cm_equip_group'] = cls.gui_item('설비분류', 'kmms/equipment/equipmentGroupList.html')       
         gui_dc['wm_cm_wo_project'] = cls.gui_item('프로젝트', 'kmms/wo/projectList.html')
+        gui_dc['wm_cm_holiday'] = cls.gui_item('휴일 스케줄', 'kmms/holidayCustom.html')
 
         #설비통계        
         gui_dc['wm_facility_monthly_status'] = cls.gui_item('설비별 월간 고장현황', 'kmms/report/facility_monthly_status.html')
@@ -133,7 +134,7 @@ class GUIConfiguration():
         gui_dc['wm_shift'] = cls.gui_item('조교대정보', 'definition/shift.html')
         gui_dc['wm_line_inactive'] = cls.gui_item('비가동일정정보', 'definition/line_inactive.html')
         gui_dc['wm_model_change'] = cls.gui_item('기종변경정보', 'definition/model_change.html')        
-        gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'definition/holiday.html')#휴일 스케줄
+        # gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'definition/holiday.html')#휴일 스케줄
         # gui_dc['wm_company'] = cls.gui_item('업체', 'definition/company.html')#업체 
 
         # 설비관리

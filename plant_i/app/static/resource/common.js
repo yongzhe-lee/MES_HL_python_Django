@@ -1350,6 +1350,9 @@ let AjaxUtil = {
             case 'cm_location':
                 _url = '/api/definition/location?action=cm_loc_tree';
                 break;
+            case 'cm_equip_classify':
+                _url = '/api/definition/equipment?action=cm_equip_classify_tree';
+                break;
             default:
                 break;
         }

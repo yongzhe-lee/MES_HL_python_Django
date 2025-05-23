@@ -6,12 +6,12 @@ class EquipmentService():
 	def __init__(self):
 		return
 
-	def searchEquipment(self, equipment):
+	def searchEquipment(self, keyword, equip_status, process_cd, system_cd, loc_pk, equip_category_id, equip_class_path, supplier_pk, use_yn, environ_equip_yn):
 		items = []
-		dic_param = {'equipment': equipment}
+		dic_param = {'keyword': keyword, 'equip_status': equip_status, 'process_cd': process_cd, 'system_cd': system_cd, 'loc_pk': loc_pk, 'equip_category_id': equip_category_id, 'equip_class_path': equip_class_path, 'supplier_pk': supplier_pk, 'use_yn': use_yn, 'environ_equip_yn': environ_equip_yn}
 
 		sql = ''' 
-         with cte as (
+        with cte as (
 
 		select t.equip_pk
 		, cm_fn_get_incineration(l.loc_pk) as incinerator
@@ -104,7 +104,61 @@ class EquipmentService():
 
 		left outer join cm_equip_part_mtrl epm on t.equip_pk = epm.equip_pk
 		where t.del_yn = 'N'
-			AND t.use_yn = 'Y'
+		'''
+		if use_yn:
+			sql += '''
+			AND t.use_yn = %(use_yn)s
+			'''
+		if process_cd:
+			sql += '''
+			AND t.process_cd = %(process_cd)s
+			'''
+		if system_cd:
+			sql += '''
+			AND t.system_cd = %(system_cd)s
+			'''
+		if keyword:
+			sql += ''' 
+			AND (
+				UPPER(t.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR UPPER(t.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+
+					OR ('NCA' = 'NCL' AND UPPER(l.loc_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%'))
+					OR ('NCA' = 'NCA' AND UPPER(t.asset_nos) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%'))
+
+			)
+			'''
+		if equip_status:
+			sql += '''
+			AND t.equip_status = %(equip_status)s
+			'''
+		if loc_pk:
+			sql += '''
+			AND (
+				l.loc_pk = %(loc_pk)s
+				OR
+				l.loc_pk IN ( select loc_pk from (select * from cm_fn_get_loc_path(1)) x where %(loc_pk)s = path_info_pk)
+			)
+			'''
+		if environ_equip_yn:
+			sql += '''
+			and t.environ_equip_yn = %(environ_equip_yn)s
+			'''
+		if equip_category_id:
+			sql += '''
+			and t.equip_category_id = %(equip_category_id)s
+			'''
+		# 수정 필요
+		if equip_class_path:
+			sql += '''
+			AND t.equip_class_path = %(equip_class_path)s
+			'''
+		if supplier_pk:
+			sql += '''
+			AND t.supplier_pk = %(supplier_pk)s
+			'''
+
+		sql +=	'''
 			AND t.equip_status NOT IN ('ES_DISP')
 		group by t.equip_pk
 		, t.equip_cd
@@ -222,10 +276,6 @@ class EquipmentService():
 		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
 		WHERE total_rows != 0         
         '''
-		if equipment:
-			sql += ''' 
-			AND a."pm_nm" like CONCAT('%%', %(equipment)s, '%%')
-			'''
         
 		sql += ''' 
 			ORDER BY 1
