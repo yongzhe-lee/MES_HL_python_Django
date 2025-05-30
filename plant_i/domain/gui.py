@@ -52,9 +52,9 @@ class GUIConfiguration():
 
         #작업지시
         gui_dc['wm_my_work_request'] = cls.gui_item('나의작업요청', 'kmms/wo/my_work_request.html')
-        gui_dc['wm_work_order_management'] = cls.gui_item('작업지시관리', 'kmms/wo/work_order_management.html')
         gui_dc['wm_work_request_approval'] = cls.gui_item('작업요청승인', 'kmms/wo/work_request_approval.html')
         gui_dc['wm_work_order_approval'] = cls.gui_item('작업지시승인', 'kmms/wo/work_order_approval.html')
+        gui_dc['wm_work_order_management'] = cls.gui_item('작업지시관리', 'kmms/wo/work_order_management.html')
         gui_dc['wm_post_work_management'] = cls.gui_item('작업일보관리', 'kmms/wo/post_work_management.html')
 
         #예방정비(PM)
@@ -184,6 +184,20 @@ class GUIConfiguration():
 
         # I/F 이력조회, ERP, 생산설비측정데이터, QMS, VAN, 인사정보
         gui_dc['wm_if_sap'] = cls.gui_item('SAP', 'interface/if_sap.html')
+        gui_dc['wm_if_sap_mat'] = cls.gui_item('SAP Material', 'interface/sap/if_sap_mat.html') #품목정보
+        gui_dc['wm_if_sap_bom'] = cls.gui_item('SAP BOM', 'interface/sap/if_sap_bom.html') # BOM
+        gui_dc['wm_if_sap_stock'] = cls.gui_item('SAP Stock', 'interface/sap/if_sap_stock.html') # 품목별 위치별 재고
+        gui_dc['wm_if_sap_pcb_random'] = cls.gui_item('SAP PCB Rand.', 'interface/sap/if_sap_pcb_random.html') # PCB 난수번호별 입고번호조회
+
+        # I/F mes  lot_hostory, Fpy data, ActiveWorkOrder, WorkOrderList, ProductPlanExcel, ProductPlanAll, 
+        gui_dc['wm_if_mes_lot_history'] = cls.gui_item('LOT Hist.', 'interface/mes/if_mes_lot_history.html')
+        gui_dc['wm_if_mes_fpy'] = cls.gui_item('FPY조회', 'interface/mes/if_mes_fpy_data.html')
+        gui_dc['wm_if_mes_workorder'] = cls.gui_item('작업지시', 'interface/mes/if_mes_workorder.html') # 작업지시목록 및 현재 액티브된 워크오더 조회
+        gui_dc['wm_if_mes_product_plan'] = cls.gui_item('생산계획', 'interface/mes/if_mes_product_plan.html') # 엑셀데이터포함
+        gui_dc['wm_if_mes_oee'] = cls.gui_item('생산계획', 'interface/mes/if_mes_oee.html') # 엑셀데이터포함
+
+
+
         gui_dc['wm_if_qms'] = cls.gui_item('QMS', 'interface/if_qms.html')
         gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')
         gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
@@ -192,6 +206,8 @@ class GUIConfiguration():
         gui_dc['wm_if_tension_check'] = cls.gui_item('스텐실텐션체크', 'interface/if_tension_check.html')
         gui_dc['wm_if_reflow_profile'] = cls.gui_item('Reflow Profile', 'interface/if_reflow_profile.html')
         gui_dc['wm_if_topic_data'] = cls.gui_item('TOPIC데이터확인', 'interface/if_topic_data.html')
+        gui_dc['wm_if_log'] = cls.gui_item('인터페이스로그확인', 'interface/if_log.html')
+
 
         # kendo ui 샘플화면
         gui_dc['wm_sample_test'] = cls.gui_item('샘플화면(test)', 'sample_page/test.html')

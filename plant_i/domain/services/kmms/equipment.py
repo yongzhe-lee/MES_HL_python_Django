@@ -1,4 +1,4 @@
-﻿from configurations import settings
+from configurations import settings
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 
@@ -550,6 +550,7 @@ class EquipmentService():
 		, ec.remark as _equip_category_remark
 		, t.asset_nos as _asset_nos
 		, t.environ_equip_yn
+		, t.warranty_dt as _warranty_dt
 		from cm_equipment t		
 		inner join cm_location l on t.loc_pk = l.loc_pk		
 		inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'		

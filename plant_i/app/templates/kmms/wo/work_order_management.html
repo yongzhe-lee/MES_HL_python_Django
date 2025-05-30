@@ -50,8 +50,14 @@
         height: 22px !important;
     }
 
-    .zoombutton:hover {
-        background: #2980b9 !important;
+        .zoombutton:hover {
+            background: #2980b9 !important;
+        }
+    /* Kendo Scheduler 이벤트 바깥 파란색(기본 배경, 테두리) 제거 */
+    .k-event, .k-scheduler-event, .k-event-template {
+        background: #fff !important;
+        border-color: #fff !important;
+        color: #1976d2;
     }
 </style>
 {% endblock %}
@@ -71,7 +77,7 @@
                             <div class="field-wrapper">
                                 <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명을 입력 입력하세요" />
                             </div>
-                            <button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
@@ -161,41 +167,24 @@
                         <li class="k-active">목록</li>
                         <li>일정표</li>
                     </ul>
-                    <div class="tab-contents">
-                        <div class="card-content grid">
-                            <div class="card-group-btn">
-                                <span class="info-text">
-                                    <i class="material-symbols-outlined">list_alt</i>
-                                    <label data-labelCd="설비정보">설비정보</label>
-                                </span>
-                                <span>
-                                </span>
-                                <span>
-                                    <!-- 오른쪽 버튼 영역-->
-                                    <button id="btnSearch" class="btn-search">조회</button>
-                                    <button id="btnExcel">Excel</button>
-                                </span>
-                            </div>
+                    <span class="card-group-btn" style="margin-top: 10px">
+                        <span class="info-text">
+                            <i class="material-symbols-outlined">list_alt</i>
+                            <label id="tabLabel" data-labelCd="작업요청">작업요청</label>
+                        </span>
+                        <span></span>
+                        <span>
+                            <button id="btnSearch" class="btn-search">조회</button>
+                            <button id="btnExcel">Excel</button>
+                        </span>
+                    </span>
+                    <div class="tab-contents" style="padding: 0px">
+                        <div class="card-content grid" style="padding: 0px">
                             <div id="work_order_grid" style="height:540px;"></div>
                         </div>
                     </div>
-                    <div class="tab-contents">
-                        <div class="card-content grid">
-                            <div class="card-group-btn">
-                                <span class="info-text">
-                                    <i class="material-symbols-outlined">list_alt</i>
-                                    <label data-labelCd="설비정보">설비정보</label>
-                                </span>
-                                <span>
-                                </span>
-                                <span>
-                                    <!-- 오른쪽 버튼 영역-->
-                                    <button id="btnSearch" class="btn-search">조회</button>
-                                    <button id="btnExcel">Excel</button>
-                                </span>
-                            </div>
-                            <div id="equipment_grid" style="height:540px;"></div>
-                        </div>
+                    <div class="tab-contents" style="padding: 0px">
+                        <div id="simulationScheduler"></div>
                     </div>
                 </div>
             </div>
@@ -207,53 +196,20 @@
 {% endverbatim %}
 {% endblock %}
 {% block scripts %}
+
+{% include '../../popup/modalEquSel.html'%}
+
 <script type="text/javascript">
     class CmEquipmentPage {
         constructor() {
             this.grid = null;
             this.upload = null;
             this.baseUrl = '/api/kmms/wo_master';
+            this.schedulerData = [];
+            this.holidayInfo = null;
+            this.holidayCustom = null;
 
             this.init();
-        }
-
-         /**
-        * 모달창 입력란 초기화 함수
-        */
-        resetModalInputs() {
-            // 일반 입력 필드 초기화
-            $("#equip_pk").val("");
-            $("#pm_pk").val("");
-            $("#pmNumber").val("");
-            $("#pmName").val("");
-            $("#work_text").val("");
-            $("#equ_code").val("");
-            $("#equ_name").val("");
-            $("#equ_loc").val("");
-            $("#equ_import").val("");
-            $("#equ_status").val("");
-            $("#equ_env_yn").val("");
-
-            // Kendo UI 컴포넌트 초기화
-            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
-            if (maintenanceTime) {
-                maintenanceTime.value("");
-            }
-
-            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
-            if (execDeptDropdown) {
-                execDeptDropdown.value("");
-            }
-
-            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
-            if (pmManagerDropdown) {
-                pmManagerDropdown.value("");
-            }
-
-            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
-            if (pmTypeDropdown) {
-                pmTypeDropdown.value("");
-            }
         }
 
         init() {
@@ -330,7 +286,6 @@
                 if (woNoPk) {
                     woDetailPage.show(woNoPk, 1);
                 } else if (woTitlePk) {
-                    page.resetModalInputs();
                     $("#modalMyWorkReq").fadeIn();
                 } else if (woStatusPk) {
                     woStatHistPage.show();
@@ -338,15 +293,14 @@
             });
 
             // search form
-            $("#upLoc").kendoButton({
+            $("#equKeword").kendoButton({
                 icon: "k-i-zoom-in",
                 rounded: "full",
                 click: function (e) {
                     e.preventDefault();
                     setModalPosition('#modalEqu', { width: '70%', height: '70%' });
                     equipSelectPage.show(function (data) {
-                        //$("#up_loc_pk").val(data._equip_pk);
-                        //$("#up_loc_nm").val(data._equip_nm);
+                        $("#keyword").val(data.equip_cd);
                     });
                 }
             });
@@ -402,8 +356,11 @@
                 animation: { open: { effects: "fadeIn" } },
                 activate: function (e) {
                     let activeTabIndex = $(e.item).index();
-                    _this.searchMainData();
-                    //_this.searchMainData(activeTabIndex);
+                    if (activeTabIndex === 0) {
+                        $("#tabLabel").text("작업지시");
+                    } else if (activeTabIndex === 1) {
+                        $("#tabLabel").text("일정표");
+                    }
                 }
             });
         }
@@ -455,6 +412,128 @@
             });
             gridData.saveAsExcel();
         }
+
+        loadSimulationScheduler() {
+
+            let calParam = {
+                action: 'selectEquipChkScheSimulationCycleByMon',
+            };
+
+            this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pi_master', calParam);
+            this.holidayInfo = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayInfoRes' });
+            this.holidayCustom = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayCustom' });
+
+            // holidayInfo, holidayCustom이 있으면 기존 schedulerData에 추가
+            let mergedData = [...this.schedulerData]; // 기존 시뮬레이션 데이터 복사
+
+            if (Array.isArray(this.holidayInfo)) {
+                this.holidayInfo.forEach(holiday => {
+                    mergedData.push({
+                        id: holiday.id,
+                        title: holiday.name,
+                        start: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        end: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        isAllDay: true,
+                        type: holiday.type,
+                    });
+                });
+            }
+            if (Array.isArray(this.holidayCustom)) {
+                this.holidayCustom.forEach(holiday => {
+                    mergedData.push({
+                        id: holiday.id,
+                        title: holiday.name,
+                        start: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        end: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        isAllDay: true,
+                        type: holiday.type,
+                    });
+                });
+            }
+            console.log('schedulerData', mergedData);
+            var dataSource = new kendo.data.SchedulerDataSource({
+                data: mergedData,
+                schema: {
+                    model: {
+                        id: "id",
+                        fields: {
+                            id: { type: "number" },
+                            title: { field: "title", defaultValue: "No title", validation: { required: true } },
+                            start: { type: "date", field: "start" },
+                            end: { type: "date", field: "end" },
+                            isAllDay: { type: "boolean", field: "isAllDay" }
+                        }
+                    }
+                }
+            });
+
+            $("#simulationScheduler").empty();
+
+            $("#simulationScheduler").kendoScheduler({
+                date: new Date('2025-05-01'),
+                height: 650,
+                views: [
+                    { type: "month", selected: true, eventHeight: 30 }
+                ],
+                editable: false,
+                timezone: "Asia/Seoul",
+                autoBind: true,
+                allDaySlot: true,
+                showWorkHours: false,
+                messages: {
+                    today: "오늘",
+                    allDay: "종일",
+                    date: "날짜",
+                    event: "이벤트",
+                    time: "시간",
+                    showFullDay: "하루 전체 보기",
+                    showWorkDay: "업무 시간만 보기",
+                    save: "저장",
+                    cancel: "취소",
+                    destroy: "삭제"
+                },
+                eventTemplate: (e) => {
+                    const y = e.start.getFullYear();
+                    const m = (e.start.getMonth() + 1).toString().padStart(2, '0');
+                    const d = e.start.getDate().toString().padStart(2, '0');
+                    const eventDate = `${y}-${m}-${d}`;
+
+                    // holidayInfo + holidayCustom 통합
+                    const allHolidays = [...(this.holidayInfo || []), ...(this.holidayCustom || [])];
+
+                    const isHoliday = allHolidays.some(h => {
+                        const hy = h.year;
+                        const hm = h.month.toString().padStart(2, '0');
+                        const hd = h.day.toString().padStart(2, '0');
+                        const hDate = `${hy}-${hm}-${hd}`;
+                        return hDate === eventDate;
+                    });
+
+                    const textColor = isHoliday ? '#d32f2f' : '#1976d2';
+                    const bgColor = isHoliday ? '#ffffff' : '#dff0d8';
+
+                    return `<span style="background:${bgColor};color:${textColor};border-radius:6px;padding:2px 6px;">${e.title}</span>`;
+                },
+                dataSource: dataSource
+            });
+
+            // 일정 클릭 시 alert (jQuery 이벤트 위임)
+            $("#simulationScheduler").off("click", ".k-event").on("click", ".k-event", function (e) {
+                var scheduler = $("#simulationScheduler").data("kendoScheduler");
+                var uid = $(this).data("uid");
+                var event = scheduler.occurrenceByUid(uid);
+                if (event) {
+                    //console.log('event:', event);
+                    //debugger;
+                    if (event.type == '') {
+                        // 그 외 일정은 모달창으로 표시
+                        var wnd = $("#simulationCalDetailWindow").data("kendoWindow");
+                        wnd.open();
+                    }
+                }
+            });
+        }
+
     };
 
     let page = null;
@@ -462,6 +541,7 @@
 
     $(document).ready(function () {
         page.searchMainData();
+        page.loadSimulationScheduler();
 
         // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
         $("#searchFormContent").removeClass("search-expanded");

@@ -1,458 +1,973 @@
-﻿<div id="modalMyWorkReq" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4>WO 요청작성</h4>
-        </div>
+<div id="modalMyWorkReq" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>WO 요청작성</h4>
+		</div>
+		<div class="modal-body">
+			<form id="wo_req_form" name="wo_req_form">
+				<!-- 가이드라인 섹션 -->
+				<div class="top-section">
+					<div class="section-header">
+						<h5>
+							설비가 "사후보전"으로 작업이 진행 중이면 사후보전은 추가 요청 불가, 그 외에는 추가 요청이 가능합니다.</br>
+							예방적 조치는 "예방보전", 성능 개선은 "개량보전", 설치/철거/페인팅 등은 "일반작업" 으로 요청해 주세요.
+						</h5>
+						<div class="button-group">
+							<button type="button" class="btn-copy" id="copyWO" name="copyWO">
+								W/O복사
+							</button>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group col-md-3">
+							<label>WO 번호</label>
+							<input type="hidden" id="work_order_pk" name="work_order_pk" />
+							<input type="text" class="form-control" id="work_order_no" name="work_order_no" readonly placeholder="요청 후 번호 생성">
+						</div>
+						<div class="form-group col-md-3">
+							<label for="wo_equ_name" class="required">설비 *</label>
+							<button type="button" class="zoombutton" id="selectEquipment" name="selectEquipment"></button>
+							<input type="hidden" id="wo_equ_pk" name="equip_pk" />
+							<input type="text" class="form-control" id="wo_equ_name" name="equip_nm" readonly placeholder="관련 설비를 선택하세요">
+						</div>
+						<div class="form-group col-md-3">
+							<label>설비위치</label>
+							<input type="hidden" id="wo_loc_pk" name="wo_loc_pk" />
+							<input type="text" class="form-control" id="wo_loc_nm" name="loc_nm" readonly>
+						</div>
+						<div class="form-group col-md-3">
+							<label>보증만료일</label>
+							<input type="text" class="form-control" id="wo_warranty_dt" name="warranty_dt" readonly>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group second-group col-md-8">
+							<label for="wo_work_title" class="required">작업제목 *</label>
+							<input type="text" class="form-control" id="wo_work_title" name="work_title" placeholder="200자 이하로 입력하세요">
+						</div>
+						<div class="form-group second-group col-md-4">
+							<label for="wo_maint_type_cd" class="required">보전유형 *</label>
+							<select id="wo_maint_type_cd" name="maint_type_cd"></select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group col-md-3">
+							<label for="wo_work_dept_pk" class="required">작업부서 *</label>
+							<select id="wo_work_dept_pk" name="dept_pk"></select>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="wo_work_charger_pk" class="required">작업담당자 *</label>
+							<select id="wo_work_charger_pk" name="work_charger_pk">
+								<option value="">작업담당자를 선택하세요</option>
+							</select>
+						</div>
+						<div class="form-group col-md-3" style="display: flex; flex-direction: column;">
+							<label for="want_dt" class="required">희망일자(마침) *</label>
+							<div class="field-wrapper">
+								<input type="date" id="want_dt" name="want_dt" />
+							</div>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="breakdown_dt" class="required">고장일시 *</label>
+							<div class="field-wrapper">
+								<input type="date" id="breakdown_dt" name="breakdown_dt" />
+							</div>
+						</div>
+					</div>
+					<div class="form-row" style="justify-content: flex-start;">
+						<div class="form-group col-12 col-md-3">
+							<label class="required">현상 *</label>
+							<button type="button" class="plusbutton" id="selectProblem" name="selectProblem"></button>
+							<select id="woProblem" name="problem_cd"></select>
+						</div>
+						<div class="form-group col-12 col-md-3">
+							<label>작업구분</label>
+							<select id="wcType" name="work_src_cd"></select>
+						</div>
+						<div class="form-group col-12 col-md-3">
+							<label>프로젝트</label>
+							<button type="button" class="plusbutton" id="selectProject" name="selectProject"></button>
+							<select id="projectName" name="proj_cd"></select>
+						</div>
+					</div>
 
-        <div class="modal-body">
-            <!-- 가이드라인 섹션 -->
-            <div class="top-section">
-                <div class="section-header">
-                    <h5>
-                        설비가 "사후보전"으로 작업이 진행 중이면 사후보전은 추가 요청 불가, 그 외에는 추가 요청이 가능합니다.</br>
-                        예방적 조치는 "예방보전", 성능 개선은 "개량보전", 설치/철거/페인팅 등은 "일반작업" 으로 요청해 주세요.
-                    </h5>
-                    <div class="button-group">
-                        <button type="button" class="btn-copy" id="copyWO" name="copyWO">
-                            W/O복사
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label>WO 번호</label>
-                        <input type="hidden" id="wo_pk" name="wo_pk" />
-                        <input type="text" class="form-control" id="wo_code" name="wo_code" readonly placeholder="요청 후 번호 생성">
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label>설비 <span class="required">*</span></label>
-                        <button type="button" class="zoombutton" id="selectEquipment" name="selectEquipment"></button>
-                        <input type="text" class="form-control" id="equ_name" name="equ_name" readonly placeholder="관련 설비를 선택하세요">
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label>설비위치</label>
-                        <input type="text" class="form-control" id="equ_loc_pk" name="equ_loc_pk" readonly>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label>보증만료일</label>
-                        <input type="text" class="form-control" id="expiration_date" name="expiration_date" readonly>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group second-group col-md-8">
-                        <label>작업제목 <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="equ_loc" name="equ_loc" placeholder="200자 이하로 입력하세요">
-                    </div>
-                    <div class="form-group second-group col-md-4">
-                        <label>보전유형 <span class="required">*</span></label>
-                        <select id="pmType" name="pmType"></select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label>작업부서 <span class="required">*</span></label>
-                        <select id="executionDept" name="executionDept"></select>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label>작업담당자 <span class="required">*</span></label>
-                        <select id="pmManager" name="pmManager">
-                            <option value="">작업담당자를 선택하세요</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-3" style="display: flex; flex-direction: column;">
-                        <label>희망일자(마침) <span class="required">*</span></label>
-                        <div class="field-wrapper">
-                            <input type="date" id="schedStartDt" name="schedStartDt" />
-                        </div>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label>고장일시 <span class="required">*</span></label>
-                        <div class="field-wrapper">
-                            <input type="date" id="schedEndDt" name="schedEndDt" />
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row" style="justify-content: flex-start;">
-                    <div class="form-group col-12 col-md-3">
-                        <label>현상 <span class="required">*</span></label>
-                        <button type="button" class="plusbutton" id="selectProblem" name="selectProblem"></button>
-                        <select id="woProblem" name="woProblem"></select>
-                    </div>
-                    <div class="form-group col-12 col-md-3">
-                        <label>작업구분</label>
-                        <select id="woType" name="woType"></select>
-                    </div>
-                    <div class="form-group col-12 col-md-3">
-                        <label>프로젝트</label>
-                        <button type="button" class="plusbutton" id="selectProject" name="selectProject"></button>
-                        <select id="projectName" name="projectName"></select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 요청정보 섹션 -->
-            <div class="section">
-                <div class="tab-group">
-                    <button class="tab-button active" data-tab="myWorkReqForm">요청정보</button>
-                    <button class="tab-button" data-tab="fileTab">파일</button>
-                </div>
-                <div class="tab-content">
-                    <!-- 요청정보 탭 컨텐츠 -->
-                    <div class="tab-pane active" id="myWorkReqForm">
-                        <label>요청사항</label>
-                        <section class="section">
-                            <textarea id="editor" style="height:300px" aria-label="editor"></textarea>
-                        </section>
-                    </div>
-                    <!-- 파일 탭 컨텐츠 -->
-                    <div class="tab-pane" id="fileTab" style="height: 400px;">
-                        {% include 'components/FileUpload.html' %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 버튼 영역 -->
-        <div class="modal-footer">
-            <button type="button" class="btn-save" id="saveBtn">저장</button>
-            <button type="button" class="btn-close" id="closeMyWorkReqModal">닫기</button>
-        </div>
-    </div>
+				</div>
+				<!-- 요청정보 섹션 -->
+				<div class="section">
+					<div class="tab-group">
+						<button class="tab-button active" data-tab="myWorkReqForm">요청정보</button>
+						<button class="tab-button" data-tab="fileTab">파일</button>
+					</div>
+					<div class="tab-content">
+						<!-- 요청정보 탭 컨텐츠 -->
+						<div class="tab-pane active" id="myWorkReqForm">
+							<label>요청사항</label>
+							<section class="section">
+								<textarea id="editor" name="reqInfo" style="height:300px" aria-label="editor"></textarea>
+							</section>
+						</div>
+						<!-- 파일 탭 컨텐츠 -->
+						<div class="tab-pane" id="fileTab" style="height: 400px;">
+							{% include 'components/FileUpload.html' %}
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<!-- 버튼 영역 -->
+		<div class="modal-footer">
+			<button type="button" class="btn-save" id="preSaveBtn">임시저장</button>
+			<button type="button" class="btn-save" id="saveBtn">저장</button>
+			<button type="button" class="btn-close" id="closeMyWorkReqModal">닫기</button>
+		</div>
+	</div>
 </div>
 
+<!-- 현상 Kendo Window 팝업 -->
+<div id="reliabCodesWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui">
+		<form id="reliabForm">
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="reliab_cd" class="required">현상코드 *</label>
+					<input type="text" class="form-control" id="reliab_cd" name="reliabCd" placeholder="25자 이하로 입력하세요">
+				</div>
+				<div class="form-group col-md-6">
+					<label for="reliab_nm" class="required">현상코드명 *</label>
+					<input type="text" class="form-control" id="reliab_nm" name="reliabNm" placeholder="50자 이하로 입력하세요">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="grid-section">
+		<h5>최근 등록된 현상코드</h5>
+		<div id="reliabCodesGrid"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnSaveReliabCodes">저장</button>
+		<button type="button" class="btn-close" id="btnCloseReliabCodes">닫기</button>
+	</div>
+</div>
+
+<!-- 프로젝트 Kendo Window 팝업 -->
+<div id="cmProjectWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui" style="height: 60px;">
+		<form id="cmProjectForm">
+			<div class="form-row">
+				<div class="form-group col-md-3">
+					<label for="proj_cd" class="required">프로젝트 *</label>
+					<input type="text" class="form-control" id="proj_cd" name="proj_cd" placeholder="25자 이하로 입력하세요">
+				</div>
+				<div class="form-group col-md-3">
+					<label for="proj_nm" class="required">프로젝트명 *</label>
+					<input type="text" class="form-control" id="proj_nm" name="proj_nm" placeholder="50자 이하로 입력하세요">
+				</div>
+			</div>
+			<div class="form-row">
+				<label for="proj_cd" class="required">계획 시작일 / 마침일 *</label>
+				<div class="form-group col-md-6" style="display: flex; align-items: center;">
+					<input type="date" id="plan_start_dt" name="plan_start_dt" style="flex:1;" />
+					<span style="margin: 0 8px;">~</span>
+					<input type="date" id="plan_end_dt" name="plan_end_dt" style="flex:1;" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="grid-section">
+		<h5>최근 등록된 프로젝트</h5>
+		<div id="cmProjectGrid"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnSaveProject">저장</button>
+		<button type="button" class="btn-close" id="btnCloseProject">닫기</button>
+	</div>
+</div>
+
+<!-- W/O복사 Kendo Window 팝업 -->
+<div id="woCopyWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<form id="woCopyForm" class="search-form">
+		<div class="card-content search">
+			<div class="form-ui">
+				<div class="col-auto">
+					<div class="form-item align-h">
+						<label class="k-label k-form-label">검색키워드</label>
+						<input id="wo_keyword" name="wo_keyword" class="form-control" placeholder="작업번호,작업제목, 작업내역" style="width: 100%;" />
+					</div>
+				</div>
+				<div class="col-auto">
+					<div class="form-item align-h">
+						<label class="k-label k-form-label">요청일자</label>
+						<input type="date" id="start_dt" name="start_dt" style="flex:1;" />
+						<span style="margin: 0 8px;">~</span>
+						<input type="date" id="end_dt" name="end_dt" style="flex:1;" />
+					</div>
+				</div>
+				<div class="col-auto">
+					<div class="form-item align-h">
+						<label for="myRequest">나의 요청만</label>
+						<div class="field-wrapper">
+							<input id="myRequest" name="myRequest" data-msg="나의 요청만" />
+						</div>
+					</div>
+				</div>
+				<div class="col-auto">
+					<div class="form-item align-h">
+						<button type="button" class="btn-search" id="btnSearchWoCopy" name="btnSearchWoCopy">검색</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="grid-section">
+		<div id="woCopyGrid"></div>
+	</div>
+	<div class="bottom-area">
+		<div class="selected-item" style="margin-top: 5px;">
+			<label class="k-label k-form-label" for="sel_work_title" data-labelCd="선택된 항목">선택된 항목</label>
+			<input type="hidden" id="sel_work_order_pk" name="work_order_pk">
+			<input type="text" style="width:400px;" class="k-input k-textbox k-input-solid k-input-md k-rounded-md" id="sel_work_title" name="work_title" readonly>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn-save" id="btnConfirmWo">확인</button>
+			<button type="button" class="btn-close" id="btnCancelWo">취소</button>
+		</div>
+	</div>
+</div>
 <style>
 
-.modal-body {
-    overflow-y: auto; 
-}
-
+	.modal-body {
+		overflow-y: auto;
+	}
 </style>
 
 <script type="text/javascript">
-    let myWorkReqPage = null;
-    class MyWorkReq {
-        constructor() {
-            this.baseUrl = '/api/kmms/pm_master';
+	let myWorkReqPage = null;
+	class MyWorkReq {
+		constructor() {
+			this.baseUrl = '/api/kmms/work_order';
+			this.workOrderPk = null; // 작업지시 PK
+			this.reliabGrid = null;
+			this.projectGrid = null;
+			this.woCopyGrid = null;
+			this.selectedRow_wo = null;
 
-            this.resetForm = this.resetForm.bind(this);
-            this.init();
-        }
+			this.init();
+		}
 
-        init() {
-            let _this = this;
-            const modal = $("#modalMyWorkReq");
+		init() {
+			let _this = this;
+			const modal = $("#modalMyWorkReq");
 
-            // cycleInfo 표시 여부 체크 함수
-            this.checkCycleInfo = function () {
-                const pmTypeValue = $('#pmType').val();
-                if (pmTypeValue === 'PM_TYPE_TBM') {
-                    $('#cycleInfo').show();
-                } else {
-                    $('#cycleInfo').hide();
-                }
-            };
+			$("#btnSaveReliabCodes").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					let formData = FormUtil.extractForm($("#reliabForm"));
 
-            // 데이터 로드 함수
-            this.loadPmData = function (pmPk) {
-                let param = {
-                    action: 'read',
-                    pm_pk: pmPk
-                };
+					formData.types = 'PC'; // 현상코드 타입 지정
+					formData.useYn = 'Y'; // 사용 여부 기본값 Y
 
-                let result = AjaxUtil.getSyncData(this.baseUrl, param);
-                if (result) {
-                    // FormUtil.fillForm($('#myWorkReqForm'), result);
-                    // 데이터 로드 직후 cycleInfo 체크
-                    setTimeout(() => this.checkCycleInfo(), 0);
-                }
-            };
+					if (!formData.reliabCd || !formData.reliabNm) {
+						Alert.alert('', '현상코드와 현상코드명을 입력해주세요.');
+						return;
+					}
+					let fnSuccess = function (res) {
+						if (res.success) {
+							FormUtil.resetForm($("#reliabForm"));
+							_this.refreshReliabGrid();
+							Alert.alert('', res.message);
+						} else if (!res.success) {
+							Alert.alert('', res.message);
+						}
+					};
+					AjaxUtil.postAsyncData('/api/kmms/reliab_code' + '?action=insert', formData, fnSuccess);
+				}
+			});
 
-            // 모달이 표시될 때마다 cycleInfo 체크
-            modal.on('show', function () {
-                _this.checkCycleInfo();
-            });
+			$("#btnCloseReliabCodes").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#woProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
+					$("#reliabCodesWindow").data("kendoWindow").close();
+				}
+			});
 
-            AjaxUtil.fillDropDownOptions($('#pmType'), 'cm_code', 'all', null, 'MAINT_TYPE');
-            AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
-            AjaxUtil.fillDropDownOptions($('#pmManager'), 'auth_user', 'choose', null);
-            AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
-            AjaxUtil.fillDropDownOptions($('#woProblem'), 'user_code', 'choose', null, 'CYCLE_TYPE');
-            AjaxUtil.fillDropDownOptions($('#woType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
-            AjaxUtil.fillDropDownOptions($('#projectName'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+			$("#btnSaveProject").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					let formData = FormUtil.extractForm($("#cmProjectForm"));
 
-            let today = CommonUtil.getYYYYMMDD();
-            $("#schedStartDt").kendoDatePicker({
-                value: today,
-                format: "yyyy-MM-dd",
-            });
+					if (!formData.proj_cd || !formData.proj_nm) {
+						Alert.alert('', '프로젝트코드와 프로젝트명을 입력해주세요.');
+						return;
+					}
+					let fnSuccess = function (res) {
+						if (res.success) {
+							FormUtil.resetForm($("#cmProjectForm"));
+							_this.refreshProjectGrid();
+							Alert.alert('', res.message);
+						} else if (!res.success) {
+							Alert.alert('', res.message);
+						}
+					};
+					AjaxUtil.postAsyncData('/api/kmms/project' + '?action=insert', formData, fnSuccess);
+				}
+			});
 
-            $("#schedEndDt").kendoDateTimePicker({
-                value: today,
-                format: "yyyy-MM-dd HH:mm:ss"
-            });
+			$("#btnCloseProject").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
+					$("#cmProjectWindow").data("kendoWindow").close();
+				}
+			});
 
-            $("#copyWO").kendoButton({
-                icon: "k-i-copy",// 복사 아이콘
-                click: function (e) {
-                    e.preventDefault();
-                    $("#modalWoCopy").fadeIn();
-                }
-            });
+			$("#btnConfirmWo").kendoButton({
+				icon: "k-i-check", // 확인 아이콘 (✔️)
+				themeColor: "base",
+				click: function () {
+					$("#sel_work_order_pk").val('');
+					$("#sel_work_title").val('');
 
-            $('#selectEquipment').kendoButton({
-                themeColor: "base",
-                icon: "k-i-zoom-in", // 줌인 아이콘
-                rounded: "full",
-                size: "small",
-                click: function (e) {
-                    e.preventDefault();
-					equipSelectPage.show(function (selectedEqu) {
-                        // 선택된 설비 데이터 처리
-                        $('#equip_pk').val(selectedEqu.id);
-                        $('#equ_code').val(selectedEqu.Code);
-                        $('#equ_name').val(selectedEqu.Name);
-                        $('#equ_loc_pk').val(selectedEqu.id);
-                        $('#equ_loc').val(selectedEqu.loc_nm);
-                        $('#equ_status').val(selectedEqu.Status);
-                        $('#equ_import').val(selectedEqu.import_rank);
-                        $('#equ_env_yn').val(selectedEqu.environ_equip_yn);
-                    });
-                }
-            });
+					FormUtil.BindDataForm(_this.selectedRow_wo, $("#woCopyForm"));
+					$("#woCopyWindow").data("kendoWindow").close();
+				}
+			});
 
-            $('#selectProblem').kendoButton({
-                themeColor: "base",
-                icon: "k-i-plus", 
-                rounded: "full",
-                size: "small",
-                click: function (e) {
-                    e.preventDefault();
-                    $("#modalWoProblem").fadeIn();
-                }
-            });
+			$("#btnCancelWo").kendoButton({
+				icon: "cancel", // 취소 아이콘 (❌)
+				themeColor: "base",
+				click: function () {
+					$("#woCopyWindow").data("kendoWindow").close();
+				}
+			});
 
-            $('#selectProject').kendoButton({
-                themeColor: "base",
-                icon: "k-i-plus", 
-                rounded: "full",
-                size: "small",
-                click: function (e) {
-                    e.preventDefault();
-                    $("#modalWoProject").fadeIn();
-                }
-            });
+			let reliabGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'reliab_cd', title: '현상코드', width: 80 },
+					{
+						field: "reliab_nm", title: "현상코드명", width: 150,
+					},
+					{
+						field: 'insert_ts',
+						title: '최근  등록일',
+						width: 120,
+						template: '#= kendo.toString(kendo.parseDate(insert_ts), "yyyy-MM-dd HH:mm:ss") #'
+					},
+				],
+				height: "220px"
+			};
 
-            // ESC 키 누를 때 모달 닫기
-            $(document).on('keydown', (e) => {
-                if (e.keyCode === 27) { // ESC key
-                    modal.fadeOut();
-                }
-            });
+			_this.reliabGrid = new Grid($("#reliabCodesGrid"), reliabGridOption);
 
-            $("#saveBtn").kendoButton({
-                icon: "k-i-save",
-                click: function (e) {
-                    e.preventDefault();
-                    _this.saveData();
-                },
-                themeColor: "none"
-            });
+			let projectGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'proj_cd', title: '프로젝트코드', width: 80 },
+					{
+						field: "proj_nm", title: "프로젝트명", width: 150,
+					},
+					{
+						field: 'insert_ts',
+						title: '최근  등록일',
+						width: 120,
+						template: '#= kendo.toString(kendo.parseDate(insert_ts), "yyyy-MM-dd HH:mm:ss") #'
+					},
+				],
+				height: "220px"
+			};
 
-            // 모달 닫기 - 닫기 버튼 클릭
-            $('#closeMyWorkReqModal').kendoButton({
-                click: function (e) {
-                    e.preventDefault();
-                    modal.fadeOut();
-                }
-            });
+			_this.projectGrid = new Grid($("#cmProjectGrid"), projectGridOption);
 
-            // 탭 이벤트 초기화 추가
-            _this.initTabEvents();
+			let woCopyGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				change: function (e) {
+					let selectedRow = this.select();
+					if (selectedRow.length > 0) {
+						let dataItem = this.dataItem(selectedRow);
+						_this.selectedRow_wo = dataItem; // 선택된 행 데이터 저장
+						$("#sel_work_order_pk").val(dataItem.work_order_pk);
+						$("#sel_work_title").val(dataItem.work_title);
+					} else {
+						$("#sel_work_order_pk").val('');
+						$("#sel_work_title").val('');
+					}
+				},
+				columns: [
+					{
+						"title": "작업지시번호",
+						"field": "work_order_pk",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: right"
+						},
+					},
+					{
+						"title": "작업제목",
+						"width": "120px",
+						"field": "work_title"
+					},
+					{
+						"title": "설비코드",
+						"field": "equip_cd",
+						"width": "150px"
+					},
+					{
+						"title": "설비명",
+						"field": "equip_nm",
+						"width": "150px"
+					},
+					{
+						"title": "작업기간",
+						"field": "startendperiod",
+						"width": "200px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "작업부서",
+						"field": "equip_dept_nm",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "보전유형",
+						"field": "maint_type_nm",
+						"width": "100px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "상태",
+						"field": "wo_status_nm",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: center"
+						},
+					},
+					{
+						"title": "요청일",
+						"field": "rqst_dt",
+						"width": "100px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
+						"title": "요청자",
+						"field": "rqst_user_nm",
+						"width": "100px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+				],
+				height: "400px"
+			};
 
-            // 에디터 기능입니다. 컴포넌트로 분리작업 필요합니다.
-            var editor = $("#editor").kendoEditor({
-                tools: [
-                    "undo",
-                    "redo",
-                    { name: "separator1", type: "separator" },
-                    {
-                        name: "fontName",
-                        items: [
-                            { text: "Andale Mono", value: "\"Andale Mono\"" }, // Font-family names composed of several words should be wrapped in \" \"
-                            { text: "Arial", value: "Arial" },
-                            { text: "Arial Black", value: "\"Arial Black\"" },
-                            { text: "Book Antiqua", value: "\"Book Antiqua\"" },
-                            { text: "Comic Sans MS", value: "\"Comic Sans MS\"" },
-                            { text: "Courier New", value: "\"Courier New\"" },
-                            { text: "Georgia", value: "Georgia" },
-                            { text: "Helvetica", value: "Helvetica" },
-                            { text: "Impact", value: "Impact" },
-                            { text: "Symbol", value: "Symbol" },
-                            { text: "Tahoma", value: "Tahoma" },
-                            { text: "Terminal", value: "Terminal" },
-                            { text: "Times New Roman", value: "\"Times New Roman\"" },
-                            { text: "Trebuchet MS", value: "\"Trebuchet MS\"" },
-                            { text: "Verdana", value: "Verdana" },
-                        ]
-                    },
-                    "fontSize",
-                    "bold",
-                    "italic",
-                    "underline",
-                    "backColor",
-                    "foreColor",
-                    { name: "separator2", type: "separator" },
-                    "insertUnorderedList",
-                    "justifyLeft",
-                    "justifyCenter",
-                    "justifyRight",
-                    { name: "separator3", type: "separator" },
-                    "formatting",
-                    { name: "separator4", type: "separator" },
-                    "createLink",
-                    "unlink",
-                    "insertImage",
-                    { name: "separator5", type: "separator" },
-                    "tableWizard",
-                    "tableProperties",
-                    "tableCellProperties",
-                    "createTable",
-                    "addRowAbove",
-                    "addRowBelow",
-                    "addColumnLeft",
-                    "addColumnRight",
-                    "deleteRow",
-                    "deleteColumn",
-                    "mergeCellsHorizontally",
-                    "mergeCellsVertically",
-                    "splitCellHorizontally",
-                    "splitCellVertically",
-                    "tableAlignLeft",
-                    "tableAlignCenter",
-                    "tableAlignRight"
-                ]
-            });
-        }
+			_this.woCopyGrid = new Grid($("#woCopyGrid"), woCopyGridOption);
 
-        saveData() {
-            let _this = this;
-            let data = FormUtil.extractForm($('#myWorkReqForm'));
-            data.PMType = $("#pmType").val();
-            data.dept_pk = $("#executionDept").data("kendoDropDownTree").value();
-            data.pmManager = $("#pmManager").val();
-            data.wo_pk = $("#wo_pk").val();
+			// 데이터 로드 함수
+			this.loadPmData = function (pmPk) {
+				let param = {
+					action: 'read',
+					pm_pk: pmPk
+				};
 
-            // 유효성 검사
-            if (!$('#pmName').val()) {
-                Alert.alert('', 'PM명을 입력해주세요.');
-                return;
-            }
+				let result = AjaxUtil.getSyncData(this.baseUrl, param);
 
-            if (!data.wo_pk) {
-                Alert.alert('', '설비를 선택해주세요.');
-                return;
-            }
+			};
 
-            if (!data.PMType) {
-                Alert.alert('', 'PM유형을 선택해주세요.');
-                return;
-            }
+			AjaxUtil.fillDropDownOptions($('#wo_maint_type_cd'), 'cm_code', 'all', null, 'MAINT_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "depart", "select");
+			AjaxUtil.fillDropDownOptions($('#wo_work_charger_pk'), 'auth_user', 'choose', null);
+			AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+			AjaxUtil.fillDropDownOptions($('#woProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
+			AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', null, 'WS_TYPE');
+			AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
 
-            if (!data.dept_pk) {
-                Alert.alert('', '실행부서를 선택해주세요.');
-                return;
-            }
+			let today = CommonUtil.getYYYYMMDD();
+			$("#want_dt").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd",
+			});
 
-            if (!data.pmManager) {
-                Alert.alert('', 'PM담당자를 선택해주세요.');
-                return;
-            }
+			$("#breakdown_dt").kendoDateTimePicker({
+				value: today,
+				format: "yyyy-MM-dd HH:mm:ss"
+			});
 
-            // TBM 유형 체크
-            if (data.PMType === 'PM_TYPE_TBM') {
-                const schedStartDt = $("#schedStartDt").val();
-                const cycleType = $("#cycleType").val();
-                const perNumber = $("#perNumber").val();
+			$("#plan_start_dt").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd",
+			});
 
-                if (!schedStartDt || !cycleType || !perNumber) {
-                    Alert.alert('', '주기 정보를 모두 입력해주세요.');
-                    return;
-                }
+			$("#plan_end_dt").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd"
+			});
 
-                data.sched_start_dt = schedStartDt;
-                data.cycle_type = cycleType;
-                data.per_number = perNumber;
-            }
+			$("#start_dt").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd",
+			});
 
-            let funcSucc = function (resp) {
-                if (resp.success) {
-                    // 기본 정보 저장 성공 시 작업 인력 저장 진행
-                    _this.savePmLalor(resp);
-                } else {
-                    Alert.alert('error', resp.message);
-                }
-            };
+			$("#end_dt").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd"
+			});
 
-            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
-            $("#modalMyWorkReq").fadeOut();
-        }
+			$("#copyWO").kendoButton({
+				icon: "k-i-copy",// 복사 아이콘
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '작업지시(WO) 선택',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '80vw',
+						height: '70vh',
+					}
+					popupComn.openTempPopup($("#woCopyWindow"), options);
+					_this.refreshWoCopyGrid();
 
-        resetData() {
-            let _this = this;
-            FormUtil.resetForm($('#myWorkReqForm'));
-            // 폼 리셋 후 cycleInfo 체크
-            this.checkCycleInfo();
-        }
+				}
+			});
 
-        finalizeSave() {
-            Notify.success('저장되었습니다.');
-            this.resetData();
-            page.searchMainData();
-        }
+			$('#selectEquipment').kendoButton({
+				themeColor: "base",
+				icon: "k-i-zoom-in", // 줌인 아이콘
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+					equipSelectPage.show(function (data) {
+						// 선택된 설비 데이터 처리
+						$("#wo_equ_pk").val(data.equip_pk);
+						$("#wo_equ_name").val(data.equip_nm);
+						$("#wo_loc_pk").val(data.loc_pk);
+						$("#wo_loc_nm").val(data.loc_nm);
+						$("#wo_warranty_dt").val(data.warranty_dt == undefined ? '보증만료일 없음' : data.warranty_dt);
+					});
+				}
+			});
 
-        resetForm() {
-            // 폼 리셋 시 cycleInfo 체크
-            this.checkCycleInfo();
-        }
+			$('#selectProblem').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '현상코드 등록',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '50vw',
+					}
+					popupComn.openTempPopup($("#reliabCodesWindow"), options);
+					_this.refreshReliabGrid();
+				}
+			});
 
-        // 탭 전환 이벤트 핸들러
-        initTabEvents() {
-            let _this = this;
+			$('#selectProject').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '프로젝트 등록',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '50vw',
+					}
+					popupComn.openTempPopup($("#cmProjectWindow"), options);
+					_this.refreshProjectGrid();
+				}
+			});
 
-            $('.tab-button').on('click', function () {
-                const tabId = $(this).data('tab');
-                $('.tab-button').removeClass('active').removeAttr('style');
-                $('.tab-pane').removeClass('active').hide();
-                $(this).addClass('active').css({
-                    'background': '#1e4f88',
-                    'color': 'white',
-                    'border-color': '#1e4f88'
-                });
-                if (tabId) $('#' + tabId).addClass('active').show();
-            });
-        }
-    }
+			$('#btnSearchWoCopy').kendoButton({
+				themeColor: "base",
+				icon: "k-i-search",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					_this.refreshWoCopyGrid();
+				}
+			});
 
-    myWorkReqPage = new MyWorkReq();
-    $(document).ready(function () {
+			$("#myRequest").kendoSwitch().data("kendoSwitch");
 
-        // pmType 선택 이벤트 핸들러 추가
-        $('#pmType').on('change', function () {
-            myWorkReqPage.checkCycleInfo();
-        });
+			// ESC 키 누를 때 모달 닫기
+			$(document).on('keydown', (e) => {
+				if (e.keyCode === 27) { // ESC key
+					modal.fadeOut();
+				}
+			});
 
-        // 모달이 표시될 때마다 cycleInfo 체크 (jQuery fadeIn 방식)
-        const originalFadeIn = $.fn.fadeIn;
-        $.fn.fadeIn = function () {
-            if (this.attr('id') === 'modalMyWorkReq') {
-                setTimeout(() => myWorkReqPage.checkCycleInfo(), 0);
-            }
-            return originalFadeIn.apply(this, arguments);
-        };
+			$("#preSaveBtn").kendoButton({
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault();
+					_this.preSaveData();
+				},
+				themeColor: "none"
+			});
 
-        let rowCount = 0;
+			$("#saveBtn").kendoButton({
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault();
+					_this.saveData();
+				},
+				themeColor: "none"
+			});
 
-    });
+			// 모달 닫기 - 닫기 버튼 클릭
+			$('#closeMyWorkReqModal').kendoButton({
+				click: function (e) {
+					e.preventDefault();
+					modal.fadeOut();
+				}
+			});
+
+			// 탭 이벤트 초기화 추가
+			_this.initTabEvents();
+
+			// 에디터 기능입니다. 컴포넌트로 분리작업 필요합니다.
+			var editor = $("#editor").kendoEditor({
+				tools: [
+					"undo",
+					"redo",
+					{ name: "separator1", type: "separator" },
+					{
+						name: "fontName",
+						items: [
+							{ text: "Andale Mono", value: "\"Andale Mono\"" }, // Font-family names composed of several words should be wrapped in \" \"
+							{ text: "Arial", value: "Arial" },
+							{ text: "Arial Black", value: "\"Arial Black\"" },
+							{ text: "Book Antiqua", value: "\"Book Antiqua\"" },
+							{ text: "Comic Sans MS", value: "\"Comic Sans MS\"" },
+							{ text: "Courier New", value: "\"Courier New\"" },
+							{ text: "Georgia", value: "Georgia" },
+							{ text: "Helvetica", value: "Helvetica" },
+							{ text: "Impact", value: "Impact" },
+							{ text: "Symbol", value: "Symbol" },
+							{ text: "Tahoma", value: "Tahoma" },
+							{ text: "Terminal", value: "Terminal" },
+							{ text: "Times New Roman", value: "\"Times New Roman\"" },
+							{ text: "Trebuchet MS", value: "\"Trebuchet MS\"" },
+							{ text: "Verdana", value: "Verdana" },
+						]
+					},
+					"fontSize",
+					"bold",
+					"italic",
+					"underline",
+					"backColor",
+					"foreColor",
+					{ name: "separator2", type: "separator" },
+					"insertUnorderedList",
+					"justifyLeft",
+					"justifyCenter",
+					"justifyRight",
+					{ name: "separator3", type: "separator" },
+					"formatting",
+					{ name: "separator4", type: "separator" },
+					"createLink",
+					"unlink",
+					"insertImage",
+					{ name: "separator5", type: "separator" },
+					"tableWizard",
+					"tableProperties",
+					"tableCellProperties",
+					"createTable",
+					"addRowAbove",
+					"addRowBelow",
+					"addColumnLeft",
+					"addColumnRight",
+					"deleteRow",
+					"deleteColumn",
+					"mergeCellsHorizontally",
+					"mergeCellsVertically",
+					"splitCellHorizontally",
+					"splitCellVertically",
+					"tableAlignLeft",
+					"tableAlignCenter",
+					"tableAlignRight"
+				]
+			});
+		}
+
+		preSaveData() {
+			let _this = this;
+			let data = FormUtil.extractForm($('#wo_req_form'));
+			data.woStatusCd = 'WOS_RW';//요청작성중
+			data.tempSave = 'Y'; // 임시저장 플래그 설정
+			console.log('wo_req_form_data', data);
+
+			// 유효성 검사
+			if (!data.equip_pk) {
+				Alert.alert('', '설비를 선택해주세요.');
+				return;
+			}
+
+			if (!$('#wo_work_title').val()) {
+				Alert.alert('', '작업제목 을 입력해주세요.');
+				return;
+			}
+
+			if (!data.maint_type_cd) {
+				Alert.alert('', '보전유형을 선택해주세요.');
+				return;
+			}
+
+			if (!data.dept_pk) {
+				Alert.alert('', '작업부서를 선택해주세요.');
+				return;
+			}
+
+			if (!data.work_charger_pk) {
+				Alert.alert('', '작업담당자를 선택해주세요.');
+				return;
+			}
+
+			if (!data.want_dt) {
+				Alert.alert('', '희망일자(마침)을 선택해주세요.');
+				return;
+			}
+
+			if (!data.breakdown_dt) {
+				Alert.alert('', '고장일시를 선택해주세요.');
+				return;
+			}
+
+			if (!data.problem_cd) {
+				Alert.alert('', '현상을 선택해주세요.');
+				return;
+			}
+
+			let funcSucc = function (resp) {
+				if (resp.success) {
+
+
+				} else {
+					Alert.alert('error', resp.message);
+				}
+			};
+
+			console.log('preSaveData', data);
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+			$("#modalMyWorkReq").fadeOut();
+		}
+
+		saveData() {
+			let _this = this;
+			let data = FormUtil.extractForm($('#wo_req_form'));
+			data.woStatusCd = 'WOS_OC';//요청완료
+			console.log('wo_req_form_data', data);
+
+			// 유효성 검사
+			if (!data.equip_pk) {
+				Alert.alert('', '설비를 선택해주세요.');
+				return;
+			}
+
+			if (!$('#wo_work_title').val()) {
+				Alert.alert('', '작업제목 을 입력해주세요.');
+				return;
+			}
+
+			if (!data.maint_type_cd) {
+				Alert.alert('', '보전유형을 선택해주세요.');
+				return;
+			}
+
+			if (!data.dept_pk) {
+				Alert.alert('', '작업부서를 선택해주세요.');
+				return;
+			}
+
+			if (!data.work_charger_pk) {
+				Alert.alert('', '작업담당자를 선택해주세요.');
+				return;
+			}
+
+			if (!data.want_dt) {
+				Alert.alert('', '희망일자(마침)을 선택해주세요.');
+				return;
+			}
+
+			if (!data.breakdown_dt) {
+				Alert.alert('', '고장일시를 선택해주세요.');
+				return;
+			}
+
+			if (!data.problem_cd) {
+				Alert.alert('', '현상을 선택해주세요.');
+				return;
+			}
+
+			let funcSucc = function (resp) {
+				if (resp.success) {
+
+
+				} else {
+					Alert.alert('error', resp.message);
+				}
+			};
+
+			console.log('preSaveData', data);
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
+			$("#modalMyWorkReq").fadeOut();
+		}
+
+		// 탭 전환 이벤트 핸들러
+		initTabEvents() {
+			let _this = this;
+
+			$('.tab-button').on('click', function () {
+				const tabId = $(this).data('tab');
+				$('.tab-button').removeClass('active').removeAttr('style');
+				$('.tab-pane').removeClass('active').hide();
+				$(this).addClass('active').css({
+					'background': '#1e4f88',
+					'color': 'white',
+					'border-color': '#1e4f88'
+				});
+				if (tabId) $('#' + tabId).addClass('active').show();
+			});
+		}
+
+		show(woId) {	
+			let _this = this;
+			_this.workOrderPk = woId;
+
+			// 1. 상세 정보
+			let param = {
+				action: 'findOneWo',
+				workOrderPk: _this.workOrderPk,
+			};
+
+			let woData = AjaxUtil.getSyncData(_this.baseUrl, param);
+			console.log('woData:', woData)
+			FormUtil.BindDataForm(woData, $('#wo_req_form'));
+			var decoded = $('<div/>').html(woData.req_info || '').text();
+			
+			$("#editor").data("kendoEditor").value(decoded);
+			$("#modalMyWorkReq").fadeIn();
+		}
+
+		refreshReliabGrid() {
+			let param = {
+				action: 'findAll',
+				types: 'PC', // 현상코드 타입
+				useYn: 'Y'   // 사용 여부
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/reliab_code', param);
+			let kendoGrid = $("#reliabCodesGrid").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+
+		refreshProjectGrid() {
+			let param = {
+				action: 'findAll',
+				useYn: 'Y'   // 사용 여부
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/project', param);
+			let kendoGrid = $("#cmProjectGrid").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+
+		refreshWoCopyGrid() {
+			let data = FormUtil.extractForm($('#woCopyForm'));
+			let param = {
+				action: 'findSel',
+				keywords: data.wo_keyword,
+				startDate: data.start_dt,
+				endDate: data.end_dt,
+				isMine: data.myRequest,
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/work_order', param);
+			let kendoGrid = $("#woCopyGrid").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+	}
+
+	myWorkReqPage = new MyWorkReq();
+	$(document).ready(function () {
+
+		// 모달이 표시될 때마다 cycleInfo 체크 (jQuery fadeIn 방식)
+		const originalFadeIn = $.fn.fadeIn;
+		$.fn.fadeIn = function () {
+			return originalFadeIn.apply(this, arguments);
+		};
+
+		let rowCount = 0;
+
+	});
 
 </script>

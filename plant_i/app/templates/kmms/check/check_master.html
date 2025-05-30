@@ -376,6 +376,29 @@
 				}
 			});
 
+			$('#btnSearchCal').kendoButton({				
+				themeColor: "primary",
+				icon: "search",
+				click: function (e) {
+					e.preventDefault();
+
+					let data = FormUtil.extractForm($('#shearchCalForm'));
+
+					let calParam = {
+						action: 'selectEquipChkScheSimulationCycleByMon',
+						deptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
+						userPk: $('#calChkUserPk').data('kendoDropDownList').value(),
+						calSearchType: $('#calSearchType').data('kendoDropDownList').value()
+					};
+
+					_this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pi_master', calParam);
+					_this.holidayInfo = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayInfoRes' });
+					_this.holidayCustom = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayCustom' });
+
+					_this.loadSimulationScheduler();
+				}
+			});			
+
 			$('#btnExcel').kendoButton({
 				icon: "file-excel",
 				themeColor: "success",
@@ -602,10 +625,12 @@
 		}
 
 		loadSimulationScheduler() {
-			// ✅ holidayInfo가 유효한 경우 추가 데이터 삽입
+			// holidayInfo, holidayCustom이 있으면 기존 schedulerData에 추가
+			let mergedData = [...this.schedulerData]; // 기존 시뮬레이션 데이터 복사
+
 			if (Array.isArray(this.holidayInfo)) {
 				this.holidayInfo.forEach(holiday => {
-					this.schedulerData.push({
+					mergedData.push({
 						id: holiday.id,
 						title: holiday.name,
 						start: new Date(holiday.year, holiday.month - 1, holiday.day),
@@ -615,11 +640,9 @@
 					});
 				});
 			}
-
-			// ✅ holidayCustom가 유효한 경우 추가 데이터 삽입
 			if (Array.isArray(this.holidayCustom)) {
 				this.holidayCustom.forEach(holiday => {
-					this.schedulerData.push({
+					mergedData.push({
 						id: holiday.id,
 						title: holiday.name,
 						start: new Date(holiday.year, holiday.month - 1, holiday.day),
@@ -629,9 +652,9 @@
 					});
 				});
 			}
-			console.log('schedulerData', this.schedulerData);
+			console.log('schedulerData', mergedData);
 			var dataSource = new kendo.data.SchedulerDataSource({
-				data: this.schedulerData,
+				data: mergedData,
 				schema: {
 					model: {
 						id: "id",

@@ -1,4 +1,4 @@
-﻿<div id="modalWoStatHist" class="modal">
+<div id="modalWoStatHist" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <h4>작업상태이력</h4>
@@ -25,7 +25,8 @@
     class WoStatHistPage {
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/definition/cm_code';
+            this.baseUrl = '/api/kmms/work_order_hist';
+            this.workOrderPk = null;
             this.init();
         }
 
@@ -43,11 +44,11 @@
 
             // 그리드 초기화
             this.grid = $("#recentAmtUnitGrid").kendoGrid({
-                columns: [
-                    { field: 'id', hidden: true, width: 150 },
-                    { field: 'code', title: '수량단위코드', width: 100 },
-                    { field: 'name', title: '수량단위명', width: 150 },
-                    { field: 'remark', title: '설명', width: 150 },
+                columns: [          
+					{ field: 'afterStateNm', title: '상태', width: 120 },
+					{ field: 'stateUserNm', title: '처리자', width: 100 },
+					{ field: 'stateDate', title: '처리일시', width: 150 },
+					{ field: 'stateDesc', title: '처리비고', width: 150 },
                 ],
                 selectable: true,
             }).data("kendoGrid");
@@ -58,8 +59,8 @@
             let _this = this;
 
             let param = {
-                action: 'read',
-                code_grp_code: 'AMT_UNIT',
+				action: 'selectWorkOrderHists',
+				workOrderPk: 'AMT_UNIT',
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);

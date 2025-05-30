@@ -77,9 +77,9 @@ def work_order_hist(context):
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             changerPk = CommonUtil.try_int(posparam.get('changerPk'))
             beforeStatusCd = posparam.get('beforeStatusCd')
-            afterStatusCd = posparam.get('afterStatusCd')
+            afterStatusCd = posparam.get('afterStatusCd')            
             changerNm = posparam.get('changerNm')
-            changeReason = posparam.get('changeReason')
+            changeReason = posparam.get('changeReason')            
  
             c = CmWorkOrderHist()
 
@@ -93,7 +93,7 @@ def work_order_hist(context):
             #c.set_audit(user)
             c.save()
 
-            return {'success': True, 'message': '외부공급처의 정보가 수정되었습니다.'}
+            return {'success': True, 'message': ''}
 
 
         elif action == 'delete':

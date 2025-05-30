@@ -114,4 +114,20 @@ class CommonUtil(object):
             jsonArr.append(new_dic)
 
         return jsonArr
+
+    # 백엔드 공통 유틸: camel ↔ snake 변환 유틸리티 클래스 (class method 기반)
+    @classmethod
+    def camel_to_snake_dict(cls, data: dict) -> dict:
+        import re
+        def camel_to_snake(s): return re.sub(r'(?<!^)(?=[A-Z])', '_', s).lower()
+        return {camel_to_snake(k): v for k, v in data.items()}
+
+    @classmethod
+    def snake_to_camel_dict(cls, data: dict) -> dict:
+        def snake_to_camel(s): 
+            parts = s.split('_')
+            return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+        return {snake_to_camel(k): v for k, v in data.items()}
+
+
             

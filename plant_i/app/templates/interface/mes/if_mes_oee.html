@@ -1,0 +1,215 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+    <div class="content-ui-row">
+
+        <div class="card-content search">
+            <div class="form-ui">
+
+                <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="srch_date_range" data-labelCd="기간선택">기간선택</label>
+                        <div class="field-wrapper">
+                            <div id="srch_date_range"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="cboMTART" data-labelCd="라인">라인</label>
+                        <div class="field-wrapper">
+                            <select id="cboLine" name="line_cd"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="cboMTART" data-labelCd="Team">Team</label>
+                        <div class="field-wrapper">
+                            <select id="cboTeam" name="team"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 col-lg-1 col-xl-1">
+                    <div class="card-group-btn search">
+                        <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="OEE목록">OEE목록</label>
+                    </span>
+                    <span>
+                        <button id="btnExcelSapMat">Excel</button>
+                    </span>
+                </div>
+                <div id="sap_mat_grid"></div>
+            </div>
+
+        </div>
+        <div class="card-content edit">
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class IFMesWorkOrderPage {
+        constructor() {
+            this.grid = null;
+            this.init();
+            this.url = "/api/interface/mes";
+        }
+
+        init() {
+            let _this = this;
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "lineGrp", title: "라인그룹", width: 100 },
+                    { field: "oeeEvg", title: "OEE Evg", width: 100 },
+                    { field: "teamFlag", title: "Team Flag", width: 100 },
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                },
+                height: 500
+            };
+
+            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+
+            //search form
+            let today = CommonUtil.getYYYYMMDD();
+
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+            let $cboLine = $('#cboLine');
+            AjaxUtil.fillDropDownOptions($cboLine, 'line_code', 'all', null);
+
+            let $cboTeam = $('#cboTeam');
+            AjaxUtil.fillDropDownOptions($cboTeam, 'team', 'all', null);
+
+
+            $('#btnSAPMaterialSearchDB').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    _this.searchSapMat();
+                }
+            });
+
+            $('#btnSAPMaterialSearchSAP').kendoButton({
+                icon: "download-light",
+                themeColor: "success",
+                click: function () {
+                    _this.showPopSapMatInterface();
+                }
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelSapMat').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#sap_mat_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_mat.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+
+
+
+
+        }
+
+
+        /********************************************************/
+
+        searchSapMat() {
+            let _this = this;
+            let url = '/api/interface/sap';
+            let matkl = $('#cboMATKL').val();
+            let mtart = $('#cboMTART').val();
+            let bklas = $('#cboBKLAS').val();
+
+            let data = {
+                matkl: matkl,
+                mtart: mtart,
+                bklas: bklas,
+                'action': 'sap_mat'
+            };
+
+            kendo.ui.progress($('#sap_mat_grid'), true);
+
+            AjaxUtil.getAsyncData(url, data, function (result) {
+                if (result.success) {
+                    _this.sap_mat_grid.setData(result.items);
+                }
+                else {
+                    Alert.alert('오류', result.message);
+                }
+                kendo.ui.progress($('#sap_mat_grid'), false);
+            });
+        }
+
+    }
+
+    let page = new IFMesWorkOrderPage();
+    $(document).ready(function (e) {
+
+    });
+</script>
+{% endblock %}

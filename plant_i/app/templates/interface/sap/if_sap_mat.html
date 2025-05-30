@@ -1,0 +1,339 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+    <div class="content-ui-row">
+
+        <div class="card-content search">
+            <div class="form-ui">
+                <div class="col-12 col-md-6 col-lg-3 col-xl-2">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="cboMATKL" data-labelCd="자재그룹">자재그룹</label>
+                        <div class="field-wrapper">
+                            <select id="cboMATKL" name="matkl">
+                                <option value="">전체</option>
+                                <option value="ABS">ABS</option>
+                                <option value="ESC">ESC</option>
+                                <option value="ESCP">ESCP</option>
+                                <option value="MAS">MAS</option>
+                                <option value="MAC">MAC</option>
+                                <option value="MOC">MOC</option>
+                                <option value="SPAS">SPAS</option>
+                                <option value="TAS">TAS</option>
+                                <option value="WSS">WSS</option>
+                                <option value="Y&G"> Y&G</option>
+                                <option value="ZZZ">ZZZ</option>
+                                <option value="11162100">11162100</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="cboMTART" data-labelCd="자재유형">자재유형</label>
+                        <div class="field-wrapper">
+                            <select id="cboMTART" name="mtart">
+                                <option value="FERT">FERT</option>
+                                <option value="">HALB</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="cboBKLAS" data-labelCd="품목유형">품목유형</label>
+                        <div class="field-wrapper">
+                            <select id="cboBKLAS" name="bkals" class="form-control">
+                                <option value="">전체</option>
+                                <option value="FREW">Group external</option>
+                                <option value="FERT">Inhouse made</option>
+                                <option value="EING">Semi-fin. Prod, inhouse</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-1 col-xl-1">
+                    <div class="card-group-btn search">
+                        <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="SAP 품목정보내역">SAP 품목정보내역</label>
+                    </span>
+                    <span>
+                        <button id="btnSAPMaterialSearchSAP">인터페이스실행</button>
+                        <button id="btnExcelSapMat">Excel</button>
+                    </span>
+                </div>
+                <div id="sap_mat_grid"></div>
+            </div>
+
+        </div>
+  
+
+    </div>
+</div>
+
+<div id="tmplSapMatInterface" class="content-wrap popup" style="display:none">
+    <div class="content-ui-row">
+        <div class="card-content">
+            <form>
+                <div class="edit-form-ui">
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="기간선택">기간선택</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="mig_ym" data-labelCd="마이그레이션여부">마이그레이션여부</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="mig_yn" id="mig_yn">
+                                    <option value="N">No</option>
+                                    <option value="Y">Yes(전체품목정보가져오기)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <hr />
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card-group-btn search">
+                            <button type="button" id="btnRequestSapMat" class="btn-search">인터페이스실행</button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class IFSapMaterialPage {
+        constructor() {
+            this.grid = null;
+            this.init();
+            this.url = "/api/interface/sap";
+        }
+
+        init() {
+            let _this = this;
+
+            this.initSapMaterial();
+        }
+
+        initSapMaterial() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "stab_matkl", title: "자재그룹", width: 100 },
+                    { field: "stab_mtart", title: "자재유형", width: 100 },
+                    { field: "stab_bklas", title: "품목유형코드", width: 100 },
+                    { field: "stab_bkbez", title: "품목유형", width: 120 },
+                    { field: "stab_matnr", title: "품목코드", width: 150 },
+                    { field: "stab_maktx", title: "품목명", width: 400 },
+                    { field: "stab_groes", title: "규격", width: 150 },
+                    { field: "stab_meins", title: "기본단위", width: 100 },
+                    { field: "stab_zctime", title: "C/T", width: 100 },
+                    { field: "stab_price", title: "단가", width: 120 },
+                    { field: "stab_peinh", title: "가격단위", width: 120 },
+                    { field: "created", title: "생성일", width: 120 }
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                },
+                height: 720
+            };
+
+            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+
+            //search form
+            let today = CommonUtil.getYYYYMMDD();
+            $('#cboMATKL').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $('#cboMTART').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+
+            $('#cboBKLAS').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value"
+            });
+
+            $('#btnSAPMaterialSearchDB').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    _this.searchSapMat();
+                }
+            });
+
+            $('#btnSAPMaterialSearchSAP').kendoButton({
+                icon: "download-light",
+                themeColor: "success",
+                click: function () {
+                    _this.showPopSapMatInterface();
+                }
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelSapMat').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#sap_mat_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_mat.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+
+
+            $('#tmplSapMatInterface').kendoWindow({
+                width: "700", // windowWidth
+                height: "300",
+                title: "SAP품목정보 인터페이스",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            let $srch_date_range = $("#srch_date_range");
+
+            $srch_date_range.kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+            let $mig_yn = $('#mig_yn');
+
+            $mig_yn.on("change", function (e) {
+
+                let yn = $mig_yn.val();
+                let ken_data = $srch_date_range.data("kendoDateRangePicker");
+
+                if (yn == "Y") {
+                    ken_data.enable(false);
+                } else {
+                    ken_data.enable(true);
+                }
+            });
+
+            $('#btnRequestSapMat').on('click', function () {
+                _this.requestSapMaterial();
+            });
+
+
+        }
+
+        showPopSapMatInterface() {
+            let _this = this;
+            $('#tmplSapMatInterface').data("kendoWindow").center().open();
+        }
+
+        
+        requestSapMaterial() {
+            let $form = $("#tmplSapMatInterface").find("form");
+            let data = FormUtil.extractForm($form);
+
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("SAP 품목정보 요청", "데이터를 정상적으로 가져왔습니다.");
+
+                } else {
+                    Alert.alert("SAP 품목정보 요청오류", result.message);
+                }
+            };
+            
+            let url = this.url + "?action=req_sap_mat";
+            console.log("requestSapMaterial : ", data);
+            AjaxUtil.postAsyncData(url, data, fnsuccess);            
+        }
+
+        /********************************************************/
+
+        searchSapMat() {
+            let _this = this;
+            let url = '/api/interface/sap';
+            let matkl = $('#cboMATKL').val();
+            let mtart = $('#cboMTART').val();
+            let bklas = $('#cboBKLAS').val();
+
+            let data = {
+                matkl: matkl,
+                mtart: mtart,
+                bklas: bklas,
+                'action': 'sap_mat'
+            };
+
+            kendo.ui.progress($('#sap_mat_grid'), true);
+
+            AjaxUtil.getAsyncData(url, data, function (result) {
+                if (result.success) {
+                    _this.sap_mat_grid.setData(result.items);
+                }
+                else {
+                    Alert.alert('오류', result.message);
+                }
+                kendo.ui.progress($('#sap_mat_grid'), false);
+            });
+        }
+    
+    }
+
+    let page = new IFSapMaterialPage();
+    $(document).ready(function (e) {
+        
+    });
+</script>
+{% endblock %}

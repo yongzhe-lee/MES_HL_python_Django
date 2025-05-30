@@ -88,7 +88,7 @@ def reliab_code(context):
             FROM cm_reliab_codes t
             left join user_profile ci on t.inserter_id = ci."User_id"
             left join user_profile ui on t.updater_id = ui."User_id"
-            -- AND t.factory_pk = %(siteId)s
+        
             '''
             if reliabCd:
                 sql += ''' t.reliab_cd = %(reliabCd)s
@@ -97,10 +97,10 @@ def reliab_code(context):
                 sql += ''' AND UPPER(t.reliab_code_nm) = UPPER(%(reliabNm)s)
                 '''            
             if types:
-                sql += ''' AND t.types <> %(types)s
+                sql += ''' AND t.types = %(types)s
                 '''
             if useYn:
-                sql += ''' t.use_yn = %(useYn)s
+                sql += ''' AND t.use_yn = %(useYn)s
                     '''
             if searchText:
                 sql += ''' AND ( UPPER(t.reliab_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
@@ -108,7 +108,7 @@ def reliab_code(context):
    			    )
                 '''
 
-            sql += ''' order by t.reliab_code_nm
+            sql += ''' order by t.insert_ts desc
             '''
 
             dc = {}
@@ -174,7 +174,7 @@ def reliab_code(context):
             c.set_audit(user)
             c.save()
 
-            return {'success': True, 'message': '신뢰도코드 정보가 수정되었습니다.'}
+            return {'success': True, 'message': '코드 정보가 등록되었습니다.'}
 
 
         elif action == 'delete':

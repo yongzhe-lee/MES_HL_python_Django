@@ -89,11 +89,22 @@ def sap(context):
 
             start_dt = posparam.get('start_dt')
             end_dt = posparam.get('end_dt')
-            mig_flag = posparam.get('mig_flag')
+            mig_flag = posparam.get('mig_yn')
 
             IFSapMaterial.objects.all().delete()
 
             res = sap_service.get_sap_material(start_dt, end_dt, mig_flag)
+            # {'message': 'Errors occurred during call of function module', 'rs': {'tables': None, 'header': None}, 'error': {'errorDescription': 'Function module does not exist', 'errorMessage': 'Errors occurred during call of function module', 'errorCode': 'JCO_CLIENT_ERROR_FUNCTION_NOT_FOUND'}}
+            if res["rs"]["tables"] is None:
+                error = res["error"]
+                result["success"] = False
+                result["message"] = error.get("errorCode") 
+                result["error"] = error
+                return result
+
+
+
+
             items = res["rs"]["tables"]["STAB"]
             count = len(items)
             result['count'] = count
@@ -247,7 +258,19 @@ def sap(context):
             if base_date is None: 
                 base_date = today.strftime("%Y%m%d")
 
-            dic_result = sap_service.get_sap_bom(mat_cd, base_date)
+            mat_items = []
+            mat_items.append(mat_cd)
+
+            dic_result = sap_service.get_sap_bom(base_date, mat_items)
+            if dic_result["rs"]["tables"] is None:
+                error = dic_result["error"]
+                result["success"] = False
+                result["message"] = error.get("errorCode") 
+                result["error"] = error
+                return result
+
+
+
             items = dic_result['rs']['tables']['STAB']
 
             # 저장하고 다시 조회해서 리턴
@@ -347,7 +370,16 @@ def sap(context):
         elif action=="sap_mat_all_migration":
 
             dic_result = sap_service.get_sap_material("","", "Y");
-            if dic_result['message']!="OK": return result
+
+            # {'message': 'Errors occurred during call of function module', 'rs': {'tables': None, 'header': None}, 'error': {'errorDescription': 'Function module does not exist', 'errorMessage': 'Errors occurred during call of function module', 'errorCode': 'JCO_CLIENT_ERROR_FUNCTION_NOT_FOUND'}}
+            if dic_result["rs"]["tables"] is None:
+                error = dic_result["error"]
+                result["success"] = False
+                result["message"] = error.get("errorCode") 
+                result["error"] = error
+                return result
+
+
 
             items = dic_result['rs']['tables']['STAB']
             IFSapMaterial.objects.all.delete()

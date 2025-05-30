@@ -13,10 +13,12 @@ CREATE INDEX tag_dat_data_da_6dcacb_idx ON public.tag_dat USING btree (data_date
 CREATE INDEX tag_dat_tag_code_d9d7cb4f_like ON public.tag_dat USING btree (tag_code varchar_pattern_ops);
 CREATE UNIQUE INDEX tag_dat_tag_code_data_date_0e7b8c85_uniq ON public.tag_dat USING btree (tag_code, data_date);
 
+/*
 ALTER TABLE public.tag_dat
 ADD CONSTRAINT tag_dat_tag_code_d9d7cb4f_fk_tag_tag_code FOREIGN KEY (tag_code)
 REFERENCES public.tag (tag_code)
 MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+*/
 
 GRANT INSERT ON public.tag_dat TO postgres WITH GRANT OPTION;
 GRANT SELECT ON public.tag_dat TO postgres WITH GRANT OPTION;

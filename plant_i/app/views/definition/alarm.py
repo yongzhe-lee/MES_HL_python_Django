@@ -82,7 +82,7 @@ def alarm(context):
             , to_char(ea._created, 'yyyy-mm-dd hh24:mi:ss') created
             , to_char(ea._modified, 'yyyy-mm-dd hh24:mi:ss') modified
             from equ_alarm ea 
-            inner join equ e on e.id = ea."Equipment_id"
+            left join equ e on e.id = ea."Equipment_id"
             left join line ln on ln.id = e.line_id
             where ea.alarm_cd = %(alarm_cd)s
             '''
@@ -100,9 +100,13 @@ def alarm(context):
             sql='''
             select 
             eah.alarm_cd
+            , eah.equ_cd
+            , e."Name" as equ_nm
+            , ll."Name" as line_nm
             , ea.alarm_nm
             , ea.alarm_num
             , eah.details
+            , eah.part_number
             , to_char(eah.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_date
             , to_char(eah.start_dt, 'yyyy-mm-dd hh24:mi:ss') as start_dt
             , to_char(eah.end_dt, 'yyyy-mm-dd hh24:mi:ss') as end_dt
@@ -110,17 +114,19 @@ def alarm(context):
             , ea.cause
             , ea.remedy
             from equ_alarm_hist eah 
-            left join equ_alarm ea on ea.alarm_cd =eah.alarm_cd
+            left join equ_alarm ea on ea.alarm_cd=eah.alarm_cd
+            left join equ e on e."Code"=eah.equ_cd
+            left join line ll on ll.id=e.line_id
             where 1=1
             and eah.data_date between %(start_dt)s and %(end_dt)s
             '''
             if equ_id:
                 sql+='''
-                and ea."Equipment_id"=%(equ_id)s
+                and ea.id=%(equ_id)s
                 '''
 
             sql+='''
-            order by eah.data_date, eah.alarm_cd
+            order by eah.data_date desc, eah.alarm_cd
             '''
 
             dic_param = {"start_dt": start_dt, "end_dt": end_dt, "equ_id" : equ_id, "keyword":keyword }

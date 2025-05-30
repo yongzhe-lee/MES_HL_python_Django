@@ -1,8 +1,76 @@
 from django import db
+from app.views.kmms.work_order_hist import DateUtil
+from domain.models import user
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmWorkOrder, CmEquipment, CmWoLabor, CmWoMtrl, CmWorkOrderSupplier, CmWoFaultLoc, CmWorkOrderHist
+
+def handle_work_order_approval(posparam, request):
+    """
+    작업지시 결재 정보를 처리하는 메소드
+    Args:
+        posparam: POST 파라미터
+        request: HTTP 요청 객체
+    Returns:
+        workOrderApprovalPk: 생성된 작업지시 결재 PK
+    """
+    from app.views.kmms.work_order_approval import work_order_approval
+    
+    # work_order_approval 호출을 위한 context 생성
+    class Context:
+        def __init__(self, gparam, posparam, request):
+            self.gparam = gparam
+            self.posparam = posparam
+            self.request = request
+    
+    # action을 insert로 설정
+    gparam = {'action': 'insert'}
+    context = Context(gparam, posparam, request)
+    
+    # work_order_approval 호출
+    result = work_order_approval(context)
+    
+    if result.get('success'):
+        # 생성된 workOrderApprovalPk 반환
+        return result.get('workOrderApprovalPk')
+    else:
+        raise Exception(result.get('message', '작업지시 결재 정보 저장 실패'))
+
+def handle_work_order_hist(work_order_pk, posparam, request):
+    """
+    작업지시 이력 저장을 처리하는 함수
+    Args:
+        work_order_pk: 작업지시 PK
+        posparam: POST 파라미터
+        request: HTTP 요청 객체
+    """
+    from app.views.kmms.work_order_hist import work_order_hist
+
+    # context 객체 생성
+    class Context:
+        def __init__(self, gparam, posparam, request):
+            self.gparam = gparam
+            self.posparam = posparam
+            self.request = request
+
+    gparam = {'action': 'save'}
+    # posparam 복사 및 work_order_pk 추가
+    posparam = dict(posparam)
+    posparam['changerPk'] = request.user.id
+    posparam['beforeStatusCd'] = 'WOS_RQ'
+    posparam['afterStatusCd'] = 'WOS_RQ'
+    posparam['changerNm'] = request.user.username
+    posparam['work_order_pk'] = work_order_pk
+    context = Context(gparam, posparam, request)
+
+    # work_order_hist 함수 실행
+    result = work_order_hist(context)
+
+    posparam['beforeStatusCd'] = 'WOS_RQ'
+    posparam['afterStatusCd'] = 'WOS_OC'
+    result = work_order_hist(context)
+    return result
 
 def work_order(context):
     '''
@@ -581,7 +649,7 @@ def work_order(context):
             if woTypeCal:
                 sql += ''' AND t.wo_type = %(woTypeCal)s
                 '''
-            if delayDays > 0:
+            if delayDays != None and delayDays > 0:
                 sql += ''' AND cm_fn_datediff(cast(now() as timestamp), t.plan_end_dt) >= %(delayDays)s
                 '''
             if exRqstDprYn == 'Y':
@@ -608,7 +676,7 @@ def work_order(context):
             if workDayStatus == '30':
                 sql += ''' AND t.wo_status = 'WOS_CL'
                 '''
-            if locAreaPk > 0 or not locLinePks:
+            if locAreaPk != None and locAreaPk > 0 or not locLinePks:
                 sql += ''' AND e.loc_pk IN (
                    SELECT id
                    FROM (
@@ -616,7 +684,7 @@ def work_order(context):
                        FROM cm_fn_get_loc_path(%(factory_pk)s)
                    ) x WHERE 1 = 1
                 '''
-                if locAreaPk > 0:
+                if locAreaPk != None and locAreaPk > 0:
                     sql += ''' AND path_info_pk = %(locAreaPk)s
                     '''
                 if locLinePks:
@@ -690,13 +758,379 @@ def work_order(context):
                 if action == 'countBy':
                     items = len(items)
 
- 
-
-        elif action == 'findOne':
-            ''' 위에서 구현
+        if action == 'findOneWo':
+            ''' 
             '''
+            workOrderPk = CommonUtil.try_int(gparam.get('workOrderPk'))
+            
+            sql = '''
+            /* findOne [work-order-mapper.xml] */
+
+		    select t.work_order_pk
+				    , t.work_order_no
+				    , t.work_title
+				    , t.work_text
+				    , t.work_order_sort
+				    , t.req_dept_pk
+				    , rd.dept_nm as req_dept_nm
+				    , rd.tpm_yn as req_dept_tpm_yn
+				    , t.dept_pk
+				    , wd.dept_nm as dept_nm
+				    , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
+				    , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+				    , t.work_charger_pk
+				    , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+				    , mt.code_cd as maint_type_cd
+				    , mt.code_nm as maint_type_nm
+				    , ws.code_cd as wo_status_cd
+				    , ws.code_nm as wo_status_nm
+				    , t.plan_start_dt
+				    , t.plan_end_dt
+				    , t.start_dt
+				    , t.end_dt
+				    , to_char(t.want_dt, 'yyyy-MM-dd') as want_dt
+				    , t.equip_pk
+				    , e.equip_cd
+				    , e.equip_nm
+				    , ed.dept_pk as equip_dept_pk
+				    , ed.dept_nm as equip_dept_nm
+				    , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
+				    , t.pm_pk
+				    , p.pm_no
+				    , p.pm_nm
+				    , pt.code_nm                        AS pm_type_nm
+				    , p.work_text as pm_work_text
+				    , t.chk_rslt_pk
+				    , ecs.chk_sche_pk
+				    , ecs.chk_sche_no
+				    , ecm.chk_mast_nm
+				    , ecm.chk_mast_pk
+				    , ecs.chk_sche_dt
+				    , l.loc_nm
+				    , t.req_info
+				    , t.wo_type
+				    , t.rqst_insp_yn
+				    , t.rqst_dpr_yn
+				    , wt.code_nm as wo_type_nm
+				    , to_char(t.breakdown_dt, 'yyyy-MM-dd') as breakdown_dt
+				    , t.breakdown_min
+				    , wsc.code_cd as work_src_cd
+				    , wsc.code_nm as work_src_nm
+				    , t.tot_cost
+				    , t.mtrl_cost
+				    , t.labor_cost
+				    , t.outside_cost
+				    , t.etc_cost
+				    , t.problem_cd
+				    , wp.reliab_nm as problem_nm
+				    , t.cause_cd
+				    , wc.reliab_nm as cause_nm
+				    , t.remedy_cd
+				    , wr.reliab_nm as remedy_nm
+				    , prj.proj_cd
+				    , prj.proj_nm
+				    , t.wo_file_grp_cd
+				    , t.req_info_img_grp_cd
+				    , t.work_text_img_grp_cd
+				    , t.pm_req_type
+				    , t.req_dept_busi_cd
+				    , t.appr_line
+				    , t.appr_line_next
+				    , t.work_order_approval_pk
+				    , woa.reg_dt
+				    , woa.rqst_dt
+				    , woa.rqst_user_nm
+				    , woarqstd.dept_pk as rqst_dept_pk
+				    , woarqstd.dept_nm as rqst_dept_nm
+				    , woa.cancel_dt
+				    , woa.cancel_user_nm
+				    , woa.accept_dt
+				    , woa.appr_dt
+				    , woa.finish_dt
+				    , substring(t.appr_line, 1,2) as wo_start_type
+				    , cm_fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
+				    , t.insert_ts
+				    , e.environ_equip_yn
+				    , e.equip_status as equip_stauts_cd
+				    , e.import_rank_pk
+				    , ir.import_rank_cd
+				    , e.up_equip_pk
+				    , ue.equip_nm AS up_equip_name
+				    , ec.equip_category_id
+				    , ec.equip_category_desc
+        		    , ec.remark
+				    , e.equip_class_path
+				    , e.equip_class_desc
+				    , av.code_nm as first_asset_status
+				    , av.code_cd as first_asset_status_cd
+				    , cm_fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
+				    , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
+				    , (select code_nm from cm_base_code where code_grp_cd = 'EQUIP_SYSTEM' and code_cd = e.system_cd) as system_nm
+				    , l.loc_nm
+				    , es.ex_supplier_nm
+				    , woa.cancel_reason
+				    , t.cost_type
+				    , (select code_nm from cm_base_code where code_cd = t.cost_type and code_grp_cd = 'WO_COST_TYPE') as cost_type_nm
+
+		    from cm_work_order t
+			    inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
+			    inner join cm_base_code mt on t.maint_type_cd = mt.code_cd and mt.code_grp_cd = 'MAINT_TYPE'
+			    inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
+			    inner join cm_equipment e on t.equip_pk = e.equip_pk
+			    inner join cm_location l on e.loc_pk = l.loc_pk
+			    left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
+			    left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
+			    left outer join cm_dept wd on t.dept_pk = wd.dept_pk
+			    left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
+			    left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
+			    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
+			    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
+			    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
+			    left outer join cm_pm p on t.pm_pk = p.pm_pk
+			    left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+			    left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
+			    left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
+			    left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+			    left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
+			    left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
+			    left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
+			    left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
+			    left outer join cm_project prj on t.proj_cd = prj.proj_cd
+			    left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
+			    left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+			    left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
+			    left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
+			    left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
+			    left outer join cm_base_code av on av.code_cd = e.first_asset_status and av.code_grp_cd = 'ASSET_VAL_STATUS'
+			    left outer join cm_work_order_supplier wos on wos.work_order_pk = t.work_order_pk
+			    left outer join cm_ex_supplier es on es.ex_supplier_pk = wos.ex_supplier_pk
+		    where 1 = 1
+
+		    AND t.work_order_pk = %(workOrderPk)s
+            '''
+            dc = {}
+            dc['workOrderPk'] = workOrderPk
 
             items = DbUtil.get_row(sql, dc)
+
+        elif action == 'findSel':       
+            keywords = gparam.get('keywords')
+            startDate = gparam.get('startDate')
+            endDate = gparam.get('endDate')
+            isMine = gparam.get('isMine')
+
+            sql = '''
+             /* findAll [work-order-mapper.xml] */
+
+		        with cte as (
+
+		        select t.work_order_pk
+				        , t.work_order_no
+				        , t.work_title
+				        , t.work_text
+				        , t.work_order_sort
+				        , t.req_dept_pk
+				        , rd.dept_nm as req_dept_nm
+				        , rd.tpm_yn as req_dept_tpm_yn
+				        , t.dept_pk
+				        , wd.dept_nm as dept_nm
+				        , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
+				        , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+				        , t.work_charger_pk
+				        , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+				        , mt.code_cd as maint_type_cd
+				        , mt.code_nm as maint_type_nm
+				        , ws.code_cd as wo_status_cd
+				        , ws.code_nm as wo_status_nm
+				        , t.plan_start_dt
+				        , t.plan_end_dt
+				        , t.start_dt
+				        , t.end_dt
+                        , to_char(t.start_dt, 'YYYY-MM-DD HH24:MI') || ' ~ ' || to_char(t.end_dt, 'YYYY-MM-DD HH24:MI') as startEndPeriod
+				        , t.want_dt
+				        , t.equip_pk
+				        , e.equip_cd
+				        , e.equip_nm
+				        , ed.dept_pk as equip_dept_pk
+				        , ed.dept_nm as equip_dept_nm
+				        , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
+				        , t.pm_pk
+				        , p.pm_no
+				        , p.pm_nm
+				        , pt.code_nm                        AS pm_type_nm
+				        , p.work_text as pm_work_text
+				        , t.chk_rslt_pk
+				        , ecs.chk_sche_pk
+				        , ecs.chk_sche_no
+				        , ecm.chk_mast_nm
+				        , ecm.chk_mast_pk
+				        , ecs.chk_sche_dt
+				        , l.loc_nm
+				        , t.req_info
+				        , t.wo_type
+				        , t.rqst_insp_yn
+				        , t.rqst_dpr_yn
+				        , wt.code_nm as wo_type_nm
+				        , t.breakdown_dt
+				        , t.breakdown_min
+				        , wsc.code_cd as work_src_cd
+				        , wsc.code_nm as work_src_nm
+				        , t.tot_cost
+				        , t.mtrl_cost
+				        , t.labor_cost
+				        , t.outside_cost
+				        , t.etc_cost
+				        , t.problem_cd
+				        , wp.reliab_nm as problem_nm
+				        , t.cause_cd
+				        , wc.reliab_nm as cause_nm
+				        , t.remedy_cd
+				        , wr.reliab_nm as remedy_nm
+				        , prj.proj_cd
+				        , prj.proj_nm
+				        , t.wo_file_grp_cd
+				        , t.req_info_img_grp_cd
+				        , t.work_text_img_grp_cd
+				        , t.pm_req_type
+				        , t.req_dept_busi_cd
+				        , t.appr_line
+				        , t.appr_line_next
+				        , t.work_order_approval_pk
+				        , woa.reg_dt
+				        , to_char(woa.rqst_dt, 'YYYY-MM-DD HH24:MI') as rqst_dt
+				        , woa.rqst_user_nm
+				        , woarqstd.dept_pk as rqst_dept_pk
+				        , woarqstd.dept_nm as rqst_dept_nm
+				        , woa.cancel_dt
+				        , woa.cancel_user_nm
+				        , woa.accept_dt
+				        , woa.appr_dt
+				        , woa.finish_dt
+				        , substring(t.appr_line, 1,2) as wo_start_type
+				        , cm_fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
+				        , t.insert_ts
+				        , e.environ_equip_yn
+				        , e.equip_status as equip_stauts_cd
+				        , e.import_rank_pk
+				        , ir.import_rank_cd
+				        , e.up_equip_pk
+				        , ue.equip_nm AS up_equip_name
+				        , ec.equip_category_id
+				        , ec.equip_category_desc
+        		        , ec.remark
+				        , e.equip_class_path
+				        , e.equip_class_desc
+				        , av.code_nm as first_asset_status
+				        , av.code_cd as first_asset_status_cd
+				        , cm_fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
+				        , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
+				        , (select code_nm from cm_base_code where code_grp_cd = 'EQUIP_SYSTEM' and code_cd = e.system_cd) as system_nm
+				        , l.loc_nm
+				        , es.ex_supplier_nm
+				        , woa.cancel_reason
+				        , t.cost_type
+				        , (select code_nm from cm_base_code where code_cd = t.cost_type and code_grp_cd = 'WO_COST_TYPE') as cost_type_nm
+
+		        from cm_work_order t
+			        inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
+			        inner join cm_base_code mt on t.maint_type_cd = mt.code_cd and mt.code_grp_cd = 'MAINT_TYPE'
+			        inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
+			        inner join cm_equipment e on t.equip_pk = e.equip_pk
+			        inner join cm_location l on e.loc_pk = l.loc_pk
+			        left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
+			        left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
+			        left outer join cm_dept wd on t.dept_pk = wd.dept_pk
+			        left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
+			        left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
+			        left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
+			        left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
+			        left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
+			        left outer join cm_pm p on t.pm_pk = p.pm_pk
+			        left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+			        left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
+			        left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
+			        left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+			        left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
+			        left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
+			        left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
+			        left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
+			        left outer join cm_project prj on t.proj_cd = prj.proj_cd
+			        left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
+			        left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+			        left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
+			        left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
+			        left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
+			        left outer join cm_base_code av on av.code_cd = e.first_asset_status and av.code_grp_cd = 'ASSET_VAL_STATUS'
+			        left outer join cm_work_order_supplier wos on wos.work_order_pk = t.work_order_pk
+			        left outer join cm_ex_supplier es on es.ex_supplier_pk = wos.ex_supplier_pk
+		        where 1 = 1
+
+			        AND t.wo_status NOT IN (
+
+		        	        'WOS_RW'
+
+			        )
+
+			        AND t.wo_status IN (
+
+		        	        'WOS_RW'
+				         ,  
+		        	        'WOS_RB'
+				         ,  
+		        	        'WOS_RQ'
+				         ,  
+		        	        'WOS_OC'
+				         ,  
+		        	        'WOS_AP'
+				         ,  
+		        	        'WOS_CM'
+				         ,  
+		        	        'WOS_CL'
+				         ,  
+		        	        'WOS_DL'
+
+			        )
+
+    		        --AND t.wo_type = 'WO'
+
+			        --AND woa.rqst_user_pk = 1
+
+			         AND (
+			 	        (date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
+								        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) >= to_date('2022-08-09', 'YYYY-MM-DD')
+			 		        AND date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
+								        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) <= to_date('2025-05-31', 'YYYY-MM-DD'))
+			 	        OR
+			 	        (date(case 		when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
+								        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) >= to_date('2022-08-09', 'YYYY-MM-DD')
+			 		        AND date(case 	when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
+									        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) <= to_date('2025-05-31', 'YYYY-MM-DD'))
+			        )
+
+                    --AND t.WO_TYPE = 'WO'
+
+		        )
+		        SELECT *
+		        FROM (
+			        table cte
+	                     order by rqst_dt DESC
+	                        , 
+	                            work_order_sort DESC 
+
+
+		        ) sub
+		        RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		        WHERE total_rows != 0
+		        order by pm_no desc, work_order_no desc
+
+             '''
+            dc={}
+            dc['keywords'] = keywords
+            dc['startDate'] = startDate
+            dc['endDate'] = endDate
+            dc['isMine'] = isMine
+
+            items = DbUtil.get_rows(sql, dc)
 
         elif action == 'getBrokenEquipWorkOrders':
             equipPk = CommonUtil.try_int(gparam.get('equipPk'))
@@ -750,24 +1184,28 @@ def work_order(context):
 
             items = DbUtil.get_rows(sql, dc)
 
-        elif action in ['insert', 'update']:
+        elif action == 'save':
+           #파라미터 전환
+            posparam = CommonUtil.snake_to_camel_dict(posparam)
+            #작업 결재정보 먼저 등록
+            workOrderApprovalPk = handle_work_order_approval(posparam, request)
+            tempSave = posparam.get('tempSave', 'N') # 임시저장구분 기본값:  N
+
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             equipPk = CommonUtil.try_int(posparam.get('equipPk'))
             workOrderNo = posparam.get('workOrderNo')
             workOrderSort = posparam.get('workOrderSort')
             workTitle = posparam.get('workTitle')
             workText = posparam.get('workText')
-            workOrderApprovalPk = posparam.get('workOrderApprovalPk')
-            workOrderApprovalPk = CommonUtil.try_int(workOrderApprovalPk)
             reqInfo = posparam.get('reqInfo')
             woStatusCd = posparam.get('woStatusCd')
             maintTypeCd = posparam.get('maintTypeCd')
             woType = posparam.get('woType')
             wantDt = posparam.get('wantDt')
-            planStartDt = posparam.get('planStartDt')
-            planEndDt = posparam.get('planEndDt')
-            startDt = posparam.get('startDt')
-            endDt = posparam.get('endDt')
+            planStartDt = wantDt
+            planEndDt = wantDt
+            startDt =wantDt
+            endDt = wantDt
             deptPk = posparam.get('deptPk')
             workChargerPk = posparam.get('workChargerPk')
             pmPk = posparam.get('pmPk')
@@ -775,24 +1213,21 @@ def work_order(context):
             apprLineNext = posparam.get('apprLineNext')
             reqDeptPk = posparam.get('reqDeptPk')
             pmReqType = posparam.get('pmReqType')
-            work_src_cd = posparam.get('work_src_cd')
-            breakdown_dt = posparam.get('breakdown_dt')
-            cause_cd = posparam.get('cause_cd')
-            problem_cd = posparam.get('problem_cd')
+            workSrcCd = posparam.get('workSrcCd')
+            breakdownDt = posparam.get('breakdownDt')
+            causeCd = posparam.get('causeCd')
+            problemCd = posparam.get('problemCd')
             remedyCd = posparam.get('remedyCd')
-            proj_cd = posparam.get('proj_cd')
-            work_src_cd = posparam.get('work_src_cd')
+            projCd = posparam.get('projCd')
+            workSrcCd = posparam.get('workSrcCd')
             totCost = posparam.get('totCost')
             mtrlCost = posparam.get('mtrlCost')
             laborCost = posparam.get('laborCost')
             outsideCost = posparam.get('outsideCost')
             etcCost = posparam.get('etcCost')
-            if_send_yn = posparam.get('if_send_yn')
+            if_send_yn = posparam.get('if_send_yn')       
   
-            if action == 'update':
-                wo = CmWorkOrder.objects.get(id=workOrderPk)
-                wo.WorkText = workText
-            else:
+            if workOrderPk ==None:
                 wo = CmWorkOrder()
                 wo.CmWorkOrderApproval_id = workOrderApprovalPk
                 wo.CmPm_id = pmPk
@@ -805,6 +1240,9 @@ def work_order(context):
                 wo.OutsideCost = outsideCost
                 wo.EtcCost = etcCost
                 wo.IfSendYn = if_send_yn
+            else:
+                wo = CmWorkOrder.objects.get(id=workOrderPk)
+                wo.WorkText = workText
 
             wo.CmEquipment_id = equipPk
             if workOrderNo:
@@ -838,20 +1276,20 @@ def work_order(context):
             wo.ReqDeptPk = reqDeptPk
 
             #req_dept_busi_cd
-            wo.WorkSrcCode = work_src_cd
-            wo.BreakdownDt = breakdown_dt
-            wo.CauseCode = cause_cd
-            wo.ProblemCode = problem_cd
-            wo.ProjCode = proj_cd
-            
-            wo.Factory_id = factory_id
-            #wo.InsertTs = insert_ts
-            #wo.InserterId = inserter_id
-            #wo.InserterName = inserter_nm
+            wo.WorkSrcCode = workSrcCd
+            wo.BreakdownDt = breakdownDt
+            wo.CauseCode = causeCd
+            wo.ProblemCode = problemCd
+            wo.ProjCode = projCd            
+            wo.Factory_id = 1
             wo.set_audit(user)
             wo.save()
+            print("PK:", wo.id)  # 저장 후 PK가 할당되는지 확인
 
-            return {'success': True, 'message': '작업지시 정보가 수정되었습니다.'}
+            if tempSave == 'N':
+                handle_work_order_hist(wo.id, posparam, request)
+
+            return {'success': True, 'message': '작업지시 정보가 저장되었습니다.'}
 
         elif action == 'acceptWorkOrder':
             ''' 작업요청승인

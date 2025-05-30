@@ -1818,8 +1818,8 @@ def learning_data(context):
             mt_id = posparam.get('mt_id', 0)
             mt = DsModelTrain.objects.get(id=mt_id)
 
-            if mt.TrainStatus not in ['INITIALIZED', 'FAILED']:
-                return {'success': False, 'message': '해당 학습은 이미 시작되었거나 완료된 상태입니다.'}
+            # if mt.TrainStatus not in ['INITIALIZED', 'FAILED']:
+            #     return {'success': False, 'message': '해당 학습은 이미 시작되었거나 완료된 상태입니다.'}
 
 
             try:
@@ -1843,15 +1843,174 @@ def learning_data(context):
                     'request_user': user, # 따로 인증 처리를 하지 않으므로 유저 정보 함께 보내기
                 }
 
-                api_url = 'api/ai/train_model'
-                if settings.AI_API_HOST!="localhost":
-                    api_url = settings.AI_API_HOST + '/api/ai/train_model'
+                # api_url = 'api/ai/train_model'
+                # if settings.AI_API_HOST!="localhost":
+                #     api_url = settings.AI_API_HOST + '/api/ai/train_model'
 
-                response = requests.post(api_url+'?action=train', json=payload)
-                # response = requests.post('10.226.236.34/learning', json=payload)
-                # response.raise_for_status()
-                if response.status_code == 200:
-                    items = {'success': True, "data": mt.id}
+                # response = requests.post(api_url+'?action=train', json=payload)
+                # # response = requests.post('10.226.236.34/learning', json=payload)
+                # # response.raise_for_status()
+                # if response.status_code == 200:
+                #     items = {'success': True, "data": mt.id}
+
+            
+                #csv을 읽어서 df를 만든다 
+                sql = ''' 
+                SELECT 
+                    id
+                    , "TableName"
+                    , "DataPk"
+                    , "AttachName"
+                    , "FileIndex"
+                    , "FileName"
+                    , "PhysicFileName"
+                    , "ExtName"
+                    , "FilePath"
+                    , "_created"
+                    , "FileSize"
+                FROM attach_file 
+                WHERE "TableName" = %(table_name)s
+                AND "DataPk" = %(data_pk)s
+                ORDER BY id DESC 
+                '''
+                dc = {}
+                dc['table_name'] = 'ds_model'
+                # dc['data_pk'] = md_id
+                dc['data_pk'] = 10
+                row = DbUtil.get_row(sql, dc)
+                if not row:
+                    return
+
+
+                from sklearn.preprocessing import LabelEncoder
+
+                PhysicFileName = row.get('PhysicFileName')
+                #FileName = row.get('FileName')
+
+                # file_name = settings.FILE_UPLOAD_PATH + 'ds_data\\' + PhysicFileName
+                file_name = settings.FILE_UPLOAD_PATH + 'ai\\learning_data\\' + PhysicFileName
+
+                df = pd.read_csv(file_name)
+
+                #데이터 set을  ds_model_data에서 읽어옴
+                #전처리도 해야 
+
+                # 데이터 전처리: 결측치 제거
+                df.dropna(inplace=True)
+
+                # # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
+                df['data_date'] = pd.to_datetime(df['data_date'])
+                df.set_index('data_date', inplace=True)
+
+                # 인코딩 대상 컬럼
+                categorical_cols = ['tag_code', 'mat_cd']
+                label_encoders = {}
+
+                # 각 컬럼에 대해 Label Encoding 적용
+                for col in categorical_cols:
+                    le = LabelEncoder()
+                    df[col] = le.fit_transform(df[col])
+                    label_encoders[col] = le  # 나중에 역변환이나 테스트셋에도 재사용 가능
+
+
+                # features = ['tag_code', 'data_value', 'rst_id', 'mat_cd'] # 독립변수
+                features = ['tag_code', 'data_value', 'mat_cd']  # ❌ rst_id는 feature에서 제거
+                target_column = 'state' # 종속변수
+
+                # rst_id로 안묶고 진행할 때
+                # # 독립 변수와 종속 변수 분리
+                # X = df[features]  # 독립 변수
+                # y = df[target_column]  # 종속 변수
+
+                # # 데이터 표준화(선택사항: 현재는 미사용)
+                # scaler = StandardScaler()
+                # X_standardized = scaler.fit_transform(X)
+
+                # # 훈련 데이터와 테스트 데이터로 분리
+                # # X_train, X_test, y_train, y_test = train_test_split(X_standardized, y, test_size=0.2, random_state=0)
+                # # 우선 표준화 없이 진행
+                # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+                unique_ids = df['rst_id'].unique()  # rst_id 고유한 값 리스트
+                train_ids, test_ids = train_test_split(unique_ids, test_size=0.2, random_state=0) # rst_id 리스트중 train / test를 나눔 ex) train_ids: 1,2,3 / test_ids = 4
+
+                train_df = df[df['rst_id'].isin(train_ids)] # train_ids에 속하는 rst_id를 필터링해서 학습 데이터로 사용
+                test_df = df[df['rst_id'].isin(test_ids)] # test_ids에 속하는 rst_id를 필터링해서 예측(테스트) 데이터로 사용
+
+                X_train = train_df[features]
+                y_train = train_df[target_column]
+
+                X_test = test_df[features].reset_index(drop=True)
+                y_test = test_df[target_column].reset_index(drop=True)
+
+                #알고리즘에 넣어서 실행
+
+                # 랜덤 포레스트 모델 생성
+                # rf_model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+
+                # AdaBoost 앙상블 모델 생성
+                # model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=payload.params.RANDOM_STATE) # base_estimator -> estimators로 바꼈대
+                # model = AdaBoostClassifier(estimator=rf_model, n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+                model = AdaBoostClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+                # pca_model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=0)
+            
+                # 모델 훈련(비교)
+                # model.fit(X_train, y_train)     # 기본 모델     
+                try:
+                    model.fit(X_train, y_train)
+                except Exception as e:
+                    print("에러 발생:", e)
+                # pca_model.fit(X_pca, y_train)   # PCA 적용 모델
+
+                # 테스트 데이터에 대한 예측
+                test_predictions = model.predict(X_test) # 기본 모델 예측
+                # pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
+                # pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
+            
+                # 예측 결과의 정확도 평가
+                accuracy = accuracy_score(y_test, test_predictions)
+                print(f'기본모델 test Accuracy: {accuracy:.2f}')
+                # pca_accuracy = accuracy_score(y_test, pca_predictions)
+                # print(f'PCA모델 test Accuracy: {pca_accuracy:.2f}')
+
+                # 실제 데이터 예측 (test_df에서 무작위 rst_id n개 선택. 우선 한 20개로 진행)
+                num_sample = 20
+                sampled_ids = test_df['rst_id'].drop_duplicates().sample(n=num_sample, random_state=42)
+                sampled_test_df = test_df[test_df['rst_id'].isin(sampled_ids)]
+
+                X_sampled_test = sampled_test_df[features]
+                sampled_predictions = model.predict(X_sampled_test)
+                # 예전 코드
+                # # 실제 데이터 예측
+                # # 미래 마지막 30개의 관측치 준비(대략 한 사이클에 30개 정도라 치고)
+                # future_data = X[-30:]
+
+                # # 미래 값 예측
+                # future_predictions = model.predict(future_data)         # 기본모델 - 최근 데이터 30건
+                # # pca_future_data = pca_final.transform(future_data)      # 관측데이터 PCA 적용
+                # # pca_future_predictions = pca_model.predict(pca_future_data) # PCA 모델 예측
+
+                # # 예측 결과 출력
+                # for i, prediction in enumerate(future_predictions, 1):
+                #     print(f'기본모델: 5분 후 알람값 예측 {i*10}초: {prediction}')
+            
+                # 예측 결과 출력
+                # for i, (basic_pred, pca_pred, real_alarm) in enumerate(zip(future_predictions, pca_future_predictions, y[-30:]), 1):
+                #     print(f'5분 후 알람값 예측 {i*10}초:\n --> 기본모델: {basic_pred}   /   PCA적용모델: {pca_pred}   /   실제 alarm 값: {real_alarm}')
+                for i, (pred_state, real_state) in enumerate(zip(sampled_predictions, sampled_test_df[target_column]), 1):
+                    print(f' 예측값: {pred_state}  /   실제 state 값: {real_state}')
+
+                #알고리즘에 대한 상태, feature importance.모델설명 그래프
+                title = {'main':'model 예측 추이', 'x':'테스트 데이터(무작위 rst_id가 같은 데이터로 샘플링)', 'y':'예측값(state)'}
+                graph1 = {'data':sampled_predictions, 'mode':'lines+markers', 'name':'모델 예측값'}
+                graph2 = {'data':sampled_test_df[target_column], 'mode':'lines+markers', 'name':'실제 값'}
+
+                pred_plotly = visualize_to_plotly(title, graph1, graph2)
+
+                # 훈련 및 예측이 완료되면 결과값 서버에 전달
+                items = {'success':True, 'pca_plotly': pred_plotly }
+                #예측을 해본다. 변수 실제값은 뭘로? 과적합은 없는가?  
+
 
             except Exception as e:
                 # 오류 시 상태를 FAILED로 변경

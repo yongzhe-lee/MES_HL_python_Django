@@ -731,7 +731,7 @@ class TagData(models.Model):
     _created    = models.DateTimeField('_created', auto_now_add=True)
 
     class Meta():
-        db_table = 'tag_dat'
+        db_table = 'tag_dat'  #'das"."tag_dat'
         verbose_name = '태그데이터'
         unique_together  = [
             ['tag_code', 'data_date']
@@ -754,7 +754,7 @@ class ElecMeterData(models.Model):
     _created    = models.DateTimeField('_created', auto_now_add=True)
 
     class Meta():
-        db_table = 'em_tag_dat'
+        db_table = 'em_tag_dat' #'das"."em_tag_dat'
         verbose_name = '전력량계태그데이터'
         unique_together  = [
             ['tag_code', 'data_date']
@@ -872,6 +872,7 @@ class EquipAlarm(models.Model):
 
 class EquipAlarmHistory(models.Model):
     id  = models.BigAutoField(primary_key=True, db_comment="알람 이력 ID (기본키)")    
+    equ_cd = models.CharField('설비코드', max_length=100, null=True) # plant_i 설비코드
     alarm_code = models.CharField('알람코드', db_column='alarm_cd', max_length=50, db_comment="알람 코드 ") # 릴레이션을 맺지 않는다
     part_number = models.CharField('부품명', db_column='part_number', max_length=100, db_comment="파트번호", null=True)
     module_no = models.CharField('module_no', max_length=100, null=True) # 마운터전용

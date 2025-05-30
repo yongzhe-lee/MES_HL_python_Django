@@ -90,7 +90,9 @@
 	}
 </style>
 <script>
-	const DOC_MAX_SIZE = 10 * 1024 * 1024;
+	if (typeof DOC_MAX_SIZE === 'undefined') {
+		var DOC_MAX_SIZE = 10 * 1024 * 1024;
+	}
 	const DOC_ALLOWED_TYPES = [
 		"application/vnd.ms-excel",
 		"application/haansoftxlsx",

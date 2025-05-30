@@ -7,15 +7,15 @@ class WorkOrderService():
 	def __init__(self):
 		return
 
-	def get_work_order_list(self, keyword, req_dept):
+	def get_work_order_list(self, keyword, req_dept, rqst_user_nm, start_dt, end_dt, wo_status, maint_type_cd, dept_pk):
 		items = []
-		dic_param = {'keyword': keyword, 'req_dept': req_dept}
+		dic_param = {'keyword': keyword, 'req_dept': req_dept, 'rqst_user_nm': rqst_user_nm, 'start_dt': start_dt, 'end_dt': end_dt, 'wo_status': wo_status, 'maint_type_cd': maint_type_cd, 'dept_pk': dept_pk}
         
 		sql = '''
 		with cte as (
 
 		select t.work_order_pk
-				, t.work_order_no
+				, COALESCE(t.work_order_no, '임시저장') AS work_order_no
 				, t.work_title
 				, t.work_text
 				, t.work_order_sort
@@ -155,13 +155,77 @@ class WorkOrderService():
 		where 1 = 1
 		'''
 
+		if keyword:
+			sql += '''
+				AND (
+				UPPER(t.work_title) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR UPPER(t.work_text) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				OR UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+
+					OR UPPER(t.work_order_no) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+				)
+			'''
+
+		if req_dept:
+			sql += '''
+				AND (
+				rd.dept_pk = %(req_dept)s
+				OR
+				rd.dept_pk IN ( select dept_pk from cm_v_dept_path where %(req_dept)s = path_info_pk)
+				)
+			'''
+
+		if rqst_user_nm:
+			sql += '''
+				AND woa.rqst_user_nm = %(rqst_user_nm)s
+			'''
+
+		if wo_status:
+			sql += '''
+				AND t.wo_status IN (
+
+		        	%(wo_status)s
+
+				)
+			'''
+
+		if maint_type_cd:
+			sql += '''
+				AND mt.code_cd = %(maint_type_cd)s
+			'''
+
+		if dept_pk:
+			sql += '''
+				AND (
+				wd.dept_pk = %(dept_pk)s
+				OR
+				wd.dept_pk IN ( select dept_pk from cm_v_dept_path where %(dept_pk)s = path_info_pk)
+				)
+			'''
+
+		if start_dt or end_dt:
+			sql += '''
+				AND (
+			 	(date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
+								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) >= to_date(%(start_dt)s, 'YYYY-MM-DD')
+			 		AND date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
+								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
+			 	OR
+			 	(date(case 		when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
+								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) >= to_date(%(start_dt)s, 'YYYY-MM-DD')
+			 		AND date(case 	when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
+									when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
+				)
+			'''
+
+		# 아직 구현 안한부분
 		if 0 == 1:
 			sql += '''
             AND t.problem_cd = 'ARLK'
 
             AND t.cause_cd = 'CC04'
 
-			AND woa.rqst_user_nm = 'tttttttt'
 
 			AND substring(t.appr_line, 1, 2) = 'RQ'
 
@@ -177,47 +241,6 @@ class WorkOrderService():
 
 			)
 
-			AND t.wo_status IN (
-
-		        	'WOS_OC'
-
-			)
-
-			AND (
-				wd.dept_pk = 25
-				OR
-				wd.dept_pk IN ( select dept_pk from cm_v_dept_path where 25 = path_info_pk)
-			)
-
-			AND (
-				rd.dept_pk = 23
-				OR
-				rd.dept_pk IN ( select dept_pk from cm_v_dept_path where 23 = path_info_pk)
-			)
-
-			AND (
-				UPPER(t.work_title) LIKE CONCAT('%',UPPER(CAST('testttt' as text)),'%')
-				OR UPPER(t.work_text) LIKE CONCAT('%',UPPER(CAST('testttt' as text)),'%')
-				OR UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(CAST('testttt' as text)),'%')
-				OR UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(CAST('testttt' as text)),'%')
-
-					OR UPPER(t.work_order_no) LIKE CONCAT('%',UPPER(CAST('testttt' as text)),'%')
-
-			)
-
-    		AND mt.code_cd = 'MAINT_TYPE_PM'
-
-			 AND (
-			 	(date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
-								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) >= to_date('2025-04-08', 'YYYY-MM-DD')
-			 		AND date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
-								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) <= to_date('2025-05-29', 'YYYY-MM-DD'))
-			 	OR
-			 	(date(case 		when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
-								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) >= to_date('2025-04-08', 'YYYY-MM-DD')
-			 		AND date(case 	when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
-									when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) <= to_date('2025-05-29', 'YYYY-MM-DD'))
-			)
 
 			AND coalesce(t.rqst_dpr_yn, 'N') = 'N'
 
@@ -226,18 +249,10 @@ class WorkOrderService():
 		sql += '''
 		)
 		SELECT *
-		FROM (
-			table cte
-
-	             order by rqst_dt DESC
-	                , 
-	                    work_order_sort DESC 
-
-	            limit 30 offset (1-1)*30
-
-		) sub
+		FROM (table cte  order by rqst_dt DESC ,    work_order_sort DESC ) sub
 		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
 		WHERE total_rows != 0
+		order by pm_no desc, work_order_no desc
 		'''
 
 		try:

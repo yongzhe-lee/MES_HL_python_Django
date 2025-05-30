@@ -527,8 +527,9 @@
                                 </div>
 
                                 <!-- 성능 그래프 -->
-                                <div id="model_result_chart" style="text-align: center;">
-                                    <img id="model_chart_img" style="width:90%;" />
+                                <div id="model_result_chart">
+                                    <div id="model_chart_img" style="width: 80%; margin: auto; position: relative;"></div>
+                                    <!--<div id="pca_result" style="width: 80%; margin: auto; position: relative;"></div>-->
                                 </div>
                             </div>
                         </div>
@@ -2613,11 +2614,16 @@
                 AjaxUtil.postAsyncData(this.baseUrl + '?action=start_learning',
                     { mt_id: _this.mt_id }, (resp) => {
                         if (resp.success) {
+                            //Notify.success('모델 학습을 요청했습니다.');
                             Notify.success('모델 학습을 요청했습니다.');
                             _this.modelGrid.grid.expandOn = true;
                             _this.searchMainData();
                             const formData = _this.getTrainInfo();
                             _this.initTrainForm(formData);
+                            //나중엔 분리해야함
+                            //_this.loadChartImage("pca_result", "pca_apply", { num_components: num_components });
+                            $('#' + 'model_chart_img').html(resp.pca_plotly);
+
                         } else {
                             Alert.alert('error', resp.message);
                         }

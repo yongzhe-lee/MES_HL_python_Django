@@ -1,0 +1,162 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+<div class="content_wrap">
+    <div class="content-ui-row">
+        <div class="card-content search">
+            <div class="form-ui">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="mat_cd_stock" data-labelCd="창고">창고</label>
+                        <div class="field-wrapper">
+                            <select id="cboStockLocation" name="loc_cd" class="form-control">
+                                <option value="4000">제품창고(4000)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 col-xl-4">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="mat_cd_stock" data-labelCd="품목코드">품목코드</label>
+                        <div class="field-wrapper">
+                            <input type="text" id="mat_cd_stock" name="mat_cd" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-2 col-xl-2">
+                    <div class="card-group-btn search">
+                        <button id="btnStockSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="SAP 품목별 재고">SAP 품목별 재고</label>
+                    </span>
+                    <span>
+                        <button id="btnExcelSapStock">Excel</button>
+                    </span>
+                </div>
+                <div id="stock_grid"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class IFSapStockPage {
+        constructor() {
+            this.grid = null;
+            this.init();
+            this.url = "/api/interface/sap";
+        }
+
+        init() {
+            let _this = this;
+
+            this.initSapStock();
+            
+        }
+
+        initSapStock() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    //autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "stab_werks", title: "플랜트", width: 100, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_matnr", title: "품목코드", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_maktx", title: "품목명", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_lgort", title: "저장위치코드", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_lgobe", title: "저장위치명", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_labst", title: "가용재고", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_insme", title: "품질재고", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_speme", title: "보류재고", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_mslbq", title: "외주재고", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_mkolq", title: "벤더위탁재고", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_mskuq", title: "고객위탁재고", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_meins", title: "단위", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_bklas", title: "품목유형코드", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_bkbez", title: "품목유형명", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "created", title: "생성일", width: 120, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                ],
+                height: 720
+            };
+
+            this.stock_grid = new Grid($("#stock_grid"), gridOption);
+
+
+            $('#btnStockSearch').click(function (ex) {
+                _this.searchSapStock();
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelSapStock').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#stock_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_stock.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+
+        }
+
+        searchSapStock() {
+            let _this = this;
+
+            let loc_cd = $('#cboStockLocation').val();
+            let mat_cd = $('#mat_stock_cd').val();
+
+            let data = {
+                loc_cd: loc_cd,
+                mat_cd: mat_cd,
+                action: 'sap_stock_list'
+            }
+
+            let g1 = $('#stock_grid');
+            kendo.ui.progress(g1, true);
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.stock_grid.setData(result.items);
+                }
+                kendo.ui.progress(g1, false);
+            };
+
+            this.stock_grid.setData([]);
+            AjaxUtil.getAsyncData(this.url, data, fnSuccess);
+
+
+        }
+    }
+
+    let page = new IFSapStockPage();
+    $(document).ready(function (e) {
+    });
+</script>
+{% endblock %}

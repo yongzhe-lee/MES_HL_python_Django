@@ -37,6 +37,8 @@ class IFFujiMounterService(object):
 
             try:
                 job = r.get('job')
+                sn = r.get('sn')
+                sn_items = r.get('sn_items', [])
                 machine = r.get('machine')
                 position = r.get('position')
                 partNumber = r.get('partNumber')
@@ -58,6 +60,8 @@ class IFFujiMounterService(object):
                 data_date = datetime.strptime(str_data_date,'%Y-%m-%dT%H:%M:%S%z')
 
                 if_pickup_rate = IFMounterPickupRate()
+                if_pickup_rate.sn = sn
+                if_pickup_rate.sn_items = sn_items
                 if_pickup_rate.job = job
                 if_pickup_rate.machine = machine
                 if_pickup_rate.position = position
@@ -108,6 +112,8 @@ class IFFujiMounterService(object):
         for r in items:
             try:
                 job = r.get('job')
+                sn = r.get('sn')
+                sn_items = r.get('sn_items', [])
                 machine = r.get('machine')
                 position = r.get('position')
                 partNumber = r.get('partNumber')
@@ -130,6 +136,8 @@ class IFFujiMounterService(object):
 
                 if_pickup_rate = IFMounterPickupRate()
                 if_pickup_rate.job = job
+                if_pickup_rate.sn = sn
+                if_pickup_rate.sn_items = sn_items
                 if_pickup_rate.machine = machine
                 if_pickup_rate.position = position
                 if_pickup_rate.partNumber = partNumber

@@ -1,0 +1,189 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content_wrap">
+    <div class="content-ui-row">
+
+        <div class="card-content search">
+            <div class="form-ui">
+
+                <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="keyword" data-labelCd="LOT No.">LOT No.</label>
+                        <div class="field-wrapper">
+                            <input type="text" id="txtKeyword" name="keyword" class="form-control" />
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 col-lg-1 col-xl-1">
+                    <div class="card-group-btn search">
+                        <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="LOT 내역">LOT 내역</label>
+                    </span>
+                    <span>
+                        <button id="btnSAPMaterialSearchSAP">인터페이스실행</button>
+                        <button id="btnExcelSapMat">Excel</button>
+                    </span>
+                </div>
+                <div id="sap_mat_grid"></div>
+            </div>
+
+        </div>
+        <div class="card-content edit">
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class IFMesWorkOrderPage {
+        constructor() {
+            this.grid = null;
+            this.init();
+            this.url = "/api/interface/mes";
+        }
+
+        init() {
+            let _this = this;
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "id", title: "id", width: 100 },
+                    { field: "factoryCode", title: "공장", width: 100 },
+                    { field: "lotId", title: "Lot No", width: 100 },
+                    { field: "histSeq", title: "순번", width: 100 },
+                    { field: "tranCode", title: "상태코드", width: 100 },
+                    { field: "tranDesc", title: "상태", width: 100 },
+                    { field: "operCode", title: "operCode", width: 100 },
+                    { field: "operDesc", title: "operDesc", width: 100 },
+                    { field: "lineCode", title: "Line", width: 100 },
+                    { field: "orderNo", title: "지시번호", width: 100 },
+                    { field: "equipCode", title: "설비코드", width: 100 },
+                    { field: "matCode", title: "품번", width: 100 },
+                    { field: "matDesc", title: "품명", width: 100 },
+                    { field: "holdFlag", title: "Hold Flag", width: 100 },
+                    { field: "bomVer", title: "BOM Ver.", width: 100 },
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                },
+                height: 500
+            };
+
+            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+
+            //search form
+            let today = CommonUtil.getYYYYMMDD();
+            let $cboLine = $('#cboLine');
+            AjaxUtil.fillDropDownOptions($cboLine, 'line_code', 'all', null);
+
+            $('#btnSAPMaterialSearchDB').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    _this.searchSapMat();
+                }
+            });
+
+            $('#btnSAPMaterialSearchSAP').kendoButton({
+                icon: "download-light",
+                themeColor: "success",
+                click: function () {
+                    _this.showPopSapMatInterface();
+                }
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelSapMat').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#sap_mat_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_mat.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+
+
+
+
+        }
+
+
+        /********************************************************/
+
+        searchSapMat() {
+            let _this = this;
+            let url = '/api/interface/sap';
+            let matkl = $('#cboMATKL').val();
+            let mtart = $('#cboMTART').val();
+            let bklas = $('#cboBKLAS').val();
+
+            let data = {
+                matkl: matkl,
+                mtart: mtart,
+                bklas: bklas,
+                'action': 'sap_mat'
+            };
+
+            kendo.ui.progress($('#sap_mat_grid'), true);
+
+            AjaxUtil.getAsyncData(url, data, function (result) {
+                if (result.success) {
+                    _this.sap_mat_grid.setData(result.items);
+                }
+                else {
+                    Alert.alert('오류', result.message);
+                }
+                kendo.ui.progress($('#sap_mat_grid'), false);
+            });
+        }
+
+    }
+
+    let page = new IFMesWorkOrderPage();
+    $(document).ready(function (e) {
+
+    });
+</script>
+{% endblock %}

@@ -2,10 +2,10 @@
 import json
 from datetime import datetime
 
-from domain.models.interface import IFEquipmentResult, IFEquipmentResultItem
+from domain.models.interface import IFEquipmentResult, IFEquipmentResultItem, IFEquipmentRecipe, IFEquipemntDefectItems
 from domain.services.logging import LogWriter
 from domain.models.definition import EquipAlarmHistory
-
+from domain.services.date import DateUtil
 class IFEquipmentResultService():
     def __init__(self):
         pass
@@ -17,6 +17,8 @@ class IFEquipmentResultService():
         :return: None
         """
         source  = f"IFEquipmentResultService.rst_equipment_topic_handler - topic :{topic}"
+
+        now = DateUtil.get_current_datetime()
 
         print(topic, payload)
         dic_payload = None
@@ -84,6 +86,9 @@ class IFEquipmentResultService():
                 LogWriter.add_dblog("error", source, eex)
 
         try:
+
+            defect_items = dic_payload.get('defect_items', None)
+
             is_alarm = dic_payload.get('is_alarm', None)
             if is_alarm=="1" or is_alarm=="Y" or is_alarm=="true" or is_alarm==1 or is_alarm==True:
                 is_alarm = True
@@ -93,8 +98,23 @@ class IFEquipmentResultService():
 
             alarm_items = dic_payload.get("alarm_items", [])
             equ_result.alarm_items = alarm_items
+            equ_result.defect_items = defect_items
             equ_result.is_alarm = is_alarm
             equ_result.save()
+
+            if defect_items:
+                for dt in defect_items:
+                    sn = dt.get('sn', None)
+                    if_defect_item = IFEquipemntDefectItems()
+                    if_defect_item.sn = sn
+                    if_defect_item.EquipmentResult = equ_result
+                    if_defect_item.defect_cd = dt.get('failure_type', None)
+                    if_defect_item.defect_nm = dt.get('failure_cause', None)
+                    if_defect_item.ComponentName = dt.get('comp_name', None)
+                    if_defect_item.PartNumber = dt.get('comp_part_nr', None)
+                    if_defect_item._created = now
+                    if_defect_item.save()
+
 
             arr_cd = dic_payload.get('test_item_cd', [])
             arr_val = dic_payload.get('test_item_val', [])
@@ -116,16 +136,68 @@ class IFEquipmentResultService():
                 result_item.save()
 
                 idx = idx+1
+            try:
+                recipe_items = dic_payload.get("recipe_items", None)
+                if recipe_items:
+                    dic_flow_meter = recipe_items.get("flow_meter", None)
+                    if dic_flow_meter:
+                        if_recipe1 = IFEquipmentRecipe()
+                        if_recipe1.EquipmentResult = equ_result
+                        if_recipe1.GroupName="flow_meter"
+                        if_recipe1.item_cd = "flow_meter1"
+                        if_recipe1.item_val = dic_flow_meter.get("flow_meter1", None)
+                        if_recipe1._created = now
+                        if_recipe1.save()
+
+                        if_recipe2 = IFEquipmentRecipe()
+                        if_recipe2.EquipmentResult = equ_result
+                        if_recipe2.GroupName="flow_meter"
+                        if_recipe2.item_cd = "flow_meter2"
+                        if_recipe2.item_val = dic_flow_meter.get("flow_meter2", None)
+                        if_recipe2._created = now
+                        if_recipe2.save()
+
+
+                    screw_items = recipe_items.get("screw_items", None)
+                    if screw_items:
+                        item_cd = screw_items.get("item_cd", [])
+                        item_val = screw_items.get("item_val", [])
+                        idx = 0
+                        for cd in item_cd:
+                            if_recipe = IFEquipmentRecipe()
+                            if_recipe.EquipmentResult = equ_result
+                            if_recipe.GroupName="screw_items"
+                            if_recipe.item_cd = cd
+                            if_recipe.item_val = item_val[idx]
+                            if_recipe._created = now
+                            if_recipe.save()
+                            idx = idx+1
+
+            except Exception as rrrex:
+                LogWriter.add_dblog("error", source + " recipe", rrrex)
+
 
 
             if is_alarm:
                 for alarm_item in alarm_items:
 
-                    # [{"onoff": 1, "end_dt": null, "start_dt": "2025-05-19T16:35:04+09:00", "alarm_msg": "Unable to locate the target object. (Additional)", "module_no": "15", "alarm_code": "8000D760", "part_number": "N20.004-00"}]
                     equip_alarm_history = EquipAlarmHistory()
-                    equip_alarm_history.alarm_code = alarm_item.get("alarm_code", "")
+                    equip_alarm_history.equ_cd = equ_cd
+
+                    alarm_code = alarm_item.get("alarm_code", "")
+                    module_no = alarm_item.get("module_no", None)
+
+                    if is_mounter:
+                        alarm_code = f'{equ_cd}.alm.{alarm_code}'
+                        if module_no:
+                            equip_alarm_history.equ_cd =  f"{equ_cd}{module_no}"
+
+                    # [{"onoff": 1, "end_dt": null, "start_dt": "2025-05-19T16:35:04+09:00", "alarm_msg": "Unable to locate the target object. (Additional)", "module_no": "15", "alarm_code": "8000D760", "part_number": "N20.004-00"}]
+                    
+                    
+                    equip_alarm_history.alarm_code = alarm_code
+                    equip_alarm_history.module_no = module_no
                     equip_alarm_history.details = alarm_item.get("alarm_msg", "")
-                    equip_alarm_history.module_no = alarm_item.get("module_no", None)
                     equip_alarm_history.part_number = alarm_item.get("part_number", None)
                     onoff = alarm_item.get("onoff", None)
                     if onoff:
@@ -152,7 +224,7 @@ class IFEquipmentResultService():
                     equip_alarm_history.rst_id = equ_result.id
                     equip_alarm_history.data_date = data_date
                     equip_alarm_history.save()
-
+            
         except Exception as ex:
             LogWriter.add_dblog("error", source, ex)
         return

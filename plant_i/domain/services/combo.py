@@ -1,4 +1,5 @@
 import datetime
+from app.views.kmms.reliab_code import CmReliabCodes
 from domain import init_once
 from configurations import settings
 from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmEquipClassify, CmImportRank, CmProject, CmSupplier, CmUserInfo
@@ -72,6 +73,7 @@ class ComboService(object):
             'cm_equip_classify': cls.cm_equip_classify,
             'cm_depart': cls.cm_depart,
             'cm_user_info': cls.cm_user_info,
+            'cm_reliab_codes': cls.cm_reliab_codes,
         }
         cls.__initialized__ = True
 
@@ -586,8 +588,8 @@ class ComboService(object):
 
     @classmethod 
     def cm_project(cls, cond1, cond2, cond3):
-        query = CmProject.objects.values('proj_cd', 'proj_nm').order_by('proj_nm')
-        items = [ {'value': entry['proj_cd'], 'text':entry['proj_nm']} for entry in query ]
+        query = CmProject.objects.values('ProjCode', 'ProjName').order_by('ProjName')
+        items = [ {'value': entry['ProjCode'], 'text':entry['ProjName']} for entry in query ]
         return items
 
     @classmethod
@@ -656,4 +658,15 @@ class ComboService(object):
         '''
         data = DbUtil.get_rows(sql)
         items = [ {'value': entry['user_pk'], 'text':entry['user_nm']} for entry in data ]
+        return items
+
+    @classmethod
+    def cm_reliab_codes(cls, cond1, cond2, cond3):
+        q = CmReliabCodes.objects.values('ReliabCode','ReliabName')
+        if cond1:
+            q = q.filter(Types=cond1)
+        q = q.order_by('ReliabName')
+
+        items = [{'value': item['ReliabCode'], 'text': item['ReliabCode'] + '(' + item['ReliabName'] + ')' } for item in q]
+
         return items

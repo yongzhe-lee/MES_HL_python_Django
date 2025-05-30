@@ -18,10 +18,22 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_log_type" data-labelCd="자산구분">자산구분</label>
                             <div class="field-wrapper">
-                                <select id="srch_log_type" name="srch_log_type"></select>
+                                <select id="cboAssetType" name="asset_type"></select>
                             </div>
                         </div>
                     </div>
+                    <div class="col-12 col-sm-6 col-md-5 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_log_type" data-labelCd="AAS입력여부">입력여부</label>
+                            <div class="field-wrapper">
+                                <select id="cboAssetInputYN" name="aas_input_yn">
+                                    <option value="N">Not yet</option>
+                                    <option value="Y">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-12 col-sm-6 col-md-5 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="키워드">키워드</label>
@@ -71,7 +83,7 @@
                     <div class="edit-form-ui">
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="log_type" data-labelCd="구분">구분</label>
+                                <label class="k-label k-form-label" for="log_type" data-labelCd="자산구분">자산구분</label>
                                 <div class="field-wrapper">
                                     <select id="log_type" name="log_type"  class="form-control"></select>
                                 </div>
@@ -79,7 +91,7 @@
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="source" data-labelCd="에러위치">에러 위치</label>
+                                <label class="k-label k-form-label essential" for="source" data-labelCd="자산명">자산명</label>
                                 <div class="field-wrapper">
                                     <input id="source" name="source" class="form-control" />
                                 </div>
@@ -87,18 +99,18 @@
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="created" data-labelCd="발생일">발생일</label>
+                                <label class="k-label k-form-label" for="created" data-labelCd="Gloabl Asset ID">Gloabl Asset ID</label>
                                 <div class="field-wrapper">
-                                    <input id="created" name="created"  class="form-control" />
+                                    <input id="txtGlobalAssetID" name="global_asset_id" class="form-control" />
                                 </div>
                             </div>
                         </div>
                         <!--<div class="col-12 col-sm-6 col-md-4">-->
                         <div class="col-12 col-sm-6 col-md-12">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="message" data-labelCd="설명">설명</label>
+                                <label class="k-label k-form-label" for="message" data-labelCd="Path">Path</label>
                                 <div class="field-wrapper">
-                                    <input id="message" name="message"  class="form-control" />
+                                    <input id="txtPath" name="path" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -116,7 +128,7 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    class SystemLogPage {
+    class DetailAssetPage {
         constructor() {
             this.grid = null;
             this.baseUrl = '/api/aas/asset';
@@ -137,13 +149,14 @@
                         sort: "asc",
                     }
                 },
-                columns: [
-                    // 차후 수정
-                    { field: "id", title: "No", width: 100 },
-                    { field: "type", title: "구분", width: 100 },
-                    { field: "source", title: "에러위치", width: 100 },
-                    { field: "message", title: "설명", width: 100 },
-                    { field: "created", title: "생성일", width: 100 },
+                columns: [                    
+                    { field: "asset_type", title: "자산구분", width: 100 },
+                    { field: "asset_nm", title: "자산명", width: 200 },                    
+                    { field: "global_asset_id", title: "Global Asset ID", width: 200 },
+                    { field: "path", title: "Path", width: 150 },
+                    { field: "thumbnail_img", title: "Thumbnail", width: 100 },
+                    { field: "aas_input_yn", title: "AAS등록여부", width: 100 },                    
+                    { field: "created", title: "생성일", width: 120 },
                 ],
                 change: function (e) {
                     _this.showDetail();
@@ -153,25 +166,12 @@
                         this.autoFitColumn(i);
                     };
                 },
-                height: 680
+                height: 540
             };
-            _this.grid = new Grid($("#system_log_grid"), systemLogGridOption);
+            _this.grid = new Grid($("#spec_asset_grid"), systemLogGridOption);
 
-            //search form
-            $("#srch_date_range").kendoDateRangePicker({
-                range: {
-                    start: new Date(),
-                    end: new Date()
-                },
-                change: function (e) {
-
-                },
-                format: "yyyy-MM-dd",
-                labels: false,
-                startField: "start_date",
-                endField: "end_date"
-            });
-            AjaxUtil.fillDropDownOptions($('#srch_log_type'), 'log_type', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#cboAssetType'), 'asset_type', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#cboAssetInputYN'), 'input_yn', 'all', null);
             $('#keyword').kendoTextBox();
             $('#keyword').keypress(function (e) {
                 if (e.keyCode == 13) {
@@ -248,12 +248,10 @@
 
     };
 
-    let page = null;
-
+    
+    let page = new DetailAssetPage();
     $(document).ready(function () {
-        page = new SystemLogPage();
-
-        page.searchMainData();
+        //page.searchMainData();
     });
 
 </script>

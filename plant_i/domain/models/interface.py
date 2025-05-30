@@ -166,101 +166,6 @@ class IFSapPcbRandomNumber(models.Model):
           
         ]
 
-class IFMesLine(models.Model):
-    '''
-    사용하지 않음, 삭제예정
-    line_cd	varchar(20)	라인코드
-    line_nm	varchar(200)	라인명
-    '''
-
-    id = models.AutoField(primary_key=True)
-    line_cd = models.CharField('라인코드', max_length=20)
-    line_nm = models.CharField('라인명', max_length=200)
-
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
-    class Meta():
-        db_table = 'if_mes_line'
-        verbose_name = 'MES 라인정보 인터페이스'
-        unique_together = [
-          
-        ]
-
-class IFMesProcess(models.Model):
-    '''
-    사용하지 않음 삭제예정
-    proc_cd	varchar(20)	공정코드
-    proc_nm	varchar(200)	공정명
-
-    '''
-    id = models.AutoField(primary_key=True)
-    proc_cd = models.CharField('공정코드', max_length=20)
-    proc_nm = models.CharField('공정명', max_length=200)
-
-
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
-    class Meta():
-        db_table = 'if_mes_proc'
-        verbose_name = 'MES 공정정보 인터페이스'
-        unique_together = [
-          
-        ]
-
-class IFMesEquipment(models.Model):
-    '''
-    사용하지 않음, 삭제예정
-    equ_cd	varchar(20)	설비코드
-    equ_nm	varchar(200)	설비명
-    line_cd	varchar(20)	라인코드
-    '''
-    id = models.AutoField(primary_key=True)
-    equ_cd = models.CharField('설비코드', max_length=20)
-    equ_nm = models.CharField('설비명', max_length=200)
-    line_cd = models.CharField('라인코드', max_length=20)
-
-    _status = models.CharField('_status', max_length=10, null=True)
-    _created    = models.DateTimeField('_created', auto_now_add=True, null=True)
-    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
-    _modifier_id = models.IntegerField('_modifier_id', null=True)
-
-    def set_audit(self, user):
-        if self._creater_id is None:
-            self._creater_id = user.id
-        self._modifier_id = user.id
-        self._modified = DateUtil.get_current_datetime()
-        return
-    
-    class Meta():
-        db_table = 'if_mes_equ'
-        verbose_name = 'MES 설비정보 인터페이스'
-        unique_together = [
-          
-        ]
-
 class IFMesProductionPlan(models.Model):
     '''
     생산계획
@@ -325,7 +230,7 @@ class IFEquipmentResult(models.Model):
     bom_ver = models.CharField('bom_ver', max_length=100, null=True)
     is_alarm = models.BooleanField('is_alarm', default=False, null=True)
     alarm_items = models.JSONField('알람목록', null=True)  #[{"alarm_cd" : "", "":""} ]
-    flow_meter_items = models.JSONField('유량계정보', null=True) # 마운터전용 {"flow_meter1":1, "flow_meter2":2}
+    defect_items = models.JSONField('부적합내역', null=True) 
     module_no = models.CharField('module_no', max_length=100, null=True) # 마운터전용
     dummy1 = models.CharField('dummy1', max_length=100, null=True)
     dummy2 = models.CharField('dummy2', max_length=100, null=True)    
@@ -383,11 +288,12 @@ class IFEquipemntDefectItems(models.Model):
     '''
 
     id = models.BigAutoField(primary_key=True)
+    sn = models.CharField('대표시리얼번호', max_length=100, null=True)
     EquipmentResult = models.ForeignKey(IFEquipmentResult, on_delete=models.CASCADE, null=True, db_column="rst_id")
     defect_cd = models.CharField('결함코드', max_length=20, null=True)
     defect_nm = models.CharField('결함명', max_length=100, null=True)
-    component_nm = models.CharField('컴포넌트명(포지션)', max_length=100, null=True)
-    part_no = models.CharField('부품번호', max_length=100, null=True)
+    ComponentName = models.CharField('컴포넌트명(포지션)', max_length=100, null=True, db_column="comp_nm")
+    PartNumber = models.CharField('부품번호', max_length=100, null=True, db_column="part_num")
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created = models.DateTimeField('_created', auto_now_add=True)
@@ -400,11 +306,32 @@ class IFEquipemntDefectItems(models.Model):
             ["EquipmentResult", "defect_cd"]
         ]
 
+class IFEquipmentRecipe(models.Model):  
+    id = models.BigAutoField(primary_key=True)
+    EquipmentResult = models.ForeignKey(IFEquipmentResult, on_delete=models.CASCADE, null=True, db_column="rst_id")
+    GroupName = models.CharField('그룹명', max_length=100, null=True, db_column="grp_nm")
+    item_cd = models.CharField('항목코드', max_length=100, null=True, db_column="item_cd")
+    item_val = models.CharField("항목값", max_length=100, null=True, db_column="item_val")
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created = models.DateTimeField('_created', auto_now_add=True)
+    _modified = models.DateTimeField('_modfied', auto_now=True)
+
+    class Meta():
+        db_table = 'if_equ_recipe'
+        verbose_name = 'MES 설비생산설정값'
+        unique_together = [
+            ["EquipmentResult", "GroupName", "item_cd"]
+        ]
+
+
 class IFMounterPickupRate(models.Model):
     '''
     마운터 픽업률
     '''
     id = models.BigAutoField(primary_key=True)
+    sn = models.CharField('대표시리얼번호', max_length=100, null=True)
+    sn_items = models.JSONField('다중시리얼번호', null=True)
     job = models.CharField("job", max_length=200, null=True)
     equ_cd = models.CharField('설비코드', max_length=50, null=True)
     machine = models.CharField('머신코드', max_length=50, null=True)
@@ -434,9 +361,6 @@ class IFMounterPickupRate(models.Model):
     class Meta():
         db_table = 'if_mnt_pickup_rate'
         verbose_name = 'mouter pickup rate'
-        unique_together = [
-            ["machine", "position","data_date"]
-        ]
 
 class IFQmsDefect(models.Model):
     '''

@@ -29,9 +29,9 @@ def project(context):
     action = gparam.get('action', 'read') 
 
     def findDeletableProject(projCd):
-        #factory_pk = posparam.get('factory_pk')
+  
         q = CmProject.objects.filter(ProjCode=projCd)
-        q = q.filter(Factory_id=factory_id)
+        q = q.filter(Factory_id=1)
         if q.first():
             return 1
         else:
@@ -39,7 +39,7 @@ def project(context):
 
     try:
         if action in ['findAll']:
-            # siteId = gparam.get('siteId')
+            
             projNm = gparam.get('projNm')
             projPkNot = gparam.get('projPkNot')
             searchText = gparam.get('searchText')
@@ -143,7 +143,6 @@ def project(context):
             projPurpose = posparam.get('proj_purpose')
             projTotCost = posparam.get('proj_tot_cost')
             status = posparam.get('status')
-            siteId = posparam.get('siteId')
             inserterId = posparam.get('inserterId')
             
             if action == 'update':
@@ -163,12 +162,12 @@ def project(context):
             c.ProjTotCost = projTotCost
             if status:
                 c.Status = status
-            c.Factory_id = factory_id
+            c.Factory_id = 1
             c.set_audit(user)
             
             c.save()
 
-            return {'success': True, 'message': '프로젝트의 정보가 수정되었습니다.'}
+            return {'success': True, 'message': '프로젝트의 정보가 저장되었습니다.'}
 
 
         elif action == 'delete':

@@ -1,0 +1,315 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+<div class="content_wrap">
+    <div class="content-ui-row">
+        <div class="card-content search">
+            <div class="form-ui">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="form-item align-h">
+                        <label class="k-label k-form-label" for="bom_keyword" data-labelCd="품목코드">품목코드</label>
+                        <div class="field-wrapper">
+                            <input type="text" id="bom_keyword" name="mat_cd" class="form-control" value="D10.003-007" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-2 col-xl-2">
+                    <div class="card-group-btn search">
+                        <button id="btnBOMSearch" class="btn-search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="SAP BOM">SAP BOM</label>
+                    </span>
+                    <span>
+                        <button type="button" id="btnShowBOMSearchSAP">SAP인터페이스</button>
+                        <button id="btnExcelBOM">Excel</button>
+                    </span>
+                </div>
+                <div id="sap_bom_grid"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="tmplSapBOMInterface" class="content-wrap popup" style="display:none">
+    <div class="content-ui-row">
+        <div class="card-content">
+            <form>
+                <div class="edit-form-ui">
+                    <div class="col-5">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtBaseDate" data-labelCd="기준일자">기준일자</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtBaseDate" name="base_date" class="form-control" />
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtBaseDate" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtKeyword" name="keyword" class="form-control" />
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-2">
+                        <div class="form-item align-h">
+                            <div class="field-wrapper">
+                                <button type="button" id="btnMatSearch" class="btn-search">조회</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card-content grid">
+                        <div id="parent_mat_grid"></div>
+                    </div>
+                    <div class="col-12">
+                        <hr />
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <div class="field-wrapper">
+                                <select multiple class="form-control" id="cboMatItems" name="mat_items"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card-group-btn search">
+                            <button type="button" id="btnRequestSapMat" class="btn-search">인터페이스실행</button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class IFSapBOMPage {
+        constructor() {
+            this.grid = null;
+            this.init();
+            this.url = "/api/interface/sap";
+        }
+
+        init() {
+            let _this = this;
+            this.initSapBom();
+        }  
+
+        initSapBom() {
+
+            let _this = this;
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: "stab_revlv", title: "Rev No", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_matnr", title: "상위품목", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_bmeng", title: "기준수량", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_idnrk", title: "구성부품", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_mnglg", title: "구성부품수량", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_meins", title: "단위", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_stufe", title: "BOM레벨", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_datuv", title: "효력시작일", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_datab", title: "효력종료일", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_aennr", title: "ECN번호", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_bklas", title: "품목유형", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_bkbez", title: "품목유형명", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "created", title: "생성일", width: 120, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                ],
+                change: function (e) {
+                },
+                dataBound: function (e) {
+                },
+                height: 720
+            };
+
+            this.bom_grid = new Grid($("#sap_bom_grid"), gridOption);
+
+            //$('#bom_mat_cd').kendoTextBox();
+
+            $('#btnBOMSearch').click(function (ex) {
+                _this.searchSapBom();
+            });
+
+            // 엑셀 다운로드
+            $('#btnExcelBOM').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    let gridData = $('#sap_bom_grid').data("kendoGrid");
+                    gridData.bind("excelExport", function (e) {
+                        e.workbook.fileName = "sap_mat.xlsx";
+                    });
+                    gridData.saveAsExcel();
+                }
+            });
+
+            let yyyymmdd = CommonUtil.getYYYYMMDD();
+            $("#txtBaseDate").kendoDatePicker({
+                dateInput: true,
+                value: yyyymmdd
+            });
+
+
+            $('#btnShowBOMSearchSAP').kendoButton({
+                icon: "download-light",
+                themeColor: "success",
+                click: function () {
+                    _this.showPopSapBOMInterface();
+                }
+            });
+
+
+            $('#tmplSapBOMInterface').kendoWindow({
+                width: "800", // windowWidth
+                height: "700",
+                title: "SAP BOM 인터페이스",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            
+
+            let matSearchGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: false,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { template: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" />', title: "선택", width: 80, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_bmeng", title: "품목구분", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_idnrk", title: "품목코드", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "stab_mnglg", title: "품목명", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                ],
+                height: 250
+            };
+
+            let $parent_mat_grid= new Grid($("#parent_mat_grid"), matSearchGridOption);
+
+            $('#btnMatSearch').kendoButton({
+                themeColor: "success",
+                click: function () {
+                }
+            });
+
+            let $cboMatItems = $('#cboMatItems');
+
+            $('#btnRequestSapMat').kendoButton({
+                themeColor: "success",
+                click: function () {
+
+                    Alert.confirm("SAP BOM 인터페이스", "실행하시겠습니까?", function () {
+                        _this.requestSapBom();
+                    });
+
+                }
+            });
+
+        }
+
+        showPopSapBOMInterface() {
+            let _this = this;
+            $('#tmplSapBOMInterface').data("kendoWindow").center().open();
+        }
+
+        requestSapBom() {
+
+            let base_date = $('#txtBaseData').val().replace("-",'');
+            let data = {
+                mat_cd: '',
+                base_date : base_date
+            };
+
+            console.log(data);
+
+            let url = this.url + "?action=request_sam_bom";
+            let fnSuccess = function (result) {
+                if (result.success) {
+
+                }
+                else {
+                    Alert.alert("SAP BOM 요청 오류", result.message);
+                }
+            };
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+
+        searchSapBom() {
+
+            let _this = this;
+
+            let keyword = $('#bom_keyword').val();
+
+            let data = {
+                action: "sap_bom_list",
+                keyword: keyword
+            };
+
+            let g1 = $('#sap_bom_grid');
+            kendo.ui.progress(g1, true);
+
+            this.bom_grid.setData([]);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.bom_grid.setData(result.items);
+                }
+                kendo.ui.progress(g1, false);
+            };
+
+            AjaxUtil.getAsyncData(this.url, data, fnSuccess);
+        }
+    }
+
+    let page = new IFSapBOMPage();
+    $(document).ready(function (e) {
+
+    });
+</script>
+{% endblock %}

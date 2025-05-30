@@ -71,7 +71,7 @@
                             <div class="field-wrapper">
                                 <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명" />
                             </div>
-                            <button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
@@ -198,9 +198,6 @@
 {% include '../../popup/modalWoDetail.html'%}
 {% include '../../popup/modalWoStatHist.html'%}
 {% include '../../popup/modalEquSel.html'%}
-{% include '../../popup/modalWoCopy.html'%}
-{% include '../../popup/modalWoProblem.html'%}
-{% include '../../popup/modalWoProject.html'%}
 
 <script type="text/javascript">
     class WorkOrderPage {
@@ -212,45 +209,6 @@
             this.comboDept = [];
 
             this.init();
-        }
-
-        /**
-        * 모달창 입력란 초기화 함수
-        */
-        resetModalInputs() {
-            // 일반 입력 필드 초기화
-            $("#equip_pk").val("");
-            $("#pm_pk").val("");
-            $("#pmNumber").val("");
-            $("#pmName").val("");
-            $("#work_text").val("");
-            $("#equ_code").val("");
-            $("#equ_name").val("");
-            $("#equ_loc").val("");
-            $("#equ_import").val("");
-            $("#equ_status").val("");
-            $("#equ_env_yn").val("");
-
-            // Kendo UI 컴포넌트 초기화
-            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
-            if (maintenanceTime) {
-                maintenanceTime.value("");
-            }
-
-            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
-            if (execDeptDropdown) {
-                execDeptDropdown.value("");
-            }
-
-            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
-            if (pmManagerDropdown) {
-                pmManagerDropdown.value("");
-            }
-
-            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
-            if (pmTypeDropdown) {
-                pmTypeDropdown.value("");
-            }
         }
 
         init() {
@@ -283,10 +241,6 @@
                     { field: 'maint_type_nm', title: '보전유형', width: 100 }
                 ],
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
-
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
                 },
@@ -305,62 +259,24 @@
 
                 if (woNoPk) {
                     woDetailPage.show(woNoPk, 1);
-                } else if (woTitlePk) {
-                    page.resetModalInputs();
-                    $("#modalMyWorkReq").fadeIn();
+				} else if (woTitlePk) {
+					setModalPosition('#modalMyWorkReq', { width: '70%', height: '70%' });
+					myWorkReqPage.show(woTitlePk);
+					return; 
                 } else if (woStatusPk) {
                     woStatHistPage.show();
                 }
-
-
-                //e.preventDefault();
-                //let workOrderPk = $(this).data("work-order-pk");
-                //if (!workOrderPk) return;
-
-                //// 이미 로드된 경우 재사용
-                //if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
-                //    equipMasterPage.show(workOrderPk);
-                //    return;
-                //}
-
-                //try {
-                //    const response = await $.get('/api/kmms/equipment?action=load_modal');
-                //    $('body').append(response);
-
-                //    // imageUploader가 준비될 때까지 대기
-                //    let waitForUploader = async () => {
-                //        return new Promise(resolve => {
-                //            let count = 0;
-                //            const check = () => {
-                //                if (window.imageUploader) return resolve();
-                //                count++;
-                //                if (count > 20) return resolve();
-                //                setTimeout(check, 50);
-                //            };
-                //            check();
-                //        });
-                //    };
-                //    await waitForUploader();
-
-                //    window.equipMasterPage = new EquipMaster();
-                //    equipMasterPage.show(workOrderPk);
-
-                //} catch (err) {
-                //    console.error("equipment.html 로드 실패:", err);
-                //    alert("설비 정보를 불러오는데 실패했습니다.");
-                //}
             });
 
             //search form
-            $("#upLoc").kendoButton({
+            $("#equKeword").kendoButton({
                 icon: "k-i-zoom-in",
                 rounded: "full",
                 click: function (e) {
                     e.preventDefault();
                     setModalPosition('#modalEqu', { width: '70%', height: '70%' });
                     equipSelectPage.show(function (data) {
-                        //$("#up_loc_pk").val(data._equip_pk);
-                        //$("#up_loc_nm").val(data._equip_nm);
+                        $("#keyword").val(data.equip_cd);
                     });
                 }
             });
@@ -397,8 +313,8 @@
             AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
             AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
-            AjaxUtil.fillDropDownOptions($('#problem_cd'), 'user_code', 'all', null, 'CYCLE_TYPE');
-            AjaxUtil.fillDropDownOptions($('#cause_cd'), 'user_code', 'all', null, 'CYCLE_TYPE');
+            AjaxUtil.fillDropDownOptions($('#problem_cd'), 'cm_reliab_codes', 'all', null, 'PC');
+            AjaxUtil.fillDropDownOptions($('#cause_cd'), 'cm_reliab_codes', 'all', null, 'CC');
             $('#srch_wo_no_only').kendoSwitch({ checked: false });
             $('#srch_my_req_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
@@ -420,7 +336,6 @@
                 //spriteCssClass: "k-icon k-foo",
                 click: function (e) {
                     e.preventDefault();
-                    page.resetModalInputs();  // 초기화 함수 호출
                     $("#modalMyWorkReq").fadeIn();
                 }
             }).css('visibility', 'visible');
@@ -439,14 +354,29 @@
         searchMainData() {
             let _this = this;
 
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
+            }
+
             let param = {
                 action: 'read',
                 keyword: $('#keyword').val(),
                 req_dept: $("#req_dept").data("kendoDropDownTree").value(),
-                //rqst_user_nm: $('#rqst_user_nm').val(),
-                //wo_status: $('#wo_status').val(),
-                //maint_type_cd: $('#maint_code').val(),
-                //dept_pk = $("#dept_pk").data("kendoDropDownTree").value(),
+                rqst_user_nm: $('#rqst_user_nm').val(),
+                start_dt: startDate,
+                end_dt: endDate,
+                wo_status: $('#wo_status').val(),
+                maint_type_cd: $('#maint_code').val(),
+                dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
                 //problem_cd: $('#problem_cd').val(),
                 //cause_cd: $('#cause_cd').val(),
 

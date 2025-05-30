@@ -1,4 +1,4 @@
-﻿<!-- 손자 모달 (설비 선택) - 부모 모달의 자식이 아닌 최상위 div에 배치 -->
+<!-- 손자 모달 (설비 선택) - 부모 모달의 자식이 아닌 최상위 div에 배치 -->
 <div id="modalWoCopy" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -56,7 +56,7 @@
 
 <script type="text/javascript">
 
-    class PmCopyPage {
+    class WoCopy {
         constructor() {
             this.grid = null;
             this.baseUrl = '/api/kmms/pm_master';
@@ -206,8 +206,8 @@
         }
     };
 
-    let pmCopyPage = null;
-    pmCopyPage = new PmCopyPage();
+    let woCopyPage = null;
+	woCopyPage = new WoCopy();
 
     $(document).ready(function () {
         // 부모 모달 제어
@@ -219,7 +219,7 @@
         $("#copyPM").on("click", function (e) {
             e.preventDefault();
             $("#modalWoCopy").fadeIn();
-            pmCopyPage.getPmData(); // ✅ 손자 모달을 열 때 실행
+			woCopyPage.getPmData(); // ✅ 손자 모달을 열 때 실행
         });
 
         // 손자 모달 닫기

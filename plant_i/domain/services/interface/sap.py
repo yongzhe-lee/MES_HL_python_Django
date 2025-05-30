@@ -2,24 +2,26 @@ import requests, json
 
 from domain.services.sql import DbUtil
 
-#from domain.services.logging import LogWriter
-#from configurations import settings
+from domain.services.logging import LogWriter
+from configurations import settings
 
 class SapInterfaceService():
 
     token = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJITCBLbGVtb3ZlIiwic3ViIjoiRUFJIiwiY2xpZW50SWQiOiIxNzQwMzg3MzEyMDAwMDEyNTA2IiwiY2xpZW50SVBzIjoiMTAuMjI2LjIzNi4zMjsgMTAuMjI2LjIzNi4zMDsgMTAuMjI2LjIzNi4zMSIsImlhdCI6MTc0MDYyMTA3Mn0.1oNwV640nxAwpWWglIWrpa9-LF2uNgXFpB6uOYKD7G0";
 
     url = ""
+
+    # main : 219.253.223.111 sub : 219.253.223.84
     main_host= "219.253.223.111"
-    sub_host = "219.253.223.84"
     headers = {}
     
-    #service_id = "rfc.production.mhe.korea"
-    service_id = "rfc.development.mhe.korea"
+    service_id = "rfc.production.mhe.korea"
+    #service_id = "rfc.development.mhe.korea"
+
     resource = '/api/1.0/service/channel/jco'
 
     def __init__(self):
-        #self.token = settings.IF_EAI_TOKEN
+        self.token = settings.IF_EAI_TOKEN
         self.headers = {
             "Content-Type":"application/json",
             "Authorization": f"Bearer {self.token}"
@@ -47,10 +49,13 @@ class SapInterfaceService():
         }
 
         param_data = json.dumps(data)
-        print(param_data + "\r\n")
 
-        #LogWriter.add_interface_log("sap_material", "EAI", contents=param_data)
         response = requests.post(self.url, headers=self.headers, data=param_data, verify=False)
+        LogWriter.add_interface_log("sap_material", "service EAI", contents=param_data)
+
+        if response.status_code != 200:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
         return response.json()
 
 
@@ -77,8 +82,15 @@ class SapInterfaceService():
         }
 
         body = json.dumps(data)
-        print(body + "\r\n")
+        
+        #print(body + "\r\n")
         response = requests.post(self.url, headers=self.headers, data=body, verify=False)
+        LogWriter.add_interface_log("sap_material", "service EAI", contents=body)
+
+        if response.status_code != 200:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+
         return response.json()
 
     def get_sap_material_stock(self, materials=[]):
@@ -102,8 +114,14 @@ class SapInterfaceService():
         }
 
         body = json.dumps(data)
-        print(body + "\r\n")
+        
         response = requests.post(self.url, headers=self.headers, data=body, verify=False)
+        LogWriter.add_interface_log("sap_material", "service EAI", contents=body)
+
+        if response.status_code != 200:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+
         return response.json()
 
 
@@ -144,8 +162,13 @@ class SapInterfaceService():
         }
 
         body = json.dumps(data)
-        print(body + "\r\n")
+        
         response = requests.post(self.url, headers=self.headers, data=body, verify=False)
+        LogWriter.add_interface_log("sap_material", "service EAI", contents=body)
+        if response.status_code != 200:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+
         return response.json()
 
 

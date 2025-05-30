@@ -52,8 +52,8 @@ def work_order_approval(context):
             workOrderApprovalPk = CommonUtil.try_int(posparam.get('workOrderApprovalPk'))
 
             woStatusCd = posparam.get('woStatusCd')
-            regUserNm = posparam.get('regUserNm')
-            regUserPk = CommonUtil.try_int(posparam.get('regUserPk'))
+            regUserNm = user.username
+            regUserPk = user.id
             rqstDt = posparam.get('rqstDt')
             rqstUserNm = posparam.get('rqstUserNm')
             rqstUserPk = CommonUtil.try_int(posparam.get('rqstUserPk'))
@@ -91,7 +91,7 @@ def work_order_approval(context):
             #c.set_audit(user)
             c.save()
 
-            return {'success': True, 'message': '작업지시 결재 정보가 저장되었습니다.'}
+            return {'success': True, 'message': '작업지시 결재 정보가 저장되었습니다.', 'workOrderApprovalPk': c.id}
 
         elif action == 'insertDailyReport':
 
@@ -100,7 +100,7 @@ def work_order_approval(context):
             regUserPk = CommonUtil.try_int(posparam.get('regUserPk'))
             rqstDt = posparam.get('rqstDt')
             rqstUserNm = posparam.get('rqstUserNm')
-            rqstUserPk = CommonUtil.try_int((posparam.get('rqstUserPk'))
+            rqstUserPk = CommonUtil.try_int(posparam.get('rqstUserPk'))
             acceptDt = posparam.get('acceptDt')
             acceptUserNm = posparam.get('acceptUserNm')
             acceptUserPk = CommonUtil.try_int(posparam.get('acceptUserPk'))
@@ -144,7 +144,7 @@ def work_order_approval(context):
             #c.set_audit(user)
             c.save()
 
-            return {'success': True, 'message': '작업지시 결재 정보가 저장되었습니다.'}
+            return {'success': True, 'message': '작업지시 결재 정보가 저장되었습니다.', 'workOrderApprovalPk': c.id}
 
 
         elif action == 'updateAccept':

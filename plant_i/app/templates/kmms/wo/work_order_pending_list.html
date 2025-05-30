@@ -71,8 +71,7 @@
                             <div class="field-wrapper">
                                 <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명" />
                             </div>
-                            <button type="button" class="zoombutton" id="upLoc" name="upLoc"></button>
-                        </div>
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>                        </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
@@ -168,13 +167,8 @@
 
 {% block scripts %}
 
-{% include '../../popup/modalMyWorkReq.html'%}
 {% include '../../popup/modalWoDetail.html'%}
-{% include '../../popup/modalWoStatHist.html'%}
 {% include '../../popup/modalEquSel.html'%}
-{% include '../../popup/modalWoCopy.html'%}
-{% include '../../popup/modalWoProblem.html'%}
-{% include '../../popup/modalWoProject.html'%}
 
 <script type="text/javascript">
     class WorkOrderPage {
@@ -186,45 +180,6 @@
             this.comboDept = [];
 
             this.init();
-        }
-
-        /**
-        * 모달창 입력란 초기화 함수
-        */
-        resetModalInputs() {
-            // 일반 입력 필드 초기화
-            $("#equip_pk").val("");
-            $("#pm_pk").val("");
-            $("#pmNumber").val("");
-            $("#pmName").val("");
-            $("#work_text").val("");
-            $("#equ_code").val("");
-            $("#equ_name").val("");
-            $("#equ_loc").val("");
-            $("#equ_import").val("");
-            $("#equ_status").val("");
-            $("#equ_env_yn").val("");
-
-            // Kendo UI 컴포넌트 초기화
-            let maintenanceTime = $("#maintenanceTime").data("kendoNumericTextBox");
-            if (maintenanceTime) {
-                maintenanceTime.value("");
-            }
-
-            let execDeptDropdown = $("#executionDept").data("kendoDropDownTree");
-            if (execDeptDropdown) {
-                execDeptDropdown.value("");
-            }
-
-            let pmManagerDropdown = $("#pmManager").data("kendoDropDownList");
-            if (pmManagerDropdown) {
-                pmManagerDropdown.value("");
-            }
-
-            let pmTypeDropdown = $("#pmType").data("kendoDropDownList");
-            if (pmTypeDropdown) {
-                pmTypeDropdown.value("");
-            }
         }
 
         init() {
@@ -241,14 +196,9 @@
                         sort: "asc",
                     }
                 },
-                // 작업중...
                 selectable: "multiple, row",
                 columns: [
-                    {
-                        selectable: true, width: "50px",
-                        headerTemplate: "<input type='checkbox' id='header-backlogList_columnOptions' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-backlogList_columnOptions'></label>",
-                        template: "<input type='checkbox' id='#=work_order_pk#' class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#=work_order_pk#'></label>"
-                    },
+                    { selectable: true, width: "50px" },
                     { field: 'work_order_pk', title: 'WOPK', width: 0, hidden: true },
                     { field: 'wo_type_nm', title: '유형', width: 60 },
                     { field: 'work_order_no', title: '작업지시번호', width: 120, template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>' },
@@ -293,7 +243,6 @@
                 if (woNoPk) {
                     woDetailPage.show(woNoPk, 1);
                 } else if (woTitlePk) {
-                    page.resetModalInputs();
                     $("#modalMyWorkReq").fadeIn();
                 } else if (woStatusPk) {
                     woStatHistPage.show();
@@ -339,15 +288,14 @@
             });
 
             //search form
-            $("#upLoc").kendoButton({
+            $("#equKeword").kendoButton({
                 icon: "k-i-zoom-in",
                 rounded: "full",
                 click: function (e) {
                     e.preventDefault();
                     setModalPosition('#modalEqu', { width: '70%', height: '70%' });
                     equipSelectPage.show(function (data) {
-                        //$("#up_loc_pk").val(data._equip_pk);
-                        //$("#up_loc_nm").val(data._equip_nm);
+                        $("#keyword").val(data.equip_cd);
                     });
                 }
             });
@@ -396,7 +344,6 @@
                 //spriteCssClass: "k-icon k-foo",
                 click: function (e) {
                     e.preventDefault();
-                    page.resetModalInputs();  // 초기화 함수 호출
                     $("#modalMyWorkReq").fadeIn();
                 }
             }).css('visibility', 'visible');
