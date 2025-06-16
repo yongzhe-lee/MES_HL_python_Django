@@ -76,7 +76,7 @@
             let gridOption = {
                 columns: [
                     { field: "type", title: "구분", width: 30 },
-                    { field: "arrd", title: "IP Address", width: 100 },
+                    { field: "addr", title: "IP Address", width: 100 },
                     { field: "login_id", title: "사번", width: 30 },
                     { field: "name", title: "이름", width: 50 },
                     { field: "created", title: "일시", width: 100 },
@@ -90,9 +90,8 @@
 
 
             //날짜 조회
-            let startDt = CommonUtil.getYYYYMMDD(-1);
-            var endDt = CommonUtil.getYYYYMMDD();
-            kendoUtil.kenDateTimePicker($("#srchStartDt"), $("#srchEndDt"), startDt, endDt);
+            $("#srchStartDt").kendoDatePicker({ value: new Date(), format: "yyyy-MM-dd" });
+            $("#srchEndDt").kendoDatePicker({ value: new Date(), format: "yyyy-MM-dd" });
 
             //form
             $('#keyword').kendoTextBox();
@@ -110,7 +109,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
             $('#btnGrid').kendoButton({
@@ -129,6 +128,14 @@
             _this.grid.setData(result);
         }
 
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#login_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "login_log.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
     };
 
     let page = null;

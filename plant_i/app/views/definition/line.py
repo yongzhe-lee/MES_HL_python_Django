@@ -48,7 +48,7 @@ def line(context):
             id = posparam.get('id')
             name = posparam.get('Name')
             code = posparam.get('Code')
-            description = posparam.get('description')
+            description = posparam.get('Description')
 
             line = None
             try:

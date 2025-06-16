@@ -30,7 +30,7 @@ def tag_statistics(context):
                 select td.tag_code, t.tag_name, count(*) as count_value, avg(td.data_value) as avg_value
                 , min(td.data_value) as min_value, max(td.data_value) as max_value
                 , round(convert(decimal, stdev(td.data_value)),5) as std_value
-	            from tag_dat td 
+	            from das.tag_dat td 
                 inner join tag t on t.tag_code = td.tag_code
 	            where td.data_date between %(date_from)s and dateadd(day,1,convert(date, %(date_to)s))
 	            and td.data_value is not null
@@ -40,7 +40,7 @@ def tag_statistics(context):
                 select td.tag_code, t.tag_name, count(*) as count_value, avg(td.data_value) as avg_value
                 , min(td.data_value) as min_value, max(td.data_value) as max_value
                 , round(stddev(td.data_value)::decimal,5) as std_value
-	            from tag_dat td 
+	            from das.tag_dat td 
                 inner join tag t on t.tag_code = td.tag_code
 	            where td.data_date between %(date_from)s and %(date_to)s::date + interval '1 days'
 	            and td.data_value is not null

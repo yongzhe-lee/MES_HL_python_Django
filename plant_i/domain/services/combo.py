@@ -27,8 +27,12 @@ class ComboService(object):
 
         # 알파벳 순서대로 소스를 정리해 놓자.
         cls.__dic_func__ = {
+            'aas_kind' : cls.aas_kind,
+            'asset_kind' : cls.aas_kind,
+            'asset_type': cls.asset_type,
+            'auth_user': cls.auth_user,
             'code_group': cls.code_group,
-            'cm_code_group': cls.cm_code_group,
+            'code': cls.code,
             'company': cls.company,
             'das_config' : cls.das_config,
             'das_server' : cls.das_server,
@@ -41,15 +45,18 @@ class ComboService(object):
             'equipment_type' : cls.equipment_type,
             'equip_category' : cls.equip_category,
             'factory' : cls.factory,
-            'material_group' : cls.material_group,
-            'mat_type' : cls.mat_type,
+            'input_yn' : cls.input_yn,
+            'job_class': cls.job_class,
             'language' : cls.language,
             'line' : cls.line,
             'line_equipment' : cls.line_equipment,
             'log_type' : cls.log_type,
+            'material_group' : cls.material_group,
+            'mat_type' : cls.mat_type,
             'material' : cls.material,
             'menu_folder': cls.menu_folder,
             'menu_item': cls.menu_item,
+            'project': cls.project,
             # 'plant': cls.plant,
             'site': cls.site,
             'smt_line' : cls.smt_line,
@@ -60,20 +67,19 @@ class ComboService(object):
             'unit': cls.unit,
             'user_code': cls.user_code,
             'user_group': cls.user_group,
-            'auth_user': cls.auth_user,
-            'job_class': cls.job_class,
-            'code': cls.code,
-            'cm_code': cls.cm_code,
+
             'cm_base_code': cls.cm_base_code,
-            'project': cls.project,
-            'cm_project': cls.cm_project,
-            'cm_supplier': cls.cm_supplier,
-            'cm_import_rank': cls.cm_import_rank,
+            'cm_code': cls.cm_code,
+            'cm_code_group': cls.cm_code_group,
+            'cm_depart': cls.cm_depart,
             'cm_equip_category': cls.cm_equip_category,
             'cm_equip_classify': cls.cm_equip_classify,
-            'cm_depart': cls.cm_depart,
-            'cm_user_info': cls.cm_user_info,
+            'cm_import_rank': cls.cm_import_rank,
+            'cm_project': cls.cm_project,
             'cm_reliab_codes': cls.cm_reliab_codes,
+            'cm_supplier': cls.cm_supplier,
+            'cm_user_info': cls.cm_user_info,
+            
         }
         cls.__initialized__ = True
 
@@ -354,6 +360,15 @@ class ComboService(object):
         items = [ {'value': entry['id'], 'text':entry['Name']} for entry in query ]
         return items
 
+    @classmethod
+    def input_yn(cls, cond1, cond2, cond3):
+
+        items = [
+            {"text" : "입력(지정)", "value":"Y"},
+            {"text" : "미입력(미지정)", "value":"N"}
+        ]
+        return items
+
 
     @classmethod
     def material(cls, cond1, cond2, cond3):
@@ -384,6 +399,32 @@ class ComboService(object):
             {'value': 'ko-KR', 'text':'한글'},
             {'value': 'en-US', 'text':'English'},
         ]
+
+    @classmethod
+    def aas_kind(cls, cond1, cond2, cond3):
+        # Instance, Type
+        items = [
+            { "value":"NotApplicable", "text" : "NotApplicable"},
+            { "value":"Instance", "text" : "Instance(인스턴스)"},
+            { "value":"Type", "text" : "Type(유형)"}
+        ]
+        return items
+
+    @classmethod
+    def asset_type(cls, cond1, cond2, cond3):
+        #equipment, tool, material, product, software, document, person, organization, location, other
+        items = [
+            { "value":"device", "text" : "센서, 컨트롤러 등 장치"},
+            { "value":"Machine", "text" : "생산설비 등 기계"},
+            { "value":"material", "text" : "equipment"},
+            { "value":"software", "text" : "소프트웨어자산"},
+            { "value":"service", "text" : "서비스"},
+            { "value":"document", "text" : "document"},
+            { "value":"person", "text" : "person"},
+            { "value":"organization", "text" : "organization"},
+            { "value":"other", "text" : "other"}
+        ]
+        return items
 
     # 24.12.16 김하늘 추가
     @classmethod

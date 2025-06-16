@@ -24,7 +24,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-12 col-sm-4 col-md-3">
+					<!--<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_process" data-labelCd="프로세스">프로세스</label>
 							<div class="field-wrapper">
@@ -39,7 +39,7 @@
 								<select id="srch_equ_system" name="srch_equ_system"></select>
 							</div>
 						</div>
-					</div>
+					</div>-->
 					<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="설비위치">설비위치</label>
@@ -170,26 +170,25 @@
 					{
 						"title": "설비명",
 						"field": "equip_nm",
-						"width": "300px",
+						"width": "250px",
 						"encoded": true,
 						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_nm#</a>'
 					},
 					{
 						"title": "설비위치경로",
 						"field": "up_loc_path",
-						"width": "350px",
+						"width": "300px",
 
 					},
 					{
 						"title": "설비위치",
 						"field": "loc_nm",
-						"width": "140px",
 						"hidden": true
 					},
 					{
 						"title": "설비상태",
 						"field": "equip_status_nm",
-						"width": "120px",
+						"width": "100px",
 						"encoded": true,
 						"attributes": {
 							"style": "text-align: center"
@@ -206,7 +205,7 @@
 					{
 						"title": "카테고리",
 						"field": "equip_category_desc",
-						"width": "130px",
+						"width": "120px",
 						"encoded": true,
 						"attributes": {
 							"style": "text-align: center"
@@ -214,31 +213,20 @@
 					},
 					{
 						"title": "설비위치",
-						"field": "loc_cd",
-						"width": "0",
+						"field": "loc_cd",				
 						"hidden": true
-					},
-					{
-						"title": "프로세스",
-						"field": "process_nm",
-						"width": "150px"
-					},
-					{
-						"title": "시스템",
-						"field": "system_nm",
-						"width": "100px"
 					},
 					{
 						"title": "사업부",
 						"field": "business_nm",
-						"width": "120px",
+						"width": "100px",
 						"sortable": false,
 						"encoded": true
 					},
 					{
 						"title": "관리부서",
 						"field": "dept_nm",
-						"width": "250px",
+						"width": "200px",
 						"encoded": true
 					},
 					{
@@ -248,9 +236,9 @@
 						"encoded": true
 					},
 					{
-						"title": "중요도(ABC)",
+						"title": "중요도",
 						"field": "import_rank_nm",
-						"width": "90px",
+						"width": "100px",
 						"attributes": {
 							"style": "text-align: center"
 						},
@@ -260,7 +248,7 @@
 						"title": "설치일",
 						"field": "install_dt",
 						"align": "center",
-						"width": "120px",
+						"width": "100px",
 						"attributes": {
 							"style": "text-align: center"
 						}
@@ -268,7 +256,7 @@
 					{
 						"title": "보전자재",
 						"field": "mtrl_cnt",
-						"width": "90px",
+						"width": "100px",
 						"attributes": {
 							"style": "text-align: center"
 						},
@@ -283,7 +271,7 @@
 						"encoded": true
 					},
 					{
-						"title": "법정관리 설비 여부",
+						"title": "법정관리설비 여부",
 						"field": "environ_equip_yn",
 						"width": "100px",
 						"encoded": true,
@@ -317,7 +305,7 @@
 					{
 						"title": "PM마스터",
 						"field": "pm_master",
-						"width": "100px",
+						"width": "120px",
 						"encoded": true,
 						"sortable": false,
 						"attributes": {
@@ -328,7 +316,7 @@
 					{
 						"title": "점검마스터",
 						"field": "ins_master",
-						"width": "100px",
+						"width": "120px",
 						"encoded": true,
 						"sortable": false,
 						"attributes": {
@@ -348,23 +336,9 @@
 					},
 					{
 						"title": "고장/불용 일시",
-						"field": "breakdown_dt",
-						"width": "0",
+						"field": "breakdown_dt",					
 						"hidden": true,
-						"attributes": {
-							"style": "text-align: center"
-						},
-
-					},
-					{
-						"title": "QR 출력",
-						"field": "print",
-						"align": "center",
-						"width": "110px",
-						"sortable": false,
-						"attributes": { "style": "text-align: center" },
-
-					}
+					},					
 				],			
 				dataBound: function (e) {
 					// 그리드 데이터 개수 표시만 처리
@@ -415,7 +389,13 @@
 			});
 
             // search form
-            $('#srch_equ_name').kendoTextBox();
+			$('#srch_equ_name').kendoTextBox();
+			$('#srch_equ_name').keypress(function (e) {
+                if (e.keyCode == 13) {
+					e.preventDefault()
+                    _this.searchMainData();
+                }
+            })
             AjaxUtil.fillDropDownOptions($('#srch_equ_status'), 'cm_code', 'all', null, 'EQUIP_STATUS');
             AjaxUtil.fillDropDownOptions($('#srch_equ_process'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
             AjaxUtil.fillDropDownOptions($('#srch_equ_system'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
@@ -501,10 +481,18 @@
 
 			// ✅ Kendo Grid에 데이터 설정
 			let grid = $("#equipment_grid").data("kendoGrid");
-			if (grid) {
-				grid.dataSource.data(result); // ✅ 데이터를 직접 설정
-				grid.refresh(); // ✅ UI 갱신
-			}
+
+			// grid wrapper 엘리먼트(전체 DIV)에 대해 progress 적용
+			kendo.ui.progress($("#equipment_grid"), true);  // 모래시계 on
+
+			setTimeout(function () {
+				if (grid) {
+					grid.dataSource.data(result); // 데이터 바인딩
+					grid.refresh();
+				}
+				kendo.ui.progress($("#equipment_grid"), false); // OFF
+			}, 100); // 0.1초 후에 off
+
 		}
 
 		showDetail() {

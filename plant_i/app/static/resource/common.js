@@ -748,7 +748,7 @@ let FormUtil = {
 
     resetForm: function ($form) {
         $form[0].reset();
-
+        
         // hidden 필드 리셋
         $form.find('input[type="hidden"]').each(function () {
             $(this).val('');
@@ -756,10 +756,13 @@ let FormUtil = {
 
         // kendo 위젯 리셋
         $form.find('[data-role]').each(function () {
-            let widget = $(this).data("kendo" + $(this).data("role").charAt(0).toUpperCase() + $(this).data("role").slice(1));
+            //let widget = $(this).data("kendo" + $(this).data("role").charAt(0).toUpperCase() + $(this).data("role").slice(1));
+            /*Kendo UI 위젯은 생성 시 data - role 속성이 DOM에 자동으로 붙지 않습니다.
+            → $(this).data("role") 값이 undefined라서 kendoDropDownTree를 못 찾는 경우입니다.*/
+            let widget = kendo.widgetInstance($(this), kendo.ui);
 
-            if (widget) {
-                if (widget instanceof kendo.ui.DropDownList || widget instanceof kendo.ui.ComboBox) {
+            if (widget) {                
+                if (widget instanceof kendo.ui.DropDownList || widget instanceof kendo.ui.ComboBox || widget instanceof kendo.ui.DropDownTree) {          
                     widget.value(''); // 기본값으로 리셋
                 } else if (widget instanceof kendo.ui.NumericTextBox) {
                     widget.value(''); // 기본값으로 리셋
@@ -1960,6 +1963,7 @@ var popupComn = {
             height: _options.height || "450px",
             title: _options.title || "팝업",
             visible: false,
+			modal: true, // 모달 팝업으로 설정
             actions: ["Close"],
             open: function () {
                 // open 콜백 함수가 존재하면 호출

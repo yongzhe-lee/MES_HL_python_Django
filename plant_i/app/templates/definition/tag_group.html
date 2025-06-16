@@ -180,7 +180,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
 
@@ -271,6 +271,15 @@
                 };
                 AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
             }
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#tag_group_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "tag_group.xlsx";
+            });
+            gridData.saveAsExcel();
         }
     };
 

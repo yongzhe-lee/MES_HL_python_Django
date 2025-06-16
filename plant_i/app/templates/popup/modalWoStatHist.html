@@ -45,10 +45,10 @@
             // 그리드 초기화
             this.grid = $("#recentAmtUnitGrid").kendoGrid({
                 columns: [          
-					{ field: 'afterStateNm', title: '상태', width: 120 },
-					{ field: 'stateUserNm', title: '처리자', width: 100 },
-					{ field: 'stateDate', title: '처리일시', width: 150 },
-					{ field: 'stateDesc', title: '처리비고', width: 150 },
+					{ field: 'after_status_nm', title: '상태', width: 120 },
+					{ field: 'changer_nm', title: '처리자', width: 100 },
+					{ field: 'change_ts', title: '처리일시', width: 150 },
+					{ field: 'change_reason', title: '처리비고', width: 150 },
                 ],
                 selectable: true,
             }).data("kendoGrid");
@@ -60,7 +60,7 @@
 
             let param = {
 				action: 'selectWorkOrderHists',
-				workOrderPk: 'AMT_UNIT',
+				workOrderPk: _this.workOrderPk,
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -69,8 +69,9 @@
             }));
         }
 
-        show() {
+		show(woId) {
             let _this = this;
+            _this.workOrderPk = woId;
 
             $("#modalWoStatHist").fadeIn();
             _this.searchAmtUnitData();

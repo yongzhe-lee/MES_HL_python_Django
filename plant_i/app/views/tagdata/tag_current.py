@@ -21,7 +21,7 @@ def tag_current(context):
                     tag_code
     	            --, MAX(TO_CHAR(data_date,'yyyy-mm-dd hh24:mi:ss')||'-'||data_value) AS date_value
 	                , MAX(data_date::text||'-'||data_value) AS date_value
-	            FROM tag_dat
+	            FROM das.tag_dat
 	            WHERE 1 = 1
                 and data_date > (current_timestamp + '-2 hours')
 	            GROUP BY tag_code

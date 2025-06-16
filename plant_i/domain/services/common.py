@@ -129,5 +129,14 @@ class CommonUtil(object):
             return parts[0] + ''.join(word.capitalize() for word in parts[1:])
         return {snake_to_camel(k): v for k, v in data.items()}
 
+    @classmethod
+    def res_snake_to_camel(cls, data_list: list) -> list:
+        """
+        리스트 내의 딕셔너리 key를 snake_case에서 camelCase로 변환하여 반환합니다.
+        """
+        if not isinstance(data_list, list):
+            return data_list
+        return [cls.snake_to_camel_dict(item) if isinstance(item, dict) else item for item in data_list]
+
 
             

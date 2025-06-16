@@ -81,9 +81,10 @@
 <script type="text/javascript" src="/static/resource/paho-mqtt/mqttws31.min.js"></script>
 <script type="text/javascript" src="/static/resource/mqtt.js?v=2000"></script>
 <script type="text/javascript">
+    var $txtMessage = $('#txtMessage');
     class TopicDataPage {
         constructor() {
-
+            this.$txtMessage = $('#txtMessage');
             this.mqttclient = null;
 
             this.arr_hpc1_equ = [
@@ -149,7 +150,7 @@
 
         fillTopicOptions() {
             let _this = this;
-            let line_id = _this.$line.val();            
+            let line_id = _this.$line.val();
 
             let arr = this.arr_all_equ;
             if (line_id == "1") {
@@ -184,12 +185,20 @@
             let _this = this;
             let mqttData = JSON.parse(message.payloadString);
             //console.log(mqttData);
-            let txt = mqttData.date + ' :  ' + mqttData.message;
-            this.$txtEventMessage.text(txt);
+            let txt = JSON.stringify(mqttData, null, 4);
+            $txtMessage.text(txt);
         }
 
-        startsSubscribe()
-        {
+        jsonValuePretty(value) {
+            let json = value;
+            if (json) {
+                json = JSON.stringify(json, null, 4);
+                //json = json.replace(/\"([^"]+)\":/g, "$1:").replace(/\uFFFF/g, "\\\"");
+            }
+            return json;
+        }
+
+        startsSubscribe() {
             let _this = this;
             if (gui.main_app_run != "Y") {
                 Alert.alert("설정확인필요", "MQTT기능이 활성화 되어 있지 않습니다.");

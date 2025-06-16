@@ -409,42 +409,6 @@ class SystemService():
 
         return items
 
-    def test_system_log(self):
-        
-        #sql = '''
-        #SET NOCOUNT ON;
-        #insert into sys_log([type],[Source], Message, _created) values('test', '/api/system/system_log?action=test', 'return id test', getdate());
-        #SELECT SCOPE_IDENTITY();
-        #'''
-        #connection = DbUtil.get_connection()
-        #cursor = connection.cursor()
-        #cursor.execute(sql)
-        #id = cursor.fetchone()[0]
-        #cursor.commit()
-        #cursor.close()
-        #print(id)
-        #return id
-
-        sql = '''
-        insert into mat_inout (
-            Material_id, StoreHouse_id , InOut , OutputType , InoutDate , InoutTime , OutputQty 
-	        , State , SourceDataPk , SourceTableName  , _created , _status 
-        )
-        select m.id, mc.StoreHouse_id, 'out', 'consumed_out', jr.ProductionDate, %(out_time)s , mc.ConsumedQty
-        , 'confirmed', mc.id, 'mat_consu', getdate(), 'a'
-        from mat_consu mc
-        inner join job_res jr on jr.id = mc.JobResponse_id
-        inner join material m on m.id = mc.Material_id
-        where jr.id = %(jr_pk)s
-        '''
-        #DbUtil.execute(sql, dic_param)
-        #ret = sqlrun.execute(sql, dic_param)
-        dic_param = {'out_time':'01:30', 'jr_pk':'16'}
-        connection = DbUtil.get_connection()
-        cursor = connection.cursor()
-        DbUtil.execute_param(cursor, sql, dic_param)
-        cursor.commit()
-
     def get_loginlog_list(self, start, end, keyword):
         sql = ''' select ll.id
         , ll."Type" as type

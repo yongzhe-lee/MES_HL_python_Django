@@ -224,7 +224,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
 
@@ -249,15 +249,27 @@
                 keyword: $('#keyword').val(),
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+
+            _this.grid.setData([]);
+            let gg = $('#system_log_grid');
+            kendo.ui.progress(gg, true);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.items);
+                }
+                else {
+
+                }
+                kendo.ui.progress(gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }
 
         showDetail() {
             let _this = this;
             let data = _this.grid.getSelect();
-            console.log(data)
-
+            //console.log(data)
             if (data.length > 0) {
                 let selectData = data[0];
                 FormUtil.BindDataForm(selectData, $('#systemLogForm'));
@@ -284,6 +296,14 @@
             }
         }
 
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#system_log_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "system_log.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
     };
 
 

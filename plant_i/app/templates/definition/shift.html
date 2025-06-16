@@ -156,6 +156,13 @@
 
             //search form
             $('#sch_shift_name').kendoTextBox();
+            $('#sch_shift_name').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
 
             //form
             $('#shift_code').kendoTextBox();

@@ -13,22 +13,23 @@ def system_log(context):
     user = request.user    
     action = gparam.get('action', 'read')
     systemService = SystemService()
-
+    result = {'success': False}
     try:
         if action == 'read':
             start = gparam.get('start') + ' 00:00:00'
             end = gparam.get('end') + ' 23:59:59'
             type = gparam.get('log_type')
             source = gparam.get('keyword')
-            result = systemService.get_systemlog_list(start, end, type, source)
+            items = systemService.get_systemlog_list(start, end, type, source)
+            result = {'success': True, 'items': items}
 
         elif action == 'detail':
             log_id = context.gparam.get('log_id')
-            result = systemService.get_systemlog_detail(log_id)
+            data = systemService.get_systemlog_detail(log_id)
+            result = {'success': True, 'data': data}
 
-        elif action =='test':
-            id = systemService.test_system_log()
-            result = {'success': True, 'id': id}
+        else:
+            result = {'success': False, 'message': 'Invalid action parameter.'}
 
     except Exception as ex:
         source = '/api/system/system_log, action:{}'.format(action)

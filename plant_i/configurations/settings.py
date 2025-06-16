@@ -104,10 +104,8 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 #DBMS_HOST = '10.226.236.34'   # 배포DB
-#DBMS_HOST = 'localhost'
+# DBMS_HOST = 'localhost'
 DBMS_HOST = '10.10.10.231'    # 개발
-
-
 
 DBMS_PORT = 5432  # 일반
 # DBMS_PORT = 15432   # 배포_포워딩(테스트용)

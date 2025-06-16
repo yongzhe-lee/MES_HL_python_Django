@@ -45,7 +45,7 @@
                     <div class="col-12 form-item align-h">
                         <label class="k-label k-form-label" for="Duration" data-labelCd="지속 시간 (초)">지속 시간 (초)</label>
                         <div class="field-wrapper">
-                            <input id="Duration" name="Duration" value="10"/>
+                            <input type="number" id="Duration" name="Duration" value="10"/>
                         </div>
                     </div>
 
@@ -92,7 +92,7 @@
                     <div class="col-12 form-item align-h">
                         <label class="k-label k-form-label" for="Duration" data-labelCd="지속 시간 (초)">지속 시간 (초)</label>
                         <div class="field-wrapper">
-                            <input id="Duration" name="Duration" value="10"/>
+                            <input type="number" id="Duration" name="Duration" value="10"/>
                         </div>
                     </div>
 
@@ -188,7 +188,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
         }
@@ -220,7 +220,7 @@
             });
 
             let $cboMenuCode = $popup.find('#cboMenuCode');
-            AjaxUtil.fillDropDownOptions($cboMenuCode, 'menu_item', 'choose', false);
+            AjaxUtil.fillDropDownOptions($cboMenuCode, 'menu_item', '', false);
             let $Duration = $popup.find('#Duration').kendoTextBox({});
 
             $popup.data("kendoWindow").center().open();
@@ -324,15 +324,6 @@
             AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, fnSuccess);
         }
 
-        searchMainData() {
-            let _this = this;
-            let param = {
-                action: 'read',
-            };
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
-        }
-
         deleteItem(id) {
             let _this = this;
             let data = { id: id };
@@ -344,6 +335,14 @@
             AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', data, fnSuccess);
         }
 
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#storyboard_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "storyboard.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
     };
 
     let page = null;

@@ -1,66 +1,4 @@
 {% extends "app/layout.html" %}
-{% block css %}
-<style>
-    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
-    #searchFormContent {
-        overflow: hidden;
-        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
-        transition: height 0.3s ease-in-out;
-    }
-
-    /* ✅ 검색 폼이 펼쳐진 상태 */
-    .search-expanded {
-        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
-    }
-
-    /* ✅ 접기/펼치기 버튼 스타일 */
-    #toggleSearchBtn {
-        width: 20px;
-        height: 20px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-    }
-
-        #toggleSearchBtn::before {
-            content: "▼";
-            color: #0d6efd;
-            font-size: 20px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
-        }
-
-        #toggleSearchBtn.expanded::before {
-            content: "▲";
-        }
-
-    .zoombutton {
-        background: #409EFF !important;
-        color: white !important;
-        border: none !important;
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        padding: 0 !important;
-        width: 22px !important;
-        height: 22px !important;
-    }
-
-        .zoombutton:hover {
-            background: #2980b9 !important;
-        }
-    /* Kendo Scheduler 이벤트 바깥 파란색(기본 배경, 테두리) 제거 */
-    .k-event, .k-scheduler-event, .k-event-template {
-        background: #fff !important;
-        border-color: #fff !important;
-        color: #1976d2;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="content-wrap">
@@ -82,17 +20,17 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_equ_status" data-labelCd="상태">상태</label>
+                            <label class="k-label k-form-label" for="wo_status" data-labelCd="상태">상태</label>
                             <div class="field-wrapper">
-                                <select id="srch_equ_status" name="srch_equ_status"></select>
+                                <select id="wo_status" name="wo_status"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_equ_process" data-labelCd="작업부서">작업부서</label>
+                            <label class="k-label k-form-label" for="dept_pk" data-labelCd="작업부서">작업부서</label>
                             <div class="field-wrapper">
-                                <select id="srch_equ_process" name="srch_equ_process"></select>
+                                <select id="dept_pk" name="dept_pk"></select>
                             </div>
                         </div>
                     </div>
@@ -109,33 +47,33 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="작업유형">작업유형</label>
+                            <label class="k-label k-form-label" for="wo_type" data-labelCd="작업유형">작업유형</label>
                             <div class="field-wrapper">
-                                <select id="srch_equ_loc" name="srch_equ_loc"></select>
+                                <select id="wo_type" name="wo_type"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_equ_category" data-labelCd="보전유형">보전유형</label>
+                            <label class="k-label k-form-label" for="maint_code" data-labelCd="보전유형">보전유형</label>
                             <div class="field-wrapper">
-                                <select id="srch_equ_category" name="srch_equ_category"></select>
+                                <select id="maint_code" name="maint_code"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_equip_class_path" data-labelCd="현상">현상</label>
+                            <label class="k-label k-form-label" for="problem_cd" data-labelCd="현상">현상</label>
                             <div class="field-wrapper">
-                                <select id="srch_equip_class_path" name="srch_equip_class_path"></select>
+                                <select id="problem_cd" name="problem_cd"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_equ_supplier" data-labelCd="요청부서">요청부서</label>
+                            <label class="k-label k-form-label" for="req_dept" data-labelCd="요청부서">요청부서</label>
                             <div class="field-wrapper">
-                                <select id="srch_equ_supplier" name="srch_equ_supplier"></select>
+                                <select id="req_dept" name="req_dept"></select>
                             </div>
                         </div>
                     </div>
@@ -204,7 +142,7 @@
         constructor() {
             this.grid = null;
             this.upload = null;
-            this.baseUrl = '/api/kmms/wo_master';
+			this.baseUrl = '/api/kmms/work_order';
             this.schedulerData = [];
             this.holidayInfo = null;
             this.holidayCustom = null;
@@ -236,25 +174,26 @@
                         field: 'wo_type_nm',
                         title: '유형',
                         width: 60,
-                        //template: "#= rqst_insp_yn == 'Y' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--insp\">점검</span>' : (rqst_dpr_yn == 'Y' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--dpr\">사후</span>' : (wo_type == 'PM' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--pm\">PM</span>' : (wo_start_type == 'RQ' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--wor\">WO</span>' : '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--wo\">WO</span>'))) #"
+                        attributes: { style: "text-align: center;" }, 
+                        template: "#= rqst_insp_yn == 'Y' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--insp\">점검</span>' : (rqst_dpr_yn == 'Y' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--dpr\">사후</span>' : (wo_type == 'PM' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--pm\">PM</span>' : (wo_start_type == 'RQ' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--wor\">WO</span>' : '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--wo\">WO</span>'))) #"
                     },
                     {
                         field: 'work_order_no',
                         title: '작업지시번호',
                         width: 120,
-                        //template: "<a href='javascript:void(0);' class='my-kendo-cell-go' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#'>#= work_order_no != null ? work_order_no : '임시저장' #</a>"
+                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#'>#= work_order_no != null ? work_order_no : '임시저장' #</a>"
                     },
                     {
                         field: 'work_title',
                         title: '작업제목',
                         width: 250,
-                        //template: "# if (write_yn && (curr_dept_pk == dept_pk || curr_team_pk == dept_pk || curr_ban_pk == dept_pk || curr_team_pk == dept_team_pk || login_tpm_dept_yn === 'Y') && (wo_status_cd == 'WOS_AP' || wo_status_cd == 'WOS_CM')) { # <a href='javascript:void(0);' class='my-kendo-cell-go' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#' data-dept-pk='#=dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #"
+                        //template: "# if (write_yn && (curr_dept_pk == dept_pk || curr_team_pk == dept_pk || curr_ban_pk == dept_pk || curr_team_pk == dept_team_pk || login_tpm_dept_yn === 'Y') && (wo_status_cd == 'WOS_AP' || wo_status_cd == 'WOS_CM')) { # <a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#' data-dept-pk='#=dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #"
                     },
                     {
                         field: 'wo_status_nm',
                         title: '상태',
                         width: 100,
-                        //template: "<a href='javascript:void(0);' class='my-kendo-cell-go' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>"
+                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>"
                     },
                     { field: 'equip_cd', title: '설비코드', width: 120 },
                     { field: 'equip_nm', title: '설비명', width: 150 },
@@ -305,14 +244,12 @@
                 }
             });
             $('#keyword').kendoTextBox();
-            AjaxUtil.fillDropDownOptions($('#srch_equ_status'), 'cm_code', 'all', null, 'EQUIP_STATUS');
-            AjaxUtil.fillDropDownTreeOptions($('#srch_equ_process'), 'cm_depart', 'all');
-            AjaxUtil.fillDropDownOptions($('#srch_equ_system'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
-            AjaxUtil.fillDropDownOptions($('#srch_use_yn'), 'cm_code', 'all', null, 'USE_YN');
-            AjaxUtil.fillDropDownTreeOptions($('#srch_equ_loc'), 'cm_location', 'all');
-            AjaxUtil.fillDropDownOptions($('#srch_equ_category'), 'cm_equip_category', 'all', null);
-            AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all');
-            AjaxUtil.fillDropDownTreeOptions($('#srch_equ_supplier'), 'cm_depart', 'all');
+            AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
+            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+            AjaxUtil.fillDropDownOptions($('#wo_type'), 'cm_code', 'all', null, 'WO_TYPE');
+            AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
+            AjaxUtil.fillDropDownOptions($('#problem_cd'), 'cm_reliab_codes', 'all', null, 'PC');
+            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
             $('#srch_wo_no_only').kendoSwitch({ checked: false });
             $('#srch_my_work_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
@@ -368,21 +305,36 @@
         searchMainData() {
             let _this = this;
 
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
+            }
+
             let param = {
                 action: 'read',
                 keyword: $('#keyword').val(),
-                //equip_status: $('#srch_equ_status').val(),
-                //process_cd: $('#srch_equ_process').val(),
-                //system_cd: $('#srch_equ_system').val(),
-                //loc_pk: $('#srch_equ_loc').data("kendoDropDownTree").value(),
-                //equip_category_id: $('#srch_equ_category').val(),
-                //equip_class_path: $('#srch_equip_class_path').data("kendoDropDownTree").value(),
-                //supplier_pk: $('#srch_equ_supplier').val(),
-                //use_yn: $('#srch_use_yn').val(),
-                //environ_equip_yn: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
-            };
+                wo_status: $('#wo_status').val(),
+                dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
+                // 기간 srch_date
+                start_dt: startDate,
+                end_dt: endDate,
+                // 작업유형 wo_type
+                maint_type_cd: $('#maint_code').val(),
+                problem_cd: $('#problem_cd').val(),
+                req_dept: $("#req_dept").data("kendoDropDownTree").value(),
 
-            console.log('param: ', param);
+                srch_wo_no_only: $('#srch_wo_no_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_my_work_only: $('#srch_my_work_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N',
+            };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
 
@@ -391,16 +343,6 @@
             if (grid) {
                 grid.dataSource.data(result); // ✅ 데이터를 직접 설정
                 grid.refresh(); // ✅ UI 갱신
-            }
-        }
-
-        showDetail() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#equipmentForm'));
-                console.log("selectData:\n", selectData);
             }
         }
 

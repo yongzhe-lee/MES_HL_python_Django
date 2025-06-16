@@ -246,6 +246,8 @@
 		constructor() {
 			this.baseUrl = '/api/kmms/work_order';
 			this.workOrderPk = null; // 작업지시 PK
+			this.editable = false;
+
 			this.reliabGrid = null;
 			this.projectGrid = null;
 			this.woCopyGrid = null;
@@ -326,11 +328,18 @@
 			$("#btnConfirmWo").kendoButton({
 				icon: "k-i-check", // 확인 아이콘 (✔️)
 				themeColor: "base",
-				click: function () {
+				click: function (e) {
 					$("#sel_work_order_pk").val('');
 					$("#sel_work_title").val('');
 
-					FormUtil.BindDataForm(_this.selectedRow_wo, $("#woCopyForm"));
+					console.log('data:', _this.selectedRow_wo);
+					FormUtil.BindDataForm(_this.selectedRow_wo, $("#wo_req_form"));
+
+					//WO 번호 새로 생성해야 함
+					$("#work_order_pk").val('');
+					$("#work_order_no").val('');
+
+					FormUtil.resetForm($("#woCopyForm"));
 					$("#woCopyWindow").data("kendoWindow").close();
 				}
 			});
@@ -515,9 +524,9 @@
 			};
 
 			AjaxUtil.fillDropDownOptions($('#wo_maint_type_cd'), 'cm_code', 'all', null, 'MAINT_TYPE');
-			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "depart", "select");
-			AjaxUtil.fillDropDownOptions($('#wo_work_charger_pk'), 'auth_user', 'choose', null);
-			AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "cm_depart", "select");
+			AjaxUtil.fillDropDownOptions($('#wo_work_charger_pk'), 'cm_user_info', 'choose', null);
+			AjaxUtil.fillDropDownOptions($('#cycleType'), 'cm_code', 'choose', null, 'CYCLE_TYPE');
 			AjaxUtil.fillDropDownOptions($('#woProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
 			AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', null, 'WS_TYPE');
 			AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
@@ -565,7 +574,7 @@
 						actions: [],
 						appendTo: "body",
 						width: '80vw',
-						height: '70vh',
+						height: '70vh',			
 					}
 					popupComn.openTempPopup($("#woCopyWindow"), options);
 					_this.refreshWoCopyGrid();
@@ -607,7 +616,7 @@
 						actions: [],
 						appendTo: "body",
 						width: '50vw',
-					}
+					}		
 					popupComn.openTempPopup($("#reliabCodesWindow"), options);
 					_this.refreshReliabGrid();
 				}
@@ -676,6 +685,7 @@
 			$('#closeMyWorkReqModal').kendoButton({
 				click: function (e) {
 					e.preventDefault();
+					FormUtil.resetForm($('#wo_req_form'));
 					modal.fadeOut();
 				}
 			});
@@ -877,7 +887,8 @@
 		initTabEvents() {
 			let _this = this;
 
-			$('.tab-button').on('click', function () {
+			$('.tab-button').on('click', function (e) {
+                e.preventDefault()
 				const tabId = $(this).data('tab');
 				$('.tab-button').removeClass('active').removeAttr('style');
 				$('.tab-pane').removeClass('active').hide();
@@ -893,19 +904,27 @@
 		show(woId) {	
 			let _this = this;
 			_this.workOrderPk = woId;
+		
+			if (_this.workOrderPk == undefined) {
+				this.editable = false;
+			} else {
+				this.editable = true;
 
-			// 1. 상세 정보
-			let param = {
-				action: 'findOneWo',
-				workOrderPk: _this.workOrderPk,
-			};
+				// 1. 상세 정보
+				let param = {
+					action: 'findOneWo',
+					workOrderPk: _this.workOrderPk,
+				};
 
-			let woData = AjaxUtil.getSyncData(_this.baseUrl, param);
-			console.log('woData:', woData)
-			FormUtil.BindDataForm(woData, $('#wo_req_form'));
-			var decoded = $('<div/>').html(woData.req_info || '').text();
-			
-			$("#editor").data("kendoEditor").value(decoded);
+				let woData = AjaxUtil.getSyncData(_this.baseUrl, param);
+				console.log('woData:', woData)
+				FormUtil.BindDataForm(woData, $('#wo_req_form'));
+				var decoded = $('<div/>').html(woData.req_info || '').text();
+
+				$("#editor").data("kendoEditor").value(decoded);
+
+			}
+
 			$("#modalMyWorkReq").fadeIn();
 		}
 

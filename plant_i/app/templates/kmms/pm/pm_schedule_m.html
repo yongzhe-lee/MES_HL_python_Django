@@ -1,44 +1,4 @@
 {% extends "app/layout.html" %}
-{% block css %}
-<style>
-	/* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
-	#searchFormContent {
-		overflow: hidden;
-		height: 50px; /* ✅ 한 줄만 보이도록 설정 */
-		transition: height 0.3s ease-in-out;
-	}
-
-	/* ✅ 검색 폼이 펼쳐진 상태 */
-	.search-expanded {
-		height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
-	}
-
-	/* ✅ 접기/펼치기 버튼 스타일 */
-	#toggleSearchBtn {
-		width: 20px;
-		height: 20px;
-		border: none;
-		background: transparent;
-		cursor: pointer;
-		position: relative;
-	}
-
-		#toggleSearchBtn::before {
-			content: "▼";
-			color: #0d6efd;
-			font-size: 20px;
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
-			transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
-		}
-
-		#toggleSearchBtn.expanded::before {
-			content: "▲";
-		}
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="content-wrap">

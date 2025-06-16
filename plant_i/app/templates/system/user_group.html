@@ -36,6 +36,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="code" data-labelCd="코드">코드</label>
                                 <div class="field-wrapper">
+                                    <input type="hidden" id="id" name="id" />
                                     <input id="code" name="code" />
                                 </div>
                             </div>
@@ -161,18 +162,18 @@
 
         deleteUserGroup() {
             let _this = this;
-            let id = $('#userGrpForm').find('#id').val();
-            let data = { id: id };
+            let selected = _this.grid.getSelect();
+            let data = { id: selected[0].id };
             let fnSuccess = function (res) {
                 if (res.success) {
                     Notify.success('삭제되었습니다'); // Notification
-                    _this.searchDataBind();
+                    _this.resetUserGroup();
+                    _this.searchMainData();
 
                 } else if (!res.success) {
-                    Alert.alert('', res.message);
+                    Alert.alert('error', res.message);
                 }
 
-                _this.resetUserGroup();
             };
             AjaxUtil.postAsyncData(_this.baseUrl +'?action=delete', data, fnSuccess);
         }

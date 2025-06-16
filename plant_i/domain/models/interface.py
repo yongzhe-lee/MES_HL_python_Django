@@ -337,7 +337,7 @@ class IFMounterPickupRate(models.Model):
     machine = models.CharField('머신코드', max_length=50, null=True)
     position = models.CharField('포지션', max_length=50, null=True)
     module_no = models.CharField('모듈번호', max_length=50, null=True)
-    partNumber = models.CharField('부품번호', max_length=50, null=True)
+    partNumber = models.CharField('부품번호', db_column="part_num", max_length=50, null=True)
     fidl = models.CharField('FIDL', max_length=50, null=True)
     pickup = models.IntegerField('픽업수', null=True)
     no_pickup = models.IntegerField('픽업실패수', null=True)

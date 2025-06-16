@@ -191,20 +191,14 @@ INSERT INTO sys_code ("CodeType","Code","Value","Description","_ordering","_stat
 	 ('test_unit_type','E','기타','측정단위종류',0,NULL,'2025-01-07 10:52:08.317404+09','2025-01-07 10:52:08.317404+09',NULL,NULL);
 
 
--- equ_group
-alter SEQUENCE equ_grp_id_seq restart WITH 1;
-INSERT INTO equ_grp ("Code","Name","EquipmentType","Description","_status","_created","_modified","_creater_id","_modifier_id") VALUES
-	 ('PR-012','기타설비그룹','etc',NULL,NULL,'2024-11-28 08:28:13.952111+09',NULL,NULL,NULL),
-	 ('PR-015','PUMP','etc',NULL,NULL,'2024-11-28 08:28:13.952111+09',NULL,NULL,NULL),
-	 ('PR-017','배전반','etc',NULL,NULL,'2024-11-28 08:28:13.952111+09',NULL,NULL,NULL),
-	 ('TT-001','벨브','방지시설',NULL,NULL,'2025-01-09 11:00:52.783802+09','2025-01-09 11:00:52.783802+09',3,3),
-	 ('PR-016','HEAT-EX','기타',NULL,NULL,'2024-11-28 08:28:13.952111+09','2025-01-21 14:14:53.33048+09',3,3),
-	 ('PR-018','전원투입','기타',NULL,NULL,'2024-11-28 08:28:13.952111+09','2025-01-21 14:15:07.628097+09',3,3);
-
 --라인정보
 alter SEQUENCE line_id_seq restart WITH 1;
 insert into line ("Code", "Name", _created) values('PCU-01-01', 'HPC#1' , now());
+insert into line ("Code", "Name", _created) values('SMT-01', 'SMT#1' , now());
+insert into line ("Code", "Name", _created) values('SMT-02', 'SMT#2' , now());
+insert into line ("Code", "Name", _created) values('SMT-03', 'SMT#3' , now());
 insert into line ("Code", "Name", _created) values('SMT-04', 'SMT#4' , now());
+
 
 alter SEQUENCE dept_id_seq restart WITH 1;
 INSERT INTO dept ("Code","Name","UpDept_id","UpDeptCode","ReqDivCode","LabYN","MfgYN","RoleNo","UseYN","DelYN","ApplyYN","_status","_created","_modified","_creater_id","_modifier_id","Site_id") VALUES
@@ -215,12 +209,6 @@ INSERT INTO dept ("Code","Name","UpDept_id","UpDeptCode","ReqDivCode","LabYN","M
 	 ('SFD','SF개발팀',6,'SFS',NULL,NULL,NULL,NULL,'Y','N','Y',NULL,'2024-12-23 16:00:54.927+09',NULL,3,NULL,1),
 	 ('DTT','DT사업팀',6,'SFS',NULL,NULL,NULL,NULL,'Y','N','Y',NULL,'2024-12-23 16:00:54.927+09',NULL,3,NULL,1),
 	 ('','테스트 부서',NULL,NULL,NULL,'N','N',NULL,'Y','N','N',NULL,'2025-02-12 17:17:25.638021+09','2025-02-12 17:17:25.638021+09',NULL,NULL,NULL);
-
--- equ
-alter SEQUENCE equ_id_seq restart WITH 1;
-INSERT INTO equ("Code","MESCode","SAPCode","Name","Description","Maker","Model","Standard","Usage","ManageNumber","SerialNumber","ProductionYear","AssetYN","DurableYears","PowerWatt","Voltage","Manager","SupplierName","PurchaseDate","PurchaseCost","ServiceCharger","ASTelNumber","AttentionRemark","Inputdate","InstallDate","DisposalDate","DisposalReason","OperationRateYN","Status",loc_pk,equip_category_id,up_equip_pk,site_id,equip_class_path,equip_class_desc,asset_nos,warranty_dt,buy_cost,photo_file_grp_cd,doc_file_grp_cd,import_rank,environ_equip_yn,ccenter_cd,breakdown_dt,del_yn,process_cd,system_cd,first_asset_status,disposed_type,"_status","_created","_modified","_creater_id","_modifier_id","Depart_id","EquipmentGroup_id",line_id) VALUES
-	 ('equ01','','','설비01','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,NULL,'','',NULL,NULL,NULL,NULL,NULL,'Y','O',5,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'A',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:34:53.995001+09','2025-03-18 10:34:53.995001+09',1,1,4,5,1),
-	 ('equ02','','','설비02','','','','','','','',NULL,'Y',NULL,NULL,'','','',NULL,1.0,'','',NULL,NULL,NULL,NULL,NULL,'Y','D',4,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'B',NULL,NULL,NULL,'N',NULL,NULL,NULL,NULL,NULL,'2025-03-18 10:35:30.324849+09','2025-03-18 10:35:30.324849+09',1,1,3,2,2);
 
 
 /*
@@ -260,31 +248,32 @@ insert into das_server (id, "Code", "Name", "IPAddress","Type","_status", "_crea
 truncate table menu_folder cascade;
 
 --메뉴폴더
-alter SEQUENCE menu_folder_id_seq restart WITH 22;
-INSERT INTO menu_folder ("FolderName","IconCSS",_order,_status,_created,_modified,_creater_id,_modifier_id,"Parent_id") VALUES
-	 ('대시보드','team_dashboard',100,NULL,'2024-11-25 15:00:19.159507+09','2025-01-15 13:14:32.503551+09',1,NULL,NULL),
-	 ('AAS관리','description',200,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:47:30.788452+09',1,NULL,NULL),
-	 ('기준정보','contract_edit',300,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:11:37.48031+09',1,NULL,NULL),
-	 ('설비관리','construction',400,NULL,'2024-11-22 17:01:51.726933+09','2025-01-15 15:11:18.760593+09',1,NULL,NULL),
-	 ('작업지시(WO)','inventory',510,NULL,'2025-01-08 15:46:00.305887+09','2025-01-15 15:19:58.546512+09',1,NULL,20),
-	 ('작업이력','inventory',511,NULL,'2025-01-08 16:49:52.374771+09',NULL,1,NULL,20),
-	 ('예방정비(PM)','manage_accounts',520,NULL,'2025-01-08 15:48:46.699764+09','2025-01-15 14:37:50.924932+09',1,NULL,20),
-	 ('예방점검(PI)','content_paste_search',530,NULL,'2025-01-08 15:49:22.922632+09','2025-01-15 14:39:33.580483+09',1,NULL,20),
-	 ('데이터분석','search_insights',600,NULL,'2024-11-22 17:02:09.507788+09','2025-01-15 13:47:47.804092+09',1,NULL,NULL),
-	 ('업무지원','supervisor_account',700,NULL,'2024-11-22 17:02:34.099485+09','2025-01-15 11:29:57.787695+09',1,NULL,NULL),
-	 ('코드관리','wysiwyg',700,NULL,'2025-01-03 10:57:57.374248+09','2025-03-31 15:27:57.773028+09',1,NULL,20),
-	 ('시스템관리','manufacturing',900,NULL,'2024-11-22 17:02:44.44146+09','2025-01-15 10:58:39.798384+09',1,NULL,NULL),
-	 ('리포트 및 통계','bar_chart',1000,NULL,'2025-01-09 11:36:32.760762+09','2025-01-15 11:28:03.081531+09',1,NULL,20),
-	 ('설비통계','inventory',1100,NULL,'2025-01-09 11:41:20.63937+09',NULL,1,NULL,20),
-	 ('작업통계','inventory',1200,NULL,'2025-01-09 11:41:20.644402+09',NULL,1,NULL,20),
-	 ('PM통계','inventory',1300,NULL,'2025-01-09 11:41:20.649337+09',NULL,1,NULL,20),
-	 ('점검통계','inventory',1400,NULL,'2025-01-09 11:41:20.653906+09',NULL,1,NULL,20),
-	 ('AI','Experiment',610,NULL,'2025-01-21 15:01:46.983179+09','2025-01-21 15:02:14.429179+09',NULL,NULL,NULL),
-	 ('KMMS','inventory',210,NULL,'2025-01-21 15:01:46.983+09',NULL,1,NULL,NULL),
-	 ('샘플페이지','inventory',9999,NULL,'2025-03-31 14:41:51.835379+09','2025-03-31 15:27:48.762236+09',NULL,NULL,NULL),
-	 ('설비정보','inventory',500,NULL,'2025-03-31 14:41:51.835379+09','2025-04-22 10:37:20.626561+09',NULL,NULL,20),
-	 ('정비자재','inventory',505,NULL,'2025-04-23 14:47:39.082062+09','2025-04-23 14:49:11.020729+09',NULL,NULL,20),
-	 ('데이터I/F','inventory',620,NULL,'2025-04-29 11:35:03.543094+09','2025-04-29 11:35:03.543094+09',NULL,NULL,NULL);
+--alter SEQUENCE menu_folder_id_seq restart WITH 22;
+INSERT INTO menu_folder (id,"FolderName","IconCSS",_order,_status,_created,_modified,_creater_id,_modifier_id,"Parent_id") VALUES
+	 (1,'대시보드','team_dashboard',100,NULL,'2024-11-25 15:00:19.159507+09','2025-01-15 13:14:32.503551+09',1,NULL,NULL),
+	 (2,'AAS관리','description',200,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:47:30.788452+09',1,NULL,NULL),
+	 (3,'기준정보','contract_edit',300,NULL,'2024-11-22 17:01:44.576807+09','2025-01-15 15:11:37.48031+09',1,NULL,NULL),
+	 (4,'설비관리','construction',400,NULL,'2024-11-22 17:01:51.726933+09','2025-01-15 15:11:18.760593+09',1,NULL,NULL),
+	 (5,'작업지시(WO)','inventory',510,NULL,'2025-01-08 15:46:00.305887+09','2025-01-15 15:19:58.546512+09',1,NULL,20),
+	 (6,'작업이력','inventory',511,NULL,'2025-01-08 16:49:52.374771+09',NULL,1,NULL,20),
+	 (7,'예방정비(PM)','manage_accounts',520,NULL,'2025-01-08 15:48:46.699764+09','2025-01-15 14:37:50.924932+09',1,NULL,20),
+	 (8,'예방점검(PI)','content_paste_search',530,NULL,'2025-01-08 15:49:22.922632+09','2025-01-15 14:39:33.580483+09',1,NULL,20),
+	 (9,'데이터분석','search_insights',600,NULL,'2024-11-22 17:02:09.507788+09','2025-01-15 13:47:47.804092+09',1,NULL,NULL),
+	 (10,'업무지원','supervisor_account',700,NULL,'2024-11-22 17:02:34.099485+09','2025-01-15 11:29:57.787695+09',1,NULL,NULL),
+	 (11,'코드관리','wysiwyg',700,NULL,'2025-01-03 10:57:57.374248+09','2025-03-31 15:27:57.773028+09',1,NULL,20),
+	 (12,'시스템관리','manufacturing',900,NULL,'2024-11-22 17:02:44.44146+09','2025-01-15 10:58:39.798384+09',1,NULL,NULL),
+	 (14,'리포트 및 통계','bar_chart',1000,NULL,'2025-01-09 11:36:32.760762+09','2025-01-15 11:28:03.081531+09',1,NULL,20),
+	 (15,'설비통계','inventory',1100,NULL,'2025-01-09 11:41:20.63937+09',NULL,1,NULL,20),
+	 (16,'작업통계','inventory',1200,NULL,'2025-01-09 11:41:20.644402+09',NULL,1,NULL,20),
+	 (17,'PM통계','inventory',1300,NULL,'2025-01-09 11:41:20.649337+09',NULL,1,NULL,20),
+	 (18,'점검통계','inventory',1400,NULL,'2025-01-09 11:41:20.653906+09',NULL,1,NULL,20),
+	 (19,'AI','Experiment',610,NULL,'2025-01-21 15:01:46.983179+09','2025-01-21 15:02:14.429179+09',NULL,NULL,NULL),
+	 (20,'KMMS','inventory',210,NULL,'2025-01-21 15:01:46.983+09',NULL,1,NULL,NULL),
+	 (9999,'샘플페이지','inventory',9999,NULL,'2025-03-31 14:41:51.835379+09','2025-03-31 15:27:48.762236+09',NULL,NULL,NULL),
+	 (21,'설비정보','inventory',500,NULL,'2025-03-31 14:41:51.835379+09','2025-04-22 10:37:20.626561+09',NULL,NULL,20),
+	 (24,'정비자재','inventory',505,NULL,'2025-04-23 14:47:39.082062+09','2025-04-23 14:49:11.020729+09',NULL,NULL,20),
+	 (25,'데이터I/F','inventory',620,NULL,'2025-04-29 11:35:03.543094+09','2025-04-29 11:35:03.543094+09',NULL,NULL,NULL);
+
 
 
 --메뉴
@@ -413,7 +402,6 @@ INSERT INTO menu_item ("MenuCode","MenuName","IconCSS","Url","Popup",_order,_sta
 	 ('wm_wo_hist','WO 작업이력 조회',NULL,'/gui/wm_wo_hist','N',10,NULL,'2025-05-23 15:31:27.397192+09','2025-05-23 17:35:17.361694+09',3,3,6),
 	 ('wm_wo_cancel','취소된 WO 목록',NULL,'/gui/wm_wo_cancel','N',20,NULL,'2025-05-23 17:32:25.256153+09','2025-05-23 17:35:17.374681+09',3,3,6),
 	 ('wm_wo_pending','미처리 WO 목록',NULL,'/gui/wm_wo_pending','N',30,NULL,'2025-05-23 17:35:08.543719+09','2025-05-23 17:35:17.491582+09',3,3,6);
-
 
 
 --메뉴권한
@@ -792,200 +780,6 @@ values
 
 	;
 
-alter SEQUENCE job_class_job_class_pk_seq restart WITH 1;
-INSERT INTO job_class (cd,nm,wage_cost,use_yn,del_yn,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm") VALUES
-	 ('JC02','전기',200.000,'Y','N','C','2025-02-25 00:00:00+09',NULL,1,NULL,NULL,NULL),
-	 ('JC01','기계',100.000,'Y','N','C','2025-02-25 00:00:00+09',NULL,1,NULL,NULL,NULL);
-
--- 설비위치
-alter SEQUENCE location_id_seq restart WITH 1;
-INSERT INTO "location" (loc_cd,loc_nm,up_loc_pk,loc_status,plant_yn,building_yn,spshop_yn,"_status","_created","_modified","_creater_id","_modifier_id") VALUES
-	 ('loc01','위치01',NULL,'A','N','Y','N',NULL,'2025-03-05 13:43:56.25255+09','2025-03-05 13:43:56.25255+09',3,3),
-	 ('loc02','위치02',NULL,'A','N','Y','N',NULL,'2025-03-05 14:23:26.581666+09','2025-03-05 14:23:26.581666+09',3,3),
-	 ('loc11','위치11',1,'A','N','Y','N',NULL,'2025-03-05 14:30:32.017402+09','2025-03-05 14:30:32.017402+09',3,3),
-	 ('loc12','위치12',1,'A','N','N','N',NULL,'2025-03-05 14:37:03.592764+09','2025-03-05 14:37:03.592764+09',3,3),
-	 ('loc21','위치21',2,'B','N','N','N',NULL,'2025-03-05 15:26:36.546617+09','2025-03-05 15:26:36.546617+09',3,3),
-	 ('loc03','위치03',NULL,'C','N','N','N',NULL,'2025-03-05 15:29:57.043697+09','2025-03-05 15:29:57.043697+09',3,3);
-
-
-alter SEQUENCE holiday_id_seq restart WITH 1;
-INSERT INTO holiday (nation_cd,name_val,repeat_yn,holidate) VALUES
-	 ('ko','어린이날,석가탄신일','N','2025-05-05'),
-	 ('ko','신정','Y','2025-01-01'),
-	 ('ko','설날연휴','N','2025-01-28'),
-	 ('ko','설날','N','2025-01-29'),
-	 ('ko','설날연휴','N','2025-01-30'),
-	 ('ko','삼일절','Y','2025-03-01'),
-	 ('ko','어린이날,석가탄신일','Y','2025-05-05'),
-	 ('ko','현충일','Y','2025-06-06'),
-	 ('ko','광복절','Y','2025-08-15'),
-	 ('ko','개천절','Y','2025-10-03'),
-	 ('ko','추석','N','2025-10-06'),
-	 ('ko','추석연휴','N','2025-10-07'),
-	 ('ko','한글날','Y','2025-10-09'),
-	 ('ko','성탄절','Y','2025-12-25'),
-	 ('ko','신정','Y','2026-01-01'),
-	 ('ko','설날연휴','N','2026-02-16'),
-	 ('ko','설날','N','2026-02-17'),
-	 ('ko','설날연휴','N','2026-02-18'),
-	 ('ko','삼일절','Y','2026-03-01'),
-	 ('ko','어린이날','Y','2026-05-05'),
-	 ('ko','석가탄신일','N','2026-05-24'),
-	 ('ko','현충일','Y','2026-06-06'),
-	 ('ko','광복절','Y','2026-08-15'),
-	 ('ko','추석연휴','N','2026-09-24'),
-	 ('ko','추석','N','2026-09-25'),
-	 ('ko','개천절','Y','2026-10-03'),
-	 ('ko','한글날','Y','2026-10-09'),
-	 ('ko','성탄절','Y','2026-12-25'),
-	 ('ko','신정','Y','2027-01-01'),
-	 ('ko','설날','N','2027-02-07'),
-	 ('ko','삼일절','Y','2027-03-01'),
-	 ('ko','어린이날','Y','2027-05-05'),
-	 ('ko','석가탄신일','N','2027-05-13'),
-	 ('ko','현충일','Y','2027-06-06'),
-	 ('ko','광복절','Y','2027-08-15'),
-	 ('ko','추석연휴','N','2027-09-14'),
-	 ('ko','추석','N','2027-09-15'),
-	 ('ko','추석연휴','N','2027-09-16'),
-	 ('ko','개천절','Y','2027-10-03'),
-	 ('ko','한글날','Y','2027-10-09'),
-	 ('ko','성탄절','Y','2027-12-25'),
-	 ('ko','신정','Y','2028-01-01'),
-	 ('ko','설날연휴','N','2028-01-26'),
-	 ('ko','설날','N','2028-01-27'),
-	 ('ko','설날연휴','N','2028-01-28'),
-	 ('ko','삼일절','Y','2028-03-01'),
-	 ('ko','석가탄신일','N','2028-05-02'),
-	 ('ko','어린이날','Y','2028-05-05'),
-	 ('ko','현충일','Y','2028-06-06'),
-	 ('ko','광복절','Y','2028-08-15'),
-	 ('ko','추석연휴','N','2028-10-02'),
-	 ('ko','추석,개천절','Y','2028-10-03'),
-	 ('ko','추석연휴','N','2028-10-04'),
-	 ('ko','한글날','Y','2028-10-09'),
-	 ('ko','성탄절','Y','2028-12-25'),
-	 ('ko','신정','Y','2029-01-01'),
-	 ('ko','설날연휴','N','2029-02-12'),
-	 ('ko','설날','N','2029-02-13'),
-	 ('ko','설날연휴','N','2029-02-14'),
-	 ('ko','삼일절','Y','2029-03-01'),
-	 ('ko','어린이날','Y','2029-05-05'),
-	 ('ko','석가탄신일','N','2029-05-20'),
-	 ('ko','현충일','Y','2029-06-06'),
-	 ('ko','광복절','Y','2029-08-15'),
-	 ('ko','추석연휴','N','2029-09-21'),
-	 ('ko','추석','N','2029-09-22'),
-	 ('ko','개천절','Y','2029-10-03'),
-	 ('ko','한글날','Y','2029-10-09'),
-	 ('ko','성탄절','Y','2029-12-25'),
-	 ('ko','신정','Y','2030-01-01'),
-	 ('ko','설날','N','2030-02-03'),
-	 ('ko','삼일절','Y','2030-03-01'),
-	 ('ko','어린이날','Y','2030-05-05'),
-	 ('ko','석가탄신일','N','2030-05-09'),
-	 ('ko','현충일','Y','2030-06-06'),
-	 ('ko','광복절','Y','2030-08-15'),
-	 ('ko','추석연휴','N','2030-09-11'),
-	 ('ko','추석','N','2030-09-12'),
-	 ('ko','추석연휴','N','2030-09-13'),
-	 ('ko','개천절','Y','2030-10-03'),
-	 ('ko','한글날','Y','2030-10-09'),
-	 ('ko','성탄절','Y','2030-12-25'),
-	 ('ko','신정','Y','2031-01-01'),
-	 ('ko','설날연휴','N','2031-01-22'),
-	 ('ko','설날','N','2031-01-23'),
-	 ('ko','설날연휴','N','2031-01-24'),
-	 ('ko','삼일절','Y','2031-03-01'),
-	 ('ko','어린이날','Y','2031-05-05'),
-	 ('ko','석가탄신일','N','2031-05-28'),
-	 ('ko','현충일','Y','2031-06-06'),
-	 ('ko','광복절','Y','2031-08-15'),
-	 ('ko','추석연휴','N','2031-09-30'),
-	 ('ko','추석','N','2031-10-01'),
-	 ('ko','추석연휴','N','2031-10-02'),
-	 ('ko','개천절','Y','2031-10-03'),
-	 ('ko','한글날','Y','2031-10-09'),
-	 ('ko','성탄절','Y','2031-12-25'),
-	 ('ko','신정','Y','2032-01-01'),
-	 ('ko','설날연휴','N','2032-02-10'),
-	 ('ko','설날','N','2032-02-11'),
-	 ('ko','설날연휴','N','2032-02-12'),
-	 ('ko','삼일절','Y','2032-03-01'),
-	 ('ko','어린이날','Y','2032-05-05'),
-	 ('ko','석가탄신일','N','2032-05-16'),
-	 ('ko','현충일','Y','2032-06-06'),
-	 ('ko','광복절','Y','2032-08-15'),
-	 ('ko','추석','N','2032-09-19'),
-	 ('ko','개천절','Y','2032-10-03'),
-	 ('ko','한글날','Y','2032-10-09'),
-	 ('ko','성탄절','Y','2032-12-25'),
-	 ('ko','신정','Y','2033-01-01'),
-	 ('ko','설날','N','2033-01-31'),
-	 ('ko','설날연휴','N','2033-02-01'),
-	 ('ko','삼일절','Y','2033-03-01'),
-	 ('ko','어린이날','Y','2033-05-05'),
-	 ('ko','석가탄신일','N','2033-05-06'),
-	 ('ko','현충일','Y','2033-06-06'),
-	 ('ko','광복절','Y','2033-08-15'),
-	 ('ko','추석연휴','N','2033-09-07'),
-	 ('ko','추석','N','2033-09-08'),
-	 ('ko','추석연휴','N','2033-09-09'),
-	 ('ko','개천절','Y','2033-10-03'),
-	 ('ko','한글날','Y','2033-10-09'),
-	 ('ko','성탄절','Y','2033-12-25'),
-	 ('ko','신정','Y','2034-01-01'),
-	 ('ko','설날','N','2034-02-19'),
-	 ('ko','설날연휴','N','2034-02-20'),
-	 ('ko','삼일절','Y','2034-03-01'),
-	 ('ko','어린이날','Y','2034-05-05'),
-	 ('ko','석가탄신일','N','2034-05-25'),
-	 ('ko','현충일','Y','2034-06-06'),
-	 ('ko','광복절','Y','2034-08-15'),
-	 ('ko','추석연휴','N','2034-09-26'),
-	 ('ko','추석','N','2034-09-27'),
-	 ('ko','추석연휴','N','2034-09-28'),
-	 ('ko','개천절','Y','2034-10-03'),
-	 ('ko','한글날','Y','2034-10-09'),
-	 ('ko','성탄절','Y','2034-12-25'),
-	 ('ko','신정','Y','2035-01-01'),
-	 ('ko','설날연휴','N','2035-02-07'),
-	 ('ko','설날','N','2035-02-08'),
-	 ('ko','설날연휴','N','2035-02-09'),
-	 ('ko','삼일절','Y','2035-03-01'),
-	 ('ko','어린이날','Y','2035-05-05'),
-	 ('ko','석가탄신일','N','2035-05-15'),
-	 ('ko','현충일','Y','2035-06-06'),
-	 ('ko','광복절','Y','2035-08-15'),
-	 ('ko','추석','N','2035-09-16'),
-	 ('ko','개천절','Y','2035-10-03'),
-	 ('ko','한글날','Y','2035-10-09'),
-	 ('ko','성탄절','Y','2035-12-25'),
-	 ('ko','신정','Y','2036-01-01'),
-	 ('ko','설날','N','2036-01-28'),
-	 ('ko','설날연휴','N','2036-01-29'),
-	 ('ko','삼일절','Y','2036-03-01'),
-	 ('ko','석가탄신일','N','2036-05-03'),
-	 ('ko','어린이날','Y','2036-05-05'),
-	 ('ko','현충일','Y','2036-06-06'),
-	 ('ko','광복절','Y','2036-08-15'),
-	 ('ko','개천절','Y','2036-10-03'),
-	 ('ko','추석','N','2036-10-04'),
-	 ('ko','한글날','Y','2036-10-09'),
-	 ('ko','성탄절','Y','2036-12-25'),
-	 ('ko','신정','Y','2037-01-01'),
-	 ('ko','설날','N','2037-02-15'),
-	 ('ko','삼일절','Y','2037-03-01'),
-	 ('ko','어린이날','Y','2037-05-05'),
-	 ('ko','석가탄신일','N','2037-05-22'),
-	 ('ko','현충일','Y','2037-06-06'),
-	 ('ko','광복절','Y','2037-08-15'),
-	 ('ko','추석연휴','N','2037-09-23'),
-	 ('ko','추석','N','2037-09-24'),
-	 ('ko','추석연휴','N','2037-09-25'),
-	 ('ko','개천절','Y','2037-10-03'),
-	 ('ko','한글날','Y','2037-10-09'),
-	 ('ko','성탄절','Y','2037-12-25');
 
 --품목
 --alter SEQUENCE material_id_seq restart WITH 1;
@@ -1057,22 +851,6 @@ INSERT INTO company ("Name","Code","Country","Local","CompanyType","CEOName","Em
 	 ('위존','wezon','','','S','','','','','','','SW','','','','','','','','Y','N',NULL,NULL,NULL,NULL,NULL,NULL,'2025-03-17 11:10:28.692624+09','2025-03-17 11:10:28.692624+09',1,1,'위존','위존',NULL),
 	 ('열린기술','YULLIN','','','S','','','','','','','SW','','','','','','','','Y','N',NULL,NULL,NULL,NULL,NULL,NULL,'2025-03-17 11:10:45.752357+09','2025-03-17 11:11:00.873981+09',1,1,'위존','위존',NULL);
 
---pm마스터
-alter SEQUENCE pm_pm_pk_seq restart WITH 1;
-INSERT INTO pm (pm_no,pm_nm,pm_sort_no,cycle_type,per_number,sched_start_dt,first_work_dt,last_work_dt,next_chk_date,work_text,work_expect_hr,pm_type,use_yn,del_yn,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",dept_pk,equip_pk,pm_user_pk) VALUES
-	 ('PM-20250318-001','정기 점검 계획',NULL,'CYCLE_TYPE_D',1,'2025-03-18',NULL,NULL,NULL,'없음',1,'PM_TYPE_TBM','Y','N','C','2025-03-18 10:38:40.061698+09','2025-03-18 10:38:40.061698+09',1,NULL,'yullin',NULL,4,1,3);
-
---pm 작업인력
-alter SEQUENCE pm_labor_id_seq restart WITH 1;
-INSERT INTO pm_labor (work_hr,disp_order,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",job_class_pk,pm_pk) VALUES
-	 (1.00,NULL,NULL,'2025-03-18 10:39:59.306564+09','2025-03-18 10:39:59.306564+09',NULL,NULL,NULL,NULL,2,1),
-	 (2.00,NULL,NULL,'2025-03-18 10:39:59.306564+09','2025-03-18 10:39:59.306564+09',NULL,NULL,NULL,NULL,1,1);
-
---pm 작업 자재
---alter SEQUENCE pm_mtrl_id_seq restart WITH 1;
---INSERT INTO pm_mtrl (amt,"_status","_created","_modified","_creater_id","_modifier_id","_creater_nm","_modifier_nm",mat_pk,pm_pk) VALUES
---	 (2.000,'C','2025-03-18 17:49:05.471268+09','2025-03-18 17:49:05.471268+09',1,NULL,'yullin',NULL,1,1);
-
 
 -- AI 모델마스터	25.05.08 수정
 alter SEQUENCE ds_master_id_seq restart WITH 1;
@@ -1082,6 +860,15 @@ INSERT INTO ds_master ("Name", "Type", "_status", "_created", "_modified", "_cre
 	('hpc1_ICT_Q', 'Q-factor', NULL, '2025-02-06 14:50:59.140', '2025-02-06 14:50:59.140', 3, 3, NULL, NULL);
 
 -- 휴일 정보
+CREATE TABLE cm_holiday_info (
+	nation_cd varchar(10) NOT NULL,
+	year_val varchar(4) NOT NULL,
+	month_val varchar(2) NOT NULL,
+	day_val varchar(2) NOT NULL,
+	type_val varchar(1) DEFAULT 'H'::character varying NULL,
+	name_val varchar(100) NOT NULL,
+	CONSTRAINT cm_holiday_info_pk PRIMARY KEY (nation_cd, year_val, month_val, day_val)
+);
 INSERT INTO cm_holiday_info (nation_cd,year_val,month_val,day_val,type_val,name_val) VALUES
 	 ('en','2020','01','01','h','신정'),
 	 ('en','2020','01','24','h','설날연휴'),

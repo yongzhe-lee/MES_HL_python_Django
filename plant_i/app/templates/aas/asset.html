@@ -1,11 +1,5 @@
 {% extends "app/layout.html" %}
-
 {% block css %}
-<style>
-    .k-daterange-picker .k-dateinput, .k-daterangepicker .k-dateinput {
-        width: 100%;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -50,78 +44,213 @@
                 </div>
             </div>
         </form>
-        <div class="content-ui-row connect">
-            <div class="card-content grid">
-                <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="상세자산목록">상세자산목록</label></span>
-                    <span>
-                    </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <!--<button id="btnReturn">반려</button>
-                        <button id="btnReSample">재샘플</button>
-                        <button id="btnEditSample"><i class="material-symbols-outlined">edit</i>샘플수정</button>
-                        <button id="btnHistory">이력조회</button>
-                        <button id="btnFile">파일조회</button>
-                        <button id="btnApproval">승인</button>-->
-                        <button id="btnExcel">Excel</button>
-                    </span>
+
+        <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+            <div class="content-ui-row connect">
+                <div class="card-content grid">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="자산목록">자산목록</label></span>
+                        <span></span>
+                        <span><button id="btnExcel">Excel</button></span>
+                    </div>
+                    <div id="spec_asset_grid"></div>
                 </div>
-                <div id="spec_asset_grid"></div>
             </div>
         </div>
-        <div class="content-ui-row connect">
-            <div class="card-content edit">
-                <div class="card-group-btn">
-                    <span class="info-text">
-                        <!--<i class="material-symbols-outlined">list_alt</i> 적합한 icon 찾아야 할듯 -->
-                         자산 정보
-                    </span>
+
+        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+
+            <div class="content-ui-row connect">
+                <div class="card-content edit">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i>자산 상세/수정정보</span>
+                        <span>
+                            <button id="btnAssetSave"></button>
+                            <button id="btnAssetDelete"></button>
+                        </span>
+                    </div>
+                    <form id="specAssetForm">
+                        <div class="edit-form-ui">
+                            <div class="col-6 col-sm-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="asset_kind" data-labelCd="자산구분">자산구분</label>
+                                    <div class="field-wrapper">
+                                        <select id="asset_kind" name="asset_kind" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-sm-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="asset_type" data-labelCd="자산종류">자산종류</label>
+                                    <div class="field-wrapper">
+                                        <select id="asset_type" name="asset_type" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" data-labelCd="Gloabl Asset ID">Gloabl Asset ID</label>
+                                    <div class="field-wrapper" style="display:flex">
+                                        <input id="txtGlobalAssetID" name="global_asset_id" class="form-control" placeholder="http://plant-i.hlklemove.com/assets/식별자" />&nbsp;
+                                        <button id="btnShowGolbalIdsPage">생성</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label ">Thumbnail</label>
+                                    <div class="field-wrapper">
+                                        <input id="fileThumbnail" name="thumbnailfile" type="file" accept="image/*" placeholder="설비이미지파일지정" class="form-control" />
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label"></label>
+                                    <div class="field-wrapper">
+                                        <img src="/static/img/no-image.png" id="imgThumbnail" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="asset_type" data-labelCd="작성자">작성자</label>
+                                    <div class="field-wrapper">
+                                        <input id="txtCreateUser" name="create_username" class="form-control" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label essential" for="asset_type" data-labelCd="작성일">작성일</label>
+                                    <div class="field-wrapper">
+                                        <input id="txtCreated" name="created" class="form-control" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <hr />
+                            </div>
+                            <div class="col-12">
+                                <div class="form-item align-h">
+                                    <label class="k-label k-form-label" data-labelCd="AAS Id">AAS Id</label>
+                                    <div class="field-wrapper">
+                                        <input id="txtAASShortId" name="aas_short_id" class="form-control" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <form id="specAssetForm">
-                    
+                <div class="card-content edit">
+                    <div class="card-group-btn">
+                        <span class="info-text"><i class="material-symbols-outlined">list_alt</i> 자산 식별자 관리</span>
+                    </div>
                     <div class="edit-form-ui">
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="log_type" data-labelCd="자산구분">자산구분</label>
-                                <div class="field-wrapper">
-                                    <select id="log_type" name="log_type"  class="form-control"></select>
-                                </div>
+                        <div class="col-12">
+                            <div class="aas-input-group">
+                                <div id="specificAsssetIds_grid"></div>
                             </div>
+                            <span>
+                                <button id="btnShowSpecificIdAdd"></button>
+                                <button id="btnSpecificIdDelete"></button>
+                            </span>
+
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="source" data-labelCd="자산명">자산명</label>
-                                <div class="field-wrapper">
-                                    <input id="source" name="source" class="form-control" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="created" data-labelCd="Gloabl Asset ID">Gloabl Asset ID</label>
-                                <div class="field-wrapper">
-                                    <input id="txtGlobalAssetID" name="global_asset_id" class="form-control" />
-                                </div>
-                            </div>
-                        </div>
-                        <!--<div class="col-12 col-sm-6 col-md-4">-->
-                        <div class="col-12 col-sm-6 col-md-12">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="message" data-labelCd="Path">Path</label>
-                                <div class="field-wrapper">
-                                    <input id="txtPath" name="path" class="form-control" />
-                                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tmpGlolbalIdsPage" class="content-wrap popup" style="display:none">
+    <div class="content-ui-row">
+        <div class="card-content">
+            <form>
+                <div class="edit-form-ui">
+
+                    <div class="col-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboType" data-labelCd="형식">형식</label>
+                            <div class="field-wrapper">
+                                <select id="cboType" name="type" class="form-control">
+                                    <option value="IRI">IRI</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
+                    <div class="col-6">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtAssetId" data-labelCd="식별자">식별자</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtAssetId" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtGlobalId" data-labelCd="Global Id">Global Id</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtPopupGlobalAssetId" value="" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
         </div>
 
+        <div class="card-content edit">
+            <div class="card-group-btn">
+                <span>
+                    <button type="button" id="btnMakeGlobalId">채택</button>
+                </span>
+            </div>
 
+        </div>
     </div>
 </div>
+
+<div id="tmpSpecificIdPage" class="content-wrap popup" style="display:none">
+    <div class="content-ui-row ">
+        <div class="card-content">
+            <form>
+                <div class="edit-form-ui">
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="type" data-labelCd="이름">이름</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtName" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtGlobalId" data-labelCd="값">값</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtValue" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-content">
+            <div class="card-group-btn">
+                <span>
+                    <button type="button" id="btnAddSpecificId">추가</button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% verbatim %}
 {% endverbatim %}
 {% endblock %}
@@ -133,6 +262,9 @@
             this.grid = null;
             this.baseUrl = '/api/aas/asset';
             this.init();
+
+            this.initGlobalIdPopup();
+            this.initSpecificIdPopup();
         }
 
         init() {
@@ -149,28 +281,27 @@
                         sort: "asc",
                     }
                 },
-                columns: [                    
+                columns: [
                     { field: "asset_type", title: "자산구분", width: 100 },
-                    { field: "asset_nm", title: "자산명", width: 200 },                    
                     { field: "global_asset_id", title: "Global Asset ID", width: 200 },
-                    { field: "path", title: "Path", width: 150 },
+                    { field: "aas_input_yn", title: "AAS등록여부", width: 100 },
                     { field: "thumbnail_img", title: "Thumbnail", width: 100 },
-                    { field: "aas_input_yn", title: "AAS등록여부", width: 100 },                    
                     { field: "created", title: "생성일", width: 120 },
                 ],
                 change: function (e) {
                     _this.showDetail();
                 },
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
                 },
-                height: 540
+                height: 700
             };
             _this.grid = new Grid($("#spec_asset_grid"), systemLogGridOption);
 
-            AjaxUtil.fillDropDownOptions($('#cboAssetType'), 'asset_type', 'all', null);
+            // 검색조건
+            AjaxUtil.fillDropDownOptions($('#cboAssetType'), 'asset_type', "all", null);
             AjaxUtil.fillDropDownOptions($('#cboAssetInputYN'), 'input_yn', 'all', null);
             $('#keyword').kendoTextBox();
             $('#keyword').keypress(function (e) {
@@ -187,19 +318,7 @@
                 }
             });
 
-            //detail form
-            // combo.py에서 정의해서 사용. value = Type, text = Type
-            // AjaxUtil.fillDropDownOptions --> 데이터 가져와서 요소에 바로 채우기(선택자, combo_type, null_option, selected_value)
-            AjaxUtil.fillDropDownOptions($('#log_type'), 'log_type', 'choose', null);
-            $('#source').kendoTextBox();
-            $('#created').kendoTextBox();
-            $('#message').kendoTextArea({
-                rows: 4,
-                autosize: true,
-                maxLength: 500,
-                size: "large"   // 칸 높이 때문에 추가해봄
-            });
-
+            // 그리드위 
             $('#btnExcel').kendoButton({
                 icon: "file-excel",
                 themeColor: "success",
@@ -208,6 +327,191 @@
                 }
             });
 
+            // AssetInformation Form [
+            // Global ID 추가 팝업 생성
+            $('#btnShowGolbalIdsPage').kendoButton({
+                icon: "search",
+                themeColor: "warning",
+                click: function () {
+                    _this.showGlobalAseetIds();
+                }
+            });
+            // 그리드에서 선택 삭제
+            $('#btnSpecificIdDelete').kendoButton({
+                icon: "trash",
+                themeColor: "error",
+                click: function () {
+
+                }
+            });
+
+
+            // SpecificID 팝업창에서 선택
+            $('#btnShowSpecificIdAdd').kendoButton({
+                icon: "plus",
+                themeColor: "info",
+                click: function () {
+                    _this.showSpecificAssetIds();
+                }
+            });
+
+            // 입력폼
+            AjaxUtil.fillDropDownOptions($('#asset_kind'), 'asset_kind', false, null);
+            AjaxUtil.fillDropDownOptions($('#asset_type'), 'asset_type', "choose", null);
+
+            $("#btnAssetSave").kendoButton({
+                icon: "save",
+                themeColor: "info",
+                click: function () {
+                    Alert.alert("자산추가/수정", "구현중..");
+                }
+            });
+
+            $("#btnAssetDelete").kendoButton({
+                icon: "trash",
+                themeColor: "error",
+                click: function () {
+                    Alert.alert("자산삭제", "구현중..삭제표시");
+                }
+            });
+
+
+            let $imgThumbnail = $('#imgThumbnail');
+
+            //$("#fileThumbnail").kendoUpload({}).data("kendoUpload");
+            let $fileThumbnail = $("#fileThumbnail").kendoUpload({
+                remove: function (e) {
+                    $imgThumbnail.attr("src", "/static/img/no-image.png");
+                }
+            });
+
+            $fileThumbnail.on('change', function (e) {
+                let files = e.currentTarget.files;
+                let file;
+                if (files.length > 0) {
+                    file = files[0];
+                    
+                    let img = $imgThumbnail[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+
+                        img.setAttribute('src', e.target.result);
+                        img.setAttribute('style', "width:120px;");
+                        img.setAttribute('data-file', file.name);
+                        
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+
+
+            /*
+            // SpecificID 팝업창에서 선택
+            $('#btnUpload').kendoButton({
+                icon: "upload",
+                themeColor: "info",
+                click: function () {
+                    
+                }
+            });
+            */
+
+
+
+
+            //detail form
+            // combo.py에서 정의해서 사용. value = Type, text = Type
+
+            let option = {
+                columns: [
+                    { field: "name", title: "Name", width: 80 },
+                    { field: "value", title: "Value", width: 100 },
+                ],
+                change: function (e) {
+
+                },
+                dataBound: function (e) {
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "150px"
+            };
+            this.specificAsssetIdsGrid = new Grid($("#specificAsssetIds_grid"), option);
+
+        }
+
+        initGlobalIdPopup() {
+
+
+            // GlobalId Page 팝업윈도우 설정
+            $('#tmpGlolbalIdsPage').kendoWindow({
+                width: "600", // windowWidth
+                height: "300",
+                title: "Asset Global ID",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            // txtGlobalId, cboType
+            let $txtGlobalId = $('#txtGlobalId').kendoTextBox();
+            let $txtPopupGlobalAssetId = $('#txtPopupGlobalAssetId').kendoTextBox();
+            let $txtAssetId = $('#txtAssetId ').kendoTextBox();
+            $txtAssetId.on('change', function (e) {
+                //console.log($txtAssetId.val());
+                let gid = "http://plant-i.hlklemove.com/assets/" + $txtAssetId.val()
+                $txtPopupGlobalAssetId.val(gid);
+            });
+
+            // 채택버튼
+            $('#btnMakeGlobalId').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    let pop_gid = $txtPopupGlobalAssetId.val();
+                    $('#txtGlobalAssetID').val(pop_gid);
+                }
+            });
+        }
+
+        initSpecificIdPopup() {
+            $('#tmpSpecificIdPage').kendoWindow({
+                width: "600", // windowWidth
+                height: "300",
+                title: "Specific Id Add",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            let $txtName = $('#txtName').kendoTextBox();
+            let $txtValue = $('#txtValue').kendoTextBox();
+
+            // Specific Id추가
+            $('#btnAddSpecificId').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    let pop_gid = $txtPopupGlobalAssetId.val();
+                    $('#txtGlobalAssetID').val(pop_gid);
+                }
+            });
+
+        }
+
+
+        showGlobalAseetIds() {
+            let _this = this;
+            $('#tmpGlolbalIdsPage').data("kendoWindow").center().open();
+
+        }
+
+        showSpecificAssetIds() {
+            $('#tmpSpecificIdPage').data("kendoWindow").center().open();
         }
 
         searchMainData() {
@@ -248,7 +552,7 @@
 
     };
 
-    
+
     let page = new DetailAssetPage();
     $(document).ready(function () {
         //page.searchMainData();

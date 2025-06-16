@@ -11,7 +11,8 @@ def menu_log(context):
     # posparam = context.posparam
     request = context.request
     action = gparam.get('action', 'read')
-
+    user = request.user
+    result = {"success" : False, 'message' : ""}
     try:
         if action == 'read':
             date_from = gparam.get('date_from')
@@ -56,7 +57,9 @@ def menu_log(context):
             dc['menu_code'] = menu_code
             dc['user_pk'] = user_pk
 
-            result = DbUtil.get_rows(sql, dc)
+            items = DbUtil.get_rows(sql, dc)
+            result["success"] = True
+            result["items"] = items
 
         elif action == 'log_count':
             date_from = gparam.get('date_from')
@@ -97,7 +100,9 @@ def menu_log(context):
             dc['menu_code'] = menu_code
             dc['user_pk'] = user_pk
 
-            result = DbUtil.get_rows(sql, dc)
+            items = DbUtil.get_rows(sql, dc)
+            result["items"] = items
+            result["success"] = True
 
         elif action == 'user_list':
             sql = ''' 

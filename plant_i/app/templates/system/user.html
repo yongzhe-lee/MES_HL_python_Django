@@ -40,7 +40,7 @@
                 <div class="card-group-btn">
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
-                        <label data-labelCd="제품 목록">제품 목록</label>
+                        <label data-labelCd="사용자 목록">사용자 목록</label>
                     </span>
                 </div>
                 <div id="user_grid"></div>
@@ -63,7 +63,7 @@
                 <div class="edit-form-ui">
                     <div class="col-12 col-sm-6 col-md-4">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="user_group_id" data-labelCd="사용자그룹">사용자그룹</label>
+                            <label class="k-label k-form-label essential" for="user_group_id" data-labelCd="사용자그룹">사용자그룹</label>
                             <div class="field-wrapper">
                                 <select id="user_group_id" name="user_group_id"></select>
                             </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="col-12 col-sm-6 col-md-4">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="login_id">사번</label>
+                            <label class="k-label k-form-label essential" for="login_id">사번</label>
                             <div class="field-wrapper">
                                 <input id="login_id" name="login_id" />
                             </div>
@@ -207,6 +207,13 @@
                 dataSource: searchCombo,
             });
             $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
 
             //form
             $('#user_group_id').kendoDropDownList({
@@ -300,7 +307,6 @@
 
             //데이터입력체크루틴 누락
             let data = FormUtil.extractForm($('#userForm'));
-            data.is_active = data.is_active ? 'Y' : 'N';
 
             if (data.user_group_id == null || user_group_id == '') {
                 Alert.alert('', '사용자그룹을 선택해주세요.');
@@ -330,7 +336,7 @@
             let fnsuccess = function (res) {
                 if (res.success) {
                     Notify.success('삭제했습니다.');
-                    _this.searchDataBind();
+                    _this.searchMainData();
                 } else {
                     Alert.alert('', res.message);
                 }

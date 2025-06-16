@@ -1,6 +1,7 @@
 from django.db import transaction
 from domain.models.cmms import CmDept, CmEquipment, CmJobClass, CmMaterial, CmPm, CmPmLabor, CmPmMtrl, CmUserInfo, CmWorkOrder
 from domain.models.user import Depart
+from domain.services import common
 from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
 from domain.models.kmms import User
@@ -43,8 +44,10 @@ def pm_master(context):
     elif action=='findOne':
         id = gparam.get('id', None)
         items = pm_master_service.get_pm_master_findOne(id)
+        items = CommonUtil.res_snake_to_camel(items)
+        items = items
 
-    elif action=='pm_sche_findAll':
+    elif action=='findAllPm':
         keyword = gparam.get('keyword', None)  
         equDept = gparam.get('equDept', None)
         equLoc = gparam.get('equLoc', None)
@@ -53,11 +56,11 @@ def pm_master(context):
         applyYn = gparam.get('applyYn', None)
         cycleType = gparam.get('cycleType', None)
         sDay = gparam.get('start_date', None)
-        eday = gparam.get('end_date', None)
+        eDay = gparam.get('end_date', None)
         isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else None
         isLegal = gparam.get('isLegal', None)
         
-        items = pm_master_service.pm_sche_findAll(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eday, isMyTask, isLegal)
+        items = pm_master_service.findAllPm(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eDay, isMyTask, isLegal)
 
     elif action=='pm_work_findAll':
         keyword = gparam.get('keyword', None)  
@@ -82,11 +85,19 @@ def pm_master(context):
         id = gparam.get('id', None)
         items = pm_master_service.get_pm_mtrl_detail(id)
 
-    elif action=='read_modal':
-        keyword = gparam.get('keyword', None)
-        dept_pk = gparam.get('dept_pk', None)
+    # elif action=='read_modal':
+    #     keyword = gparam.get('keyword', None)
+    #     dept_pk = gparam.get('dept_pk', None)
 
-        items = pm_master_service.get_pm_modal(keyword, dept_pk)
+    #     items = pm_master_service.get_pm_modal(keyword, dept_pk)
+
+    elif action=='findSel':
+        searchText = gparam.get('keyword', None)
+        deptPk = gparam.get('dept_pk', None)
+        pmUserPk = user.id
+
+        items = pm_master_service.get_pm_findSel(searchText, deptPk, pmUserPk)
+        items = CommonUtil.res_snake_to_camel(items)
 
     elif action=='read_pm_wo':
         pm_pk = gparam.get('pm_pk', None)
@@ -385,8 +396,8 @@ def generate_pm_number():
     
     if today_max_pm:
         # 마지막 번호에서 순번 추출하여 1 증가
-        last_sequence = int(today_max_pm.PmNo[-4:])
-        new_sequence = str(last_sequence + 1).zfill(4)
+        last_sequence = int(today_max_pm.PmNo[-3:])
+        new_sequence = str(last_sequence + 1).zfill(3)
     else:
         # 해당 날짜의 첫 번호
         new_sequence = '001'

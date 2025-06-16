@@ -7,9 +7,7 @@
 <div class="content_wrap">
     <div class="content-ui-row">
         <div class="card-content search">
-
             <div class="form-ui">
-
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-item align-h">
                         <label class="k-label k-form-label" for="cboDASServer" data-labelCd="서버">서버</label>
@@ -18,7 +16,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-item align-h">
                         <label class="k-label k-form-label" for="cboEquipment" data-labelCd="설비">설비</label>
@@ -27,20 +24,15 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-auto">
                     <div class="card-group-btn search">
                         <button id="btnSearch" class="btn-search">조회</button>
                     </div>
                 </div>
-
             </div>
         </div>
-
-
         <div class="content-ui-row connect">
             <div class="card-content grid">
-
                 <div class="card-group-btn">
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
@@ -50,7 +42,6 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-
                 <div id="config_grid"></div>
             </div>
         </div>
@@ -64,12 +55,9 @@
                         <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
                     </span>
                 </div>
-
-
                 <form id="configForm">
                     <div class="edit-form-ui">
                         <input type="hidden" id="id" name="id" />
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="Server_id" data-labelCd="서버">서버</label>
@@ -79,7 +67,6 @@
 
                             </div>
                         </div>
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="Equipment_id" data-labelCd="설비">설비</label>
@@ -88,7 +75,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label essential" for="Name" data-labelCd="설정명">설정명</label>
@@ -97,8 +83,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="ConfigFileName" data-labelCd="설정파일명">설정파일명</label>
@@ -107,7 +91,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="Handler" data-labelCd="처리모듈명">처리모듈명</label>
@@ -116,7 +99,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="DeviceType" data-labelCd="장치구분">장치구분</label>
@@ -125,7 +107,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-md-4 col-lg-4 col-xl-3">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="Topic" data-labelCd="TOPIC">TOPIC</label>
@@ -142,9 +123,7 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
-
                     <div class="col-12">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="Description" data-labelCd="설명">설명</label>
@@ -153,27 +132,18 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-12">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="Configuration" data-labelCd="설정(JSON)">설정(JSON)</label>
+                            <label class="k-label k-form-label essential" for="Configuration" data-labelCd="설정(JSON)">설정(JSON)</label>
                             <div class="field-wrapper">
                                 <textarea id="Configuration" name="Configuration"></textarea>
                             </div>
                         </div>
                     </div>
-
                 </form>
-
             </div>
         </div>
-
-
     </div>
-
-
-
-    
 </div>
 
 {% endblock %}
@@ -235,9 +205,9 @@
 
         initForm() {
 
-            AjaxUtil.fillDropDownOptions($('#Server_id'), 'das_server', '', false);
-            AjaxUtil.fillDropDownOptions($('#Equipment_id'), 'equipment', 'choose', false);
-            AjaxUtil.fillDropDownOptions($('#DeviceType'), 'device_type', '', false);         
+            AjaxUtil.fillDropDownOptions($('#Server_id'), 'das_server', 'all', false);
+            AjaxUtil.fillDropDownOptions($('#Equipment_id'), 'equipment', 'all', false);
+            AjaxUtil.fillDropDownOptions($('#DeviceType'), 'device_type', 'all', false);         
 
 
             $('#Name').kendoTextBox();
@@ -336,7 +306,20 @@
         saveData() {
             let _this = this;
             let url = '/api/system/das_config?action=save';
-            //데이터입력체크루틴 누락
+
+            $('#Equipment_id').val();
+            let Name = $('#Name').val();
+
+            if (!$('#Server_id').val()) {
+                Alert.alert('', '서버를 입력해주세요.');
+                return;
+            } else if (!$('#Equipment_id').val()) {
+                Alert.alert('', '설비를 입력해주세요.');
+                return;
+            } else if (!$('#Name').val()) {
+                Alert.alert('', '설정명을 입력해주세요.');
+                return;
+            }
 
             let $Configuration = $('#configForm').find('#Configuration');
             let config = $Configuration.val();

@@ -8,15 +8,16 @@
         <form class="search-form" id="searchForm">
             <div class="card-content search">
                 <div class="form-ui">
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-6">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="keyword" data-labelCd="검색키워드">검색키워드</label>
+                            <label class="k-label k-form-label" for="srch_keyword" data-labelCd="검색키워드">검색키워드</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="설비코드, 설비명을 입력하세요" />
+                                <input id="srch_keyword" name="srch_keyword" placeholder="설비코드, 설비명을 입력하세요" />
                             </div>
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_cat" data-labelCd="카테고리">카테고리</label>
                             <div class="field-wrapper">
@@ -24,7 +25,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_dept" data-labelCd="관리부서">관리부서</label>
                             <div class="field-wrapper">
@@ -34,18 +35,10 @@
                     </div>
                     <div class="col-12 col-sm-6 col-md-6">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srchStartDt" data-labelCd="요청일">요청일</label>
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="불용처리일">불용처리일</label>
                             <div class="field-wrapper">
-                                <input id="srchStartDt" name="srchStartDt" />
+                                <div id="srch_date_range"></div>
                             </div>
-                            <div class="field-wrapper">
-                                <input id="srchEndDt" name="srchEndDt" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="card-group-btn search">
-                            <button id="btnSearch" class="btn-search">조회</button>
                         </div>
                     </div>
                 </div>
@@ -62,162 +55,226 @@
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
+                        <button id="btnSearch" class="btn-search">조회</button>
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
                 <div id="equipment_grid"></div>
             </div>
         </div>
-
     </div>
+</div>
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
 
-    {% verbatim %}
-    {% endverbatim %}
-    {% endblock %}
+{% block scripts %}
 
-    {% block scripts %}
+{% include '../../popup/modalEquSel.html'%}
 
-    <script type="text/javascript">
-        class EquipmentPage {
-            constructor() {
-                this.grid = null;
-                this.upload = null;
-                this.baseUrl = '/api/kmms/equipment';
+<script type="text/javascript">
+    class EquipmentPage {
+        constructor() {
+            this.grid = null;
+            this.upload = null;
+            this.baseUrl = '/api/kmms/equipment';
 
-                this.init();
-            }
+            this.init();
+        }
 
-            init() {
-                let _this = this;
-                let equipmentGridOption = {
-                    toolbar: [
-                        "columns"
-                    ],
-                    columnMenu: {
-                        componentType: "classic",
-                        autoSize: true,
-                        clearAllFilters: true,
-                        columns: {
-                            sort: "asc",
-                        }
-                    },
-                    columns: [
-                        // 기본 정보
-						{ field: 'equip_cd', title: '설비코드', width: 150 },
-						{ field: 'equip_nm', title: '설비명', width: 200 },
-						{ field: 'loc_nm', title: '설비위치', width: 150 },
-                        { field: 'equip_status_nm', title: '설비상태', width: 150 },
-                        // 폐기 정보
-                        { field: 'diposed_type_nm', title: '불용처리유형', width: 200 },
-						{ field: 'disposed_date', title: '폐기일', width: 150 },
-                    ],
-                    dataBound: function (e) {
-                        for (var i = 0; i < this.columns.length; i++) {
-                            this.autoFitColumn(i);
-                        };
-
-                        // grid 데이터 개수 표시
-                        kendoUtil.showGridRowCount(this.element);
-                    },
-                    height: "540px"
-                };
-                _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
-
-                //search form
-                $('#keyword').kendoTextBox();
-                $('#srch_cat').kendoTextBox();
-                $('#srch_dept').kendoTextBox();
-
-                $('#srch_cat').keypress(function (e) {
-                    // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
-                    if (e.keyCode === 13) {
-                        e.preventDefault();
-                        _this.searchMainData();
+        init() {
+            let _this = this;
+            let equipmentGridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
                     }
-                });
+                },
+                columns: [
+                    // 기본 정보
+                    { field: "equip_pk", title: "설비PK", width: 0, hidden: true },
+                    { field: 'equip_cd', title: '설비코드', width: 150, template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_cd#</a>' },
+                    { field: 'equip_nm', title: '설비명', width: 200 },
+                    { field: 'loc_nm', title: '설비위치', width: 150 },
+                    { field: 'equip_status_nm', title: '설비상태', width: 150 },
+                    // 폐기 정보
+                    { field: 'diposed_type_nm', title: '불용처리유형', width: 200 },
+                    { field: 'disposed_date', title: '불용처리일', width: 150 },
+                ],
+                dataBound: function (e) {
+                    for (var i = 0; i < this.columns.length; i++) {
+                        this.autoFitColumn(i);
+                    };
 
-                AjaxUtil.fillDropDownOptions($('#srch_cat'), 'equip_category', 'all', null);
-                AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
 
-                let startDt = CommonUtil.getYYYYMMDD(-1);
-                var endDt = CommonUtil.getYYYYMMDD();
-                kendoUtil.kenDateTimePicker($("#srchStartDt"), $("#srchEndDt"), startDt, endDt);
+            // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
+            $(document).on("click", ".grid-column-link", async function (e) {
+                e.preventDefault();
+                let equipPk = $(this).data("equip-pk");
+                if (!equipPk) return;
 
-                //form button
-                $('#btnSearch').kendoButton({
-                    icon: "search",
-                    themeColor: "base",
-                    click: function () {
-                        _this.searchMainData();
-                    }
-                });
+                // 이미 로드된 경우 재사용
+                if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+                    equipMasterPage.show(equipPk);
+                    return;
+                }
 
-                $('#btnExcel').kendoButton({
-                    icon: "file-excel",
-                    themeColor: "success",
-                    click: function () {
-                        page.exportExcel();
-                    }
-                });
+                try {
+                    const response = await $.get('/api/kmms/equipment?action=load_modal');
+                    $('body').append(response);
 
-                $('#btnClear').kendoButton({
-                    themeColor: "base", click: function () {
-                        _this.resetData();
-                    }
-                });
+                    // imageUploader가 준비될 때까지 대기
+                    let waitForUploader = async () => {
+                        return new Promise(resolve => {
+                            let count = 0;
+                            const check = () => {
+                                if (window.imageUploader) return resolve();
+                                count++;
+                                if (count > 20) return resolve();
+                                setTimeout(check, 50);
+                            };
+                            check();
+                        });
+                    };
+                    await waitForUploader();
 
+                    window.equipMasterPage = new EquipMaster();
+                    equipMasterPage.show(equipPk);
+
+                } catch (err) {
+                    console.error("equipment.html 로드 실패:", err);
+                    alert("설비 정보를 불러오는데 실패했습니다.");
+                }
+            });
+
+            //search form
+            $('#srch_keyword').kendoTextBox();
+            $('#srch_keyword').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            $("#equKeword").kendoButton({
+                icon: "k-i-zoom-in",
+                rounded: "full",
+                click: function (e) {
+                    e.preventDefault();
+                    setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                    equipSelectPage.show(function (data) {
+                        $("#srch_keyword").val(data.equip_cd);
+                    });
+                }
+            });
+
+            AjaxUtil.fillDropDownOptions($('#srch_cat'), 'equip_category', 'all', null);
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
+
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#btnClear').kendoButton({
+                themeColor: "base", click: function () {
+                    _this.resetData();
+                }
+            });
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
             }
 
-            searchMainData() {
-                let _this = this;
+            let param = {
+                action: 'read_dispose',
+                keyword: $('#srch_keyword').val() || '',
+                srchCat: $('#srch_cat').val(),
+                srchDept: $('#srch_dept').data("kendoDropDownTree").value(),
+                sDate: startDate,
+                eDate: endDate,
+            };
 
-				// 안전한 컴포넌트 값 가져오기
-				const getComponentValue = (selector, type) => {
-					try {
-						const component = $(selector).data(type);
-						return component ? component.value() : '';
-					} catch (e) {
-						console.warn(`Failed to get value for ${selector}`, e);
-						return '';
-					}
-                };
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
 
-                let param = {
-                    action: 'read_dispose',
-                    keyword: $('#keyword').val() || '',
-                    srchCat: $('#srch_cat').val(),
-                    srchDept: getComponentValue("#srch_dept", "kendoDropDownTree"),
-                    sDate: $('#srchStartDt').val(),
-                    eDate: $('#srchEndDt').val(),
-                };
+        resetData() {
+            let _this = this;
+            $("#equipment_grid").data('kendoGrid').refresh();
+            FormUtil.resetForm($('#equipmentForm'));
+        }
 
-                let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-                _this.grid.setData(result);
-            }
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#equipment_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "equip_disposed.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    };
 
-            resetData() {
-                let _this = this;
-                $("#equipment_grid").data('kendoGrid').refresh();
-                FormUtil.resetForm($('#equipmentForm'));
-            }
+    let page = null;
+    page = new EquipmentPage();
 
-            // 엑셀 다운로드
-            exportExcel() {
-                let gridData = $('#equipment_grid').data("kendoGrid");
-                gridData.bind("excelExport", function (e) {
-                    e.workbook.fileName = "equipment.xlsx";
-                });
-                gridData.saveAsExcel();
-            }
-        };
+    $(document).ready(function () {
+        page.searchMainData();
+    });
 
-        let page = null;
-        page = new EquipmentPage();
+</script>
 
-        $(document).ready(function () {            
-            page.searchMainData();
-        });
-
-    </script>
-
-    {% endblock %}
+{% endblock %}

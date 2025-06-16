@@ -32,7 +32,7 @@
                 <div class="card-group-btn">
                     <span class="info-text">
                         <i class="material-symbols-outlined">list_alt</i>
-                        <label data-labelCd="업체 목록">업체 목록</label>
+                        <label data-labelCd="부서 목록">부서 목록</label>
                         <label id="totalCnt"></label>
                     </span>
                     <span>
@@ -417,7 +417,7 @@
                 columns: [
                     { field: "dept_id", width: 100, hidden: true },
                     { field: "dept_name", title: "부서명", width: 100 },
-                    { field: "dept_code", title: "부서코드", width: 100,},
+                    { field: "dept_code", title: "부서코드", width: 100, },
                     { field: "site_no", title: "사업장", width: 50 },
                     { field: "reqdiv_code", title: "의뢰구분코드", width: 50 },
                     { field: "role_no", title: "부서기본권한", width: 50 },
@@ -483,14 +483,14 @@
 
         showDetail() {
             let formData = this.grid.getSelect();
-            
+
             if (formData.length > 0) {
                 FormUtil.enableForm($('#detailForm'));
                 let selectData = formData[0];
                 FormUtil.BindDataForm(selectData, $('#detailForm'));
                 $('#site_no').data("kendoDropDownList").value(selectData.site_no || "");
                 $('#role_no').data("kendoDropDownList").value(selectData.role_no || "");
-                
+
                 this.setButtonState();
             }
         }

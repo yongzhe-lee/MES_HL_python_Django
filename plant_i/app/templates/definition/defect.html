@@ -1,0 +1,396 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="content_wrap">
+
+    <section class="section">
+        <div class="title_box ">
+            <div class="left_align">
+                <h3 data-labelCd="부적합유형">부적합유형</h3>
+            </div>
+            <button type="button" class="btn-default pull-right " id="btnHedaerFilter" title="필터 보이기/감추기"><i class="fas fa-filter"></i></button>
+            <button type="button" class="btn-default pull-right mr-1" id="btnHeaderCompress" title="화면 확대/축소"><i class="fas fa-compress" id="iCompress"></i></button>
+        </div>
+ 
+        <div class="table_box search" >
+            <div class="row">
+                <div class="col-6 col-md-3 col-lg-3 col-xl-2">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_md" data-labelCd="부적합유형명">부적합유형명</span>
+                        </div>
+                        <input class="form-control2" value="" id="keyword" name="keyword" placeholder="" title="" />
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 col-lg-3 col-xl-2" >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t9" data-labelCd="적용범위">적용범위</span>
+                        </div>
+                        <select class="form-control2" id="cboCoverage" name="cboCoverage"></select>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-3 col-xl-2" >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text fit_box_t9" data-labelCd="4M구분">4M구분</span>
+                        </div>
+                        <select class="form-control2" id="cbo4m_type" name="cbo4m_type"></select>
+                    </div>
+                </div>
+
+                <div class="col-1">
+                    <button type="button" class="btn-default" id="btn_search" ><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section>
+        <div class="grid_box" >
+            <div class="title_box">
+                <span class="right_align rpt" data-labelCd="부적합유형">부적합유형</span>
+                <button type="button" class="btn-default " id="btnExcel"><i class="fas fa-file-excel"></i></button>
+                <button type="button" class="btn-default" id="btnGridSetting" style="visibility:hidden"><i class="fas fa-cog"></i> Setting</button>
+            </div>
+                <div class="h-500" data-ax5grid="defect-type-grid" ></div>  
+        </div>
+
+    </section>
+
+    <section>
+
+            <div class="title_box mb-2">
+                <span class="right_align rpt" data-labelCd="상세정보">상세정보</span>
+                <button type="button" class="btn-default" id="btnNew" name="btnNew"><i class="fas fa-plus"></i></button>
+                <button type="button" class="btn-cancel y_write_auth" id="btnDel" style="float:none"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn-default y_write_auth" id="btnSave" style="float:none"><i class="fas fa-save"></i></button>
+            </div>
+
+        <form id="defectTypeForm">
+            <input type="hidden" id="id" name="id" />
+            <div class="table_box sub" id="detail_box">
+                <div class="row">
+
+                    <div class="col-6 col-md-3 col-lg-2" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_md" data-labelCd="*코드">*코드</span>
+                            </div>
+                            <input class="form-control2"  type="text" id="defect_type_code" name="defect_type_code" disabled="disabled">
+
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3 col-lg-2" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_md" data-labelCd="*부적합유형명">*부적합유형명</span>
+                            </div>
+                            <input class="form-control2" type="text" id="defect_type_name" name="defect_type_name" disabled="disabled" required>
+
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_md" data-labelCd="*적용범위">*적용범위</span>
+                            </div>
+                            <select class="form-control2" type="text" id="defect_type_coverage" name="defect_type_coverage" disabled="disabled" required></select>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_md" data-labelCd="*4M구분">*4M구분</span>
+                            </div>
+                            <select class="form-control2" id="defect_type_4m_type" name="defect_type_4m_type" disabled="disabled" required></select>
+                        </div>
+                    </div>
+
+                    <div class="col-12" >
+                        <div class="input-group" >
+                            <div class="input-group-prepend">
+                                <span class="input-group-text fit_box_md" data-labelCd="비고">비고</span>
+                            </div>
+                            <textarea  class="form-control2 h-26" id="description" name="description" disabled="disabled"></textarea>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </form>
+    </section>
+
+</div>
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class DefectTypePage {
+        constructor() {
+            this.grid = null;
+            this.init(); 
+        }
+
+        init() {
+            let _this = this;
+            let config = {
+                target: $('[data-ax5grid="defect-type-grid"]'),
+                sortable: true,
+                frozenColumnIndex: 0, // 열 고정
+                frozenRowIndex: 0,    // 행 고정
+                showLineNumber: false, // 열의 번호 보이기 여부
+                showRowSelector: false,  // checkbox(선택) 보이기 여부
+                multipleSelect: false, // 여러행 선택 가능 여부 (false시 단독 선택)
+                sortable: true, // 모든 컬럼에 정렬 아이콘 표시 (columns에서 컬럼별 소팅여부 재설정 가능)
+                multiSort: true, // 다중 정렬 여부
+                header: {
+                    align: 'center',  // 헤더의 기본 정렬
+                    columnHeight: 38  // 헤더 높이
+                },
+                body: {
+                    columnHeight: 25, // body의 기본 높이
+                    onClick: function (e) {
+                        _this.grid.select(this.dindex);
+                        _this.showDetailDefectType(e.item.id);
+                    }
+                },
+                page: {
+                    display: true,  // 페이징 보이기 여부
+                    statusDisplay: true,
+                },
+                columns: [
+                    { key: 'defect_type_code', label: '코드', width: 100, align: 'left'},
+                    { key: 'defect_type_name', label: '부적합유형명', width: 200, align: 'left' },
+                    { key: 'defect_type_coverage', label: '적용범위', width: 150, align: 'center' },
+                    { key: 'defect_type_4m_type', label: '4M구분', width: 150, align: 'center' },
+                    { key: 'description', label: '비고', width: 500, align: 'left' },
+                ]
+            };
+
+            //this.grid = new ax5.ui.grid(config);
+            //this.grid_config = config;
+
+            // 엔터키 검색
+            $('#keyword').on('keypress', function (e) {
+                if (event.keyCode == 13) {
+                    _this.searchMainData();
+                }
+            });
+            AjaxUtil.fillSelectOptions($('#cboCoverage'), 'system_code', 'all', false, 'coverage');
+            AjaxUtil.fillSelectOptions($('#cbo4m_type'), 'system_code', 'all', false, '4m_type');
+            AjaxUtil.fillSelectOptions($('#defect_type_coverage'), 'system_code', 'choose', false, 'coverage')
+            AjaxUtil.fillSelectOptions($('#defect_type_4m_type'), 'system_code', 'chooes', false, '4m_type')
+        }
+
+        // 버튼 활성화 설정
+        //setButtonDisable(_boolnew, _boolsave, _booldel) {
+        //    $('[id=btnNew]').prop('disabled', _boolnew);
+        //    $('[id=btnSave]').prop('disabled', _boolsave);
+        //    $('[id=btnDel]').prop('disabled', _booldel);
+        //}
+
+        //버튼 활성화 
+        setButtonState() {
+            let pk = $('#id').val();
+            $('#btnNew').prop('disabled', false);
+            $('#btnSave').prop('disabled', false);
+            if (pk) {
+                $('#btnDel').prop('disabled', false);
+            }
+            else {
+                $('#btnDel').prop('disabled', true);
+            }
+        }
+
+
+        // 부적합유형 목록 조회
+        searchMainData() {
+            let _this = this;
+            let url = '/api/definition/defect_type';
+            let param = {
+                'action': 'read',
+                'coverage': $('#cboCoverage').val(),
+                '4m_type': $('#cbo4m_type').val(),
+                'keyword': $('#keyword').val()
+            }
+
+            let result = AjaxUtil.getSyncData(url, param);
+            if (result != null) {
+                let recordsTotal = result.length;
+                _this.grid.setData({
+                    list: result,
+                    page: {
+                        display: true,
+                        totalElements: recordsTotal,
+                    }
+                });
+            }
+
+            $('#defectTypeForm')[0].reset();
+            $('#defectTypeForm').find('#id').val('');
+
+            $('#detail_box').find('input, textarea').each(function () {
+                if (!$(this).is(':disabled')) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+
+            //_this.setButtonDisable(false, true, true);
+            _this.setButtonState();
+
+        }
+
+        // 부적합유형 상세정보 조회
+        showDetailDefectType(id) {
+            let param = { 'id': id, 'action': 'detail' };
+            let url = '/api/definition/defect_type';
+            let result = AjaxUtil.getSyncData(url, param);
+
+            if (result != null) {
+                FormUtil.BindDataForm(result, $('#defectTypeForm'));
+            }
+
+            //page.setButtonDisable(false, false, false);
+            page.setButtonState();
+        }
+
+        // 부적합유형 정보 저장
+        saveDefectType() {
+            let _this = this;
+            let validate = true;
+            let $target = null;
+            let url = '/api/definition/defect_type?action=save';
+
+            //let data = $('#defectTypeForm').serialize();
+            let data = FormUtil.extractForm($('#defectTypeForm'));
+
+            let fnSuccess = function (res) {
+                if (!res.success) {
+                    Alert.alert('', res.message);
+                } else {
+                    Notify.success('저장되었습니다');
+                    _this.searchMainData();
+                }
+            }
+
+            $('#detail_box').find('input, textarea').each(function () {
+                if ($(this).is(':required')) {
+                    if (!$(this).val()) {
+                        validate = false;
+                        $target = $(this);
+                        return false;
+                    }
+                }
+            });
+
+            if (validate) {
+                AjaxUtil.postAsyncData(url, data, fnSuccess);
+            } else {
+                Alert.alert('', '필수 항목을 입력해주세요.', function () {
+                    $target.focus();
+                });
+            }
+        }
+
+        // 부적합유형 정보 삭제
+        deleteDefectType() {
+            let _this = this;
+            let url = '/api/definition/defect_type?action=delete';
+            let id = $('#defectTypeForm').find('#id').val();
+            let data = { id: id };
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Notify.success("삭제되었습니다.");
+                    _this.searchMainData();
+                } else {
+                    Alert.alert('', res.message);
+                }
+
+            }
+
+            AjaxUtil.postAsyncData(url, data, fnSuccess);
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            var targetview = this.grid;
+            targetview.exportExcel('부적합유형.xls');
+        }
+    }
+
+    let page = null;
+
+    $(document.body).ready(function (e) {
+        page = new DefectTypePage();
+
+        page.searchMainData();
+
+        // 검색버튼
+        $('#btn_search').click(function (e) { page.searchMainData(); });
+
+        // 신규버튼
+        $('#btnNew').click(function (e) {
+
+            $('#defectTypeForm')[0].reset();
+            $('#defectTypeForm').find('#id').val('');
+
+            $('#detail_box').find('input, textarea, select').each(function () {
+                if ($(this).is(':disabled')) {
+                    $(this).removeAttr('disabled');
+                }
+            });
+
+            //page.setButtonDisable(true, false, true);
+            page.setButtonState();
+        });
+
+        // 저장버튼
+        $('#btnSave').click(function (e) {
+            let data = FormUtil.extractForm($('#defectTypeForm'));
+            console.log('data', data);
+            if (!data.defect_type_code) {
+                Alert.alert('', '부적합코드를 입력해 주세요');
+                return;
+            }
+            if (!data.defect_type_name) {
+                Alert.alert('', '부적합명을 입력해 주세요');
+                return;
+            }
+
+            Alert.confirm('', 
+                "저장하시겠습니까?",
+                function () { page.saveDefectType() },
+                function () { }
+            );
+        });
+
+        // 삭제버튼
+        $('#btnDel').click(function (e) {
+            Alert.confirm('', 
+                '삭제하시겠습니까?',
+                function () { page.deleteDefectType() },
+                function () { }
+            );
+        });
+
+        //엑셀
+        $('#btnExcel').click(function (e) {
+            page.exportExcel();
+        });
+
+
+
+    });
+
+
+
+</script>
+{% endblock %}

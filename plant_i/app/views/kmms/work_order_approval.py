@@ -55,6 +55,9 @@ def work_order_approval(context):
             regUserNm = user.username
             regUserPk = user.id
             rqstDt = posparam.get('rqstDt')
+            if rqstDt is None:
+                rqstDt = DateUtil.get_current_datetime()
+
             rqstUserNm = posparam.get('rqstUserNm')
             rqstUserPk = CommonUtil.try_int(posparam.get('rqstUserPk'))
             acceptDt = posparam.get('acceptDt')

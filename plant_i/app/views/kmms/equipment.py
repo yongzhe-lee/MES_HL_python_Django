@@ -304,6 +304,7 @@ def equipment(context):
         except Exception as e:
             return {'success': False, 'message': f'저장 중 오류가 발생했습니다: {str(e)}'}
 
+    # kmms - 설비정보 - 불용설비 조회
     elif action=='read_dispose':
         keyword = gparam.get('keyword', None)
         srchCat = gparam.get('srchCat', None)
@@ -312,5 +313,66 @@ def equipment(context):
         end_date = gparam.get('eDate', None)
 
         items = equipmentService.get_equipment_disposed(keyword, srchCat, srch_dept, start_date, end_date)
+
+    # kmms - 설비정보 - 설비별작업이력 조회
+    elif action=='read_equip_workhist':
+        keyword = gparam.get('keyword', None)
+        # dept_pk = gparam.get('dept_pk', None)
+        # start_dt = gparam.get('start_dt', None)
+        # end_dt = gparam.get('end_dt', None)
+        # maint_type_cd = gparam.get('maint_type_cd', None)
+        # equip_category_id = gparam.get('equip_category_id', None)
+        # equip_class_path = gparam.get('equip_class_path', None)
+        # req_dept = gparam.get('req_dept', None)
+        # srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+        # 작업중입니다..
+
+
+        items = equipmentService.get_equipment_workhistory(keyword)
+
+    elif action=='pm_equip_disposed':
+        equipPk = gparam.get('equipPk', None)
+        items = equipmentService.pm_equip_disposed(equipPk)
+
+        return items
+
+    elif action=='equip_check_disposed':
+        equipPk = gparam.get('equipPk', None)
+        items = equipmentService.equip_check_disposed(equipPk)
+
+    elif action=='equip_chk_sche_disposed':
+        equipPk = gparam.get('equipPk', None)
+        items = equipmentService.equip_chk_sche_disposed(equipPk)
+
+    elif action=='equip_child_disposed':
+        equipPk = gparam.get('equipPk', None)
+        items = equipmentService.equip_child_disposed(equipPk)
+
+    elif action=='equip_disabled_update':
+        equip_pk = gparam.get('equipPk')
+        chkMastPk = gparam.get('chkMastPk', [])
+        chkSchePk = gparam.get('chkSchePk', [])
+        pmPk = gparam.get('pmPk', [])
+        workOrderPk = gparam.get('workOrderPk', [])
+        workOrderApprovalPk = gparam.get('workOrderApprovalPk', [])
+        equipListPk = gparam.get('equipListPk', []) 
+        
+
+        # WO가 삭제되지 않을경우
+        # 1, 점검일정 삭제 로직 2, 점검일정pk로 해당 일정의 설비 갯수 확인 3, 설비점검결과 삭제, 4, 설비가 본인것만 있으면 설비점검일정을 삭제
+     
+        #  점검마스터 삭제 로직
+        # // 점검마스터에 묶인 설비(점검별설비)가 1개 이상이면 점검별 설비만 삭제
+		# 	// 아니면 점검마스터 사용여부 N으로 변경
+  
+        # PM WO 삭제 로직
+        # 1, 작업내역이 없는경우 (고장부위, 외주업체, 작업자재, 작업인력)
+        
+        # PM 마스터 삭제로직
+        
+        # 자식 설비목록의 상위설비 항목 업데이트
+
+        # items = equipmentService.equip_disabled_update(equipPk)
+
 
     return items   

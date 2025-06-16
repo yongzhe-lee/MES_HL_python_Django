@@ -64,6 +64,7 @@ class IFEquipmentResultService():
         equ_result.mat_cd = mat_cd  
         equ_result.mat_desc = mat_desc
         equ_result.bom_ver = bom_ver
+        equ_result.m_status = m_status
 
         try:
             data_date = datetime.strptime(str_data_date,'%Y-%m-%dT%H:%M:%S%z')

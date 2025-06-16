@@ -1,60 +1,4 @@
 {% extends "app/layout.html" %}
-{% block css %}
-<style>
-    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
-    #searchFormContent {
-        overflow: hidden;
-        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
-        transition: height 0.3s ease-in-out;
-    }
-
-    /* ✅ 검색 폼이 펼쳐진 상태 */
-    .search-expanded {
-        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
-    }
-
-    /* ✅ 접기/펼치기 버튼 스타일 */
-    #toggleSearchBtn {
-        width: 20px;
-        height: 20px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-    }
-
-        #toggleSearchBtn::before {
-            content: "▼";
-            color: #0d6efd;
-            font-size: 20px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
-        }
-
-        #toggleSearchBtn.expanded::before {
-            content: "▲";
-        }
-
-    .zoombutton {
-        background: #409EFF !important;
-        color: white !important;
-        border: none !important;
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        padding: 0 !important;
-        width: 22px !important;
-        height: 22px !important;
-    }
-
-        .zoombutton:hover {
-            background: #2980b9 !important;
-        }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="content-wrap">
@@ -140,7 +84,7 @@
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
-                        <button id="btnAdd" class="btn-search">요청작성</button>
+                        <button id="btnAdd" class="btn-search">등록</button>
                         <button id="btnSearch" class="btn-search">조회</button>
                         <button id="btnExcel">Excel</button>
                     </span>
@@ -165,7 +109,7 @@
         constructor() {
             this.grid = null;
             this.upload = null;
-            this.baseUrl = '/api/kmms/wo_master';
+			this.baseUrl = '/api/kmms/work_order';
 
             this.comboDept = [];
 
@@ -192,13 +136,13 @@
                         field: 'work_order_no', 
                         title: '작업지시번호', 
                         width: 120, 
-                        //template: "<a href='javascript:void(0);' class='my-kendo-cell-go' data-work-order-pk='#=work_order_pk#'>#=work_order_no != null ? work_order_no : end_dt == '' ? '작성중' : '작성완료' #</a>" 
+                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#'>#=work_order_no != null ? work_order_no : end_dt == '' ? '작성중' : '작성완료' #</a>"
                     },
                     { 
                         field: 'work_title', 
                         title: '작업제목', 
                         width: 200, 
-                        //template: "# if (write_yn && wo_status_cd != 'WOS_CL' && wo_status_cd != 'WOS_DL') { # <a href='javascript:void(0);' class='my-kendo-cell-go' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #" 
+                        //template: "# if (write_yn && wo_status_cd != 'WOS_CL' && wo_status_cd != 'WOS_DL') { # <a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #"
                     },
                     { 
                         field: 'work_text', 
@@ -231,7 +175,7 @@
                         field: 'wo_status_nm', 
                         title: '상태', 
                         width: 100, 
-                        template: "<a href='javascript:void(0);' class='my-kendo-cell-go' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>" 
+                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>" 
                     }
                 ],
                 dataBound: function (e) {
@@ -262,44 +206,6 @@
                 } else if (woStatusPk) {
                     woStatHistPage.show();
                 }
-
-
-                //e.preventDefault();
-                //let workOrderPk = $(this).data("work-order-pk");
-                //if (!workOrderPk) return;
-
-                //// 이미 로드된 경우 재사용
-                //if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
-                //    equipMasterPage.show(workOrderPk);
-                //    return;
-                //}
-
-                //try {
-                //    const response = await $.get('/api/kmms/equipment?action=load_modal');
-                //    $('body').append(response);
-
-                //    // imageUploader가 준비될 때까지 대기
-                //    let waitForUploader = async () => {
-                //        return new Promise(resolve => {
-                //            let count = 0;
-                //            const check = () => {
-                //                if (window.imageUploader) return resolve();
-                //                count++;
-                //                if (count > 20) return resolve();
-                //                setTimeout(check, 50);
-                //            };
-                //            check();
-                //        });
-                //    };
-                //    await waitForUploader();
-
-                //    window.equipMasterPage = new EquipMaster();
-                //    equipMasterPage.show(workOrderPk);
-
-                //} catch (err) {
-                //    console.error("equipment.html 로드 실패:", err);
-                //    alert("설비 정보를 불러오는데 실패했습니다.");
-                //}
             });
 
             //search form
@@ -322,7 +228,11 @@
                     _this.searchMainData();
                 }
             });
-            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
+
+            // wo_status 중 일부 선택지 하드코딩 되어있음, 선택에 따라 쿼리 달라짐.
+            AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
+
+            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
                     start: new Date(),
@@ -336,15 +246,10 @@
                 startField: "start_dt",
                 endField: "end_dt"
             });
-            AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
+            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
-            AjaxUtil.fillDropDownOptions($('#problem_cd'), 'user_code', 'all', null, 'CYCLE_TYPE');
-            AjaxUtil.fillDropDownOptions($('#cause_cd'), 'user_code', 'all', null, 'CYCLE_TYPE');
-            $('#srch_wo_no_only').kendoSwitch({ checked: false });
             $('#srch_my_req_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
-            $('#srch_non_del_only').kendoSwitch({ checked: false });
 
             //form button
             $('#btnSearch').kendoButton({
@@ -362,7 +267,8 @@
                 //spriteCssClass: "k-icon k-foo",
                 click: function (e) {
                     e.preventDefault();
-                    $("#modalMyWorkReq").fadeIn();
+                    // 작업일보 등록 팝업
+
                 }
             }).css('visibility', 'visible');
 
@@ -376,25 +282,35 @@
 
         }
 
-        // 로직 완성 필요
         searchMainData() {
             let _this = this;
+
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
+            }
 
             let param = {
                 action: 'read',
                 keyword: $('#keyword').val(),
+                // wo_status 고쳐야함, 일부 셀렉트 제외
+                wo_status: $('#wo_status').val(),
+                dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
                 req_dept: $("#req_dept").data("kendoDropDownTree").value(),
-                //rqst_user_nm: $('#rqst_user_nm').val(),
-                //wo_status: $('#wo_status').val(),
-                //maint_type_cd: $('#maint_code').val(),
-                //dept_pk = $("#dept_pk").data("kendoDropDownTree").value(),
-                //problem_cd: $('#problem_cd').val(),
-                //cause_cd: $('#cause_cd').val(),
+                maint_type_cd: $('#maint_code').val(),
+                start_dt: startDate,
+                end_dt: endDate,
 
-                //srch_wo_no_only: $('#srch_wo_no_only').data("kendoSwitch").check() ? 'Y' : 'N'
-                //srch_my_req_only: $('#srch_my_req_only').data("kendoSwitch").check() ? 'Y' : 'N'
-                //srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
-                //srch_non_del_only: $('#srch_non_del_only').data("kendoSwitch").check() ? 'Y' : 'N'
+                srch_my_req_only: $('#srch_my_req_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N',
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);

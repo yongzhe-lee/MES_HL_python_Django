@@ -26,14 +26,20 @@ def material(context):
     
     action = gparam.get('action', 'read')
     source = f'/api/definition/material?action={action}'
+    result = {}
     try:
         if action =='read':
-
-            factory = gparam.get('srch_factory')            
+            factory = gparam.get('srch_factory')
+            mat_type= gparam.get('mat_type')
             keyword = gparam.get('keyword')
 
+            dc = {}
+            dc['factory'] = factory
+            dc['mat_type'] = mat_type
+            dc['keyword'] = keyword
+
             sql = '''
-            SELECT 
+                SELECT 
                 m.id AS material_id
                 , m."Factory_id" AS factory_id
                 , f."Code" AS factory_code
@@ -48,28 +54,27 @@ def material(context):
                 , m.sub_pcb_cd
                 , m.top_bottom
                 , m.use_yn
-                /* ItemType 같은 field 2번 생성하심. 나중에 여쭤보고 삽입 */
-                -- , m."Type" AS material_type
+                , m."mat_type"
                 , m."Standard" AS standard
                 , mg."Name" AS mat_grp_nm
                 , m.mat_type
-                , c."Name" AS item_type_nm
                 , m."BasicUnit" AS basic_unit
                 , m."CycleTime" AS cycle_time
                 , m."in_price" AS in_price
                 , m."out_price" AS out_price
                 , m.supplier_pk as supplier
-                , co."Name" as supplier_nm
             FROM  material m
                 left join mat_grp mg on mg.id=m.mat_grp_id 
                 INNER JOIN factory f on m."Factory_id" = f.id
-                left join code c on UPPER(c."CodeGroupCode") = 'MTRL_TYPE' and m."ItemType" = c."Code"
-                left join company co on m.supplier_pk = co.id
             WHERE 1=1
             '''
             if factory:
                 sql += ''' 
                 AND f.id = %(factory)s
+                '''
+            if mat_type:
+                sql += ''' 
+                AND f.id = %(mat_type)s
                 '''
             if keyword:
                 sql += ''' 
@@ -84,16 +89,13 @@ def material(context):
             sql += '''
             ORDER BY m."Name"
             '''
-
-            dc = {}
-            dc['factory'] = factory
-            dc['keyword'] = keyword
-            
-            result = DbUtil.get_rows(sql, dc)
+            items = DbUtil.get_rows(sql, dc)
+            result['success'] = True
+            result['items'] = items
 
         if action =='read_modal':
 
-            keyword = gparam.get('keyword')            
+            keyword = gparam.get('keyword')
             ItemType = gparam.get('ItemType')   
             Supplier = gparam.get('Supplier')
 
@@ -101,79 +103,56 @@ def material(context):
 
         elif action == 'detail':
             id = gparam.get('id')
-            
-            sql = '''
-                SELECT 
-                m.id AS material_id
-                , m."Factory_id" AS factory_id
-                , f."Code" AS factory_code
-                , f."Name" AS factory_name
-                , m."Code" AS material_code
-                , m."Name" AS material_name
-                /* ItemType 같은 field 2번 생성하심. 나중에 여쭤보고 삽입 */
-                -- , m."Type" AS material_type
-                , m."Standard" AS standard
-                , m."ItemGroup" AS item_group
-                , m."ItemType" AS item_type
-                , c."Name" AS item_type_nm
-                , m."BasicUnit" AS basic_unit
-                , m."CycleTime" AS cycle_time
-                , m."in_price" AS in_price
-                , m."out_price" AS out_price
-                , m.supplier_pk as supplier
-                , co."Name" as supplier_nm
-            FROM  material m
-                INNER JOIN factory f on m."Factory_id" = f.id
-                left join code c on UPPER(c."CodeGroupCode") = 'MTRL_TYPE' and m."ItemType" = c."Code"
-                left join company co on m.supplier_pk = co.id
-                    and m.id = %(id)s
-            '''
+            dc = {"id" : id}
 
-            dc = {}
-            dc['id'] = id
+            sql = '''
+            select
+            m.id AS material_id
+            , m."Factory_id" AS factory_id
+            , f."Code" AS factory_code
+            , f."Name" AS factory_name
+            , m."Code" AS material_code
+            , m."Name" AS material_name
+            , m."mat_type"
+            , m."Standard" AS standard
+            , m."BasicUnit" AS basic_unit
+            , m."CycleTime" AS cycle_time
+            , m."in_price" AS in_price
+            , m."out_price" AS out_price
+            FROM  material m
+            inner join factory f on m."Factory_id" = f.id
+            where 
+            m.id = %(id)s
+            '''
             
-            result = DbUtil.get_row(sql, dc)
+            data = DbUtil.get_row(sql, dc)
+            result['success'] = True
+            result['data'] = data
 
         elif action == 'save':
-            id = CommonUtil.try_int(posparam.get('material_id'))
-            factory_id = CommonUtil.try_int(posparam.get('factory_id'))
-            material_code = posparam.get('material_code') 
-            material_name = posparam.get('material_name') 
-            standard = posparam.get('standard')
-            mat_grp_id = posparam.get('mat_grp_id')
-            item_type = posparam.get('item_type')
-            supplier = posparam.get('supplier')
-            basic_unit = posparam.get('basic_unit')
-            cycle_time = CommonUtil.blank_to_none(posparam.get('cycle_time'))
-            in_price = CommonUtil.blank_to_none(posparam.get('in_price'))
-            out_price = CommonUtil.blank_to_none(posparam.get('out_price'))
+            material_id = CommonUtil.try_int(posparam.get('material_id'))
+            material = Material.objects.get(id = material_id)
 
-            try:
-                if id:
-                    material = Material.objects.filter(id = id).first()
-                else:
-                    material = Material()
-                
-                material.Factory_id = factory_id
-                material.Code = material_code
-                material.Name = material_name
-                material.Standard = standard
-                material.MAterialGroup_id = mat_grp_id
-                material.ItemType = item_type
-                material.supplier_pk = supplier
-                material.BasicUnit = basic_unit
-                material.CycleTime = cycle_time
-                material.in_price = in_price
-                material.out_price = out_price
-                material.set_audit(request.user)
-                material.save()
+            bar_pcb_cd = posparam.get('bar_pcb_cd')
+            sub_pcb_cd = posparam.get('sub_pcb_cd')
+            pcb_array = posparam.get('pcb_array')
+            panel_mag = posparam.get('panel_mag')
+            top_bottom = posparam.get('top_bottom')
+            solder_paste = posparam.get('solder_paste')
+            sap_top_bottom = posparam.get('sap_top_bottom')
 
-                result = {'success' : True}
+            material.bare_pcb_cd = bar_pcb_cd
+            material.sub_pcb_cd = sub_pcb_cd
+            material.pcb_array = pcb_array
+            material.panel_mag = panel_mag
+            material.top_bottom = top_bottom
+            material.solder_paste = solder_paste
+            material.sap_top_bottom = sap_top_bottom
 
-            except Exception as ex:
-                source = 'api/definition/material, action:{}'.format(action)
-                LogWriter.add_dblog('error', source, ex)
-                raise ex
+            material.set_audit(request.user)
+            material.save()
+
+            result = {'success' : True, 'material_id' : material_id}
 
         elif action == 'delete':
             id = posparam.get('material_id')

@@ -19,9 +19,21 @@
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboMatType" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <select id="cboMatType" name="mat_type">
+                                    <option value="">전체</option>
+                                    <option value="FERT">FERT</option>
+                                    <option value="HALB">HALB</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="품목명, 품목코드, 자재그룹, 자재유형 "/>
+                                <input id="keyword" name="keyword" placeholder="품목명, 품목코드, 자재그룹, 자재유형 " />
                             </div>
                         </div>
                     </div>
@@ -54,8 +66,7 @@
                     <span class="info-text"><i class="material-symbols-outlined">edit_square</i>입력</span>
                     <span>
                         <button id="btnClear"><i class="material-symbols-outlined">refresh</i>초기화</button>
-                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>
-                        <button id="btnDelete"><i class="material-symbols-outlined">delete</i>삭제</button>
+                        <button id="btnSave"><i class="material-symbols-outlined">save</i>저장</button>                        
                     </span>
                 </div>
 
@@ -151,7 +162,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="사용여부">사용여부</label>
@@ -160,17 +170,15 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     <hr />
                     <div></div>
                     <div class="edit-form-ui">
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="bare pcb">bare pcb</label>
                                 <div class="field-wrapper">
-                                    <input id="bare_pcb_cd" name="pcb_array" class="form-control" />
+                                    <input id="bare_pcb_cd" name="bare_pcb_cd" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -182,7 +190,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="pcb array">pcb array</label>
@@ -191,7 +198,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="Panel Mag.">Panel Mag.</label>
@@ -200,10 +206,6 @@
                                 </div>
                             </div>
                         </div>
-
-
-
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="Top/Bottom">Top/Bottom</label>
@@ -212,7 +214,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="solder paste">solder paste</label>
@@ -221,7 +222,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="out_price" data-labelCd="SAP Top/Bottom">SAP Top/Bottom</label>
@@ -231,7 +231,6 @@
                             </div>
                         </div>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -260,13 +259,11 @@
             let materialGridOption = {
                 columns: [
                     { field: "factory_name", title: "공장", width: 100 },
-                    { field: "factory_code", title: "공장코드", width: 100, hidden:true },
-                    { field: "material_name", title: "품목명", width: 100 },
-                    { field: "material_code", title: "품목코드", width: 100 },
+                    { field: "material_code", title: "품목코드", width: 120 },
+                    { field: "material_name", title: "품목명", width: 200 },                    
                     { field: "standard", title: "규격", width: 100 },
                     { field: "item_group", title: "자재그룹", width: 100 },
 					{ field: "item_type_nm", title: "자재유형", width: 100 },
-					{ field: "supplier_nm", title: "공급업체", width: 100 },
                     { field: "basic_unit", title: "기본단위", width: 100 },
                     { field: "cycle_time", title: "c/t", width: 100 },
                     { field: "in_price", title: "입고금액", width: 100, format: "{0:c}",type: "number" },
@@ -278,19 +275,15 @@
                 },
                 // 데이터 바인딩 이벤트
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        // 데이터 길이로 자동 컬럼 사이즈 조절
-                        this.autoFitColumn(i);
-                    };
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
                 },
-                height: "540px"
+                height: 540
             };
             _this.grid = new Grid($("#material_grid"), materialGridOption);
 
             //search form
-            AjaxUtil.fillDropDownOptions($('#srch_factory'), 'factory', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#srch_factory'), 'factory', null, null);
             $('#keyword').kendoTextBox();
             $('#keyword').keypress(function (e) {
                 // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
@@ -308,7 +301,13 @@
             $('#item_group').kendoTextBox();
             
             AjaxUtil.fillDropDownOptions($('#item_type'), 'user_code', 'choose', null, 'MTRL_TYPE');
-			AjaxUtil.fillDropDownOptions($('#supplier'), 'company', 'choose', null);
+            AjaxUtil.fillDropDownOptions($('#supplier'), 'company', 'choose', null);
+
+            $('#cboMatType').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+            });
+
 
             $('#basic_unit').kendoTextBox();
             $('#cycle_time').kendoNumericTextBox({
@@ -349,12 +348,6 @@
                     _this.saveData();
                 }
             });
-            $('#btnDelete').kendoButton({
-                themeColor: "error",
-                click: function () {
-                    _this.deleteData();
-                }
-            });
 
         }
 
@@ -367,12 +360,19 @@
                 keyword: $('#keyword').val(),
             };
 
+            this.grid.setData([]);
+            kendo.ui.progress($("#material_grid"), true);
             let fnSuccess = function (result) {
-                _this.grid.setData(result);
-            };
+                if (result.success) {
+                    _this.grid.setData(result.items);
+                }
+                else {
+                    Alert.alert("조회오류", result.message);
+                }
+                kendo.ui.progress($("#material_grid"), false);
+            }
 
-            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);           
-
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }
 
         resetData() {
@@ -384,10 +384,32 @@
         showDetail() {            
             let _this = this;
             let data = _this.grid.getSelect();
+            let material_id = null;
             if (data.length > 0) {
                 let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#materialForm'));            
+                material_id = selectData.id;
             }
+            else {
+                return;
+            }
+
+            let param = {
+                id: material_id,
+                action: 'detail'
+            }
+
+            let fnSuccess = function (result) {
+
+                if (result.success) {
+                    FormUtil.BindDataForm(result.data, $('#materialForm'));
+                }
+                else {
+                    Alert.alert("조회오류", result.message);
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+
         }
 
         saveData() {
@@ -419,24 +441,6 @@
             AjaxUtil.postAsyncData(_this.baseUrl+'?action=save', data, funcSucc);
         }
 
-        deleteData() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            if (data.length > 0) {
-                let selectData = data[0];
-                selectData = { material_id: selectData.material_id };
-                let funcSucc = function (resp) {
-                    if (resp.success) {
-                        Notify.success('삭제되었습니다.');
-                        _this.resetData();
-                        _this.searchMainData();
-                    } else {
-                        Alert.alert('error', resp.message);
-                    }
-                };
-                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', selectData, funcSucc);
-            }
-        }
 
         // 엑셀 다운로드
         exportExcel() {

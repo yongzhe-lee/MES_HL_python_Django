@@ -11,7 +11,7 @@
                         <div class="form-item align-h L-align-h">
                             <label class="k-label k-form-label" for="cboBOMType" data-labelCd="BOM구분">BOM구분</label>
                             <div class="field-wrapper">
-                                <input id="cboBOMType" name="cboBOMType" />
+                                <input class="form-control" id="cboBOMType" name="cboBOMType" />
                             </div>
                         </div>
                     </div>
@@ -19,7 +19,7 @@
                         <div class="form-item align-h L-align-h">
                             <label class="k-label k-form-label" for="cboMaterialType" data-labelCd="품목구분">품목구분</label>
                             <div class="field-wrapper">
-                                <input id="cboMaterialType" name="cboMaterialType" />
+                                <input class="form-control" id="cboMaterialType" name="cboMaterialType" />
                             </div>
                         </div>
                     </div>
@@ -27,7 +27,7 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboMaterialGroup" data-labelCd="품목그룹">품목그룹</label>
                             <div class="field-wrapper">
-                                <select id="cboMaterialGroup" name="cboMaterialGroup"></select>
+                                <select class="form-control" id="cboMaterialGroup" name="cboMaterialGroup"></select>
                             </div>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="txtMatName" data-labelCd="제품명">제품명</label>
                             <div class="field-wrapper">
-                                <select id="txtMatName" name="txtMatName"></select>
+                                <select class="form-control" id="txtMatName" name="txtMatName"></select>
                             </div>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="not_past_flag" data-labelCd="최종">최종</label>
                             <div class="field-wrapper">
-                                <input id="not_past_flag" name="not_past_flag" value="Y" type="checkbox" />
+                                <input class="form-control" id="not_past_flag" name="not_past_flag" value="Y" type="checkbox" />
                             </div>
                         </div>
                     </div>
@@ -202,7 +202,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
         }
@@ -224,15 +224,21 @@
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
         }
-    }
 
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#tag_data_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "BOM.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    }
 
     $(document).ready(function () {
         let page = new BOMPage();
         page.searchMainData();
-     });
-
-
+    });
 
 </script>
 

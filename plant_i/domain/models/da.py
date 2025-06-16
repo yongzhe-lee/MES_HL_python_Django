@@ -45,6 +45,8 @@ class DsModel(models.Model):
     Type = models.CharField('모델유형', max_length=50, null=True, db_comment='모델 유형')
     # Version = models.CharField('버전', max_length=50, null=True, default='1', db_comment='모델 버전')
     DataVersion = models.CharField('버전', max_length=50, null=True, db_comment='모델 버전') # 25.03.28 기존 Version -> DataVersion 수정
+    StartedAt = models.DateTimeField('데이터시작시간', null=True, db_comment='데이터 시작시간') # 25.06.05 추가
+    EndedAt = models.DateTimeField('데이터종료시간', null=True, db_comment='데이터 종료시간') # 25.06.05 추가
     DsMaster = models.ForeignKey(DsMaster, verbose_name='모델마스터번호', on_delete=models.DO_NOTHING, null=True, db_comment='모델마스터 PK(FK)') # 신규추가
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment='데이터 상태')
@@ -147,6 +149,7 @@ class DsModelData(models.Model):
     _creater_nm = models.CharField('작성자명', max_length=10, null=True, db_comment='생성자 이름')
     _modifier_nm = models.CharField('변경자명', max_length=10, null=True, db_comment='수정자 이름')
     
+    
     def set_audit(self, user):
         if self._creater_id is None:
             self._creater_id = user.id
@@ -157,7 +160,8 @@ class DsModelData(models.Model):
         return
 
     class Meta():
-        db_table = 'ds_model_data'
+        managed = False
+        db_table = 'ai"."ds_model_data'
         verbose_name = '모델학습데이터'
         unique_together = [
             ('DsModel', 'RowIndex', 'Code'),

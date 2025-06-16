@@ -1,0 +1,285 @@
+﻿<!-- 손자 모달 -->
+<div id="modalResultEdit" class="modal child-modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>점검작업 결과입력</h4>
+		</div>
+		<div class="modal-body">
+
+			<table class="swing-table swing-table-bordered swing-table-selview swing-striped m-0">
+				<tbody>
+
+					<tr>
+						<th width="10%">점검일정번호</th>
+						<td width="20%" class="text-right" id="chk_sche_no"></td>
+						<th width="10%">점검명</th>
+						<td colspan="3" id="chk_mast_nm"></td>
+					</tr>
+
+					<tr>
+						<th width="10%">점검주기</th>
+						<td width="20%" class="text-right"  id="cycle_display_nm" ><b></b></td>
+						<th width="10%">상태</th>
+						<td width="20%" id="chk_status_nm"   ></td>
+						<th width="15%">점검일정 결과</th>
+						<td width="25%">
+							<span class="cont_view_msg type01"><b>총 </b>1건 / </span> 
+							<span class="cont_view_msg type01"><b>정상 </b>0</span>
+							<span class="cont_view_msg type01" style="color: red;"><b> 이상 </b>0</span>
+							<span class="cont_view_msg type01" style="color: orange;"><b> 점검불가 </b>0</span>
+						</td>
+					</tr>
+					<tr>
+						<th width="10%">생성일</th>
+						<td width="20%" id="insert_ts"></td>
+						<th width="10%">점검계획일</th>
+						<td width="20%" id="chk_sche_dt"></td>
+						<th width="10%">점검완료일</th>
+						<td width="20%"></td>
+					</tr>
+
+					<tr>
+						<th width="10%">점검부서</th>
+						<td colspan="3"> </td>
+						<th width="10%">점검담당자</th>
+						<td></td>
+					</tr>
+
+					<tr>
+						<th width="10%">작업지침</th>
+						<td colspan="5" id="work_text"></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!--<form id="ResultForm">
+				<input type="hidden" id="chk_mast_pk" name="chk_mast_pk">
+				<div class="plan-content">
+					<div class="form-row">
+						<div class="form-group col-6">
+							<label>점검일정번호</label>
+							<input type="text" class="form-control" id="chk_sche_no" name="chk_sche_no" readonly>
+						</div>
+						<div class="form-group col-6">
+							<label>점검명 <span class="required">*</span></label>
+							<input type="text" class="form-control" id="piName" name="piName">
+						</div>
+					</div>
+					<div class="form-row">-->
+						<!-- 오른쪽 cycleInfo 영역 -->
+						<!-- 주기단위 -->
+						<!--<div class="form-group col-4">
+							<label>주기단위 <span class="required">*</span></label>
+							<select id="cycleType" name="cycleType">
+							</select>
+						</div>
+						<div class="form-group col-4">
+							<label>반복 <span class="required">*</span></label>
+							<div class="field-wrapper" style="display: flex; align-items: center">
+								<span class="mt-2" style="margin-left: 5px;">매</span>
+								<input id="perNumber" name="perNumber" type="number" class="form-control" />
+							</div>
+						</div>-->
+						<!-- 주기시작일 -->
+						<!--<div class="form-group col-4">
+							<label>주기시작일 <span class="required">*</span></label>
+							<div class="field-wrapper">
+								<input type="date" id="schedStartDt" name="schedStartDt" />
+							</div>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group col-6">
+							<label>점검부서 <span class="required">*</span></label>
+							<select id="executionDept" name="executionDept">
+							</select>
+						</div>
+						<div class="form-group col-6">
+							<label>점검담당자 <span class="required">*</span></label>
+							<select id="piManager" name="piManager">
+								<option value="">점검 담당자를 선택하세요</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group col-12">
+							<label>작업지침</label>
+							<textarea id="work_text" class="form-control" name="work_text" rows="5" placeholder="2000자 이하로 입력하세요" maxlength="2000"></textarea>
+							<div class="char-count">0 / 2000 bytes</div>
+						</div>
+					</div>
+				</div>
+			</form>-->
+
+
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn-save" id="saveReusltAll">결과일괄저장</button>
+			<button type="button" class="btn-save" id="deleteSchedule">작업삭제</button>
+			<button type="button" class="btn-save" id="compleResult">점검완료</button>
+			<button type="button" class="btn-close" id="closeResultModal">닫기</button>
+		</div>
+	</div>
+</div>
+<style>
+
+    .swing-table-bordered > tbody > tr > th {
+        background-color: #f4f5fa;
+        text-align: center;
+    }
+
+</style>
+
+<script type="text/javascript">
+	class ResultEditPage {
+		constructor() {
+			this.grid = null;
+            this.baseUrl = '/api/kmms/equip_chk_rslt';
+            this.chk_sche_pk = null;
+			this.init();
+		}
+
+		init() {
+			//this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
+
+		initGrid() {
+			const option = {
+				toolbar: ["columns"],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: { sort: "asc" }
+				},
+				columns: [
+					{ field: 'equip_cd', title: '설비코드', width: 100 },
+					{ field: 'equip_nm', title: '설비명', width: 150 },
+					{ field: '_equip_status_nm', title: '설비상태', width: 80 },
+					{ field: '_equip_category_remark', title: '카테고리', width: 100 },
+					{ field: '_loc_nm', title: '설비위치', width: 100 },
+					{ field: '_dept_nm', title: '관리부서', width: 100 },
+					{ field: '_asset_nos', title: '자산번호', width: 100 },
+					{ field: '_import_rank_nm', title: '중요도등급', hidden: true },
+					{ field: '_environ_equip_yn', title: '환경설비여부', hidden: true },
+					{ field: '_warranty_dt', title: '보증만료일', hidden: true },
+				],
+				change: () => this.showDetail(),
+				dataBound: function () {
+					this.autoFitColumns();
+				},
+				height: "440px",
+				scrollable: true,
+			};
+			this.grid = new Grid($("#equip_sel_grid"), option);
+		}
+
+		initButton() {
+			$("#btnConfirmEqu").kendoButton({ icon: "k-i-check", themeColor: "base" });
+			$("#btnCancelEqu").kendoButton({ icon: "cancel", themeColor: "base" });
+			$("#btnSearchEqu").kendoButton({
+				themeColor: "primary",
+				icon: "search",
+				click: () => this.getData()
+			});
+			//AjaxUtil.fillDropDownTreeOptions($("#srch_equ_dept"), "cm_depart", "select");
+		}
+
+		initEvents() {
+			
+
+			$("#btnConfirmEqu").on("click", () => {
+				const data = this.grid.getSelect();			
+				if (typeof this.callback === 'function') {
+					this.callback(data[0]);
+				}
+				$modal.fadeOut();
+			});
+
+            // 모달 닫기 - 닫기 버튼 클릭
+            $('#closeResultModal').kendoButton({
+                click: function (e) {
+                    e.preventDefault();
+
+					$('#modalResultEdit').fadeOut();
+                    this.resetSelection();
+                }
+            });
+		}
+
+		getData() {
+			const param = {
+                action: 'detail',
+				chkSchePk: this.chk_sche_pk
+			};
+			const result = AjaxUtil.getSyncData(this.baseUrl, param);
+			console.log(result);
+
+            this.bindMainData(result)
+		}
+
+        bindMainData(data) {
+            let _this = this;
+
+            console.log(data[0].chk_sche_no);
+            // 점검일정번호 값 할당
+			$('#chk_sche_no').text(data[0].chk_sche_no);
+			$('#chk_mast_nm').text(data[0].chk_mast_nm);
+            $('#cycle_display_nm').text(data[0].cycle_display_nm);
+			$('#chk_status_nm').text(data[0].chk_status_nm);
+
+            $('#insert_ts').text(data[0].insert_ts);
+            $('#chk_sche_dt').text(data[0].chk_sche_dt);
+
+            $('#work_text').text(data[0].work_text);
+
+			
+
+
+            // 기본 필드 바인딩
+            const basicFields = {
+                'piName': data.chk_mast_nm,
+                'perNumber': data.per_number,
+                'schedStartDt': data.sched_start_date,
+                'work_text': data.work_text,
+            };
+            
+            // 기본 필드 값 설정
+            // choi : 한꺼번에 값을 바인딩하네
+            Object.entries(basicFields).forEach(([id, value]) => {
+                $(`#${id}`).val(value);
+            });
+
+        }//bindPiMasterData
+
+		showDetail() {
+			const data = this.grid.getSelect();
+			if (data.length > 0) {
+				const { equip_pk, equip_nm } = data[0];
+				$('#selectedEquPK').val(equip_pk);
+				$('#selectedEquName').val(equip_nm);
+			}
+		}
+
+		resetSelection() {
+			$('#selectedEquPK, #selectedEquName').val('');
+		}
+
+		show(chk_sche_pk) {
+			
+			this.chk_sche_pk = chk_sche_pk;
+			console.log("chk_sche_pk=", this.chk_sche_pk);
+
+			$("#modalResultEdit").fadeIn();
+			this.getData();
+		}
+	}
+
+	let resultEditPage = null;
+
+	$(document).ready(function () {
+        resultEditPage = new ResultEditPage();
+	});
+</script>

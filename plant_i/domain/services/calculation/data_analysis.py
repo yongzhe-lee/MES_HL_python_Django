@@ -208,7 +208,7 @@ class DaService(object):
             , "Char1"
             , COUNT(*) OVER (PARTITION BY "RowIndex") AS g_cnt
             , ROW_NUMBER() OVER (PARTITION BY "RowIndex" ORDER BY id) AS g_idx
-        FROM ds_model_data
+        FROM ai.ds_model_data
         WHERE "DsModel_id" = %(data_pk)s
         ORDER BY "RowIndex"
         '''
@@ -239,23 +239,45 @@ class DaService(object):
                 pass
         return df
 
-    def make_col_info(self, df, column_preprocess_info=None):
+    def make_col_info(self, df, column_preprocess_info=None, csv=True):
         md_id = self.data_pk
         row_count = df.shape[0]
 
         q = DsModelColumn.objects.filter(DsModel_id=md_id)
-        q.delete()
+
+        # CSV 기반이면 전체 삭제
+        if csv:
+            DsModelColumn.objects.filter(DsModel_id=md_id).delete()
+            existing_map = {}
+        else:
+            # 태그 통합일 경우: 기존 컬럼 정보 가져오기 (VarName → 객체)
+            existing_map = {
+                obj.VarName: obj
+                for obj in DsModelColumn.objects.filter(DsModel_id=md_id)
+            }
 
         try:
             dtypes = df.dtypes
+
             for index, key in enumerate(df.columns):
                 col = df[key]
                 MissingCount = row_count - col.count()
 
-                dc = DsModelColumn()
-                dc.DsModel_id = md_id
-                dc.VarIndex = index
-                dc.VarName = key
+                if csv:
+                    dc = DsModelColumn()
+                    dc.DsModel_id = md_id
+                    dc.VarIndex = index
+                    dc.VarName = key
+                    dc.Source = 'USER'
+                else:
+                    dc = existing_map.get(key)
+                    if not dc:
+                        dc = DsModelColumn()
+                        dc.DsModel_id = md_id
+                        dc.VarIndex = index
+                        dc.VarName = key
+                        dc.Source = 'USER'  # 신규일 때만(기존 col정보에 없는 컬럼 = 시스템에 없는 태그)
+
                 dc.DataCount = row_count
                 dc.MissingCount = MissingCount
                 min, max, median, mean, std = None, None, None, None, None

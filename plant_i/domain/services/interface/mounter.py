@@ -59,9 +59,16 @@ class IFFujiMounterService(object):
                 str_data_date = r.get('data_date')
                 data_date = datetime.strptime(str_data_date,'%Y-%m-%dT%H:%M:%S%z')
 
+                equ_cd = None
+                if position:
+                    tmp_arr = position.split('-')
+                    equ_cd = f"smt4.mnt{tmp_arr[0]}"
+
+
                 if_pickup_rate = IFMounterPickupRate()
                 if_pickup_rate.sn = sn
                 if_pickup_rate.sn_items = sn_items
+                if_pickup_rate.equ_cd = equ_cd
                 if_pickup_rate.job = job
                 if_pickup_rate.machine = machine
                 if_pickup_rate.position = position

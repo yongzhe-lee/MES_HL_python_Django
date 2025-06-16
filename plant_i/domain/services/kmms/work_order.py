@@ -7,9 +7,9 @@ class WorkOrderService():
 	def __init__(self):
 		return
 
-	def get_work_order_list(self, keyword, req_dept, rqst_user_nm, start_dt, end_dt, wo_status, maint_type_cd, dept_pk):
+	def get_work_order_list(self, keyword, req_dept, rqst_user_nm, start_dt, end_dt, wo_status, maint_type_cd, dept_pk, problem_cd, cause_cd, srch_wo_no_only, srch_my_req_only, srch_environ_equip_only, srch_non_del_only, wos_type, current_user_id):
 		items = []
-		dic_param = {'keyword': keyword, 'req_dept': req_dept, 'rqst_user_nm': rqst_user_nm, 'start_dt': start_dt, 'end_dt': end_dt, 'wo_status': wo_status, 'maint_type_cd': maint_type_cd, 'dept_pk': dept_pk}
+		dic_param = {'keyword': keyword, 'req_dept': req_dept, 'rqst_user_nm': rqst_user_nm, 'start_dt': start_dt, 'end_dt': end_dt, 'wo_status': wo_status, 'maint_type_cd': maint_type_cd, 'dept_pk': dept_pk, 'problem_cd': problem_cd, 'cause_cd': cause_cd, 'srch_wo_no_only': srch_wo_no_only, 'srch_my_req_only': srch_my_req_only, 'srch_environ_equip_only': srch_environ_equip_only, 'srch_non_del_only': srch_non_del_only, 'wos_type': wos_type, 'current_user_id': current_user_id}
         
 		sql = '''
 		with cte as (
@@ -36,7 +36,7 @@ class WorkOrderService():
 				, t.plan_end_dt
 				, t.start_dt
 				, t.end_dt
-				, t.want_dt
+				, to_char(t.want_dt, 'yyyy-MM-dd') as want_dt
 				, t.equip_pk
 				, e.equip_cd
 				, e.equip_nm
@@ -86,7 +86,7 @@ class WorkOrderService():
 				, t.appr_line_next
 				, t.work_order_approval_pk
 				, woa.reg_dt
-				, woa.rqst_dt
+				, to_char(woa.rqst_dt, 'yyyy-MM-dd') as rqst_dt
 				, woa.rqst_user_nm
 				, woarqstd.dept_pk as rqst_dept_pk
 				, woarqstd.dept_nm as rqst_dept_nm
@@ -155,17 +155,26 @@ class WorkOrderService():
 		where 1 = 1
 		'''
 
-		if keyword:
-			sql += '''
-				AND (
-				UPPER(t.work_title) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
-				OR UPPER(t.work_text) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
-				OR UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
-				OR UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+		# 나의 작업요청 쿼리 조건 (작업요청 승인 동일)
 
-					OR UPPER(t.work_order_no) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
-				)
-			'''
+		if keyword:
+			if srch_wo_no_only == 'Y':
+				sql += '''
+					AND (
+					UPPER(t.work_order_no) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+					)
+				'''
+			else:
+				sql += '''
+					AND (
+					UPPER(t.work_title) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+					OR UPPER(t.work_text) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+					OR UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+					OR UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+
+						OR UPPER(t.work_order_no) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
+					)
+				'''
 
 		if req_dept:
 			sql += '''
@@ -219,31 +228,75 @@ class WorkOrderService():
 				)
 			'''
 
-		# 아직 구현 안한부분
-		if 0 == 1:
+		if problem_cd:
 			sql += '''
-            AND t.problem_cd = 'ARLK'
+				AND t.problem_cd = %(problem_cd)s
+			'''
 
-            AND t.cause_cd = 'CC04'
+		if cause_cd:
+			sql += '''
+				AND t.cause_cd = %(cause_cd)s
+			'''
+		
+		if srch_my_req_only == 'Y':
+			sql += '''
+				AND woa.rqst_user_pk = %(current_user_id)s
+			'''
 
+		if srch_environ_equip_only == 'Y':
+			sql += '''
+				AND e.environ_equip_yn = 'Y'
+			'''
+	
+		if srch_non_del_only == 'Y':
+			sql += '''
+				AND t.wo_status NOT IN (
 
-			AND substring(t.appr_line, 1, 2) = 'RQ'
-
-			AND t.wo_type NOT IN (
-
-		        	'PM'
-
-			)
-
-			AND t.wo_status NOT IN (
+		        	'NOTHING'
+					,  
+		        	'WOS_DL'
+				)
+			'''
+		else:
+			sql += '''
+				AND t.wo_status NOT IN (
 
 		        	'NOTHING'
 
-			)
+				)
+			'''
+
+			# 나중에 분석해서 조건 포함 필요
+			# 나의 작업요청 쿼리 조건
+			# AND t.wo_type NOT IN (
+
+		 #        	'PM'
+
+			# )
+			# AND substring(t.appr_line, 1, 2) = 'RQ'
+			# AND coalesce(t.rqst_dpr_yn, 'N') = 'N'
 
 
-			AND coalesce(t.rqst_dpr_yn, 'N') = 'N'
 
+			
+			# 작업지시 승인 쿼리 조건
+
+		if wos_type == 'WOS_OC':
+			sql += '''
+				AND t.wo_status  IN (
+
+		        	%(wos_type)s
+
+				)
+			'''
+		elif wos_type == 'WOS_AP':
+			sql += '''
+				AND t.wo_status  IN (
+
+		        	%(wos_type)s
+
+				)
+				AND t.wo_type = 'WO'
 			'''
 
 		sql += '''

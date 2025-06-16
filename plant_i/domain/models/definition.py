@@ -731,7 +731,8 @@ class TagData(models.Model):
     _created    = models.DateTimeField('_created', auto_now_add=True)
 
     class Meta():
-        db_table = 'tag_dat'  #'das"."tag_dat'
+        managed = False
+        db_table = 'das"."tag_dat'
         verbose_name = '태그데이터'
         unique_together  = [
             ['tag_code', 'data_date']
@@ -754,7 +755,8 @@ class ElecMeterData(models.Model):
     _created    = models.DateTimeField('_created', auto_now_add=True)
 
     class Meta():
-        db_table = 'em_tag_dat' #'das"."em_tag_dat'
+        managed = False
+        db_table = 'das"."em_tag_dat'
         verbose_name = '전력량계태그데이터'
         unique_together  = [
             ['tag_code', 'data_date']

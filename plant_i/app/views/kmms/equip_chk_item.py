@@ -1,4 +1,4 @@
-from django import db
+﻿from django import db
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
@@ -101,7 +101,7 @@ def equip_chk_item(context):
             items = DbUtil.get_row(sql, dc)
 
 
-         elif action == 'deleteUpdateBatch':
+        elif action == 'deleteUpdateBatch':
             ''' 등록 및 수정전에 삭제된것 삭제처리
             '''
             chkMastPk = CommonUtil.try_int(posparam.get('chkMastPk'))

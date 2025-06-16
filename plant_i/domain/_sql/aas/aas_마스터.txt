@@ -21,16 +21,65 @@ truncate table submodel_element_collection cascade;
 truncate table submodel_element_collection_values cascade;
 
 
-
-
+truncate table aas cascade;
 alter SEQUENCE aas_aas_pk_seq restart WITH 1;
-insert into aas (aas_pk, id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) 
-values
- (1,'/aas/hpc#1','line','hpc1','[{"text": "line hpc#1", "language": "en-US"}, {"text": "hpc#1 ����", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL,NULL),
- (2, '/aas/smt#4','line','smt4','[{"text": "line smt#4", "language": "en-US"}, {"text": "smt#4 ����", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL,NULL),
- (3, '/aas/hpc1.load','equipment','hpc1.load','[{"text": "hpc#1 Magazine loader", "language": "en-US"}, {"text": "hpc#1�Ű����δ�", "language": "ko-KR"}]', '[{"text": "en test1", "language": "en-US"}, {"text": "�׽�Ʈ1", "language": "ko-KR"}]',NULL,now(),NULL,NULL,NULL,NULL,1,null) ,
- (4, 'http://test/test3','equipment','smt4.load', '[{"text": "en flash", "language": "en-US"}, {"text": " hpc#1 �÷���", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,2,null);
-alter SEQUENCE aas_aas_pk_seq restart WITH 4;
+INSERT INTO public.aas (id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) VALUES
+	 ('/aas/hpc#1','line','hpc1','[{"text": "line hpc#1", "language": "en-US"}, {"text": "hpc#1 라인", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,NULL,NULL);	 
+INSERT INTO public.aas (id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) VALUES
+	 ('/aas/smt#4','line','smt4','[{"text": "line smt#4", "language": "en-US"}, {"text": "smt#4 라인", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,NULL,NULL),
+	 ('/aas/hpc1.load','equipment','hpc1.load','[{"text": "hpc#1 Magazine loader", "language": "en-US"}, {"text": "hpc#1매거진로더", "language": "ko-KR"}]','[{"text": "en test1", "language": "en-US"}, {"text": "테스트1", "language": "ko-KR"}]',NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/smt4.load','equipment','smt4.load','[{"text": "en Magazine Loader", "language": "en-US"}, {"text": " smt#4 매거진로더", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.unload','equipment','smt4.unload','[{"text": "en Magazine UnLoader", "language": "en-US"}, {"text": " smt#4 매거진언로더", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/hpc1.flash','equipment','hcp1.flash','[{"text": "hpc#1 flash", "language": "en-US"}, {"text": " hpc#1 플래쉬프로그램입력", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.ict','equipment','hcp1.ict','[{"text": "hpc#1 ict", "language": "en-US"}, {"text": " hpc#1 ict", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.coatload','equipment','hcp1.coatload','[{"text": "hpc#1 coating loader", "language": "en-US"}, {"text": " hpc#1 코팅로더", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.coating1','equipment','hcp1.coating1','[{"text": "hpc#1 conformal coating1 ", "language": "en-US"}, {"text": " hpc#1 컨포멀코팅1", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.coating2','equipment','hcp1.coating2','[{"text": "hpc#1 conformal coating2 ", "language": "en-US"}, {"text": " hpc#1 컨포멀코팅2", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL);
+INSERT INTO public.aas (id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) VALUES
+	 ('/aas/hpc1.coatvision','equipment','hcp1.coatvision','[{"text": "hpc#1 coating vision ", "language": "en-US"}, {"text": " hpc#1 코팅비젼", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.pcbrev','equipment','hcp1.pcbrev','[{"text": "hpc#1 pcb reverse ", "language": "en-US"}, {"text": " hpc#1 pcb반전", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.curr','equipment','hcp1.curr','[{"text": "hpc#1 coating curing ", "language": "en-US"}, {"text": " hpc#1 코팅경화기", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.frobackload','equipment','hcp1.frobackload','[{"text": "hpc#1 front back loader ", "language": "en-US"}, {"text": " hpc#1 프론트백로더", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.uh.load','equipment','hcp1.uh.load','[{"text": "hpc#1 upper housing loader ", "language": "en-US"}, {"text": " hpc#1 upper하우징로더", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.tim','equipment','hcp1.tim','[{"text": "hpc#1 TIM ", "language": "en-US"}, {"text": " hpc#1 tim도포", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.tim.assy','equipment','hcp1.tim.assy','[{"text": "hpc#1 Housing & PCB Assmbly ", "language": "en-US"}, {"text": " hpc#1 하우징 및 PCB조림", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.lh.load','equipment','hcp1.lh.load','[{"text": "hpc#1 Lower Housing Loading", "language": "en-US"}, {"text": " hpc#1 lower하우징로딩", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.scrwt','equipment','hcp1.scrwt','[{"text": "hpc#1 Screw tighting", "language": "en-US"}, {"text": " hpc#1 스큐류체결", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.scrwt.height','equipment','hcp1.scrwt.height','[{"text": "hpc#1 Screw height check", "language": "en-US"}, {"text": " hpc#1 스큐류높이체크", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL);
+INSERT INTO public.aas (id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) VALUES
+	 ('/aas/hpc1.fclip.height','equipment','hcp1.fclip.height','[{"text": "hpc#1 fan & clip height check", "language": "en-US"}, {"text": " hpc#1 팬클립체결높이체크", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.fclip.clip','equipment','hcp1.fclip.clip','[{"text": "hpc#1 fan & clip ", "language": "en-US"}, {"text": " hpc#1 팬클립", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.fclip.screw','equipment','hcp1.fclip.screw','[{"text": "hpc#1 fan & clip screw ", "language": "en-US"}, {"text": " hpc#1 팬클립 스크류체결", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.eol1','equipment','hcp1.eol1','[{"text": "hpc#1 eol1 ", "language": "en-US"}, {"text": " hpc#1 eol1", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.eol2','equipment','hcp1.eol2','[{"text": "hpc#1 eol2 ", "language": "en-US"}, {"text": " hpc#1 eol2", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.pinchk','equipment','hcp1.pinchk','[{"text": "hpc#1 pin check ", "language": "en-US"}, {"text": " hpc#1 핀체크", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.fclip','equipment','hcp1.fclip','[{"text": "hpc#1 fan & clip assm", "language": "en-US"}, {"text": " hpc#1 팬클립조립", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.brackassm','equipment','hpc1.brackassm','[{"text": "hpc#1 bracket assm ", "language": "en-US"}, {"text": " hpc#1 브라켓조립", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.labeling','equipment','hpc1.labeling','[{"text": "hpc#1 labeling ", "language": "en-US"}, {"text": " hpc#1 라벨기", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL),
+	 ('/aas/hpc1.brackassm.height','equipment','hpc1.brackassm.height','[{"text": "hpc#1 bracket height check", "language": "en-US"}, {"text": " hpc#1 브라켓조립높이체크", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,1,NULL);
+INSERT INTO public.aas (id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) VALUES
+	 ('/aas/smt4.laserrmarking','equipment','smt4.laserrmarking','[{"text": "smt#4 laser marking", "language": "en-US"}, {"text": "smt#4 레이저마킹", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.sp1','equipment','smt4.sp1','[{"text": "smt#4 SP1", "language": "en-US"}, {"text": "smt#4 sp1", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.sp2','equipment','smt4.sp2','[{"text": "smt#4 SP2", "language": "en-US"}, {"text": "smt#4 sp2", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.spi','equipment','smt4.spi','[{"text": "smt#4 Screen Printer Instpection", "language": "en-US"}, {"text": "smt#4 SPI", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt1','equipment','smt4.mnt1','[{"text": "smt#4 Mounter1", "language": "en-US"}, {"text": "smt#4 마운터1", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt2','equipment','smt4.mnt2','[{"text": "smt#4 Mounter2", "language": "en-US"}, {"text": "smt#4 마운터2", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt3','equipment','smt4.mnt3','[{"text": "smt#4 Mounter3", "language": "en-US"}, {"text": "smt#4 마운터3", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt4','equipment','smt4.mnt4','[{"text": "smt#4 Mounter4", "language": "en-US"}, {"text": "smt#4 마운터4", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt5','equipment','smt4.mnt5','[{"text": "smt#4 Mounter5", "language": "en-US"}, {"text": "smt#4 마운터5", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt6','equipment','smt4.mnt6','[{"text": "smt#4 Mounter6", "language": "en-US"}, {"text": "smt#4 마운터6", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL);
+INSERT INTO public.aas (id,category,id_short,"displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",admin_pk,base_aas_pk,asset_pk) VALUES
+	 ('/aas/smt4.mnt7','equipment','smt4.mnt7','[{"text": "smt#4 Mounter7", "language": "en-US"}, {"text": "smt#5 마운터7", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt8','equipment','smt4.mnt8','[{"text": "smt#4 Mounter8", "language": "en-US"}, {"text": "smt#4 마운터8", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt9','equipment','smt4.mnt9','[{"text": "smt#4 Mounter9", "language": "en-US"}, {"text": "smt#4 마운터9", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt10','equipment','smt4.mnt10','[{"text": "smt#4 Mounter10", "language": "en-US"}, {"text": "smt#4 마운터10", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt11','equipment','smt4.mnt11','[{"text": "smt#4 Mounter11", "language": "en-US"}, {"text": "smt#4 마운터11", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt12','equipment','smt4.mnt12','[{"text": "smt#4 Mounter12", "language": "en-US"}, {"text": "smt#4 마운터12", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt13','equipment','smt4.mnt13','[{"text": "smt#4 Mounter13", "language": "en-US"}, {"text": "smt#4 마운터13", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt14','equipment','smt4.mnt14','[{"text": "smt#4 Mounter14", "language": "en-US"}, {"text": "smt#4 마운터14", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL),
+	 ('/aas/smt4.mnt15','equipment','smt4.mnt15','[{"text": "smt#4 Mounter15", "language": "en-US"}, {"text": "smt#4 마운터15", "language": "ko-KR"}]',NULL,NULL,'2025-04-08 16:59:33.861232+09',NULL,NULL,NULL,NULL,2,NULL);
+
+
 
 
 alter SEQUENCE submodel_sm_pk_seq restart WITH 1; 
@@ -71,14 +120,14 @@ alter SEQUENCE aas_submodel_refs_id_seq restart WITH 4;
 alter SEQUENCE submodel_element_sme_pk_seq restart WITH 1;
 INSERT INTO public.submodel_element (sme_pk, id_short,category,"ModelKind","modelType","displayName",description,"_status","_created","_modified","_creater_id","_modifier_id",semanctic_id,sm_pk)
 VALUES
-(1,'test_collection1','Collection','Instance','Collection','[{"text": "collection test1", "language": "en-US"}, {"text": "������Ʈ�÷���1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
-(2, 'test_collcoll1','Collection','Instance','Collection','[{"text": "collcoll test1", "language": "en-US"}, {"text": "���÷���1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),	 
-(3, 'test_property1','VARIABLE','Instance','Property','[{"text": "property1", "language": "en-US"}, {"text": "property�׽�Ʈ1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
-(4, 'test_property2','VARIABLE','Instance','Property','[{"text": "property2", "language": "en-US"}, {"text": "property�׽�Ʈ2", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
-(5, 'test_property3','VARIABLE','Instance','Property','[{"text": "property3", "language": "en-US"}, {"text": "property�׽�Ʈ3", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
-(6, 'test_property4','VARIABLE','Instance','Property','[{"text": "property4", "language": "en-US"}, {"text": "property�׽�Ʈ4", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
-(7, 'test_property5','VARIABLE','Instance','Property','[{"text": "property5", "language": "en-US"}, {"text": "property�׽�Ʈ5", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
-(8, 'test_property6','VARIABLE','Instance','Property','[{"text": "property6", "language": "en-US"}, {"text": "property�׽�Ʈ6", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL);
+(1,'test_collection1','Collection','Instance','Collection','[{"text": "collection test1", "language": "en-US"}, {"text": "엘리먼트컬렉션1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
+(2, 'test_collcoll1','Collection','Instance','Collection','[{"text": "collcoll test1", "language": "en-US"}, {"text": "컬컬렉션1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),	 
+(3, 'test_property1','VARIABLE','Instance','Property','[{"text": "property1", "language": "en-US"}, {"text": "property테스트1", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
+(4, 'test_property2','VARIABLE','Instance','Property','[{"text": "property2", "language": "en-US"}, {"text": "property테스트2", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,1),
+(5, 'test_property3','VARIABLE','Instance','Property','[{"text": "property3", "language": "en-US"}, {"text": "property테스트3", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(6, 'test_property4','VARIABLE','Instance','Property','[{"text": "property4", "language": "en-US"}, {"text": "property테스트4", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(7, 'test_property5','VARIABLE','Instance','Property','[{"text": "property5", "language": "en-US"}, {"text": "property테스트5", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL),
+(8, 'test_property6','VARIABLE','Instance','Property','[{"text": "property6", "language": "en-US"}, {"text": "property테스트6", "language": "ko-KR"}]',NULL,NULL,now(),NULL,NULL,NULL,NULL,NULL);
 alter SEQUENCE submodel_element_sme_pk_seq restart WITH 8;
 
 
@@ -96,7 +145,7 @@ INSERT INTO public.submodel_element_collection_values (dbsubmodelelementcollecti
 
 
 INSERT INTO property_element (sme_pk,"contentType","valueType",value,"_status","_created","_modified","_creater_id","_modifier_id",value_id) VALUES
-(3,'nnnn','xs:string','test��',NULL,'2025-03-26 18:01:02.077742+09',NULL,NULL,NULL,NULL),
+(3,'nnnn','xs:string','test값',NULL,'2025-03-26 18:01:02.077742+09',NULL,NULL,NULL,NULL),
 (4,'','xs:string','rr4',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),
 (5,'','xs:string','rr5',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),
 (6,'','xs:string','rr6',NULL,'2025-04-02 12:39:57.829223+09',NULL,NULL,NULL,NULL),

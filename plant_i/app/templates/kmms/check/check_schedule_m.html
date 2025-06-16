@@ -1,4 +1,4 @@
-{% extends "app/layout.html" %}
+﻿{% extends "app/layout.html" %}
 {% block css %}
 <style>
 </style>
@@ -80,7 +80,9 @@
 
 {% block scripts %}
 
-
+{% include '../../popup/modalPiMaster.html'%}
+{% include '../../popup/modalEqus.html'%}
+{% include '../../popup/modalItems.html'%}
 {%  include '../../popup/modalScheMakeConfirm.html'%}
 
 <script type="text/javascript">
@@ -88,7 +90,7 @@
         constructor() {
             this.grid = null;
             this.upload = null;
-            this.baseUrl = '/api/kmms/pi_master';
+            this.baseUrl = '/api/kmms/equip_chk_sche';
 
             this.comboDept = [];
 
@@ -232,16 +234,16 @@
 
                         //choi : 선택된 날짜로 스케줄을 생성 api(배치 프로시저호출)를 호출
                         let param = {
-                            scheType : 'M',
+                            scheType: 'M',
                             startDate: startDate,
                             endDate: endDate,
                             equipChkList: _this.selectedKeyNames.join(',')  //문자열로 나열
                         };
 
                         console.log("param:", param);
-                        
+
                         let funcSucc = function (resp) {
-                            if (resp.success) {     
+                            if (resp.success) {
                                 console.log("resp:", resp);
                                 Notify.success('저장되었습니다.');
                                 _this.searchMainData();
@@ -335,7 +337,7 @@
             };
 
             console.log("param:", param);
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            let result = AjaxUtil.getSyncData('/api/kmms/pi_master', param);
             console.log("result:", result);
 
             //_this.grid.setData(result);
@@ -374,6 +376,18 @@
 
         console.log("read ok")
         page.searchMainData();
+
+        $(document).on("click", ".grid-column-link", async function (e) {
+            e.preventDefault();
+
+            let chkMastPk = $(this).data("chkmast-pk");
+            console.log("chkMastPk=", chkMastPk);
+
+            //점검마스터 상세보기
+            if (chkMastPk) {
+                piMasterPage.getPiMasterModal(chkMastPk);
+            }
+        });
 
     });
 

@@ -1,171 +1,6 @@
-{% extends "app/layout.html" %}
+﻿{% extends "app/layout.html" %}
 {% block css %}
 <style>
-
-    /* PM명 컬럼 스타일 */
-    .pm-highlight {
-        background-color: #fff3cd !important; /* 연한 노란색 */
-        color: #d9534f !important; /* 진한 빨간색 */
-        font-weight: bold !important;
-        text-decoration: underline !important;
-        padding: 3px 8px !important;
-        border-radius: 4px !important;
-        display: inline-block !important;
-    }
-
-        /* 마우스 오버 시 색상 변화 */
-        .pm-highlight:hover {
-            background-color: #ffecb5 !important;
-            color: #c9302c !important;
-            text-decoration: none !important;
-        }
-
-        /* 아이콘과 함께 정렬 */
-        .pm-highlight::before {
-            content: "📌"; /* 고정핀 아이콘 */
-            margin-right: 5px;
-        }
-
-    .checkbox-container {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-        .checkbox-item input[type="checkbox"] {
-            width: 14px;
-            height: 14px;
-            accent-color: #007bff;
-            cursor: pointer;
-            appearance: none;
-            border: 2px solid #ccc;
-            border-radius: 3px;
-            background-color: white;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-            .checkbox-item input[type="checkbox"]:checked {
-                background-color: #007bff;
-                border-color: #007bff;
-            }
-
-            .checkbox-item input[type="checkbox"]::after {
-                content: "✔";
-                font-size: 12px;
-                color: white;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                display: none;
-            }
-
-            .checkbox-item input[type="checkbox"]:checked::after {
-                display: block;
-            }
-
-            .checkbox-item input[type="checkbox"]:focus {
-                outline: none;
-                box-shadow: none;
-            }
-
-        .checkbox-item label {
-            font-size: 13px;
-            color: #333;
-            font-weight: normal;
-            cursor: pointer;
-            transition: color 0.2s ease-in-out;
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-item input[type="checkbox"]:checked + label {
-            color: #007bff !important;
-            font-weight: bold;
-        }
-
-    .search-panel {
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .search-row {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        width: 100%;
-    }
-
-    .search-label-item {
-        width: 200px;
-    }
-
-    .search-label-wide {
-        width: 300px;
-    }
-
-    .search-input-item {
-        width: 200px;
-    }
-
-    .search-input-wide {
-        width: 300px;
-    }
-
-    .checkbox-wrapper {
-        margin-left: auto;
-    }
-
-    .checkbox-button-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-left: auto;
-    }
-
-    .k-button.k-primary {
-        padding: 4px 12px;
-        min-width: 80px;
-    }
-
-    .checkbox-item.no-margin {
-        margin-left: 10px;
-    }
-
-    .flex-spacer {
-        flex: 1;
-    }
-
-    .button-wrapper {
-        margin-left: auto;
-    }
-
-    #btnAdd.k-button {
-        cursor: pointer;
-        background-color: #ffffff; /* 흰색 배경 */
-        color: #000000; /* 검정색 글자 */
-        transition: all 0.3s ease; /* 부드러운 색상 전환 효과 */
-    }
-
-        #btnAdd.k-button:hover {
-            cursor: pointer;
-            background-color: #0d6efd; /* 호버시 파란색 배경 */
-            color: #ffffff; /* 호버시 흰색 글자 */
-            opacity: 0.9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
-        }
 </style>
 {% endblock %}
 
@@ -200,7 +35,7 @@
                         </div>
                     </div>
 
-                    <div  class="col-12 col-sm-6 col-md-6">
+                    <div class="col-12 col-sm-6 col-md-6">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">점검계획일</label>
                             <div id="srch_date_range"></div>
@@ -251,16 +86,17 @@
 
 {% block scripts %}
 
-
-{%  include '../../popup/modalEquSel.html'%}
-{%  include 'common/file_upload.html' %}
+{% include '../../popup/modalPiMaster.html'%}
+{% include '../../popup/modalEqus.html'%}
+{% include '../../popup/modalItems.html'%}
+{% include '../../popup/modalResultEdit.html'%}
 
 <script type="text/javascript">
     class PiSchedulePage {
         constructor() {
             this.grid = null;
             this.upload = null;
-            this.baseUrl = '/api/kmms/pi_master';
+            this.baseUrl = '/api/kmms/equip_chk_sche';
 
             this.comboDept = [];
 
@@ -282,13 +118,23 @@
                     }
                 },
                 columns: [
-                    { field: 'chk_mast_pk', title: '점검일정 번호', width: 100 },                    
-                    { field: 'chk_mast_no', title: '점검번호', width: 100 },
+                    {
+                        field: 'chk_sche_no',
+                        title: '점검일정 번호',
+                        width: 100,
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pk1="#=chk_sche_no#">#=chk_sche_no#</a>'
+                    },
+                    {
+                        field: 'chk_mast_no',
+                        title: '점검번호',
+                        width: 100,
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pk2="#=chk_mast_pk#">#=chk_mast_no#</a>'
+                    },
                     {
                         field: "chk_mast_nm",
                         title: "점검명",
                         width: 150,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=chk_mast_pk#">#=chk_mast_nm#</a>'
+                        template: '<a href="javascript:void(0);" class="grid-column-link" data-pk3="#=chk_sche_pk#">#=chk_mast_nm#</a>'
                     },
                     { field: 'chk_sche_dt', title: '점검계획일', width: 80 },
                     { field: 'chk_dt', title: '점검완료일', width: 80 },
@@ -302,17 +148,20 @@
 
                 //결과는 데이터를 가지고 만들어야 한다
                 //        "template": "# if (chkStatusNm !== '미점검') { # 총 #=equipCnt#건 / 정상 #=normalCount# , <span class='my-kendo-cell-off'>이상 #=failCount#</span> , <span class='label-text-orange'>점검불가 #=unableCheckCount#</span> # } else  { # 총 #=equipCnt#건 / 정상 #=normalCount# , 이상 #=failCount# , 점검불가 #=unableCheckCount# # } #"
-
                 change: function (e) {
-                    _this.showDetail();
+                    //_this.showDetail();
                 },
-                dataBound: function (e) {
-                    $(".grid-column-link").off("click").on("click", function (e) {
-                        e.preventDefault();
-                        let pmPk = $(this).data("pm-pk");  // ✅ pm_pk 값 가져오기
-                        page.showPmMasterModal(pmPk);
-                    });
-                },
+                //dataBound: function (e) {
+                //    $(".grid-column-link").off("click").on("click", function (e) {
+                //        e.preventDefault();
+                //        let mastpk = $(this).data("mast-pk");
+                //        console.log("mastpk=", mastpk);
+
+                //        if (mastpk) {
+                //            piMasterPage.getPiMasterModal(mastpk);
+                //        }
+                //    });
+                //},
                 height: "540px"
             };
             _this.grid = new Grid($("#pi_schedule_grid"), piScheduleGridOption);
@@ -321,7 +170,7 @@
 
             AjaxUtil.fillDropDownOptions($('#srch_state'), 'cm_code', 'all', null, 'CHK_STATUS');
             AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
-            
+
 
             $('#btnExcel').kendoButton({
                 icon: "file-excel",
@@ -340,10 +189,14 @@
             });
 
             //search form
+            const today = new Date();
+            const threeMonthsLater = new Date();
+            threeMonthsLater.setMonth(today.getMonth() + 3);
+
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
                     start: new Date(),
-                    end: new Date()
+                    end: threeMonthsLater
                 },
                 change: function (e) {
 
@@ -432,7 +285,7 @@
                     endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
                 }
             }
-            
+
             let fnSuccess = function (result) {
                 if (result.success) {
                     try {
@@ -487,6 +340,26 @@
 
         console.log("read ok")
         page.searchMainData();
+
+        $(document).on("click", ".grid-column-link", async function (e) {
+            e.preventDefault();
+
+            let pk1 = $(this).data("pk1");
+            let pk2 = $(this).data("pk2");
+            let pk3 = $(this).data("pk3");
+            console.log("pk1=", pk1);
+            console.log("pk2=", pk2);
+            console.log("pk3=", pk3);
+
+            //점검마스터 상세보기
+            if (pk2) {
+                piMasterPage.getPiMasterModal(pk2);
+            }
+
+            if (pk3) {
+                resultEditPage.show(pk3);
+            }
+        });
 
     });
 

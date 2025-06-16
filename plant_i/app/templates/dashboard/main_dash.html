@@ -280,15 +280,14 @@
         }
     };
 
-    let page = null;
+    let page = new MainDashBoardPage();
+    // kendo chart 반응형 처리
+    $(window).resize(function () {
+        kendo.resize($("div.k-chart[data-role='chart']"));
+    });
 
-    $(document).ready(function () {
-        page = new MainDashBoardPage();
+    $(document).ready(function () {        
 
-        // kendo chart 반응형 처리
-        $(window).resize(function() {
-            kendo.resize($("div.k-chart[data-role='chart']"));
-        });
     });
 
 </script>

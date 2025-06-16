@@ -190,17 +190,32 @@
                 success: (e) => {
                     $(".placeholder").hide();
 
-                    if (!e.response.success) {
-                        Alert.alert('오류', `중복된 파일은 허용하지 않습니다:${e.response.fileNm}`)
+                    console.log("e", e);
+                    console.log("e.response[0]", e.response[0]);
+
+                    //if (!e.response.success) {
+                    //    Alert.alert('오류', `중복된 파일은 허용하지 않습니다:${e.response.fileNm}`)
+                    //    return;
+                    //}
+
+                    //const file = {
+                    //    name: e.response.fileNm,
+                    //    size: e.response.fileSize,
+                    //    uid: e.files[0].uid,
+                    //    id: e.response.fileId,
+                    //    file_index: e.response.FileIndex
+                    //};
+                    if (!e.response[0].success) {
+                        Alert.alert('오류', `중복된 파일은 허용하지 않습니다:${e.response[0].fileNm}`)
                         return;
                     }
 
                     const file = {
-                        name: e.response.fileNm,
-                        size: e.response.fileSize,
+                        name: e.response[0].fileNm,
+                        size: e.response[0].fileSize,
                         uid: e.files[0].uid,
-                        id: e.response.fileId,
-                        file_index: e.response.FileIndex
+                        id: e.response[0].fileId,
+                        file_index: e.response[0].FileIndex
                     };
                     _this.fileMap[file.uid] = file
                     _this.addChip(file);

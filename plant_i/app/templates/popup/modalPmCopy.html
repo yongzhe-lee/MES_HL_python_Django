@@ -7,16 +7,17 @@
 		</div>
 
 		<div class="modal-body">
-			<!-- 검색 영역 -->
-			<div class="search-area">
-				<div class="search-label">검색키워드</div>
-				<input type="text" class="form-control" id="keyword_pm" name="keyword_pm" placeholder="설비코드, 설비명, 자산번호 입력">
-				<div class="search-label col-md-1">관리부서</div>
-				<select id="srch_pm_dept" name="srch_pm_dept">
-				</select>
-				<button type="button" class="btn-search" id="btnSearchPmCopy" name="btnSearchPmCopy">검색</button>
-			</div>
-
+			<form id="pmCopyForm" name="pmCopyForm">
+				<!-- 검색 영역 -->
+				<div class="search-area">
+					<div class="search-label">검색키워드</div>
+					<input type="text" class="form-control" id="keyword_pm" name="keyword_pm" placeholder="설비코드, 설비명, 자산번호 입력">
+					<div class="search-label col-md-1">관리부서</div>
+					<select id="srch_pm_dept" name="srch_pm_dept">
+					</select>
+					<button type="button" class="btn-search" id="btnSearchPmCopy" name="btnSearchPmCopy">검색</button>
+				</div>
+			</form>
 			<!-- 그리드 영역 -->
 			<div id="pmcopy_grid"></div>
 
@@ -97,7 +98,7 @@
 
 	class PmCopy {
 		constructor() {
-			this.grid = null;
+			this.gridPmSel = null;
 			this.srchPmDept = null;
 
 			this.baseUrl = '/api/kmms/pm_master';
@@ -126,20 +127,70 @@
 					}
 				},
 				columns: [
-					// 기본 정보
-					{ field: 'pm_no', title: 'PM 번호', width: 200 },
-					{ field: 'pm_nm', title: 'PM명', width: 150 },
-					{ field: 'equip_code', title: '설비코드', width: 100 },
-					{ field: 'equip_name', title: '설비명', width: 150 },
-					{ field: 'install_dept', title: '설치부서', width: 100 },
-					{ field: 'last_pm_date', title: '최종 PM 일', width: 100 },
-					{ field: 'pm_type', title: 'PM 유형', width: 100 },
-					{ field: 'pm_cycle', title: 'PM주기', width: 100 },
-					{ field: 'manager_id', title: '담당자', width: 100 }
+					{
+						"title": "PMPk",
+						"field": "pmPk",
+						"hidden": true,
+						"width": "100px"
+					},
+					{
+						"title": "PM 번호",
+						"field": "pmNo",		
+						"width": "150px"
+					},
+					{
+						"title": "PM명",
+						"field": "pmNm",
+						"width": "210px"
+					},
+					{
+						"title": "설비코드",
+						"field": "equipCd",
+						"width": "120px"
+					},
+					{
+						"title": "설비명",
+						"field": "equipNm",
+						"width": "150px"
+					},
+					{
+						"title": "실행부서",
+						"field": "deptNm",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"width": "120px"
+					},
+					{
+						"title": "최종 PM 일",
+						"field": "lastWorkDt",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"width": "120px"
+					},
+					{
+						"title": "PM 유형",
+						"field": "pmTypeNm",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"width": "100px"
+					},
+					{
+						"title": "담당자",
+						"field": "pmUserNm",
+						"width": "100px"
+					},
+					{
+						"title": "PM주기",
+						"field": "cycleDisplayNm",
+						"width": "100px"
+					}
 				],
 
 				change: function (e) {
-					_this.showDetail();
+					_this.selectPmData();
 				},
 				dataBound: function (e) {
 					for (var i = 0; i < this.columns.length; i++) {
@@ -151,7 +202,7 @@
 				},
 				height: "540px"
 			};
-			_this.grid = new Grid($("#pmcopy_grid"), pmCopyGridOption);
+			_this.gridPmSel = new Grid($("#pmcopy_grid"), pmCopyGridOption);
 		}
 
 		initButton() {
@@ -200,13 +251,13 @@
 				}
 
 				$("#modalPmCopy").fadeOut();
-				reset();
+				this.reset();
 			});
 
 			$("#btnCancelPm").on("click", function (e) {
 				e.preventDefault();
 				$("#modalPmCopy").fadeOut();
-				reset();
+				this.reset();
 			});
 
 		}
@@ -214,13 +265,13 @@
 		getPmData() {
 			let _this = this;
 			let param = {
-				action: 'read_modal',
+				action: 'findSel',
 				keyword: $('#keyword_pm').val(),
-				dept_pk: $('#srch_pm_dept').data("kendoDropDownTree").value(),
+				dept_pk: $('#srch_pm_dept').data("kendoDropDownTree").value(),				
 			};
 
 			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-			_this.grid.setData(result);
+			_this.gridPmSel.setData(result);
 		}
 
 		reset() {
@@ -230,13 +281,13 @@
 			this.srchPmDept = null;
 		}
 
-		showDetail() {
-			let _this = this;
-			let data = _this.grid.getSelect();
+		selectPmData() {
+			let _this = this;		
+			let data = _this.gridPmSel.getSelect();
 			if (data.length > 0) {
 				let selectData = data[0];
-				$('#selectedPmPK').val(selectData.pm_pk);
-				$('#selectedPmName').val(selectData.pm_nm);
+				$('#selectedPmPK').val(selectData.pmPk);
+				$('#selectedPmName').val(selectData.pmNm);
 			}
 		}
 

@@ -1,8 +1,9 @@
-from django import db
+﻿from django import db
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmEquipChkRslt
+from domain.services.kmms.equip_chk_rslt import EquipCheckRstService
 
 def equip_chk_rslt(context):
     '''
@@ -22,6 +23,8 @@ def equip_chk_rslt(context):
     delete
     deleteByChkSche
     '''
+
+    items = []
     gparam = context.gparam
     posparam = context.posparam
     request = context.request
@@ -30,8 +33,39 @@ def equip_chk_rslt(context):
 
     action = gparam.get('action', 'read') 
 
+    rslt_service = EquipCheckRstService()
+
     try:
-        if action == 'findAll':
+        if action == 'detail':
+
+            #점검결과상세정보
+            # HashMap<String, Object> map = new HashMap<String, Object>();
+	        # map.put("chkSchePk", chkSchePk);
+	        # map.put("siteId", SiteContext.getCurrentSiteId());
+	        # if (pageable != null && pageable.getPageNumber() > 0) {
+	        # 	map.put("pageable", pageable);
+	        # }
+	        # List<EquipChkRslt> lists = equipChkRsltMapper.findAll(map);
+	        # map.remove("pageable");
+	        # EquipChkRslt entity = equipChkRsltMapper.searchOne(map);
+
+	        # List<Long> chkRsltPks = new ArrayList<Long>();
+	        # for(EquipChkRslt equipChkRslt:lists) {
+	        # 	chkRsltPks.add(equipChkRslt.getChkRsltPk());
+	        # }
+
+	        # if(entity != null && chkRsltPks != null && chkRsltPks.size() > 0)
+	        # 	entity.setChkRsltPks(chkRsltPks);
+
+	        # return entity;
+
+            chkSchePk = CommonUtil.try_int(gparam.get('chkSchePk'))
+            
+            dcparam = {}
+            dcparam['chkSchePk'] = chkSchePk
+            items = rslt_service.findAll(dcparam)
+
+        elif action == 'findAll':
             chkSchePk = CommonUtil.try_int(gparam.get('chkSchePk'))
             chkRsltPk = CommonUtil.try_int(gparam.get('chkRsltPk'))
             unCheckedEquipPk = CommonUtil.try_int(gparam.get('unCheckedEquipPk'))

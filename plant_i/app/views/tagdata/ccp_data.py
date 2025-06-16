@@ -25,7 +25,7 @@ def ccp_data(context):
 
             sql = '''
 			select td.tag_code, t.tag_name, td.data_date, to_char(td.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_time, td.data_value
-	        from tag_dat td 
+	        from das.tag_dat td 
             inner join tag t on t.tag_code = td.tag_code            
             where td.data_date between %(date_from)s and %(date_to)s
             '''

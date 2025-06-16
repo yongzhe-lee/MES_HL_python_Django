@@ -1,43 +1,5 @@
 {% extends "app/layout.html" %}
 {% block css %}
-<style>
-    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
-    #searchFormContent {
-        overflow: hidden;
-        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
-        transition: height 0.3s ease-in-out;
-    }
-
-    /* ✅ 검색 폼이 펼쳐진 상태 */
-    .search-expanded {
-        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
-    }
-
-    /* ✅ 접기/펼치기 버튼 스타일 */
-    #toggleSearchBtn {
-        width: 20px;
-        height: 20px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-    }
-
-        #toggleSearchBtn::before {
-            content: "▼";
-            color: #0d6efd;
-            font-size: 20px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
-        }
-
-        #toggleSearchBtn.expanded::before {
-            content: "▲";
-        }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -201,8 +163,8 @@
                         width: 150,
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-title-pk="#=work_order_pk#">#=work_title#</a>'
                     },
-                    { field: 'equ_code', title: '설비코드', width: 100 },
-                    { field: 'equ_name', title: '설비명', width: 150 },
+					{ field: 'equip_cd', title: '설비코드', width: 100 },
+					{ field: 'equip_nm', title: '설비명', width: 150 },
                     { field: 'import_rank', title: '중요도', width: 80 },
                     { field: 'exec_dept', title: '실행부서', width: 100 },
                     { field: 'mng_dept_nm', title: '관리부서', width: 100 },
@@ -310,7 +272,7 @@
         searchMainData() {
             let _this = this;
             let pm_schedule_param = FormUtil.extractForm($("#searchForm"));
-            pm_schedule_param.action = 'pm_sche_findAll';
+			pm_schedule_param.action = 'findAllPm';
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, pm_schedule_param);
             if (result) {

@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_user" data-labelCd="생성일">생성일</label>
+                            <label class="k-label k-form-label" for="srch_user" data-labelCd="사용자">사용자</label>
                             <div class="field-wrapper">
                                 <select id="srch_user" name="srch_user"></select>
                             </div>
@@ -49,7 +49,7 @@
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="시스템 로그 내역">시스템 로그 내역</label></span>
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="메뉴 접근 내역">메뉴 접근 내역</label></span>
                     <span>
                     </span>
                     <span>
@@ -59,55 +59,7 @@
                 </div>
                 <div id="menu_log_grid"></div>
             </div>
-        </div>
-        <div class="content-ui-row connect">
-            <div class="card-content edit">
-                <div class="card-group-btn">
-                    <span class="info-text">
-                        <!--<i class="material-symbols-outlined">list_alt</i> 적합한 icon 찾아야 할듯 -->
-                        메뉴 로그 상세 정보
-                    </span>
-                </div>
-                <form id="menuLogForm">
-                    <input type="hidden" id="id" name="id" />
-                    <div class="edit-form-ui">
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="log_type" data-labelCd="구분">구분</label>
-                                <div class="field-wrapper">
-                                    <select id="log_type" name="log_type"></select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="source" data-labelCd="에러위치">에러 위치</label>
-                                <div class="field-wrapper">
-                                    <input id="source" name="source" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="created" data-labelCd="발생일">발생일</label>
-                                <div class="field-wrapper">
-                                    <input id="created" name="created" />
-                                </div>
-                            </div>
-                        </div>
-                        <!--<div class="col-12 col-sm-6 col-md-4">-->
-                        <div class="col-12 col-sm-6 col-md-12">
-                            <div class="form-item align-h">
-                                <label class="k-label k-form-label" for="message" data-labelCd="설명">설명</label>
-                                <div class="field-wrapper">
-                                    <input id="message" name="message" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+        </div>      
     </div>
 </div>
 {% verbatim %}
@@ -131,7 +83,7 @@
                 ],
                 columnMenu: {
                     componentType: "classic",
-                    autoSize: true,
+                    autoSize: false,
                     clearAllFilters: true,
                     columns: {
                         sort: "asc",
@@ -139,14 +91,14 @@
                 },
                 columns: [
                     // 차후 수정
-                    { field: "id", title: "No", width: 100 },
-                    { field: "type", title: "구분", width: 100 },
-                    { field: "source", title: "에러위치", width: 100 },
-                    { field: "message", title: "설명", width: 100 },
-                    { field: "created", title: "생성일", width: 100 },
+                    { field: "folder_name", title: "메뉴폴더", width: 150 },
+                    { field: "menu_code", title: "메뉴코드", width: 200 },
+                    { field: "menu_name", title: "메뉴명", width: 250 },
+                    { field: "user_name", title: "사용자", width: 100 },
+                    { field: "click_date", title: "생성일", width: 150 },
                 ],
                 change: function (e) {
-                    _this.showDetail();
+                    //_this.showDetail();
                 },
                 dataBound: function (e) {
                     for (var i = 0; i < this.columns.length; i++) {
@@ -155,7 +107,7 @@
                 },
                 height: 680
             };
-            _this.grid = new Grid($("#system_log_grid"), systemLogGridOption);
+            _this.grid = new Grid($("#menu_log_grid"), systemLogGridOption);
 
             //search form
             $("#srch_date_range").kendoDateRangePicker({
@@ -171,7 +123,10 @@
                 startField: "start_date",
                 endField: "end_date"
             });
-            AjaxUtil.fillDropDownOptions($('#srch_log_type'), 'log_type', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#srch_user'), 'menu_user', 'all', null);
+            AjaxUtil.fillDropDownOptions($('#srch_menu'), 'menu', 'all', null);
+            
+            
             $('#keyword').kendoTextBox();
             $('#keyword').keypress(function (e) {
                 if (e.keyCode == 13) {
@@ -204,7 +159,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
 
@@ -223,29 +178,36 @@
             let param = {
                 action: 'read',
                 // 날짜를 YYYY-MM-DD 형태로 변환 & 시간 제외해서 넘기기
-                start: startDate.toISOString().split("T")[0],
-                end: endDate.toISOString().split("T")[0],
-                log_type: $('#srch_log_type').val(),
+                date_from: startDate.toISOString().split("T")[0],
+                date_to: endDate.toISOString().split("T")[0],
                 keyword: $('#keyword').val(),
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+            _this.grid.setData([]);
+            let gg = $('#menu_log_grid');
+            kendo.ui.progress(gg, true);
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+
+                    _this.grid.setData(result.items);
+                } else {
+
+                }
+                kendo.ui.progress(gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }
 
-        showDetail() {
-            let _this = this;
-            let data = _this.grid.getSelect();
-            console.log(data)
-
-            if (data.length > 0) {
-                let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#systemLogForm'));
-
-                $('#log_type').data("kendoDropDownList").value(selectData.type);
-            }
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#menu_log_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "menu_log.xlsx";
+            });
+            gridData.saveAsExcel();
         }
-
     };
 
     let page = null;

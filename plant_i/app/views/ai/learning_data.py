@@ -1,4 +1,5 @@
 import json
+from turtle import pos
 
 import requests
 from datetime import datetime
@@ -6,7 +7,7 @@ from django.db import transaction
 from configurations import settings
 
 from sklearn.linear_model import LinearRegression
-from domain.models.da import DsModel, DsModelColumn, DsModelData, DsModelMetric, DsModelParam, DsModelTrain, DsTagCorrelation
+from domain.models.da import DsMaster, DsModel, DsModelColumn, DsModelData, DsModelMetric, DsModelParam, DsModelTrain, DsTagCorrelation
 from domain.services.logging import LogWriter
 from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
@@ -22,7 +23,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.manifold import TSNE
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.metrics import accuracy_score
+# from sklearn.metrics import accuracy_score
+import sklearn.metrics as metrics
 
 # 24.07.23 김하늘 추가 시각화를 위한 import
 import matplotlib.pyplot as plt
@@ -430,9 +432,9 @@ def learning_data(context):
             pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
             
             # 예측 결과의 정확도 평가
-            accuracy = accuracy_score(y_test, predictions)
+            accuracy = metrics.accuracy_score(y_test, predictions)
             print(f'기본모델 test Accuracy: {accuracy:.2f}')
-            pca_accuracy = accuracy_score(y_test, pca_predictions)
+            pca_accuracy = metrics.accuracy_score(y_test, pca_predictions)
             print(f'PCA모델 test Accuracy: {pca_accuracy:.2f}')
 
 
@@ -458,12 +460,12 @@ def learning_data(context):
             
             
         ''' 데이터파일저장 : save_ds_model
-            데이터파일목록조회 : ds_data_list
+            (삭제) 데이터파일목록조회 : ds_data_list   ->  ds_model_tree_list로 대체
             row데이터조회 : ds_rows_list
             데이터파일내용조회 : ds_model_info. prop_data 없으면 csv파일 읽기.
             파일에서 데이터 읽어서 DB저장   make_db_from_file
             DB에서 읽어서 컬럼정보 만들고 저장 make_col_info
-            cate_col_list
+            데이터가 범주형인 컬럼 리스트: cate_col_list
             데이터컬럼목록(분포)조회 : ds_col_list
             데이터컬럼저장(전처리): save_ds_col_preprocess
             데이터분포그래프조회(수치형) : ds_numcol_boxhist
@@ -475,11 +477,14 @@ def learning_data(context):
             회귀분석식 조회 : ds_y_regression_list
             /* 25.02.10 김하늘 추가 */
             모델마스터조회: ds_model_tree_list
-            변수후보조회: variable_candidates
-            데이터파일저장(태그집합) : save_ds_model_from_tag
+            통합태그목록조회: integrated_tag_list
+            태그집합저장 : save_model_tag
+            태그집합조회(데이터 없이 태그만 있을 때) : model_tag_list
+            태그집합 데이터 생성: gather_tag_data
             모델(데이터)삭제: delete_ds_model
             학습정보조회: ds_train_info
             모델학습요청: start_learning
+            모델성능지표조회: model_metric_list
         '''
         # 25.02.10 김하늘 추가
         if action == "ds_model_tree_list":
@@ -668,67 +673,83 @@ def learning_data(context):
         
             items = DbUtil.get_rows(sql, dc)  
 
-        if action == 'variable_candidates':
-            equipment_id = CommonUtil.try_int(gparam.get('equ_id'))
+        if action == 'integrated_tag_list':
+            mm_id = CommonUtil.try_int(gparam.get('mm_id'))
+            equ_id = None
 
-            if equipment_id:
+            if mm_id:
+                mm = DsMaster.objects.get(id=mm_id)
+                equ_id = mm.Equipment_id
+            
+            if equ_id:
                 # 추후에 설비별로 분기 나눠줄 것(mes, qms, 점도데이터 사용 여부 등)
                 # 해당 태그가 아예 존재하지 않을 때 전체 코드 생기는 거 분기해서 처리할 것
                 sql = '''
                 with PLC as (
-                    SELECT
-                        'PLC' AS data_source,
-                        'ALL_PLC' AS var_code,
-                        'PLC태그 전체' AS var_name
-	                UNION all
-	                select
+                    -- SELECT
+                    --    'PLC' AS data_source,
+                    --    'ALL_PLC' AS var_code,
+                    --    'PLC태그 전체' AS var_name
+	                -- UNION all
+	                SELECT
 		                'PLC' as data_source
 		                , t.tag_code as var_code
 		                , t.tag_name as var_name
-	                from tag t
+	                FROM tag t
 	                -- tag에 data_src_id 다 들어가기 전까지 보류
-	                --	left outer join data_src ds on t.data_src_id = ds.id
-	                --	where ds."SourceType" = 'PLC'
-	                where 1=1
-		                and tag_code NOT ILIKE '%%em%%'
-		                and t."Equipment_id" = %(equipment_id)s
+	                --	LEFT OUTER JOIN data_src ds ON t.data_src_id = ds.id
+	                --	WHERE ds."SourceType" = 'PLC'
+	                WHERE 1=1
+		                AND tag_code NOT ILIKE '%%em%%'
+		                AND t."Equipment_id" = %(equ_id)s
 	                ),
                 EM as (
-                    SELECT
-                        'EM' AS data_source,
-                        'ALL_EM' AS var_code,
-                        'EM태그 전체' AS var_name	
-   	                UNION all     
-	                select
-		                'EM' as data_source
-		                , t.tag_code as var_code
-		                , t.tag_name as var_name
-	                from tag t
+                    -- SELECT
+                    --    'EM' AS data_source,
+                    --    'ALL_EM' AS var_code,
+                    --    'EM태그 전체' AS var_name	
+   	                -- UNION all     
+	                SELECT
+		                'EM' AS data_source
+		                , t.tag_code AS var_code
+		                , t.tag_name AS var_name
+	                FROM tag t
 	                -- tag에 data_src_id 다 들어가기 전까지 보류
-	                --	left outer join data_src ds on t.data_src_id = ds.id
-	                --	where ds."SourceType" = 'EM'
-	                where 1=1
-		                and tag_code LIKE '%%em%%'
-		                and t."Equipment_id" = %(equipment_id)s	
+	                --	LEFT OUTER JOIN data_src ds ON t.data_src_id = ds.id
+	                --	WHERE ds."SourceType" = 'EM'
+	                WHERE 1=1
+		                AND tag_code LIKE '%%em%%'
+		                AND t."Equipment_id" = %(equ_id)s	
 	                ),	
                 MES as (
 	                SELECT * 
 	                FROM (
 	                    VALUES
+	                        ('MES', 'id', 'MES검사결과품번(식별용)'),
 	                        ('MES', 'mat_cd', '품목코드'),
 	                        ('MES', 'bom_ver', 'BOM_VER'),
+	                        ('MES', 'data_date', '데이터생성일시'),
 	                        ('MES', 'state', 'MES검사결과(합부)')
                     ) as ier(data_source, var_code, var_name)
                 ),
                 MES_ITEM as (
-	                SELECT * 
-	                FROM (
-	                    values
-	                        ('MES_ITEM', 'test_item_cd', '테스트코드'),
-	                        ('MES_ITEM', 'test_item_val', '테스트값'),
-	                        ('MES_ITEM', 'min_val', '테스트하한값'),
-	                        ('MES_ITEM', 'max_val', '테스트상한값')
-                    ) as ieri(data_source, var_code, var_name)
+	                -- SELECT * 
+	                -- FROM (
+	                --    values
+	                --        ('MES_ITEM', 'test_item_cd', '테스트코드'),
+	                --        ('MES_ITEM', 'test_item_val', '테스트값'),
+	                --        ('MES_ITEM', 'min_val', '테스트하한값'),
+	                --        ('MES_ITEM', 'max_val', '테스트상한값')
+                    -- ) as ieri(data_source, var_code, var_name)
+
+                    SELECT
+	                    'MES_ITEM' AS data_source,
+  	                    eri.test_item_cd AS var_code,
+  	                    '테스트 항목 코드' || ROW_NUMBER() OVER (ORDER BY eri.test_item_cd) AS var_name
+                    FROM if_equ_result_item eri 
+                    LEFT JOIN if_equ_result er ON er.id = eri.rst_id 
+                    WHERE er.equ_cd = (SELECT equ."Code" FROM equ WHERE equ.id = %(equ_id)s)
+                    GROUP BY test_item_cd
                 ),
                 QMS as (
 	                SELECT * 
@@ -781,11 +802,11 @@ def learning_data(context):
                 ''';
 
                 dc = {}
-                dc['equipment_id'] = equipment_id
+                dc['equ_id'] = equ_id
         
                 items = DbUtil.get_rows(sql, dc) 
             else:
-                items = {}
+                items = []
 
         if action == 'save_ds_model':
             # md_id = posparam.get('id')
@@ -795,6 +816,10 @@ def learning_data(context):
             Description = posparam.get('Description')
             Type = posparam.get('Type')
             DataVersion = posparam.get('DataVersion', '')
+            # StartedAt = posparam.get('StartedAt', '') + ' 00:00:00'
+            # EndedAt = posparam.get('EndedAt', '') + ' 23:59:59'
+            StartedAt = posparam.get('StartedAt', None)
+            EndedAt = posparam.get('EndedAt', None)
 
             new_file_id = posparam.get('fileId')
             
@@ -806,6 +831,8 @@ def learning_data(context):
             md.Description = Description
             md.Type = Type
             md.DataVersion = DataVersion if DataVersion else datetime.now().strftime("v%Y%m%d-%H%M%S")
+            md.StartedAt = StartedAt
+            md.EndedAt = EndedAt
             md.DsMaster_id = mm_id
             md.set_audit(user)
             md.save()
@@ -820,6 +847,78 @@ def learning_data(context):
                 fileService.updateDataPk(new_file_id, md_id)
  
             items = {'success': True, 'md_id':md_id, 'new_file_id':new_file_id }
+
+
+        elif action =='save_model_tag':
+            md_id = posparam.get('md_id')
+            # data_source = posparam.get('data_source')
+            # var_code = posparam.get('var_code')
+            # var_name = posparam.get('var_name')
+            # var_index = posparam.get('var_index')
+
+            data = json.loads(posparam.get('data', '{}'))
+            model_tag_list = []
+
+            for item in data:  # data는 JSON 배열
+                data_source = item['data_source']
+                var_code = item['var_code']
+                var_index = item['var_index']
+
+                mc = DsModelColumn()
+
+                if data_source in ('PLC', 'EM'):
+                    mc.tag_code = var_code
+                elif data_source == 'ALARM':
+                    mc.alarm_code = var_code
+
+                mc.VarIndex = var_index
+                mc.VarName = var_code
+                mc.Source = data_source
+                mc.DsModel_id = md_id                
+                mc.set_audit(user)
+
+                model_tag_list.append(mc)
+
+            # 기존 태그 정보 삭제 (동일 모델)
+            DsModelColumn.objects.filter(DsModel_id=md_id).delete()
+
+            # 일괄 저장
+            DsModelColumn.objects.bulk_create(model_tag_list)
+
+            # mc = DsModelColumn()
+            
+            # if data_source in ('PLC', 'EM'):
+            #     mc.tag_code = var_code  # FK - tag
+            # elif data_source == 'ALARM':
+            #     mc.alarm_code = var_code # FK - alarm
+
+            # mc.VarIndex = var_index
+            # mc.VarName = var_code
+            # mc.Source = data_source
+            # mc.DsModel_id = md_id
+
+            items = {'success': True }
+
+        elif action == 'model_tag_list':
+            '''
+            '''
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            sql = ''' 
+            SELECT 
+                mc.id
+                , (mc."VarIndex" + 1) AS var_index
+                , mc."VarName" AS var_code
+                , mc."Source" AS data_source
+                , t.tag_name AS var_name
+            FROM ds_model_col mc
+            LEFT JOIN tag t ON t.tag_code = mc.tag_code
+            WHERE mc."DsModel_id" = %(md_id)s
+            ORDER BY mc."VarIndex"  
+            '''
+            dc = {}
+            dc['md_id'] = md_id
+
+            items = DbUtil.get_rows(sql, dc)
 
         elif action == 'ds_data_list':
             keyword = gparam.get('keyword')           
@@ -899,7 +998,7 @@ def learning_data(context):
                     WHEN dt."Code" = \'''' + var_name + '''\' 
                     THEN dt."Char1" 
                     END) AS col_''' + str(i+1)
-            sql += ''' FROM ds_model_data dt
+            sql += ''' FROM ai.ds_model_data dt
             WHERE dt."DsModel_id" = %(md_id)s
             GROUP BY dt."RowIndex"
             ORDER BY dt."RowIndex"
@@ -924,6 +1023,8 @@ def learning_data(context):
                 , md."Name"
                 , md."Description"
                 , md."Type"
+                , to_char(md."StartedAt", 'yyyy-mm-dd hh24:mi') AS "StartedAt"
+                , to_char(md."EndedAt", 'yyyy-mm-dd hh24:mi') AS "EndedAt"
                 , md."DataVersion"
                 , md._created
                 , (select id as file_id 
@@ -939,7 +1040,101 @@ def learning_data(context):
             row = DbUtil.get_row(sql, dc)
 
             return row
-           
+
+
+        # 진행중
+        elif action == 'gather_tag_data':
+            ''' 
+            tag_data 통합하여 저장하는 쿼리
+            '''
+            md_id = CommonUtil.try_int(gparam.get('md_id'))
+            equ_id = CommonUtil.try_int(gparam.get('equ_id'))
+            startDt = gparam.get('startDt', '')
+            endDt = gparam.get('endDt', '')
+
+            # 우선 screw 버전 하드코딩
+            sql = '''
+            WITH source_data AS (
+	            SELECT 
+		            ROW_NUMBER() OVER () - 1 AS row_num
+		            , er.id AS id
+		            , er.mat_cd AS mat_cd
+		            , er.data_date AS data_date     -- 250425부터 존재
+	  	            , MAX(CASE WHEN eri.test_item_cd = 'SCREW1_1' THEN eri.test_item_val END) AS SCREW1_1
+	  	            , MAX(CASE WHEN eri.test_item_cd = 'SCREW1_2' THEN eri.test_item_val END) AS SCREW1_2
+	  	            , MAX(CASE WHEN eri.test_item_cd = 'SCREW1_3' THEN eri.test_item_val END) AS SCREW1_3
+	  	            , MAX(CASE WHEN eri.test_item_cd = 'SCREW1_4' THEN eri.test_item_val END) AS SCREW1_4
+	  	            , MAX(CASE WHEN eri.test_item_cd = 'SCREW1_5' THEN eri.test_item_val END) AS SCREW1_5
+	  	            , MAX(CASE WHEN eri.test_item_cd = 'SCREW1_6' THEN eri.test_item_val END) AS SCREW1_6
+	  	            , er.state as state
+	            FROM if_equ_result er
+	            LEFT JOIN if_equ_result_item eri ON er.id = eri.rst_id
+	            WHERE 1=1 
+		            AND er.equ_cd = (SELECT equ."Code" FROM equ WHERE equ.id = %(equ_id)s)
+	            --	AND state = '1'
+		            --AND EXISTS (SELECT 1 FROM equ WHERE equ."Code" = er.equ_cd AND equ.id = %(equ_id)s)
+		            AND er.data_date 
+			            BETWEEN CAST(%(startDt)s AS TIMESTAMP) 
+			            AND CAST(%(endDt)s AS TIMESTAMP)
+	            GROUP BY 
+		            er.id
+		            , er.mat_cd
+		            , er.data_date
+		            , er.state
+            )
+            INSERT INTO ai.ds_model_data ("RowIndex", "Code", "Type", "Char1", _created, "DsModel_id")
+            SELECT 
+	            sd.row_num AS row_index
+		        , CASE 
+                    WHEN n.num = 0 THEN 'row_num'
+		 		    WHEN n.num = 1 THEN 'id'
+				    WHEN n.num = 2 THEN 'mat_cd'
+				    WHEN n.num = 3 THEN 'data_date'
+				    WHEN n.num = 4 THEN 'SCREW1_1'
+				    WHEN n.num = 5 THEN 'SCREW1_2'
+				    WHEN n.num = 6 THEN 'SCREW1_3'
+				    WHEN n.num = 7 THEN 'SCREW1_4'
+				    WHEN n.num = 8 THEN 'SCREW1_5'
+				    WHEN n.num = 9 THEN 'SCREW1_6'
+				    WHEN n.num = 10 THEN 'state'
+				    END code
+		        , NULL AS "Type" -- type에 PLC 넣을까 고민 아님 그냥 dtype? 
+		        , CASE 
+			        WHEN n.num = 0 THEN CAST(sd.row_num as text)
+		 		    WHEN n.num = 1 THEN CAST(sd.id as text)
+				    WHEN n.num = 2 THEN CAST(sd.mat_cd as text)
+				    WHEN n.num = 3 THEN TO_CHAR(sd.data_date, 'YYYY-MM-DD HH24:MI:SS')
+				    WHEN n.num = 4 THEN sd.screw1_1
+				    WHEN n.num = 5 THEN sd.screw1_2
+				    WHEN n.num = 6 THEN sd.screw1_3
+				    WHEN n.num = 7 THEN sd.screw1_4
+				    WHEN n.num = 8 THEN sd.screw1_5
+				    WHEN n.num = 9 THEN sd.screw1_6
+				    WHEN n.num = 10 THEN sd.state
+				    END char1
+			    , NOW() AS _created
+			    , %(md_id)s AS "DsModel_id"
+            FROM 
+                source_data sd
+                    CROSS JOIN (SELECT GENERATE_SERIES(0, 10) AS num) AS n
+            WHERE n.num <> 0    -- row_num 이미 제대로 된걸 가져와서. 쿼리 고치기 귀찮아서 그냥 조건에서만 제외(변경시 루프 숫자 다 고쳐야 함)
+            ORDER BY sd.id, n.num
+            ;
+            '''
+
+            dc = {}
+            dc['md_id'] = md_id
+            dc['equ_id'] = equ_id
+            dc['equ_id'] = startDt
+            dc['equ_id'] = endDt
+            row = DbUtil.get_row(sql, dc)
+
+            daService = DaService('ds_model', md_id)
+            df = daService.read_table_data()
+            daService.make_col_info(df)
+
+            items = {'success': True, 'message':''}
+
 
         elif action == 'make_db_from_file':
             ''' prop_data 없으면 csv파일 읽어서 prop_data에 저장하고 변수컬럼 저장.
@@ -987,7 +1182,7 @@ def learning_data(context):
 
 
         elif action == 'cate_col_list':
-            ''' 컬럼정보를 읽는다.
+            ''' 범주형 데이터의 컬럼 정보를 읽는다.
             '''
             md_id = CommonUtil.try_int(gparam.get('md_id'))
 
@@ -1017,7 +1212,7 @@ def learning_data(context):
 
             daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
-            daService.make_col_info(df)
+            daService.make_col_info(df, csv=False)
 
             return {'success':True, 'message':'' }
 
@@ -1104,11 +1299,11 @@ def learning_data(context):
             # ds_model_data delete, update
             sql = ''' 
             DELETE 
-	        FROM ds_model_data
+	        FROM ai.ds_model_data
 	        WHERE "DsModel_id"  = %(md_id)s
 	            AND "RowIndex" IN (
 		            SELECT DISTINCT "RowIndex"
-		            FROM ds_model_data dt
+		            FROM ai.ds_model_data dt
 		            WHERE "DsModel_id" = %(md_id)s
 		            AND "Code" IN (
 			            SELECT "VarName" 
@@ -1137,22 +1332,22 @@ def learning_data(context):
 	            WHERE "DsModel_id" = %(md_id)s
 	                AND "MissingValProcess" IN ('mean', 'median')
             )
-            UPDATE ds_model_data 
+            UPDATE ai.ds_model_data 
             SET 
                 "Char1" = CASE 
-                            WHEN (UPPER(ds_model_data."Char1") IN ('NAN', '') OR ds_model_data."Char1" IS NULL)
+                            WHEN (UPPER(ai.ds_model_data."Char1") IN ('NAN', '') OR ai.ds_model_data."Char1" IS NULL)
                             THEN CAST(A.new_val AS TEXT)
-                            ELSE ds_model_data."Char1"
+                            ELSE ai.ds_model_data."Char1"
                           END,
                 "Number1" = CASE 
-                            WHEN (ds_model_data."Number1" IS NULL OR ds_model_data."Number1" = 'NaN'::float) 
+                            WHEN (ai.ds_model_data."Number1" IS NULL OR ai.ds_model_data."Number1" = 'NaN'::float) 
                             THEN A.new_val
-                            ELSE ds_model_data."Number1"
+                            ELSE ai.ds_model_data."Number1"
                           END
             FROM A
-            WHERE ds_model_data."DsModel_id" = A.md_id 
-                AND ds_model_data."Code" = A."VarName"
-                -- AND ds_model_data."Char1" IS NULL   -- Char1 값이 nan이나 NaN인 경우 업데이트 안됨
+            WHERE ai.ds_model_data."DsModel_id" = A.md_id 
+                AND ai.ds_model_data."Code" = A."VarName"
+                -- AND ai.ds_model_data."Char1" IS NULL   -- Char1 값이 nan이나 NaN인 경우 업데이트 안됨
                 AND A.new_val IS NOT NULL 
             '''
 
@@ -1769,7 +1964,7 @@ def learning_data(context):
                 mt.id
                 , mt."TaskType"
                 , mt."AlgorithmType"
-                , mt."Description"
+                , mt."Description" AS train_desc
                 , mt."Version"
                 , mt."TrainStatus"
                 , ts."Name" AS status_name
@@ -1795,6 +1990,26 @@ def learning_data(context):
             row = DbUtil.get_row(sql, dc)
 
             return row
+
+        elif action == 'model_metric_list':
+            ''' 
+            '''
+            mt_id = CommonUtil.try_int(gparam.get('mt_id'))
+
+            sql = ''' 
+            SELECT 
+                mt.id
+                , mt."MetricName"
+                , mt."MetricValue"
+                , mt."DatasetType"
+            FROM ds_model_metric mt
+            WHERE mt."DsModelTrain_id" = %(mt_id)s
+            '''
+            dc = {}
+            dc['mt_id'] = mt_id
+            rows = DbUtil.get_rows(sql, dc)
+
+            items = rows
 
         elif action == 'delete_ds_model_train':
             mt_id = CommonUtil.try_int(posparam.get('mt_id'))
@@ -1854,43 +2069,45 @@ def learning_data(context):
                 #     items = {'success': True, "data": mt.id}
 
             
-                #csv을 읽어서 df를 만든다 
-                sql = ''' 
-                SELECT 
-                    id
-                    , "TableName"
-                    , "DataPk"
-                    , "AttachName"
-                    , "FileIndex"
-                    , "FileName"
-                    , "PhysicFileName"
-                    , "ExtName"
-                    , "FilePath"
-                    , "_created"
-                    , "FileSize"
-                FROM attach_file 
-                WHERE "TableName" = %(table_name)s
-                AND "DataPk" = %(data_pk)s
-                ORDER BY id DESC 
-                '''
-                dc = {}
-                dc['table_name'] = 'ds_model'
-                # dc['data_pk'] = md_id
-                dc['data_pk'] = 10
-                row = DbUtil.get_row(sql, dc)
-                if not row:
-                    return
+                #csv을 읽어서 df를 만든다(배포 -> 로컬용)
+                # sql = ''' 
+                # SELECT 
+                #     id
+                #     , "TableName"
+                #     , "DataPk"
+                #     , "AttachName"
+                #     , "FileIndex"
+                #     , "FileName"
+                #     , "PhysicFileName"
+                #     , "ExtName"
+                #     , "FilePath"
+                #     , "_created"
+                #     , "FileSize"
+                # FROM attach_file 
+                # WHERE "TableName" = %(table_name)s
+                # AND "DataPk" = %(data_pk)s
+                # ORDER BY id DESC 
+                # '''
+                # dc = {}
+                # dc['table_name'] = 'ds_model'
+                # # dc['data_pk'] = md_id
+                # dc['data_pk'] = 10
+                # row = DbUtil.get_row(sql, dc)
+                # if not row:
+                #     return
 
 
                 from sklearn.preprocessing import LabelEncoder
 
-                PhysicFileName = row.get('PhysicFileName')
-                #FileName = row.get('FileName')
+                # csv 기반 읽어오기
+                # PhysicFileName = row.get('PhysicFileName')
+                # file_name = settings.FILE_UPLOAD_PATH + 'ai\\learning_data\\' + PhysicFileName
+                # df = pd.read_csv(file_name)
 
-                # file_name = settings.FILE_UPLOAD_PATH + 'ds_data\\' + PhysicFileName
-                file_name = settings.FILE_UPLOAD_PATH + 'ai\\learning_data\\' + PhysicFileName
-
-                df = pd.read_csv(file_name)
+                # table data 읽어오기
+                md_id = mt.DsModel_id
+                daService = DaService('ds_model', md_id)
+                df = daService.read_table_data()
 
                 #데이터 set을  ds_model_data에서 읽어옴
                 #전처리도 해야 
@@ -1903,7 +2120,8 @@ def learning_data(context):
                 df.set_index('data_date', inplace=True)
 
                 # 인코딩 대상 컬럼
-                categorical_cols = ['tag_code', 'mat_cd']
+                # categorical_cols = ['tag_code', 'mat_cd'] # PLC 데이터 사용 시
+                categorical_cols = ['mat_cd']
                 label_encoders = {}
 
                 # 각 컬럼에 대해 Label Encoding 적용
@@ -1914,34 +2132,37 @@ def learning_data(context):
 
 
                 # features = ['tag_code', 'data_value', 'rst_id', 'mat_cd'] # 독립변수
-                features = ['tag_code', 'data_value', 'mat_cd']  # ❌ rst_id는 feature에서 제거
+                # features = ['tag_code', 'data_value', 'mat_cd']  # rst_id는 feature에서 제거
+                # features = ['mat_cd', 'screw1_1', 'screw1_2', 'screw1_3', 'screw1_4', 'screw1_5', 'screw1_6']  # 독립변수 - 로컬
+                features = ['mat_cd', 'SCREW1_1', 'SCREW1_2', 'SCREW1_3', 'SCREW1_4', 'SCREW1_5', 'SCREW1_6']  # 독립변수 - 배포()
                 target_column = 'state' # 종속변수
 
                 # rst_id로 안묶고 진행할 때
                 # # 독립 변수와 종속 변수 분리
-                # X = df[features]  # 독립 변수
-                # y = df[target_column]  # 종속 변수
+                X = df[features]  # 독립 변수
+                y = df[target_column]  # 종속 변수
 
                 # # 데이터 표준화(선택사항: 현재는 미사용)
                 # scaler = StandardScaler()
                 # X_standardized = scaler.fit_transform(X)
 
-                # # 훈련 데이터와 테스트 데이터로 분리
-                # # X_train, X_test, y_train, y_test = train_test_split(X_standardized, y, test_size=0.2, random_state=0)
-                # # 우선 표준화 없이 진행
-                # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+                # 훈련 데이터와 테스트 데이터로 분리(표준화)
+                # X_train, X_test, y_train, y_test = train_test_split(X_standardized, y, test_size=0.2, random_state=0)
+                # 표준화 없이 진행
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-                unique_ids = df['rst_id'].unique()  # rst_id 고유한 값 리스트
-                train_ids, test_ids = train_test_split(unique_ids, test_size=0.2, random_state=0) # rst_id 리스트중 train / test를 나눔 ex) train_ids: 1,2,3 / test_ids = 4
+                # # rst_id로 묶어서 진행할 때
+                # unique_ids = df['rst_id'].unique()  # rst_id 고유한 값 리스트
+                # train_ids, test_ids = train_test_split(unique_ids, test_size=0.2, random_state=0) # rst_id 리스트중 train / test를 나눔 ex) train_ids: 1,2,3 / test_ids = 4
 
-                train_df = df[df['rst_id'].isin(train_ids)] # train_ids에 속하는 rst_id를 필터링해서 학습 데이터로 사용
-                test_df = df[df['rst_id'].isin(test_ids)] # test_ids에 속하는 rst_id를 필터링해서 예측(테스트) 데이터로 사용
+                # train_df = df[df['rst_id'].isin(train_ids)] # train_ids에 속하는 rst_id를 필터링해서 학습 데이터로 사용
+                # test_df = df[df['rst_id'].isin(test_ids)] # test_ids에 속하는 rst_id를 필터링해서 예측(테스트) 데이터로 사용
 
-                X_train = train_df[features]
-                y_train = train_df[target_column]
+                # X_train = train_df[features]
+                # y_train = train_df[target_column]
 
-                X_test = test_df[features].reset_index(drop=True)
-                y_test = test_df[target_column].reset_index(drop=True)
+                # X_test = test_df[features].reset_index(drop=True)
+                # y_test = test_df[target_column].reset_index(drop=True)
 
                 #알고리즘에 넣어서 실행
 
@@ -1951,7 +2172,8 @@ def learning_data(context):
                 # AdaBoost 앙상블 모델 생성
                 # model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=payload.params.RANDOM_STATE) # base_estimator -> estimators로 바꼈대
                 # model = AdaBoostClassifier(estimator=rf_model, n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
-                model = AdaBoostClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+                # model = AdaBoostClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+                model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
                 # pca_model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=0)
             
                 # 모델 훈련(비교)
@@ -1962,30 +2184,65 @@ def learning_data(context):
                     print("에러 발생:", e)
                 # pca_model.fit(X_pca, y_train)   # PCA 적용 모델
 
+
                 # 테스트 데이터에 대한 예측
-                test_predictions = model.predict(X_test) # 기본 모델 예측
-                # pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
-                # pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
+                # test_predictions = model.predict(X_test) # 기본 모델 예측
+                # # pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
+                # # pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
             
-                # 예측 결과의 정확도 평가
-                accuracy = accuracy_score(y_test, test_predictions)
-                print(f'기본모델 test Accuracy: {accuracy:.2f}')
+                # # 예측 결과의 정확도 평가
+                # accuracy = metrics.accuracy_score(y_test, test_predictions)
+                # precision = metrics.precision_score(y_test, test_predictions)
+                # recall = metrics.recall_score(y_test, test_predictions)
+                # f1 = metrics.f1_score(y_test, test_predictions)
+                # print(f'기본모델 test Accuracy: {accuracy:.2f}\n기본모델 test Precision: {precision:.2f}\n기본모델 test Precision: {recall:.2f}\n기본모델 test Precision: {f1:.2f}\n')
+                train_predictions = model.predict(X_train)
+                test_predictions = model.predict(X_test)
+
+                # 성능 지표 계산 함수
+                def get_metrics(y_true, y_pred, dataset_type):
+                    return [
+                        {"MetricName": "Accuracy", "MetricValue": metrics.accuracy_score(y_true, y_pred), "DatasetType": dataset_type},
+                        {"MetricName": "Precision", "MetricValue": metrics.precision_score(y_true, y_pred, zero_division=0), "DatasetType": dataset_type},
+                        {"MetricName": "Recall", "MetricValue": metrics.recall_score(y_true, y_pred, zero_division=0), "DatasetType": dataset_type},
+                        {"MetricName": "F1", "MetricValue": metrics.f1_score(y_true, y_pred, zero_division=0), "DatasetType": dataset_type},
+                    ]
+
+                # train/test 각각 계산
+                train_metrics = get_metrics(y_train, train_predictions, "train")
+                test_metrics = get_metrics(y_test, test_predictions, "test")
+
+                # 합쳐서 반환
+                metric = train_metrics + test_metrics
+
+                # 기존 metric 삭제 (같은 train_id에 대한 기록 제거)
+                DsModelMetric.objects.filter(DsModelTrain_id=mt_id).delete()
+
+                # metric 리스트 저장
+                for m in metric:
+                    DsModelMetric.objects.create(
+                        DsModelTrain_id = mt_id,
+                        MetricName = m['MetricName'],
+                        MetricValue = float(f"{m['MetricValue']:.4f}"),
+                        DatasetType = m['DatasetType']
+                    )
+
                 # pca_accuracy = accuracy_score(y_test, pca_predictions)
                 # print(f'PCA모델 test Accuracy: {pca_accuracy:.2f}')
 
-                # 실제 데이터 예측 (test_df에서 무작위 rst_id n개 선택. 우선 한 20개로 진행)
-                num_sample = 20
-                sampled_ids = test_df['rst_id'].drop_duplicates().sample(n=num_sample, random_state=42)
-                sampled_test_df = test_df[test_df['rst_id'].isin(sampled_ids)]
+                # 실제 데이터 예측 (데이터가 많아서 test_df에서 무작위 rst_id n개 선택하여 샘플링. 우선 한 20개로 진행)
+                # num_sample = 20
+                # sampled_ids = test_df['rst_id'].drop_duplicates().sample(n=num_sample, random_state=42)
+                # sampled_test_df = test_df[test_df['rst_id'].isin(sampled_ids)]
 
-                X_sampled_test = sampled_test_df[features]
-                sampled_predictions = model.predict(X_sampled_test)
+                # X_sampled_test = sampled_test_df[features]
+                # sampled_predictions = model.predict(X_sampled_test)
                 # 예전 코드
                 # # 실제 데이터 예측
                 # # 미래 마지막 30개의 관측치 준비(대략 한 사이클에 30개 정도라 치고)
                 # future_data = X[-30:]
 
-                # # 미래 값 예측
+                # # 값 예측
                 # future_predictions = model.predict(future_data)         # 기본모델 - 최근 데이터 30건
                 # # pca_future_data = pca_final.transform(future_data)      # 관측데이터 PCA 적용
                 # # pca_future_predictions = pca_model.predict(pca_future_data) # PCA 모델 예측
@@ -1994,23 +2251,98 @@ def learning_data(context):
                 # for i, prediction in enumerate(future_predictions, 1):
                 #     print(f'기본모델: 5분 후 알람값 예측 {i*10}초: {prediction}')
             
-                # 예측 결과 출력
-                # for i, (basic_pred, pca_pred, real_alarm) in enumerate(zip(future_predictions, pca_future_predictions, y[-30:]), 1):
-                #     print(f'5분 후 알람값 예측 {i*10}초:\n --> 기본모델: {basic_pred}   /   PCA적용모델: {pca_pred}   /   실제 alarm 값: {real_alarm}')
-                for i, (pred_state, real_state) in enumerate(zip(sampled_predictions, sampled_test_df[target_column]), 1):
-                    print(f' 예측값: {pred_state}  /   실제 state 값: {real_state}')
+                # # 예측 결과 출력
+                # # for i, (basic_pred, pca_pred, real_alarm) in enumerate(zip(future_predictions, pca_future_predictions, y[-30:]), 1):
+                # #     print(f'5분 후 알람값 예측 {i*10}초:\n --> 기본모델: {basic_pred}   /   PCA적용모델: {pca_pred}   /   실제 alarm 값: {real_alarm}')
+                # for i, (pred_state, real_state) in enumerate(zip(sampled_predictions, sampled_test_df[target_column]), 1):
+                #     print(f' 예측값: {pred_state}  /   실제 state 값: {real_state}')
+
+                # # 샘플된 알고리즘에 대한 상태, feature importance.모델설명 그래프
+                # title = {'main':'model 예측 추이', 'x':'테스트 데이터(무작위 rst_id가 같은 데이터로 샘플링)', 'y':'예측값(state)'}
+                # graph1 = {'data':sampled_predictions, 'mode':'lines+markers', 'name':'모델 예측값'}
+                # graph2 = {'data':sampled_test_df[target_column], 'mode':'lines+markers', 'name':'실제 값'}
 
                 #알고리즘에 대한 상태, feature importance.모델설명 그래프
                 title = {'main':'model 예측 추이', 'x':'테스트 데이터(무작위 rst_id가 같은 데이터로 샘플링)', 'y':'예측값(state)'}
-                graph1 = {'data':sampled_predictions, 'mode':'lines+markers', 'name':'모델 예측값'}
-                graph2 = {'data':sampled_test_df[target_column], 'mode':'lines+markers', 'name':'실제 값'}
+                graph1 = {'data':y_test, 'mode':'lines+markers', 'name':'실제 값'}
+                graph2 = {'data':test_predictions, 'mode':'lines+markers', 'name':'모델 예측값'} #이게 위로 가야 예측결과가 잘보임
 
                 pred_plotly = visualize_to_plotly(title, graph1, graph2)
 
-                # 훈련 및 예측이 완료되면 결과값 서버에 전달
-                items = {'success':True, 'pca_plotly': pred_plotly }
-                #예측을 해본다. 변수 실제값은 뭘로? 과적합은 없는가?  
+                import matplotlib.pyplot as plt
+                import seaborn as sns
 
+                # 특성중요도 그래프
+                feature_importances = model.feature_importances_
+                feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+                feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+                # print(feature_importance_df)
+
+                # 시각화 - 특성중요도가 0인 것들은 제외
+                fig1 = plt.figure(figsize=(10, 6))
+                sns.barplot(x='Importance', y='Feature', data=feature_importance_df[feature_importance_df['Importance'] > 0])
+                plt.title('Feature Importance')
+
+                feat_chart_url = daService.plt_url(fig1)
+                # plt.close(fig1)
+
+                # ROC AUR 그래프
+                from sklearn.metrics import roc_curve, roc_auc_score
+
+                train_prob = model.predict_proba(X_train) # 테스트 값이 각 클래스로 분류될 확률 ex) [0.92, 0.08]
+                test_prob = model.predict_proba(X_test) 
+
+                # ROC Curve - Train
+                fpr_train, tpr_train, thresholds_train = roc_curve(y_train, train_prob[:, 1])
+                auc_train = roc_auc_score(y_train, train_prob[:, 1])
+
+                fig_train = plt.figure(figsize=(6, 6))
+                plt.plot(fpr_train, tpr_train, label=f'ROC Curve (Train AUC = {auc_train:.2f})')
+                plt.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Random Classifier')
+                plt.xlabel('False Positive Rate')
+                plt.ylabel('True Positive Rate')
+                plt.title('ROC Curve (Train Set)')
+                plt.legend()
+                plt.grid(True)
+                plt.tight_layout()
+
+                roc_train_chart_url = daService.plt_url(fig_train)
+                # plt.close(fig_train)
+
+                # ROC Curve - Test
+                fpr_test, tpr_test, thresholds_test = roc_curve(y_test, test_prob[:, 1])
+                auc_test = roc_auc_score(y_test, test_prob[:, 1])
+
+                fig_test = plt.figure(figsize=(6, 6))
+                plt.plot(fpr_test, tpr_test, label=f'ROC Curve (Test AUC = {auc_test:.2f})')
+                plt.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Random Classifier')
+                plt.xlabel('False Positive Rate')
+                plt.ylabel('True Positive Rate')
+                plt.title('ROC Curve (Test Set)')
+                plt.legend()
+                plt.grid(True)
+                plt.tight_layout()
+
+                roc_test_chart_url = daService.plt_url(fig_test)  # 이미지 URL 저장
+                # plt.close(fig_test)
+
+                # 데이터 분포 확인용
+                print("y_test 분포:", np.bincount(y_test))
+                print("test_prob 샘플:", test_prob[:10, 1])
+                print("test_prob[:, 1]:", test_prob[:, 1])
+
+
+                # 훈련 및 예측이 완료되면 결과값 서버에 전달
+                # 시각화 부분 분리해야 함 특성중요도 그래프 추가할것
+
+                items = {
+                    'success':True, 
+                    'pca_plotly': pred_plotly,
+                    'feat_chart_url': feat_chart_url,
+                    'roc_train_chart_url': roc_train_chart_url, 
+                    'roc_test_chart_url': roc_test_chart_url,
+                    # 'metric': metric
+                    }
 
             except Exception as e:
                 # 오류 시 상태를 FAILED로 변경

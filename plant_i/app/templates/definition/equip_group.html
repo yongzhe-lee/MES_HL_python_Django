@@ -182,7 +182,7 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    page.exportExcel();
+                    _this.exportExcel();
                 }
             });
 
@@ -237,6 +237,17 @@
             let _this = this;
             let data = FormUtil.extractForm($('#equipmentGroupForm'));
 
+            let Code = $('#equipment_group_code').val();
+            let Name = $('#equipment_group_name').val();
+
+            if (!Code) {
+                Alert.alert('', '설비그룹코드를 입력해주세요.');
+                return;
+            } else if (!Name) {
+                Alert.alert('', '설비그룹명을 입력해주세요.');
+                return;
+            }
+
             let funcSucc = function (resp) {
                 if (resp.success) {
                     Notify.success('저장되었습니다.');
@@ -269,6 +280,15 @@
                 };
                 AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, funcSucc);
             }
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#equipment_group_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "equipment_group.xlsx";
+            });
+            gridData.saveAsExcel();
         }
     };
 

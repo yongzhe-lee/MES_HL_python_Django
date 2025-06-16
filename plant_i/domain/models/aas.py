@@ -91,9 +91,9 @@ class DBResource(models.Model):
 
 class DBReferenceKey(models.Model):
     key_pk = models.AutoField(primary_key=True, db_column='key_pk')
-    #type = models.CharField(max_length=50) # asset, data_element, submodel_element, submodel, aas....
     type = models.CharField(max_length=50, null=True)
     value = models.CharField(max_length=2000, null=True)
+    local = models.BooleanField("로컬여부", null=True, default=True)
     Reference = models.ForeignKey('DBReference', on_delete=models.DO_NOTHING, db_column='ref_pk')
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -260,8 +260,8 @@ class DBAssetInformation(models.Model):
     asset_pk = models.AutoField(primary_key=True, db_column='asset_pk')
     assetKind = models.CharField(max_length=50, null=True) #  TYPE, INSTANCE, NOT_APPLICABLE
     assetType = models.CharField(max_length=50, null=True) # 자산종류 equipment, tool, material, product, software, document, person, organization, location, other
-    globalAssetId = models.CharField(max_length=2000, null = True)
-    path = models.CharField(max_length=2000, null = True)
+    globalAssetId = models.JSONField(null = True)
+    path = models.CharField(max_length=2000, null = True) # default thumbnail path에 해당됨
     defaultThumbnail = models.ForeignKey(DBResource, on_delete=models.DO_NOTHING, null=True)
     SpecificAssetIds = models.ManyToManyField('DBSpecificAssetId', through=DBAssetSpecificassetIds, related_name='asset_specificassetids', related_query_name='asset_specificassetids' )
 
@@ -846,8 +846,8 @@ class AASSubmodelReferences(models.Model):
     aas <--> submodel aggregation 맵핑
     '''
     id = models.AutoField(primary_key=True)
-    aas_pk = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.DO_NOTHING, db_column='aas_pk')
-    ref_pk = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, db_column='ref_pk')
+    aas = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.DO_NOTHING, db_column='aas_pk')
+    reference = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, db_column='ref_pk')
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)

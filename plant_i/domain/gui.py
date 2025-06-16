@@ -132,7 +132,7 @@ class GUIConfiguration():
         gui_dc['wm_bom'] = cls.gui_item('BOM', 'definition/bom.html')
         gui_dc['wm_defect'] = cls.gui_item('부적합정보', 'definition/defect.html')
         gui_dc['wm_shift'] = cls.gui_item('조교대정보', 'definition/shift.html')
-        gui_dc['wm_line_inactive'] = cls.gui_item('비가동일정정보', 'definition/line_inactive.html')
+        gui_dc['wm_line_inactive'] = cls.gui_item('라인비가동정보', 'definition/line_inactive.html')
         gui_dc['wm_model_change'] = cls.gui_item('기종변경정보', 'definition/model_change.html')        
         # gui_dc['wm_holiday'] = cls.gui_item('휴일 스케줄', 'definition/holiday.html')#휴일 스케줄
         # gui_dc['wm_company'] = cls.gui_item('업체', 'definition/company.html')#업체 
@@ -143,7 +143,7 @@ class GUIConfiguration():
         gui_dc['wm_equ_alm'] = cls.gui_item('설비Alarm관리', 'definition/equipment_alaram.html')
         gui_dc['wm_equ_alm_hist'] = cls.gui_item('설비Alarm이력', 'definition/equipment_alaram_history.html')
         gui_dc['wm_tag_group'] = cls.gui_item('태그그룹', 'definition/tag_group.html')
-        gui_dc['wm_tag_master'] = cls.gui_item('태그정보', 'definition/tag.html')
+        gui_dc['wm_tag_master'] = cls.gui_item('태그관리', 'definition/tag.html')
         gui_dc['wm_das_config'] = cls.gui_item('데이터수집설정', 'system/das_config.html')
 
         # 데이터분석
@@ -183,7 +183,7 @@ class GUIConfiguration():
         gui_dc['wm_system_log'] = cls.gui_item('시스템로그', 'system/system_log.html')
 
         # I/F 이력조회, ERP, 생산설비측정데이터, QMS, VAN, 인사정보
-        gui_dc['wm_if_sap'] = cls.gui_item('SAP', 'interface/if_sap.html')
+        #gui_dc['wm_if_sap'] = cls.gui_item('SAP', 'interface/if_sap.html')
         gui_dc['wm_if_sap_mat'] = cls.gui_item('SAP Material', 'interface/sap/if_sap_mat.html') #품목정보
         gui_dc['wm_if_sap_bom'] = cls.gui_item('SAP BOM', 'interface/sap/if_sap_bom.html') # BOM
         gui_dc['wm_if_sap_stock'] = cls.gui_item('SAP Stock', 'interface/sap/if_sap_stock.html') # 품목별 위치별 재고

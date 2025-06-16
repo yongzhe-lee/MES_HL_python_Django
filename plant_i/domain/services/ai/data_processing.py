@@ -43,7 +43,7 @@ class DataProcessingService():
                 ,min(case when td.tag_code = 'RAP4' then td.data_value end) as "RAP4"
                 ,min(case when td.tag_code = 'LPM_EM_STOP' then td.data_value end) as "LPM_EM_STOP"
                 from tag t 
-                inner join tag_dat td on td.tag_code = t.tag_code and td.tag_code in 
+                inner join das.tag_dat td on td.tag_code = t.tag_code and td.tag_code in 
                 ('AP1','AP2','AP3','AP4','EC1','EC2','EC3'
                 ,'RAP1','RAP2','RAP3','RAP4','LPM_EM_STOP')
                 inner join equ e on e.id = t."Equipment_id" and e."Code" in ('EQ_A_PRESS_2','EQ_B_ETC_5')
@@ -96,7 +96,7 @@ class DataProcessingService():
                 '''
         sql += ''' 
         from tag t 
-        inner join tag_dat td on td.tag_code = t.tag_code and td.tag_code in 
+        inner join das.tag_dat td on td.tag_code = t.tag_code and td.tag_code in 
         ('''+tag_code_list[:-1]+''')
         --inner join equ e on e.id = t."Equipment_id" and e."Code" in ('EQ_A_PRESS_2','EQ_B_ETC_5')
         where 1=1

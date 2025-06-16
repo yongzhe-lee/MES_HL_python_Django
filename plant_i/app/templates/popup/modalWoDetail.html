@@ -460,11 +460,9 @@
 				sortable: true,
 				autoBind: false, // 자동 데이터 바인딩 비활성화
 				columns: [
-					{ field: "work_order_hist_pk", title: "id", hidden: true },
-					{ field: "after_status_nm", title: "상태", width: 120 },
-					{ field: "changer_nm", title: "담당자", width: 120, },
-					{ field: "change_reason", title: "비고", width: 100 },
-					{ field: "change_ts", title: "일시", width: 100 }
+					{ field: "ex_supplier_pk", title: "id", hidden: true },
+					{ field: "ex_supplier_nm", title: "외주업체명", width: 6 },
+					{ field: "cost", title: "비용", width: 4 },
 				],
 				noRecords: {
 					template: "조회된 데이터가 없습니다."
@@ -495,11 +493,12 @@
 				sortable: true,
 				autoBind: false, // 자동 데이터 바인딩 비활성화
 				columns: [
-					{ field: "work_order_hist_pk", title: "id", hidden: true },
-					{ field: "after_status_nm", title: "상태", width: 120 },
-					{ field: "changer_nm", title: "담당자", width: 120, },
-					{ field: "change_reason", title: "비고", width: 100 },
-					{ field: "change_ts", title: "일시", width: 100 }
+					{ field: "work_order_pk", title: "id", hidden: true },
+					{ field: "job_class_nm", title: "작업인력 또는 직종 추가", width: 120 },
+					{ field: "worker_nos", title: "인원수", width: 120, },
+					{ field: "wage_cost", title: "노임단가(시급)", width: 100 },
+					{ field: "work_hr", title: "예상작업시간", width: 100 },
+					{ field: "real_work_hr", title: "실제작업시간", width: 100 }
 				],
 				noRecords: {
 					template: "조회된 데이터가 없습니다."
@@ -531,10 +530,12 @@
 				autoBind: false, // 자동 데이터 바인딩 비활성화
 				columns: [
 					{ field: "work_order_hist_pk", title: "id", hidden: true },
-					{ field: "after_status_nm", title: "상태", width: 120 },
-					{ field: "changer_nm", title: "담당자", width: 120, },
-					{ field: "change_reason", title: "비고", width: 100 },
-					{ field: "change_ts", title: "일시", width: 100 }
+					{ field: "mtrl_cd", title: "자재코드", width: 120 },
+					{ field: "mtrl_nm", title: "자재명", width: 120, },
+					{ field: "unit_price", title: "자재단가", width: 100 },
+					{ field: "plan_amt", title: "예상소요량", width: 100 },
+					{ field: "amtrl_amt", title: "A급 수량", width: 100 },
+					{ field: "bmtrl_amt", title: "B급 수량", width: 100 }
 				],
 				noRecords: {
 					template: "조회된 데이터가 없습니다."

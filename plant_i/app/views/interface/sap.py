@@ -109,6 +109,21 @@ def sap(context):
             count = len(items)
             result['count'] = count
 
+            '''
+                      "MAKTX": "ESC ECU (UB TPMS_DOM,C-SAS,HAC,VSM,ESS,I",
+          "BKLAS": "FERT",
+          "PRICE": "30900.13",
+          "WERKS": "1319",
+          "MTART": "FERT",
+          "PEINH": "100",
+          "MATKL": "",
+          "MEINS": "PC",
+          "BKBEZ": "Inhouse made",
+          "GROES": "",
+          "ZCTIME": "0.0",
+          "MATNR": "010.006-107"
+            '''
+
             for t in items:
                 if_sap_mat = IFSapMaterial()
                 if_sap_mat.stab_werks = t["WERKS"]
@@ -121,23 +136,28 @@ def sap(context):
                 if_sap_mat.stab_bkbez = t["BKBEZ"]
                 if_sap_mat.stab_zctime = t["ZCTIME"]
                 if_sap_mat.stab_peinh = t["PEINH"]
+                if_sap_mat.stab_maktx = t["MAKTX"]
+                if_sap_mat.stab_price = t["PRICE"]
 
                 if_sap_mat.set_audit(user)
                 if_sap_mat.save()
 
 
             sql='''
-            insert into material ("Code", "Name", "Standard", "CycleTime", in_price,  _created)
+            insert into material ("Code", "Name", mat_type,"Standard", "CycleTime", in_price,  _created, "Factory_id", use_yn)
             select 
             ism.stab_matnr
             , ism.stab_maktx
+            , ism.stab_mtart
             , ism.stab_groes
             , ism.stab_zctime
             , ism.stab_price 
             , now()
-            from material m
-            left join if_sap_mat ism on m."Code" = ism.stab_matnr
-            where m."Code" is null;
+            ,1
+            , 'Y'
+            from if_sap_mat ism 
+            left join material m  on m."Code" = ism.stab_matnr
+            where m."Code" is null
             '''
 
             DbUtil.execute(sql)        
@@ -401,10 +421,6 @@ def sap(context):
 
                 if_sap_mat.set_audit(user)
                 if_sap_mat.save()
-        
-
-
-
 
     except Exception as ex:
         result["success"] = False

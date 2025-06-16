@@ -1,17 +1,14 @@
-
 import json, threading,time, importlib
 from django.core.serializers.json import DjangoJSONEncoder
 
 from configurations import settings
 from domain.services.mqtt import FacadeMQTTClient
 
-
 ###############################################################################
 # topic 
 #    device_data
 #    device_event
 ###############################################################################
-
 class MQTTApplication():
 
     ###########################################################################
@@ -37,11 +34,12 @@ class MQTTApplication():
 
         return
 
+
     def mapping_equipment_topic_handler(self):
 
         print("mapping_equipment_topic_handler ready...")
         # 10초간 대기, 어플리케이션이 시작되고 django ORM이 초기화될 때까지 대기
-        time.sleep(10)
+        time.sleep(5)
         print("mapping_equipment_topic_handler starting...")
 
         from domain.services.interface.equipment import IFEquipmentResultService

@@ -1,60 +1,4 @@
 {% extends "app/layout.html" %}
-{% block css %}
-<style>
-    /* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
-    #searchFormContent {
-        overflow: hidden;
-        height: 50px; /* ✅ 한 줄만 보이도록 설정 */
-        transition: height 0.3s ease-in-out;
-    }
-
-    /* ✅ 검색 폼이 펼쳐진 상태 */
-    .search-expanded {
-        height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
-    }
-
-    /* ✅ 접기/펼치기 버튼 스타일 */
-    #toggleSearchBtn {
-        width: 20px;
-        height: 20px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-    }
-
-        #toggleSearchBtn::before {
-            content: "▼";
-            color: #0d6efd;
-            font-size: 20px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
-        }
-
-        #toggleSearchBtn.expanded::before {
-            content: "▲";
-        }
-
-    .zoombutton {
-        background: #409EFF !important;
-        color: white !important;
-        border: none !important;
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        padding: 0 !important;
-        width: 22px !important;
-        height: 22px !important;
-    }
-
-        .zoombutton:hover {
-            background: #2980b9 !important;
-        }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="content-wrap">
@@ -76,7 +20,7 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="req_dept" data-labelCd="요청부서">사용자그룹</label>
+                            <label class="k-label k-form-label" for="req_dept" data-labelCd="요청부서">요청부서</label>
                             <div class="field-wrapper">
                                 <select id="req_dept" name="req_dept"></select>
                             </div>
@@ -204,7 +148,7 @@
         constructor() {
             this.grid = null;
             this.upload = null;
-            this.baseUrl = '/api/kmms/wo_master';
+			this.baseUrl = '/api/kmms/work_order';
 
             this.comboDept = [];
 
@@ -227,9 +171,9 @@
                 },
                 columns: [
                     { field: 'work_order_pk', title: '작업지시PK', width: 0, hidden: true },
-                    { field: 'work_order_no', title: '작업지시번호', width: 100, template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>' },
-                    { field: 'work_title', title: '작업제목', width: 150, template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-title-pk="#=work_order_pk#">#=work_title#</a>' },
-                    { field: 'wo_status_nm', title: '상태', width: 80, template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-status-pk="#=work_order_pk#">#=wo_status_nm#</a>' },
+                    { field: 'work_order_no', title: '작업지시번호', width: 100, template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-no-pk=\"#=work_order_pk#\">#= work_order_no != null ? work_order_no : '임시저장' #</a>" },
+                    { field: 'work_title', title: '작업제목', width: 150, template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-title-pk=\"#=work_order_pk#\">#=work_title#</a>" },
+                    { field: 'wo_status_nm', title: '상태', width: 80, template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-status-pk=\"#=work_order_pk#\">#=wo_status_nm#</a>" },
                     { field: 'equip_cd', title: '설비코드', width: 100 },
                     { field: 'equip_nm', title: '설비명', width: 150 },
                     { field: 'req_dept_nm', title: '요청부서', width: 100 },
@@ -264,7 +208,7 @@
 					myWorkReqPage.show(woTitlePk);
 					return; 
                 } else if (woStatusPk) {
-                    woStatHistPage.show();
+					woStatHistPage.show(woStatusPk);
                 }
             });
 
@@ -333,10 +277,9 @@
                 icon: "k-i-pencil",
                 themeColor: "info",
                 fillMode: "outline",
-                //spriteCssClass: "k-icon k-foo",
                 click: function (e) {
-                    e.preventDefault();
-                    $("#modalMyWorkReq").fadeIn();
+                    e.preventDefault();                   
+					myWorkReqPage.show();
                 }
             }).css('visibility', 'visible');
 
@@ -350,7 +293,6 @@
 
         }
 
-        // 로직 완성 필요
         searchMainData() {
             let _this = this;
 
@@ -368,7 +310,7 @@
             }
 
             let param = {
-                action: 'read',
+				action: 'my_work_request_read',
                 keyword: $('#keyword').val(),
                 req_dept: $("#req_dept").data("kendoDropDownTree").value(),
                 rqst_user_nm: $('#rqst_user_nm').val(),
@@ -377,13 +319,13 @@
                 wo_status: $('#wo_status').val(),
                 maint_type_cd: $('#maint_code').val(),
                 dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
-                //problem_cd: $('#problem_cd').val(),
-                //cause_cd: $('#cause_cd').val(),
+                problem_cd: $('#problem_cd').val(),
+                cause_cd: $('#cause_cd').val(),
 
-                //srch_wo_no_only: $('#srch_wo_no_only').data("kendoSwitch").check() ? 'Y' : 'N'
-                //srch_my_req_only: $('#srch_my_req_only').data("kendoSwitch").check() ? 'Y' : 'N'
-                //srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
-                //srch_non_del_only: $('#srch_non_del_only').data("kendoSwitch").check() ? 'Y' : 'N'
+                srch_wo_no_only: $('#srch_wo_no_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_my_req_only: $('#srch_my_req_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_non_del_only: $('#srch_non_del_only').data("kendoSwitch").check() ? 'Y' : 'N'
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
@@ -394,7 +336,7 @@
         exportExcel() {
             let gridData = $('#work_order_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "equipment.xlsx";
+                e.workbook.fileName = "WO 요청내역.xlsx";
             });
             gridData.saveAsExcel();
         }

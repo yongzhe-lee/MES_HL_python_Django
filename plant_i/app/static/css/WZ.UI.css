@@ -2199,5 +2199,145 @@ div[class^='smp_state_div_'] {
 
 
 
+/* 검색부 확장 */
+/* ✅ 검색 폼 기본 상태: 한 줄만 보이게 설정 */
+#searchFormContent {
+    overflow: hidden;
+    height: 50px; /* ✅ 한 줄만 보이도록 설정 */
+    transition: height 0.3s ease-in-out;
+}
 
+/* ✅ 검색 폼이 펼쳐진 상태 */
+.search-expanded {
+    height: auto !important; /* ✅ 펼칠 때 전체 보이도록 설정 */
+}
+
+/* ✅ 접기/펼치기 버튼 스타일 */
+#toggleSearchBtn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+    #toggleSearchBtn::before {
+        content: "▼";
+        color: #0d6efd;
+        font-size: 20px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        transition: transform 0.3s ease; /* ✅ 애니메이션 적용 */
+    }
+
+    #toggleSearchBtn.expanded::before {
+        content: "▲";
+    }
+
+
+/* 줌 버튼 */
+.zoombutton {
+    background: #409EFF !important;
+    color: white !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    width: 22px !important;
+    height: 22px !important;
+}
+
+    .zoombutton:hover {
+        background: #2980b9 !important;
+    }
+
+/* Kendo Scheduler 이벤트 바깥 파란색(기본 배경, 테두리) 제거 */
+.k-event, .k-scheduler-event, .k-event-template {
+    background: #fff !important;
+    border-color: #fff !important;
+    color: #1976d2;
+}
+
+/* 작업지시 - 그리드 - 유형 칼럼 - 버튼 스타일*/
+.my-grid-btn {
+    display: inline-block;
+    font-size: 12px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.my-grid-btn--mini {
+    height: 20px;
+    padding: 0 5px;
+    line-height: 19px;
+}
+
+.my-grid-btn--wo {
+    background-color: #4FC1E9;
+    border-color: #3BAFDA;
+    color: #fff;
+}
+
+.my-grid-btn--wor {
+    background-color: #286090;
+    border-color: #204d74;
+    color: #fff;
+}
+
+.my-grid-btn--pm {
+    background-color: #2fcbbc;
+    border-color: #28b5a9;
+    color: #fff;
+}
+
+.my-grid-btn--insp {
+    background-color: #FC6251;
+    border-color: #E9573F;
+    color: #fff;
+}
+
+.my-grid-btn--dpr {
+    background-color: #eeac1a;
+    border-color: #e09e0f;
+    color: #fff;
+}
+
+.form-ui {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.col-sm-6, .col-md-4, .col-lg-3, .col-xl-3, .col-auto {
+    min-width: 0 !important;
+    /* flex 상황에서 반드시 필요 */
+}
+
+.field-wrapper {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+    .field-wrapper select,
+    .field-wrapper .k-input-inner {
+        flex: 1 1 0;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-sizing: border-box;
+    }
+
+.col-auto {
+    flex: 0 0 auto;
+}
 

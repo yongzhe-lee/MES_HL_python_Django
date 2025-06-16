@@ -21,9 +21,9 @@ def tagdata_list(context):
             tag_group = gparam.get('tag_group', '')
             tag_code = gparam.get('tag_code', '')
 
-            table = 'tag_dat'
+            table = 'das.tag_dat'
             if tag_group=="7":
-                table = 'em_tag_dat'
+                table = 'das.em_tag_dat'
 
 
             sql = f''' 

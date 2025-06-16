@@ -1,10 +1,10 @@
-from django import db
+﻿from django import db
 from domain.services.date import DateUtil
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmEquipChkSche
-from symbol import factor
+#from symbol import factor
 
 def equip_chk_sche(context):
     '''
@@ -236,20 +236,20 @@ def equip_chk_sche(context):
                     from cm_equip_chk_item_mst ecim 
                     where ecim.chk_sche_pk = t.chk_sche_pk) as item_count
 			from cm_equip_chk_sche t
-			inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = t.chk_mast_pk
-			left join cm_base_code ct on ct.code_cd = ecm.cycle_type
-			and ct.code_grp_cd = 'CYCLE_TYPE'
-			left join dept d on d.id = t.dept_pk
-			inner join cm_base_code cs on cs.code_cd = t.chk_status
-			and cs.code_grp_cd = 'CHK_STATUS'
-			inner join cm_equip_chk_rslt ecr on ecr.chk_sche_pk = t.chk_sche_pk
-			inner join cm_equipment e on e.equip_pk = ecr.equip_pk
-			left join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
-			inner join cm_location l on l.loc_pk = e.loc_pk
-			left join dept ed on ed.id = e.dept_pk
-			left join user_profile cu on cu."User_id" = t.chk_user_pk 
+			    inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = t.chk_mast_pk
+			    left join cm_base_code ct on ct.code_cd = ecm.cycle_type
+			        and ct.code_grp_cd = 'CYCLE_TYPE'
+			    left join dept d on d.id = t.dept_pk
+			    inner join cm_base_code cs on cs.code_cd = t.chk_status
+			        and cs.code_grp_cd = 'CHK_STATUS'
+			    inner join cm_equip_chk_rslt ecr on ecr.chk_sche_pk = t.chk_sche_pk
+			    inner join cm_equipment e on e.equip_pk = ecr.equip_pk
+			    left join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
+			    inner join cm_location l on l.loc_pk = e.loc_pk
+			    left join dept ed on ed.id = e.dept_pk
+			    left join user_profile cu on cu."User_id" = t.chk_user_pk 
 		    where 1 = 1
-            AND t.chk_sche_pk = %(chkSchePk)s
+                AND t.chk_sche_pk = %(chkSchePk)s
             '''
             sql += ''' group by t.chk_mast_pk, ecm.chk_mast_no, ecm.chk_mast_nm
 			, t.chk_sche_pk, t.chk_sche_no, t.chk_sche_dt
@@ -267,7 +267,13 @@ def equip_chk_sche(context):
             dc = {}
             dc['chkSchePk'] = chkSchePk
 
-            items = DbUtil.get_row(sql, dc)
+            try:
+                items = DbUtil.get_rows(sql, dc)
+            except Exception as ex:
+                LogWriter.add_dblog('error','findOne', ex)
+                raise ex
+
+            return {'success': True, 'data': items}
 
         elif action in ['insert', 'update']:
             chkSchePk = CommonUtil.try_int(posparam.get('chkSchePk'))
@@ -362,31 +368,39 @@ def equip_chk_sche(context):
 
             items = {'success': True}
     
+        #수동 점검스케줄 만들기
         elif action == 'executeMakeScheduleInsp':
-            ''' 점검스케줄 만들기
-            '''
-            chkMastPk = CommonUtil.try_int(posparam.get('chkMastPk'))
-            scheType = posparam.get('scheType')
-            startDate = posparam.get('startDate')
-            endDate = posparam.get('endDate')
+            ''' ["1000","1002"] '''
+            equipChkList = posparam.get('equipChkList').split(',')         
+        
+            #for문으로 아래를 반복실행
+            for chkMastPk in equipChkList:
             
-            sql = ''' select cm_fn_make_schedule_insp(%(scheType)s
-			, %(chkMastPk)s
-			, to_date(%(startDate)s, 'YYYYMMDD')
-			, to_date(%(endDate)s, 'YYYYMMDD')
-			, %(factory_pk)s )
-            '''
+                scheType = posparam.get('scheType')
+                startDate = posparam.get('startDate')
+                endDate = posparam.get('endDate')
+            
+                sql = ''' select cm_fn_make_schedule_insp(%(scheType)s
+		        , %(chkMastPk)s
+		        , %(startDate)s
+		        , %(endDate)s
+		        , %(factory_pk)s )
+                '''
 
-            dc = {}
-            dc['chkMastPk'] = chkMastPk
-            dc['scheType'] = scheType
-            dc['startDate'] = startDate
-            dc['endDate'] = endDate
-            dc['factory_pk'] = factory_id
+                dc = {}
+                dc['chkMastPk'] = chkMastPk
+                dc['scheType'] = scheType
+                dc['startDate'] = startDate
+                dc['endDate'] = endDate
+                dc['factory_pk'] = 1 #factory_id
 
-            ret = DbUtil.execute(sql, dc)
+                try:
+                    ret = DbUtil.execute(sql, dc)
+                except Exception as ex:
+                    LogWriter.add_dblog('error','executeMakeScheduleInsp', ex)
+                    raise ex
 
-            return {'success': True, 'message': '설비점검스케줄이 수정되었습니다.'}
+            return {'success': True, 'message': '설비점검스케줄이 생성되었습니다.'}
 
         elif action == 'getEquipChkItemInfo':
             chkSchePk = CommonUtil.try_int( gparam.get('chkSchePk') )
@@ -442,6 +456,7 @@ def equip_chk_sche(context):
 
             items = DbUtil.get_row(sql, dc)
 
+        #점검일정목록
         elif action == 'searchEquipSchedule':
             chkMastPk = CommonUtil.try_int(gparam.get('chkMastPk'))
             chkSchePk = CommonUtil.try_int(gparam.get('chkSchePk'))
@@ -473,31 +488,33 @@ def equip_chk_sche(context):
             calYn = gparam.get('calYn')
             '''
 
-            sql = ''' SELECT ecs.chk_sche_pk, ecs.chk_sche_no, ecm.chk_mast_pk
-			, ecm.chk_mast_no, ecm.chk_mast_nm, d."Name" as dept_nm, fn_user_nm(cu."Name", 'N') as chk_user_nm
-			, bc.code_nm as chk_status_nm, bc.code_cd as chk_status_cd, bc.code_cd as chk_status
-			, ecm.last_chk_date, ecs.chk_sche_dt, ecs.chk_dt
-			, count(distinct e.equip_pk) as equip_cnt
-			, count(distinct eim.chk_item_pk) as item_cnt
-			, count(distinct case when ecr.chk_rslt='N' then e.equip_pk else null end) as normal_count
-			, count(distinct case when ecr.chk_rslt='A' then e.equip_pk else null end) as fail_count
-			, count(distinct case when ecr.chk_rslt='C' then e.equip_pk else null end) as unable_check_count
-			, count(distinct case when ecr.chk_rslt_file_grp_cd is not null then e.equip_pk else null end) as result_attach_count
-			, count(wo.work_order_no) as wo_count
+            sql = ''' 
+            SELECT ecs.chk_sche_pk, ecs.chk_sche_no, ecm.chk_mast_pk
+			    , ecm.chk_mast_no, ecm.chk_mast_nm, d."Name" as dept_nm, fn_user_nm(cu."Name", 'N') as chk_user_nm
+			    , bc.code_nm as chk_status_nm, bc.code_cd as chk_status_cd, bc.code_cd as chk_status
+			    , ecm.last_chk_date, ecs.chk_sche_dt, ecs.chk_dt
+			    , count(distinct e.equip_pk) as equip_cnt
+			    , count(distinct eim.chk_item_pk) as item_cnt
+			    , count(distinct case when ecr.chk_rslt='N' then e.equip_pk else null end) as normal_count
+			    , count(distinct case when ecr.chk_rslt='A' then e.equip_pk else null end) as fail_count
+			    , count(distinct case when ecr.chk_rslt='C' then e.equip_pk else null end) as unable_check_count
+			    , count(distinct case when ecr.chk_rslt_file_grp_cd is not null then e.equip_pk else null end) as result_attach_count
+			    , count(wo.work_order_no) as wo_count
 			FROM cm_equip_chk_sche ecs
-			inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = ecs.chk_mast_pk
-			inner join cm_equip_chk_item_mst eim on eim.chk_sche_pk = ecs.chk_sche_pk
-			left join dept d on d.id = ecs.dept_pk
-			left join user_profile cu on cu."User_id" = ecs.chk_user_pk 
-			inner join cm_base_code bc on bc.code_cd = ecs.chk_status 
-			and bc.code_grp_cd='CHK_STATUS'
-			inner join cm_equip_chk_rslt ecr on ecs.chk_sche_pk=ecr.chk_sche_pk
-			inner join cm_equipment e on ecr.equip_pk=e.equip_pk
-			left join dept ed on e.dept_pk = ed.id
-			left join cm_work_order wo on ecr.chk_rslt_pk = wo.chk_rslt_pk 
-			AND wo.factory_pk = 1
-			WHERE ecm.factory_pk = e.factory_pk
-			AND e.factory_pk = 1
+			    inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = ecs.chk_mast_pk
+			    inner join cm_equip_chk_item_mst eim on eim.chk_sche_pk = ecs.chk_sche_pk
+			    left join dept d on d.id = ecs.dept_pk
+			    left join user_profile cu on cu."User_id" = ecs.chk_user_pk 
+			    inner join cm_base_code bc on bc.code_cd = ecs.chk_status 
+			        and bc.code_grp_cd='CHK_STATUS'
+			    inner join cm_equip_chk_rslt ecr on ecs.chk_sche_pk=ecr.chk_sche_pk
+			    inner join cm_equipment e on ecr.equip_pk=e.equip_pk
+			    left join dept ed on e.dept_pk = ed.id
+			    left join cm_work_order wo on ecr.chk_rslt_pk = wo.chk_rslt_pk 
+			        --AND wo.factory_pk = 1
+			WHERE 1= 1
+                --ecm.factory_pk = e.factory_pk
+			    --AND e.factory_pk = 1
             '''
             if searchText:
                 sql += ''' AND (
@@ -512,30 +529,44 @@ def equip_chk_sche(context):
 				    UPPER(cast(t.chk_sche_no as text)) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
    			    )	
             '''
-            if chkMastNo:
-                sql += ''' AND ecm.chk_mast_no = %(chkMastNo)s
-               '''
+            #if chkMastNo:
+            #    sql += ''' AND ecm.chk_mast_no = %(chkMastNo)s
+            #   '''
+            
+     #        if chkScheNo:
+     #            sql += ''' AND ecs.chk_sche_no = %(chkScheNo)s
+     #           '''
+     #        else:
+     #            sql += ''' AND case when %(chkStatus)s = 'CHK_STATUS_NP' then bc.grp_cd else bc.code_cd end 
+     #                    = case when %(chkStatus)s = 'CHK_STATUS_NP' then 'NP' 
+     #                            when coalesce('chkStatus', '') = '' then bc.code_cd 
+     #                            else %(chkStatus)s end
+					# AND date(case when %(chkStatus)s = 'CHK_STATUS_Y' then ecs.chk_dt 
+     #                        else ecs.chk_sche_dt end) >= to_date(%(startDate)s, 'YYYY-MM-DD')
+					#  	and date(case when %(chkStatus)s = 'CHK_STATUS_Y' then ecs.chk_dt 
+     #                        else ecs.chk_sche_dt end) <= to_date(%(endDate)s, 'YYYY-MM-DD')
+     #           '''
             if chkScheNo:
                 sql += ''' AND ecs.chk_sche_no = %(chkScheNo)s
-               '''
-            else:
-                sql += ''' AND case when %(chkStatus)s = 'CHK_STATUS_NP' then bc.grp_cd else bc.code_cd end 
-                        = case when %(chkStatus)s = 'CHK_STATUS_NP' then 'NP' 
-                                when coalesce('chkStatus', '') = '' then bc.code_cd 
-                                else %(chkStatus)s end
-					AND date(case when %(chkStatus)s = 'CHK_STATUS_Y' then ecs.chk_dt 
-                            else ecs.chk_sche_dt end) >= to_date(%(startDate)s, 'YYYY-MM-DD')
-					 	and date(case when %(chkStatus)s = 'CHK_STATUS_Y' then ecs.chk_dt 
-                            else ecs.chk_sche_dt end) <= to_date(%(endDate)s, 'YYYY-MM-DD')
                 '''
-            if deptPk > 0:
+            else:
+               sql += '''                 
+				    AND date(case when coalesce(%(chkStatus)s, '') = 'CHK_STATUS_Y' then ecs.chk_dt else ecs.chk_sche_dt end) >= to_date(%(startDate)s, 'YYYY-MM-DD')
+                   and date(case when coalesce(%(chkStatus)s, '') = 'CHK_STATUS_Y' then ecs.chk_dt else ecs.chk_sche_dt end) <= to_date(%(endDate)s, 'YYYY-MM-DD')
+                '''            
+
+            if chkStatus:
+                sql += ''' AND ecs.chk_status = %(chkStatus)s
+                '''
+
+            if deptPk and deptPk > 0:
                 sql += ''' AND (
 					    d.id = %(deptPk)s
 					    OR
 					    d.id In (select dept_pk from cm_v_dept_path where %(deptPk)s = path_info_pk)
 				    )
                 '''
-            if equipDeptPk > 0:
+            if equipDeptPk and equipDeptPk > 0:
                 sql += ''' AND (
 					    ed.id = %(equipDeptPk)s
 					    OR
@@ -545,10 +576,10 @@ def equip_chk_sche(context):
             if environEquipYn:
                 sql += ''' AND e.environ_equip_yn = %(environEquipYn)s
                 '''
-            if chkUserPk > 0:
+            if chkUserPk and chkUserPk > 0:
                 sql += ''' AND cu."User_id"  = %(chkUserPk)s
                 '''
-            if locPk > 0:
+            if locPk and locPk > 0:
                 sql += ''' AND (
 					    e.loc_pk = %(locPk)s
 					    OR
@@ -569,7 +600,7 @@ def equip_chk_sche(context):
             dc['searchText'] = searchText
             dc['startDate'] = startDate
             dc['endDate'] = endDate
-            dc['chkMastNo'] = chkMastNo
+            #dc['chkMastNo'] = chkMastNo
             dc['chkScheNo'] = chkScheNo
             dc['deptPk'] = deptPk
             dc['equipDeptPk'] = equipDeptPk
@@ -585,8 +616,12 @@ def equip_chk_sche(context):
             dc['chkStatus'] = chkStatus
             dc['factory_pk'] = factory_id
 
-            items = DbUtil.get_row(sql, dc)
-
+            try:
+                items = DbUtil.get_rows(sql, dc)
+            except Exception as ex:
+                LogWriter.add_dblog('error','searchEquipSchedule', ex)
+                raise ex
+            return {'success': True, 'data': items}
         elif action == 'selectEquipResult':
             ''' 원 자바 소스에 버그가 있었음.
             '''

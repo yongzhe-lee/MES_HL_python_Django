@@ -31,6 +31,7 @@ def equipment_group(context):
             equipment_type = posparam.get('equipment_type')
             equipment_group_code = posparam.get('equipment_group_code')
             equipment_group_name = posparam.get('equipment_group_name')
+            description = posparam.get('description')
 
             if id > 0:
                 q = EquipmentGroup.objects.filter(Code=equipment_group_code)
@@ -59,6 +60,7 @@ def equipment_group(context):
             equ_grp.Code = equipment_group_code
             equ_grp.Name = equipment_group_name
             equ_grp.EquipmentType = equipment_type
+            equ_grp.Description = description
             equ_grp.set_audit(user)
 
             equ_grp.save()

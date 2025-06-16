@@ -1,4 +1,4 @@
-
+﻿
 <div id="modalPiMaster" class="modal">
 	<div class="modal-content">
 		<div class="modal-header">
@@ -24,7 +24,6 @@
 					<button class="tab-button">작업결과 목록</button>
 					<button class="tab-button">작업 WO 목록</button>
 				</div>
-
 
 				<div class="tab-content">
 					<!-- 계획 탭 컨텐츠 -->
@@ -155,10 +154,60 @@
 					</div>
 
 
-					<!-- PM WO 목록 탭 컨텐츠 -->
-					<div id="pmWorkOrderContent" class="pmwo-content" style="display: none;">
-						<div id="pmWorkOrderGrid"></div>
+					<!-- 점검결과 목록 탭 컨텐츠 -->
+					<div id="piCheckResult" style="display: none;">
+						<div class="section-header" style="display: flex; justify-content: flex-end;">
+							<div class="button-group">
+								<button type="button" id="emptyButton" style="visibility: hidden;">
+								</button>
+							</div>
+						</div>
+						<div class="swing-el-tab-scroll" style="height: 412px;">
+							<table class="swing-table swing-table-bordered swing-table-striped mb-0" id="tblChkResult">
+								<thead>
+									<tr style="border-top: 2px solid #343a40;">
+										<th width="10%" class="text-center">점검일정번호</th>
+										<th width="15%" class="text-center">점검일정 생성일</th>
+										<th width="15%" class="text-center">점검일정 상태</th>
+										<th width="15%" class="text-center">점검 계획일</th>
+										<th width="15%" class="text-center">점검 완료일</th>
+										<th width="10%" class="text-center">점검이상</th>
+										<th width="10%" class="text-center">담당자</th>
+									</tr>
+								</thead>
+								<tbody id="piResultTable">
+								</tbody>
+							</table>
+						</div>
 					</div>
+
+					<!-- 작업 WO 목록 탭 컨텐츠 -->
+					<div id="piWorkOrderContent" style="display: none;">
+						<div class="section-header" style="display: flex; justify-content: flex-end;">
+							<div class="button-group">
+								<button type="button" id="emptyButton" style="visibility: hidden;">
+								</button>
+							</div>
+						</div>
+						<div class="swing-el-tab-scroll" style="height: 412px;">
+							<table class="swing-table swing-table-bordered swing-table-striped mb-0" id="tblWo">
+								<thead>
+									<tr style="border-top: 2px solid #343a40;">
+										<th width="14%" class="text-center">WO 번호</th>
+										<th width="25%" class="text-center">WO 생성일</th>
+										<th width="14%" class="text-center">WO 상태</th>
+										<th width="20%" class="text-center">작업 계획일</th>
+										<th width="8%" class="text-center">작업 완료일</th>
+										<th width="5%" class="text-center">담당자</th>
+									</tr>
+								</thead>
+								<tbody id="piWoTable">
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+
 				</div>
 			</div>
 		</div>
@@ -218,7 +267,7 @@
 			</div>
 		</td>
 		<td id="colChkItemNm" class="text-right bg-edit-cell">
-			<input type="text" class="form-control chkItemNm" maxlength="100" value="#= item.chkItemNm #" />
+			<input type="text" class="form-control chk_item_nm" maxlength="100" value="#= item.chk_item_nm #" />
 		</td>
 		<td id="colLcl" class="text-right bg-edit-cell">
 			<input type="text" class="form-control lcl" maxlength="100" value="#= item.lcl #"/>
@@ -231,7 +280,7 @@
 				<option value="">단위선택</option>
 				# for (var i = 0; i < chkItemUnitData.length; i++) { #
 				<option value="#= chkItemUnitData[i].value #"
-					# if (item.chkItemUnitPk == chkItemUnitData[i].value) { # selected # } #>
+					# if (item.chk_item_unit_pk == chkItemUnitData[i].value) { # selected # } #>
 					#= chkItemUnitData[i].text #
 				</option>
 				# } #
@@ -245,6 +294,46 @@
 				<span>삭제</span>
 			</botton>
 		</td>
+	</tr>
+	# } #
+
+</script>
+
+<script type="text/x-kendo-template" id="tblChkResultTemp">
+	# if ( data.length == 0 ){ #
+	<tr>
+		<td colspan="9">조회된 데이터가 없습니다</td>
+	</tr>
+	# } #
+	# for (let index=0; index<data.length; index++) { let item = data[index]; #
+	<tr id="chkresult_rows_#=item.chk_sche_no#" >
+		<td id="col" class="text-left">#=item.chk_sche_no#</td>
+		<td id="col" class="text-left">#=item.plan_insert_ts#</td>
+		<td id="col" class="text-left">#=item.chk_status_nm#</td>
+		<td id="col" class="text-left">#=item.chk_sche_dt#</td>
+		<td id="col" class="text-left">#=item.chk_dt#</td>
+		<td id="col" class="text-left">#=item.fail_count#</td>
+		<td id="col" class="text-left">#=item.chk_user_nm#</td>
+	</tr>
+	# } #
+
+</script>
+
+<script type="text/x-kendo-template" id="tblWoListTemp">
+	# if ( data.length == 0 ){ #
+	<tr>
+		<td colspan="9">조회된 데이터가 없습니다</td>
+	</tr>
+	# } #
+	# for (let index=0; index<data.length; index++) { let item = data[index]; #
+	<tr id="chkresult_rows_#=item.chk_sche_no#" >
+		<td id="col" class="text-left">#=item.chk_sche_no#</td>
+		<td id="col" class="text-left">#=item.plan_insert_ts#</td>
+		<td id="col" class="text-left">#=item.chk_status_nm#</td>
+		<td id="col" class="text-left">#=item.chk_sche_dt#</td>
+		<td id="col" class="text-left">#=item.chk_dt#</td>
+		<td id="col" class="text-left">#=item.fail_count#</td>
+		<td id="col" class="text-left">#=item.chk_user_nm#</td>
 	</tr>
 	# } #
 
@@ -379,16 +468,26 @@
 			//점검설비 array
 			this.chkEquipGrid = [];
 
+            //choi : callback이 여러번 발생하여 한번만 선언하게 전역으로 선언함
+            this.popupEquipments = new EquipmentsPage();
+
 			//템플릿
-			this.template = null;
 			this.templateEquip = null;
+            this.templateItem = null;
+
+			//added by choi : 2025/06/10
+			this.templateResult = null;
+			this.templateWo = null;
 
 			//점검항목 array
 			this.chkItemGrid = [];
 			this.chkItemUnitList = [];			
 
-			//choi : callback이 여러번 발생하여 한번만 선언하게 전역으로 선언함
-            this.popupEquipments = new EquipmentsPage();
+			//점검결과 array
+            this.chkResultGrid = [];
+
+            //WO array
+            this.chkWoGrid = [];
 
 			//added by choi : 2025/05/08
 			this.popupItems = new ItemsPage();
@@ -430,11 +529,9 @@
                 _this.checkCycleInfo();
             });
 
-            //AjaxUtil.fillDropDownOptions($('#pmType'), 'user_code', 'choose', null, 'PM_TYPE');
             AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
             AjaxUtil.fillDropDownOptions($('#piManager'), 'auth_user', 'choose', null);
             AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
-			//AjaxUtil.fillDropDownOptions($('#selJobClass'), 'job_class', 'choose', null);
 
 
 			//for test
@@ -490,7 +587,6 @@
             //------------------설비 Kendo 템플릿 초기화
             _this.templateEquip = kendo.template($("#tblChkEquipTemp").html());
 
-            // 2개의 데이타를 준비하고 piCheckTable에 삽입
             $("#piEquipTable").html(_this.templateEquip({
                 data: _this.chkEquipGrid
             }));
@@ -502,10 +598,10 @@
 
 
             //------------------점검항목 Kendo 템플릿 초기화
-            _this.template = kendo.template($("#tblChkItemTemp").html());
+            _this.templateItem = kendo.template($("#tblChkItemTemp").html());
 
             // 2개의 데이타를 준비하고 piCheckTable에 삽입
-            $("#piCheckTable").html(_this.template({
+            $("#piCheckTable").html(_this.templateItem({
                 data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
             }));
 
@@ -520,10 +616,10 @@
                     let checkItemData =
                     {
                         itemIdx: "",     //이 값은 html에서 값을 가져와야 함
-                        chkItemNm: "",
+                        chk_item_nm: "",
                         lcl: "",
                         ucl: "",
-                        chkItemUnitPk: "",
+                        chk_item_unit_pk: "",
                         guide: "",
                         method: "",
                         chkItemPk: "",
@@ -535,7 +631,7 @@
                     console.log("_this.chkItemGrid:", _this.chkItemGrid);
 
                     // 렌더링 결과를 piCheckTable에 삽입
-                    $("#piCheckTable").html(_this.template({
+                    $("#piCheckTable").html(_this.templateItem({
                         data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
                     }));
 
@@ -559,17 +655,17 @@
                         console.log("before 기존 항목:", _this.chkItemGrid.length, _this.chkItemGrid);
 
                         selectedItems.forEach(selItem => {
-                            const exists = _this.chkItemGrid.some(item => item.chkItemNm === selItem.chk_item);
+                            const exists = _this.chkItemGrid.some(item => item.chk_item_nm === selItem.chk_item);
 							if (!exists) {
 
                                 //빈 항목 추가
                                 let checkItemData =
                                 {
 									itemIdx: "",     //이 값은 html에서 값을 가져와야 함
-									chkItemNm: selItem.chk_item,
+                                    chk_item_nm: selItem.chk_item,
                                     lcl: "",
 									ucl: "",
-                                    chkItemUnitPk: selItem.chk_item_unit_pk,
+                                    chk_item_unit_pk: selItem.chk_item_unit_pk,
                                     guide: "",
                                     method: "",
                                     chkItemPk: "",
@@ -583,7 +679,7 @@
                         console.log("after기존 항목:", _this.chkItemGrid.length, _this.chkItemGrid);
 
                         // 렌더링 결과를 piCheckTable에 삽입
-                        $("#piCheckTable").html(_this.template({
+                        $("#piCheckTable").html(_this.templateItem({
                             data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
                         }));
 
@@ -593,7 +689,15 @@
             });
 
 
-            //----------------------end of 점검항목추가
+			//----------------------end of 점검항목추가
+
+			//----------------------점검결과
+            _this.templateResult = kendo.template($("#tblChkResultTemp").html());
+            //----------------------end of 점검결과
+
+            //----------------------WO
+            _this.templateWo = kendo.template($("#tblWoListTemp").html());
+            //----------------------end of WO
 
         }//end init()
 
@@ -608,7 +712,7 @@
 				$(this).addClass('active');
 
 				// 모든 컨텐츠 숨기기
-				$('#piMasterForm, #piEquip,  #piCheckItem, #pmWorkOrderContent').hide();
+                $('#piMasterForm, #piEquip,  #piCheckItem, #piCheckResult, #piWorkOrderContent').hide();
 
 				// 탭 내용 전환
 				var tabName = $(this).text().trim();
@@ -619,20 +723,14 @@
 					case '점검설비':
 						$('#piEquip').show();
 						break;
-					case '점검항목':
+                    case '점검항목':
 						$('#piCheckItem').show();
 						break;
-					case 'PM WO 목록':
-						$('#pmWorkOrderContent').show();
-						// PM WO 목록 탭 선택 시에만 데이터 로드
-						var grid = $("#pmWorkOrderGrid").data("kendoGrid");
-						var pmPk = $('#pm_pk').val();
-						if (grid && pmPk) {
-							console.log("Loading PM WO data for pm_pk:", pmPk);
-							grid.dataSource.read();
-						} else {
-							console.log("Grid or pm_pk not available:", { grid: !!grid, pmPk: pmPk });
-						}
+                    case '작업결과 목록':
+                        $('#piCheckResult').show();
+                        break;
+                    case '작업 WO 목록':
+						$('#piWorkOrderContent').show();
 						break;
 				}
 			});
@@ -810,7 +908,7 @@
 				console.log(_this.chkItemGrid);
 
 				// 렌더링 결과를 piCheckTable에 삽입
-				$("#piCheckTable").html(_this.template({
+                $("#piCheckTable").html(_this.templateItem({
 					data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
 				}));
 				_this.tableReorder('tblChkItem', 'colItemIdx');
@@ -836,7 +934,7 @@
 				_this.chkItemGrid[index + 1] = temp;
 
 
-                $("#piCheckTable").html(_this.template({
+                $("#piCheckTable").html(_this.templateItem({
                     data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
 				}));
 
@@ -866,7 +964,7 @@
                 _this.chkItemGrid[index-1] = temp;
 
 
-                $("#piCheckTable").html(_this.template({
+                $("#piCheckTable").html(_this.templateItem({
                     data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
                 }));
 
@@ -877,7 +975,7 @@
 			});
 
 
-			$('#piCheckTable').off('input', '.chkItemNm').on('input', '.chkItemNm', function () {
+            $('#piCheckTable').off('input', '.chk_item_nm').on('input', '.chk_item_nm', function () {
 				const $tr = $(this).closest('tr');
 				const rowIndex = $tr.index();  // tbody 기준 몇 번째 tr인지
 
@@ -887,7 +985,7 @@
 				console.log("value=", value);
 
 				if (_this.chkItemGrid && _this.chkItemGrid[rowIndex]) {
-					_this.chkItemGrid[rowIndex].chkItemNm = value;  // 데이터 반영
+                    _this.chkItemGrid[rowIndex].chk_item_nm = value;  // 데이터 반영
 				}
 			});
 
@@ -955,7 +1053,7 @@
                         console.log("newValue value=", newValue);
 
                         if (_this.chkItemGrid && _this.chkItemGrid[rowIndex]) {
-                            _this.chkItemGrid[rowIndex].chkItemUnitPk = newValue;
+                            _this.chkItemGrid[rowIndex].chk_item_unit_pk = newValue;
                         }
                     }
                 });
@@ -1015,20 +1113,13 @@
 			let funcSucc = function (resp) {
 				if (resp.success) {
 					// 기본 정보 저장 성공 시 작업 인력 저장 진행
-
 					console.log("saveData resp:", resp)
-
-					// choi : 다음으로 설비를 저장한다
-					_this.saveEquip(resp);
 				} else {
 					Alert.alert('error', resp.message);
 				}
 			};
 
 			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
-
-
-
 
 			$("#modalPiMaster").fadeOut();
 		}
@@ -1065,133 +1156,106 @@
 			this.checkCycleInfo();
 		}
 
-		//pm 마스터
-		getPmMasterModal(pmId) {
+		//pi 마스터 상세보기
+		getPiMasterModal(mastpk) {
 			let _this = this;
 
-			// 1. PM 상세 정보 API 호출
+			// 1. PI 상세 정보 API 호출
 			let param = {
-				action: 'detail',
-				id: pmId,
+                action: 'findOne',
+                chkMastPk: mastpk,
 			};
-			let pmData = AjaxUtil.getSyncData(_this.baseUrl, param);
+			let piData = AjaxUtil.getSyncData(_this.baseUrl, param);
+			console.log("piData=", piData);
 
-			// 2. PM 작업 인력 API 호출
-			let param2 = {
-				action: 'detail_pm_labor',
-				id: pmId,
+            // 기존 데이터 바인딩
+            _this.bindPiMasterData(piData);
+
+			// 2. 설비리스트를 가져 온다
+            let param2 = {
+                action: 'findAll',
+                chkMastPk: mastpk,
 			};
-			let pmDataLabor = AjaxUtil.getSyncData(_this.baseUrl, param2);
 
-			// 3. PM 필요자재 API 호출
-			let param3 = {
-				action: 'detail_pm_mtrl',
-				id: pmId,
-			};
-			let pmDataMtrl = AjaxUtil.getSyncData(_this.baseUrl, param3);
+            let equipData = AjaxUtil.getSyncData('/api/kmms/chk_equip', param2);
+			console.log("equipData=", equipData);
 
-			// 1.1. 기존 데이터 바인딩
-			piMasterPage.bindPmMasterData(pmData);
+			_this.chkEquipGrid = equipData;
 
-			// 2.1. 작업인력 테이블 초기화 및 데이터 바인딩
-			$('#jobClassTable tbody').empty();
+			// 그리드에 설비리스트를 보여준다
+            $("#piEquipTable").html(_this.templateEquip({
+                data: _this.chkEquipGrid
+            }));
 
-			if (Array.isArray(pmDataLabor) && pmDataLabor.length > 0) {
-				pmDataLabor.forEach((labor, index) => {
+            _this.tableReorder4Equip();
 
-					// null 체크를 포함한 안전한 데이터 접근
-					const id = labor?.id || '';
-					const job_class_pk = labor?.job_class_pk || '';
-					const job_class_nm = labor?.job_class_nm || '';
-					const work_hr = labor?.work_hr || '';
+			// 3. 점검항목을 가져온다
+            let param3 = {
+                action: 'findAll',
+                chkMastPk: mastpk,
+            };
 
-					const newRow = `
-						<tr data-value="${job_class_pk}">
-							<td>${index + 1}</td>
-							<td style="display: none;">${job_class_pk}</td>
-							<td>${job_class_nm}</td>
-							<td>
-								<input type="number"
-									   class="form-control form-control-sm text-end"
-									   min="0"
-									   step="0.5"
-									   placeholder="시간 입력"
-									   value="${work_hr}" />
-							</td>
-							<td class="text-center">
-								<button type="button" class="btn-delete" onclick="deleteJobClassRow(this)">×</button>
-							</td>
-						</tr>
-					`;
-					$('#jobClassTable tbody').append(newRow);
-				});
-			} else {
-				console.log("📌 [ERROR] 작업인력 데이터가 없거나 유효하지 않음:", pmDataLabor);
-			}
+            let itemData = AjaxUtil.getSyncData('/api/kmms/equip_chk_item', param3);
+            console.log("itemData=", itemData);
 
-			// 3.1. 필요자재 테이블 초기화 및 데이터 바인딩
-			$('#materialTable tbody').empty();  // 기존 테이블 초기화
+            _this.chkItemGrid = itemData;
+            $("#piCheckTable").html(_this.templateItem({
+                data: _this.chkItemGrid, chkItemUnitData: _this.chkItemUnitList
+            }));
 
-			if (Array.isArray(pmDataMtrl) && pmDataMtrl.length > 0) {
-				pmDataMtrl.forEach((mtrl, index) => {
-
-					// null 체크를 포함한 안전한 데이터 접근
-					const mat_pk = mtrl?.mat_pk || '';
-					const mat_cd = mtrl?.mat_cd || '';
-					const mat_nm = mtrl?.mat_nm || '';
-					const amt = mtrl?.amt || '0';  // 기본값 설정
-					const unit = mtrl?.BasicUnit || '';
-
-					const newRow = `
-						<tr data-value="${mat_pk}">
-							<td>${mat_cd}</td>
-							<td>${mat_nm}</td>
-							<td>
-								<input type="number"
-									   class="form-control form-control-sm text-end"
-									   min="0"
-									   step="1"
-									   value="${amt}"
-									   placeholder="수량 입력"
-									   name="amt"/>
-							</td>
-							<td>${unit}</td>
-							<td class="text-center">
-								<button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
-							</td>
-						</tr>
-					`;
-					$('#materialTable tbody').append(newRow);  // materialTable로 수정
-				});
-			} else {
-				console.log("📌 [ERROR] 필요자재 데이터가 없거나 유효하지 않음:", pmDataMtrl);
-			}
-
+            // 후처리 함수 호출 (예: 순번 및 이벤트 다시 설정하기)
+            _this.tableReorder('tblChkItem', 'colItemIdx');
 			$("#modalPiMaster").fadeIn();
+
+			// 4. 점검결과를 가져온다
+            let param4 = {
+                action: 'selectEquipResultList',
+                chkMastPk: mastpk,
+            };
+
+            let resultData = AjaxUtil.getSyncData(_this.baseUrl, param4);
+            console.log("resultData=", resultData);
+
+            _this.chkResultGrid = resultData;
+            $("#piResultTable").html(_this.templateResult({
+                data: _this.chkResultGrid
+			}));
+
+			// 5. WO List를 가져온다
+            let param5 = {
+                action: 'selectEquipWoList',
+                chkMastPk: mastpk,
+            };
+
+            let woDataList = AjaxUtil.getSyncData(_this.baseUrl, param5);
+            console.log("woDataList=", woDataList);
+
+            _this.chkWoGrid = woDataList;
+            $("#piWoTable").html(_this.templateWo({
+                data: _this.chkWoGrid
+            }));
+
 		}
 
 		/**
-		 * PM 마스터 데이터를 모달 폼에 바인딩하는 함수
-		 * @param {Object} pmData - PM 마스터 상세 데이터
+		 * PI 마스터 데이터를 모달 폼에 바인딩하는 함수
+		 * @param {Object} piData - PI 마스터 상세 데이터
 		 */
-		bindPmMasterData(pmData) {
+        bindPiMasterData(piData) {
+			let _this = this;
+
 			// 기본 필드 바인딩
 			const basicFields = {
-				'equip_pk': pmData.equip_pk,
-				'pm_pk': pmData.pm_pk,
-				'pmNumber': pmData.pm_no,
-				'piName': pmData.pm_nm,
-				'work_text': pmData.work_text,
-				'equ_code': pmData.equ_code,
-				'equ_name': pmData.equ_name,
-				'equ_loc': pmData.equ_location,
-				'equ_import': pmData.import_rank,
-				'equ_status': pmData.Status,
-				'equ_env_yn': pmData.environ_equip_yn,
-				'maintenanceTime': pmData.work_expect_hr,
-				'perNumber': pmData.per_number,
-				'schedStartDt': pmData.sched_start_dt
+                'piNumber': piData.chk_mast_no,
+                'piName': piData.chk_mast_nm,                
+				'perNumber': piData.per_number,
+				'schedStartDt': piData.sched_start_date,
+				'work_text': piData.work_text,
 			};
+
+            //'cycleType': piData.cycle_type_cd,
+			//'executionDept': piData.dept_pk,
+            //'piManager': piData.chk_user_pk,
 
 			// 기본 필드 값 설정
 			// choi : 한꺼번에 값을 바인딩하네
@@ -1199,45 +1263,26 @@
 				$(`#${id}`).val(value);
 			});
 
-			// Kendo 드롭다운 컴포넌트 바인딩
-			const kendoDropdowns = [
-				{
-					id: 'executionDept',
-					type: 'kendoDropDownTree',
-					value: pmData.exec_dept
-				},
-				{
-					id: 'piManager',
-					type: 'kendoDropDownList',
-					value: pmData.pm_manager
-				},
-				{
-					id: 'pmType',
-					type: 'kendoDropDownList',
-					value: pmData.pm_type
-				},
-				{
-					id: 'cycleType',
-					type: 'kendoDropDownList',
-					value: pmData.cycle_type
-				}
-			];
 
-			kendoDropdowns.forEach(dropdown => {
-				const component = $(`#${dropdown.id}`).data(dropdown.type);
-				if (component) {
-					component.one("dataBound", function () {
-						component.value(dropdown.value);
-						component.trigger("change");
+            // Kendo 컴포넌트 바인딩 함수
+            function bindKendoComponent(selector, value) {
+                setTimeout(function () {
+                    let component = $(selector).data("kendoDropDownList") || $(selector).data("kendoDropDownTree");
+                    if (component) {
+                        component.value(value);
+                        component.trigger("change");
+                    }
+                }, 100);
+            }
 
-						if (!component.value()) {
-							component.text(dropdown.value);
-						}
-					});
-					component.dataSource.read();
-				}
-			});
-		}//bindPmMasterData
+            // 각 컴포넌트 바인딩
+			bindKendoComponent("#cycleType", piData.cycle_type_cd);
+            bindKendoComponent("#executionDept", piData.dept_pk);
+            bindKendoComponent("#piManager", piData.chk_user_pk);
+
+
+
+        }//bindPiMasterData
 	}//class PiMaster
 
 
@@ -1257,10 +1302,6 @@
 			}
 			return originalFadeIn.apply(this, arguments);
 		};
-
-
-
-
 
 	});
 

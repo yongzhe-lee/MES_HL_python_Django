@@ -1,4 +1,4 @@
-from configurations import settings
+﻿from configurations import settings
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 
@@ -9,7 +9,7 @@ class PIService():
 
     #점검마스터조회
     #modified by choi : 2025/05/13  파라미터를 dictionary에 넣어서 전달한다
-    #def findAll(self, keyword, equDept, equLoc, pmDept, isMyTask, isLegal,useYn,cycleTypeCd, chkMastNo,startDate,endDate):
+    #                 : 2025/06/02  나중에 inner join으로 바꿀 필요가 있음
     def findAll(self, dcparam):
         items = []
 
@@ -413,60 +413,87 @@ class PIService():
         return items
 
     # 점검마스터 max 점검번호를 가져온다
-    def selectMaxEquipChkMastNo(self):
+    #commented by An : 2025/06/12
+    #                : 점검번호 부여 형식 바꾸기로 해서 주석처리 해두겠습니다.
+    # def selectMaxEquipChkMastNo(self):
+    #     sql = ''' 
+    #         select coalesce(MAX((select chk_mast_no
+	# 			from (
+	# 			    SELECT max(cast(chk_mast_no as integer)) as chk_mast_no
+	# 			    FROM cm_equip_chk_mast
+	# 			    WHERE (chk_mast_no ~ E'^[0-9]+$') = true
+	# 			    --AND site_id = %(siteId}
+	# 			) as sub_table
+	# 		)) + 1, '1') as max_no
+	# 		from cm_equip_chk_mast
+    #     '''
+
+    #     try:
+    #         dc = {}
+    #         result = DbUtil.get_row(sql, dc)
+    #     except Exception as ex:
+    #         LogWriter.add_dblog('error', 'PMService.selectMaxEquipChkMastNo', ex)
+    #         raise ex
+
+    #     return result
+
+    #점검마스터 상세
+    #commented by choi : 2025/06/02
+    #                  : 나중에 inner join으로 바꿀 필요가 있음
+    def get_pi_master_detail(self, chkMastPk):
+        
         sql = ''' 
-            select coalesce(MAX((select chk_mast_no
-				from (
-				    SELECT max(cast(chk_mast_no as integer)) as chk_mast_no
-				    FROM cm_equip_chk_mast
-				    WHERE (chk_mast_no ~ E'^[0-9]+$') = true
-				    --AND site_id = %(siteId}
-				) as sub_table
-			)) + 1, '1') as max_no
-			from cm_equip_chk_mast
+        select t.chk_mast_pk
+	            , t.chk_mast_nm
+	            , t.chk_mast_no
+	            , d.dept_pk
+	            , d.dept_nm
+	            , t.chk_user_pk
+	            , fn_user_nm(cu.user_nm, cu.del_yn) as chk_user_nm
+	            , (case when (t.chk_mast_no ~ E'^[0-9]+$') = true then cast(t.chk_mast_no as integer) else 999999 end) as chk_mast_no_sort
+	            , t.last_chk_date
+	            , t.first_chk_date
+	            , t.sched_start_date
+            	, t.next_chk_date
+	            , t.cycle_type as cycle_type_cd
+	            , ct.code_nm   as cycle_type_nm
+	            , concat(t.per_number, ct.code_dsc) as cycle_display_nm
+	            , t.per_number
+	            , t.work_text
+	            --, COUNT(DISTINCT eci.chk_item_pk) as equip_chk_item_cnt
+	            --, COUNT(DISTINCT e.equip_pk) as chk_equip_item_cnt
+	            , t.use_yn
+	            , t.del_yn
+	            , t.insert_ts
+	            , t.inserter_id
+	            , t.inserter_nm
+	            , t.update_ts
+	            , t.updater_id
+	            , t.updater_nm
+				, t.daily_report_cd
+				, t.daily_report_type_cd
+         FROM   cm_equip_chk_mast t
+			--INNER JOIN cm_dept d ON t.dept_pk = d.dept_pk
+			--INNER JOIN cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk
+			--INNER JOIN cm_equipment e on ce.equip_pk = e.equip_pk
+            LEFT OUTER JOIN cm_dept d ON t.dept_pk = d.dept_pk
+			LEFT OUTER JOIN cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk
+			LEFT OUTER JOIN cm_equipment e on ce.equip_pk = e.equip_pk
+			LEFT OUTER JOIN cm_user_info cu on t.chk_user_pk = cu.user_pk
+			LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
+			LEFT OUTER JOIN cm_equip_chk_item eci on t.chk_mast_pk = eci.chk_mast_pk
+			LEFT OUTER JOIN cm_location l on e.loc_pk = l.loc_pk
+			LEFT OUTER JOIN cm_dept ed on e.dept_pk = ed.dept_pk
+		WHERE  t.chk_mast_pk = %(chkMastPk)s
         '''
 
-        try:
-            dc = {}
-            result = DbUtil.get_row(sql, dc)
-        except Exception as ex:
-            LogWriter.add_dblog('error', 'PMService.selectMaxEquipChkMastNo', ex)
-            raise ex
-
-        return result
-
-    def get_pm_master_detail(self, id):
-        sql = ''' 
-        SELECT 
-               a.pm_pk
-             , a.pm_no , a.pm_nm 
-             , e.id as equip_pk
-             , e."Code" as equ_code, e."Name" as equ_name
-             , e.import_rank
-             , e."Depart_id" as mng_dept_id
-             , mng."Name" as manage_dept
-             , exc.id
-             , exc."Name" as exec_dept          
-             , l.loc_nm as equ_location
-             , au.id as pm_manager
-             , a.pm_type 
-             , a.cycle_type 
-         FROM pm a
- 	        inner join equ e on a.equip_pk = e.id 
- 	        inner join dept mng on e."Depart_id"  = mng.id
- 	        inner join dept exc on a.dept_pk  = exc.id 	     
-            inner join auth_user au on a.pm_user_pk  = au.id  	
- 	        left join "location" l on e.loc_pk = l.id  	        
-         WHERE 
-            a.pm_pk = %(id)s
-        '''
         data = {}
         try:
-            items = DbUtil.get_rows(sql, {'id':id})
+            items = DbUtil.get_rows(sql, {'chkMastPk':chkMastPk})
             if len(items)>0:
                 data = items[0]
         except Exception as ex:
-            LogWriter.add_dblog('error','PMService.get_pm_master_detail', ex)
+            LogWriter.add_dblog('error','PiService.get_pi_master_detail', ex)
             raise ex
 
         return data
@@ -526,9 +553,14 @@ class PIService():
         return items
 
     #==================점검설비관련====================
+  
 
 
+    #==================점검항목 관련===================
+    
+
+    #==================작업결과관련====================
 
 
-    #==================점검항목관련====================
-
+    #==================작업WO관련======================
+        

@@ -51,12 +51,11 @@ class FacadeMQTTClient(object):
             print(message)
             assert()
 
-        # 접속이 끊어 졌다거 다시 연결시에 재 구독 할수 있도록 함
-
+        # 접속이 끊어 졌다거 다시 연결시에 재 구독 할수 있도록 함        
         cls.__mqtt_thread = threading.Thread(target = cls.__mqtt_client__.loop_forever)
         cls.__mqtt_thread.start()
-        cls.__initialized = True
 
+        cls.__initialized = True
         return
 
     @classmethod

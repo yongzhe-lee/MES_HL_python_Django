@@ -5,6 +5,36 @@ class AASDataService():
     def __init__(self):
         pass
 
+    def make_id_with_short_id(self, id_short, model_type):
+        '''
+        id_short를 이용하여 id를 생성한다.
+        model_type은 'aas', 'submodel', 'submodel_element' 중 하나이다.
+        '''
+        if model_type == 'aas':
+            return f'urn:aas:{id_short}'
+        elif model_type == 'submodel':
+            return f'urn:submodel:{id_short}'
+        elif model_type == 'submodel_element':
+            return f'urn:sme:{id_short}'
+        else:
+            raise ValueError("Invalid model type. Must be one of 'aas', 'submodel', or 'submodel_element'.")
+
+    def set_multi_language_text(self, json_data, language, text):
+        if json_data:
+            dic_data = json_data
+            exists = False
+            for dic in dic_data:
+                if dic.get('language') == language:
+                    dic['text'] = text
+                    exists = True
+                    break
+            if not exists:
+                dic_data.append({'language': language, 'text': text})
+
+        else:
+            dic_data = [{'language' : language, 'text' : text}]
+
+        return dic_data
 
     def get_aas_list(self, keyword, lang_code):
 
@@ -147,8 +177,11 @@ class AASDataService():
         , r."contentType"
         , r."StringType"
         , ai."globalAssetId"
-        , fn_json_lang_text(pa."displayName",'ko-KR') as p_display_name
+        , fn_json_lang_text(pa."displayName", %(lang_code)s) as p_display_name
+        , adm.version
+        , adm.revision
         from aas a
+        left join administration adm on adm.admin_pk = a.admin_pk
         left join asset_info ai on a.asset_pk = ai.asset_pk 
         left join resource r on r.res_pk = ai."defaultThumbnail_id"
         left join aas as pa on pa.aas_pk = a.base_aas_pk
@@ -163,7 +196,8 @@ class AASDataService():
 
         sql='''
         select
-        sb.aas_pk
+        sb.aas_pk as sm_aas_pk
+        , asr.aas_pk
         , sb.sm_pk
         , sb.aas_pk as parent_pk
         , sb.id
@@ -178,9 +212,9 @@ class AASDataService():
         , fn_json_lang_text(a."displayName", 'ko-KR') as p_display_name
         , case when sb.aas_pk is null then 'share' else 'exclusive' end as scope
         from submodel sb
-        inner join aas_submodel_refs asr on asr.aas_pk =%(aas_pk)s
-        inner join keys k on k.ref_pk =asr.ref_pk and k."type" ='SUBMODEL'
-        inner join aas a on a.aas_pk = asr.aas_pk
+        left join aas_submodel_refs asr on asr.aas_pk =%(aas_pk)s
+        left join keys k on k.ref_pk =asr.ref_pk and k."type" ='SUBMODEL'
+        left join aas a on a.aas_pk = asr.aas_pk
         where sb.sm_pk=%(sm_pk)s
         '''
 

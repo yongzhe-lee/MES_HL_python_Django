@@ -93,7 +93,31 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="Type" data-labelCd="구분">구분</label>
                                 <div class="field-wrapper">
-                                    <select type="text" id="Type" name="Type" ></select>
+                                    <select type="text" id="Type" name="Type"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" data-labelCd="데이터 수집일시">데이터 수집일시</label>
+                                <div class="field-wrapper">
+                                    <div id="srchDt">
+                                        <div class="input-group-append">
+                                            <input class="form-control" type="text" id="StartedAt" name="StartedAt" data-msg="데이터 수집 시작 시간을" />
+                                            <span class="input-group-text fs-xl">
+                                                <i class="fas fa-calendar-alt calendar_color"></i>
+                                            </span>
+                                            <input class="form-control" type="text" id="EndedAt" name="EndedAt" data-msg="데이터 수집 종료 시간을" />
+                                            <span class="input-group-text fs-xl">
+                                                <i class="fas fa-calendar-alt calendar_color"></i>
+                                            </span>
+                                            <span>
+                                                <button id="btnGatherTagData" style="margin-left:20px; display:none;">
+                                                    <i class="material-symbols-outlined">play_arrow</i>수집
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +125,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="DataVersion" data-labelCd="데이터 버전">데이터 버전</label>
                                 <div class="field-wrapper">
-                                    <input id="DataVersion" name="DataVersion"/>
+                                    <input id="DataVersion" name="DataVersion" />
                                 </div>
                             </div>
                         </div>
@@ -114,13 +138,13 @@
                             </div>
                         </div>
                         <!--<div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="da_file_area" data-labelCd="첨부된 데이터(csv)">첨부된 데이터(csv)</label>
-                            <div class="field-wrapper">
-                                <div id="da_file_area" name="da_file_area"></div>
-                            </div>
-                        </div>
-                    </div>-->
+        <div class="form-item align-h">
+            <label class="k-label k-form-label" for="da_file_area" data-labelCd="첨부된 데이터(csv)">첨부된 데이터(csv)</label>
+            <div class="field-wrapper">
+                <div id="da_file_area" name="da_file_area"></div>
+            </div>
+        </div>
+    </div>-->
                     </div>
                 </form>
                 <!-- kendo 첨부파일 -->
@@ -129,7 +153,7 @@
                 </div>
                 <div class="form-item align-h">
                     <div class="field-wrapper">
-                        <div id="da_file_area" name="da_file_area"></div>
+                        <div id="da_file_area" name="da_file_area" style="width: 100%;"></div>
                     </div>
                 </div>
                 <!--<div class="card-group-btn" style="margin-top:10px">
@@ -178,6 +202,26 @@
             $('#Name').kendoTextBox();
             AjaxUtil.fillDropDownOptions($('#Type'), 'user_code', 'all', null, 'TAGDATA_TYPE')
             //$('#Type').kendoTextBox(/*{ enable: false }*/);
+            $("#StartedAt").kendoDateTimePicker({
+                format: "yyyy-MM-dd HH:mm",
+                timeFormat: "HH:mm", // format과 별도로 설정 필요
+                max: new Date(), // 선택 가능 날짜를 현재 시각까지만 허용
+                value: new Date(new Date().setDate(new Date().getDate() - 7)),
+                open: function (e) {
+                    this.max(new Date()); // 랜더링 이후 max 시간 초기화
+                }
+            })
+            //}).closest(".k-datepicker").css("width", "140px");
+
+            $("#EndedAt").kendoDateTimePicker({
+                format: "yyyy-MM-dd HH:mm",
+                timeFormat: "HH:mm",
+                max: new Date(),
+                value: new Date(),
+                open: function (e) {
+                    this.max(new Date()); // 랜더링 이후 max 시간 초기화
+                }
+            })
             $('#DataVersion').kendoTextBox(/*{ enable: false }*/);
             $('#Description').kendoTextArea({
                 rows: 2,

@@ -1,4 +1,4 @@
-from django import db
+﻿from django import db
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
@@ -36,6 +36,7 @@ def chk_equip(context):
 			, es.code_nm as equip_status_nm
 			, e.equip_dsc
 			, e.import_rank_pk, ir.import_rank_cd
+            , e.environ_equip_yn
 		    from cm_chk_equip t
 		    inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = t.chk_mast_pk
 		    inner join cm_equipment e on e.equip_pk = t.equip_pk

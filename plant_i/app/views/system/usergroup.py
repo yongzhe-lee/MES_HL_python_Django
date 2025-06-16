@@ -38,22 +38,16 @@ def usergroup(context):
             #else:
             #    disabled = True
 
-            code_chk = UserGroup.objects.filter(Code=code)
             if id:
-                code_chk = code_chk.exclude(id=id)
-                if code_chk :
-                    return {'success':False, 'message':'중복된 코드가 존재합니다.'}
                 usergroup = UserGroup.objects.get(id=id)
-                usergroup.Code = code
-                usergroup.Name = name
-                usergroup.Description = description
-                #usergroup.Disabled = disabled
-                usergroup.save()
             else:
-                if code_chk :
-                    return {'success':False, 'message':'중복된 코드가 존재합니다.'}
-                usergroup = UserGroup(Code=code, Name=name, Description=description)
-                usergroup.save()
+                usergroup = UserGroup()
+
+            usergroup.Code = code
+            usergroup.Name = name
+            usergroup.Description = description
+            #usergroup.Disabled = disabled
+            usergroup.save()
 
             items = {'success':True}
 

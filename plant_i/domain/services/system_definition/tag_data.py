@@ -46,7 +46,7 @@ class TagDataService():
                 select unnest(string_to_array(%(tag_codes)s, ';')) as tag_code
             )
 			select td.tag_code, td.data_date, to_char(td.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_time, td.data_value
-	        from tag_dat td 
+	        from das.tag_dat td 
             inner join A on A.tag_code = td.tag_code
             where 1=1
             and td.data_date between %(date_from)s and %(date_to)s
@@ -112,7 +112,7 @@ class TagDataService():
                 )
 			    select td.tag_code, td.data_date, Format(td.data_date, 'yyyy-MM-dd HH:mm:ss') as data_time
                 , convert(float, round(convert(decimal, td.data_value), T."RoundDigit")) as data_value
-	            from tag_dat td 
+	            from das.tag_dat td 
                 inner join A on A.tag_code = td.tag_code
                 inner join tag T on T.tag_code = td.tag_code
                 where 1=1
@@ -126,7 +126,7 @@ class TagDataService():
                 )
 			    select td.tag_code, td.data_date, to_char(td.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_time
                 , round(td.data_value::decimal, coalesce (T."RoundDigit",2))::float as data_value
-	            from tag_dat td 
+	            from das.tag_dat td 
                 inner join A on A.tag_code = td.tag_code
                 inner join tag T on T.tag_code = td.tag_code
                 where 1=1
@@ -159,7 +159,7 @@ class TagDataService():
             ret = False
 
             sql = '''
-            delete from tag_dat
+            delete from das.tag_dat
             where tag_code = %(tag_code)s
             and data_date between %(date_from)s and %(date_to)s
             '''
@@ -263,10 +263,10 @@ class TagDataService():
                     select value as tag_code from string_split(%(tag_codes)s, ';') 
                 )
 		        , tag_data_min as(
-				    select top (select count(*) from tag_dat)
+				    select top (select count(*) from das.tag_dat)
                     t.tag_name, td.tag_code, Format(td.data_date, 'yyyy-MM-dd HH:mm') as data_time
 					    , avg(round(td.data_value, T."RoundDigit")) as data_value
-				    from tag_dat td 
+				    from das.tag_dat td 
 				    inner join A on A.tag_code = td.tag_code
 				    inner join tag T on T.tag_code = td.tag_code
 				    where 1=1
@@ -292,7 +292,7 @@ class TagDataService():
 		        , tag_data_min as(
 				    select t.tag_name, td.tag_code, to_char(td.data_date, 'yyyy-mm-dd hh24:mi') as data_time
 					, avg(round(td.data_value::decimal, coalesce(T."RoundDigit", 2)))::float as data_value
-				    from tag_dat td 
+				    from das.tag_dat td 
 				    inner join A on A.tag_code = td.tag_code
 				    inner join tag T on T.tag_code = td.tag_code
 				    where 1=1
