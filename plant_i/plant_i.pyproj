@@ -52,7 +52,7 @@
     <Compile Include="app\views\aas\shells.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\views\aas\asset.py">
+    <Compile Include="app\views\aas\assetgui.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\aas\__init__.py">
@@ -65,6 +65,7 @@
     <Compile Include="app\views\ai\learning_data.py" />
     <Compile Include="app\views\ai\model.py" />
     <Compile Include="app\views\ai\__init__.py" />
+    <Compile Include="app\views\dashboard\dt_main.py" />
     <Compile Include="app\views\das\config.py">
       <SubType>Code</SubType>
     </Compile>
@@ -76,6 +77,9 @@
     <Compile Include="app\views\definition\cm_code.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
+    <Compile Include="app\views\files\aas.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\interface\equ_result.py">
       <SubType>Code</SubType>
     </Compile>
@@ -89,6 +93,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\interface\qms.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\interface\reflow_profile.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\interface\sap.py">
@@ -117,6 +124,8 @@
     <Compile Include="app\views\kmms\equip_chk_item.py" />
     <Compile Include="app\views\kmms\equip_chk_item_mst.py" />
     <Compile Include="app\views\kmms\alarm_noti_grp.py" />
+    <Compile Include="app\views\kmms\mig.py" />
+    <Compile Include="app\views\kmms\report.py" />
     <Compile Include="app\views\kmms\holiday.py">
       <SubType>Code</SubType>
     </Compile>
@@ -124,6 +133,9 @@
     <Compile Include="app\views\kmms\alarm_actn.py" />
     <Compile Include="app\views\kmms\pop_info.py" />
     <Compile Include="app\views\kmms\inspection_report.py" />
+    <Compile Include="app\views\kmms\site_config.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\kmms\storLocAddrList.py" />
     <Compile Include="app\views\kmms\tag_meas_type.py" />
     <Compile Include="app\views\kmms\tag.py" />
@@ -159,18 +171,26 @@
     </Compile>
     <Compile Include="app\views\kmms\pi_master.py" />
     <Compile Include="app\views\kmms\pm_master.py" />
+    <Compile Include="app\views\static.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\system\das_config.py" />
     <Compile Include="app\views\system\depart.py" />
     <Compile Include="app\views\system\menu_log.py" />
+    <Compile Include="configurations\middleware\response.py" />
+    <Compile Include="configurations\middleware\__init__.py" />
     <Compile Include="domain\admin.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\models\cmms.py" />
     <Compile Include="domain\models\da.py" />
-    <Compile Include="domain\services\aas\data.py">
+    <Compile Include="domain\services\aas\asset.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\services\aas\shells.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\aas\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\services\calculation\data_analysis.py" />
@@ -266,9 +286,6 @@
     <Compile Include="domain\models\klcs.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="domain\models\kmms.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="domain\models\kqms.py">
       <SubType>Code</SubType>
     </Compile>
@@ -291,6 +308,9 @@
     <Compile Include="domain\services\file\attach_file.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="domain\services\interface\alarm.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\interface\equipment.py" />
     <Compile Include="domain\services\interface\mes.py">
       <SubType>Code</SubType>
@@ -303,9 +323,15 @@
     <Compile Include="domain\services\kmms\holiday.py" />
     <Compile Include="domain\services\kmms\material.py" />
     <Compile Include="domain\services\kmms\equip_chk_rslt.py" />
+    <Compile Include="domain\services\kmms\mig.py" />
     <Compile Include="domain\services\kmms\pi_master.py" />
     <Compile Include="domain\services\kmms\equipment.py" />
     <Compile Include="domain\services\kmms\pm_master.py" />
+    <Compile Include="domain\services\kmms\report.py" />
+    <Compile Include="domain\services\kmms\site_config.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\kmms\work_order_approval.py" />
     <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
     <Compile Include="domain\services\mqtt.py" />
@@ -316,6 +342,12 @@
     <Compile Include="domain\services\system.py" />
     <Compile Include="domain\services\system_definition\tag_data.py" />
     <Compile Include="domain\services\__init__.py" />
+    <Compile Include="domain\_sql\aas\specific_assetIds.json">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\_sql\interface\equipment\alarm\pre_aoi_alarm.txt">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\_sql\interface\equipment\hpc1\example.json">
       <SubType>Code</SubType>
     </Compile>
@@ -326,6 +358,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\_sql\interface\equipment\hpc1\rst_hpc1.xxxx.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\_sql\interface\equipment\smt4\fuji\smt4.reflow.json">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\_sql\interface\mes\03.active_work_order.json">
@@ -363,6 +398,7 @@
     <Folder Include="app\static\resource\kendo_ui\license-agreements\third-party\" />
     <Folder Include="app\static\resource\kendo_ui\typescript\" />
     <Folder Include="app\static\resource\kendo_ui\vsdoc\" />
+    <Folder Include="app\static\resource\dt\" />
     <Folder Include="app\static\resource\paho-mqtt\" />
     <Folder Include="app\static\resource\windowContainer\" />
     <Folder Include="app\static\resource\windowContainer\css\" />
@@ -374,6 +410,7 @@
     <Folder Include="app\templates\common\" />
     <Folder Include="app\templates\definition\" />
     <Folder Include="app\templates\interface\mes\" />
+    <Folder Include="app\templates\interface\smt\" />
     <Folder Include="app\templates\interface\sap\" />
     <Folder Include="app\templates\kmms\" />
     <Folder Include="app\templates\kmms\check\" />
@@ -417,11 +454,14 @@
     <Folder Include="app\views\ai\" />
     <Folder Include="app\views\aas\" />
     <Folder Include="app\views\interface\" />
+    <Folder Include="app\views\dashboard\" />
     <Folder Include="app\views\popup\" />
     <Folder Include="app\views\system\" />
     <Folder Include="app\views\tagdata\" />
     <Folder Include="app\views\tagdata\__pycache__\" />
     <Folder Include="configurations\" />
+    <Folder Include="configurations\middleware\" />
+    <Folder Include="configurations\middleware\__pycache__\" />
     <Folder Include="domain\" />
     <Folder Include="domain\migrations\" />
     <Folder Include="domain\models\" />
@@ -438,7 +478,9 @@
     <Folder Include="domain\_sql\" />
     <Folder Include="domain\services\" />
     <Folder Include="domain\services\setup\" />
-    <Folder Include="domain\_sql\das_config\제어pc\" />
+    <Folder Include="domain\_sql\backup\" />
+    <Folder Include="domain\_sql\das_config\PLC\" />
+    <Folder Include="domain\_sql\das_config\전력량계\" />
     <Folder Include="domain\_sql\function\" />
     <Folder Include="domain\_sql\das_config\" />
     <Folder Include="domain\_sql\aas\" />
@@ -493,7 +535,10 @@
     <Content Include="app\static\css\webfonts\ionicons.woff2" />
     <Content Include="app\static\css\WZ.UI.css" />
     <Content Include="app\static\img\cancel.svg" />
+    <Content Include="app\static\img\caret-down-solid.svg" />
+    <Content Include="app\static\img\caret-up-solid.svg" />
     <Content Include="app\static\img\check_circle.svg" />
+    <Content Include="app\static\img\folder-icon.png" />
     <Content Include="app\static\img\kl-ci.png" />
     <Content Include="app\static\font\kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsI.woff2" />
     <Content Include="app\static\img\error_403.png" />
@@ -510,16 +555,28 @@
     <Content Include="app\static\img\menuIcon-Lv2.svg" />
     <Content Include="app\static\img\no-image.png" />
     <Content Include="app\static\img\qr-code-image.png" />
+    <Content Include="app\static\img\qr-sample.png" />
     <Content Include="app\static\img\star_01.svg" />
     <Content Include="app\static\img\star_icon.svg" />
+    <Content Include="app\static\img\sysopt_process1.png" />
+    <Content Include="app\static\img\sysopt_process2.png" />
+    <Content Include="app\static\img\sysopt_process3.png" />
+    <Content Include="app\static\img\sysopt_process4.png" />
     <Content Include="app\static\resource\apexcharts\apexcharts.3.26.min.js" />
     <Content Include="app\static\resource\apexcharts\apexcharts.css" />
     <Content Include="app\static\resource\apexcharts\apexcharts.min.js" />
+    <Content Include="app\static\resource\approvalLine.js" />
     <Content Include="app\static\resource\common.js" />
     <Content Include="app\static\resource\common_원래.js" />
     <Content Include="app\static\resource\custom_form.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="app\static\resource\dt\readme.txt" />
+    <Content Include="app\static\resource\dt\WeZon_Web.data.br" />
+    <Content Include="app\static\resource\dt\WeZon_Web.framework.js.br" />
+    <Content Include="app\static\resource\dt\WeZon_Web.loader.js" />
+    <Content Include="app\static\resource\dt\WeZon_Web.wasm.br" />
+    <Content Include="app\static\resource\dt\WeZon_Web.worker.js.br" />
     <Content Include="app\static\resource\fileupload.js" />
     <Content Include="app\static\resource\fullCalendar\c-main.min.css" />
     <Content Include="app\static\resource\fullCalendar\c-main.min.js" />
@@ -998,6 +1055,7 @@
     <Content Include="app\static\resource\kendo_ui\styles\material-smoke.css" />
     <Content Include="app\static\resource\kendo_ui\typescript\kendo.all.d.ts" />
     <Content Include="app\templates\components\WoApprovalLine.html" />
+    <Content Include="app\templates\dashboard\dt_main.html" />
     <Content Include="app\templates\interface\mes\if_mes_oee_data.html" />
     <Content Include="app\templates\interface\mes\if_mes_product_plan.html" />
     <Content Include="app\templates\interface\mes\if_mes_oee.html" />
@@ -1009,10 +1067,16 @@
     <Content Include="app\templates\interface\sap\if_sap_pcb_random.html" />
     <Content Include="app\templates\interface\sap\if_sap_stock.html" />
     <Content Include="app\templates\kmms\holidayCustom.html" />
+    <Content Include="app\templates\kmms\mig.html" />
+    <Content Include="app\templates\kmms\proc_opts.html" />
+    <Content Include="app\templates\kmms\sche_opts.html" />
     <Content Include="app\templates\popup\modalAmtUnitAdd.html" />
     <Content Include="app\templates\popup\modalEquCategorySel.html" />
     <Content Include="app\templates\popup\modalEqus.html" />
     <Content Include="app\templates\popup\modalEquClassSel.html" />
+    <Content Include="app\templates\popup\modalMyWorkApprInfo.html" />
+    <Content Include="app\templates\popup\modalMyWorkReqInfo.html" />
+    <Content Include="app\templates\popup\modalMyWorkResultInfo.html" />
     <Content Include="app\templates\popup\modalResultEdit.html" />
     <Content Include="app\templates\popup\modalItems.html" />
     <Content Include="app\templates\popup\modalMatMultiSel.html" />
@@ -1021,13 +1085,39 @@
     <Content Include="app\templates\popup\modalScheMakeConfirm.html" />
     <Content Include="app\templates\popup\modalWoCopy.html" />
     <Content Include="app\templates\popup\modalWoStatHist.html" />
-    <Content Include="domain\_sql\05.dummy_date.txt" />
-    <Content Include="domain\_sql\06.ai.txt">
+    <Content Include="configurations\middleware\__pycache__\response.cpython-311.pyc" />
+    <Content Include="configurations\middleware\__pycache__\__init__.cpython-311.pyc" />
+    <Content Include="domain\_sql\05.dummy_date.sql" />
+    <Content Include="domain\_sql\06.ai.sql">
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\aas\AssetInformation.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="domain\_sql\aas\fn_json_lang_text.txt">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\backup\db_backup.txt" />
+    <Content Include="domain\_sql\backup\db_delete_old_files.txt" />
+    <Content Include="domain\_sql\backup\db_restore.txt" />
+    <Content Include="domain\_sql\das_config\PLC\25_smt4.load.json" />
+    <Content Include="domain\_sql\das_config\전력량계\33_smt4.aoi.json" />
+    <Content Include="domain\_sql\das_config\전력량계\32_smt4.reflow.motor.json" />
+    <Content Include="domain\_sql\das_config\전력량계\32_smt4.reflow.json" />
+    <Content Include="domain\_sql\das_config\전력량계\31_smt4.pre-aoi.json" />
+    <Content Include="domain\_sql\das_config\전력량계\39_smt4.mnt3.json" />
+    <Content Include="domain\_sql\das_config\전력량계\38_smt4.mnt2.json" />
+    <Content Include="domain\_sql\das_config\전력량계\37_smt4.mnt1.json" />
+    <Content Include="domain\_sql\das_config\전력량계\29_smt4.spi.json" />
+    <Content Include="domain\_sql\das_config\전력량계\28_smt4.sp2.json" />
+    <Content Include="domain\_sql\das_config\전력량계\27_smt4.sp1.json" />
+    <Content Include="domain\_sql\das_config\전력량계\26_smt4.laserrmarking.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\das_config\PLC\35_smt4.unload.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1\das_eol.json" />
     <Content Include="domain\_sql\interface\equipment\hpc1\dt_smt4.laserrmarking.json">
       <SubType>Code</SubType>
     </Content>
@@ -1037,7 +1127,16 @@
     <Content Include="domain\_sql\interface\equipment\hpc1\dummy.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1\rst_hpc1.coating1.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\equipment\hpc1\rst_hpc1.coating2.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\interface\equipment\hpc1\rst_hpc1.coatvision.json" />
+    <Content Include="domain\_sql\interface\equipment\hpc1\rst_hpc1.scwrt.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="domain\_sql\interface\equipment\smt4\dt_smt4.mnt.json">
       <SubType>Code</SubType>
     </Content>
@@ -1141,11 +1240,11 @@
     <Content Include="app\templates\definition\bom.html" />
     <Content Include="app\templates\definition\equipment_alaram_history.html" />
     <Content Include="app\templates\definition\equipment_alaram.html" />
-    <Content Include="app\templates\interface\if_reflow_profile.html" />
+    <Content Include="app\templates\interface\smt\if_reflow_profile.html" />
     <Content Include="app\templates\interface\if_topic_data.html" />
-    <Content Include="app\templates\interface\if_tension_check.html" />
-    <Content Include="app\templates\interface\if_viscosity_check.html" />
-    <Content Include="app\templates\interface\if_mnt_pickup_rate.html" />
+    <Content Include="app\templates\interface\smt\if_tension_check.html" />
+    <Content Include="app\templates\interface\smt\if_viscosity_check.html" />
+    <Content Include="app\templates\interface\smt\if_mnt_pickup_rate.html" />
     <Content Include="app\templates\kmms\check\check_schedule_m.html" />
     <Content Include="app\templates\kmms\check\check_wo_issued.html" />
     <Content Include="app\templates\kmms\cm_code.html" />
@@ -1182,7 +1281,6 @@
     <Content Include="app\templates\kmms\report\facility_downtime.html" />
     <Content Include="app\templates\kmms\report\facility_inspection_master.html" />
     <Content Include="app\templates\kmms\report\facility_maintenance_cost.html" />
-    <Content Include="app\templates\kmms\report\facility_material_usage_history.html" />
     <Content Include="app\templates\kmms\report\facility_monthly_status.html" />
     <Content Include="app\templates\kmms\report\facility_mttr_mtbf.html" />
     <Content Include="app\templates\kmms\report\facility_specifications.html" />
@@ -1193,7 +1291,6 @@
     <Content Include="app\templates\kmms\report\outsourced_tasks_count.html" />
     <Content Include="app\templates\kmms\report\pm_status_by_category.html" />
     <Content Include="app\templates\kmms\report\pm_wo_completion_rate.html" />
-    <Content Include="app\templates\kmms\report\summary_of_repairs_by_year.html" />
     <Content Include="app\templates\kmms\report\team_breakdown_costs.html" />
     <Content Include="app\templates\kmms\report\top_working_hours_wo.html" />
     <Content Include="app\templates\kmms\report\top_wo_in_work_cost.html" />
@@ -1297,47 +1394,28 @@
     <Content Include="app\templates\tagdata\tag_sync_trend.html" />
     <Content Include="app\templates\tagdata\tag_trend.html" />
     <Content Include="domain\_sql\11. CMMS기초데이터.txt" />
-    <Content Include="domain\_sql\04.알람마스터.txt" />
+    <Content Include="domain\_sql\04.알람마스터.sql" />
     <Content Include="domain\_sql\aas\aas_마스터.txt" />
-    <Content Include="domain\_sql\aas\specificAssetId.json">
+    <Content Include="domain\_sql\aas\스키마.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\das_config\01_hpc1.load.json" />
-    <Content Include="domain\_sql\das_config\02_hpc1.flash.json" />
-    <Content Include="domain\_sql\das_config\03_hpc1.ict.json" />
-    <Content Include="domain\_sql\das_config\04_hpc1.coatload.json" />
-    <Content Include="domain\_sql\das_config\05_hpc1.pcbrev.json" />
-    <Content Include="domain\_sql\das_config\06_hpc1.curing.json" />
-    <Content Include="domain\_sql\das_config\07_hpc1.frobackload.json" />
-    <Content Include="domain\_sql\das_config\09_hpc1.tim.json" />
-    <Content Include="domain\_sql\das_config\08_hpc1.uh.load.json" />
-    <Content Include="domain\_sql\das_config\10_hpc1.lh.load.json" />
-    <Content Include="domain\_sql\das_config\11_hpc1.scrwt.json" />
-    <Content Include="domain\_sql\das_config\12_hpc1.fclip.json" />
-    <Content Include="domain\_sql\das_config\13_hpc1.eol.json" />
-    <Content Include="domain\_sql\das_config\15_hpc1.pinchk.json" />
-    <Content Include="domain\_sql\das_config\16_hpc1.brackassm.json" />
-    <Content Include="domain\_sql\das_config\17_smt3.load.json" />
-    <Content Include="domain\_sql\das_config\18_smt3.unload.json" />
-    <Content Include="domain\_sql\das_config\제어pc\eol.json" />
-    <Content Include="domain\_sql\das_config\제어pc\ict.json">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="domain\_sql\function\fn_try_to_number.txt" />
-    <Content Include="domain\_sql\function\fn_datediff.txt" />
-    <Content Include="domain\_sql\function\fn_code_name.txt" />
-    <Content Include="domain\_sql\function\fn_dateadd.txt" />
-    <Content Include="domain\_sql\function\fn_get_dept_team_pk.txt" />
-    <Content Include="domain\_sql\function\fn_get_dept_business_cd.txt" />
-    <Content Include="domain\_sql\function\fn_get_incineration.txt" />
-    <Content Include="domain\_sql\function\fn_get_last_pm_date.txt" />
-    <Content Include="domain\_sql\function\fn_get_next_sche_date.txt" />
-    <Content Include="domain\_sql\function\fn_get_work_day.txt" />
-    <Content Include="domain\_sql\function\fn_insert_debug_log.txt" />
-    <Content Include="domain\_sql\function\fn_json_lang_text.txt" />
-    <Content Include="domain\_sql\function\fn_make_schedule_pm.txt" />
-    <Content Include="domain\_sql\function\fn_minutediff.txt" />
-    <Content Include="domain\_sql\function\fn_user_nm.txt" />
+    <Content Include="domain\_sql\das_config\PLC\01_hpc1.load.json" />
+    <Content Include="domain\_sql\das_config\PLC\02_hpc1.flash.json" />
+    <Content Include="domain\_sql\das_config\PLC\03_hpc1.ict.json" />
+    <Content Include="domain\_sql\das_config\PLC\04_hpc1.coatload.json" />
+    <Content Include="domain\_sql\das_config\PLC\05_hpc1.pcbrev.json" />
+    <Content Include="domain\_sql\das_config\PLC\06_hpc1.curing.json" />
+    <Content Include="domain\_sql\das_config\PLC\07_hpc1.frobackload.json" />
+    <Content Include="domain\_sql\das_config\PLC\09_hpc1.tim.json" />
+    <Content Include="domain\_sql\das_config\PLC\08_hpc1.uh.load.json" />
+    <Content Include="domain\_sql\das_config\PLC\10_hpc1.lh.load.json" />
+    <Content Include="domain\_sql\das_config\PLC\11_hpc1.scrwt.json" />
+    <Content Include="domain\_sql\das_config\PLC\12_hpc1.fclip.json" />
+    <Content Include="domain\_sql\das_config\PLC\13_hpc1.eol.json" />
+    <Content Include="domain\_sql\das_config\PLC\15_hpc1.pinchk.json" />
+    <Content Include="domain\_sql\das_config\PLC\16_hpc1.brackassm.json" />
+    <Content Include="domain\_sql\das_config\PLC\17_smt3.load.json" />
+    <Content Include="domain\_sql\das_config\PLC\18_smt3.unload.json" />
     <Content Include="domain\_sql\interface\equipment\alarm\fuji\e8xxx_KO.xml" />
     <Content Include="domain\_sql\interface\equipment\alarm\fuji\ErrorCodeText_E.txt" />
     <Content Include="domain\_sql\interface\equipment\hpc1\01_Tim dispensing vision.json" />
@@ -1411,12 +1489,12 @@
     <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_area_line.txt" />
     <Content Include="domain\_sql\partition\em_tag_dat.txt" />
     <Content Include="domain\_sql\partition\tag_dat.txt" />
-    <Content Include="domain\_sql\01.기초데이터.txt" />
+    <Content Include="domain\_sql\01.기초데이터.sql" />
     <Content Include="domain\_sql\views\cm_v_dept.txt" />
     <Content Include="domain\_sql\views\cm_v_dept_path.txt" />
     <Content Include="domain\_sql\views\v_menu_folder.txt" />
-    <Content Include="domain\_sql\02.설비_태그.txt" />
-    <Content Include="domain\_sql\03.전력량계_태그.txt" />
+    <Content Include="domain\_sql\02.설비_태그.sql" />
+    <Content Include="domain\_sql\03.전력량계_태그.sql" />
     <Content Include="domain\_sql\테이블수정이력.txt" />
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />

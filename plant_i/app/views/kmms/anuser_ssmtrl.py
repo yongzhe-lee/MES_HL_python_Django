@@ -28,7 +28,7 @@ def anuser_ssmtrl(context):
             userPk = CommonUtil.try_int( gparam.get('userPk') )
 
             sql = ''' select ang.alarm_noti_grp_pk
-	        , ui."User_id" as user_pk, fn_user_nm(ui."Name", 'N') as user_nm
+	        , ui."User_id" as user_pk, cm_fn_user_nm(ui."Name", 'N') as user_nm
 	        , m.mtrl_pk, m.mtrl_cd, m.mtrl_nm
 	        , m.safety_stock_amt, m.unit_price, s.supplier_nm
 	        from cm_an_user_ss_mtrl aus

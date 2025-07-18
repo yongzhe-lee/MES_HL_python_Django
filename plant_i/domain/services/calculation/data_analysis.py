@@ -239,14 +239,13 @@ class DaService(object):
                 pass
         return df
 
-    def make_col_info(self, df, column_preprocess_info=None, csv=True):
+    def make_col_info(self, df, column_preprocess_info=None, manual=True):
         md_id = self.data_pk
         row_count = df.shape[0]
 
-        q = DsModelColumn.objects.filter(DsModel_id=md_id)
-
-        # CSV 기반이면 전체 삭제
-        if csv:
+        # CSV업로드 & 쿼리삽입 등, 시스템 상으로 만들어준 데이터가 아닌 경우
+        # 기존 컬럼 정보 전체 삭제
+        if manual:
             DsModelColumn.objects.filter(DsModel_id=md_id).delete()
             existing_map = {}
         else:
@@ -263,20 +262,25 @@ class DaService(object):
                 col = df[key]
                 MissingCount = row_count - col.count()
 
-                if csv:
+                if manual or key not in existing_map:
+                    # 수동 생성되었거나 기존 컬럼에 없는 컬럼이 추가된 경우
                     dc = DsModelColumn()
                     dc.DsModel_id = md_id
                     dc.VarIndex = index
                     dc.VarName = key
                     dc.Source = 'USER'
                 else:
-                    dc = existing_map.get(key)
-                    if not dc:
-                        dc = DsModelColumn()
-                        dc.DsModel_id = md_id
-                        dc.VarIndex = index
-                        dc.VarName = key
-                        dc.Source = 'USER'  # 신규일 때만(기존 col정보에 없는 컬럼 = 시스템에 없는 태그)
+                    # 기존 컬럼 객체 사용
+                    dc = existing_map[key]
+                    dc.VarIndex = index  # 위치 변경되었을 수도 있으므로 갱신
+
+                    # dc = existing_map.get(key)
+                    # if not dc:
+                    #     dc = DsModelColumn()
+                    #     dc.DsModel_id = md_id
+                    #     dc.VarIndex = index
+                    #     dc.VarName = key
+                    #     dc.Source = 'USER'  # 신규일 때만(기존 col정보에 없는 컬럼 = 시스템에 없는 태그)
 
                 dc.DataCount = row_count
                 dc.MissingCount = MissingCount

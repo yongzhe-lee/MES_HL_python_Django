@@ -59,7 +59,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="equipment_grid"></div>
+                <div id="equip_disposed_grid"></div>
             </div>
         </div>
     </div>
@@ -73,7 +73,7 @@
 {% include '../../popup/modalEquSel.html'%}
 
 <script type="text/javascript">
-    class EquipmentPage {
+    class CmEquipDisposedPage {
         constructor() {
             this.grid = null;
             this.upload = null;
@@ -117,7 +117,7 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+            _this.grid = new Grid($("#equip_disposed_grid"), equipmentGridOption);
 
             // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
             $(document).on("click", ".grid-column-link", async function (e) {
@@ -182,12 +182,14 @@
             });
 
             AjaxUtil.fillDropDownOptions($('#srch_cat'), 'equip_category', 'all', null);
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
-
+			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "all");
+            let today = new Date();
+            let sixMonthsAgo = new Date(today);
+            sixMonthsAgo.setMonth(today.getMonth() - 6);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: sixMonthsAgo,
+                    end: today
                 },
                 change: function (e) {
 
@@ -214,13 +216,6 @@
                     page.exportExcel();
                 }
             });
-
-            $('#btnClear').kendoButton({
-                themeColor: "base", click: function () {
-                    _this.resetData();
-                }
-            });
-
         }
 
         searchMainData() {
@@ -252,15 +247,9 @@
             _this.grid.setData(result);
         }
 
-        resetData() {
-            let _this = this;
-            $("#equipment_grid").data('kendoGrid').refresh();
-            FormUtil.resetForm($('#equipmentForm'));
-        }
-
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#equipment_grid').data("kendoGrid");
+            let gridData = $('#equip_disposed_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
                 e.workbook.fileName = "equip_disposed.xlsx";
             });
@@ -269,7 +258,7 @@
     };
 
     let page = null;
-    page = new EquipmentPage();
+    page = new CmEquipDisposedPage();
 
     $(document).ready(function () {
         page.searchMainData();

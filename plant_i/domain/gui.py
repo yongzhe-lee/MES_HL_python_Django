@@ -34,6 +34,8 @@ class GUIConfiguration():
         #################################################  QM-Lims  #####################################################
         ##대시보드
         gui_dc['wm_dashboard'] = cls.gui_item('대시보드', 'dashboard/main_dash.html')#대시보드
+        gui_dc['wm_dt_main'] = cls.gui_item('생산라인현황', 'dashboard/dt_main.html')# 생산라인현황
+
         gui_dc['wm_storyboard'] = cls.gui_item('스토리보드', 'dashboard/storyboard.html')#스토리보드
 
         # AAS 관련 메뉴   -> AAS조회,  Asset조회, AASX관리
@@ -51,11 +53,11 @@ class GUIConfiguration():
         gui_dc['wm_cm_material'] = cls.gui_item('자재마스터', 'kmms/material/cm_material.html')
 
         #작업지시
-        gui_dc['wm_my_work_request'] = cls.gui_item('나의작업요청', 'kmms/wo/my_work_request.html')
+        gui_dc['wm_my_work_request'] = cls.gui_item('작업요청', 'kmms/wo/my_work_request.html')
         gui_dc['wm_work_request_approval'] = cls.gui_item('작업요청승인', 'kmms/wo/work_request_approval.html')
         gui_dc['wm_work_order_approval'] = cls.gui_item('작업지시승인', 'kmms/wo/work_order_approval.html')
-        gui_dc['wm_work_order_management'] = cls.gui_item('작업지시관리', 'kmms/wo/work_order_management.html')
-        gui_dc['wm_post_work_management'] = cls.gui_item('작업일보관리', 'kmms/wo/post_work_management.html')
+        gui_dc['wm_work_order_management'] = cls.gui_item('작업지시 관리', 'kmms/wo/work_order_management.html')
+        gui_dc['wm_post_work_management'] = cls.gui_item('사후작업 관리', 'kmms/wo/post_work_management.html')
 
         #예방정비(PM)
         gui_dc['wm_pm_master'] = cls.gui_item('PM 마스터', 'kmms/pm/pm_master.html')
@@ -72,18 +74,8 @@ class GUIConfiguration():
         gui_dc['wm_check_master'] = cls.gui_item('점검마스터관리', 'kmms/check/check_master.html')
         gui_dc['wm_check_schedule'] = cls.gui_item('점검 작업일정', 'kmms/check/check_schedule.html')       
         gui_dc['wm_check_result'] = cls.gui_item('점검 결과 조회', 'kmms/check/check_result.html')
-        gui_dc['wm_check_wo_issued'] = cls.gui_item('점검이상 발행WO', 'kmms/check/ check_wo_issued.html')
-        gui_dc['wm_create_inspection_schedule_manual'] = cls.gui_item('점검 일정생성(수동)', 'kmms/check/check_schedule_m.html')
-        gui_dc['wm_check_work_list'] = cls.gui_item('PI/WO 현황', 'kmms/check/check_work_list.html')        
-
-        #코드관리
-        gui_dc['wm_cm_code'] = cls.gui_item('기초코드', 'kmms/cm_code.html')
-        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/material/supplier.html')       
-        gui_dc['wm_cm_material_loc'] = cls.gui_item('자재보관위치', 'kmms/material/storLocAddrList.html')        
-        gui_dc['wm_cm_equip_loc'] = cls.gui_item('설비위치정보', 'kmms/equipment/locList.html')
-        gui_dc['wm_cm_equip_group'] = cls.gui_item('설비분류', 'kmms/equipment/equipmentGroupList.html')       
-        gui_dc['wm_cm_wo_project'] = cls.gui_item('프로젝트', 'kmms/wo/projectList.html')
-        gui_dc['wm_cm_holiday'] = cls.gui_item('휴일 스케줄', 'kmms/holidayCustom.html')
+        gui_dc['wm_check_wo_issued'] = cls.gui_item('점검이상 발행WO', 'kmms/check/check_wo_issued.html')
+        gui_dc['wm_create_inspection_schedule_manual'] = cls.gui_item('점검 일정생성(수동)', 'kmms/check/check_schedule_m.html')    
 
         #설비통계        
         gui_dc['wm_facility_monthly_status'] = cls.gui_item('설비별 월간 고장현황', 'kmms/report/facility_monthly_status.html')
@@ -95,8 +87,7 @@ class GUIConfiguration():
         gui_dc['wm_facility_maintenance_cost'] = cls.gui_item('설비별 정비비용', 'kmms/report/facility_maintenance_cost.html')
         gui_dc['wm_facility_downtime'] = cls.gui_item('설비별 고장시간', 'kmms/report/facility_downtime.html')
         gui_dc['wm_facility_specifications'] = cls.gui_item('설비별 사양 목록', 'kmms/report/facility_specifications.html')
-        gui_dc['wm_asset_valuation_statistics'] = cls.gui_item('자산평가 통계', 'kmms/report/asset_valuation_statistics.html')
-        gui_dc['wm_asset_evaluation_report'] = cls.gui_item('자산평가 보고서', 'kmms/report/asset_evaluation_report.html')
+        
 
         #작업통계
         gui_dc['wm_wo_dept_performance'] = cls.gui_item('부서별 기간별 WO 발행 실적', 'kmms/report/wm_wo_dept_performance.html')
@@ -110,9 +101,7 @@ class GUIConfiguration():
         gui_dc['wm_dept_overdue_tasks'] = cls.gui_item('부서별 기간별 지연작업 목록', 'kmms/report/dept_overdue_tasks.html')
         gui_dc['wm_dept_task_compliance_rate'] = cls.gui_item('부서별 기간별 작업 준수율', 'kmms/report/dept_task_compliance_rate.html')
         gui_dc['wm_causes_of_each_failure_part'] = cls.gui_item('고장부위별 원인', 'kmms/report/causes_of_each_failure_part.html')
-        gui_dc['wm_dept_work_request_stats'] = cls.gui_item('부서별 작업 요청 통계', 'kmms/report/dept_work_request_stats.html')
-        gui_dc['wm_facility_material_usage_history'] = cls.gui_item('설비별 자재사용 이력', 'kmms/report/facility_material_usage_history.html')
-        gui_dc['wm_summary_of_repairs_by_year'] = cls.gui_item('연도별 수선 Summary', 'kmms/report/summary_of_repairs_by_year.html')
+        gui_dc['wm_dept_work_request_stats'] = cls.gui_item('부서별 작업 요청 통계', 'kmms/report/dept_work_request_stats.html')        
 
         #PM통계
         gui_dc['wm_pm_status_by_category'] = cls.gui_item('카테고리별 PM현황', 'kmms/report/pm_status_by_category.html')
@@ -122,6 +111,19 @@ class GUIConfiguration():
         gui_dc['wm_facility_inspection_master'] = cls.gui_item('설비종류별 점검마스터', 'kmms/report/facility_inspection_master.html')
         gui_dc['wm_inspection_issues'] = cls.gui_item('점검결과 이상 설비목록', 'kmms/report/inspection_issues.html')
         gui_dc['wm_inspection_stats'] = cls.gui_item('점검 수행 통계', 'kmms/report/inspection_stats.html')
+
+        #코드관리
+        gui_dc['wm_cm_code'] = cls.gui_item('기초코드', 'kmms/cm_code.html')
+        gui_dc['wm_supplier'] = cls.gui_item('공급업체', 'kmms/material/supplier.html')       
+        gui_dc['wm_cm_material_loc'] = cls.gui_item('자재보관위치', 'kmms/material/storLocAddrList.html')        
+        gui_dc['wm_cm_equip_loc'] = cls.gui_item('설비위치정보', 'kmms/equipment/locList.html')
+        gui_dc['wm_cm_equip_group'] = cls.gui_item('설비분류', 'kmms/equipment/equipmentGroupList.html')       
+        gui_dc['wm_cm_wo_project'] = cls.gui_item('프로젝트', 'kmms/wo/projectList.html')
+        gui_dc['wm_cm_holiday'] = cls.gui_item('휴일 스케줄', 'kmms/holidayCustom.html')
+
+        #사이트 옵션
+        gui_dc['wm_proc_opts'] = cls.gui_item('프로세스', 'kmms/proc_opts.html')
+        gui_dc['wm_sche_opts'] = cls.gui_item('스케줄링', 'kmms/sche_opts.html')
 
         #################################################  MES  #####################################################
         #기준정보
@@ -196,15 +198,17 @@ class GUIConfiguration():
         gui_dc['wm_if_mes_product_plan'] = cls.gui_item('생산계획', 'interface/mes/if_mes_product_plan.html') # 엑셀데이터포함
         gui_dc['wm_if_mes_oee'] = cls.gui_item('생산계획', 'interface/mes/if_mes_oee.html') # 엑셀데이터포함
 
+        # SMT관련 
+        gui_dc['wm_if_mnt_pickup_rate'] = cls.gui_item('마운터 Pickup Rate', 'interface/smt/if_mnt_pickup_rate.html')
+        gui_dc['wm_if_viscosity_check'] = cls.gui_item('솔더점도측정', 'interface/smt/if_viscosity_check.html')
+        gui_dc['wm_if_tension_check'] = cls.gui_item('스텐실텐션체크', 'interface/smt/if_tension_check.html')
+        gui_dc['wm_if_reflow_profile'] = cls.gui_item('Reflow Profile', 'interface/smt/if_reflow_profile.html')
 
+        # 제어PC 데이터
+        gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
 
         gui_dc['wm_if_qms'] = cls.gui_item('QMS', 'interface/if_qms.html')
-        gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')
-        gui_dc['wm_if_equ_result'] = cls.gui_item('설비실적(측정데이터)', 'interface/if_equ_result.html')
-        gui_dc['wm_if_mnt_pickup_rate'] = cls.gui_item('마운터 Pickup Rate', 'interface/if_mnt_pickup_rate.html')
-        gui_dc['wm_if_viscosity_check'] = cls.gui_item('솔더점도측정', 'interface/if_viscosity_check.html')
-        gui_dc['wm_if_tension_check'] = cls.gui_item('스텐실텐션체크', 'interface/if_tension_check.html')
-        gui_dc['wm_if_reflow_profile'] = cls.gui_item('Reflow Profile', 'interface/if_reflow_profile.html')
+        gui_dc['wm_if_van'] = cls.gui_item('VAN', 'interface/if_van.html')        
         gui_dc['wm_if_topic_data'] = cls.gui_item('TOPIC데이터확인', 'interface/if_topic_data.html')
         gui_dc['wm_if_log'] = cls.gui_item('인터페이스로그확인', 'interface/if_log.html')
 

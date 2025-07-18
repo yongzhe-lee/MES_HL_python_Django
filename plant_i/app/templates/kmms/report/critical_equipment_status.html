@@ -1,11 +1,381 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 버튼 및 목록+차트 그리드 -->
+        <div class="content-ui-row connect">
+            <div class="card-content grid" style="display: flex; align-items: flex-start;">
+                <div style="width: 40%; min-width: 300px;">
+                    <div class="card-group-btn">
+                        <span class="info-text">
+                            <i class="material-symbols-outlined">list_alt</i>
+                            <label data-labelCd="중요도별 설비 현황">중요도별 설비 현황</label>
+                        </span>
+                    </div>
+                    <div id="criticalGrid"></div>
+                </div>
+                <div style="flex: 1; min-width: 300px; margin-left: 24px;">
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px;">
+                        <button id="btnRefresh" class="btn-search" style="margin-right: 8px;">새로고침</button>
+                        <button id="btnExcel">Excel</button>
+                    </div>
+                    <div id="criticalChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="content-ui-row connect mt-2">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="고장설비 목록">고장설비 목록</label>
+                    </span>
+                    <span>
+                        <button id="btnDetailExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="criticalDetailGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class CriticalEquipmentStatusPage {
+    constructor() {
+        this.mainGrid = null;
+        this.detailGrid = null;
+        this.chart = null;
+        this.baseUrl = '/api/kmms/report';
+        this.selectedImportRankPk = 0;
+        this.init();
+    }
+
+    init() {
+        this.initMainGrid();
+        this.initDetailGrid();
+        this.initChart();
+        this.bindEvents();
+    }
+
+    initMainGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: [],
+                aggregate: [
+                    { field: "allCnt", aggregate: "sum" },
+                    { field: "useCount", aggregate: "sum" },
+                    { field: "breakCount", aggregate: "sum" },
+                    { field: "unuseCnt", aggregate: "sum" },
+                    { field: "uselessCnt", aggregate: "sum" }
+                ]
+            },
+            columns: [
+                {
+                    title: "No",
+                    width: "60px",
+                    attributes: { style: "text-align: right" },
+                    template: function(dataItem) {
+                        var grid = $("#criticalGrid").data("kendoGrid");
+                        return grid ? grid.dataSource.indexOf(dataItem) + 1 : '';
+                    },
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>합계</b>"
+                },
+                {
+                    title: "중요도",
+                    field: "importRankCd",
+                    width: "120px",
+                    attributes: { style: "text-align: center" },
+                    footerTemplate: "<b style='color:rgb(78,81,85)'></b>"
+                },
+                {
+                    title: "전체",
+                    field: "allCnt",
+                    width: "100px",
+                    attributes: { style: "text-align: right" },
+                    type: "number",
+                    template: "#=kendo.toString(allCnt, 'n0')#",
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerAttributes: { style: "text-align: right" },
+                    aggregates: ["sum"]
+                },
+                {
+                    title: "사용중",
+                    field: "useCount",
+                    width: "100px",
+                    attributes: { style: "text-align: right" },
+                    type: "number",
+                    template: "#=kendo.toString(useCount, 'n0')#",
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerAttributes: { style: "text-align: right" },
+                    aggregates: ["sum"]
+                },
+                {
+                    title: "고장중",
+                    field: "breakCount",
+                    width: "100px",
+                    attributes: { style: "text-align: right" },
+                    type: "number",
+                    template: "#=kendo.toString(breakCount, 'n0')#",
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerAttributes: { style: "text-align: right" },
+                    aggregates: ["sum"]
+                },
+                {
+                    title: "유휴중",
+                    field: "unuseCnt",
+                    width: "100px",
+                    attributes: { style: "text-align: right" },
+                    type: "number",
+                    template: "#=kendo.toString(unuseCnt, 'n0')#",
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerAttributes: { style: "text-align: right" },
+                    aggregates: ["sum"]
+                },
+                {
+                    title: "불용중",
+                    field: "uselessCnt",
+                    width: "100px",
+                    attributes: { style: "text-align: right" },
+                    type: "number",
+                    template: "#=kendo.toString(uselessCnt, 'n0')#",
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerAttributes: { style: "text-align: right" },
+                    aggregates: ["sum"]
+                }
+            ],
+            sortable: true,
+            height: "300px",
+            selectable: "row",
+            change: (e) => {
+                let selected = this.mainGrid.dataItem(this.mainGrid.select());
+                if (selected) {
+                    this.selectedImportRankPk = selected.importRankPk || 0;
+                    this.loadDetailGrid(selected.importRankPk);
+                }
+            },
+            dataBound: function (e) {
+                _this.updateChart();
+            }
+        };
+        this.mainGrid = $("#criticalGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    initDetailGrid() {
+        let gridOption = {
+            autoBind: false,
+            columns: [
+                {
+                    title: "No",
+                    width: "90px",
+                    attributes: { style: "text-align: right" },
+                    template: function(dataItem) {
+                        var grid = $("#criticalDetailGrid").data("kendoGrid");
+                        return grid ? grid.dataSource.indexOf(dataItem) + 1 : '';
+                    }
+                },
+                { title: "설비중요도", field: "importRankCd", width: "150px" },
+                { title: "설비코드", field: "equipCd", width: "150px" },
+                { title: "설비명", field: "equipNm" },
+                { title: "카테고리", field: "equipCategoryDesc", width: "150px" },
+                { title: "고장발생일시", field: "breakdownDt", width: "150px" },
+                { title: "고장원인", field: "causeNm", width: "150px" },
+                { 
+                    title: "고장발생 후 경과시간", 
+                    field: "breakdownHr", 
+                    width: "200px",
+                    type: "number",
+                    attributes: { style: "text-align: right" },
+                    template: "# if (breakdownHr == null) { # 0 # } else { # #=kendo.toString(breakdownHr, 'n0')# # } #"
+                }
+            ],
+            sortable: true,
+            height: "300px"
+        };
+        this.detailGrid = $("#criticalDetailGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    initChart() {
+        let _this = this;
+        
+        $("#criticalChart").kendoChart({
+            title: {
+                text: "중요도별 설비 현황",
+                font: {
+                    size: 16,
+                    weight: "bold"
+                }
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "column",
+                stack: false
+            },
+            series: [
+                {
+                    name: "전체 설비수",
+                    field: "allCnt",
+                    color: "#87D5AA"
+                },
+                {
+                    name: "사용중인 설비수",
+                    field: "useCount",
+                    color: "#8b00ff"
+                },
+                {
+                    name: "고장중인 설비수",
+                    field: "breakCount",
+                    color: "#1118cc"
+                },
+                {
+                    name: "유휴중인 설비수",
+                    field: "unuseCnt",
+                    color: "#1191cc"
+                },
+                {
+                    name: "불용중인 설비수",
+                    field: "uselessCnt",
+                    color: "#11911e"
+                }
+            ],
+            valueAxis: {
+                labels: {
+                    format: "N0"
+                },
+                line: {
+                    visible: false
+                },
+            },
+            categoryAxis: {
+                field: "importRankCd",
+                majorGridLines: {
+                    visible: false
+                }
+            },
+            tooltip: {
+                visible: true,
+                template: "#= series.name #: #= value #"
+            },
+            dataSource: {
+                data: []
+            },
+            height: 300
+        });
+
+        _this.chart = $("#criticalChart").data("kendoChart");
+    }
+
+    updateChart() {
+        let _this = this;
+        let grid = $("#criticalGrid").data("kendoGrid");
+        
+        if (grid && _this.chart) {
+            let data = grid.dataSource.data();
+            _this.chart.dataSource.data(data);
+            _this.chart.refresh();
+        }
+    }
+
+    bindEvents() {
+        let _this = this;
+        $('#btnRefresh').kendoButton({
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+        $('#btnDetailExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportDetailExcel();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = {
+            action: 'critical_equipment_status'
+        };
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        if (result && result.length > 0) {
+            for (let i = 0; i < result.length; i++) {
+                if (!result[i].importRankCd || result[i].importRankCd === '') {
+                    result[i].importRankCd = '미지정';
+                }
+            }
+        }
+        
+        let grid = $("#criticalGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    loadDetailGrid(importRankPk) {
+        let _this = this;
+        if (!importRankPk) {
+            importRankPk = 0;
+        }
+        
+        let param = {
+            action: 'critical_equipment_status_detail',
+            importRankPk: importRankPk
+        };
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        let grid = $("#criticalDetailGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#criticalGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "중요도별_설비_고장_현황.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+
+    exportDetailExcel() {
+        if (this.selectedImportRankPk === 0) {
+            alert('설비 중요도를 선택해주세요.');
+            return;
+        }
+        
+        let gridData = $('#criticalDetailGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "고장설비_목록.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new CriticalEquipmentStatusPage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

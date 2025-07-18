@@ -1,11 +1,303 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 검색 폼 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchYear_start" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <span id="searchYearWrap">
+                                    <input id="searchYear_start" name="searchYear_start" style="width:100px;" /> ~ <input id="searchYear_end" name="searchYear_end" style="width:100px;" />
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- 버튼 및 목록+차트 그리드 -->
+        <div class="content-ui-row connect">
+            <div class="card-content grid" style="display: flex; align-items: flex-start;">
+                <div style="width: 30%; min-width: 220px;">
+                    <div class="card-group-btn">
+                        <span class="info-text">
+                            <i class="material-symbols-outlined">list_alt</i>
+                            <label data-labelCd="기간별 불용처리 설비 현황">기간별 불용처리 설비 현황</label>
+                        </span>
+                    </div>
+                    <div id="disuseGrid"></div>
+                </div>
+                <div style="flex: 1; min-width: 220px; margin-left: 24px;">
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px;">
+                        <button id="btnSearch" class="btn-search" style="margin-right: 8px;">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </div>
+                    <div id="disuseBarChart" style="height: 220px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="content-ui-row connect mt-2">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="기간별 불용처리 설비 목록">기간별 불용처리 설비 목록</label>
+                    </span>
+                </div>
+                <div id="disuseDetailGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class FacilityTreatmentStatusPage {
+    constructor() {
+        this.mainGrid = null;
+        this.detailGrid = null;
+        this.chart = null;
+        this.baseUrl = '/api/kmms/report';
+        this.init();
+    }
+
+    init() {
+        this.initYearPicker();
+        this.initMainGrid();
+        this.initDetailGrid();
+        this.initChart();
+        this.bindEvents();
+    }
+
+    initYearPicker() {
+        let today = new Date();
+        let fiveYearsAgo = new Date(today.getFullYear() - 5, 0, 1);
+        $("#searchYear_start").kendoDatePicker({
+            start: "decade",
+            depth: "decade",
+            format: "yyyy",
+            value: fiveYearsAgo,
+        });
+        $("#searchYear_end").kendoDatePicker({
+            start: "decade",
+            depth: "decade",
+            format: "yyyy",
+            value: today,
+        });
+    }
+
+    initMainGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: [],
+                aggregate: [
+                    { field: "totCnt", aggregate: "sum" }
+                ]
+            },
+            columns: [
+                { 
+                    title: "No", 
+                    width: "60px", 
+                    attributes: { style: "text-align: right" },
+                    template: function(dataItem) {
+                        var grid = $("#disuseGrid").data("kendoGrid");
+                        return grid ? grid.dataSource.indexOf(dataItem) + 1 : '';
+                    },
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>합계</b>",
+                },
+                { 
+                    title: "년/월", 
+                    field: "yearMon", 
+                    width: "90px", 
+                    attributes: { style: "text-align: center" }, 
+                    footerTemplate: "<b style='color:rgb(78,81,85)'></b>" 
+                },
+                { 
+                    title: "불용설비", 
+                    field: "totCnt", 
+                    width: "90px", 
+                    attributes: { style: "text-align: right" }, 
+                    type: "number", 
+                    footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'totCnt') #</b>", 
+                    footerAttributes: { style: "text-align: right" },
+                    aggregates: ["sum"],
+                }
+            ],
+            sortable: true,
+            height: "220px",
+            selectable: "row",
+            change: (e) => {
+                let selected = this.mainGrid.dataItem(this.mainGrid.select());
+                if (selected) {
+                    this.loadDetailGrid(selected.yearMon);
+                }
+            },
+            dataBound: function (e) {
+                _this.updateChart();
+            }
+        };
+        this.mainGrid = $("#disuseGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    initDetailGrid() {
+        let gridOption = {
+            autoBind: false,
+            columns: [
+                { 
+                    title: "No", 
+                    width: "60px", 
+                    attributes: { style: "text-align: right" },
+                    template: function(dataItem) {
+                        var grid = $("#disuseDetailGrid").data("kendoGrid");
+                        return grid ? grid.dataSource.indexOf(dataItem) + 1 : '';
+                    }
+                },
+                { title: "불용처리일", field: "disposedDate", width: "150px", attributes: { style: "text-align: center" } },
+                { title: "불용처리타입", field: "disposedType", width: "150px", attributes: { style: "text-align: center" } },
+                { title: "설비코드", field: "equipCd", width: "150px" },
+                { title: "설비명", field: "equipNm" },
+                { title: "카테고리", field: "equipCategoryDesc", width: "150px" },
+                { title: "설치일", field: "installDt", width: "150px", attributes: { style: "text-align: center" } },
+                { title: "제조사", field: "makerNm", width: "150px" }
+            ],
+            sortable: true,
+            height: "220px"
+        };
+        this.detailGrid = $("#disuseDetailGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    initChart() {
+        let _this = this;
+        
+        $("#disuseBarChart").kendoChart({
+            title: {
+                text: "기간별 불용처리 설비 현황",
+                font: {
+                    size: 16,
+                    weight: "bold"
+                }
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "column",
+                stack: false
+            },
+            series: [
+                {
+                    name: "불용설비",
+                    field: "totCnt",
+                    color: "#F44336"
+                }
+            ],
+            valueAxis: {
+                labels: {
+                    format: "N0"
+                },
+                line: {
+                    visible: false
+                },
+                majorUnit: 1,
+                minorUnit: 1
+            },
+            categoryAxis: {
+                field: "yearMon",
+                majorGridLines: {
+                    visible: false
+                }
+            },
+            tooltip: {
+                visible: true,
+                template: "#= series.name #: #= value #"
+            },
+            dataSource: {
+                data: []
+            },
+            height: 200
+        });
+
+        _this.chart = $("#disuseBarChart").data("kendoChart");
+    }
+
+    updateChart() {
+        let _this = this;
+        let grid = $("#disuseGrid").data("kendoGrid");
+        
+        if (grid && _this.chart) {
+            let data = grid.dataSource.data();
+            _this.chart.dataSource.data(data);
+            _this.chart.refresh();
+        }
+    }
+
+    bindEvents() {
+        let _this = this;
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'facility_treatment_status';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        let grid = $("#disuseGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    loadDetailGrid(yearMon) {
+        let _this = this;
+        let param = {
+            action: 'facility_treatment_status_detail',
+            yearMon: yearMon
+        }
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        let grid = $("#disuseDetailGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#disuseGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "기간별_불용처리_설비현황.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new FacilityTreatmentStatusPage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

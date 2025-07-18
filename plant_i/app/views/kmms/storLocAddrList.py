@@ -2,7 +2,7 @@
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
-from domain.models.cmms import CmStorLocAddr, CmWorkOrderSupplier
+from domain.models.cmms import CmStorLocAddr, CmWorkOrderSupplier, CmLocation
 
 def storLocAddrList(context):
     '''
@@ -94,30 +94,55 @@ def storLocAddrList(context):
 
         elif action in ['save']:
             id = CommonUtil.try_int(posparam.get('stor_loc_addr_pk'))
-            loc_cd = posparam.get('loc_cd')
+
+            loc_pk = posparam.get('loc_pk')
+            location = CmLocation.objects.get(LocPk=loc_pk)
+            loc_cd = location.LocCode
+
             rack_no = posparam.get('rack_no')
             level_no = posparam.get('level_no')
             col_no = posparam.get('col_no')
+            end_col_no = posparam.get('end_col_no')
             out_unavail_yn = posparam.get('out_unavail_yn')
-            use_yn = posparam.get('use_yn')
 
-  
+            start_col = int(col_no)
+            end_col = int(end_col_no) if end_col_no else start_col
+            
             if id:
+                col_no_str = str(col_no).zfill(2) if start_col < 10 else str(col_no)
+                LocCellAddr = f"{rack_no}{level_no}{col_no_str}"                
+                
                 c = CmStorLocAddr.objects.get(id=id)
 
+                c.LocCode = loc_cd
+                c.LocCellAddr = LocCellAddr
+                c.RackNo = rack_no
+                c.LevelNo = level_no
+                c.ColNo = col_no
+                c.OutUnavailYn = out_unavail_yn
+
+                c.UseYn = 'Y'
+                c.DelYn = 'N'
+                c.set_audit(user)
+                c.save()
             else:
-                c = CmStorLocAddr()
+                for current_col in range(start_col, end_col + 1):
+                    col_no_str = str(current_col).zfill(2) if current_col < 10 else str(current_col)
+                    LocCellAddr = f"{rack_no}{level_no}{col_no_str}"
 
-            c.LocCode = loc_cd
-            c.RackNo = rack_no
-            c.LevelNo = level_no
-            c.ColNo = col_no
-            c.OutUnavailYn = out_unavail_yn
-            c.UseYn = use_yn
+                    c = CmStorLocAddr()
 
-            c.DelYn = 'N'
-            c.set_audit(user)
-            c.save()
+                    c.LocCode = loc_cd
+                    c.LocCellAddr = LocCellAddr
+                    c.RackNo = rack_no
+                    c.LevelNo = level_no
+                    c.ColNo = current_col
+                    c.OutUnavailYn = out_unavail_yn
+
+                    c.UseYn = 'Y'
+                    c.DelYn = 'N'
+                    c.set_audit(user)
+                    c.save()
 
             return {'success': True, 'message': '자재보관위치의 정보가 저장되었습니다.'}
 

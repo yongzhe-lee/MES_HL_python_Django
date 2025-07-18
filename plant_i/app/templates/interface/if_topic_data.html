@@ -96,7 +96,7 @@
                 "hpc1.coating2",
                 "hpc1.coatvision",
                 "hpc1.pcbrev",
-                "hpc1.curr",
+                "hpc1.curing",
                 "hpc1.frobackload",
                 "hpc1.uh.load",
                 "hpc1.tim",
@@ -115,7 +115,7 @@
                 "hpc1.brackassm",
                 "hpc1.brackassm.height"
             ];
-            this.arr_smt4_equ = ["smt4.loader", "smt4.laserrmarking", "smt4.sp1", "smt4.sp2", "smt4.spi", "smt4.mnt", "smt4.pre-aoi", "smt4.reflow", "smt4.aoi", "smt4.aoireview", "smt4.unloader", "hpc1.packing"];
+            this.arr_smt4_equ = ["smt4.load", "smt4.laserrmarking", "smt4.sp1", "smt4.sp2", "smt4.spi", "smt4.mnt", "smt4.pre-aoi", "smt4.reflow", "smt4.aoi", "smt4.aoireview", "smt4.unload", "hpc1.packing"];
             this.arr_all_equ = this.arr_hpc1_equ.concat(this.arr_smt4_equ);
             this.init();
         }
@@ -128,6 +128,8 @@
             this.$line = $('#line_id');
             this.$topic_kind = $('#topic_kind');
             this.$cboTopic = $('#topic');
+
+
 
             AjaxUtil.fillDropDownOptions(this.$line, 'line', null, null, this.$line.val()); // "" : 전체, 1 : hpc1, 2 : smt4
             this.fillTopicOptions();
@@ -168,17 +170,15 @@
             _this.$cboTopic.append(opt);
 
             let topic_kind = _this.$topic_kind.val();
-
-            let topic_prefix = "rst_";
-            if (topic_kind == "dt") {
-                topic_prefix = "dt_";
-            }
-
             $.each(arr, function (idx, equ_cd) {
-                let rst_topic = topic_prefix + equ_cd;
+                let rst_topic = topic_kind +'_' + equ_cd;
                 let opt = '<option value="' + rst_topic + '">' + rst_topic + '</option>';
                 _this.$cboTopic.append(opt);
             });
+
+            $('#topic_kind').kendoDropDownList();
+            $('#topic').kendoDropDownList();
+
         }
 
         web_event_handler(message) {

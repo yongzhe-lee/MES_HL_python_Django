@@ -1,5 +1,7 @@
 from django.db import transaction
-from domain.models.kmms import JobClass
+from django.db.backends.utils import logger
+from domain.models.cmms import CmJobClass
+from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
 from domain.services.kmms.pm_master import PMService
 from domain.services.logging import LogWriter
@@ -31,24 +33,28 @@ def job_class(context):
 
         try:
             if job_class_pk:        
-                jc = JobClass.objects.filter(job_class_pk=job_class_pk).first()
+                jc = CmJobClass.objects.filter(id=job_class_pk).first()
                 if not jc:
                     return JsonResponse({
                         'result': False,
-                        'message': f"PM with pk {job_class_pk} does not exist."
+                        'message': f"PM with pk {id} does not exist."
                     })
 
             else:
-                jc = JobClass()
+                jc = CmJobClass()
 
                 # 자동으로 코드 생성
                 max_code = getMaxCode()  # ✅ self 제거하고 직접 호출
           
             
             # 데이터 저장
-            jc.Code = max_code
-            jc.Name = posparam.get('occuName')
-            jc.WageCost = posparam.get('maintenanceTime')
+            jc.JobClassCode = max_code
+            jc.JobClassName = posparam.get('occuName')     
+            jc.WageCost = CommonUtil.try_int(posparam.get('maintenanceTime'))
+            jc.UseYn = 'Y'
+            jc.DelYn = 'N'
+            jc.InsertTs = timezone.now()
+            jc.InserterId = user.id
             jc.save()
 
             items = {'success': True, 'id': jc.job_class_pk}
@@ -66,7 +72,7 @@ def getMaxCode():
     try:
         max_code = ""
         sql = """
-            SELECT MAX(cd) FROM job_class 
+            SELECT coalesce(MAX(job_class_cd), 'JC00') as max FROM cm_job_class
         """
         max_code = DbUtil.get_rows(sql)[0]['max']
         new_code = 'JC' + str(int(max_code[2:]) + 1).zfill(2)

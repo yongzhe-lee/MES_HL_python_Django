@@ -1,4 +1,4 @@
-﻿
+
 <div id="modalPiMaster" class="modal">
 	<div class="modal-content">
 		<div class="modal-header">
@@ -27,7 +27,7 @@
 
 				<div class="tab-content">
 					<!-- 계획 탭 컨텐츠 -->
-					<form id="piMasterForm">
+					<form id="piMasterForm" class="tab-pane active">
 						<input type="hidden" id="chk_mast_pk" name="chk_mast_pk">
 						<div class="plan-content">
 							<div class="form-row">
@@ -88,7 +88,7 @@
 
 
 					<!-- 점검설비 목록 탭 컨텐츠 -->
-					<div id="piEquip" style="display: none;">
+					<div id="piEquip" class="tab-pane" style="display: none;">
 						<div class="section-header" style="display: flex; justify-content: flex-end;">
 							<div class="button-group">
 								<button type="button" id="selectEquipment" name="selectEquipment">
@@ -97,7 +97,7 @@
 							</div>
 						</div>
 						<!--아이디 변경 equipTable => tblChkEquip -->
-						<div class="swing-el-tab-scroll" style="height: 412px;">
+						<div class="swing-el-tab-scroll">
 							<table class="swing-table swing-table-bordered swing-table-striped mb-0" id="tblChkEquip">
 								<thead>
 									<tr style="border-top: 2px solid #343a40;">
@@ -119,7 +119,7 @@
 					</div>
 
 					<!-- 점검항목 목록 탭 컨텐츠 -->
-					<div id="piCheckItem" style="display: none;">
+					<div id="piCheckItem" class="tab-pane" style="display: none;">
 						<div class="section-header" style="display: flex; justify-content: flex-end;">
 							<div class="button-group">
 								<button type="button" id="addEmptyCheckItem" name="addEmptyCheckItem">
@@ -130,7 +130,7 @@
 								</button>
 							</div>
 						</div>
-						<div class="swing-el-tab-scroll" style="height: 412px;">
+						<div class="swing-el-tab-scroll">
 							<table class="swing-table swing-table-bordered swing-table-striped mb-0" id="tblChkItem">
 								<thead>
 									<tr style="border-top: 2px solid #343a40;">
@@ -155,14 +155,14 @@
 
 
 					<!-- 점검결과 목록 탭 컨텐츠 -->
-					<div id="piCheckResult" style="display: none;">
+					<div id="piCheckResult" class="tab-pane" style="display: none;">
 						<div class="section-header" style="display: flex; justify-content: flex-end;">
 							<div class="button-group">
 								<button type="button" id="emptyButton" style="visibility: hidden;">
 								</button>
 							</div>
 						</div>
-						<div class="swing-el-tab-scroll" style="height: 412px;">
+						<div class="swing-el-tab-scroll">
 							<table class="swing-table swing-table-bordered swing-table-striped mb-0" id="tblChkResult">
 								<thead>
 									<tr style="border-top: 2px solid #343a40;">
@@ -182,14 +182,14 @@
 					</div>
 
 					<!-- 작업 WO 목록 탭 컨텐츠 -->
-					<div id="piWorkOrderContent" style="display: none;">
+					<div id="piWorkOrderContent" class="tab-pane" style="display: none;">
 						<div class="section-header" style="display: flex; justify-content: flex-end;">
 							<div class="button-group">
 								<button type="button" id="emptyButton" style="visibility: hidden;">
 								</button>
 							</div>
 						</div>
-						<div class="swing-el-tab-scroll" style="height: 412px;">
+						<div class="swing-el-tab-scroll">
 							<table class="swing-table swing-table-bordered swing-table-striped mb-0" id="tblWo">
 								<thead>
 									<tr style="border-top: 2px solid #343a40;">
@@ -340,21 +340,90 @@
 </script>
 
 <style>
+	#modalPiMaster {
+		z-index: 1000 !important;
+	}
 
-	/*
-    .modal-content {
-        height: 80% !important;
-    }
-	*/
+	.modal-content {
+		height: 80vh !important;
+		max-height: 800px !important;
+		display: flex;
+		flex-direction: column;
+	}
 
-    /* choi : modal-content가 350px로 되어 있어 100%로 강제로 늘린다 */
-    .modal .tab-content {
-        height: 100% !important;
-    }
+	.modal-body {
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
 
-    #work_text {
-        height: 150px !important
-    }
+	.section {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.tab-content {
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.tab-pane {
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.swing-el-tab-scroll {
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+
+	#work_text {
+		height: 150px !important;
+		resize: none;
+	}
+
+	.form-group {
+		flex: 1;
+		min-width: 0;
+		margin-bottom: 10px;
+	}
+
+	.form-group:first-child {
+		flex: 0.8;
+	}
+
+	.form-group:last-child {
+		flex: 1.2;
+	}
+
+	.form-group label {
+		font-size: 13px;
+		font-weight: 600;
+		color: #2c3e50;
+		margin-bottom: 5px;
+	}
+
+	.char-count {
+		text-align: right;
+		color: #666;
+		font-size: 12px;
+		margin-top: 3px;
+		padding-right: 5px;
+	}
+
+	.section {
+		background: #fff;
+		margin-bottom: 20px;
+		height: auto;
+	}
 </style>
 
 <!--swing에서 사용한 스타일을 그대로 가져온다-->
@@ -530,7 +599,7 @@
             });
 
             AjaxUtil.fillDropDownTreeOptions($("#executionDept"), "depart", "select");
-            AjaxUtil.fillDropDownOptions($('#piManager'), 'auth_user', 'choose', null);
+			AjaxUtil.fillDropDownOptions($('#piManager'), 'cm_user_info', 'choose', null);
             AjaxUtil.fillDropDownOptions($('#cycleType'), 'user_code', 'choose', null, 'CYCLE_TYPE');
 
 
@@ -711,26 +780,26 @@
 				// 클릭된 탭에 active 클래스 추가
 				$(this).addClass('active');
 
-				// 모든 컨텐츠 숨기기
-                $('#piMasterForm, #piEquip,  #piCheckItem, #piCheckResult, #piWorkOrderContent').hide();
+				// 모든 탭 컨텐츠 숨기기
+				$('.tab-pane').removeClass('active').hide();
 
 				// 탭 내용 전환
 				var tabName = $(this).text().trim();
 				switch (tabName) {
 					case '계획':
-						$('#piMasterForm').show();
+						$('#piMasterForm').addClass('active').show();
 						break;
 					case '점검설비':
-						$('#piEquip').show();
+						$('#piEquip').addClass('active').show();
 						break;
                     case '점검항목':
-						$('#piCheckItem').show();
+						$('#piCheckItem').addClass('active').show();
 						break;
                     case '작업결과 목록':
-                        $('#piCheckResult').show();
+                        $('#piCheckResult').addClass('active').show();
                         break;
                     case '작업 WO 목록':
-						$('#piWorkOrderContent').show();
+						$('#piWorkOrderContent').addClass('active').show();
 						break;
 				}
 			});
@@ -1159,6 +1228,12 @@
 		//pi 마스터 상세보기
 		getPiMasterModal(mastpk) {
 			let _this = this;
+
+			// '계획' 탭 항상 active 처리
+			$('.tab-button').removeClass('active');
+			$('.tab-pane').removeClass('active').hide();
+			$('.tab-button:first').addClass('active');
+			$('#piMasterForm').addClass('active').show();
 
 			// 1. PI 상세 정보 API 호출
 			let param = {

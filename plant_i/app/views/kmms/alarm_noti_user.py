@@ -29,7 +29,7 @@ def alarm_noti_user(context):
             sql = ''' select
 	          anu.alarm_noti_grp_pk
 	        , ui."User_id" as user_pk
-	        , fn_user_nm(ui."Name", 'N') as user_nm
+	        , cm_fn_user_nm(ui."Name", 'N') as user_nm
 	        , au.username as login_id
 	        , d.id as dept_pk
 	        , d."Name" as dept_nm

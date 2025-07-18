@@ -1,4 +1,4 @@
-﻿{% extends "app/layout.html" %}
+{% extends "app/layout.html" %}
 
 {% block content %}
 
@@ -14,7 +14,7 @@
 						<div class="form-item align-h">
 							<label class="k-label k-form-label">검색키워드</label>
 							<input id="chkMastNo" class="k-textbox" placeholder="점검번호" style="width: 30%;" />
-							<input id="searchText" class="k-textbox" placeholder="점검명,설비코드,설비명" style="width: 60%;" />
+							<input id="searchText" class="k-textbox" placeholder="점검명,설비코드,설비명을 입력하세요" style="width: 60%;" />
 						</div>
 					</div>
 					<div class="col-auto">
@@ -185,7 +185,7 @@
 				},
 				columns: [
 					{ field: 'chk_mast_pk', title: '점검 PK', hidden: true },
-					{ field: 'chk_mast_no', title: '점검번호', width: 80 },
+					{ field: 'chk_mast_no', title: '점검번호', width: 120 },
 					{
 						field: "chk_mast_nm",
 						title: "점검명",
@@ -199,30 +199,25 @@
 					{
 						field: 'cycle_display_nm',
 						title: '주기',
-						width: 80,
+						width: 100,
 						template: '#=cycle_display_nm# (#=per_number#)'
 					},
-					{ field: 'cycle_type_nm', title: '주기단위', width: 100 },
+					{ field: 'cycle_type_nm', title: '주기단위', width: 80 },
 
 					{
 						field: 'sched_start_date',
 						title: '주기 시작일',
 						width: 120,
-						template: '#= kendo.toString(kendo.parseDate(sched_start_date), "yyyy-MM-dd") #'
 					},
 					{
 						field: 'last_chk_date',
 						title: '최근 생성된 일정',
 						width: 120,
-						template: '#= kendo.toString(kendo.parseDate(last_chk_date), "yyyy-MM-dd") #'
 					},
-					{
-						//field: 'next_chk_date',
-						//choi : 임시 코딩
+					{	
 						field: 'last_chk_date',
 						title: '다음 주기일',
 						width: 120,
-						template: '#= kendo.toString(kendo.parseDate(last_chk_date), "yyyy-MM-dd") #'
 					},
 					{
 						field: 'use_yn',
@@ -330,9 +325,11 @@
 
 					let calParam = {
 						action: 'selectEquipChkScheSimulationCycleByMon',
-						deptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
-						userPk: $('#calChkUserPk').data('kendoDropDownList').value(),
-						calSearchType: $('#calSearchType').data('kendoDropDownList').value()
+						calDeptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
+						calChkUserPk: $('#calChkUserPk').data('kendoDropDownList').value(),
+						calSearchType: $('#calSearchType').data('kendoDropDownList').value(),
+						calFromDate: todayFormatted,
+						calToDate: todayFormatted,
 					};
 
 					_this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pi_master', calParam);
@@ -389,10 +386,14 @@
 				checked: false
 			});
 
-			//search form
+			            //search form
             const today = new Date();
             const threeMonthsLater = new Date();
             threeMonthsLater.setMonth(today.getMonth() + 3);
+            
+            // YYYY-MM-DD 형식으로 변환
+            const todayFormatted = kendo.toString(today, 'yyyy-MM-dd');
+            const threeMonthsLaterFormatted = kendo.toString(threeMonthsLater, 'yyyy-MM-dd');
 			$("#srch_date_range").kendoDateRangePicker({
 				range: {
 					start: new Date(),
@@ -461,9 +462,11 @@
 
 					let calParam = {
 						action: 'selectEquipChkScheSimulationCycleByMon',
-						deptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
-						userPk: $('#calChkUserPk').data('kendoDropDownList').value(),
-						calSearchType: $('#calSearchType').data('kendoDropDownList').value()
+						calDeptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
+						calChkUserPk: $('#calChkUserPk').data('kendoDropDownList').value(),
+						calSearchType: $('#calSearchType').data('kendoDropDownList').value(),
+						calFromDate: todayFormatted,
+						calToDate: todayFormatted,
 					};
 
 					_this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pi_master', calParam);
@@ -599,7 +602,7 @@
 					});
 				});
 			}
-			console.log('schedulerData', mergedData);
+			
 			var dataSource = new kendo.data.SchedulerDataSource({
 				data: mergedData,
 				schema: {

@@ -44,7 +44,7 @@
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="위치 목록">위치 목록</label></span>
                     <span>
                     </span>
                     <span>
@@ -72,9 +72,9 @@
                     <div class="edit-form-ui">
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="form-item align-h">
-                                <label class="k-label k-form-label essential" for="loc_cd">창고위치</label>
+                                <label class="k-label k-form-label essential" for="loc_pk">창고위치</label>
                                 <div class="field-wrapper">
-                                    <select id="loc_cd" name="loc_cd"></select>
+                                    <select id="loc_pk" name="loc_pk"></select>
                                 </div>
                             </div>
                         </div>
@@ -154,7 +154,7 @@
                 },
                 columns: [
                     { field: 'stor_loc_addr_pk', title: 'stor_loc_addr_pk', hidden: true },
-                    { field: 'loc_cd', title: '창고위치', width: 80 },
+                    { field: 'loc_nm', title: '창고위치', width: 80 },
                     { field: 'loc_cell_addr', title: '셀위치', width: 100 },
                     { field: 'rack_no', title: '랙번호', width: 80 },
                     { field: 'level_no', title: '단번호', width: 80 },
@@ -165,7 +165,7 @@
                     { field: 'insert_ts', title: '생성일', width: 100 },
                     { field: 'updater_nm', title: '수정자', width: 80 },
                     { field: 'update_ts', title: '수정일', width: 100 },
-                    { field: 'update_ts', title: 'QR코드출력', width: 80 },
+                    // { field: 'update_ts', title: 'QR코드출력', width: 80 },
                 ],
                 dataBound: function (e) {
                     const grid = this;
@@ -209,7 +209,7 @@
             });
 
             // form
-            AjaxUtil.fillDropDownTreeOptions($("#loc_cd"), "cm_location", "select");
+            AjaxUtil.fillDropDownTreeOptions($("#loc_pk"), "cm_location", "select");
             $("#rack_no").kendoDropDownList({
                 dataSource: [
                     ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)), // A부터 Z까지
@@ -311,12 +311,17 @@
                 }
             };
 
-            let locCdValue = getComponentValue("#loc_cd", "kendoDropDownTree");
+            let locPkValue = getComponentValue("#loc_pk", "kendoDropDownTree");
 
             let formData = FormUtil.extractForm($('#detailForm'));
-            formData.loc_cd = locCdValue;
+            formData.loc_pk = locPkValue;
 
             if(checkForm($('#detailForm')) === false) return;
+            
+            if(parseInt(formData.end_col_no) < parseInt(formData.col_no)) {
+                Alert.alert('', '열 번호(마침)이 열 번호(시작)보다 작습니다.');
+                return;
+            }
 
             let fnSuccess = function (res) {
                 if (res.success) {

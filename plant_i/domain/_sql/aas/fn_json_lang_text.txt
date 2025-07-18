@@ -1,0 +1,26 @@
+
+-- DROP FUNCTION public.fn_json_lang_text(jsonb, varchar);
+
+CREATE OR REPLACE FUNCTION public.fn_json_lang_text(v_json jsonb, v_lang_code character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    v_text VARCHAR(500) DEFAULT NULL;
+BEGIN
+    BEGIN
+        select
+        aa->>'text' into v_text
+        from jsonb_array_elements(v_json) as aa
+        where 
+        aa->>'language' = v_lang_code;
+
+        RETURN v_text;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN NULL;
+    END;
+END;
+$function$
+;

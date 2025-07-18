@@ -51,7 +51,7 @@ def project(context):
 		       , t.plan_start_dt
 		       , t.plan_end_dt
 		       , t.manager_id
-		       , fn_user_nm(ui."Name", 'N') as user_nm
+		       , cm_fn_user_nm(ui."Name", 'N') as user_nm
 		       , t.proj_purpose
 		       , coalesce(t.proj_tot_cost, 0) as proj_tot_cost
 		       , t.status
@@ -108,7 +108,7 @@ def project(context):
 		       , t.plan_start_dt
 		       , t.plan_end_dt
 		       , t.manager_id
-		       , fn_user_nm(ui."Name", 'N') as user_nm
+		       , cm_fn_user_nm(ui."Name", 'N') as user_nm
 		       , t.proj_purpose
 		       , coalesce(t.proj_tot_cost, 0) as proj_tot_cost
 		       , t.status
@@ -139,16 +139,15 @@ def project(context):
             projCd = posparam.get('proj_cd')
             planStartDt = posparam.get('plan_start_dt')
             planEndDt = posparam.get('plan_end_dt')
-            managerId = posparam.get('manager_id')
+            managerId = CommonUtil.try_int(posparam.get('manager_id'))
             projPurpose = posparam.get('proj_purpose')
             projTotCost = posparam.get('proj_tot_cost')
-            status = posparam.get('status')
+            status = posparam.get('proj_status')
             inserterId = posparam.get('inserterId')
             
-            if action == 'update':
-                q = CmProject.objects.filter(projCd=projCd)
-                c = q.first()
-            else:
+            try:
+                c = CmProject.objects.get(ProjCode=projCd)
+            except CmProject.DoesNotExist:
                 c = CmProject()
                 #c.insert_ts = DateUtil.get_current_datetime()
                 #c.inserter_id = inserterId
@@ -162,6 +161,8 @@ def project(context):
             c.ProjTotCost = projTotCost
             if status:
                 c.Status = status
+            else:
+                c.Status = 'PREP'
             c.Factory_id = 1
             c.set_audit(user)
             
@@ -217,6 +218,65 @@ def project(context):
 
             items = DbUtil.get_row(sql, dc)
 
+        elif action == 'FindAllUser':
+            keyword = gparam.get('keyword')
+
+            sql = ''' 
+            /* findAll [user-mapper.xml] */
+
+            with cte as (
+
+            SELECT t."User_id" as user_pk
+                , cm_fn_user_nm(t."Name", t.del_yn) as user_nm
+                , au.username as login_id
+                -- , t.use_lang_cd
+                -- , inl.lang_name  as use_lang_nm
+                -- , t.user_password
+                -- , t.salt
+                , t."Depart_id" as dept_pk
+                , d."Name" as dept_nm
+                -- , t.job_class_pk
+                -- , jc.job_class_nm
+                -- , jc.wage_cost
+                -- , t.user_type as user_type_cd
+                -- , ut.code_nm as user_type_nm
+
+            FROM   user_profile t
+            inner join dept d on t."Depart_id"  = d.id
+            inner join auth_user au on t."User_id" = au.id
+            -- left outer join job_class jc on t.job_class_pk = jc.job_class_pk
+            -- left outer join i18n_lang inl on t.use_lang_cd = inl.lang_type
+            -- left outer join base_code ut on t.user_type = ut.code_cd and ut.code_grp_cd = 'USER_TYPE'
+            where t.del_yn = 'N'
+
+                and t.use_yn = 'Y'
+            '''
+            if keyword:
+                sql += ''' 
+                AND (
+                        UPPER(d."Name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+                        OR
+                        UPPER(t."Name") LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+                    )
+                '''
+            sql += '''
+            )
+            SELECT *
+            FROM (
+                table cte
+
+                    order by dept_nm ASC 
+
+                    -- limit 30 offset (1-1)*30
+
+            ) sub
+            RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+            WHERE total_rows != 0
+            '''
+            dc = {}
+            dc['keyword'] = keyword
+
+            items = DbUtil.get_rows(sql, dc)
 
     except Exception as ex:
         source = 'kmms/project : action-{}'.format(action)

@@ -31,7 +31,7 @@ class EquipCheckRstService():
 		, t.insert_ts, t.inserter_id, t.inserter_nm
 		, t.update_ts, t.updater_id, t.updater_nm
 		, e.equip_class_path, e.equip_class_desc
-        , cu."User_id" as chk_user_pk, fn_user_nm(cu."Name", 'N') as chk_user_nm
+        , cu."User_id" as chk_user_pk, cm_fn_user_nm(cu."Name", 'N') as chk_user_nm
 		, ct.code_cd as cycle_type_cd, ct.code_nm as cycle_type_nm
 		, concat(ecm.per_number, ct.code_dsc) as cycle_display_nm
 		, cs.code_cd as chk_status_cd, cs.code_nm as chk_status_nm
@@ -68,11 +68,11 @@ class EquipCheckRstService():
             sql += ''' AND t.chk_rslt_pk = %(chkRsltPk)s
             '''
         if searchText:
-            sql += ''' AND (UPPER(ecm.chk_mast_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+            sql += ''' AND (UPPER(ecm.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				OR
-				UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				OR
-				UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			)
             '''
         if deptPk and deptPk > 0:

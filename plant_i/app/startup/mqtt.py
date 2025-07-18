@@ -55,7 +55,7 @@ class MQTTApplication():
            "hpc1.coating2",
            "hpc1.coatvision",
            "hpc1.pcbrev",
-           "hpc1.curr",
+           "hpc1.curing",
            "hpc1.frobackload","hpc1.uh.load",
            "hpc1.tim","hpc1.tim.assy",
            "hpc1.lh.load",
@@ -63,7 +63,7 @@ class MQTTApplication():
            "hpc1.fclip","hpc1.fclip.height","hpc1.fclip.clip", "hpc1.fclip.screw",
            "hpc1.eol1","hpc1.eol2",
            "hpc1.pinchk","hpc1.labeling","hpc1.brackassm","hpc1.brackassm.height",
-           "smt4.loader","smt4.laserrmarking","smt4.sp1","smt4.sp2","smt4.spi","smt4.mnt","smt4.pre-aoi","smt4.reflow","smt4.aoi","smt4.aoireview","smt4.unloader"
+           "smt4.load","smt4.laserrmarking","smt4.sp1","smt4.sp2","smt4.spi","smt4.mnt","smt4.pre-aoi","smt4.reflow","smt4.aoi","smt4.aoireview","smt4.unload"
            #,"hpc1.packing"
         ]
 

@@ -10,6 +10,7 @@ def tagdata_list(context):
     gparam = context.gparam
     posparam = context.posparam
     action = gparam.get('action', 'read')
+    result = {}
 
     try:
         if action == 'read':
@@ -25,10 +26,14 @@ def tagdata_list(context):
             if tag_group=="7":
                 table = 'das.em_tag_dat'
 
+            # 25.06.17 김하늘 로직 추가(em_tag_dat 반영) - 단일 조건이라 union 필요없이 table명만 태그에 맞게 할당 
+            table = 'das.em_tag_dat' if '.em.' in tag_code else 'das.tag_dat' # .em.이 포함된 태그코드가 있는지 확인
 
             sql = f''' 
             SELECT
-                td.tag_code AS tag_code
+                e."Name" AS equ_name
+                , tg."Name" || '(' || tg."Code" || ')' AS tag_group
+                , td.tag_code AS tag_code
                 , t.tag_name AS tag_name
 		        , TO_CHAR(td.data_date, 'yyyy-mm-dd hh24:mi:ss') AS data_date
                 , td.data_value
@@ -39,6 +44,8 @@ def tagdata_list(context):
                 tag t ON t.tag_code = td.tag_code
             INNER JOIN
                 equ e ON e.id = t."Equipment_id"
+            LEFT JOIN
+                tag_grp tg ON tg.id = t.tag_group_id
 	        WHERE 1=1
 	            AND td.data_date BETWEEN %(date_from)s AND %(date_to)s
             '''
@@ -71,7 +78,8 @@ def tagdata_list(context):
             dc['tag_group'] = tag_group
             dc['tag_code'] = tag_code
             
-            result = DbUtil.get_rows(sql, dc)
+            result['data'] = DbUtil.get_rows(sql, dc)
+            result['success'] = True
 
         elif action == 'tag_detail':
             tag_code = gparam.get('tag_code')
@@ -80,7 +88,7 @@ def tagdata_list(context):
     except Exception as ex:
         source = '/api/tagdata/tagdata_list : action-{}'.format(action)
         LogWriter.add_dblog('error', source , ex)
-        result = {'success':False}
+        result = {'success':False, 'message': str(ex)}
 
     return result
 

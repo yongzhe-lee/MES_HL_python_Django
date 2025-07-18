@@ -1,11 +1,360 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 검색 폼 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="dateType" data-labelCd="기간선택">기간선택</label>
+                            <div class="field-wrapper">
+                                <div id="dateType"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchText" data-labelCd="검색키워드">검색키워드</label>
+                            <div class="field-wrapper">
+                                <input id="searchText" name="searchText" type="text" placeholder="설비코드, 설비명을 입력하세요" />
+                            </div>
+                            <button type="button" class="zoombutton" id="btnSearchEquipment" name="btnSearchEquipment"></button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="요청부서">요청부서</label>
+                            <div class="field-wrapper">
+                                <select id="deptTree" name="deptPk"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="equipLocTree" data-labelCd="설비위치">설비위치</label>
+                            <div class="field-wrapper">
+                                <select id="equipLocTree" name="locPk"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- 버튼 및 그리드 -->
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="설비별 정비비용 목록">설비별 정비비용 목록</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="maintCostGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+{% include '../../popup/modalEquSel.html'%}
+
+<script type="text/javascript">
+class FacilityMaintenanceCostPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.searchData = {
+            dateType: 'MON',
+            startDate: '',
+            endDate: '',
+            searchText: '',
+            deptPk: null,
+            locPk: null,
+        };
+        this.deptOptions = [];
+        this.locOptions = [];
+        this.dateType = 'month';
+        
+        this.init();
+    }
+
+    init() {
+        this.initDateTypePicker();
+        this.initDatePicker();
+        this.initDeptTree();
+        this.initLocTree();
+        this.initGrid();
+        this.bindEvents();
+    }
+
+    initDateTypePicker() {
+        $("#dateType").kendoDropDownList({
+            dataSource: [
+                { text: "월별", value: "month" },
+                { text: "연도별", value: "year" }
+            ],
+            dataTextField: "text",
+            dataValueField: "value",
+            value: "month",
+            change: (e) => {
+                this.dateType = e.sender.value();
+                this.updateDatePicker();
+            }
+        });
+    }
+
+    initDatePicker() {
+        let _this = this;
+        let today = new Date();
+        let sixMonthsAgo = new Date(today);
+        sixMonthsAgo.setMonth(today.getMonth() - 6);
+
+        // 기존 datepicker 인스턴스 제거
+        if ($("#searchDt_start").data("kendoDatePicker")) {
+            $("#searchDt_start").data("kendoDatePicker").destroy();
+            $("#searchDt_start").remove();
+        }
+        if ($("#searchDt_end").data("kendoDatePicker")) {
+            $("#searchDt_end").data("kendoDatePicker").destroy();
+            $("#searchDt_end").remove();
+        }
+        
+        $("#searchDt").html('<input id="searchDt_start" name="startDt" style="width:120px;" /> ~ <input id="searchDt_end" name="endDt" style="width:120px;" />');
+
+        if (this.dateType === 'month') {
+            $("#searchDt_start").kendoDatePicker({
+                start: "year",
+                depth: "year",
+                format: "yyyy-MM",
+                value: sixMonthsAgo
+            });
+            $("#searchDt_end").kendoDatePicker({
+                start: "year",
+                depth: "year",
+                format: "yyyy-MM",
+                value: today
+            });
+        } else {
+            let fiveYearsAgo = new Date(today.getFullYear() - 5, 0, 1);
+            $("#searchDt_start").kendoDatePicker({
+                start: "decade",
+                depth: "decade",
+                format: "yyyy",
+                value: fiveYearsAgo
+            });
+            $("#searchDt_end").kendoDatePicker({
+                start: "decade",
+                depth: "decade",
+                format: "yyyy",
+                value: today
+            });
+        }
+    }
+
+    updateDatePicker() {
+        this.initDatePicker();
+    }
+
+    initDeptTree() {
+		AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initLocTree() {
+        AjaxUtil.fillDropDownTreeOptions($('#equipLocTree'), 'cm_location', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            toolbar: ["columns"],
+            columnMenu: {
+                componentType: "classic",
+                autoSize: true,
+                clearAllFilters: true,
+                columns: {
+                    sort: "asc"
+                }
+            },
+            columns: [
+                {
+                    title: "년/월",
+                    field: "yearMon",
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: center"
+                    }
+                },
+                {
+                    title: "설비코드",
+                    field: "equipCd",
+                    width: "150px"
+                },
+                {
+                    title: "설비명",
+                    field: "equipNm"
+                },
+                {
+                    title: "설치일자",
+                    field: "installDt",
+                    width: "150px"
+                },
+                {
+                    title: "정비비용 총 금액",
+                    field: "totCost",
+                    width: "150px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "￦ #=kendo.toString(totCost, 'n0')#"
+                },
+                {
+                    title: "자재비",
+                    field: "mtrlCost",
+                    width: "130px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "￦ #=kendo.toString(mtrlCost, 'n0')#"
+                },
+                {
+                    title: "인건비(시급)",
+                    field: "laborCost",
+                    width: "130px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "￦ #=kendo.toString(laborCost, 'n0')#"
+                },
+                {
+                    title: "외주비",
+                    field: "outsideCost",
+                    width: "130px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "￦ #=kendo.toString(outsideCost, 'n0')#"
+                },
+                {
+                    title: "기타",
+                    field: "etcCost",
+                    width: "130px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "￦ #=kendo.toString(etcCost, 'n0')#"
+                }
+            ],
+            sortable: true,
+            dataBound: function(e) {
+                kendoUtil.showGridRowCount(this.element);
+            },
+            height: "540px"
+        };
+
+        this.grid = $("#maintCostGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    bindEvents() {
+        let _this = this;
+
+        // 검색키워드 텍스트박스 초기화
+        $('#searchText').kendoTextBox();
+
+        // 검색 버튼
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        // Excel 버튼
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+
+        // 설비 검색 버튼
+        $("#btnSearchEquipment").kendoButton({
+            icon: "k-i-zoom-in",
+            rounded: "full",
+            click: function (e) {
+                e.preventDefault();
+                setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                equipSelectPage.show(function (data) {
+                    $("#searchText").val(data.equip_cd);
+                });
+            }
+        });
+
+        // 검색키워드 엔터키
+        $("#searchText").keypress(function(e) {
+            if (e.which === 13) {
+                _this.searchMainData();
+            }
+        });
+    }
+
+    convertDateRangeToParam() {
+        return DateUtil.convertDateRangeToParam("#searchDt_start", "#searchDt_end", this.dateType);
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'facility_maintenance_cost';
+
+        let dateParam = this.convertDateRangeToParam();
+        param.dateType = dateParam.dateType;
+        param.startDt = dateParam.startDt;
+        param.endDt = dateParam.endDt;
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        let grid = $("#maintCostGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#maintCostGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "설비별 정비비용.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new FacilityMaintenanceCostPage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

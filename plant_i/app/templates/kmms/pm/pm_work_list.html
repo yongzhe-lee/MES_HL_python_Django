@@ -17,51 +17,45 @@
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label">관리부서</label>
-                            <select id="srch_dept" name="equDept" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">설비위치</label>
-                            <select id="srch_location" name="equLoc" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">실행 부서</label>
-                            <select id="srch_dept_type" name="pmDept" style="width: 200px;"></select>
+                            <label class="k-label k-form-label">번호검색</label>
+                            <input id="srch_pm_no" name="srchPmNo" style="width: 100px;" placeholder="PM 번호" />
+                            <input id="srch_wo_no" name="srchWoNo" style="width: 100px;" placeholder="WO 번호" />
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">PM유형</label>
-                            <select id="serchPmType" name="pmType" style="width: 200px;"></select>
+                            <select id="srch_pm_type" name="pmType" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label">적용여부</label>
-                            <select id="srchApplyYn" name="applyYn" style="width: 200px;">
-                            </select>
+                            <label class="k-label k-form-label">관리부서</label>
+                            <select id="srch_equip_dept" name="equDept" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label">주기단위</label>
-                            <select id="srchPeriodUnit" name="cycleType" style="width: 200px;"></select>
+                            <label class="k-label k-form-label">실행부서</label>
+                            <select id="srch_pm_dept" name="pmDept" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label">다음 주기일</label>
+                            <label class="k-label k-form-label">작업계획일</label>
                             <div id="srch_date_range"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">카테고리</label>
+                            <select id="srch_category" name="srchEquCategory" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
-                            <input id="chk_my_task" name="isMyTask">
+                            <label class="k-label k-form-label" for="chk_not_finished">미처리 건만</label>
+                            <input id="chk_not_finished" name="isNotFinished">
                         </div>
                     </div>
                     <div class="col-auto">
@@ -86,7 +80,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="pm_master_grid"></div>
+                <div id="pm_work_list_grid"></div>
             </div>
         </div>
 
@@ -103,7 +97,8 @@
 {% include '../../popup/modalPmMaster.html'%}
 
 
-<script type="text/javascript">class PmSchedulePage {
+<script type="text/javascript">
+    class PmWorkListPage {
         constructor() {
             this.grid = null;
             this.upload = null;
@@ -112,18 +107,6 @@
             this.comboDept = [];
 
             this.init();
-        }
-
-        /*
-         * 그리드와 검색 조건을 초기화하는 함수
-         */
-        resetData() {
-            // 그리드 초기화
-            if (this.grid) {
-                this.grid.setData([]);
-            }
-
-            FormUtil.resetForm($("#searchForm"));
         }
 
         init() {
@@ -143,27 +126,25 @@
                 columns: [
                     { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지   
                     {
-						field: 'pm_no',
+					    field: 'pm_no',
                         title: 'PM 번호',
                         width: 150,
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
                     },
                     { field: "pm_nm", title: "PM 명", width: 150 },
-					{ field: "pm_type_nm", title: "PM 유형", width: 100 },
-					{ field: 'equip_cd', title: '설비코드', width: 100 },
+				    { field: "pm_type_nm", title: "PM 유형", width: 100 },
+				    { field: 'equip_cd', title: '설비코드', width: 100 },
                     { field: 'equip_nm', title: '설비명', width: 150 },
-					{ field: 'equip_category_desc', title: '카테고리', width: 100 },
-					{ field: 'process_nm', title: '프로세스', width: 100 },
-					{ field: 'system_nm', title: '시스템', width: 100 },                    
-					{
-						field: 'work_order_no',
-						title: 'WO 번호',
-						width: 100,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
-					},
-					{ field: 'insert_ts', title: 'WO생성일', width: 100 },
-					{ field: 'wo_status_nm', title: 'WO상태', width: 100 },
-					{ field: 'plan_start_dt', title: '작업계획일', width: 100 },
+				    { field: 'equip_category_desc', title: '카테고리', width: 100 },                 
+				    {
+					    field: 'work_order_no',
+					    title: 'WO 번호',
+					    width: 100,
+					    template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
+				    },
+				    { field: 'insert_ts', title: 'WO생성일', width: 100 },
+				    { field: 'wo_status_nm', title: 'WO상태', width: 100 },
+				    { field: 'plan_start_dt', title: '작업계획일', width: 100 },
                 ],
                 dataBound: function (e) {
                     $(".grid-column-link").off("click").on("click", function (e) {
@@ -173,77 +154,48 @@
                         let pmPk = $(this).data("pm-pk");
                         
                         if (woNoPk) {                            
-							woDetailPage.show(woNoPk, 1);
+						    woDetailPage.show(woNoPk, 1);
                         }
                         else if (pmPk) {
-							pmMasterPage.show(pmPk);
+						    pmMasterPage.show(pmPk);
                         }
                    
                     });
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
+            _this.grid = new Grid($("#pm_work_list_grid"), equipmentGridOption);
 
             $('#keyword').kendoTextBox();
-
-            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "select");
-
-            AjaxUtil.fillDropDownOptions($('#serchPmType'), 'user_code', 'choose', null, 'PM_TYPE');
-
-            $("#srchApplyYn").kendoDropDownList({
-                dataSource: [
-                    { text: "전체", value: "" },
-                    { text: "적용", value: "Y" },
-                    { text: "미적용", value: "N" },
-                ],
-                dataTextField: "text",
-                dataValueField: "value"
-            });
-
-            $("#srchPeriodUnit").kendoDropDownList({
-                dataSource: [
-                    { text: "선택", value: "" },
-                    { text: "년", value: "Y" },
-                    { text: "월", value: "M" },
-                    { text: "주", value: "W" },
-                    { text: "일", value: "D" },
-                ],
-                dataTextField: "text",
-                dataValueField: "value"
-            });
-
-            $('#btnExcel').kendoButton({
-                icon: "file-excel",
-                themeColor: "success",
-                click: function () {
-                    page.exportExcel();
-                }
-            });
-
-            $('#chk_my_task').kendoSwitch({
-                checked: false
-            });
-
-            $('#chk_legal').kendoSwitch({
-                checked: false
-            });
-
-            //search form
+            $('#srch_pm_no').kendoTextBox();
+            $('#srch_wo_no').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#srch_pm_type'), 'user_code', '', null, 'PM_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($("#srch_equip_dept"), "depart", "all");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_pm_dept"), "depart", "all");
+            let today = new Date();
+            let twoMonthsAgo = new Date(today);
+            twoMonthsAgo.setMonth(today.getMonth() - 2);
+            let twoMonthsLater = new Date(today);
+            twoMonthsLater.setMonth(today.getMonth() + 2);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: twoMonthsAgo,
+                    end: twoMonthsLater
                 },
                 change: function (e) {
 
                 },
                 format: "yyyy-MM-dd",
                 labels: false,
-                startField: "start_date",
-                endField: "end_date"
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+            AjaxUtil.fillDropDownOptions($('#srch_category'), 'cm_equip_category', 'all', null);
+            $('#chk_not_finished').kendoSwitch({
+                checked: false
+            });
+            $('#chk_legal').kendoSwitch({
+                checked: false
             });
 
             //form button
@@ -256,12 +208,20 @@
                     _this.searchMainData();
                 }
             }).css('visibility', 'visible');
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
         }
 
         searchMainData() {
             let _this = this;
             let pm_schedule_param = FormUtil.extractForm($("#searchForm"));
-			pm_schedule_param.action = 'pm_work_findAll';
+		    pm_schedule_param.action = 'pm_work_findAll';
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, pm_schedule_param);
             if (result) {
@@ -271,16 +231,16 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#pm_master_grid').data("kendoGrid");
+            let gridData = $('#pm_work_list_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "pm_master.xlsx";
+                e.workbook.fileName = "pm_work_list.xlsx";
             });
             gridData.saveAsExcel();
         }
 
     };
 
-    let page = new PmSchedulePage();
+    let page = new PmWorkListPage();
     $(document).ready(function () {
         page.searchMainData();
 
@@ -300,6 +260,7 @@
             }
         });
 
-    });</script>
+    });
+</script>
 
 {% endblock %}

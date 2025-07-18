@@ -140,3 +140,25 @@ class CommonUtil(object):
 
 
             
+    @classmethod
+    def get_content_type_ex(cls, extension:str)->str:
+       
+        content_types = {
+            'xls': 'application/vnd.ms-excel',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'pdf': 'application/pdf',
+            'txt': 'text/plain',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'ppt': 'application/vnd.ms-powerpoint',
+            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'csv': 'text/csv',
+            'zip': 'application/zip',
+            'hwp': 'application/x-hwp',
+            'png': 'image/png',
+            'gif': 'image/gif',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg'
+        }
+        content_type = content_types.get(extension, 'application/octet-stream')
+        return content_type

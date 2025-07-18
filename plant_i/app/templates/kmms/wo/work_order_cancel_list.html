@@ -12,7 +12,8 @@
                             <div class="field-wrapper">
                                 <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명" />
                             </div>
-                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>                        </div>
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
+                        </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
@@ -30,7 +31,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="maint_code" data-labelCd="보전유형">보전유형</label>
                             <div class="field-wrapper">
@@ -62,7 +63,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="work_order_grid"></div>
+                <div id="work_order_cancel_list_grid"></div>
             </div>
         </div>
     </div>
@@ -77,14 +78,15 @@
 
 {% include '../../popup/modalWoDetail.html'%}
 {% include '../../popup/modalEquSel.html'%}
+{% include '../../popup/modalWoStatHist.html'%}
 
 
 <script type="text/javascript">
-    class WorkOrderPage {
+    class WorkOrderCancelListPage {
         constructor() {
             this.grid = null;
             this.upload = null;
-			this.baseUrl = '/api/kmms/work_order';
+            this.baseUrl = '/api/kmms/work_order';
 
             this.comboDept = [];
 
@@ -131,7 +133,7 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#work_order_grid"), woGridOption);
+            _this.grid = new Grid($("#work_order_cancel_list_grid"), woGridOption);
 
             // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
             // 임시 저장일 경우에만 클릭이 가능하고 클릭할 경우 편집 팝업 기능 필요
@@ -171,11 +173,16 @@
                     _this.searchMainData();
                 }
             });
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
+            let today = new Date();
+            let threeMonthsAgo = new Date(today);
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
+            let oneMonthLater = new Date(today);
+            oneMonthLater.setMonth(today.getMonth() + 1);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: threeMonthsAgo,
+                    end: oneMonthLater
                 },
                 change: function (e) {
 
@@ -225,13 +232,11 @@
             }
 
             let param = {
-                action: 'read',
+                action: 'work_order_cancel_list_read',
                 keyword: $('#keyword').val(),
                 dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
-
-                //기간 srch_date
-                //start_dt: startDate,
-                //end_dt: endDate,
+                start_dt: startDate,
+                end_dt: endDate,
                 maint_type_cd: $('#maint_code').val(),
 
                 srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
@@ -243,16 +248,16 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#work_order_grid').data("kendoGrid");
+            let gridData = $('#work_order_cancel_list_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "equipment.xlsx";
+                e.workbook.fileName = "work_order_cancel_list.xlsx";
             });
             gridData.saveAsExcel();
         }
     };
 
     let page = null;
-    page = new WorkOrderPage();
+    page = new WorkOrderCancelListPage();
 
     $(document).ready(function () {
         page.searchMainData();

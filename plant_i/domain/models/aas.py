@@ -91,7 +91,7 @@ class DBResource(models.Model):
 
 class DBReferenceKey(models.Model):
     key_pk = models.AutoField(primary_key=True, db_column='key_pk')
-    type = models.CharField(max_length=50, null=True)
+    type = models.CharField(max_length=50, null=True, db_column="type")
     value = models.CharField(max_length=2000, null=True)
     local = models.BooleanField("로컬여부", null=True, default=True)
     Reference = models.ForeignKey('DBReference', on_delete=models.DO_NOTHING, db_column='ref_pk')
@@ -249,8 +249,8 @@ class DBAssetSpecificassetIds(models.Model):
     맵핑 테이블
     '''
     id = models.AutoField(primary_key=True)
-    spec_asset_pk = models.ForeignKey('DBSpecificAssetId', on_delete=models.DO_NOTHING, db_column='spec_asset_pk')
-    asset_info_pk = models.ForeignKey('DBAssetInformation', on_delete=models.DO_NOTHING, db_column='asset_info_pk')
+    SpecificAssetId = models.ForeignKey('DBSpecificAssetId', on_delete=models.DO_NOTHING, db_column='spec_asset_pk')
+    AssetInformation = models.ForeignKey('DBAssetInformation', on_delete=models.DO_NOTHING, db_column='asset_info_pk')
     
     class Meta:
         db_table='asset_specificassetids'
@@ -260,10 +260,11 @@ class DBAssetInformation(models.Model):
     asset_pk = models.AutoField(primary_key=True, db_column='asset_pk')
     assetKind = models.CharField(max_length=50, null=True) #  TYPE, INSTANCE, NOT_APPLICABLE
     assetType = models.CharField(max_length=50, null=True) # 자산종류 equipment, tool, material, product, software, document, person, organization, location, other
-    globalAssetId = models.JSONField(null = True)
+    globalAssetId = models.CharField(max_length=1000, null = True, unique=True)
+
     path = models.CharField(max_length=2000, null = True) # default thumbnail path에 해당됨
     defaultThumbnail = models.ForeignKey(DBResource, on_delete=models.DO_NOTHING, null=True)
-    SpecificAssetIds = models.ManyToManyField('DBSpecificAssetId', through=DBAssetSpecificassetIds, related_name='asset_specificassetids', related_query_name='asset_specificassetids' )
+    #SpecificAssetIds = models.ManyToManyField('DBSpecificAssetId', through=DBAssetSpecificassetIds, related_name='asset_specificassetids', related_query_name='asset_specificassetids' )
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -280,6 +281,8 @@ class DBAssetInformation(models.Model):
 
     class Meta:
         db_table = 'asset_info'
+
+
 
 class SpecificAssetIdSupplementalSemanticId(models.Model):
     '''
@@ -327,8 +330,8 @@ class QualifierSupplementalSemanticIds(models.Model):
     맵핑 테이블
     '''
     id = models.AutoField(primary_key=True)
-    qualifier_pk = models.ForeignKey('DBQualifier', on_delete=models.DO_NOTHING, db_column='qualifier_pk')
-    reference_pk = models.ForeignKey('DBReference', on_delete=models.DO_NOTHING, db_column='ref_pk')
+    Qualifier = models.ForeignKey('DBQualifier', on_delete=models.DO_NOTHING, db_column='qualifier_pk')
+    Reference = models.ForeignKey('DBReference', on_delete=models.DO_NOTHING, db_column='ref_pk')
     
     class Meta:
         db_table = 'qualifier_supplementalSemanticIds'
@@ -384,7 +387,7 @@ class SubmodelelementEmbeddedDataSpecifications(models.Model):
     '''
     id = models.AutoField(primary_key=True)
     SubmodelElement = models.ForeignKey('DBSubmodelElement', on_delete=models.DO_NOTHING, db_column='sme_pk')
-    embedded_data_specification_pk = models.ForeignKey(DBEmbeddedDataSpecification, on_delete=models.DO_NOTHING, db_column='embedded_data_specification_pk')
+    EmbeddedDataSpecification = models.ForeignKey(DBEmbeddedDataSpecification, on_delete=models.DO_NOTHING, db_column='embedded_data_specification_pk')
     
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -408,7 +411,7 @@ class SubmodelElementExtensions(models.Model):
     '''
     id = models.AutoField(primary_key=True)
     SubmodelElement = models.ForeignKey('DBSubmodelElement', on_delete=models.DO_NOTHING, db_column='sme_pk')
-    extension_pk = models.ForeignKey(DBExtension, on_delete=models.DO_NOTHING, db_column='extension_pk')
+    Extension = models.ForeignKey(DBExtension, on_delete=models.DO_NOTHING, db_column='extension_pk')
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
@@ -426,6 +429,18 @@ class SubmodelElementExtensions(models.Model):
     
     class Meta:
         db_table = 'submodelelement_extensions'
+
+
+class SubmodelElementSupplementalSemanticIds(models.Model):
+    '''
+    맵핑 테이블
+    '''
+    id = models.AutoField(primary_key=True)
+    SubmodelElement = models.ForeignKey('DBSubmodelElement', on_delete=models.DO_NOTHING, db_column='sme_pk')
+    Reference = models.ForeignKey('DBReference', on_delete=models.DO_NOTHING, db_column='ref_pk')
+    
+    class Meta:
+        db_table = 'submodelelement_supplementalSemanticIds'
 
 class DBSubmodelElement(models.Model):
     '''
@@ -462,6 +477,7 @@ class DBSubmodelElement(models.Model):
     ModelKind = models.CharField(max_length=50, null=True) #models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
     modelType = models.CharField(max_length=50) # Property, Collection, Operation, Event, File, Reference Element    
     semancticId = models.ForeignKey(DBReference, related_name='submodelelement_semancticId',db_column='semanctic_id', on_delete = models.DO_NOTHING, null=True)
+    supplementalSemanticIds = models.ManyToManyField(DBReference, through=SubmodelElementSupplementalSemanticIds, related_name='submodelelement_supplementalSemanticIds')
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=SubmodelelementEmbeddedDataSpecifications, related_name='submodelelement_embeddedDataSpecifications', related_query_name='submodelelement_embeddedDataSpecifications')
     Extensions= models.ManyToManyField(DBExtension, through=SubmodelElementExtensions, related_name='submodelelement_extensions', related_query_name='submodelelement_extensions')
 
@@ -495,13 +511,26 @@ class DBDataElement(models.Model):
     class Meta:
         abstract = True
         db_table = 'data_element'
-         
+
+class DBEventElement(models.Model):
+    SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
+    maxInterval = models.CharField(max_length=50, null=True) # TimeIntervalType  
+    minInterval = models.CharField(max_length=50, null=True) # TimeIntervalType    
+    messageBroker = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='eventElement_messageBroker', db_column='message_broker_id')
+    messageTopic = models.CharField(max_length=500, null=True) # TopicType
+    observed = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='eventElement_observed', db_column='observed_id')
+    state = models.CharField(max_length=50, null=True) # StateType
+
+    class Meta:
+        abstract = True
+        db_table = 'event_element'
+
+
 class DBMultiLanguageProperty(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
     valueId = models.ForeignKey(DBReference, on_delete=models.DO_NOTHING, null=True, related_name='multiLanguageProperty_valueId_reference')
     #value = models.ForeignKey(LanguageItem, on_delete=models.DO_NOTHING, null=True, related_name='multiLanguageProperty_value_languageItem')
     value = models.JSONField(null=True);
-
 
     class Meta:
         db_table = 'multilang_prpt_element'
@@ -557,7 +586,7 @@ class DBFileElement(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
     value = models.CharField(max_length=2000) # PathType
     content_type = models.CharField(max_length=500) # ContentType
-    
+    filename = models.CharField(max_length=500, null=True, db_column="filename")
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)
     _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)

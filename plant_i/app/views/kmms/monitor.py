@@ -93,8 +93,8 @@ def monitor(context):
 			where eq.factory_pk = %(factory_pk)s
             '''
             if searchText:
-                sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
-					OR upper(t1.tag_desc) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+                sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+					OR upper(t1.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				)
                 '''
             if equipPk > 0:
@@ -159,8 +159,8 @@ def monitor(context):
             and eq.factory_pk = %(factory_pk)s
             '''
             if searchText:
-                sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
-					OR upper(t1.tag_desc) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+                sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+					OR upper(t1.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				)
                 '''
             if equipPk > 0:
@@ -242,8 +242,8 @@ def monitor(context):
             and eq.factory_pk = %(factory_pk)s
             '''
             if searchText:
-                sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
-					OR upper(t1.tag_desc) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+                sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+					OR upper(t1.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				)
                 '''
             if equipPk > 0:
@@ -324,8 +324,8 @@ def monitor(context):
                 and e.factory_pk = %(factory_pk)s
             '''
             if searchText:
-                sql += ''' AND ( upper(t.tag) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
-					OR upper(t.tag_desc) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+                sql += ''' AND ( upper(t.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+					OR upper(t.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				)
                 '''
             if equipPk > 0:

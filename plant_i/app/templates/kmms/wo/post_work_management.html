@@ -18,15 +18,15 @@
                             <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="wo_status" data-labelCd="상태">상태</label>
+                            <label class="k-label k-form-label" for="post_wo_status" data-labelCd="상태">상태</label>
                             <div class="field-wrapper">
-                                <select id="wo_status" name="wo_status"></select>
+                                <select id="post_wo_status" name="post_wo_status"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="dept_pk" data-labelCd="작업부서">작업부서</label>
                             <div class="field-wrapper">
@@ -50,7 +50,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="maint_code" data-labelCd="보전유형">보전유형</label>
                             <div class="field-wrapper">
@@ -60,8 +60,8 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_my_req_only">나의 요청만</label>
-                            <input id="srch_my_req_only" name="srch_my_req_only">
+                            <label class="k-label k-form-label" for="srch_my_work_only">나의 작업만</label>
+                            <input id="srch_my_work_only" name="srch_my_work_only">
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
@@ -89,7 +89,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="work_order_grid"></div>
+                <div id="post_work_management_grid"></div>
             </div>
         </div>
     </div>
@@ -102,14 +102,16 @@
 
 {% block scripts %}
 
+{% include '../../popup/modalWoDetail.html'%}
+{% include '../../popup/modalWoStatHist.html'%}
 {% include '../../popup/modalEquSel.html'%}
 
 <script type="text/javascript">
-    class WorkOrderPage {
+    class PostWorkManagementPage {
         constructor() {
             this.grid = null;
             this.upload = null;
-			this.baseUrl = '/api/kmms/work_order';
+            this.baseUrl = '/api/kmms/work_order';
 
             this.comboDept = [];
 
@@ -132,50 +134,50 @@
                 },
                 columns: [
                     { field: 'work_order_pk', title: 'WOPK', width: 0, hidden: true },
-                    { 
-                        field: 'work_order_no', 
-                        title: '작업지시번호', 
-                        width: 120, 
-                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#'>#=work_order_no != null ? work_order_no : end_dt == '' ? '작성중' : '작성완료' #</a>"
+                    {
+                        field: 'work_order_no',
+                        title: '작업지시번호',
+                        width: 120,
+                        template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-no-pk=\"#=work_order_pk#\">#= work_order_no != null ? work_order_no : '임시저장' #</a>"
                     },
-                    { 
-                        field: 'work_title', 
-                        title: '작업제목', 
-                        width: 200, 
+                    {
+                        field: 'work_title',
+                        title: '작업제목',
+                        width: 200,
                         //template: "# if (write_yn && wo_status_cd != 'WOS_CL' && wo_status_cd != 'WOS_DL') { # <a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #"
                     },
-                    { 
-                        field: 'work_text', 
-                        title: '작업내역', 
-                        width: 200, 
-                        //template: "# if (work_text == null) { #<div>&nbsp;</div> # } else { #<div style='overflow: hidden !important; height: 1rem !important;white-space: nowrap !important;text-overflow: ellipsis !important;'>#=work_text.replace(/img src/gi, 'img srcnone')#</div> # } #" 
+                    {
+                        field: 'work_text',
+                        title: '작업내역',
+                        width: 200,
+                        //template: "# if (work_text == null) { #<div>&nbsp;</div> # } else { #<div style='overflow: hidden !important; height: 1rem !important;white-space: nowrap !important;text-overflow: ellipsis !important;'>#=work_text.replace(/img src/gi, 'img srcnone')#</div> # } #"
                     },
-                    { 
-                        field: 'equip_nm', 
-                        title: '설비명', 
-                        width: 300, 
-                        //template: "#= '[' + equip_cd + '] ' + equip_nm #" 
+                    {
+                        field: 'equip_nm',
+                        title: '설비명',
+                        width: 300,
+                        //template: "#= '[' + equip_cd + '] ' + equip_nm #"
                     },
-                    { 
-                        field: 'start_end_period', 
-                        title: '작업기간', 
-                        width: 200 
+                    {
+                        field: 'start_end_period',
+                        title: '작업기간',
+                        width: 200
                     },
-                    { 
-                        field: 'take_act_hour', 
-                        title: '작업시간(시)', 
-                        width: 100 
+                    {
+                        field: 'take_act_hour',
+                        title: '작업시간(시)',
+                        width: 100
                     },
                     { field: 'dept_nm', title: '작업부서', width: 120 },
                     { field: 'work_charger_nm', title: '작업담당자', width: 100 },
                     { field: 'req_dept_nm', title: '요청부서', width: 100 },
                     { field: 'rqst_dt', title: '요청일', width: 100 },
                     { field: 'maint_type_nm', title: '보전유형', width: 100 },
-                    { 
-                        field: 'wo_status_nm', 
-                        title: '상태', 
-                        width: 100, 
-                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>" 
+                    {
+                        field: 'wo_status_nm',
+                        title: '상태',
+                        width: 100,
+                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-pk='#=work_order_pk#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>"
                     }
                 ],
                 dataBound: function (e) {
@@ -188,7 +190,7 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#work_order_grid"), woGridOption);
+            _this.grid = new Grid($("#post_work_management_grid"), woGridOption);
 
             // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
             // 임시 저장일 경우에만 클릭이 가능하고 클릭할 경우 편집 팝업 기능 필요
@@ -229,14 +231,26 @@
                 }
             });
 
-            // wo_status 중 일부 선택지 하드코딩 되어있음, 선택에 따라 쿼리 달라짐.
-            AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
+            let postWoStatusData = [
+                { value: 10, text: '작성중' },
+                { value: 20, text: '작성완료' },
+                { value: 30, text: '등록완료' },
+            ];
+            $('#post_wo_status').kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: postWoStatusData,
+                optionLabel: "전체",
+            });
 
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
+            let today = new Date();
+            let twoMonthsAgo = new Date(today);
+            twoMonthsAgo.setMonth(today.getMonth() - 2);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: twoMonthsAgo,
+                    end: today
                 },
                 change: function (e) {
 
@@ -246,9 +260,9 @@
                 startField: "start_dt",
                 endField: "end_dt"
             });
-            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'depart', 'all');
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
-            $('#srch_my_req_only').kendoSwitch({ checked: false });
+            $('#srch_my_work_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
 
             //form button
@@ -299,17 +313,16 @@
             }
 
             let param = {
-                action: 'read',
+                action: 'post_work_management_read',
                 keyword: $('#keyword').val(),
-                // wo_status 고쳐야함, 일부 셀렉트 제외
-                wo_status: $('#wo_status').val(),
+                post_wo_status: $('#post_wo_status').val(),
                 dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
                 req_dept: $("#req_dept").data("kendoDropDownTree").value(),
                 maint_type_cd: $('#maint_code').val(),
                 start_dt: startDate,
                 end_dt: endDate,
 
-                srch_my_req_only: $('#srch_my_req_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_my_work_only: $('#srch_my_work_only').data("kendoSwitch").check() ? 'Y' : 'N',
                 srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N',
             };
 
@@ -319,16 +332,16 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#work_order_grid').data("kendoGrid");
+            let gridData = $('#post_work_management_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "equipment.xlsx";
+                e.workbook.fileName = "post_work_management.xlsx";
             });
             gridData.saveAsExcel();
         }
     };
 
     let page = null;
-    page = new WorkOrderPage();
+    page = new PostWorkManagementPage();
 
     $(document).ready(function () {
         page.searchMainData();

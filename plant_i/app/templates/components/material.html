@@ -597,12 +597,12 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
 
-	function fetchSomeData() {
+	function fetchSomeData() {		
 		try {
-			if (window.imageUploader) {
+			if (window.imageUploader && typeof window.imageUploader.saveImages === 'function' && window.imageUploader.getImagesData && window.imageUploader.getImagesData().length > 0) {
 				const imageResult = window.imageUploader.saveImages();
 			}
-			if (window.fileUploader) {
+			if (window.fileUploader && typeof window.fileUploader.saveFiles === 'function' && window.fileUploader.getFilesData && window.fileUploader.getFilesData().length > 0) {
 				const fileResult = window.fileUploader.saveFiles();
 			}
 		} catch (error) {

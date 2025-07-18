@@ -1,6 +1,7 @@
 from django.db import transaction
 from app.views.kmms import equip_spec
-from domain.models.cmms import CmDept, CmEquipCategory, CmEquipment, CmImportRank, CmLocation, CmMaterial, CmSupplier
+from domain.models.cmms import CmEquipCategory, CmEquipment, CmImportRank, CmLocation, CmMaterial, CmSupplier
+from domain.models.user import Depart
 from domain.services.sql import DbUtil
 from domain.services.kmms.equipment import EquipmentService
 from domain.services.logging import LogWriter
@@ -156,8 +157,6 @@ def equipment(context):
     elif action=='read': 
         keyword = gparam.get('keyword', None)
         equip_status = gparam.get('equip_status', None)
-        process_cd = gparam.get('process_cd', None)
-        system_cd = gparam.get('system_cd', None)
         loc_pk = gparam.get('loc_pk', None)
         equip_category_id = gparam.get('equip_category_id', None)
         equip_class_path = gparam.get('equip_class_path', None)
@@ -165,7 +164,7 @@ def equipment(context):
         use_yn = gparam.get('use_yn', None)
         environ_equip_yn = gparam.get('environ_equip_yn', None)
 
-        items = equipmentService.searchEquipment(keyword, equip_status, process_cd, system_cd, loc_pk, equip_category_id, equip_class_path, supplier_pk, use_yn, environ_equip_yn)
+        items = equipmentService.searchEquipment(keyword, equip_status, loc_pk, equip_category_id, equip_class_path, supplier_pk, use_yn, environ_equip_yn)
 
     elif action=='findAll':
         keyword = gparam.get('keyword', None)
@@ -223,6 +222,7 @@ def equipment(context):
                 c = CmEquipment.objects.filter(id=id).first()
             else:
                 c = CmEquipment()
+                c.EquipStatus = 'ES_OPER'
            
             c.EquipCode = equipCode
             c.EquipName = equipName
@@ -232,12 +232,13 @@ def equipment(context):
         
             c.CmLocation = CmLocation.objects.get(LocPk=locPK)   ## 위치코드
             try:
-                dept = CmDept.objects.get(id=deptPK)
+                dept = Depart.objects.get(id=deptPK)
                 c.DeptPk = dept.id ## 부서코드 - ID값만 저장
-            except CmDept.DoesNotExist:
+            except Depart.DoesNotExist:
                 return {'success': False, 'message': '존재하지 않는 부서코드입니다.'}
-            c.CmMaterial = CmMaterial.objects.get(id=equip_mtrl_pk) ## 자재대상설비 
-
+            
+            if equip_mtrl_pk:
+                c.CmMaterial = CmMaterial.objects.get(id=equip_mtrl_pk) ## 자재대상설비 
             if upEquipPk:
                 c.Parent = CmEquipment.objects.get(id=upEquipPk)   ## 상위위치코드
             if supplier:
@@ -286,7 +287,7 @@ def equipment(context):
             c.CcenterCode = ccenterCd
             c.EnvironEquipYn = environEquipYn
             c.UseYn = 'Y'
-            c.DelYn = 'N'
+            c.DelYn = 'N'           
 
             c.EquipClassPath = EquipClassPath
             c.EquipClassDesc = EquipClassDesc
@@ -304,6 +305,22 @@ def equipment(context):
         except Exception as e:
             return {'success': False, 'message': f'저장 중 오류가 발생했습니다: {str(e)}'}
 
+    elif action in ['change']:
+        id = CommonUtil.try_int(posparam.get('equip_pk'))
+        EquipStatus = posparam.get('equipStatus');
+
+        c = None
+        try:
+            if id:
+                c = CmEquipment.objects.filter(id=id).first()
+            else:
+                return {'success': False, 'message': '설비상태 수정 중 오류가 발생했습니다'}
+            c.EquipStatus = EquipStatus
+            c.save()
+            return {'success': True, 'message': '설비상태가 성공적으로 변경되었습니다.'}
+        except Exception as e:
+            return {'success': False, 'message': f'설비상태 수정 중 오류가 발생했습니다: {str(e)}'}
+
     # kmms - 설비정보 - 불용설비 조회
     elif action=='read_dispose':
         keyword = gparam.get('keyword', None)
@@ -317,18 +334,17 @@ def equipment(context):
     # kmms - 설비정보 - 설비별작업이력 조회
     elif action=='read_equip_workhist':
         keyword = gparam.get('keyword', None)
-        # dept_pk = gparam.get('dept_pk', None)
-        # start_dt = gparam.get('start_dt', None)
-        # end_dt = gparam.get('end_dt', None)
-        # maint_type_cd = gparam.get('maint_type_cd', None)
-        # equip_category_id = gparam.get('equip_category_id', None)
-        # equip_class_path = gparam.get('equip_class_path', None)
-        # req_dept = gparam.get('req_dept', None)
-        # srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
-        # 작업중입니다..
+        manage_dept = gparam.get('manage_dept', None)
+        loc_pk = gparam.get('loc_pk', None)
+        start_dt = gparam.get('start_dt', None)
+        end_dt = gparam.get('end_dt', None)
+        maint_type_cd = gparam.get('maint_type_cd', None)
+        equip_category_id = gparam.get('equip_category_id', None)
+        equip_class_path = gparam.get('equip_class_path', None)
+        work_dept = gparam.get('work_dept', None)
+        srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
 
-
-        items = equipmentService.get_equipment_workhistory(keyword)
+        items = equipmentService.get_equipment_workhistory(keyword, manage_dept, loc_pk, start_dt, end_dt, maint_type_cd, equip_category_id, equip_class_path, work_dept, srch_environ_equip_only)
 
     elif action=='pm_equip_disposed':
         equipPk = gparam.get('equipPk', None)

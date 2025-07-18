@@ -20,18 +20,30 @@
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_dept" data-labelCd="점검부서">점검부서</label>
+                            <label class="k-label k-form-label">PM유형</label>
+                            <select id="srch_pm_type" name="pmType"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_dept" data-labelCd="관리부서">관리부서</label>
                             <div class="field-wrapper">
                                 <select id="srch_dept" name="srch_dept"></select>
                             </div>
                         </div>
                     </div>
-
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_dept" data-labelCd="실행부서">실행부서</label>
+                            <div class="field-wrapper">
+                                <select id="srch_dept" name="srch_dept"></select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-12 col-sm-6 col-md-6">
                         <div class="form-item align-h">
                             <input id="chk_last_chk_date" name="chk_last_chk_date">
-                            <label class="k-label k-form-label" for="chk_last_chk_date">최종점검생성일</label>
-
+                            <label class="k-label k-form-label" for="chk_last_chk_date">최종 PM일</label>
                             <div id="srch_date_range"></div>
                         </div>
                     </div>
@@ -200,11 +212,14 @@
                 checked: false
             });
 
-            //search form
+            let today = new Date();
+            let tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: today,
+                    end: tomorrow
                 },
                 change: function (e) {
 

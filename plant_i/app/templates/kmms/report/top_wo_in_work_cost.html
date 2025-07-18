@@ -1,11 +1,226 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="reqDeptTree" data-labelCd="요청부서">요청부서</label>
+                            <div class="field-wrapper">
+                                <input id="reqDeptTree" name="reqDeptPk"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="작업부서">작업부서</label>
+                            <div class="field-wrapper">
+                                <input id="deptTree" name="deptPk"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="작업비용 상위 WO 목록">작업비용 상위 WO 목록</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="workCostGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class TopWorkCostWOPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.init();
+    }
+
+    init() {
+        this.initDatePicker();
+        this.initDeptTrees();
+        this.initGrid();
+        this.bindEvents();
+    }
+
+    initDatePicker() {
+        let today = new Date();
+        let threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+        $("#searchDt").html('<input id="searchDt_start" name="startDt" style="width:120px;" /> ~ <input id="searchDt_end" name="endDt" style="width:120px;" />');
+
+        $("#searchDt_start").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: threeMonthsAgo
+        });
+        $("#searchDt_end").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: today
+        });
+    }
+
+    initDeptTrees() {
+		AjaxUtil.fillDropDownTreeOptions($('#reqDeptTree'), 'depart', 'all');
+        
+		AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: [],
+            },
+            columns: [
+                { 
+                    title: "WO번호", 
+                    field: "workOrderNo", 
+                    width: "100px", 
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "작업제목", 
+                    field: "workTitle"
+                },
+                { 
+                    title: "작업부서", 
+                    field: "deptNm", 
+                    width: "120px" 
+                },
+                { 
+                    title: "요청부서", 
+                    field: "reqDeptNm", 
+                    width: "120px" 
+                },
+                { 
+                    title: "작업비용 합계", 
+                    field: "totCost", 
+                    width: "120px", 
+                    template: ({ totCost }) => {return totCost == null ? `￦0` : `￦${kendo.toString(totCost, 'n0')}`;},
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "자재비", 
+                    field: "mtrlCost", 
+                    width: "120px", 
+                    template: ({ mtrlCost }) => {return mtrlCost == null ? `￦0` : `￦${kendo.toString(mtrlCost, 'n0')}`;},
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "인건비(시급)", 
+                    field: "laborCost", 
+                    width: "150px", 
+                    template: ({ laborCost }) => {return laborCost == null ? `￦0` : `￦${kendo.toString(laborCost, 'n0')}`;},
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "외주비", 
+                    field: "outsideCost", 
+                    width: "120px", 
+                    template: ({ outsideCost }) => {return outsideCost == null ? `￦0` : `￦${kendo.toString(outsideCost, 'n0')}`;},
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "기타비용", 
+                    field: "etcCost", 
+                    width: "120px", 
+                    template: ({ etcCost }) => {return etcCost == null ? `￦0` : `￦${kendo.toString(etcCost, 'n0')}`;},
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                }
+            ],
+            sortable: true,
+            scrollable: true,
+            pageable: false,
+            editable: false,
+            selectable: "row",
+            height: 400,
+            dataBound: function(e) {
+                let data = this.dataSource.data();
+            }
+        };
+        _this.grid = $("#workCostGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    bindEvents() {
+        let _this = this;
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'top_work_cost_wo';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+        let grid = $("#workCostGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#workCostGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "작업비용_상위_WO.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new TopWorkCostWOPage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

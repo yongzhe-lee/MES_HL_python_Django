@@ -8,20 +8,20 @@
 				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
 					<img id="equipThumbmail" src="/static/img/no-image.png" alt="No image" style="width: 100px; height: 100px;">
 				</div>
-				<div class="col-12 col-sm-5 col-md-6" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 200px;">
+				<div class="col-12 col-sm-5 col-md-6">
 					<div class="form-group col-12">
 						<label for="equip_code" class="required">설비코드*</label>
-						<input type="text" class="form-control" id="equip_code" name="equip_code">
+						<input type="text" class="form-control" id="equip_code" name="equip_code" placeholder="20자 이하로 입력해주세요">
 					</div>
 					<div class="form-group col-12">
 						<label for="equip_name" class="required">설비명*</label>
-						<input type="text" class="form-control" id="equip_name" name="equip_name">
+						<input type="text" class="form-control" id="equip_name" name="equip_name" placeholder="200자 이하로 입력해주세요">
 					</div>
 					<div id="div_equip_status" class="form-group col-12" style="display:none;">
 						<label for="txt_equip_status" data-labelCd="설비상태">설비상태</label>
 						<div style="display: flex; align-items: center;">
-							<input type="text" class="form-control" id="txt_equip_status" name="txt_equip_status" style="flex: 0.3;" />
-							<button class="btn" style="background-color: #6c757d; border: 1px solid #6c757d; color: white; margin-left: 20px;">상태변경</button>
+							<input type="text" class="form-control" id="txt_equip_status" name="txt_equip_status" style="flex: 0.3;" readonly />
+							<button id="btnChangeStatus" class="btn" style="background-color: #6c757d !important; border: 1px solid #6c757d !important; color: white !important; margin-left: 20px;">상태변경</button>
 						</div>
 					</div>
 				</div>
@@ -79,17 +79,9 @@
 								<label>설비중요도</label>
 								<select id="import_rank_pk" name="import_rank_pk"></select>
 							</div>
-							<div class="form-group col-md-3" style="display:none;">
-								<label>프로세스</label>
-								<select id="process_cd" name="process_cd"></select>
-							</div>
 							<div class="form-group col-md-3">
 								<label>제조일</label>
 								<input type="date" id="make_dt" name="make_dt" class="form-control" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; ">
-							</div>
-							<div class="form-group col-md-3" style="display:none;">
-								<label>시스템</label>
-								<select id="system_cd" name="system_cd"></select>
 							</div>
 							<div class="form-group col-md-3">
 								<label for="asset_nos">자산번호</label>
@@ -102,7 +94,7 @@
 								<input type="text" class="form-control" id="up_loc_nm" name="up_loc_nm" readonly>
 							</div>
 							<div class="form-group col-md-3">
-								<label for="mtrl_nm" class="required">순환설비자재*</label>
+								<label for="mtrl_nm">순환설비자재</label>
 								<button type="button" class="zoombutton" id="recycleMat" name="recycleMat"></button>
 								<input type="hidden" class="form-control" id="mtrl_pk" name="mtrl_pk" readonly>
 								<input type="text" class="form-control" data-msg="순환설비자재를" id="mtrl_nm" name="mtrl_nm" readonly>
@@ -294,7 +286,21 @@
 			<button type="button" class="btn-close" id="btnCloseRespDisp">닫기</button>
 		</div>
 	</div>
+</div>
 
+<!-- 상태변경 Kendo Window 팝업 -->
+<div id="changeEquipStatusWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui">
+		<form id="changeEquipStatusForm">
+			<div class="form-row">
+				<ul id="equipStatusRadioGroup"></ul>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnConfirmChangeEquipStatus">확인</button>
+		<button type="button" class="btn-close" id="btnCloseChangeEquipStatus">취소</button>
+	</div>
 </div>
 
 	{% include 'popup/modalEquCategorySel.html' %}
@@ -312,6 +318,7 @@
 			this.baseUrl = '/api/kmms/equipment';
 			this.equip_pk = null;
 			this.equip_cd = null;
+			this.equip_status = null;
 			this.editable = false;
 			this.equipStatusYN = false;
 
@@ -319,8 +326,6 @@
 			this.locPkDropDown = null;
 			this.deptPkDropDown = null;
 			this.importRankDropDown = null;
-			this.processCdDropDown = null;
-			this.systemCdDropDown = null;
 			this.ccenterCdDropDown = null;
 			this.supplierDropDown = null;
 			this.makerDropDown = null;
@@ -341,7 +346,7 @@
 
 			this.pmList = []
 			this.chkEquipList = []
-			this.equipChkRsltList = []			
+			this.equipChkRsltList = []
 			this.woList = []
 			this.woList2 = []
 			this.equipList = []
@@ -367,10 +372,8 @@
 
 			// DropDown Tree와 List 초기화
 			this.locPkDropDown = AjaxUtil.fillDropDownTreeOptions($('#loc_pk'), 'cm_location', 'all');
-			this.deptPkDropDown = AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			this.deptPkDropDown = AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
 			this.importRankDropDown = AjaxUtil.fillDropDownOptions($('#import_rank_pk'), 'cm_import_rank', 'all', null);
-			this.processCdDropDown = AjaxUtil.fillDropDownOptions($('#process_cd'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
-			this.systemCdDropDown = AjaxUtil.fillDropDownOptions($('#system_cd'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
 			this.supplierDropDown = AjaxUtil.fillDropDownOptions($('#supplier_pk'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_S,CP_B');
 			this.makerDropDown = AjaxUtil.fillDropDownOptions($('#maker_pk'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_M,CP_B');
 			this.ccenterCdDropDown = AjaxUtil.fillDropDownOptions($('#ccenter_cd'), 'cm_code', 'all', null, 'COST_CENTER');
@@ -442,13 +445,13 @@
 				themeColor: "base",
 				click: function () {
 					Alert.confirm('', `설비를 불용처리하시겠습니까?`, () => {
-						
+
 						_this.pmDataBind();
 						_this.equipChildDataBind();
 						_this.woDataBind();
 						_this.equipCheckDataBind();
 						_this.equipChkScheDataBind();
-						
+
 
 						//추가 팝업 띄운다
 						const options = {
@@ -536,6 +539,58 @@
 
 			$('#disposedBtn').kendoButton({});
 			$('#notUseBtn').kendoButton({});
+
+			// 상태변경 팝업
+			$('#btnChangeStatus').kendoButton({
+				themeColor: "base",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					const options = {
+						title: '상태변경',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '40vw',
+						height: '20vh',
+					}
+					popupComn.openTempPopup($("#changeEquipStatusWindow"), options);
+					// 라디오 버튼 초기값
+					let currentEquipStatus = _this.equip_status;
+                    let radioGroupInstance = $("#equipStatusRadioGroup").data("kendoRadioGroup");
+
+                    if (currentEquipStatus) {
+                        radioGroupInstance.value(currentEquipStatus);
+                    } else {
+                        radioGroupInstance.value("ES_OPER");
+                    }
+				}
+			});
+            $("#equipStatusRadioGroup").kendoRadioGroup({
+                items: [{
+                    value: "ES_OPER",
+                    label: "가동중"
+                }, {
+                    value: "ES_IDLE",
+                    label: "유휴"
+                }]
+            });
+			$("#btnConfirmChangeEquipStatus").kendoButton({
+				themeColor: "base",
+				click: function (e) {
+					e.preventDefault();
+					_this.changeEquipStatusData();
+				}
+			});
+			$("#btnCloseChangeEquipStatus").kendoButton({
+				themeColor: "base",
+				click: function (e) {
+					e.preventDefault();
+					$("#changeEquipStatusWindow").data("kendoWindow").close();
+				}
+			});
+
 
 			$("#btnEquipClassDesc").kendoButton({
 				icon: "k-i-insert-top",
@@ -682,9 +737,9 @@
 				}
 			});
 
-			$("#btnConfirmRespDisp").off('click').on('click', function(e) {
+			$("#btnConfirmRespDisp").off('click').on('click', function (e) {
 				e.preventDefault();
-				Alert.confirm('', `설비를 참조하고 있는 정보들을 비활성화 (취소,사용안함) 하시겠습니까?`, () => {					
+				Alert.confirm('', `설비를 참조하고 있는 정보들을 비활성화 (취소,사용안함) 하시겠습니까?`, () => {
 					// PM 마스터 목록
 					let pmList = []
 					// 자식 설비 목록
@@ -696,14 +751,14 @@
 					// 점검 결과 목록
 					let equipChkRsltList = []
 					// 점검 마스터 목록
-					let chkEquipList = []							
-					debugger
+					let chkEquipList = []
+				
 					if (_this.pmList != undefined) {
 						for (var k = 0; k < _this.pmList.length; k++) {
 							pmList.push(_this.pmList[k].pmPk)
 						}
 					}
-					
+
 					// 자식 설비목록(참조되고있는)
 					if (_this.equipList != undefined) {
 						for (var m = 0; m < _this.equipList.length; m++) {
@@ -725,7 +780,7 @@
 						for (var i = 0; i < _this.chkEquipList.length; i++) {
 							chkEquipList.push(_this.chkEquipList[i].chkMastPk)
 						}
-					}	
+					}
 
 					let data = {
 						action: 'equip_disabled_update',
@@ -753,7 +808,7 @@
 					e.preventDefault();
 					$("#equipRespDispWindow").data("kendoWindow").close();
 				}
-			});			
+			});
 
 			$('#closeBtn').kendoButton({
 				click: function () {
@@ -936,7 +991,7 @@
 				},
 				columns: [
 					{ field: 'pmNo', title: 'PM번호', width: 100 },
-					{ field: "pmNm", title: "PM명", width: 200 },				
+					{ field: "pmNm", title: "PM명", width: 200 },
 					{ field: "equipCd", title: "설비코드", width: 150 },
 					{ field: "equipNm", title: "설비명", width: 200 },
 				],
@@ -1130,7 +1185,7 @@
 				}
 				var $deptPk = $('#dept_pk');
 				if ($deptPk.length && !$deptPk.data('kendoDropDownTree')) {
-					AjaxUtil.fillDropDownTreeOptions($deptPk, 'cm_depart', 'all');
+					AjaxUtil.fillDropDownTreeOptions($deptPk, 'depart', 'all');
 				}
 				var $environSwitch = $('#environ_equip_yn');
 				if ($environSwitch.length && !$environSwitch.data('kendoSwitch')) {
@@ -1153,7 +1208,12 @@
 			};
 
 			let equipData = AjaxUtil.getSyncData('/api/kmms/equipment', param);
+			if (!equipData) {
+				alert("데이터 오류 발생[존재하지 않는 설비코드]");
+				return;
+			}
 			_this.equip_cd = equipData.equip_cd;
+			_this.equip_status = equipData.equip_status;
 
 			//썸네일 이미지
 			_this.showEquipThumbmail(equip_pk);
@@ -1165,9 +1225,11 @@
 			if (_this.editable) {
 				$("#disposedBtn").show();
 				$("#notUseBtn").show();
+				$("#div_equip_status").show();
 			} else {
 				$("#disposedBtn").hide();
 				$("#notUseBtn").hide();
+				$("#div_equip_status").hide();
 			}
 
 			if (equipData) {
@@ -1184,7 +1246,7 @@
 			let kendoGrid = $("#pmListGrid").data("kendoGrid");
 			if (kendoGrid) { kendoGrid.setDataSource(new kendo.data.DataSource({ data: result })); }
 
-			if (result != undefined ) { $("#pmListGrid").css("display", "block"); }
+			if (result != undefined) { $("#pmListGrid").css("display", "block"); }
 		}
 
 		equipChildDataBind() {
@@ -1228,7 +1290,7 @@
 			/* findAll [equip-chk-sche-mapper.xml] */
 			let result = AjaxUtil.getAsyncData('/api/kmms/equipment', { action: 'equip_chk_sche_disposed', equipPk: _this.equip_pk }, function () { });
 			_this.equipChkRsltList = result;
-			
+
 			let kendoGrid = $("#equipChkScheListGrid").data("kendoGrid");
 			if (kendoGrid) { kendoGrid.setDataSource(new kendo.data.DataSource({ data: result })); }
 
@@ -1269,21 +1331,26 @@
 				}));
 			}
 
-			console.log('data:', data);
-
-			// 폼 외부 필드 유효성 검사
 			if (!data.equipCode) {
-				Alert.alert('', '설비코드를 입력해주세요.');
+				Alert.alert('', '설비코드를 입력해주세요.', '확인', $("#equip_code"));				
+				return;
+			}
+			if (data.equipCode.length > 20) {
+				Alert.alert('', '설비코드는 20자 이내로 입력해주세요.', '확인', $("#equip_code"));		
 				return;
 			}
 
 			if (!data.equipName) {
-				Alert.alert('', '설비명을 입력해주세요.');
+				Alert.alert('', '설비명을 입력해주세요.', '확인', $("#equip_name"));
+				return;
+			}
+			if (data.equipName.length > 200) {
+				Alert.alert('', '설비명은 200자 이내로 입력해주세요.', '확인', $("#equip_name"));
 				return;
 			}
 
 			if (!data.equipClassName) {
-				Alert.alert('', '카테고리를 선택해주세요.');
+				Alert.alert('', '카테고리를 선택해주세요.', '확인', $("#equip_category"));
 				return;
 			}
 
@@ -1297,17 +1364,11 @@
 				return;
 			}
 			if (!$('#install_dt').val()) {
-				Alert.alert('', '설치일을 선택해주세요.');
-				return;
-			}
-			if (!$('#mtrl_nm').val()) {
-				Alert.alert('', '순환설비자재를 선택해주세요.');
+				Alert.alert('', '설치일을 선택해주세요.', '확인', $("#install_dt"));
 				return;
 			}
 
-			let fnSuccess = function (res) {
-				console.log('saveData', res);
-				console.log('equip_pk:', _this.equip_pk);
+			let fnSuccess = function (res) {			
 				if (res.success) {
 					//파일 저장
 					const result = fetchSomeData();
@@ -1315,11 +1376,59 @@
 					Alert.alert('', res.message);
 					_this.resetForm();
 					_this.modal.fadeOut();
+					page.searchMainData();
 				} else if (!res.success) {
 					Alert.alert('', res.message);
 				}
 			};
 			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, fnSuccess);
+		}
+
+        //설비상태 변경
+		changeEquipStatusData() {
+			let _this = this;
+
+			let selectedEquipStatus = $("#equipStatusRadioGroup").data("kendoRadioGroup").value();
+			let equipPk = _this.equip_pk;
+
+			if (!equipPk) {
+				Alert.alert('', '설비 정보가 없습니다.');
+				return;
+			}
+			if (!selectedEquipStatus) {
+				Alert.alert('', '설비 상태를 선택해주세요.');
+				return;
+			}
+
+			let data = {
+				equip_pk: equipPk,
+				equipStatus: selectedEquipStatus
+			};
+
+			let funcSucc = function (resp) {
+				if (resp.success) {
+					Notify.success('변경되었습니다.');
+					$('#changeEquipStatusWindow').data('kendoWindow').close();
+                    let radioGroup = $("#equipStatusRadioGroup").data("kendoRadioGroup");
+					let selectedEquipStatus = radioGroup.value();
+                    let radioGroupItems = radioGroup.options.items;
+					let selectedLabel = selectedEquipStatus;
+
+                    for (let i = 0; i < radioGroupItems.length; i++) {
+                        if (radioGroupItems[i].value === selectedEquipStatus) {
+                            selectedLabel = radioGroupItems[i].label;
+                            break;
+                        }
+                    }
+					$('#txt_equip_status').val(selectedLabel);
+					_this.equip_status = selectedEquipStatus;
+
+					page.searchMainData();
+				} else {
+                    Alert.alert('', res.message);
+				}
+			}
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=change', data, funcSucc);
 		}
 
 		bindEquipMasterData(data) {
@@ -1410,8 +1519,6 @@
 			if (this.locPkDropDown) this.locPkDropDown.value('');
 			if (this.deptPkDropDown) this.deptPkDropDown.value('');
 			if (this.importRankDropDown) this.importRankDropDown.value('');
-			if (this.processCdDropDown) this.processCdDropDown.value('');
-			if (this.systemCdDropDown) this.systemCdDropDown.value('');
 			if (this.supplierDropDown) this.supplierDropDown.value('');
 			if (this.makerDropDown) this.makerDropDown.value('');
 			if (this.ccenterCdDropDown) this.ccenterCdDropDown.value('');
@@ -1452,6 +1559,7 @@
 			// 버튼 숨김 처리
 			$("#disposedBtn").hide();
 			$("#notUseBtn").hide();
+			$("#div_equip_status").hide();
 		}
 	}
 
@@ -1460,7 +1568,7 @@
 			window.equipMasterPage = new EquipMaster();
 		}
 		// 체크박스 클릭 시 버튼 활성/비활성화
-		$('#chkItems').on('change', function () {			
+		$('#chkItems').on('change', function () {
 			if ($(this).is(':checked')) {
 				$('#btnConfirmRespDisp').prop('disabled', false);
 			} else {
@@ -1530,12 +1638,12 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
 
-	function fetchSomeData() {
+	function fetchSomeData() {		
 		try {
-			if (window.imageUploader) {
+			if (window.imageUploader && typeof window.imageUploader.saveImages === 'function' && window.imageUploader.getImagesData && window.imageUploader.getImagesData().length > 0) {
 				const imageResult = window.imageUploader.saveImages();
 			}
-			if (window.fileUploader) {
+			if (window.fileUploader && typeof window.fileUploader.saveFiles === 'function' && window.fileUploader.getFilesData && window.fileUploader.getFilesData().length > 0) {
 				const fileResult = window.fileUploader.saveFiles();
 			}
 		} catch (error) {
@@ -1597,12 +1705,12 @@
 		border-color: #d9534f !important;
 		border-radius: 1px;
 	}
-	#btnConfirmRespDisp.btn-red:disabled {
-		background-color: #f5c6cb !important;
-		color: #fff !important;
-		border-color: #f5c6cb !important;
-		cursor: not-allowed;
-		opacity: 0.65;
-	}
-</style>
 
+		#btnConfirmRespDisp.btn-red:disabled {
+			background-color: #f5c6cb !important;
+			color: #fff !important;
+			border-color: #f5c6cb !important;
+			cursor: not-allowed;
+			opacity: 0.65;
+		}
+</style>

@@ -22,6 +22,10 @@ class Depart(models.Model):
     ApplyYN = models.CharField('적용여부', max_length=1, default='N', blank=True, null=True, db_comment="적용 여부 (Y/N)")
     Site = models.ForeignKey(Site, on_delete=models.DO_NOTHING, null=True, db_comment="소속된 사이트 정보")
     Factory = models.ForeignKey(Factory, on_delete=models.DO_NOTHING, null=True, db_comment="소속된 공장")
+    BusinessYn = models.CharField(db_column='business_yn', null=True, db_comment='사업부 여부')
+    TpmYn = models.CharField(db_column='tpm_yn', null=True, db_comment='TPM 여부')
+    TeamYn = models.CharField(db_column='team_yn', null=True, db_comment='팀 여부')
+    CcenterCode = models.CharField(max_length=30, blank=True, null=True, db_column='ccenter_cd', db_comment='코스트센터 코드')
 
     _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 값")
     _created = models.DateTimeField('_created', auto_now_add=True, db_comment="데이터 생성 일시")
@@ -87,6 +91,11 @@ class UserProfile(models.Model):
     Name = models.CharField('사용자명', max_length=100, null=True)
     Depart = models.ForeignKey(Depart, on_delete=models.DO_NOTHING, null=True)
     job_class_pk = models.IntegerField('직무등급id', null=True) # CmJobClass
+    EmpNo = models.CharField(db_column='emp_no', db_comment='사원번호', null=True)
+    UserPhone = models.CharField(db_column='user_phone', db_comment='전화번호', null=True)
+    UserEmail = models.CharField(db_column='user_email', db_comment='이메일', null=True)
+    DelYn = models.CharField(db_column='del_yn', db_comment='삭제 여부')
+    UseYn = models.CharField(db_column='use_yn', db_comment='사용 여부')
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created    = models.DateTimeField('_created', auto_now_add=True)

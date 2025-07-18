@@ -6,6 +6,9 @@ from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmWorkOrder, CmEquipment, CmWoLabor, CmWoMtrl, CmWorkOrderSupplier, CmWoFaultLoc, CmWorkOrderHist
+from datetime import datetime
+import json
+from domain.services.kmms.site_config import CmSiteConfigService
 
 def handle_work_order_approval(posparam, request):
     """
@@ -17,21 +20,21 @@ def handle_work_order_approval(posparam, request):
         workOrderApprovalPk: 생성된 작업지시 결재 PK
     """
     from app.views.kmms.work_order_approval import work_order_approval
-    
+
     # work_order_approval 호출을 위한 context 생성
     class Context:
         def __init__(self, gparam, posparam, request):
             self.gparam = gparam
             self.posparam = posparam
             self.request = request
-    
+
     # action을 insert로 설정
     gparam = {'action': 'insert'}
     context = Context(gparam, posparam, request)
-    
+
     # work_order_approval 호출
     result = work_order_approval(context)
-    
+
     if result.get('success'):
         # 생성된 workOrderApprovalPk 반환
         return result.get('workOrderApprovalPk')
@@ -72,8 +75,8 @@ def handle_work_order_hist(work_order_pk, posparam, request):
 
 def work_order(context):
     '''
-    api/kmms/work_order   작업지시 
-    김태영 
+    api/kmms/work_order   작업지시
+    김태영
 
     findAll
     searchAll
@@ -120,7 +123,7 @@ def work_order(context):
     deleteWohist
     deleteWo
     updateCostInfo
-    
+
     '''
     gparam = context.gparam
     posparam = context.posparam
@@ -128,16 +131,192 @@ def work_order(context):
     user = request.user
     factory_id = 1
 
-    action = gparam.get('action', 'read') 
+    action = gparam.get('action', 'read')
 
     workorder_service = WorkOrderService()
 
     try:
-        if action == 'findOneWo':
-            ''' 
+        # kmms - 작업지시 - 작업요청
+        if action=='my_work_request_read':
+            keyword = gparam.get('keyword', None)
+            req_dept = gparam.get('req_dept', None)
+            rqst_user_nm = gparam.get('rqst_user_nm', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            wo_status = gparam.get('wo_status', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            dept_pk = gparam.get('dept_pk', None)
+            problem_cd = gparam.get('problem_cd', None)
+            cause_cd = gparam.get('cause_cd', None)
+            srch_wo_no_only = gparam.get('srch_wo_no_only', None)
+            srch_my_req_only = gparam.get('srch_my_req_only', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+            srch_non_del_only = gparam.get('srch_non_del_only', None)
+
+            current_user_id = user.id
+
+            try:
+                items = workorder_service.get_my_work_request_list(keyword, req_dept, rqst_user_nm, start_dt, end_dt, wo_status, maint_type_cd, dept_pk, problem_cd, cause_cd, srch_wo_no_only, srch_my_req_only, srch_environ_equip_only, srch_non_del_only, current_user_id)
+                print(items)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업지시 - 작업요청 승인
+        elif action=='work_request_approval_read':
+            keyword = gparam.get('keyword', None)
+            req_dept = gparam.get('req_dept', None)
+            rqst_user_nm = gparam.get('rqst_user_nm', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            dept_pk = gparam.get('dept_pk', None)
+            problem_cd = gparam.get('problem_cd', None)
+            cause_cd = gparam.get('cause_cd', None)
+            srch_wo_no_only = gparam.get('srch_wo_no_only', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+
+            try:
+                items = workorder_service.get_work_request_approval_list(keyword, req_dept, rqst_user_nm, start_dt, end_dt, maint_type_cd, dept_pk, problem_cd, cause_cd, srch_wo_no_only, srch_environ_equip_only)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업지시 - 작업지시 승인
+        elif action=='work_order_approval_read':
+            keyword = gparam.get('keyword', None)
+            req_dept = gparam.get('req_dept', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            dept_pk = gparam.get('dept_pk', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+            wos_type = gparam.get('wos_type', None)
+
+            try:
+                items = workorder_service.get_work_order_approval_list(keyword, req_dept, start_dt, end_dt, maint_type_cd, dept_pk, srch_environ_equip_only, wos_type)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업지시 - 작업지시 관리
+        elif action=='work_order_management_read':
+            keyword = gparam.get('keyword', None)
+            req_dept = gparam.get('req_dept', None)
+            srch_date = gparam.get('srch_date', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            wo_status_view = gparam.get('wo_status_view', None)
+            wo_type = gparam.get('wo_type', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            dept_pk = gparam.get('dept_pk', None)
+            problem_cd = gparam.get('problem_cd', None)
+            srch_wo_no_only = gparam.get('srch_wo_no_only', None)
+            srch_my_work_only = gparam.get('srch_my_work_only', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+
+            current_user_id = user.id
+
+            wos_status_list = []
+            if wo_status_view:
+                wo_status_list = [status.strip() for status in wo_status_view.split(',') if status.strip()]
+                wos_status_list = ['WOS_' + status for status in wo_status_list]
+
+            try:
+                items = workorder_service.get_work_order_management_list(keyword, req_dept, srch_date, start_dt, end_dt, wos_status_list, wo_type, maint_type_cd, dept_pk, problem_cd, srch_wo_no_only, srch_my_work_only, srch_environ_equip_only, current_user_id)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업지시 - WO사후등록
+        elif action=='post_work_management_read':
+            keyword = gparam.get('keyword', None)
+            post_wo_status = gparam.get('post_wo_status', None)
+            req_dept = gparam.get('req_dept', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            dept_pk = gparam.get('dept_pk', None)
+            srch_my_work_only = gparam.get('srch_my_work_only', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+
+            current_user_id = user.id
+
+            try:
+                items = workorder_service.get_post_work_management_list(keyword, post_wo_status, req_dept, start_dt, end_dt, maint_type_cd, dept_pk, srch_my_work_only, srch_environ_equip_only, current_user_id)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업이력 - WO 작업이력 조회
+        if action=='work_order_hist_read':
+            keyword = gparam.get('keyword', None)
+            wo_type = gparam.get('wo_type', None)
+            wo_status = gparam.get('wo_status', None)
+            srch_date = gparam.get('srch_date', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            loc_pk = gparam.get('loc_pk', None)
+            dept_pk = gparam.get('dept_pk', None)
+            problem_cd = gparam.get('problem_cd', None)
+            cause_cd = gparam.get('cause_cd', None)
+            remedy_nm = gparam.get('remedy_nm', None)
+            srch_end_date_only = gparam.get('srch_end_date_only', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+
+            try:
+                items = workorder_service.get_work_order_hist_list(keyword, wo_type, wo_status, srch_date, start_dt, end_dt, maint_type_cd, loc_pk, dept_pk, problem_cd, cause_cd, remedy_nm, srch_end_date_only, srch_environ_equip_only, factory_id)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업지시 - 취소된 WO 목록 조회
+        elif action == 'work_order_cancel_list_read':
+            keyword = gparam.get('keyword', None)
+            dept_pk = gparam.get('dept_pk', None)
+            start_dt = gparam.get('start_dt', None)
+            end_dt = gparam.get('end_dt', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+
+            try:
+                items = workorder_service.get_work_order_cancel_list(keyword, dept_pk, start_dt, end_dt, maint_type_cd, srch_environ_equip_only)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        # kmms - 작업지시 - 미처리 WO 목록 조회
+        elif action == 'work_order_pending_list_read':
+            keyword = gparam.get('keyword', None)
+            req_dept = gparam.get('req_dept', None)
+            dept_pk = gparam.get('dept_pk', None)
+            delay_days = gparam.get('delay_days', None)
+            maint_type_cd = gparam.get('maint_type_cd', None)
+            problem_cd = gparam.get('problem_cd', None)
+            cause_cd = gparam.get('cause_cd', None)
+            remedy_nm = gparam.get('remedy_nm', None)
+            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
+
+            try:
+                items = workorder_service.get_work_order_pending_list(keyword, req_dept, dept_pk, delay_days, maint_type_cd, problem_cd, cause_cd, remedy_nm, srch_environ_equip_only)
+            except Exception as ex:
+                source = 'api/kmms/work_order, action:{}'.format(action)
+                LogWriter.add_dblog('error', source, ex)
+                raise ex
+
+        elif action == 'findOneWo':
+            '''
             '''
             workOrderPk = CommonUtil.try_int(gparam.get('workOrderPk'))
-            
+
             sql = '''
             /* findOne [work-order-mapper.xml] */
 
@@ -147,14 +326,14 @@ def work_order(context):
                     , t.work_text
                     , t.work_order_sort
                     , t.req_dept_pk
-                    , rd.dept_nm as req_dept_nm
+                    , rd."Name" as req_dept_nm
                     , rd.tpm_yn as req_dept_tpm_yn
                     , t.dept_pk
-                    , wd.dept_nm as dept_nm
+                    , wd."Name" as dept_nm
                     , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
-                    , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+                    , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 1) as business_nm
                     , t.work_charger_pk
-                    , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+                    , cm_fn_user_nm(wcu."Name", wcu.del_yn) as work_charger_nm
                     , mt.code_cd as maint_type_cd
                     , mt.code_nm as maint_type_nm
                     , ws.code_cd as wo_status_cd
@@ -164,11 +343,11 @@ def work_order(context):
                     , t.start_dt
                     , t.end_dt
                     , to_char(t.want_dt, 'yyyy-MM-dd') as want_dt
-                    , t.equip_pk
+                    , t.equip_pk                    
                     , e.equip_cd
                     , e.equip_nm
-                    , ed.dept_pk as equip_dept_pk
-                    , ed.dept_nm as equip_dept_nm
+                    , ed.id as equip_dept_pk
+                    , ed."Name" as equip_dept_nm
                     , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
                     , t.pm_pk
                     , p.pm_no
@@ -215,8 +394,8 @@ def work_order(context):
                     , woa.reg_dt
                     , woa.rqst_dt
                     , woa.rqst_user_nm
-                    , woarqstd.dept_pk as rqst_dept_pk
-                    , woarqstd.dept_nm as rqst_dept_nm
+                    , woarqstd.id as rqst_dept_pk
+                    , woarqstd."Name" as rqst_dept_nm
                     , woa.cancel_dt
                     , woa.cancel_user_nm
                     , woa.accept_dt
@@ -224,7 +403,8 @@ def work_order(context):
                     , woa.finish_dt
                     , substring(t.appr_line, 1,2) as wo_start_type
                     , cm_fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
-                    , t.insert_ts
+                    , t.inserter_nm
+                    , to_char(t.insert_ts, 'YYYY-MM-DD') as insert_ts
                     , e.environ_equip_yn
                     , e.equip_status as equip_stauts_cd
                     , e.import_rank_pk
@@ -254,25 +434,25 @@ def work_order(context):
                 inner join cm_equipment e on t.equip_pk = e.equip_pk
                 inner join cm_location l on e.loc_pk = l.loc_pk
                 left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
-                left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
-                left outer join cm_dept wd on t.dept_pk = wd.dept_pk
-                left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
-                left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
-                left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
-                left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
-                left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
+                left outer join dept ed on e.dept_pk  = ed."id"
+                left outer join dept wd on t.dept_pk = wd."id"
+                left outer join dept rd on t.req_dept_pk = rd."id"
+                left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
+                left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC'
+                left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC'
+                left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
                 left outer join cm_pm p on t.pm_pk = p.pm_pk
                 left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
                 left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
-                left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
-                left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+                left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
+                left outer join user_profile wou on t.WORK_CHARGER_PK = wou."User_id"
                 left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
                 left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
                 left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
                 left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
                 left outer join cm_project prj on t.proj_cd = prj.proj_cd
-                left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
-                left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+                left outer join user_profile woarqstu on woa.rqst_user_pk = woarqstu."User_id"
+                left outer join dept woarqstd on woarqstu."Depart_id" = woarqstd."id"
                 left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
                 left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
                 left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
@@ -288,34 +468,7 @@ def work_order(context):
 
             items = DbUtil.get_row(sql, dc)
 
-        elif action=='my_work_request_read':
-            keyword = gparam.get('keyword', None)
-            req_dept = gparam.get('req_dept', None)
-            rqst_user_nm = gparam.get('rqst_user_nm', None)
-            start_dt = gparam.get('start_dt', None)
-            end_dt = gparam.get('end_dt', None)
-            wo_status = gparam.get('wo_status', None)
-            maint_type_cd = gparam.get('maint_type_cd', None)
-            dept_pk = gparam.get('dept_pk', None)
-            problem_cd = gparam.get('problem_cd', None)
-            cause_cd = gparam.get('cause_cd', None)
-            srch_wo_no_only = gparam.get('srch_wo_no_only', None)
-            srch_my_req_only = gparam.get('srch_my_req_only', None)
-            srch_environ_equip_only = gparam.get('srch_environ_equip_only', None)
-            srch_non_del_only = gparam.get('srch_non_del_only', None)
-
-            wos_type = gparam.get('wos_type', None)
-
-            current_user_id = user.id
-
-            try:
-                items = workorder_service.get_work_order_list(keyword, req_dept, rqst_user_nm, start_dt, end_dt, wo_status, maint_type_cd, dept_pk, problem_cd, cause_cd, srch_wo_no_only, srch_my_req_only, srch_environ_equip_only, srch_non_del_only, wos_type, current_user_id)
-            except Exception as ex:
-                source = 'api/kmms/work_order, action:{}'.format(action)
-                LogWriter.add_dblog('error', source, ex)
-                raise ex
-
-        elif action == 'wo_equip_disposed': 
+        elif action == 'wo_equip_disposed':
             equipPk = gparam.get('equipPk')
 
             sql = '''
@@ -327,14 +480,14 @@ def work_order(context):
                 , t.work_text
                 , t.work_order_sort
                 , t.req_dept_pk
-                , rd.dept_nm as req_dept_nm
+                , rd."Name" as req_dept_nm
                 , rd.tpm_yn as req_dept_tpm_yn
                 , t.dept_pk
-                , wd.dept_nm as dept_nm
+                , wd."Name" as dept_nm
                 , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
-                , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+                , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 1) as business_nm
                 , t.work_charger_pk
-                , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+                , cm_fn_user_nm(wcu."Name", wcu.del_yn) as work_charger_nm
                 , mt.code_cd as maint_type_cd
                 , mt.code_nm as maint_type_nm
                 , ws.code_cd as wo_status_cd
@@ -347,8 +500,8 @@ def work_order(context):
                 , t.equip_pk
                 , e.equip_cd
                 , e.equip_nm
-                , ed.dept_pk as equip_dept_pk
-                , ed.dept_nm as equip_dept_nm
+                , ed.id as equip_dept_pk
+                , ed."Name" as equip_dept_nm
                 , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
                 , t.pm_pk
                 , p.pm_no
@@ -395,8 +548,8 @@ def work_order(context):
                 , woa.reg_dt
                 , woa.rqst_dt
                 , woa.rqst_user_nm
-                , woarqstd.dept_pk as rqst_dept_pk
-                , woarqstd.dept_nm as rqst_dept_nm
+                , woarqstd.id as rqst_dept_pk
+                , woarqstd."Name" as rqst_dept_nm
                 , woa.cancel_dt
                 , woa.cancel_user_nm
                 , woa.accept_dt
@@ -434,25 +587,25 @@ def work_order(context):
     inner join cm_equipment e on t.equip_pk = e.equip_pk
     inner join cm_location l on e.loc_pk = l.loc_pk
     left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
-    left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
-    left outer join cm_dept wd on t.dept_pk = wd.dept_pk
-    left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
-    left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
-    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
-    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
-    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
+    left outer join dept ed on e.dept_pk  = ed."id"
+    left outer join dept wd on t.dept_pk = wd."id"
+    left outer join dept rd on t.req_dept_pk = rd."id"
+    left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
+    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC'
+    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC'
+    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
     left outer join cm_pm p on t.pm_pk = p.pm_pk
     left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
     left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
-    left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
-    left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+    left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
+    left outer join user_profile wou on t.WORK_CHARGER_PK = wou."User_id"
     left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
     left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
     left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
     left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
     left outer join cm_project prj on t.proj_cd = prj.proj_cd
-    left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
-    left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+    left outer join user_profile woarqstu on woa.rqst_user_pk = woarqstu."User_id"
+    left outer join dept woarqstd on woarqstu."Depart_id" = woarqstd."id"
     left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
     left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
     left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
@@ -464,13 +617,13 @@ def work_order(context):
 
             AND t.wo_status NOT IN (
                     'WOS_DL'
-                 ,  
+                 ,
                     'WOS_CL'
-                 ,  
+                 ,
                     'WOS_RW'
             )
-            
-            
+
+
 
              '''
             dc = {}
@@ -479,7 +632,7 @@ def work_order(context):
             items = DbUtil.get_rows(sql, dc)
             items = CommonUtil.res_snake_to_camel(items)
 
-        elif action == 'findSel':       
+        elif action == 'findSel':
             keywords = gparam.get('keywords')
             startDate = gparam.get('startDate')
             endDate = gparam.get('endDate')
@@ -496,14 +649,14 @@ def work_order(context):
                         , t.work_text
                         , t.work_order_sort
                         , t.req_dept_pk
-                        , rd.dept_nm as req_dept_nm
+                        , rd."Name" as req_dept_nm
                         , rd.tpm_yn as req_dept_tpm_yn
                         , t.dept_pk
-                        , wd.dept_nm as dept_nm
+                        , wd."Name" as dept_nm
                         , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
-                        , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+                        , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 1) as business_nm
                         , t.work_charger_pk
-                        , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+                        , cm_fn_user_nm(wcu."Name", wcu.del_yn) as work_charger_nm
                         , mt.code_cd as maint_type_cd
                         , mt.code_nm as maint_type_nm
                         , ws.code_cd as wo_status_cd
@@ -517,8 +670,8 @@ def work_order(context):
                         , t.equip_pk
                         , e.equip_cd
                         , e.equip_nm
-                        , ed.dept_pk as equip_dept_pk
-                        , ed.dept_nm as equip_dept_nm
+                        , ed.id as equip_dept_pk
+                        , ed."Name" as equip_dept_nm
                         , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
                         , t.pm_pk
                         , p.pm_no
@@ -565,8 +718,8 @@ def work_order(context):
                         , woa.reg_dt
                         , to_char(woa.rqst_dt, 'YYYY-MM-DD HH24:MI') as rqst_dt
                         , woa.rqst_user_nm
-                        , woarqstd.dept_pk as rqst_dept_pk
-                        , woarqstd.dept_nm as rqst_dept_nm
+                        , woarqstd.id as rqst_dept_pk
+                        , woarqstd."Name" as rqst_dept_nm
                         , woa.cancel_dt
                         , woa.cancel_user_nm
                         , woa.accept_dt
@@ -604,25 +757,25 @@ def work_order(context):
                     inner join cm_equipment e on t.equip_pk = e.equip_pk
                     inner join cm_location l on e.loc_pk = l.loc_pk
                     left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
-                    left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
-                    left outer join cm_dept wd on t.dept_pk = wd.dept_pk
-                    left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
-                    left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
-                    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
-                    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
-                    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
+                    left outer join dept ed on e.dept_pk  = ed."id"
+                    left outer join dept wd on t.dept_pk = wd."id"
+                    left outer join dept rd on t.req_dept_pk = rd."id"
+                    left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
+                    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC'
+                    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC'
+                    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
                     left outer join cm_pm p on t.pm_pk = p.pm_pk
                     left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
                     left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
-                    left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
-                    left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+                    left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
+                    left outer join user_profile wou on t.WORK_CHARGER_PK = wou."User_id"
                     left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
                     left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
                     left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
                     left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
                     left outer join cm_project prj on t.proj_cd = prj.proj_cd
-                    left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
-                    left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+                    left outer join user_profile woarqstu on woa.rqst_user_pk = woarqstu."User_id"
+                    left outer join dept woarqstd on woarqstu."Depart_id" = woarqstd."id"
                     left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
                     left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
                     left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
@@ -640,19 +793,19 @@ def work_order(context):
                     AND t.wo_status IN (
 
                             'WOS_RW'
-                         ,  
+                         ,
                             'WOS_RB'
-                         ,  
+                         ,
                             'WOS_RQ'
-                         ,  
+                         ,
                             'WOS_OC'
-                         ,  
+                         ,
                             'WOS_AP'
-                         ,  
+                         ,
                             'WOS_CM'
-                         ,  
+                         ,
                             'WOS_CL'
-                         ,  
+                         ,
                             'WOS_DL'
 
                     )
@@ -680,247 +833,14 @@ def work_order(context):
                 FROM (
                     table cte
                          order by rqst_dt DESC
-                            , 
-                                work_order_sort DESC 
+                            ,
+                                work_order_sort DESC
 
 
                 ) sub
                 RIGHT JOIN (select count(*) from cte) c(total_rows) on true
                 WHERE total_rows != 0
                 order by pm_no desc, work_order_no desc
-
-             '''
-            dc={}
-            dc['keywords'] = keywords
-            dc['startDate'] = startDate
-            dc['endDate'] = endDate
-            dc['isMine'] = isMine
-
-            items = DbUtil.get_rows(sql, dc)
-
-        elif action == 'work_order_approval_read':       
-            keywords = gparam.get('keywords')
-            startDate = gparam.get('startDate')
-            endDate = gparam.get('endDate')
-            isMine = gparam.get('isMine')
-
-            sql = '''
-             /* findAll [work-order-mapper.xml] */
-
-                with cte as (
-
-                select t.work_order_pk
-                        , t.work_order_no
-                        , t.work_title
-                        , t.work_text
-                        , t.work_order_sort
-                        , t.req_dept_pk
-                        , rd.dept_nm as req_dept_nm
-                        , rd.tpm_yn as req_dept_tpm_yn
-                        , t.dept_pk
-                        , wd.dept_nm as dept_nm
-                        , cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
-                        , cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
-                        , t.work_charger_pk
-                        , cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
-                        , mt.code_cd as maint_type_cd
-                        , mt.code_nm as maint_type_nm
-                        , ws.code_cd as wo_status_cd
-                        , ws.code_nm as wo_status_nm
-                        , t.plan_start_dt
-                        , t.plan_end_dt
-                        , t.start_dt
-                        , t.end_dt
-                        , t.want_dt
-                        , t.equip_pk
-                        , e.equip_cd
-                        , e.equip_nm
-                        , ed.dept_pk as equip_dept_pk
-                        , ed.dept_nm as equip_dept_nm
-                        , to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
-                        , t.pm_pk
-                        , p.pm_no
-                        , p.pm_nm
-                        , pt.code_nm                        AS pm_type_nm
-                        , p.work_text as pm_work_text
-                        , t.chk_rslt_pk
-                        , ecs.chk_sche_pk
-                        , ecs.chk_sche_no
-                        , ecm.chk_mast_nm
-                        , ecm.chk_mast_pk
-                        , ecs.chk_sche_dt
-                        , l.loc_nm
-                        , t.req_info
-                        , t.wo_type
-                        , t.rqst_insp_yn
-                        , t.rqst_dpr_yn
-                        , wt.code_nm as wo_type_nm
-                        , t.breakdown_dt
-                        , t.breakdown_min
-                        , wsc.code_cd as work_src_cd
-                        , wsc.code_nm as work_src_nm
-                        , t.tot_cost
-                        , t.mtrl_cost
-                        , t.labor_cost
-                        , t.outside_cost
-                        , t.etc_cost
-                        , t.problem_cd
-                        , wp.reliab_nm as problem_nm
-                        , t.cause_cd
-                        , wc.reliab_nm as cause_nm
-                        , t.remedy_cd
-                        , wr.reliab_nm as remedy_nm
-                        , prj.proj_cd
-                        , prj.proj_nm
-                        , t.wo_file_grp_cd
-                        , t.req_info_img_grp_cd
-                        , t.work_text_img_grp_cd
-                        , t.pm_req_type
-                        , t.req_dept_busi_cd
-                        , t.appr_line
-                        , t.appr_line_next
-                        , t.work_order_approval_pk
-                        , woa.reg_dt
-                        , woa.rqst_dt
-                        , woa.rqst_user_nm
-                        , woarqstd.dept_pk as rqst_dept_pk
-                        , woarqstd.dept_nm as rqst_dept_nm
-                        , woa.cancel_dt
-                        , woa.cancel_user_nm
-                        , woa.accept_dt
-                        , woa.appr_dt
-                        , woa.finish_dt
-                        , substring(t.appr_line, 1,2) as wo_start_type
-                        , cm_fn_datediff(cast(now() as timestamp), cast(t.plan_end_dt as timestamp)) as delay_days
-                        , t.insert_ts
-                        , e.environ_equip_yn
-                        , e.equip_status as equip_stauts_cd
-                        , e.import_rank_pk
-                        , ir.import_rank_cd
-                        , e.up_equip_pk
-                        , ue.equip_nm AS up_equip_name
-                        , ec.equip_category_id
-                        , ec.equip_category_desc
-                        , ec.remark
-                        , e.equip_class_path
-                        , e.equip_class_desc
-                        , av.code_nm as first_asset_status
-                        , av.code_cd as first_asset_status_cd
-                        , cm_fn_minutediff(cast(t.start_dt as timestamp), cast(t.end_dt as timestamp)) as breakdown_Hr
-                        , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
-                        , (select code_nm from cm_base_code where code_grp_cd = 'EQUIP_SYSTEM' and code_cd = e.system_cd) as system_nm
-                        , l.loc_nm
-                        , es.ex_supplier_nm
-                        , woa.cancel_reason
-                        , t.cost_type
-                        , (select code_nm from cm_base_code where code_cd = t.cost_type and code_grp_cd = 'WO_COST_TYPE') as cost_type_nm
-
-                        from cm_work_order t
-                    inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
-                    inner join cm_base_code mt on t.maint_type_cd = mt.code_cd and mt.code_grp_cd = 'MAINT_TYPE'
-                    inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
-                    inner join cm_equipment e on t.equip_pk = e.equip_pk
-                    inner join cm_location l on e.loc_pk = l.loc_pk
-                    left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
-                    left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
-                    left outer join cm_dept wd on t.dept_pk = wd.dept_pk
-                    left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
-                    left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
-                    left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
-                    left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
-                    left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
-                    left outer join cm_pm p on t.pm_pk = p.pm_pk
-                    left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
-                    left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
-                    left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
-                    left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
-                    left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
-                    left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
-                    left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
-                    left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
-                    left outer join cm_project prj on t.proj_cd = prj.proj_cd
-                    left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
-                    left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
-                    left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
-                    left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
-                    left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
-                    left outer join cm_base_code av on av.code_cd = e.first_asset_status and av.code_grp_cd = 'ASSET_VAL_STATUS'
-                    left outer join cm_work_order_supplier wos on wos.work_order_pk = t.work_order_pk
-                    left outer join cm_ex_supplier es on es.ex_supplier_pk = wos.ex_supplier_pk
-
-                where 1 = 1
-
-                    AND substring(t.appr_line, 1, 2) = 'RQ'
-
-                    AND t.wo_type NOT IN (
-
-                            'PM'
-
-                    )
-
-                    AND t.wo_status NOT IN (
-
-                            'WOS_DL'
-                         ,  
-                            'WOS_CL'
-                         ,  
-                            'WOS_RW'
-
-                    )
-
-                    AND t.wo_status IN (
-
-                            'WOS_RQ'
-                         ,  
-                            'WOS_RJ'
-
-                    )
-                    '''
-            if keywords:
-                sql += '''
-
-                    AND (
-                        UPPER(t.work_title) LIKE CONCAT('%',UPPER(CAST(%(keywords)s as text)),'%')
-                        OR UPPER(t.work_text) LIKE CONCAT('%',UPPER(CAST(%(keywords)s as text)),'%')
-                        OR UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(CAST(%(keywords)s as text)),'%')
-                        OR UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(CAST(%(keywords)s as text)),'%')
-                        OR UPPER(t.work_order_no) LIKE CONCAT('%',UPPER(CAST(%(keywords)s as text)),'%')
-                    )
-                    '''
-
-            if startDate or endDate:
-                sql += '''
-                     AND (
-                        (date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
-                                        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) >= to_date('2025-06-09', 'YYYY-MM-DD')
-                            AND date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
-                                        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) <= to_date('2025-06-16', 'YYYY-MM-DD'))
-                        OR
-                        (date(case 		when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
-                                        when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) >= to_date('2025-06-09', 'YYYY-MM-DD')
-                            AND date(case 	when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
-                                            when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) <= to_date('2025-06-16', 'YYYY-MM-DD'))
-                    )
-                    '''
-
-            sql += '''
-
-                    AND coalesce(t.rqst_dpr_yn, 'N') = 'N'
-
-                )
-                SELECT *
-                FROM (
-                    table cte
-
-                         order by rqst_dt DESC
-                            , 
-                                work_order_sort DESC 
-
-
-                ) sub
-                RIGHT JOIN (select count(*) from cte) c(total_rows) on true
-                WHERE total_rows != 0
-                order by cast(pm_no as INTEGER) desc, cast(work_order_no as INTEGER) desc
 
              '''
             dc={}
@@ -938,9 +858,9 @@ def work_order(context):
             , t.work_order_no
             from cm_work_order t
             inner join cm_equipment e on t.equip_pk = e.equip_pk
-            inner join cm_base_code mt on t.maint_type_cd = mt.code_cd 
+            inner join cm_base_code mt on t.maint_type_cd = mt.code_cd
             and mt.code_grp_cd = 'MAINT_TYPE'
-            inner join cm_base_code ws on t.wo_status = ws.code_cd 
+            inner join cm_base_code ws on t.wo_status = ws.code_cd
             and ws.code_grp_cd = 'WO_STATUS'
             where t.maint_type_cd = 'MAINT_TYPE_BM'
             and t.wo_status NOT IN ('WOS_CL','WOS_DL')
@@ -990,16 +910,30 @@ def work_order(context):
             workOrderApprovalPk = handle_work_order_approval(posparam, request)
             tempSave = posparam.get('tempSave', 'N') # 임시저장구분 기본값:  N
 
-            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            if tempSave == 'Y':
+                workOrderPk = None  # 임시저장 시에는 workOrderPk를 None으로 설정
+            else:
+                workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            
             equipPk = CommonUtil.try_int(posparam.get('equipPk'))
-            workOrderNo = posparam.get('workOrderNo')
+
+            if tempSave == 'Y' :  # 신규 등록시 번호 생성
+                workOrderNo = posparam.get('workOrderNo')
+            else:
+                workOrderNo = generate_wo_number()      
+
             workOrderSort = posparam.get('workOrderSort')
             workTitle = posparam.get('workTitle')
             workText = posparam.get('workText')
             reqInfo = posparam.get('reqInfo')
-            woStatusCd = posparam.get('woStatusCd')
+
+            if tempSave == 'N':
+                woStatusCd = 'WOS_RQ'  # 작업요청 시 상태를 요청완료'WOS_RQ'로 설정
+            else:
+                woStatusCd = 'WOS_RW' #임시저장 시 상태를 'WOS_RW'로 설정
+            
             maintTypeCd = posparam.get('maintTypeCd')
-            woType = posparam.get('woType')
+            woType = posparam.get('woType', 'WO')
             wantDt = posparam.get('wantDt')
             planStartDt = wantDt
             planEndDt = wantDt
@@ -1008,7 +942,7 @@ def work_order(context):
             deptPk = posparam.get('deptPk')
             workChargerPk = posparam.get('workChargerPk')
             pmPk = posparam.get('pmPk')
-            apprLine = posparam.get('apprLine')
+            apprLine = posparam.get('apprLine', 'RQ,OC,AP,CM,CL')  # 초기값 설정
             apprLineNext = posparam.get('apprLineNext')
             reqDeptPk = posparam.get('reqDeptPk')
             pmReqType = posparam.get('pmReqType')
@@ -1024,8 +958,10 @@ def work_order(context):
             laborCost = posparam.get('laborCost')
             outsideCost = posparam.get('outsideCost')
             etcCost = posparam.get('etcCost')
-            if_send_yn = posparam.get('if_send_yn')       
-  
+            if_send_yn = posparam.get('if_send_yn')
+            rqstInspYn = posparam.get('rqstInspYn', 'N')  # 초기값 설정
+            rqstDprYn = posparam.get('rqstDprYn', 'N')   # 초기값 설정
+
             if workOrderPk ==None:
                 wo = CmWorkOrder()
                 wo.CmWorkOrderApproval_id = workOrderApprovalPk
@@ -1039,9 +975,13 @@ def work_order(context):
                 wo.OutsideCost = outsideCost
                 wo.EtcCost = etcCost
                 wo.IfSendYn = if_send_yn
+                wo.RqstInspYn = rqstInspYn  # 초기값 설정
+                wo.RqstDprYn = rqstDprYn    # 초기값 설정
             else:
                 wo = CmWorkOrder.objects.get(id=workOrderPk)
                 wo.WorkText = workText
+                wo.RqstInspYn = rqstInspYn  # 초기값 설정
+                wo.RqstDprYn = rqstDprYn    # 초기값 설정
 
             wo.CmEquipment_id = equipPk
             if workOrderNo:
@@ -1049,12 +989,15 @@ def work_order(context):
                 wo.WorkOrderSort = workOrderSort
 
             wo.WorkTitle = workTitle
-            
+
             wo.ReqInfo = reqInfo
             wo.WoStatus = woStatusCd
             wo.MaintTypeCode = maintTypeCd
             wo.WoType = woType
             wo.WantDt = wantDt
+            # 로그인 사용자의 부서 PK를 사용
+            wo.ReqDeptPk = user.userprofile.Depart.id if user.userprofile.Depart else None
+
             if planStartDt:
                 wo.PlanStartDt = planStartDt
             if planEndDt:
@@ -1069,17 +1012,27 @@ def work_order(context):
                 wo.EndDt = None
             wo.DeptPk = deptPk
             wo.WorkChargerPk = workChargerPk
-            
-            wo.ApprLine = apprLine
-            wo.ApprLineNext = apprLineNext
-            wo.ReqDeptPk = reqDeptPk
 
-            #req_dept_busi_cd
+            # apprLine 자동 설정: ProcOpts의 acceptYn이 true면 'RQ'로 설정
+            site_id = '1'  # 환경에 맞게 필요시 수정
+            site_config_service = CmSiteConfigService()
+            site_config = site_config_service.read(site_id)
+            if site_config and site_config.get('proc_opts'):
+                try:
+                    proc_opts = json.loads(site_config['proc_opts'])
+                    if proc_opts.get('acceptYn') is True:
+                        apprLine = 'RQ'
+                except Exception as e:
+                    pass  # 파싱 실패 시 무시
+
+            wo.ApprLine = apprLine
+            wo.ApprLineNext = apprLineNext       
+
             wo.WorkSrcCode = workSrcCd
             wo.BreakdownDt = breakdownDt
             wo.CauseCode = causeCd
             wo.ProblemCode = problemCd
-            wo.ProjCode = projCd            
+            wo.ProjCode = projCd
             wo.Factory_id = 1
             wo.set_audit(user)
             wo.save()
@@ -1278,7 +1231,7 @@ def work_order(context):
             wo.BreakdownMin = breakdownMin
             wo.set_audit(user)
             wo.save()
-        
+
             items = {'success': True}
 
         elif action == 'rejectWorkOrder':
@@ -1319,7 +1272,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'updateStatus':
-            ''' 
+            '''
             '''
 
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
@@ -1334,7 +1287,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'delete':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
 
@@ -1344,10 +1297,10 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'getPinvLocMaterialByWorkOrder':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(gparam.get('workOrderPk'))
-            sql = ''' 
+            sql = '''
             '''
             dc = {}
             dc['workOrderPk'] = workOrderPk
@@ -1355,10 +1308,10 @@ def work_order(context):
             items = DbUtil.get_rows(sql, dc)
 
         elif action == 'startDateEndDateDiff':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(gparam.get('workOrderPk'))
-            sql = ''' 
+            sql = '''
             '''
             dc = {}
             dc['workOrderPk'] = workOrderPk
@@ -1366,7 +1319,7 @@ def work_order(context):
             items = DbUtil.get_row(sql, dc)
 
         elif action == 'updateWorkOrderStartEndDate':
-            ''' 
+            '''
             '''
 
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
@@ -1383,7 +1336,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'updateWorkOrderPlanStartEndDate':
-            ''' 
+            '''
             '''
 
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
@@ -1408,10 +1361,10 @@ def work_order(context):
 
             ''' SELECT count(*) as cnt
             FROM cm_work_order t
-            inner join cm_base_code ws on t.wo_status = ws.code_cd 
+            inner join cm_base_code ws on t.wo_status = ws.code_cd
             and ws.code_grp_cd = 'WO_STATUS'
             inner join cm_equipment e on t.equip_pk = e.equip_pk
-            inner join cm_base_code mt on t.maint_type_cd = mt.code_cd 
+            inner join cm_base_code mt on t.maint_type_cd = mt.code_cd
             and mt.code_grp_cd = 'MAINT_TYPE'
             WHERE mt.code_cd = 'MAINT_TYPE_BM'
             AND t.factory_pk = %(factory_pk)s
@@ -1436,7 +1389,7 @@ def work_order(context):
 
 
         elif action == 'selectWorkOrderApprInfo':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(gparam.get('workOrderPk'))
             sql = ''' SELECT t.work_order_pk
@@ -1454,7 +1407,7 @@ def work_order(context):
             items = DbUtil.get_rows(sql, dc)
 
         elif action == 'updateWorkOrderStatusBySysOpt':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             woStatusCd = posparam.get('woStatusCd')
@@ -1512,7 +1465,7 @@ def work_order(context):
             etcCost = posparam.get('etcCost')
             if_send_yn = posparam.get('if_send_yn')
             chkRsltPk = posparam.get('chkRsltPk')
-  
+
 
             wo = CmWorkOrder()
             wo.CmEquipment_id = equipPk
@@ -1531,10 +1484,11 @@ def work_order(context):
             wo.EndDt = endDt
             wo.DeptPk = deptPk
             wo.WorkChargerPk = workChargerPk
-            
+
             wo.ApprLine = apprLine
             wo.ApprLineNext = apprLineNext
-            wo.ReqDeptPk = reqDeptPk
+            # 로그인 사용자의 부서 PK를 사용
+            wo.ReqDeptPk = user.userprofile.Depart.id if user.userprofile.Depart else None
             #req_dept_busi_cd
             wo.BreakdownDt = breakdown_dt if breakdown_dt else None
             wo.IfSendYn = 'N'
@@ -1591,7 +1545,7 @@ def work_order(context):
             etcCost = posparam.get('etcCost')
             if_send_yn = posparam.get('if_send_yn')
             chkRsltPk = posparam.get('chkRsltPk')
-  
+
             if action == 'updateDailyReport':
                 wo = CmWorkOrder.get(id=workOrderPk)
             else:
@@ -1606,7 +1560,7 @@ def work_order(context):
                 wo.WorkOrderNo = workOrderNo
                 wo.WorkOrderSort = workOrderSort
             wo.WorkTitle = workTitle
-            
+
             wo.ReqInfo = reqInfo
             wo.WorkText = workText
             wo.WoStatus = woStatusCd
@@ -1623,10 +1577,11 @@ def work_order(context):
                 wo.EndDt = endDt
             wo.DeptPk = deptPk
             wo.WorkChargerPk = workChargerPk
-            
+
             wo.ApprLine = apprLine
             wo.ApprLineNext = apprLineNext
-            wo.ReqDeptPk = reqDeptPk
+            # 로그인 사용자의 부서 PK를 사용
+            wo.ReqDeptPk = user.userprofile.Depart.id if user.userprofile.Depart else None
             #req_dept_busi_cd
             wo.BreakdownDt = breakdown_dt if breakdown_dt else None
 
@@ -1690,7 +1645,7 @@ def work_order(context):
              , wo.work_order_no
              , '작성(생성)' as after_status_nm
              , wo.insert_ts as change_ts
-             , coalesce(wo.inserter_nm, fn_user_nm(cu."Name", 'N')) as changer_nm
+             , coalesce(wo.inserter_nm, cm_fn_user_nm(cu."Name", 'N')) as changer_nm
              , '' AS change_reason
             from cm_work_order wo
             inner join user_profile cu on cu."User_id" = wo.INSERTER_ID::integer
@@ -1704,7 +1659,7 @@ def work_order(context):
                 , coalesce(woh.changer_nm, cm_fn_user_nm(cu."Name", 'N')) as changer_nm
                 , woh.change_reason
             from cm_work_order_hist woh
-            inner join cm_base_code aws on woh.after_status = aws.code_cd 
+            inner join cm_base_code aws on woh.after_status = aws.code_cd
             and aws.code_grp_cd = 'WO_STATUS'
             inner join user_profile cu on cu."User_id" = woh.changer_pk
             inner join cm_work_order wo on woh.work_order_pk = wo.work_order_pk
@@ -1727,7 +1682,7 @@ def work_order(context):
             FROM cm_wo_mtrl wm
             INNER JOIN cm_material m ON wm.mtrl_pk = m.mtrl_pk
             INNER JOIN cm_work_order wo ON wm.work_order_pk = wo.work_order_pk
-            LEFT JOIN cm_equip_part_mtrl epm ON wm.mtrl_pk = epm.mtrl_pk 
+            LEFT JOIN cm_equip_part_mtrl epm ON wm.mtrl_pk = epm.mtrl_pk
             AND wo.equip_pk = epm.EQUIP_PK
             WHERE wm.work_order_pk = %(workOrderPk)s
             AND m.allow_add_bom = 'Y'
@@ -1815,7 +1770,7 @@ def work_order(context):
             items = DbUtil.get_row(sql, dc)
 
         elif action == 'updateFirstAssetStatus':
-            ''' 
+            '''
             '''
             equipPk = CommonUtil.try_int(posparam.get('equipPk'))
             firstAssetStatus = posparam.get('firstAssetStatus')
@@ -1826,7 +1781,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'deleteWoLabor':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             q = CmWoLabor.objects.filter(WorkOrder_id=workOrderPk)
@@ -1835,7 +1790,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'deleteWoMtrl':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             q = CmWoMtrl.objects.filter(WorkOrder_id=workOrderPk)
@@ -1844,7 +1799,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'deleteWoSupplier':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             q = CmWorkOrderSupplier.objects.filter(WorkOrder_id=workOrderPk)
@@ -1853,7 +1808,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'deleteWoFaultLoc':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             q = CmWoFaultLoc.objects.filter(WorkOrder_id=workOrderPk)
@@ -1862,7 +1817,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'deleteWohist':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             q = CmWorkOrderHist.objects.filter(WorkOrder_id=workOrderPk)
@@ -1871,7 +1826,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'deleteWo':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             q = CmWorkOrder.objects.filter(id=workOrderPk)
@@ -1880,7 +1835,7 @@ def work_order(context):
             items = {'success': True}
 
         elif action == 'updateCostInfo':
-            ''' 
+            '''
             '''
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             totCost = CommonUtil.try_int(posparam.get('totCost'))
@@ -1900,7 +1855,7 @@ def work_order(context):
 
             items = {'success': True}
 
- 
+
     except Exception as ex:
         source = 'kmms/work_order : action-{}'.format(action)
         LogWriter.add_dblog('error', source , ex)
@@ -1916,3 +1871,24 @@ def work_order(context):
             return items
 
     return items
+
+def generate_wo_number():
+    today = datetime.today().strftime('%Y%m%d')
+    prefix = f"WO-{today}-"
+
+    # 오늘 날짜의 마지막 WO 번호 조회
+    today_max_wo = CmWorkOrder.objects.filter(
+        WorkOrderNo__startswith=prefix,
+        # DelYn='N'  # 삭제되지 않은 데이터만
+    ).order_by('-WorkOrderNo').first()
+
+    if today_max_wo:
+        # 마지막 번호에서 순번 추출하여 1 증가
+        last_sequence = int(today_max_wo.WorkOrderNo[-3:])
+        new_sequence = str(last_sequence + 1).zfill(3)
+    else:
+        # 해당 날짜의 첫 번호
+        new_sequence = '001'
+
+    WorkOrderNo = f"{prefix}{new_sequence}"
+    return WorkOrderNo

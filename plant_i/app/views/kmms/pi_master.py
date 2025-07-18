@@ -1,4 +1,4 @@
-﻿from django.db import transaction
+from django.db import transaction
 from domain.services.sql import DbUtil
 from domain.models.user import Depart, User
 # from domain.models.kmms import PreventiveMaintenance  
@@ -252,7 +252,7 @@ def pi_master(context):
         select ecs.chk_sche_pk						/* 점검일정Pk */
 						, ecs.chk_sche_no 					/* 점검일정번호 */
 						, ecm.chk_mast_pk 					/* 점검Pk */
-						, fn_user_nm(cu.user_nm, cu.del_yn) as chk_user_nm 		/* 점검담당자 */
+						, cm_fn_user_nm(cu."Name", cu.del_yn) as chk_user_nm 		/* 점검담당자 */
 						, bc.code_nm as chk_status_nm 		/* 점검상태 */
 						, ecm.insert_ts as plan_insert_ts	/* 점검일정 생성일 */
 						, ecs.chk_sche_dt					/* 점검계획일 */
@@ -263,7 +263,7 @@ def pi_master(context):
 		    inner join cm_base_code bc on ecs.chk_status=bc.code_cd and (bc.code_grp_cd='CHK_STATUS')
 		    inner join cm_equip_chk_rslt ecr on ecs.chk_sche_pk=ecr.chk_sche_pk
 		    inner join cm_equipment e on ecr.equip_pk=e.equip_pk
-		    left outer join cm_user_info cu on ecs.chk_user_pk = cu.user_pk
+		    left outer join user_profile cu on ecs.chk_user_pk = cu."User_id"
 		where 1=1
 		    and ecm.chk_mast_pk = %(chkMastPk)s
 		group by ecs.chk_sche_pk
@@ -271,7 +271,7 @@ def pi_master(context):
 				, ecm.chk_mast_pk
 				, ecm.chk_mast_no
 				, ecm.chk_mast_nm
-				, cu.user_nm
+				, cu."Name"
 				, cu.del_yn
 				, bc.code_nm
 				, bc.code_cd
@@ -299,14 +299,14 @@ def pi_master(context):
 		        , t.plan_start_dt 				/* 작업계획일 */
 		        , t.end_dt 					/* 작업완료일 */
 		        , ecm.chk_user_pk as chk_mast_pk
- 		        , fn_user_nm(pmu.user_nm, pmu.del_yn) as chk_user_nm		/* 담당자 */
+ 		        , cm_fn_user_nm(pmu."Name", pmu.del_yn) as chk_user_nm		/* 담당자 */
         from cm_work_order t
 	        inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
 	        inner join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
 	        inner join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
 	        inner join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
 	        inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
-	        left outer join cm_user_info pmu on ecm.chk_user_pk = pmu.user_pk
+	        left outer join user_profile pmu on ecm.chk_user_pk = pmu."User_id"
         where ecm.chk_mast_pk = %(chkMastPk)s
 	        and t.plan_start_dt < to_date(REPLACE(CURRENT_DATE::varchar, '-', ''), 'YYYYMMDD')
 	        order by t.end_dt desc	/* 작업 완료일 */				
@@ -317,6 +317,40 @@ def pi_master(context):
         except Exception as ex:
             LogWriter.add_dblog('error','PiService.get_pi_wo_detail', ex)
             raise ex
+
+    #점검 결과 조회
+    elif action=='findAllCheckResult':
+        searchText = gparam.get('searchText', None)
+        chkRslt = gparam.get('chkRslt', None)
+        chkStatus = gparam.get('chkStatus', None)
+        deptPk = gparam.get('deptPk', None)
+        start_date = gparam.get('start_date', None)
+        end_date = gparam.get('end_date', None)
+
+        chk_legal = gparam.get('chk_legal', None)
+        chk_my_task = gparam.get('chk_my_task', None)
+
+        user_pk = user.id
+        
+        items = pi_master_service.findAllCheckResult(searchText, chkRslt, chkStatus, deptPk, start_date, end_date, chk_legal, chk_my_task, user_pk)
+
+    #점검이상 발행WO 조회
+    elif action=='findAllCheckWoIssued':
+        searchText = gparam.get('searchText', None)
+        chkScheNo = gparam.get('chkScheNo', None)
+        workOrderNo = gparam.get('workOrderNo', None)
+        deptPk = gparam.get('deptPk', None)
+        equipDeptPk = gparam.get('equipDeptPk', None)
+
+        environEquipYn = gparam.get('environEquipYn', None)
+        myRequestYn = gparam.get('myRequestYn', None)
+        
+        start_date = gparam.get('start_date', None)
+        end_date = gparam.get('end_date', None)
+
+        user_pk = user.id
+
+        items = pi_master_service.findAllCheckWoIssued(searchText, chkScheNo, deptPk, environEquipYn, equipDeptPk, myRequestYn, workOrderNo, start_date, end_date, user_pk)
 
     #점검일정생성(수동)에서 점검마스터 리스트
     elif action=='findAll4Schedule':    
@@ -355,8 +389,10 @@ def pi_master(context):
         calDeptPk = gparam.get('calDeptPk', None)
         calChkUserPk = gparam.get('calChkUserPk', None)
         calSearchType = gparam.get('calSearchType', None)
+        fromDate = gparam.get('calFromDate', None)
+        toDate = gparam.get('calToDate', None)
 
-        items = pi_master_service.selectEquipChkScheSimulationCycleByMon(calDeptPk, calChkUserPk,calSearchType )
+        items = pi_master_service.selectEquipChkScheSimulationCycleByMon(calDeptPk, calChkUserPk,calSearchType,fromDate,toDate )
 
     elif action == 'selectEquipChkScheSimulationByMon':
         calDeptPk = gparam.get('calDeptPk', None)

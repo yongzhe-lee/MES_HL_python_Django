@@ -36,7 +36,7 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="delay_days" data-labelCd="경과일수(계획 마침일)">경과일수(계획 마침일)</label>
+                            <label class="k-label k-form-label" for="delay_days" data-labelCd="경과일수">경과일수</label>
                             <div class="field-wrapper">
                                 <input type="number" value="30" id="delay_days" name="delay_days" />
                             </div>
@@ -99,7 +99,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="work_order_grid"></div>
+                <div id="work_order_pending_list_grid"></div>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
 {% include '../../popup/modalEquSel.html'%}
 
 <script type="text/javascript">
-    class WorkOrderPage {
+    class WorkOrderPendingListPage {
         constructor() {
             this.grid = null;
             this.upload = null;
@@ -174,7 +174,7 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#work_order_grid"), woGridOption);
+            _this.grid = new Grid($("#work_order_pending_list_grid"), woGridOption);
 
             // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
             // 임시 저장일 경우에만 클릭이 가능하고 클릭할 경우 편집 팝업 기능 필요
@@ -214,13 +214,13 @@
                     _this.searchMainData();
                 }
             });
-            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
             $('#delay_days').kendoTextBox();
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
             AjaxUtil.fillDropDownOptions($('#problem_cd'), 'cm_reliab_codes', 'all', null, 'PC');
             AjaxUtil.fillDropDownOptions($('#cause_cd'), 'cm_reliab_codes', 'all', null, 'CC');
-            AjaxUtil.fillDropDownOptions($('#remedy_nm'), 'user_code', 'all', null, 'CYCLE_TYPE');
+            AjaxUtil.fillDropDownOptions($('#remedy_nm'), 'cm_reliab_codes', 'all', null, 'RC');
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
 
             //form button
@@ -256,17 +256,15 @@
             let _this = this;
 
             let param = {
-                action: 'read',
+                action: 'work_order_pending_list_read',
                 keyword: $('#keyword').val(),
                 req_dept: $("#req_dept").data("kendoDropDownTree").value(),
                 dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
-                problem_cd: $('#problem_cd').val(),
-                cause_cd: $('#cause_cd').val(),
-                //경과일수 delay_days
+                delay_days: $('#delay_days').val(),
                 maint_type_cd: $('#maint_code').val(),
                 problem_cd: $('#problem_cd').val(),
                 cause_cd: $('#cause_cd').val(),
-                // 조치 remedy_nm
+                remedy_nm: $('#remedy_nm').val(),
 
                 srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
             };
@@ -277,16 +275,16 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#work_order_grid').data("kendoGrid");
+            let gridData = $('#work_order_pending_list_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "equipment.xlsx";
+                e.workbook.fileName = "work_order_pending_list.xlsx";
             });
             gridData.saveAsExcel();
         }
     };
 
     let page = null;
-    page = new WorkOrderPage();
+    page = new WorkOrderPendingListPage();
 
     $(document).ready(function () {
         page.searchMainData();

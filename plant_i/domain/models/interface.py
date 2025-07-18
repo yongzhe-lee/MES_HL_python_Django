@@ -294,6 +294,7 @@ class IFEquipemntDefectItems(models.Model):
     defect_nm = models.CharField('결함명', max_length=100, null=True)
     ComponentName = models.CharField('컴포넌트명(포지션)', max_length=100, null=True, db_column="comp_nm")
     PartNumber = models.CharField('부품번호', max_length=100, null=True, db_column="part_num")
+    final_result = models.CharField('최종결론', max_length=100, null=True, db_column="final_result") # OK / NG
 
     _status = models.CharField('_status', max_length=10, null=True)
     _created = models.DateTimeField('_created', auto_now_add=True)
@@ -323,7 +324,6 @@ class IFEquipmentRecipe(models.Model):
         unique_together = [
             ["EquipmentResult", "GroupName", "item_cd"]
         ]
-
 
 class IFMounterPickupRate(models.Model):
     '''
@@ -361,6 +361,48 @@ class IFMounterPickupRate(models.Model):
     class Meta():
         db_table = 'if_mnt_pickup_rate'
         verbose_name = 'mouter pickup rate'
+
+
+class IFReflowProfile(models.Model):
+    id = models.AutoField(primary_key=True)
+    data_id = models.IntegerField("데이터ID", db_column="data_id", null=True) # 처음에 저장할 때는 null로 저장하고, 이후에 설정
+    MeasuredAt = models.DateTimeField('측정일시', db_column='measured_at')
+    MaterialCode = models.CharField('품목코드', max_length=50, null=True, db_column="mat_cd")
+    EquipmentCode = models.CharField('설비코드', max_length=50, null=True, db_column="equ_cd") # plant_i 설비코드
+    PCBSide = models.CharField('기판방향', max_length=50, null=True,  db_column="pcb_side") # TOP/BOTTOM
+    FanLevel = models.SmallIntegerField("Fan레벨", null=True,  db_column="fan_level")
+    MaxPeakTemperature = models.DecimalField("최대온도(Peak)", null=True, db_column = "max_peak_temp", decimal_places=2, max_digits=5)
+    PreHeatingTemperature = models.DecimalField("Pre heating", null=True, db_column = "pre_heat_temp", decimal_places=2, max_digits=5)
+    DeltaCollingTemperature = models.DecimalField("delta temperature(cooling)", null=True, db_column = "delta_cool_temp", decimal_places=2, max_digits=5)
+    AboveDegreeSecond = models.SmallIntegerField("Above 220 degree Second", null=True, db_column = "above_deg_sec")
+    FluxDwellSecond = models.SmallIntegerField("Flux Dwell Second", null=True, db_column = "flux_dwell_sec")
+    DeltaPeakTemperature = models.DecimalField("delta temperature(peak)", null=True, db_column = "delta_peak_temp", decimal_places=2, max_digits=5)
+    OxygenConcentration = models.IntegerField("Oxygen concentration", null=True, db_column="oxy_conc" )
+    CBSPosition = models.SmallIntegerField("CBS position", null=True, db_column = "cbs_pos")
+    Acceptable = models.CharField('Acceptable', max_length=10, null=True,  db_column="acceptable") # TOP/BOTTOM
+    Description = models.TextField('문제점 및 조치사항', null=True, db_column="description")
+
+    _status = models.CharField('_status', max_length=10, null=True, db_comment="상태 정보")
+    _created = models.DateTimeField('_created', auto_now_add=True, db_comment="생성 일시")
+    _modified = models.DateTimeField('_modfied', auto_now=True, null=True, db_comment="수정 일시")
+    _creater_id = models.IntegerField('_creater_id', null=True, db_comment="생성자 ID")
+    _modifier_id = models.IntegerField('_modifier_id', null=True, db_comment="수정자 ID")
+
+    def set_audit(self, user):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+
+    class Meta():
+        db_table = 'if_reflow_profile'
+        verbose_name = 'Reflow Profile'
+        unique_together = [
+          ["MeasuredAt", "MaterialCode", "PCBSide"]
+        ]
+
 
 class IFQmsDefect(models.Model):
     '''

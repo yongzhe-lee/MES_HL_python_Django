@@ -15,6 +15,7 @@
 						<div class="form-item align-h">
 							<label class="k-label k-form-label">검색키워드</label>
 							<input id="keyword" name="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
+							<button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
 						</div>
 					</div>
 					<div class="col-auto">
@@ -57,6 +58,7 @@
 					<div class="col-auto">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label">다음 주기일</label>
+							<div id="date_chk" name="isDateChecked"></div>
 							<div id="srch_date_range"></div>
 						</div>
 					</div>
@@ -153,7 +155,7 @@
 {% include '../../popup/modalEquSel.html'%}
 {% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalOccupations.html'%}
-{% include '../../popup/modalMatSel.html'%}
+{% include '../../popup/modalMatMultiSel.html'%}
 
 <script type="text/javascript">
 	class PmMasterPage {
@@ -171,20 +173,9 @@
 			this.init();
 		}
 
-		/**
-		 * 그리드와 검색 조건을 초기화하는 함수
-		 */
-		resetData() {
-			// 그리드 초기화
-			if (this.grid) {
-				this.grid.setData([]);
-			}
-			FormUtil.resetForm($("#searchForm"));
-		}
-
 		init() {
 			let _this = this;
-			let equipmentGridOption = {
+			let pmMasterGridOption = {
 				toolbar: [
 					"columns"
 				],
@@ -214,11 +205,14 @@
 					{ field: 'equip_nm', title: '설비명', width: 150 },
 					{ field: 'import_rank_nm', title: '중요도', width: 80 },
 					{ field: 'dept_nm', title: '실행부서', width: 100 },
-					{ field: 'mng_dept_nm', title: '관리부서', width: 100 },
+					{ field: 'mdept_nm', title: '관리부서', width: 100 },
 					{ field: 'loc_nm', title: '설비위치', width: 120 },
 					{ field: 'pm_user_nm', title: 'PM 담당자', width: 100 },
 					{ field: 'pm_type_nm', title: 'PM 유형', width: 80 },
-					{ field: 'cycle_type_nm', title: '주기', width: 50 }
+					{ field: 'per_number', title: '주기', width: 80 },
+					{ field: 'cycle_type_nm', title: '주기단위', width: 80 },
+					{ field: 'sched_start_dt', title: '주기 시작일', width: 80 },
+					{ field: 'next_chk_date', title: '다음 주기일', width: 100 },
 				],
 
 				dataBound: function (e) {
@@ -254,7 +248,7 @@
 				},
 				height: "540px"
 			};
-			_this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
+			_this.grid = new Grid($("#pm_master_grid"), pmMasterGridOption);
 
 			let piDetailGridOption = {
 				toolbar: [
@@ -299,11 +293,27 @@
 
 			_this.gridDetail = new Grid($("#piDetailGrid"), piDetailGridOption);
 
+			$("#equKeword").kendoButton({
+				icon: "k-i-zoom-in",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+					equipSelectPage.show(function (data) {
+						$("#keyword").val(data.equip_cd);
+					});
+				}
+			});
 			$('#keyword').kendoTextBox();
-
+			$('#keyword').keypress(function (e) {
+				if (e.keyCode === 13) {
+					e.preventDefault();
+					_this.searchMainData();
+				}
+			});
 			AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "select");
-			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
-			AjaxUtil.fillDropDownTreeOptions($("#srch_pmDept"), "cm_depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_pmDept"), "depart", "select");
 			AjaxUtil.fillDropDownOptions($('#serchPmType'), 'cm_base_code', 'choose', null, 'PM_TYPE');
 
 			$("#srchApplyYn").kendoDropDownList({
@@ -336,6 +346,10 @@
 				}
 			});
 
+			$('#date_chk').kendoSwitch({
+				checked: false
+			});
+
 			$('#chk_my_task').kendoSwitch({
 				checked: false
 			});
@@ -344,19 +358,24 @@
 				checked: false
 			});
 
-			//search form
+			let today = new Date();
+			let firstDayOfMonth = new Date(today);
+			firstDayOfMonth.setDate(1);
+			let tomorrow = new Date(today);
+			tomorrow.setDate(today.getDate() + 1);
+
 			$("#srch_date_range").kendoDateRangePicker({
 				range: {
-					start: new Date(),
-					end: new Date()
+					start: firstDayOfMonth,
+					end: tomorrow
 				},
 				change: function (e) {
 
 				},
 				format: "yyyy-MM-dd",
 				labels: false,
-				startField: "start_date",
-				endField: "end_date"
+				startField: "start_dt",
+				endField: "end_dt"
 			});
 
 			$('#btnAdd').kendoButton({
@@ -412,15 +431,15 @@
 				fillMode: "outline",    // outline 스타일로 변경
 				click: function (e) {
 					e.preventDefault();
-					
+
 					let calParam = {
 						action: 'selectEquipChkScheSimulationCycleByMon',
 						deptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
 						userPk: $('#calChkUserPk').data('kendoDropDownList').value(),
 						calSearchType: $('#calSearchType').data('kendoDropDownList').value()
 					};
-
-					_this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pi_master', calParam);
+			
+					_this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pm_master', calParam);
 					_this.holidayInfo = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayInfoRes' });
 					_this.holidayCustom = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayCustom' });
 
@@ -454,6 +473,12 @@
 		searchMainData() {
 			let pm_search_param = FormUtil.extractForm($("#searchForm"));
 			pm_search_param.action = 'findAll';
+
+			let isDateChecked = pm_search_param.isDateChecked;
+			let startDate = isDateChecked == 'Y' ? pm_search_param.start_dt : '';
+			let endDate = isDateChecked == 'Y' ? pm_search_param.end_dt : '';
+			pm_search_param.start_dt = startDate;
+			pm_search_param.end_dt = endDate;
 
 			let result = AjaxUtil.getSyncData(this.baseUrl, pm_search_param);
 			if (result) {
@@ -498,7 +523,7 @@
 					});
 				});
 			}
-			console.log('schedulerData', mergedData);
+			
 			var dataSource = new kendo.data.SchedulerDataSource({
 				data: mergedData,
 				schema: {

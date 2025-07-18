@@ -228,7 +228,7 @@ class AASDataService():
         select 
         sme.sme_pk
         , sme_parent.sme_pk as p_sme_pk
-        , sm.sm_pk
+        , sm.sm_pk as p_sm_pk
         , sm.id as sm_id
         , sm.id_short sm_id_short
         , sme.id_short
@@ -249,7 +249,7 @@ class AASDataService():
         select 
         aa.sme_pk 
         , aa.p_sme_pk
-        , aa.sm_pk
+        , aa.p_sm_pk
         , aa.sm_id
         , aa.sm_id_short
         , aa.id_short
@@ -318,6 +318,60 @@ class AASDataService():
         , aa.value
         , aa.value_id
         , aa.value_id_ref_type
+        , aa.semantice_type
+        , aa.semanctic_id
+        , fn_json_lang_text(aa.p_display_name, %(lang_code)s) as p_display_name
+        , aa."p_modelType"
+        , to_char(aa._created, 'yyyy-mm-dd hh24:mi:ss') created
+        from aa
+        '''
+        data = DbUtil.get_row(sql, dic_param)
+        return data
+    def get_file_detail(self, sme_pk, lang_code):
+        '''
+        FileElement 단건 상세조회
+        '''
+        dic_param = {"sme_pk": sme_pk, 'lang_code' : lang_code}
+        sql='''
+        with aa as(
+        select 
+        se.sme_pk
+        , se.sm_pk
+        , se.id_short
+        , se."modelType"
+        , se."ModelKind"
+        , se.category
+        , se."displayName"
+        , se.description 
+        , 'file' as gubun
+        , fe.value
+        , fe.content_type
+        , fe.filename
+        , rs."type" as semantice_type
+        , se.semanctic_id
+        , case when sm.sm_pk is null then sme_parent."displayName" else sm."displayName" end as p_display_name
+        , case when sm.sm_pk is null then sme_parent."modelType" else 'Submodel' end as "p_modelType"  
+        , se._created
+        from submodel_element se 
+        inner join file_element fe on se.sme_pk =fe.sme_pk
+        left join submodel sm on sm.sm_pk  = se.sm_pk 
+        left join submodel_element_collection_values secv on secv.dbsubmodelelement_id  = se.sme_pk
+        left join submodel_element sme_parent on sme_parent.sme_pk = secv.dbsubmodelelementcollection_id
+        left join reference rs on rs.ref_pk = se.semanctic_id 
+        where se.sme_pk=%(sme_pk)s
+        )
+        select
+        aa.sme_pk
+        , aa.sm_pk
+        , aa.id_short
+        , aa."modelType"
+        , aa."ModelKind"
+        , aa.category
+        , fn_json_lang_text(aa."displayName", %(lang_code)s) as "displayName"
+        , fn_json_lang_text(aa.description, %(lang_code)s) as description
+        , aa."displayName" as json_displayname
+        , aa.description as json_description
+        , aa.value
         , aa.semantice_type
         , aa.semanctic_id
         , fn_json_lang_text(aa.p_display_name, %(lang_code)s) as p_display_name

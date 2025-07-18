@@ -1,5 +1,5 @@
 from datetime import datetime
-from domain.models.mes import DefectType
+from domain.models.definition import DefectType
 from domain.services.definition.defect_type import DefectTypeService
 from domain.services.logging import LogWriter
 

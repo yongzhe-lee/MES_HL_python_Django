@@ -12,26 +12,10 @@
         <form class="search-form" id="searchForm">
             <div class="card-content search">
                 <div class="form-ui">
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
-                            <div class="field-wrapper">
-                                <select id="cboLine" name="cboLine"></select>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
-                            <div class="field-wrapper">
-                                <select id="cboEquip" name="cboEquip"></select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" data-labelCd="기간"> 기간</label>
+                            <label class="k-label k-form-label" data-labelCd="일자"> 일자</label>
                             <div class="field-wrapper">
                                 <div id="srchDt">
                                     <div class="input-group-append">
@@ -56,7 +40,35 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select id="cboLine" name="cboLine"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
+                            <div class="field-wrapper">
+                                <select id="cboEquip" name="cboEquip"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboTagGroup" data-labelCd="태그그룹">태그그룹</label>
+                            <div class="field-wrapper">
+                                <select id="cboTagGroup" name="cboTagGroup"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
                             <div class="field-wrapper">
@@ -64,9 +76,13 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-auto">
-                        <input type="checkbox" id="chkOutlier" name="chkOutlier" />
+                        <div class="field-wrapper">
+                            <input type="checkbox" id="chkOutlier" name="chkOutlier" />
+                        </div>
                     </div>
+
                     <div class="col-auto">
                         <div class="card-group-btn search">
                             <button class="btn-search" id="btnSearch" title="조회">조회</button>
@@ -166,15 +182,13 @@
         init() {
             let _this = this;
 
+            //$("#srchDate").kendoDatePicker({
+            //    format: "yyyy-MM-dd",
+            //    value: new Date()
+            //});
 
-
-            $("#srchDate").kendoDatePicker({
-                format: "yyyy-MM-dd",
-                value: new Date()
-            });
-
-            $("#srchStartTm").kendoTimePicker({ dateInput: true, value: '09:00' });
-            $("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
+            //$("#srchStartTm").kendoTimePicker({ dateInput: true, value: '09:00' });
+            //$("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
 
 
             //console.log('chartBoxplotMulti result', _this.result);
@@ -472,41 +486,90 @@
             end_time: end_date,
             tag_codes: tag_codes
         };
-        let result = AjaxUtil.getSyncData(url, param);
 
-        //chartMulti = new chartBoxplotMulti();
-        //page.drawMultiBoxPlot(result);
-        if (page.chart_multi) {
-            page.chart_multi.destroy();
-            page.chart_multi = null;
-        }
-        page = new chartBoxplotMulti('상자수염그림', result);
+        kendo.ui.progress($("#divChart"), true); // data 로딩 ui 시작
 
-        chart_list.forEach(function (item, idx) {
-            if (item != null) {
-                 if (item.chart) {
-                    //console.log('chart destroy', idx);
-                    item.chart.destroy();
-                    item.chart = null;
+        let succFunc = function (result) {
+            if (result.success) {
+
+                let data = result.data;
+
+                if (page.chart_multi) {
+                    page.chart_multi.destroy();
+                    page.chart_multi = null;
                 }
-            }
-        });
-        $('#divChart').empty();
+                page = new chartBoxplotMulti('상자수염그림', data);
 
-        $.each(result, function (index, item) {
-            //console.log('item', index, item);
-            let html = '<div class="col-lg-4"><div id="chart' + index + '" class="chart_border"></div> </div> ';
-            $('#divChart').append(html);
-            let chart = null;
-            if (show_outlier)
-                chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, item.outlier);
-            else
-                chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, []);
-            //chart.updateOptions(options);
-            //chart.updateSeries(series);
-            //chart.render();
-            chart_list.push(chart);
-        });
+                chart_list.forEach(function (item, idx) {
+                    if (item != null) {
+                         if (item.chart) {
+                            //console.log('chart destroy', idx);
+                            item.chart.destroy();
+                            item.chart = null;
+                        }
+                    }
+                });
+
+                $('#divChart').empty();
+
+                $.each(data, function (index, item) {
+                    //console.log('item', index, item);
+                    let html = '<div class="col-lg-4"><div id="chart' + index + '" class="chart_border"></div> </div> ';
+                    $('#divChart').append(html);
+                    let chart = null;
+                    if (show_outlier)
+                        chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, item.outlier);
+                    else
+                        chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, []);
+                    //chart.updateOptions(options);
+                    //chart.updateSeries(series);
+                    //chart.render();
+                    chart_list.push(chart);
+                });
+
+            }
+            else {
+                Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);
+            }
+
+            kendo.ui.progress($("#divChart"), false); // data 로딩 ui 종료
+        }
+
+        AjaxUtil.getAsyncData(url, param, succFunc);
+
+        //let result = AjaxUtil.getSyncData(url, param);
+
+        //if (page.chart_multi) {
+        //    page.chart_multi.destroy();
+        //    page.chart_multi = null;
+        //}
+        //page = new chartBoxplotMulti('상자수염그림', result);
+
+        //chart_list.forEach(function (item, idx) {
+        //    if (item != null) {
+        //         if (item.chart) {
+        //            //console.log('chart destroy', idx);
+        //            item.chart.destroy();
+        //            item.chart = null;
+        //        }
+        //    }
+        //});
+        //$('#divChart').empty();
+
+        //$.each(result, function (index, item) {
+        //    //console.log('item', index, item);
+        //    let html = '<div class="col-lg-4"><div id="chart' + index + '" class="chart_border"></div> </div> ';
+        //    $('#divChart').append(html);
+        //    let chart = null;
+        //    if (show_outlier)
+        //        chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, item.outlier);
+        //    else
+        //        chart = new chartBoxplot('chart_' + index, item.data_name, item.box_data, []);
+        //    //chart.updateOptions(options);
+        //    //chart.updateSeries(series);
+        //    //chart.render();
+        //    chart_list.push(chart);
+        //});
     }
 
     function page_start() {
@@ -529,6 +592,13 @@
         ];
         page = new chartBoxplotMulti('sample', result);
 
+        $("#srchDate").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: new Date()
+        });
+
+        $("#srchStartTm").kendoTimePicker({ dateInput: true, value: '09:00' });
+        $("#srchEndTm").kendoTimePicker({ dateInput: true, value: '18:00' });
 
         let rows = AjaxUtil.getSelectDataWithNull('tag', '', null);
         let dataSource = new kendo.data.DataSource({
@@ -547,6 +617,7 @@
         // 라인, 설비
         let line = $('#cboLine');
         let equip = $('#cboEquip');
+        let tag_grp = $('#cboTagGroup');
         let tag = $("#cboTag").data("kendoMultiSelect");
 
         AjaxUtil.fillDropDownOptions(line, 'line', 'all', null);
@@ -557,6 +628,13 @@
         AjaxUtil.fillDropDownOptions(equip, 'equipment', 'all', null);
         equip.change(function (e) {
             dataSource._data = AjaxUtil.getSelectDataWithNull('tag', '', equip.val());
+            tag.setDataSource(dataSource);
+        });
+
+        AjaxUtil.fillDropDownOptions(tag_grp, 'tag_group', 'all', null);
+        // 태그 그룹이 선택되면, 해당하는 tag 목록만 반환
+        tag_grp.change(function (e) {
+            dataSource._data = AjaxUtil.getSelectDataWithNull('tag', '', null, tag_grp.val());
             tag.setDataSource(dataSource);
         });
 
@@ -574,6 +652,7 @@
     }
 
     page_start();
+
     $(document).ready(function (e) {    
         searchMainData();
     });

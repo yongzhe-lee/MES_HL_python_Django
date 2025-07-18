@@ -4,7 +4,7 @@
 'use strict';
 
 let Alert = {
-    alert: function (title, content, okText = '확인') {
+    alert: function (title, content, okText = '확인', focusTarget = null) {
         if (!title) {
             title = i18n.getCommonText('정보');
         }
@@ -25,6 +25,17 @@ let Alert = {
                     if (title.toLowerCase().includes('error') || title.includes('오류')) {
                         $wrapper.addClass("error");
                     }
+                }
+            },
+            close: function () {               
+                // 확인 버튼 클릭 시 focusTarget이 input이면 focus
+                if (focusTarget) {                   
+                    setTimeout(function() {
+                        let $el = $(focusTarget);
+                        if ($el.length && $el.is('input')) {
+                            $el[0].focus();
+                        }
+                    }, 200);
                 }
             }
         });
@@ -636,6 +647,15 @@ let FormUtil = {
                 }
             });
 
+            // kendoMultiSelect 상태 처리 (여러 값 ,로 연결)
+            $form.find('[data-role="multiselect"]').each(function () {
+                let multiName = $(this).attr('name');
+                let multiWidget = $(this).data("kendoMultiSelect");
+                if (multiWidget) {
+                    let selected = multiWidget.value();
+                    values[multiName] = Array.isArray(selected) ? selected.join(',') : selected;
+                }
+            });
 
         }
         disabledFields.map(val => {
@@ -1340,21 +1360,18 @@ let AjaxUtil = {
 
     },
 
-    fillDropDownTreeOptions: function ($combo, $combo_type, null_option) {
+    fillDropDownTreeOptions: function ($combo, $combo_type, null_option, con1) {
         let _url = '';
         switch ($combo_type)
         {
             case 'depart':
                 _url = '/api/system/depart?action=depart_tree';
                 break;
-            case 'cm_depart':
-                _url = '/api/system/depart?action=cm_depart_tree';
-                break;
             case 'cm_location':
                 _url = '/api/definition/location?action=cm_loc_tree';
                 break;
             case 'cm_equip_classify':
-                _url = '/api/definition/equipment?action=cm_equip_classify_tree';
+                _url = '/api/definition/equipment?action=cm_equip_classify_tree&category=' + con1;
                 break;
             default:
                 break;
@@ -1393,6 +1410,25 @@ let AjaxUtil = {
         });
     },
 
+    fillMultiSelectOptions: function ($multiselect, $combo_type, null_option, selected_values, condition1, condition2, condition3) {
+        let rows = AjaxUtil.getSelectDataWithNull($combo_type, null_option, condition1, condition2, condition3);
+        $multiselect.empty();
+
+        $multiselect.kendoMultiSelect({
+            dataTextField: "text",
+            dataValueField: "value",
+            dataSource: rows,
+            placeholder: null_option == 'select' ? i18n.getCommonText('선택') : i18n.getCommonText('전체'),
+            filter: "contains",
+            clearButton: true
+        });
+
+        let multiselect = $multiselect.data("kendoMultiSelect");
+
+        if (selected_values && Array.isArray(selected_values) && selected_values.length > 0) {
+            multiselect.value(selected_values);
+        }
+    },
 };
 // kendo 공통 모듈화
 var kendoUtil = {
@@ -2468,6 +2504,60 @@ let yullinAuth = {
     },
 };
 
+let DateUtil = {
+    //
+    //  Kendo DatePicker의 날짜 범위를 서버 파라미터로 변환
+    //  @param {string} startDatePickerId - 시작일 DatePicker ID
+    //  @param {string} endDatePickerId - 종료일 DatePicker ID  
+    //  @param {string} dateType - 날짜 타입 ('month' 또는 'year')
+    //  @returns {Object} 서버로 전송할 날짜 파라미터 객체
+    // 
+    // dateType(월, 년)별 날짜 범위를 YYYYMMDD 형식의 파라미터로 변환
+    convertDateRangeToParam: function(startDatePickerId, endDatePickerId, dateType) {
+        let startDate = $(startDatePickerId).data("kendoDatePicker").value();
+        let endDate = $(endDatePickerId).data("kendoDatePicker").value();
+        let serverDateType = dateType === 'month' ? 'MON' : 'YEAR';
+        
+        let result = {
+            dateType: serverDateType,
+            startDt: '',
+            endDt: ''
+        };
+        
+        if (serverDateType == 'MON') {
+            let startYear = startDate.getFullYear();
+            let startMonth = startDate.getMonth();
+            let endYear = endDate.getFullYear();
+            let endMonth = endDate.getMonth();
+            
+            let startDateObj = new Date(startYear, startMonth, 1);
+            let endDateObj = new Date(endYear, endMonth + 1, 0);
+            
+            result.startDt = startDateObj.getFullYear().toString() + 
+                           String(startDateObj.getMonth() + 1).padStart(2, '0') + 
+                           String(startDateObj.getDate()).padStart(2, '0');
+            result.endDt = endDateObj.getFullYear().toString() + 
+                         String(endDateObj.getMonth() + 1).padStart(2, '0') + 
+                         String(endDateObj.getDate()).padStart(2, '0');
+        } else if (serverDateType == 'YEAR') {
+            let startYear = startDate.getFullYear();
+            let endYear = endDate.getFullYear();
+            
+            let startDateObj = new Date(startYear, 0, 1);
+            let endDateObj = new Date(endYear, 11, 31);
+            
+            result.startDt = startDateObj.getFullYear().toString() + 
+                           String(startDateObj.getMonth() + 1).padStart(2, '0') + 
+                           String(startDateObj.getDate()).padStart(2, '0');
+            result.endDt = endDateObj.getFullYear().toString() + 
+                         String(endDateObj.getMonth() + 1).padStart(2, '0') + 
+                         String(endDateObj.getDate()).padStart(2, '0');
+        }
+        
+        return result;
+    }
+};
+
 // 시간(hh24:mi)형식 validation
 let DataValidation = { timeCheck: null, validateTime: null };
 
@@ -2675,3 +2765,40 @@ function setModalPosition(childModalSelector, options = { width: '70%', height: 
         'z-index': settings.zIndex
     });
 }
+
+//JSON 표준 형식
+//특히 key / value 중 'Y', 'N'처럼 Boolean으로 처리할 수 있는 값은 true / false로 자동 변환
+function convertToJsonStandard(obj) {
+    const converted = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+        if (value === 'Y') {
+            converted[key] = true;
+        } else if (value === 'N') {
+            converted[key] = false;
+        } else if (!isNaN(value) && value.trim() !== '') {
+            // 숫자 문자열 → 숫자
+            converted[key] = Number(value);
+        } else {
+            converted[key] = value;
+        }
+    }
+
+    return converted;
+}
+function convertToYN(obj) {
+    const converted = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+        if (value === true) {
+            converted[key] = 'Y';
+        } else if (value === false) {
+            converted[key] = 'N';
+        } else {
+            converted[key] = value; // 숫자나 문자열은 그대로 유지
+        }
+    }
+
+    return converted;
+}
+

@@ -1,11 +1,202 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="작업부서">작업부서</label>
+                            <div class="field-wrapper">
+                                <input id="deptTree" name="deptPk"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="부서별 예방 정비율">부서별 예방 정비율</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="pmRateGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class DeptPmRatePage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.init();
+    }
+
+    init() {
+        this.initDatePicker();
+        this.initDeptTree();
+        this.initGrid();
+        this.bindEvents();
+    }
+
+    initDatePicker() {
+        let today = new Date();
+        let threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+        $("#searchDt").html('<input id="searchDt_start" name="startDt" style="width:120px;" /> ~ <input id="searchDt_end" name="endDt" style="width:120px;" />');
+
+        $("#searchDt_start").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: threeMonthsAgo
+        });
+        $("#searchDt_end").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: today
+        });
+    }
+
+    initDeptTree() {
+		AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: [],
+            },
+            columns: [
+                { 
+                    title: "작업부서", 
+                    field: "deptNm", 
+                    width: "150px" 
+                },
+                { 
+                    title: "총 WO 발행 건수", 
+                    field: "woTotCnt", 
+                    width: "150px", 
+                    template: "#=kendo.toString(woTotCnt, 'n0')#",
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "WO 완료 건수", 
+                    field: "woFinishCnt", 
+                    width: "150px", 
+                    template: "#=kendo.toString(woFinishCnt, 'n0')#",
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "PM WO 발행건수", 
+                    field: "pmTotCnt", 
+                    width: "150px", 
+                    template: "#=kendo.toString(pmTotCnt, 'n0')#",
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "PM WO 완료건수", 
+                    field: "pmFinishCnt", 
+                    width: "150px", 
+                    template: "#=kendo.toString(pmFinishCnt, 'n0')#",
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                },
+                { 
+                    title: "예방정비율", 
+                    field: "pmPercent", 
+                    width: "150px", 
+                    template: "#=pmPercent# %",
+                    attributes: { style: "text-align:right" },
+                    type: "number"
+                }
+            ],
+
+            scrollable: true,
+            pageable: false,
+            editable: false,
+            selectable: "row",
+            height: 400,
+            dataBound: function(e) {
+                let data = this.dataSource.data();
+            }
+        };
+        _this.grid = $("#pmRateGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    bindEvents() {
+        let _this = this;
+
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+        
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'dept_pm_rate';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+        let grid = $("#pmRateGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#pmRateGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "부서별_예방_정비율.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new DeptPmRatePage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

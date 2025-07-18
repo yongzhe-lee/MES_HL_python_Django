@@ -24,7 +24,7 @@
 	class ManagerSelPage {
 		constructor() {
 			this.grid = null;
-            this.baseUrl = '/api/kmms/wo_labor';
+            this.baseUrl = '/api/kmms/project';
 			this.callback = null;
 			this.init();
 		}
@@ -91,8 +91,7 @@
 
 		getManData() {
 			const param = {
-				/*action: 'findAll',*/
-                action: 'tempFindAll',
+                action: 'FindAllUser',
 				keyword: $('#keyword_man').val(),
 			};
 			const result = AjaxUtil.getSyncData(this.baseUrl, param);

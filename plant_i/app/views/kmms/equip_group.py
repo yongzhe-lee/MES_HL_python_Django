@@ -234,7 +234,10 @@ def equip_group(context):
                c = CmEquipClassify.objects.get(id=equipClassPk)
             
             except CmEquipClassify.DoesNotExist:
-                c = CmEquipClassify()            
+                c = CmEquipClassify()       
+
+            if classType == 'TYPES':
+                categoryId = CmEquipClassify.objects.get(EquipClassCode=parentId).CategoryCode
 
             c.EquipClassCode = equipClassId
             c.EquipClassDesc = equipClassDesc

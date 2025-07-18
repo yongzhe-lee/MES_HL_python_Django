@@ -54,14 +54,17 @@
             <div class="card-content grid">
                 <div class="card-group-btn">
                     <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="마운터 픽업레이트">마운터 픽업레이트</label></span>
-                    <span>
-                    </span>
+                    <span></span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
                 <div id="pickup_rate_grid"></div>
+                <div class="card-group-btn">
+                    <span>max limit : 1000 row</span>
+                </div>
+
             </div>
         </div>
 
@@ -90,9 +93,9 @@
             let _this = this;
             let gridOption = {
                 columns: [
-                    { field: "job", title: "job", width: 300 },
+                    { field: "job", title: "job", width: 350 },
                     { field: "position", title: "position", width: 100 },
-                    { field: "partNumber", title: "partNumber", width: 120 },
+                    { field: "part_num", title: "Part Number", width: 120 },
                     { field: "fidl", title: "fidl", width: 120 },
                     { field: "pickup", title: "픽업횟수", width: 100 },
                     { field: "no_pickup", title: "픽업실패횟수", width: 100 },
@@ -110,10 +113,8 @@
                     { field: "data_date", title: "전송일시", width: 160 },
                 ],
                 change: function (e) {
-                    _this.showResultItemList();
-                    _this.showDefectItemList();
                 },
-                height: "500px"
+                height: 700
             };
             _this.grid = new Grid($("#pickup_rate_grid"), gridOption);
 

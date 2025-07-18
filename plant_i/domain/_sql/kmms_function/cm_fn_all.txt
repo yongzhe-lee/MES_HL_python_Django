@@ -1,4 +1,4 @@
-﻿-- DROP FUNCTION public.cm_fn_dateadd(date, varchar, numeric);
+-- DROP FUNCTION public.cm_fn_dateadd(date, varchar, numeric);
 
 CREATE OR REPLACE FUNCTION public.cm_fn_dateadd(target_date date, date_type character varying, date_val numeric)
  RETURNS date
@@ -30,10 +30,10 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
 	)
-	select max(case when d.business_yn = 'Y' then d.dept_cd else null end) as business_cd
+	select max(case when d.business_yn = 'Y' then d."Code" else null end) as business_cd
 	into t_business_cd
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_business_cd;
 	
@@ -53,10 +53,10 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
 	)
-	select max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
+	select max(case when d.business_yn = 'Y' then d."Name" else '' end) as business_nm
 	into t_business_nm
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_business_nm;
 	
@@ -76,10 +76,10 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
 	)
-	select max(case when d.business_yn = 'Y' then d.dept_pk else null end) as business_pk
+	select max(case when d.business_yn = 'Y' then d.id else null end) as business_pk
 	into t_business_pk
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_business_pk;
 	
@@ -117,11 +117,12 @@ AS $function$
 declare
 	business_nm text;
 begin
-	select dept_nm 
+	select "Name" 
 	into business_nm 
-	from cm_dept 
-	where upper(dept_cd) = upper(cm_v_dept_cd)
-	and upper(site_id) = upper(v_site_id);
+	from dept 
+	where upper("Code") = upper(cm_v_dept_cd)
+--	and upper("Site_id") = upper(v_site_id)
+	;
 	
 	return business_nm;
 end;
@@ -139,20 +140,20 @@ declare
 begin
 	for v_rec in(
 		WITH cte AS (
-			select d.dept_pk
-				, d.dept_cd
-				, d.dept_nm
+			select d.id
+				, d."Code"
+				, d."Name"
 				, d.site_id
 				, x.path_info 
 				, x.path_info_pk 
 			from cm_v_dept_path x
 			inner join (
 				select d.*
-				from cm_dept d
-				where d.use_yn = 'Y' and d.del_yn = 'N'
+				from dept d
+				where d."UseYn" = 'Y' and d."DelYn" = 'N'
 				and d.site_id = (CASE WHEN v_site_id IS NULL THEN d.site_id ELSE UPPER(v_site_id) END)
 				and d.team_yn = (CASE WHEN coalesce(v_team_yn, UPPER('N')) = UPPER('Y') THEN UPPER(v_team_yn) ELSE d.team_yn END)
-			) d on x.dept_pk = d.dept_pk
+			) d on x.dept_pk = d.id
         )
 		 SELECT cte.dept_pk,
 		    cte.dept_cd,
@@ -187,12 +188,12 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
 	)
-	select max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
-	, max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
-	, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d.dept_nm else '' end) as ban_nm
+	select max(case when d.business_yn = 'Y' then d."Name" else '' end) as business_nm
+	, max(case when d.team_yn = 'Y' then d."Name" else '' end) as team_nm
+	, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d."Name" else '' end) as ban_nm
 	into t_business_nm, t_team_nm, t_ban_nm
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN concat(t_business_nm, ',', t_team_nm, ',', t_ban_nm);
 	
@@ -210,10 +211,10 @@ declare
 	cm_v_dept_pk integer;
 begin
 
-	select dept_pk 
+	select id 
 	into cm_v_dept_pk
-	from cm_dept 
-	where upper(dept_cd) = upper(cm_v_dept_cd)
+	from dept 
+	where upper("Code") = upper(cm_v_dept_cd)
 	and upper(site_id) = upper(v_site_id)
 	;
 	
@@ -238,7 +239,7 @@ begin
 	select max(case when d.team_yn = 'Y' then d.team_busi_yn else 'N' end) as team_busi_yn
 	into t_team_busi_yn
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_team_busi_yn;
 	
@@ -258,10 +259,10 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
 	)
-	select max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
+	select max(case when d.team_yn = 'Y' then d."Name" else '' end) as team_nm
 	into t_team_nm
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_team_nm;
 	
@@ -281,10 +282,10 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = cm_v_dept_pk
 	)
-	select max(case when d.team_yn = 'Y' then d.dept_pk else null end) as team_nm
+	select max(case when d.team_yn = 'Y' then d.id else null end) as team_nm
 	into t_team_pk
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_team_pk;
 	
@@ -656,17 +657,17 @@ declare
 begin
 	for v_rec in ( 
 		WITH CTE AS (
-			select dept_cd as DEPT_CODE,
-				   dept_nm as DEPT_NAME,
-				   up_dept_pk as DEPT_UPER,
+			select "Code" as DEPT_CODE,
+				   "Name" as DEPT_NAME,
+				   "UpDept_id" as DEPT_UPER,
 				   '' as IF_COLUMN_1,
 				   '' as IF_COLUMN_2,
 				   '' as IF_COLUMN_3,
 				   '' as IF_COLUMN_4,
 				   '' as IF_COLUMN_5
-			from cm_dept d 
-			where to_char(cast(d.insert_ts as date), 'YYYY-MM-DD') BETWEEN startDate and endDate
-			and (searchText = null OR UPPER(d.dept_cd) LIKE CONCAT('%',UPPER(searchText),'%') OR UPPER(d.dept_nm) LIKE CONCAT('%',UPPER(searchText),'%'))
+			from dept d 
+			where to_char(cast(d._created as date), 'YYYY-MM-DD') BETWEEN startDate and endDate
+			and (searchText = null OR UPPER(d."Code") LIKE CONCAT('%',UPPER(searchText),'%') OR UPPER(d."Name") LIKE CONCAT('%',UPPER(searchText),'%'))
 		)
 		select COUNT(*) OVER() AS total_rows, *
 		from (
@@ -726,7 +727,7 @@ begin
 				 , '' 			AS IF_COLUMN_19
 			from cm_user_info ui 
 			WHERE TO_CHAR(insert_ts, 'YYYY-MM-DD') BETWEEN startDate AND endDate
-			AND (coalesce(searchText, '') = '' OR UPPER(ui.emp_no) LIKE '%' || UPPER(coalesce(searchText, '')) || '%' OR UPPER(ui.user_nm) LIKE '%' || UPPER(coalesce(searchText, '')) || '%')
+			AND (coalesce(searchText, '') = '' OR UPPER(ui.emp_no) LIKE '%' || UPPER(coalesce(searchText, '')) || '%' OR UPPER(ui."Name") LIKE '%' || UPPER(coalesce(searchText, '')) || '%')
 		)
 		select COUNT(*) OVER() AS total_rows, *
 		from (
@@ -808,10 +809,10 @@ begin
 	with x as (
 		select unnest(path_info_pk) as path_pk from cm_v_dept where dept_pk = v_loc_pk
 	)
-	select max(case when d.business_yn = 'Y' then d.dept_cd else null end) as business_cd
+	select max(case when d.business_yn = 'Y' then d."Code" else null end) as business_cd
 	into t_business_cd
 	from x
-	inner join cm_dept d on x.path_pk = d.dept_pk;
+	inner join dept d on x.path_pk = d.id;
 	
 	RETURN t_business_cd;
 	
@@ -1427,8 +1428,9 @@ begin
 			v_cycle_code = 'days';	
 		end if;	
 		
-		--            ֱ       
+		raise info 'p_last_date:%, p_per_number:%,v_cycle_code:%', p_last_date, p_per_number, v_cycle_code;
 		select to_char(cast(p_last_date as date) + (p_per_number || v_cycle_code)::INTERVAL, 'YYYY-MM-DD') into v_plan_date;
+		raise info 'v_plan_date:%', v_plan_date;
 		
 	end if; 
 	
@@ -1571,11 +1573,11 @@ begin
 		    bc.code_nm AS equip_status_nm,
 		    eq.equip_class_path,
 		    eq.equip_class_desc,
-		    d.dept_cd,
-		    d.dept_nm,
+		    d."Code" AS dept_cd,
+		    d."Name" AS dept_nm,
 		    ir.import_rank_cd,
 		    ir.import_rank_cd AS import_rank_nm,
-		    cm_fn_get_dept_business_nm(d.dept_pk) AS business_nm,
+		    cm_fn_get_dept_business_nm(d.id) AS business_nm,
 		    eq.asset_nos,
 		        CASE
 		            WHEN cte.lvl_type = 'equipment'::text THEN ( SELECT count(*) AS count
@@ -1590,7 +1592,7 @@ begin
 		   from cte
 		     LEFT JOIN cm_equipment eq ON cte.equip_pk = eq.equip_pk
 		     LEFT JOIN cm_base_code bc ON eq.equip_status::text = bc.code_cd::text AND bc.code_grp_cd::text = 'EQUIP_STATUS'::text
-		     LEFT JOIN cm_dept d ON eq.dept_pk = d.dept_pk
+		     LEFT JOIN dept d ON eq.dept_pk = d.id
 		     LEFT JOIN cm_import_rank ir ON eq.import_rank_pk = ir.import_rank_pk
 		   where cte.site_id = v_site_id
 		   and eq.site_id = v_site_id
@@ -1771,50 +1773,6 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_workdays(varchar, varchar);
-
-CREATE OR REPLACE FUNCTION public.cm_fn_get_workdays(v_startdate character varying, v_enddate character varying)
- RETURNS integer
- LANGUAGE plpgsql
-AS $function$
-declare
-    t_result integer;
-begin
-	
-	
-	SELECT COUNT(1) 
-	into t_result
-	FROM
-	    (
-			WITH RECURSIVE date_record AS (
-			   SELECT TO_DATE(v_startDate,'YYYYMMDD') AS dates
-			   UNION ALL
-			   SELECT DATE(dates + interval '1 day') as dates
-			   FROM cm_date_record WHERE dates < TO_DATE(v_endDate,'YYYYMMDD')
-			)
-			SELECT to_char(dates, 'YYYYMMDD') dates, to_char(dates, 'D') d
-			FROM cm_date_record
-	    ) a
-	 left outer join (
-	        SELECT year_val||month_val||day_val AS holiday_dt
-	        FROM cm_HOLIDAY_INFO hi 
-	        WHERE year_val||month_val||day_val BETWEEN v_startDate AND v_endDate	--    ,        
-	        UNION ALL 
-	        SELECT year_val||month_val||day_val AS holiday_dt
-	        FROM cm_HOLIDAY_CUSTOM 
-	        WHERE year_val||month_val||day_val BETWEEN v_startDate AND v_endDate	--    ,                
-	    ) b	--         ̺      Ⱓ      Ѵ .
-	 on a.dates = b.holiday_dt
-	 WHERE a.d NOT IN ('1', '7') --1:  Ͽ    7:     
-	 AND b.holiday_dt IS null
-	;
-	
-	RETURN t_result;
-	
-end;
-$function$
-;
-
 -- DROP FUNCTION public.cm_fn_get_work_day(varchar);
 
 CREATE OR REPLACE FUNCTION public.cm_fn_get_work_day(p_plan_date character varying)
@@ -1872,6 +1830,50 @@ begin
 	END LOOP;		
 	
 	RETURN v_plan_date;
+	
+end;
+$function$
+;
+
+-- DROP FUNCTION public.cm_fn_get_workdays(varchar, varchar);
+
+CREATE OR REPLACE FUNCTION public.cm_fn_get_workdays(v_startdate character varying, v_enddate character varying)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+declare
+    t_result integer;
+begin
+	
+	
+	SELECT COUNT(1) 
+	into t_result
+	FROM
+	    (
+			WITH RECURSIVE date_record AS (
+			   SELECT TO_DATE(v_startDate,'YYYYMMDD') AS dates
+			   UNION ALL
+			   SELECT DATE(dates + interval '1 day') as dates
+			   FROM cm_date_record WHERE dates < TO_DATE(v_endDate,'YYYYMMDD')
+			)
+			SELECT to_char(dates, 'YYYYMMDD') dates, to_char(dates, 'D') d
+			FROM cm_date_record
+	    ) a
+	 left outer join (
+	        SELECT year_val||month_val||day_val AS holiday_dt
+	        FROM cm_HOLIDAY_INFO hi 
+	        WHERE year_val||month_val||day_val BETWEEN v_startDate AND v_endDate	--    ,        
+	        UNION ALL 
+	        SELECT year_val||month_val||day_val AS holiday_dt
+	        FROM cm_HOLIDAY_CUSTOM 
+	        WHERE year_val||month_val||day_val BETWEEN v_startDate AND v_endDate	--    ,                
+	    ) b	--         ̺      Ⱓ      Ѵ .
+	 on a.dates = b.holiday_dt
+	 WHERE a.d NOT IN ('1', '7') --1:  Ͽ    7:     
+	 AND b.holiday_dt IS null
+	;
+	
+	RETURN t_result;
 	
 end;
 $function$
@@ -1982,6 +1984,8 @@ begin
 	v_last_plan_dt = null;
 	
 
+	RAISE INFO 'param=> p_make_start_date:% , p_make_end_date:%', p_make_start_date,p_make_end_date;
+
 	select cycle_type, per_number, sched_start_date, next_chk_date
 		, (CASE WHEN cycle_type = 'CYCLE_TYPE_Y' THEN 'year'
 		   	WHEN cycle_type = 'CYCLE_TYPE_M' THEN 'month' WHEN CYCLE_TYPE = 'CYCLE_TYPE_W' THEN 'week'
@@ -2008,7 +2012,7 @@ begin
 	inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
 	where t.chk_mast_pk = p_chk_mast_pk 
 	and t.chk_sche_type = 'A'
-	and eq.factory_pk = p_factory_pk
+	--and eq.factory_pk = p_factory_pk
 	;	
 	
 	--              
@@ -2018,7 +2022,7 @@ begin
 	inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
 	where t.chk_mast_pk = p_chk_mast_pk 
 	and t.chk_sche_type = 'A'
-	and eq.factory_pk = p_factory_pk
+	--and eq.factory_pk = p_factory_pk
 	;	
 	
 	
@@ -2055,6 +2059,8 @@ begin
 	--             :   ȸ Ⱓ     .
 	v_curr_date = v_start_date;
 	i := 1;
+
+	RAISE INFO 'v_curr_date:%', v_curr_date;
 	LOOP
 
 		if v_curr_date > p_make_end_date then
@@ -2075,6 +2081,8 @@ begin
 			into v_plan_date, v_next_date
 			;		
 		
+			RAISE INFO 'v_plan_date:%, v_next_date:%', v_plan_date,v_next_date;
+
 			v_exists_cnt = 0;
 		
 			--  ڵ         ̹   ߺ          ִ    Ȯ   (   ˸      +    ˰ ȹ  )
@@ -2086,43 +2094,49 @@ begin
 			where t.chk_mast_pk = p_chk_mast_pk 
 			and t.chk_sche_type = 'A'
 			and to_char(t.chk_sche_dt, 'YYYY-MM-DD') = to_char(v_plan_date,'YYYY-MM-DD')
-			and eq.factory_pk = p_factory_pk
+			--and eq.factory_pk = p_factory_pk
 			;	
 			
-			v_chk_sche_pk = 0;
-		
+			v_chk_sche_pk = 0;		
 			if coalesce(v_exists_cnt, 0) = 0 then
-				--      ٸ     .
-				select nextval('equip_chk_sche_chk_sche_pk_seq') into v_chk_sche_pk;
-
+				select nextval('cm_equip_chk_sche_chk_sche_pk_seq') into v_chk_sche_pk;
 			
+				RAISE INFO 'v_chk_sche_pk:%', v_chk_sche_pk;
+		
 				select coalesce(MAX((
 					select chk_sche_no from (
 						select max(cast(t1.chk_sche_no as integer)) as chk_sche_no 
 						from cm_equip_chk_sche t1
-						inner join cm_equip_chk_mast t2 on t1.chk_mast_pk = t2.chk_mast_pk
-						where t2.site_id = p_site_id
-					) as sub_table)) + 1, '1') into v_chk_sche_no
-				from cm_equip_chk_sche;			
+						inner join cm_equip_chk_mast t2 on t1.chk_mast_pk = t2.chk_mast_pk  --왜 이라인에서 'integer 자료형에 대한 잘못된 입력'이라고 나오지??	
+						--where (t1.chk_sche_no ~ E'^[0-9]+$') = true					
+					) as sub_table)) + 1, 1) into v_chk_sche_no
+				from cm_equip_chk_sche;		
+			
+				RAISE INFO 'chk_sche_no max:%,%,%', v_chk_sche_no,v_chk_sche_pk,v_plan_date;
 			
 				insert into cm_equip_chk_sche(chk_sche_pk, chk_sche_dt, chk_sche_no, chk_status, chk_user_pk
-				, dept_pk, chk_mast_pk, chk_sche_type, site_id, insert_ts, inserter_id, inserter_nm) 
+				, dept_pk, chk_mast_pk, chk_sche_type, insert_ts, inserter_id, inserter_nm) 
 				select v_chk_sche_pk, v_plan_date
 				, v_chk_sche_no
 				, 'CHK_STATUS_N'
 				, chk_user_pk, dept_pk, chk_mast_pk, p_sche_type
-				, p_site_id
-				, current_timestamp, 'system', ' ý   '
+				, current_timestamp, 1, 'choicell'
 				from cm_equip_chk_mast where chk_mast_pk = p_chk_mast_pk;
+			
+				RAISE INFO 'cm_equip_chk_sche insert ok: %,%,%', v_chk_sche_pk,v_plan_date,v_chk_sche_no;
 
 				insert into cm_equip_chk_item_mst (chk_item_nm, chk_item_unit_pk, item_idx, lcl, ucl, chk_item_pk, chk_sche_pk) 
 				select chk_item_nm, chk_item_unit_pk, item_idx, lcl, ucl, chk_item_pk, v_chk_sche_pk
 				from cm_equip_chk_item where chk_mast_pk = p_chk_mast_pk;
+			
+				RAISE INFO 'cm_equip_chk_item_mst insert ok:';
 
 				insert into cm_equip_chk_rslt(chk_req_type, chk_sche_pk, equip_pk, insert_ts, inserter_id, inserter_nm)
-				select p_sche_type, v_chk_sche_pk, equip_pk, current_timestamp, 'system', ' ý   '
+				select p_sche_type, v_chk_sche_pk, equip_pk, current_timestamp, 1, 'choicell'
 				from cm_chk_equip where chk_mast_pk = p_chk_mast_pk;
 
+				RAISE INFO 'cm_equip_chk_rslt insert ok:';
+			
 				--  ֱ⸶           Ʈ (last_chk_date, next_chk_date) ,  ڵ  ΰ 쿡  
 				--  ڵ      쿡        ֱ          Ʈ  Ѵ .
 				if p_sche_type = 'A' then
@@ -2149,9 +2163,44 @@ begin
 
 EXCEPTION  
   WHEN OTHERS THEN 
-  BEGIN 
-	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
-	values('FUNCTION', 'make_schedule_insp', concat('[sche_type] ',  p_sche_type, ' [chk_mast_pk] ',  cast(p_chk_mast_pk as text), ' [MESSAGE] : ', SQLERRM));
+  
+  DECLARE
+    v_sqlstate text;
+    v_message text;
+    v_detail text;
+    v_hint text;
+    v_context text;
+  BEGIN
+    GET STACKED DIAGNOSTICS
+      v_sqlstate = RETURNED_SQLSTATE,
+      v_message = MESSAGE_TEXT,
+      v_detail = PG_EXCEPTION_DETAIL,
+      v_hint = PG_EXCEPTION_HINT,
+      v_context = PG_EXCEPTION_CONTEXT;
+     
+	--insert into cm_error_log(error_log_type, error_log_title, error_log_desc,insert_ts)
+	--values('FUNCTION', 'make_schedule_insp', concat('[sche_type] ',  p_sche_type, ' [chk_mast_pk] ',  cast(p_chk_mast_pk as text), ' [MESSAGE] : ', SQLERRM),now());
+     
+    INSERT INTO cm_error_log (
+      error_log_type,
+      error_log_title,
+      error_log_desc,
+      insert_ts
+    )
+    VALUES (
+      'FUNCTION',
+      'make_schedule_insp',
+      concat(
+        '[sche_type] ', p_sche_type,
+        ' [chk_mast_pk] ', cast(p_chk_mast_pk as text),
+        ' [SQLSTATE] ', v_sqlstate,
+        ' [MESSAGE] ', v_message,
+        ' [DETAIL] ', v_detail,
+        ' [CONTEXT] ', v_context
+      ),
+      now()
+    );
+   
 	RETURN null;
   END;
   
@@ -2194,21 +2243,22 @@ declare
 	p_exec_cnt varchar(20);
 	v_error_message varchar(1000);
 	v_error_log varchar(1000);
+	v_text varchar(4000);
 begin
 
 	-- *********************************************************
-	-- PM      ٻ   
-	-- 1. PM     Ⱓ : p_make_start_date ~ p_make_end_date
-	-- 2. PM              ֱ ,      ֱ      ,      ֱ             ȸ
-	-- 3.  ֱ              ϱ .
-	-- 4.  ڵ  ΰ 쿡                 ֱ   ,        ֱ          Ʈ
-	-- 5.  ڵ  ΰ 쿡    ̹    ϵ        Ұ .
-	-- 220329 :  ڵ /           ¥+PM     Ͱ   ̹                   ʴ´ .
-	-- 230626 :  ۾  μ     ۾          μ     Ѵ .
-	-- 230727 :    ʰ       ,  ֱ     Ͽ              ǵ   ,  ֱ     Ͽ              Ѱ         ֱ          Ͽ      
-	-- 230807 : WORK_ORDER_NO     Ʈ   ̵        ߰  
-	-- 230808 : SITE_CONFIG.SCHE_OPS.inspHolidayScheUse        о                        θ  Ȯ      ó   
-	-- 230817 :    ʰ       , 230727    ǵ     
+	-- PM 스케줄생성
+	-- 1. PM생성기간 : p_make_start_date ~ p_make_end_date
+	-- 2. PM마스터의 점검주기, 최초주기시작일, 다음주기생성일 정보조회
+	-- 3. 주기의 시작일 구하기.
+	-- 4. 자동인경우에만 마스터의 다음주기일, 마지막주기일 업데이트
+	-- 5. 자동인경우에만 이미 등록된 건은 불가.
+	-- 220329 : 자동/수동모두  날짜+PM마스터가 이미 있으면 생성하지 않는다.
+	-- 230626 : 작업부서는 작업담당자의 부서로 한다.
+	-- 230727 : 최초건인 경우, 주기시작일에 일정이 생성되도록, 주기시작일에 생성되지 못한경우 다음 주기일을 계산하여 생성
+	-- 230807 : WORK_ORDER_NO 사이트아이디 조건 추가 
+	-- 230808 : SITE_CONFIG.SCHE_OPS.inspHolidayScheUse정보를 읽어서 휴일일정을 생성할지 여부를 확인 후 처리 
+	-- 230817 : 최초건인 경우, 230727건 되돌리기
 	-- *********************************************************
 	v_exe_cnt = 0;
 	v_cycle_type = null;
@@ -2221,35 +2271,35 @@ begin
 	v_accept_yn = '';
 	v_approval_yn = '';
 	v_last_plan_dt = null;
-	v_error_log = '';
-	
+	v_error_log = '';	
 
 	select t.cycle_type, t.per_number, t.sched_start_dt, t.next_chk_date
 	, (case when t.cycle_type = 'CYCLE_TYPE_Y' then 'year' 
 	   	when t.cycle_type = 'CYCLE_TYPE_M' then 'month' when t.cycle_type = 'CYCLE_TYPE_W' then 'week'
 	   	when t.cycle_type = 'CYCLE_TYPE_D' then 'day' else '' end)
-	, coalesce(u.dept_pk, t.dept_pk) as dept_pk
-	, t.pm_user_pk, u.login_id, u.user_nm, eq.dept_pk
+	, coalesce(up."User_id", t.dept_pk) as dept_pk
+	, t.pm_user_pk, au.username, up."Name", eq.dept_pk
 	, cm_fn_get_last_pm_date(t.pm_pk) as next_pm_data
 	into v_cycle_type, v_per_number, v_sched_start_dt, v_next_chk_date, v_cycle_type_code
 	, v_pm_dept_pk, v_pm_user_pk, v_pm_login_id, v_pm_user_nm, v_req_dept_pk, v_next_pm_date
 	from cm_pm t
 	inner join cm_equipment eq on t.equip_pk = eq.equip_pk
-	left outer join cm_dept d on t.dept_pk = d.dept_pk
-	left outer join cm_user_info u on t.pm_user_pk = u.user_pk
+	inner join auth_user au on up."User_id" = au.id
+	left outer join dept d on t.dept_pk = d.id
+	left outer join user_profile up on t.pm_user_pk = up."User_id"
 	where t.pm_pk = p_pm_pk and t.use_yn = 'Y' and t.del_yn = 'N' 
 	and eq.site_id = p_site_id
 	;
-	
+RAISE NOTICE 'v_cycle_type: %', v_cycle_type;
 	if v_cycle_type is null then
-		--  ش Ǵ         ó             Ƿ  END
+		-- 해당되는 점검을 처리할 수 없으므로 END
 		v_exe_cnt = 0;
 		p_exec_cnt = '0';
 		return '0';
 	end if;
 	
-	
-	--  ڵ            ִ         Ȯ  .
+	raise notice '자동생성 건이 있는지 여부 확인';
+	-- 자동생성 건이 있는지 여부 확인.
 	select count(*) into v_exists_cnt
 	from cm_work_order t
 	inner join cm_equipment eq on t.equip_pk = eq.equip_pk 
@@ -2259,8 +2309,8 @@ begin
 	and t.pm_pk is not null
 	and eq.site_id = p_site_id
 	;	
-	
-	--         ֱ         ڱ  ϱ 
+	raise notice '자동생성 건이 있는지 여부 확인 %건', v_last_plan_dt;
+	-- 마지막 주기 생성일자구하기
 	select max(t.plan_start_dt) into v_last_plan_dt
 	from cm_work_order t
 	inner join cm_equipment eq on t.equip_pk = eq.equip_pk 
@@ -2271,50 +2321,55 @@ begin
 	and eq.site_id = p_site_id
 	;			
 
-
+raise notice '마지막 주기 생성일자구하기';
 	if p_sche_type = 'A' then
 		
 		if v_next_chk_date is null and coalesce(v_exists_cnt, 0) = 0 and date(v_sched_start_dt) BETWEEN  date(p_make_start_date) AND date(p_make_end_date)  then
-			--      ֱ          ,  ֱٻ                 ,  ֱ              Ⱓ      ԵǾ         
+			-- 다음주기일이 없고, 최근생성된 일정이 없고, 주기시작일이 생성기간에 포함되어 있으면         
 			v_start_date = v_sched_start_dt;
 		elsif v_next_chk_date is null and coalesce(v_exists_cnt, 0) = 0 and date(v_sched_start_dt) < date(p_make_start_date) then
-			--         ֱⰡ  Ѱǵ     µ ,  ֱⰡ    ú                            ֱ          Ͽ ,  ش   ֱ  Ͽ     Կ  θ  Ȯ   ϰ  ó   Ѵ .
+			-- 생성된 주기가 한건도 없는데, 주기가 오늘보다 작은 경우 시작일은 다음 주기일을 계산하여, 해당 주기일에 포함여부를 확인하고 처리한다.
 			select cm_fn_get_next_sche_date(v_sched_start_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date;		
 		elsif v_next_chk_date is null and coalesce(v_exists_cnt, 0) > 0  then
-			--      ֱ          ,  ֱٻ              ִ       ֱٻ                       Ⱓ      Ե             
+			-- 다음주기일이 없고, 최근생성된 일정이 있는 경우 최근생성된 일정을 기준으로 기간에 포함된 일정을 생성
 			select cm_fn_get_next_sche_date(v_last_plan_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date; 
 		elsif v_next_chk_date is not null and coalesce(v_exists_cnt, 0) > 0 and  date(v_next_chk_date) < date(p_make_start_date) then
-			--      ֱ       ְ ,  ֱٻ                   ,    ú         ֱ                  ֱٻ                            
+			-- 다음주기일이 있고, 최근생성된 일정도 있지만, 오늘보다 다음주기일이 이전인 경우 최근생성된 일정 기준으로 일정생성                            
 			select cm_fn_get_next_sche_date(v_last_plan_dt, p_make_start_date, p_make_end_date, v_cycle_type_code, v_per_number) into v_start_date;	
 		elsif v_next_chk_date is not null and coalesce(v_exists_cnt, 0) > 0 and  date(v_next_chk_date) >= date(p_make_start_date) then
-			--      ֱ       ְ ,  ֱٻ                   ,    ú         ֱ                          ֱ                       
+			-- 다음주기일이 있고, 최근생성된 일정도 있지만, 오늘보다 다음주기일이 오늘이후인 경우 다음주기일을 기준으로 일정생성                       
 			v_start_date = v_next_chk_date;
 		end if;
 	else
 		v_start_date = p_make_start_date;
 	end if;
-	
+raise notice 'v_next_chk_date:%', v_next_chk_date;
 	if v_start_date is null then
-		-- ó          ϴ              Ƿ  END
+			-- 날짜에 도달한경우
 		v_exe_cnt = 0;
 		return '0';
 	end if;
-	
-	select (case when cast(proc_opts -> 'acceptYn' as text) = 'true' then 'Y' else 'N' end) as accept_yn
-	, (case when cast(proc_opts -> 'approvalYn' as text) = 'true' then 'Y' else 'N' end) as approval_yn
-	, (case when cast(sche_opts -> 'pmHolidayScheUse' as text) = 'true' then 'Y' else 'N' end) as holiday_use_yn
+raise notice 'v_curr_date:%, v_start_date:% ' ,v_curr_date, v_start_date;	
+	SELECT 
+    CASE WHEN (proc_opts::json ->> 'acceptYn') = 'true' THEN 'Y' ELSE 'N' END AS accept_yn,
+    CASE WHEN (proc_opts::json ->> 'approvalYn') = 'true' THEN 'Y' ELSE 'N' END AS approval_yn,
+    CASE WHEN (sche_opts::json ->> 'pmHolidayScheUse') = 'true' THEN 'Y' ELSE 'N' END AS holiday_use_yn
 	into v_accept_yn, v_approval_yn, v_holiday_use_yn
 	from cm_site_config
-	where site_id = p_site_id;
-	
-	--   ȸ Ⱓ    , v_start_date        Ϸ     ݺ     ֱ       ϱ .
-	--             :   ȸ Ⱓ     .
+	where site = p_site_id
+	;
+
+raise notice '==자동==';
+	-- 조회기간동안, v_start_date를 기준일로 간격별로 주기 생성하기.
+	-- 루프의 조건 : 조회기간 동안.
+
 	v_curr_date = v_start_date;
 	i := 1;
 	LOOP
-
+raise notice 'v_curr_date:%, p_make_end_date:% ' ,v_curr_date, p_make_end_date;
 		if v_curr_date > p_make_end_date then
-			--   ¥        Ѱ  
+raise notice '날짜에 도달한경우';
+			-- 날짜에 도달한경우
 			EXIT;
 		else
 			SELECT CASE WHEN v_holiday_use_yn = 'Y' THEN v_curr_date ELSE TO_DATE(cm_fn_get_work_day(TO_CHAR(v_curr_date,'YYYY-MM-DD')),'YYYY-MM-DD') END
@@ -2324,8 +2379,8 @@ begin
 		
 			v_exists_cnt = 0;
 			
-			--  ڵ         ̹   ߺ          ִ    Ȯ   (   ˸      +    ˰ ȹ  )
-			--  ڵ /          ߺ    Ȯ  
+			-- 자동일 경우 이미 중복된 건이 있는지 확인 (점검마스터 + 점검계획일)
+			-- 자동/수동 모두 중복건 확인
 			select count(*) into v_exists_cnt
 			from cm_work_order t
 			inner join cm_equipment eq on t.equip_pk = eq.equip_pk 
@@ -2336,7 +2391,7 @@ begin
 			and to_char(t.plan_start_dt, 'YYYY-MM-DD') = to_char(v_plan_date,'YYYY-MM-DD')
 			and eq.site_id = p_site_id
 			;	
-		
+
 			if coalesce(v_exists_cnt, 0) = 0 then
 				v_work_order_pk = 0;
 				v_work_order_approval_pk = 0;
@@ -2347,67 +2402,74 @@ begin
 				, reg_dt, reg_user_nm, reg_user_pk, rqst_dt, rqst_user_nm, rqst_user_pk
 				, accept_dt, accept_user_nm, accept_user_pk, appr_dt, appr_user_nm, appr_user_pk)
 				values(v_work_order_approval_pk, 'WOS_AP'
-				, current_timestamp, ' ý   ', 1, current_timestamp, coalesce(v_pm_user_nm, ' ý   '), coalesce(v_pm_user_pk, 1)
-				, current_timestamp, coalesce(v_pm_user_nm, ' ý   '), coalesce(v_pm_user_pk, 1)
-				, current_timestamp, coalesce(v_pm_user_nm, ' ý   '), coalesce(v_pm_user_pk, 1)
+				, current_timestamp, '관리자', 1, current_timestamp, coalesce(v_pm_user_nm, '관리자'), coalesce(v_pm_user_pk, 1)
+				, current_timestamp, coalesce(v_pm_user_nm, '관리자'), coalesce(v_pm_user_pk, 1)
+				, current_timestamp, coalesce(v_pm_user_nm, '관리자'), coalesce(v_pm_user_pk, 1)
 				);
 
-				--      ٸ     .
+				-- 스케줄링생성.
 				select nextval('work_order_work_order_pk_seq') into v_work_order_pk;
 
 				select coalesce(MAX((select work_order_no from (select max(cast(work_order_no as integer)) as work_order_no 
-					from cm_work_order WHERE (work_order_no ~ E'^[0-9]+$') = true and site_id = p_site_id) as sub_table)) + 1, '1') into v_work_order_no
+					from cm_work_order WHERE (work_order_no ~ E'^[0-9]+$') = true ) as sub_table)) + 1, '1') into v_work_order_no
 				from cm_work_order;
+
+
+raise notice 'v_work_order_pk:%, v_work_order_no:%, v_plan_date:%, v_work_order_approval_pk:%, v_req_dept_pk:% '
+, v_work_order_pk, v_work_order_no, v_plan_date, v_work_order_approval_pk, v_req_dept_pk; 
 
 				insert into cm_work_order(work_order_pk, equip_pk, work_order_no, work_title, wo_status, maint_type_cd, wo_type, want_dt
 				, plan_start_dt, plan_end_dt, start_dt, end_dt, dept_pk, work_charger_pk, pm_pk, work_order_approval_pk, appr_line, appr_line_next
-				, req_dept_pk, work_order_sort, pm_req_type, insert_ts, inserter_id, inserter_nm, site_id)
+				, req_dept_pk, work_order_sort, pm_req_type, insert_ts, inserter_id, inserter_nm, factory_pk, rqst_insp_yn, rqst_dpr_yn)
 				select v_work_order_pk, p.equip_pk, v_work_order_no, p.pm_nm, 'WOS_AP', 'MAINT_TYPE_PM', 'PM', v_plan_date
 				, v_plan_date, v_plan_date, v_plan_date, v_plan_date, p.dept_pk, p.pm_user_pk, p.pm_pk, v_work_order_approval_pk, 'AP,CM,CL', 'CM'
-				, v_req_dept_pk, cast(v_work_order_no as integer), p_sche_type, current_timestamp, 'system', ' ý   ', p_site_id
+				, v_req_dept_pk, cast(v_work_order_no as integer), p_sche_type, current_timestamp, 1, '관리자', 1, 'Y', 'N'
 				from cm_pm p
 				where p.pm_pk = p_pm_pk
 				;
+
+
+    RAISE NOTICE 'insert into cm_work_order';
 
 				update cm_work_order
 				set req_dept_busi_cd = cm_fn_get_dept_business_cd(cast(v_req_dept_pk as integer))
 				where work_order_pk = v_work_order_pk
 				;
 
-				--  ۾  η 
+				-- 작업인력 
 				insert into cm_wo_labor(work_order_pk, job_class_pk, work_hr)
 				select v_work_order_pk, t1.job_class_pk, t1.work_hr
 				from cm_pm_labor t1
 				where t1.pm_pk = p_pm_pk;
-
-				--  ۾     
+raise notice '==insert into pm_labor:';
+				-- 작업자재
 				insert into cm_wo_mtrl(work_order_pk, mtrl_pk, plan_amt, unit_price)
 				select v_work_order_pk, t.mtrl_pk, t.amt, m.unit_price
 				from cm_pm_mtrl t
 				inner join cm_material m on t.mtrl_pk = m.mtrl_pk
 				where t.pm_pk = p_pm_pk
 				;
-
-				--  ̷ 
+raise notice 'insert into wo_mtrl';
+				-- 이력
 				insert into cm_work_order_hist(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
 				values(v_work_order_pk, 'WOS_OC', 'WOS_OC', current_timestamp, 1, ' ý   ', ' ý    ڵ     ');
 				insert into cm_work_order_hist(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
 				values(v_work_order_pk, 'WOS_OC', 'WOS_AP', current_timestamp, 1, ' ý   ', ' ý    ڵ     ');
-
-				-- PM ֱ⸶           Ʈ (last_work_dt, next_chk_date) ,  ڵ  ΰ 쿡  
+raise notice '==insert into work_order_hist:';
+				-- PM주기마스터 업데이트 (last_work_dt, next_chk_date) , 자동인경우에만
 				if p_sche_type = 'A' then
 					update cm_pm
 					set last_work_dt = v_plan_date
 					, next_chk_date = v_next_date
 					where pm_pk = p_pm_pk;
 				end if;			
-
+raise notice '==end===';
 				v_exe_cnt = v_exe_cnt + 1;
 			end if;
 			
 		end if;
 
-		--    ѷ        
+		-- 무한루프 방지     
 		EXIT WHEN i = 1000;
 
 		v_curr_date = v_next_date;
@@ -2437,7 +2499,7 @@ AS $function$
 declare
 begin
 
-	RETURN (EXTRACT(EPOCH FROM cm_date2) - EXTRACT(EPOCH FROM cm_date1))/60;
+	RETURN (EXTRACT(EPOCH FROM date2) - EXTRACT(EPOCH FROM date1))/60;
 	
 end;
 $function$
@@ -2462,7 +2524,7 @@ AS $function$
 declare
 begin
 
-	RETURN (EXTRACT(EPOCH FROM cm_date2) - EXTRACT(EPOCH FROM cm_date1))/3600;
+	RETURN (EXTRACT(EPOCH FROM date2) - EXTRACT(EPOCH FROM date1))/3600;
 	
 end;
 $function$
@@ -2643,24 +2705,24 @@ BEGIN
 
 	-- IF    ̺            ̺              
 	WITH UPSERT as (
-		UPDATE cm_dept d
+		UPDATE dept d
 		   SET dept_nm = t.dept_name
   			 , use_yn = CASE WHEN t.dept_act_code = 'D' THEN 'N'	/*    °  D        μ        "      " ó   */
-  			 				   ELSE d.use_yn
+  			 				   ELSE d."UseYN"
   			 			  END
   			 , update_ts = current_timestamp  
   			 , updater_nm = 'system'
   			 , updater_id = 'system'
   		from cm_if_dept_code t
-		LEFT OUTER JOIN cm_dept ud ON t.dept_code = ud.dept_cd AND ud.use_yn = 'Y' AND ud.del_yn = 'N'
-	  	WHERE d.dept_cd = t.dept_code
-	  	and IF_FLAG = 'N'/* and (d.dept_nm <> t.dept_name OR d.up_dept_pk <> ud.up_dept_pk OR t.dept_act_code = 'D') */ 
+		LEFT OUTER JOIN dept ud ON t.dept_code = ud."Code" AND ud."UseYN" = 'Y' AND ud."DelYN" = 'N'
+	  	WHERE d."Code" = t.dept_code
+	  	and IF_FLAG = 'N'/* and (d."Name" <> t.dept_name OR d."UpDept_id" <> ud."UpDept_id" OR t.dept_act_code = 'D') */ 
 	  	RETURNING d.*
 	 )
-	insert into cm_dept(dept_cd, dept_nm, up_dept_pK, business_yn, team_yn, ccenter_cd, tpm_yn, use_yn, del_yn, insert_ts, inserter_id, inserter_nm, team_busi_yn, site_id)
+	insert into dept("Code", "Name", "UpDept_id", business_yn, team_yn, ccenter_cd, tpm_yn, "UseYN", "DelYN", _created, _creater_id, inserter_nm, team_busi_yn, site_id)
   	select t.dept_code, t.dept_name, NULL, 'N', 'N', NULL, 'N', 'Y', 'N', current_timestamp, 'system', 'system', 'N', null
   	from cm_if_dept_code t
-	LEFT OUTER JOIN cm_dept ud ON t.dept_code = ud.dept_cd AND ud.use_yn = 'Y' AND ud.del_yn = 'N'
+	LEFT OUTER JOIN dept ud ON t.dept_code = ud."Code" AND ud."UseYN" = 'Y' AND ud."DelYN" = 'N'
 	WHERE NOT EXISTS(SELECT dept_code from UPSERT);
 
 --	v_cnt := SQL%ROWCOUNT;
@@ -2671,27 +2733,27 @@ BEGIN
 	  WITH s AS (SELECT idc.DEPT_CODE,
 					idc.DEPT_NAME,
 					idc.DEPT_UPER,
-					ud.DEPT_PK AS up_dept_pk,
+					ud.id AS up_dept_pk,
 					idc.DEPT_ACT_CODE,
 					idc.ISRT_DATE
 			   FROM cm_IF_DEPT_CODE idc
-			   LEFT OUTER JOIN cm_dept d ON idc.DEPT_CODE = d.DEPT_CD AND d.USE_YN = 'Y' AND d.DEL_YN = 'N'
-			   LEFT OUTER JOIN cm_dept ud ON idc.DEPT_UPER = ud.DEPT_CD AND ud.USE_YN = 'Y' AND ud.DEL_YN = 'N'
+			   LEFT OUTER JOIN dept d ON idc.DEPT_CODE = d."Code" AND d."UseYN" = 'Y' AND d."DelYN" = 'N'
+			   LEFT OUTER JOIN dept ud ON idc.DEPT_UPER = ud."Code" AND ud."UseYN" = 'Y' AND ud."DelYN" = 'N'
 		  	  WHERE idc.IF_FLAG = 'N')
-		update cm_dept d
-		   set UP_DEPT_PK = uud.DEPT_PK
+		update dept d
+		   set UP_DEPT_PK = uud.id
 		from cm_if_dept_code t
-		LEFT OUTER JOIN cm_dept ud ON t.dept_code = ud.dept_cd AND ud.use_yn = 'Y' AND ud.del_yn = 'N'
-		LEFT OUTER JOIN cm_dept uud ON t.DEPT_UPER = ud.DEPT_CD AND uud.USE_YN = 'Y' AND uud.DEL_YN = 'N'
-	  	WHERE d.dept_cd = t.dept_code
+		LEFT OUTER JOIN dept ud ON t.dept_code = ud."Code" AND ud."UseYN" = 'Y' AND ud."DelYN" = 'N'
+		LEFT OUTER JOIN dept uud ON t.DEPT_UPER = ud."Code" AND uud."UseYN" = 'Y' AND uud."DelYN" = 'N'
+	  	WHERE d."Code" = t.dept_code
 	  	and IF_FLAG = 'N';
 
 	--       ̺         Ʈ    IF_FLAG   'Y'         Ʈ
 	WITH s AS (
 	    select t.dept_code 
 	     from cm_if_dept_code t
-		LEFT OUTER JOIN cm_dept ud ON t.dept_code = ud.dept_cd AND ud.use_yn = 'Y' AND ud.del_yn = 'N'
-	  	WHERE ud.dept_cd = t.dept_code
+		LEFT OUTER JOIN dept ud ON t.dept_code = ud."Code" AND ud."UseYN" = 'Y' AND ud."DelYN" = 'N'
+	  	WHERE ud."Code" = t.dept_code
 	  	and IF_FLAG = 'N'
 	 )
 	 update cm_if_dept_code
@@ -2903,270 +2965,6 @@ EXCEPTION
   BEGIN 
 	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
 	values('IF', 'cm_prc_if_sms_send', concat(' [MESSAGE] : ', SQLERRM));
-  END;
-	
-end;
-$procedure$
-;
-
--- DROP PROCEDURE public.cm_prc_if_user_info();
-
-CREATE OR REPLACE PROCEDURE public.cm_prc_if_user_info()
- LANGUAGE plpgsql
-AS $procedure$
-declare
-	V_ERROR_MESSAGE varchar(1000);
-	v_cnt bigint;
-BEGIN
-	-- *******************************************************************
-	--	                 ̽ 
-	-- *******************************************************************
-	-- 
-	-- *******************************************************************
-	-- IF  ӽ    ̹ .       ӽ    ̺          ӽ    ̺        ʿ  start
-	create temp table if_user_info
-	( 
-		SA_USER varchar(100) NOT NULL,
-		SA_SABUN varchar(100) NOT NULL,
-		SA_NAME varchar(100) NOT NULL,
-		SA_PASS varchar(100)  NULL,
-		SA_DEPT_NEW varchar(100) NULL,
-		SA_DEPT_NAME varchar(100) NULL,
-		SA_JOBX varchar(100) NULL,
-		SA_JOBX_NAME varchar(100) NULL,
-		SA_FUNC varchar(100) NULL,
-		SA_FUNC_NAME varchar(100) NULL,
-		SA_GNMU_NAME varchar(100) NULL,
-		SA_LOCATE varchar(100) NULL,
-		SSO_LOCATE varchar(100) NULL,
-		SA_SABUN_LEADER varchar(100) NULL,
-		SA_TEMP varchar(100) NULL,
-		SA_TEMP_NAME varchar(100) NULL,
-		SA_TEMP_DATE varchar(100) NULL,
-		SA_HAND varchar(100) NULL,
-		SA_EMAIL varchar(100) NULL,
-		ISRT_DATE varchar(100) NULL,
-		UPDT_DATE varchar(100)  NULL DEFAULT CURRENT_TIMESTAMP,
-		IF_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		IF_FLAG varchar(100) NULL DEFAULT 'N'::character varying
-	);
-	-- IF  ӽ    ̹ .       ӽ    ̺          ӽ    ̺        ʿ  end
-
-	INSERT INTO cm_ERROR_LOG (ERROR_LOG_TYPE, ERROR_LOG_TITLE, ERROR_LOG_DESC, INSERT_TS)
-	SELECT 'INTERFACE', 'cm_prc_IF_USER_INFO', 'START cm_prc_IF_USER_INFO ', current_timestamp ;
-
-	-- IF    ̺            ̺              
-	WITH UPSERT as (
-		UPDATE cm_USER_INFO ui
-		   SET DEPT_PK = d.DEPT_PK
-  			 , USER_PASSWORD = t.SA_PASS
-  			 , JOB_POS = t.SA_JOBX_NAME
-  		  	 , USER_PHONE = t.SA_HAND
-  		  	 , DEL_YN = CASE WHEN t.SA_TEMP = '71' THEN 'Y' ELSE ui.DEL_YN END
-  		  	 , USE_YN = CASE WHEN t.SA_TEMP = '01' THEN 'N' ELSE ui.USE_YN END
-  			 , UPDATE_TS = current_timestamp
-  			 , UPDATER_ID = 'system'
-		FROM cm_if_user_info t
-		INNER JOIN cm_dept d ON t.SA_DEPT_NEW = d.DEPT_CD
-		LEFT OUTER JOIN cm_USER_INFO uu ON t.SA_USER = uu.LOGIN_ID
-		LEFT OUTER JOIN cm_dept ud ON uu.DEPT_PK = ud.DEPT_PK
-		WHERE ui.LOGIN_ID = t.SA_USER
-		and t.IF_FLAG = 'N' 
-		RETURNING d.*
-	 )
-  	insert into cm_user_info
-  			(USER_NM, DEPT_PK, USER_TYPE, LOGIN_ID, USER_PASSWORD, USE_LANG_CD, JOB_CLASS_PK, TEMP_PASSWORD_YN, USER_MAIL,
-			 USER_PHONE, SALT, ADMIN_YN, EMP_NO, JOB_POS, LEADER_YN, DEL_YN, USE_YN, INSERT_TS, INSERTER_ID,
-			 INSERTER_NM, SITE_ID, ALLOW_LOGIN, NOTIFY_WO_REJECTED, NOTIFY_WO_CLOSED, NOTIFY_WO_ASSIGNED, SITE_CHANGE_YN)
-		select iui.SA_NAME, uu.DEPT_PK, 'UC', iui.SA_USER, iui.SA_PASS, 'ko', NULL, 'N', iui.SA_EMAIL,
-				 iui.SA_HAND, null, 'N', iui.SA_USER, iui.SA_JOBX_NAME, 'N', CASE WHEN iui.SA_TEMP = '71' THEN 'Y' ELSE 'N' END, CASE WHEN iui.SA_TEMP = '01' THEN 'N' ELSE 'Y' END, current_timestamp, 'system',
-				 'system', NULL, 'N', 'Y', 'Y', 'Y', 'N' 
-		FROM cm_if_user_info iui
-		INNER JOIN cm_dept d ON iui.SA_DEPT_NEW = d.DEPT_CD
-		LEFT OUTER JOIN cm_USER_INFO uu ON iui.SA_USER = uu.LOGIN_ID
-		LEFT OUTER JOIN cm_dept ud ON uu.DEPT_PK = ud.DEPT_PK
-		WHERE iui.IF_FLAG = 'N' 
-	and NOT EXISTS(SELECT LOGIN_ID from UPSERT);
-			 
-
---	v_cnt := SQL%ROWCOUNT;
-	INSERT INTO cm_ERROR_LOG (ERROR_LOG_TYPE, ERROR_LOG_TITLE, ERROR_LOG_DESC, INSERT_TS)
-	VALUES ('INTERFACE', 'cm_prc_IF_USER_INFO', 'Affected Rows = ' || v_cnt, current_timestamp);
-
-	--       ̺         Ʈ    IF_FLAG   'Y'         Ʈ
-	WITH s AS (
-		SELECT iui.SA_USER
-		FROM cm_if_user_info iui
-		INNER JOIN cm_dept d ON iui.SA_DEPT_NEW = d.DEPT_CD
-		LEFT OUTER JOIN cm_USER_INFO uu ON iui.SA_USER = uu.LOGIN_ID
-		LEFT OUTER JOIN cm_dept ud ON uu.DEPT_PK = ud.DEPT_PK
-		WHERE iui.IF_FLAG = 'N'
-	 )
-	 update cm_if_user_info
-	 set IF_FLAG = 'Y'
-	 from s
-	 where if_user_info.SA_USER = s.SA_USER
-	;
-		
-	--       (USER_ROLE    ̺    DEL_YN = 'Y'         )       ROLE      ( ű      ڴ       ڿ       Role    ߰  Ǿ   ڵ ó       )
-	DELETE FROM cm_USER_ROLE
-	WHERE USER_PK IN (
-		SELECT UI.USER_PK FROM cm_USER_INFO UI
-	    INNER JOIN cm_USER_ROLE UR ON UI.USER_PK = UR.USER_PK
-  		WHERE UI.DEL_YN = 'Y' 
-	);
-
-	INSERT INTO cm_ERROR_LOG (ERROR_LOG_TYPE, ERROR_LOG_TITLE, ERROR_LOG_DESC, INSERT_TS)
-	SELECT 'INTERFACE', 'cm_prc_IF_USER_INFO', 'END cm_prc_IF_USER_INFO ', current_timestamp;
-
-	truncate if_user_info;
-
-EXCEPTION
-  WHEN OTHERS THEN
-  BEGIN
-
-	V_ERROR_MESSAGE := SQLERRM;
-
-	INSERT INTO cm_ERROR_LOG ( ERROR_LOG_TYPE, ERROR_LOG_TITLE, ERROR_LOG_DESC, INSERT_TS)
-	SELECT 'INTERFACE ERROR', 'cm_prc_IF_USER_INFO', ' [MESSAGE] : ' || V_ERROR_MESSAGE, current_timestamp ;
-	
-	Commit;
-
-  END;
-end;
-$procedure$
-;
-
--- DROP PROCEDURE public.cm_prc_insp_notdone_alarm_ins();
-
-CREATE OR REPLACE PROCEDURE public.cm_prc_insp_notdone_alarm_ins()
- LANGUAGE plpgsql
-AS $procedure$
-declare
-	v_user_pk bigint;
-	v_user_nm varchar(50);
-	v_login_id varchar(50);
-	v_site_id varchar(20);
-	v_contents text;
-	v_template text;
-	v_exists boolean;
-	v_tot_cnt integer;
-	cur_charger record;
-	curdata record;
-begin
-	-- **************************************************
-	--      ٸ  :                    ˹̽ǽ        ˶   ߼ 
-	----------------------------------------------------------------
-	-- 2022.06.09 :  ˸     ڸ  PM WO    ڷ      , 
-	--				 ˸               ǿ            , PLAN_START_DT           
-	-- **************************************************
-	
-	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
-	values('system', 'cm_prc_insp_notdone_alarm_ins', 'start!');
-
-	v_exists = false;
-	
-	v_template = '<br><hr>
-	       ȣ : #CHK_NO#<br>
-	   ˸  : #CHK_NM#<br>
-	       ȹ   : #START_DATE#<br>
-	      : #EQUIP_NM#
-	';
-	
-	--        (2022.03.25, seokjun.choi)
-	--    :           /      ߼     δ       ׷     ɼ           . 
-	--     sys_opt       /      ߼ۿ  δ        ߼   ÿ   Ǵܿ          ؾ    .
-	--  ý  ۰    ڸ  ó   ڷ 
-	select user_pk, user_nm, login_id
-	into v_user_pk, v_user_nm, v_login_id
-	from cm_user_info where login_id = 'system' limit 1;
-	
-	for cur_charger in 
-		select ecs.chk_user_pk, ui.user_nm, ui.login_id, ui.user_phone
-		, ui.user_mail, count(distinct ecs.chk_sche_pk) as cnt, ecm.site_id
-		from cm_equip_chk_sche ecs
-		inner join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
-		inner join cm_chk_equip ce on ecm.chk_mast_pk = ce.chk_mast_pk
-		inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
-		inner join cm_user_info ui on ecs.chk_user_pk = ui.user_pk 
-		where ecs.chk_status = 'CHK_STATUS_N' and ecs.chk_dt is null 
-		and eq.environ_equip_yn = 'Y'
-		and to_char(ecs.chk_sche_dt, 'YYYY-MM') = to_char(now(), 'YYYY-MM')
-		and to_char(ecs.chk_sche_dt, 'YYYY-MM-DD') <= to_char(now() + ' -1 days', 'YYYY-MM-DD')
-		group by ecs.chk_user_pk, ui.user_nm, ui.login_id, ui.user_phone, ui.user_mail, ecm.site_id
-	LOOP
-		v_tot_cnt = cur_charger.cnt;
-		v_exists = false;
-		v_contents = '';
-	
-		--       ̽ǽð  
-		--           ø      ó  .
-		for curdata in
-			select  ecm.chk_mast_nm as chk_nm, ecm.chk_mast_no as chk_no
-			, to_char(ecs.chk_sche_dt, 'YYYY   MM   DD  ') as start_date
-			, array_to_string(array_agg(eq.equip_nm), ',') as equip_nm 
-			from cm_equip_chk_sche ecs
-			inner join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
-			inner join cm_chk_equip ce on ecm.chk_mast_pk = ce.chk_mast_pk
-			inner join cm_equipment eq on ce.equip_pk = eq.equip_pk
-			where ecs.chk_status = 'CHK_STATUS_N' and ecs.chk_dt is null 
-			and eq.environ_equip_yn = 'Y'
-			and ecs.chk_user_pk = cur_charger.chk_user_pk
-			and to_char(ecs.chk_sche_dt, 'YYYY-MM') = to_char(now(), 'YYYY-MM')
-			and to_char(ecs.chk_sche_dt, 'YYYY-MM-DD') <= to_char(now() + ' -1 days', 'YYYY-MM-DD')
-			and ecm.site_id = cur_charger.site_id
-			and eq.site_id = cur_charger.site_id
-			group by ecm.chk_mast_nm, ecm.chk_mast_no, ecs.chk_sche_dt
-			order by ecm.chk_mast_nm, ecs.chk_sche_dt
-			limit 20
-		loop
-			raise notice 'TARGET %', curdata;	
-			v_contents = concat(v_contents, replace(replace(replace(replace(v_template
-								, '#CHK_NO#', curdata.chk_no), '#CHK_NM#', curdata.chk_nm)
-							, '#START_DATE#', curdata.start_date), '#EQUIP_NM#', curdata.equip_nm));
-			v_exists = true;		
-		end loop;	
-	
-		--           Ǽ  ǥ  
-		v_contents = concat('<h3>[ ̽ǽ          ', v_tot_cnt, '  ]</h3><span style="font-size: 10pt; font-weight: normal;"><i>(                 ִ  20   ǥ õ˴ϴ .)</i></span>', v_contents);
-		
-		if v_exists then
-			--  ˶         (sms)
-			INSERT INTO cm_anoti_sms_hist(alarm_noti_grp_pk, sms_content, sms_sndr_no
-			, sms_rcvr_no, sms_rcvr_id
-			, result_type, insert_ts, inserter_id, inserter_nm, site_id)
-			select ang.alarm_noti_grp_pk
-			, substring(replace(ang.sms_content, '@contents', v_contents), 1, 150)
-			, ang.sms_sndr_no
-			, cur_charger.user_phone, cur_charger.login_id
-			, 'W', current_timestamp, v_login_id, v_user_nm, cur_charger.site_id
-			from cm_alarm_noti_grp ang
-			where ang.noti_grp_type = 'NGT-C01'
-			and ang.sms_snd_yn = 'Y'
-			and cur_charger.user_phone is not null ;		
-		end if;
-	
-		if v_exists then
-			--  ˶         (mail)
-			INSERT INTO cm_anoti_mail_hist(alarm_noti_grp_pk, mail_title, mail_content
-			, mail_sndr_addr, mail_rcvr_addr, mail_rcvr_id 
-			, result_type, insert_ts, inserter_id, inserter_nm, site_id)
-			select ang.alarm_noti_grp_pk, ang.mail_title
-			, substring(replace(ang.mail_content, '@contents', v_contents), 1, 4000)
-			, ang.mail_sndr_addr, cur_charger.user_mail, cur_charger.login_id
-			, 'W', current_timestamp, v_login_id, v_user_nm, cur_charger.site_id
-			from cm_alarm_noti_grp ang
-			where ang.noti_grp_type = 'NGT-C01'
-			and ang.mail_snd_yn = 'Y'
-			and cur_charger.user_mail is not null ;	
-		end if;	
-	end loop;
-
-EXCEPTION  
-  WHEN OTHERS THEN 
-  BEGIN 
-	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
-	values('system', 'cm_prc_insp_notdone_alarm_ins', concat(' [MESSAGE] : ', SQLERRM));
   END;
 	
 end;
@@ -3542,18 +3340,18 @@ raise notice 'fntrans';
 	truncate temp_mi_table;	
 
 	with mtrlstock as (
-		select mi.mtrl_pk, m.mtrl_cd, d.dept_cd, l.loc_cd, mi.inout_uprice
+		select mi.mtrl_pk, m.mtrl_cd, d."Code", l.loc_cd, mi.inout_uprice
 		, mi.ab_grade, mi.loc_cell_addr, max(mi.supplier_pk) as supplier_pk, mi.stocked_dt
 		, sum(case when mi.inout_div = 'INOUT_DIV_IN' then mi.inout_qty else 0 end) as in_qty
 		, sum(case when mi.inout_div = 'INOUT_DIV_OUT' then mi.inout_qty else 0 end) as out_qty
 		, mi.site_id
 		from cm_mtrl_inout mi
 		inner join cm_material m on mi.mtrl_pk = m.mtrl_pk
-		left outer join cm_dept d on mi.own_dept_cd = d.dept_cd
+		left outer join dept d on mi.own_dept_cd = d."Code"
 		inner join cm_location l on mi.inout_loc_cd = l.loc_cd
 		where to_char(mi.inout_dt, 'YYYYMM') = v_yearmon
 		and coalesce(mi.inout_cx_yn, 'N') = 'N'
-		group by mi.mtrl_pk, m.mtrl_cd, d.dept_cd, l.loc_cd, mi.inout_uprice
+		group by mi.mtrl_pk, m.mtrl_cd, d."Code", l.loc_cd, mi.inout_uprice
 		, mi.ab_grade, mi.loc_cell_addr , mi.stocked_dt, mi.site_id
 	), 
 	insertdata as (
@@ -3598,18 +3396,18 @@ raise notice 'fntrans';
 		select count(*) into v_cnt
 		from cm_mtrl_inout mi
 		inner join cm_material m on mi.mtrl_pk = m.mtrl_pk
-		left outer join cm_dept d on mi.own_dept_cd = d.dept_cd
+		left outer join dept d on mi.own_dept_cd = d."Code"
 		inner join cm_location l on mi.inout_loc_cd = l.loc_cd
 		where to_char(mi.inout_dt, 'YYYYMM') = to_char(to_date(concat(v_yearmon,'01'),'YYYYMMDD') + INTERVAL '1 months', 'YYYYMM')
 		and mi.mtrl_pk = cur_mtrl_pk
-		and coalesce(d.dept_cd, '!@#') = coalesce(cur_dept_cd, '!@#')
+		and coalesce(d."Code", '!@#') = coalesce(cur_dept_cd, '!@#')
 		and l.loc_cd = cur_loc_cd
 		and mi.inout_uprice = cur_inout_uprice
 		and mi.ab_grade = cur_ab_grade
 		and mi.loc_cell_addr = cur_loc_cell_addr
 		and TO_CHAR(mi.stocked_dt, 'YYYY-MM-DD') = TO_CHAR(cur_stocked_dt, 'YYYY-MM-DD')
 		and mi.site_id = cur_site_id
-		group by mi.mtrl_pk, m.mtrl_cd, d.dept_cd, l.loc_cd, mi.inout_uprice
+		group by mi.mtrl_pk, m.mtrl_cd, d."Code", l.loc_cd, mi.inout_uprice
 		, mi.ab_grade, mi.loc_cell_addr, mi.stocked_dt;
 		
 		if v_cnt > 0 then
@@ -3731,19 +3529,19 @@ raise notice 'fntrans';
 	
 	-- 2022.02.01     (m.supplier_pk -> max(mi.supplier_pk)),  ߰ (     ԰    mi.stocked_dt)
 	with mtrlstock as (
-		select mi.mtrl_pk, m.mtrl_cd, d.dept_cd, l.loc_cd, mi.inout_uprice
+		select mi.mtrl_pk, m.mtrl_cd, d."Code", l.loc_cd, mi.inout_uprice
 		, mi.ab_grade, mi.loc_cell_addr, max(mi.supplier_pk) as supplier_pk, mi.stocked_dt
 		, sum(case when mi.inout_div = 'INOUT_DIV_IN' then mi.inout_qty else 0 end) as in_qty
 		, sum(case when mi.inout_div = 'INOUT_DIV_OUT' then mi.inout_qty else 0 end) as out_qty
 		, mi.site_id
 		from cm_mtrl_inout mi
 		inner join cm_material m on mi.mtrl_pk = m.mtrl_pk
-		left outer join cm_dept d on mi.own_dept_cd = d.dept_cd
+		left outer join dept d on mi.own_dept_cd = d."Code"
 		inner join cm_location l on mi.inout_loc_cd = l.loc_cd
 		where to_char(mi.inout_dt, 'YYYYMM') = v_yearmon
 		and coalesce(mi.inout_cx_yn, 'N') = 'N'
 		and mi.mtrl_pk = v_mtrl_pk
-		group by mi.mtrl_pk, m.mtrl_cd, d.dept_cd, l.loc_cd, mi.inout_uprice
+		group by mi.mtrl_pk, m.mtrl_cd, d."Code", l.loc_cd, mi.inout_uprice
 		, mi.ab_grade, mi.loc_cell_addr /*, mi.supplier_pk*/ , mi.stocked_dt
 	), 
 	insertdata as (
@@ -3794,11 +3592,11 @@ raise notice 'fntrans';
 		select count(*) into v_cnt
 		from cm_mtrl_inout mi
 		inner join cm_material m on mi.mtrl_pk = m.mtrl_pk
-		left outer join cm_dept d on mi.own_dept_cd = d.dept_cd
+		left outer join dept d on mi.own_dept_cd = d."Code"
 		inner join cm_location l on mi.inout_loc_cd = l.loc_cd
 		where to_char(mi.inout_dt, 'YYYYMM') = to_char(to_date(concat(v_yearmon,'01'),'YYYYMMDD') + INTERVAL '1 months', 'YYYYMM')
 		and mi.mtrl_pk = cur_mtrl_pk
-		and coalesce(d.dept_cd, '') = coalesce(cur_dept_cd, '')
+		and coalesce(d."Code", '') = coalesce(cur_dept_cd, '')
 		and l.loc_cd = cur_loc_cd
 		and mi.inout_uprice = cur_inout_uprice
 		and mi.ab_grade = cur_ab_grade
@@ -3807,7 +3605,7 @@ raise notice 'fntrans';
 		and mi.mtrl_pk = v_mtrl_pk
 		and mi.inout_type = 'IT_CO'
 		and mi.inout_div = 'INOUT_DIV_IN'
-		group by mi.mtrl_pk, m.mtrl_cd, d.dept_cd, l.loc_cd, mi.inout_uprice
+		group by mi.mtrl_pk, m.mtrl_cd, d."Code", l.loc_cd, mi.inout_uprice
 		, mi.ab_grade, mi.loc_cell_addr, mi.stocked_dt;
 		
     
@@ -4077,7 +3875,7 @@ begin
 		, grp_cd
 		, user_id, insert_ts, msg
 		from cm_mig_base_code
-		where (msg is null or upper(msg) = upper('error'))
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4089,7 +3887,7 @@ begin
 
 		BEGIN		
 			
-			--  ׷  ڵ 
+			--  코드 그룹이 없으면 만들어 준다
 			select count(*) into v_grp_cnt from cm_base_code_grp where code_grp_cd = curdata.code_grp_cd;
 			if (coalesce(v_grp_cnt, 0) = 0) then
 				insert into cm_base_code_grp(code_grp_cd, code_grp_nm, code_grp_dsc, edit_yn, code_pk_yn, disp_order)
@@ -4107,10 +3905,11 @@ begin
 		
 			--      
 			if (curdata.user_id is not null) then
-				select user_nm into v_user_nm from cm_user_info where login_id = curdata.user_id;
-				if coalesce(v_user_nm, '') = '' then
-					v_user_nm = 'system';
-				end if;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
+				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;
 
 			if (v_exe_type = 'U') then
@@ -4135,7 +3934,7 @@ begin
 					, insert_ts, inserter_id, inserter_nm)
 				values (curdata.code_grp_cd, curdata.code_cd, curdata.code_nm, curdata.code_dsc
 					, curdata.disp_order, curdata.use_yn, curdata.grp_cd
-					, current_timestamp, curdata.user_id, v_user_nm);
+					, current_timestamp, 1, v_user_nm);
 
 				update cm_mig_base_code set msg = 'inserted!' where pk = curdata.pk;
 			end if;
@@ -4206,7 +4005,7 @@ begin
 		select pk, action_type, chk_mast_no, chk_mast_nm, equip_cd, equip_nm
 		, user_id, insert_ts, msg, site_id
 		from cm_mig_chk_equip
-		where (msg is null or upper(msg) = upper('error'))
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts 
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4225,16 +4024,16 @@ begin
 			
 	        --     
 			select chk_mast_pk into v_chk_mast_pk from cm_equip_chk_mast 
-			where chk_mast_no = curdata.chk_mast_no and site_id = curdata.site_id;
+			where chk_mast_no = curdata.chk_mast_no;
 		
 			--     
 			select equip_pk into v_equip_pk from cm_equipment 
-			where equip_cd = curdata.equip_cd and site_id = curdata.site_id;
+			where equip_cd = curdata.equip_cd;
 		
 			--     
 			if (coalesce(curdata.equip_cd, '') <> '') then
 				select equip_pk into v_equip_pk from cm_equipment
-				where equip_cd = curdata.equip_cd and site_id = curdata.site_id;
+				where equip_cd = curdata.equip_cd;
 			
 				if (v_equip_pk is null) then
 					v_equip_pk := null;
@@ -4254,8 +4053,10 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;		
 		
@@ -4326,7 +4127,7 @@ begin
 		, coalesce(tpm_yn, 'N') as tpm_yn
 		, cc_cd, site_id, user_id, insert_ts, msg
 		from cm_mig_dept
-		where (msg is null or upper(msg) = upper('error'))
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts 
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4337,63 +4138,64 @@ begin
 
 		BEGIN		
 			--            ش   ڵ尡  ̹   ִ                   .
-			select count(*) into v_exist_cnt from cm_dept where dept_cd = curdata.dept_cd;
+			select count(*) into v_exist_cnt from dept where "Code" = curdata.dept_cd;
 			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
 				v_exe_type = 'U';
 			end if;
 			v_exist_cnt = 0;
 		
 			--      μ 
-			select dept_pk into v_up_dept_pk from cm_dept where dept_cd = curdata.up_dept_cd;
+			select id into v_up_dept_pk from dept where "Code" = curdata.up_dept_cd;
 			
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 
 			if (v_exe_type = 'U') then
-				--     
-				update cm_dept
-				set dept_nm = curdata.dept_nm
-				, up_dept_pk = v_up_dept_pk
+RAISE INFO 'v_exe_type:%',v_exe_type; 
+				update dept
+				set "Name" = curdata.dept_nm
+				, "UpDept_id" = v_up_dept_pk
 				, team_yn = case when trim(curdata.team_yn)  = '' then 'N' else curdata.team_yn end 
 				, business_yn = case when trim(curdata.business_yn)  = '' then 'N' else curdata.business_yn end 
 				, tpm_yn = case when trim(curdata.tpm_yn)  = '' then 'N' else curdata.tpm_yn end 
 				, ccenter_cd = curdata.cc_cd
-				, site_id = curdata.site_id
-				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
-				, updater_nm = v_user_nm
-				where dept_pk = (select dept_pk from cm_dept where dept_cd = curdata.dept_cd limit 1);
-			
+				, "Factory_id" = 1
+				, _modified = current_timestamp
+				, _modifier_id = 1
+				where id = (select id from dept where "Code" = curdata.dept_cd limit 1);
+	RAISE INFO 'UPDATE END:'; 		
 				update cm_mig_dept set msg = 'UPDATED!' where pk = curdata.pk;
 			
 			elseif (v_exe_type = 'A') then
 				--    
-				INSERT INTO cm_dept(dept_cd, dept_nm, up_dept_pk
+				INSERT INTO dept("Code", "Name", "UpDept_id"
 					, team_yn
 					, business_yn
 					, tpm_yn
 					, ccenter_cd
-					, site_id
-					, insert_ts, inserter_id, inserter_nm, del_yn, use_yn)
+					, "Factory_id"
+					, _created, _creater_id, "DelYN", "UseYN")
 				VALUES (curdata.dept_cd, curdata.dept_nm, v_up_dept_pk
 					, case when trim(curdata.team_yn)  = '' then 'N' else curdata.team_yn end 
 					, case when trim(curdata.business_yn)  = '' then 'N' else curdata.business_yn end 
 					, case when trim(curdata.tpm_yn)  = '' then 'N' else curdata.tpm_yn end 
 					, curdata.cc_cd
-					, curdata.site_id
-					, current_timestamp, curdata.user_id, v_user_nm, 'N', 'Y');
+					, 1
+					, current_timestamp, 1, 'N', 'Y');
 				update cm_mig_dept set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
         EXCEPTION
             WHEN others THEN
 				v_error_message := SQLERRM;
-				update cm_mig_dept set msg = 'error' where pk = v_pk;
+				update cm_mig_dept set msg = 'error' where pk = curdata.pk;
                 insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
-				values('MIGRATION', 'cm_prc_MIG_DEPT', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+				values('MIGRATION', 'cm_prc_MIG_DEPT', ' [MESSAGE : ' || curdata.pk::text || '] : ' || v_error_message);
         END; 
 		
 		
@@ -4405,9 +4207,9 @@ EXCEPTION
   WHEN OTHERS THEN 
   BEGIN 
 	v_error_message := SQLERRM;
-	update cm_mig_dept set msg = 'error' where pk = v_pk;
+	update cm_mig_dept set msg = 'error' where pk = curdata.pk;
 	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
-	values('MIGRATION', 'cm_prc_mig_dept', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+	values('MIGRATION', 'cm_prc_mig_dept', ' [MESSAGE : ' || curdata.pk::text || '] : ' || v_error_message);
   END;
 	
 end;
@@ -4471,7 +4273,7 @@ begin
 		, make_dt, mtrl_cd, environ_yn, equip_dsc
 		, user_id, insert_ts, msg
 		from cm_mig_equip
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4527,8 +4329,10 @@ begin
 			
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 		
@@ -4557,18 +4361,16 @@ begin
 			where mtrl_cd = curdata.mtrl_cd and site_id = curdata.site_id;
 		
 			--  μ 
-			select dept_pk into cm_v_dept_pk from cm_dept where dept_cd = curdata.dept_cd;
-		
-			--       °  (S: Ű  , A:   )  ΰ  ,       ¸   ҿ ó  Ÿ        Ұ 
-			--  ׸   ,  ҿ Ÿ                Ʈ  Ұ . DISPOSED TYPE :  Ű -DP1,    -DP4
+			select id into cm_v_dept_pk from dept where "Code" = curdata.dept_cd;
+
 			if (curdata.equip_status = 'A') then
 				v_equip_status = concat('ES_DISP');
 				v_disposed_type = 'DP1';
-				v_disposed_date = to_date('20201231','YYYYMMDD')::timestamp;
+--				v_disposed_date = to_date('20201231','YYYYMMDD')::timestamp;
 			elsif (curdata.equip_status = 'S') then
 				v_equip_status = concat('ES_DISP');
 				v_disposed_type = 'DP4';
-				v_disposed_date = to_date('20201231','YYYYMMDD')::timestamp;
+--				v_disposed_date = to_date('20201231','YYYYMMDD')::timestamp;
 			elsif (curdata.equip_status = 'O') then
 				v_equip_status = 'ES_OPER';
 			elsif (curdata.equip_status = 'B') then
@@ -4580,9 +4382,8 @@ begin
 			else 
 				v_equip_status = 'ES_OPER';
 			end if;
-			
 	
-			if (v_exe_type = 'U' and coalesce(v_loc_pk, 0) > 0 and coalesce(cm_v_dept_pk, 0) > 0) then
+			if (v_exe_type = 'U' and coalesce(v_loc_pk, 0) > 0 and coalesce(cm_v_dept_pk, 0) > 0) then	
 				--     
 				update cm_equipment
 				set equip_nm = curdata.equip_nm
@@ -4610,13 +4411,14 @@ begin
 				, equip_class_path = curdata.equip_type_cd
 				, equip_class_desc = curdata.equip_type_nm
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				, updater_nm = v_user_nm
 				where equip_cd = curdata.equip_cd
 				and site_id = curdata.site_id;
 
 				update cm_mig_equip set msg = 'UPDATED!' where pk = curdata.pk;
 			elseif (v_exe_type = 'A' and coalesce(v_loc_pk, 0) > 0 and coalesce(cm_v_dept_pk, 0) > 0) then
+				raise notice 'v_exe_type: a%', v_exe_type; 
 				--    
 				INSERT INTO cm_equipment(equip_cd, equip_nm, up_equip_pk, loc_pk
 				, equip_status, dept_pk, asset_nos, make_dt, install_dt, warranty_dt, buy_cost
@@ -4640,7 +4442,7 @@ begin
 						, v_maker_pk
 						, curdata.equip_category_id, curdata.site_id
 						, curdata.equip_type_cd, curdata.equip_type_nm
-						, current_timestamp, curdata.user_id, v_user_nm, 'Y', 'N');
+						, current_timestamp, 1, v_user_nm, 'Y', 'N');
 				
 				update cm_mig_equip set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
@@ -4708,7 +4510,7 @@ begin
 	for curdata in
 		SELECT PK, ACTION_TYPE, EQUIP_CD, EQUIP_NM, MTRL_CD, MTRL_NM, AMT, SITE_ID, USER_ID, INSERT_TS, MSG
 		FROM cm_MIG_EQUIP_BOM
-		WHERE (MSG IS NULL OR MSG = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY PK, INSERT_TS
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4832,7 +4634,7 @@ begin
 		, trim(chk_user_id) as chk_user_id, chk_user_nm, work_text 
 		, user_id, insert_ts, msg
 		from cm_mig_equip_chk_mst
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY PK, INSERT_TS
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4846,8 +4648,7 @@ begin
         BEGIN
 			--            ش   ڵ尡  ̹   ִ                   .
 			select count(*) into v_exist_cnt 
-			from cm_equip_chk_mast where chk_mast_no = curdata.chk_mast_no
-			and site_id = curdata.site_id;
+			from cm_equip_chk_mast where chk_mast_no = curdata.chk_mast_no;
 		
 			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
 				v_exe_type = 'U';
@@ -4856,34 +4657,39 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;		
 		
-			--  μ 
-			select dept_pk into cm_v_dept_pk from cm_dept where dept_cd = curdata.dept_cd;
+			--
+			select id into cm_v_dept_pk from dept where "Code" = curdata.dept_cd;
 		
-			--      
-			select user_pk into v_chk_user_pk from cm_user_info where login_id = curdata.chk_user_id;
+			--
+			select "User_id" into v_chk_user_pk
+			from user_profile up
+				inner join auth_user au on up."User_id" = au.id
+			where au.username = curdata.user_id;
 
 			if (v_exe_type = 'A') then
-				--    
+RAISE INFO 'XXXX';
 				INSERT INTO cm_equip_chk_mast(chk_mast_no, chk_mast_nm
-					, site_id
-					, cycle_type, dept_pk
+--					, site_id
+					, cycle_type, dept_pk, chk_yn
 			     	, per_number, chk_user_pk
 			     	, sched_start_date
 			     	, work_text
 				 	, insert_ts, inserter_id, inserter_nm, use_yn, del_yn)
 				VALUES (curdata.chk_mast_no, curdata.chk_mast_nm
-					, curdata.site_id
-					, curdata.cycle_type, cm_v_dept_pk
+--					, curdata.site_id
+					, curdata.cycle_type, cm_v_dept_pk, 'Y'
 					, curdata.per_number, v_chk_user_pk
 					, (case when curdata.sched_start_dt is null then null else to_date(curdata.sched_start_dt, 'YYYY-MM-DD') end)
 					, curdata.work_text
-					, current_timestamp, curdata.user_id, v_user_nm, 'Y', 'N');
-					
+					, current_timestamp, 1, v_user_nm, 'Y', 'N');
+			RAISE INFO 'YYY';		
 				update cm_mig_equip_chk_mst set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
         EXCEPTION
@@ -4951,7 +4757,7 @@ begin
 		, chk_item_nm, lcl, ucl, chk_item_unit, method, guide
 		, user_id, insert_ts, msg, site_id
 		from cm_mig_equip_chk_mst_item
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY PK, INSERT_TS
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4966,8 +4772,7 @@ begin
 			--    ˸     
 			select chk_mast_pk into v_chk_mast_pk 
 			from cm_equip_chk_mast 
-			where chk_mast_no = curdata.chk_mast_no
-			and site_id = curdata.site_id;
+			where chk_mast_no = curdata.chk_mast_no;
 		
 			--            ش   ڵ尡  ̹   ִ                   .
 			select count(*) into v_exist_cnt 
@@ -4985,11 +4790,13 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;		
-
+raise info 'xxxxxxxx';
 			if (v_exe_type = 'U') then
 				--     
 				UPDATE cm_equip_chk_item
@@ -4999,8 +4806,9 @@ begin
 				, chk_item_unit_pk=v_chk_item_unit_pk
 				, "method" = curdata.method
 				, guide = curdata.guide
+				, daily_report_item_cd = ''
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				, updater_nm = v_user_nm				
 				WHERE chk_mast_pk = v_chk_mast_pk and item_idx=curdata.item_idx;
 			
@@ -5012,14 +4820,14 @@ begin
 			     	, chk_item_nm, item_idx
 					, lcl, ucl
 				    , chk_item_unit_pk
-				    , "method" , guide 
+				    , "method" , guide , daily_report_item_cd
 				 	, insert_ts, inserter_id, inserter_nm)
 				VALUES (v_chk_mast_pk
 					, curdata.chk_item_nm, curdata.item_idx
 					, curdata.lcl, curdata.ucl
 					, v_chk_item_unit_pk
-					, curdata.method, curdata.guide
-					, current_timestamp, curdata.user_id, v_user_nm);
+					, curdata.method, curdata.guide, ''
+					, current_timestamp, 1, v_user_nm);
 
 				update cm_mig_equip_chk_mst_item set msg = 'INSERTED!' where pk = curdata.pk;
 			
@@ -5088,7 +4896,7 @@ begin
 		, site_id 
 		, user_id, insert_ts, msg
 		from cm_mig_equip_class
-		where (msg is null OR MSG = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY PK, INSERT_TS
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5102,7 +4910,7 @@ begin
 			select count(*) into v_exist_cnt 
 			from cm_equip_classify 
 			where class_type = 'CLASS' 
-			and site_id = curdata.site_id
+--			and site_id = curdata.site_id
 			and equip_class_id = curdata.equip_class_id
 			and category_id = curdata.equip_category_id;
 		
@@ -5113,8 +4921,10 @@ begin
 			
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 
@@ -5125,24 +4935,31 @@ begin
 				, hierarchy_path = curdata.equip_class_id
 				, use_yn = curdata.use_yn
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				where class_type = 'CLASS' 
-				and site_id = curdata.site_id
+--				and site_id = curdata.site_id
 				and equip_class_id = curdata.equip_class_id
 				and category_id = curdata.equip_category_id;
 			
 				update cm_mig_equip_class set msg = 'UPDATED!' where pk = curdata.pk;
 
 			elseif (v_exe_type = 'A') then
-				--    
+				raise notice 'v_exe_type: %', v_exe_type;
+				--설비 카테고리도 같이 일괄 등록하는 로직을 추가 by 이용재
+				INSERT INTO cm_equip_category(equip_category_id, equip_category_desc
+						, use_yn, insert_ts, inserter_id)
+					VALUES(curdata.equip_category_id, curdata.equip_class_desc
+						, 'Y', current_timestamp, 1);
+
+				--설비 유형 등록
 				INSERT INTO cm_equip_classify(equip_class_id, equip_class_desc
 					, hierarchy_path, category_id
-					, class_type, site_id, use_yn
+					, class_type,  use_yn
 				 	, insert_ts, inserter_id)
 				VALUES (curdata.equip_class_id, curdata.equip_class_desc
 						, curdata.equip_class_id, curdata.equip_category_id
-						, 'CLASS', curdata.site_id, curdata.use_yn
-						, current_timestamp, curdata.user_id);
+						, 'CLASS', curdata.use_yn
+						, current_timestamp, 1);
 
 				update cm_mig_equip_class set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
@@ -5187,6 +5004,7 @@ declare
 	v_file_grp_cd varchar(100);
 	v_equip_pk bigint;
 	v_user_pk integer;
+	v_data_pk integer;
 	curdata record;
 begin
 -- raise notice 'fntrans';
@@ -5216,7 +5034,7 @@ begin
 		, file_nm as file_stre_nm
 		, root_path as root_path
 		from cm_mig_equip_file
-		where (msg is null or MSG = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY PK, INSERT_TS
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5231,10 +5049,10 @@ begin
         BEGIN
 			
 			--      
-			select user_pk into v_user_pk from cm_user_info where login_id = curdata.user_id;
-			if (v_user_pk is null) then
-				select user_pk into v_user_pk from cm_user_info where login_id = 'system';
-			end if;
+			select au.id into v_user_pk 			
+			from user_profile up
+				inner join auth_user au on up."User_id" = au.id
+			where au.username = curdata.user_id;
 		
 			--     
 			select equip_pk into v_equip_pk from cm_equipment 
@@ -5245,28 +5063,18 @@ begin
 			else
 				if (v_exe_type = 'D') then		
 					--     
-					delete from cm_attach_file where attach_type = 'EQUIP_FILE' and attach_pk = v_equip_pk;
+					delete from attach_file where "TableName" = 'cm_equipment' and "DataPk" = v_equip_pk;
 					update cm_mig_equip_file set msg = 'DELETED!' where pk = curdata.pk;
 
 				else
 					--    
-					select max(file_grp_cd) into v_file_grp_cd from cm_attach_file where attach_type = 'EQUIP_FILE' and attach_pk = v_equip_pk;
-					if (v_file_grp_cd is null or coalesce(v_file_grp_cd, '') = '' ) then
-						v_file_grp_cd = concat(to_char(current_timestamp, 'YYYYMMDDHH24:MI:SS'), 'EQUIP_FILE_MIG', v_equip_pk::text);
-						insert into cm_attach_file_grp(attach_file_grp_cd, insert_ts, use_yn)
-						values(v_file_grp_cd, current_timestamp, 'Y');
-					end if;
+					select equip_pk into v_data_pk  from cm_equipment where equip_cd = curdata.equip_cd;
 
-					INSERT INTO cm_attach_file(file_grp_cd, attach_pk, attach_type
-							, file_ext, file_org_nm
-							, file_size, file_stre_cours
-							, file_stre_nm, root_path
-							, insert_ts, inserter_pk)
-					VALUES (v_file_grp_cd, v_equip_pk, 'EQUIP_FILE'
-							, curdata.file_ext, curdata.file_org_nm
-							, curdata.file_size, curdata.file_stre_cours
-							, curdata.file_stre_nm, curdata.root_path
-							, current_timestamp, v_user_pk);
+					INSERT INTO attach_file
+					("TableName", "DataPk", "AttachName", "FileIndex", "FileName", "PhysicFileName", "ExtName", "FilePath", "FileSize"
+						, _status, _created, _modified, _creater_id, _modifier_id)
+					VALUES( 'cm_equipment', v_data_pk, 'file', 0, curdata.file_org_nm, curdata.file_nm, curdata.file_ext, curdata.file_loc, curdata.file_size
+						, '', current_timestamp, null, v_user_pk, null);
 
 					update cm_mig_equip_file set msg = 'INSERTED!' where pk = curdata.pk;
 				end if;
@@ -5311,6 +5119,7 @@ declare
 	v_file_grp_cd varchar(100);
 	v_equip_pk bigint;
 	v_user_pk integer;
+	v_data_pk integer;
 	curdata record;
 begin
 -- raise notice 'fntrans';
@@ -5335,13 +5144,13 @@ begin
 		, site_id
 		, user_id, insert_ts, msg
 		, file_ext as file_ext
-		, cast(file_size as number) as file_size
+		, cast(file_size as bigint) as file_size
 		, file_loc as file_stre_cours
 		, file_nm as file_stre_nm
 		, root_path as root_path
 		, photo_desc
 		from cm_mig_equip_photo
-		where (msg is null or msg = 'error')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5356,41 +5165,32 @@ begin
         BEGIN
 			
 			--      
-			select user_pk into v_user_pk from cm_user_info where login_id = curdata.user_id;
-			if (v_user_pk is null) then
-				select user_pk into v_user_pk from cm_user_info where login_id = 'system';
-			end if;
+			select au.id into v_user_pk 			
+			from user_profile up
+				inner join auth_user au on up."User_id" = au.id
+			where au.username = curdata.user_id;
+
 			--     
 			select equip_pk into v_equip_pk from cm_equipment 
 			where equip_cd = curdata.equip_cd and site_id = curdata.site_id;
-			
+			RAISE NOTICE 'v_user_pk:%', v_user_pk;
 			if (curdata.file_ext is null or curdata.msg = 'FILE_NOT_FOUND') then
 				update cm_mig_equip_photo set msg = 'NOT EXISTS FILE.' where pk = curdata.pk;
 			else
 				if (v_exe_type = 'D') then		
 					--     
-					delete from cm_attach_file where attach_type = 'EQUIP_PHOTO' and attach_pk = v_equip_pk;
+					delete from attach_file where "TableName" = 'cm_equipment' and "DataPk" = v_equip_pk;
 					update cm_mig_equip_photo set msg = 'DELETED!' where pk = curdata.pk;
 
 				else
-					--    
-					select max(file_grp_cd) into v_file_grp_cd from cm_attach_file where attach_type = 'EQUIP_PHOTO' and attach_pk = v_equip_pk;
-					if (v_file_grp_cd is null or coalesce(v_file_grp_cd, '') = '' ) then
-						v_file_grp_cd = concat(to_char(current_timestamp, 'YYYYMMDDHH24MISS'), 'EQUIPPHOTOMIG', v_equip_pk::text);
-						insert into cm_attach_file_grp(attach_file_grp_cd, insert_ts, use_yn)
-						values(v_file_grp_cd, current_timestamp, 'Y');
-					end if;
+			RAISE NOTICE 'INSERT START';
+					select equip_pk into v_data_pk  from cm_equipment where equip_cd = curdata.equip_cd;	
 
-					INSERT INTO cm_attach_file(file_grp_cd, attach_pk, attach_type
-							, file_ext, file_org_nm
-							, file_size, file_stre_cours
-							, file_stre_nm, root_path
-							, insert_ts, inserter_pk)
-					VALUES (v_file_grp_cd, v_equip_pk, 'EQUIP_PHOTO'
-							, curdata.file_ext, curdata.file_org_nm
-							, curdata.file_size, curdata.file_stre_cours
-							, curdata.file_stre_nm, curdata.root_path
-							, current_timestamp, v_user_pk);
+					INSERT INTO attach_file
+					("TableName", "DataPk", "AttachName", "FileIndex", "FileName", "PhysicFileName", "ExtName", "FilePath", "FileSize"
+						, _status, _created, _modified, _creater_id, _modifier_id)
+					VALUES( 'cm_equipment', v_data_pk, 'image', 0, curdata.file_org_nm, curdata.file_nm, curdata.file_ext, curdata.file_loc, curdata.file_size
+						, '', current_timestamp, null, v_user_pk, null);
 
 					update cm_mig_equip_photo set msg = 'INSERTED!' where pk = curdata.pk;
 				end if;
@@ -5479,7 +5279,7 @@ begin
 		, site_id
 		, user_id, insert_ts, msg
 		from cm_mig_equip_spec
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5504,8 +5304,10 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 			--     
@@ -5583,12 +5385,13 @@ begin
 
 				update cm_mig_equip_spec set msg = 'UPDATED!' where pk = curdata.pk;
 			elseif (v_exe_type = 'A') then
+				RAISE NOTICE 'v_exe_type: %', v_exe_type; 
 				--    
 				v_line = '1';
 				if (coalesce(v_exist_cnt1, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm1, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm1, curdata.equip_spec_unit1, curdata.equip_spec_value1, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm1, curdata.equip_spec_unit1, curdata.equip_spec_value1, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm1, '') <> '') then
@@ -5603,7 +5406,7 @@ begin
 				if (coalesce(v_exist_cnt2, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm2, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm2, curdata.equip_spec_unit2, curdata.equip_spec_value2, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm2, curdata.equip_spec_unit2, curdata.equip_spec_value2, current_timestamp, 1, v_user_nm);
 					end if;	
 				else
 					if (coalesce(curdata.equip_spec_nm2, '') <> '') then
@@ -5618,7 +5421,7 @@ begin
 				if (coalesce(v_exist_cnt3, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm3, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm3, curdata.equip_spec_unit3, curdata.equip_spec_value3, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm3, curdata.equip_spec_unit3, curdata.equip_spec_value3, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm3, '') <> '') then
@@ -5633,7 +5436,7 @@ begin
 				if (coalesce(v_exist_cnt4, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm4, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm4, curdata.equip_spec_unit4, curdata.equip_spec_value4, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm4, curdata.equip_spec_unit4, curdata.equip_spec_value4, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm4, '') <> '') then
@@ -5648,7 +5451,7 @@ begin
 				if (coalesce(v_exist_cnt5, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm5, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm5, curdata.equip_spec_unit5, curdata.equip_spec_value5, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm5, curdata.equip_spec_unit5, curdata.equip_spec_value5, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm5, '') <> '') then
@@ -5663,7 +5466,7 @@ begin
 				if (coalesce(v_exist_cnt6, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm6, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm6, curdata.equip_spec_unit6, curdata.equip_spec_value6, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm6, curdata.equip_spec_unit6, curdata.equip_spec_value6, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm6, '') <> '') then
@@ -5678,7 +5481,7 @@ begin
 				if (coalesce(v_exist_cnt7, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm7, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm7, curdata.equip_spec_unit7, curdata.equip_spec_value7, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm7, curdata.equip_spec_unit7, curdata.equip_spec_value7, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm7, '') <> '') then
@@ -5693,7 +5496,7 @@ begin
 				if (coalesce(v_exist_cnt8, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm8, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm8, curdata.equip_spec_unit8, curdata.equip_spec_value8, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm8, curdata.equip_spec_unit8, curdata.equip_spec_value8, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm8, '') <> '') then
@@ -5708,7 +5511,7 @@ begin
 				if (coalesce(v_exist_cnt9, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm9, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm9, curdata.equip_spec_unit9, curdata.equip_spec_value9, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm9, curdata.equip_spec_unit9, curdata.equip_spec_value9, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm9, '') <> '') then
@@ -5723,7 +5526,7 @@ begin
 				if (coalesce(v_exist_cnt10, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm10, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm10, curdata.equip_spec_unit10, curdata.equip_spec_value10, current_timestamp, curdata.user_id, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm10, curdata.equip_spec_unit10, curdata.equip_spec_value10, current_timestamp, 1, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm10, '') <> '') then
@@ -5801,7 +5604,7 @@ begin
 		, site_id
 		, user_id, insert_ts, msg
 		from cm_mig_equip_type
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5815,7 +5618,7 @@ begin
 			select count(*) into v_exist_cnt 
 			from cm_equip_classify 
 			where class_type = 'TYPES' 
-			and site_id = curdata.site_id
+--			and site_id = curdata.site_id
 			and parent_id = curdata.equip_class_id
 			and equip_class_id = curdata.equip_type_id;
 		
@@ -5826,8 +5629,10 @@ begin
 			
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 
@@ -5839,9 +5644,9 @@ begin
 				, parent_id = curdata.equip_class_id
 				, use_yn = curdata.use_yn
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				where class_type = 'TYPES' 
-				and site_id = curdata.site_id
+--				and site_id = curdata.site_id
 				and parent_id = curdata.equip_class_id
 				and equip_class_id = curdata.equip_type_id;
 			
@@ -5851,12 +5656,12 @@ begin
 				--    
 				INSERT INTO cm_equip_classify(equip_class_id, equip_class_desc
 					, hierarchy_path, parent_id
-					, class_type, site_id, use_yn
+					, class_type,  use_yn
 				 	, insert_ts, inserter_id)
 				VALUES (curdata.equip_type_id, curdata.equip_type_desc
 						, curdata.hierarchy_path, curdata.equip_class_id
-						, 'TYPES', curdata.site_id, curdata.use_yn
-						, current_timestamp, curdata.user_id);
+						, 'TYPES', curdata.use_yn
+						, current_timestamp, 1);
 
 				update cm_mig_equip_type set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
@@ -5925,7 +5730,7 @@ begin
 		, out_order
 		, user_id, insert_ts, msg
 		from cm_mig_loc
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5963,8 +5768,10 @@ begin
 			select loc_pk into v_up_loc_pk from cm_location where loc_cd = curdata.up_loc_cd;
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 
@@ -5983,7 +5790,7 @@ begin
 				, updater_nm = v_user_nm
 				, out_order = coalesce(out_order, 0)
 				where loc_cd = curdata.loc_cd
-				and site_id = curdata.site_id;
+				and site_id = '1';
 			
 				update cm_mig_loc set msg = 'UPDATED!' where pk = curdata.pk;
 
@@ -5998,8 +5805,8 @@ begin
 						, case when trim(curdata.building_yn)  = '' then null else curdata.building_yn end
 						, case when trim(curdata.spshop_yn)  = '' then null else curdata.spshop_yn end
 						, 0
-						, curdata.isa95class, curdata.site_id, 'OPERATING'
-						, current_timestamp, curdata.user_id, v_user_nm, 'N', 'Y');
+						, curdata.isa95class, '1', 'OPERATING'
+						, current_timestamp, 1, v_user_nm, 'N', 'Y');
 
 				update cm_mig_loc set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
@@ -6046,6 +5853,7 @@ declare
 	v_supplier_pk integer;
 	v_maker_pk integer;
 	v_line varchar(10);
+	v_user_pk integer;
 	curdata record;
 begin
 -- raise notice 'fntrans';
@@ -6070,7 +5878,7 @@ begin
 		, maker_cd, maker_nm, supplier_cd, supplier_nm
 		, delivery_days, delivery_type, user_id, insert_ts, msg
 		from cm_mig_mtrl
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -6082,7 +5890,7 @@ begin
 		v_amt_unit_pk = null;
 		v_supplier_pk = null;
 		v_maker_pk = null;
-	
+		v_user_pk = null;
 		v_line = '2';
 	
         begin
@@ -6112,9 +5920,17 @@ begin
 			v_line = '3';
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" into v_user_nm	
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
+
+				select au.id into v_user_pk 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
+
 			end if;	
 		
 			v_line = '4';
@@ -6144,14 +5960,15 @@ begin
 				, insert_ts, inserter_id, inserter_nm, use_yn)
 				VALUES (curdata.mtrl_cls_cd, curdata.mtrl_cls_nm, 'MTRL_CLASS'
 				, curdata.mtrl_cls_nm, curdata.mtrl_cls_nm, curdata.mtrl_cls_nm, 0
-				, current_timestamp, curdata.user_id, v_user_nm, 'Y');
+				, current_timestamp, v_user_pk, v_user_nm, 'Y');
 
 				select code_pk into v_mtrl_class_cd_pk 
 				from cm_base_code where code_grp_cd = 'MTRL_CLASS' and code_cd = curdata.mtrl_cls_cd;
 			end if;
 		
 			v_line = '9';
-			
+--			raise notice 'v_line: %', v_line;
+--			raise notice 'v_exe_type: %', v_exe_type;
 			if (v_exe_type = 'U') then
 				--     
 				update cm_material
@@ -6178,7 +5995,7 @@ begin
 				 , safety_stock_amt
 				 , unit_price, unit_price_dt, delivery_days, delivery_type
 				 , mtrl_dsc, supplier_pk, maker_pk
-				 , site_id
+				 , site_id, allow_add_bom
 				 , insert_ts, inserter_id, inserter_nm, use_yn, del_yn)
 				VALUES (curdata.mtrl_cd, curdata.mtrl_nm
 						, v_mtrl_class_cd_pk, v_amt_unit_pk
@@ -6187,9 +6004,10 @@ begin
 						, (case when curdata.unit_price_dt is null then null else to_date(curdata.unit_price_dt, 'YYYY-MM-DD') end)
 						, curdata.delivery_days, curdata.delivery_type
 						, curdata.mtrl_dsc, v_supplier_pk, v_maker_pk
-						, curdata.site_id
-						, current_timestamp, curdata.user_id, v_user_nm, 'Y', 'N');
+						, curdata.site_id, 'N'
+						, current_timestamp, v_user_pk, v_user_nm, 'Y', 'N');
 				v_line = '11';
+--				raise notice 'v_line: %', v_line;
 				update cm_mig_mtrl set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
         EXCEPTION
@@ -6373,6 +6191,7 @@ declare
 	v_file_grp_cd varchar(100);
 	v_mtrl_pk bigint;
 	v_user_pk integer;
+	v_data_pk integer;
 	curdata record;
 begin
 -- raise notice 'fntrans';
@@ -6395,7 +6214,7 @@ begin
 
 	for curdata in
 		select pk, action_type, mtrl_cd, mtrl_nm
-		, file_loc, file_nm, file_org_nm
+		, file_loc, file_nm, photo_desc as file_org_nm
 		, site_id
 		, user_id, insert_ts, msg
 		, file_ext as file_ext
@@ -6405,8 +6224,9 @@ begin
 		, root_path as root_path
 		, photo_desc
 		from cm_mig_mtrl_photo
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
+
 	loop
 		raise notice 'TARGET %', curdata;	
 		
@@ -6420,41 +6240,35 @@ begin
         BEGIN
 			
 			--      
-			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
-				v_user_nm = coalesce(v_user_nm, 'system');
-			end if;		
-		
+			select au.id into v_user_pk 			
+			from user_profile up
+				inner join auth_user au on up."User_id" = au.id
+			where au.username = curdata.user_id;
 			--     
 			select mtrl_pk into v_mtrl_pk from cm_material where mtrl_cd = curdata.mtrl_cd and site_id = curdata.site_id;
 			
 			if (curdata.file_ext is null or curdata.msg = 'FILE_NOT_FOUND') then
+
+				raise info '111';	
 				update cm_mig_mtrl_photo set msg = 'NOT EXISTS FILE.' where pk = curdata.pk;
 			else
-				if (v_exe_type = 'D') then		
+				raise info '222 %', v_mtrl_pk;	
+				if (UPPER(v_exe_type) = 'D') then		
 					--     
-					delete from cm_attach_file where attach_type = 'MTRL_PHOTO' and attach_pk = v_mtrl_pk;
+					delete from attach_file where "TableName" = 'cm_material' and "DataPk" = v_mtrl_pk;
 					update cm_mig_mtrl_photo set msg = 'DELETED!' where pk = curdata.pk;
+				else	
 
-				else
-					--    
-					select max(file_grp_cd) into v_file_grp_cd from cm_attach_file where attach_type = 'MTRL_PHOTO' and attach_pk = v_mtrl_pk;
-					if (v_file_grp_cd is null or coalesce(v_file_grp_cd, '') = '' ) then
-						v_file_grp_cd = concat(to_char(current_timestamp, 'YYYYMMDDHH24MISS'), 'MTRLPHOTOMIG', v_mtrl_pk::text);
-						insert into cm_attach_file_grp(attach_file_grp_cd, insert_ts, use_yn)
-						values(v_file_grp_cd, current_timestamp, 'Y');
-					end if;
+					select mtrl_pk into v_data_pk  from cm_material where mtrl_cd = curdata.mtrl_cd;	
+--	raise notice 'v_data_pk: %, file_org_nm:%, v_user_pk:%, curdata.v_user_pk: %', curdata, curdata.file_org_nm, v_user_pk, curdata.v_user_pk;
+	raise notice '1, v_data_pk: %, file_org_nm:%, v_user_pk:%, ', curdata, curdata.file_org_nm, v_user_pk;
 
-					insert into cm_attach_file (file_grp_cd, file_org_nm, file_stre_nm
-						, file_ext, file_size, file_stre_cours
-						, attach_type, attach_pk
-						, insert_ts, inserter_pk, root_path)
-					values(v_file_grp_cd, curdata.file_org_nm, curdata.file_stre_nm
-						, curdata.file_ext, curdata.file_size, curdata.file_stre_cours
-						, 'MTRL_PHOTO', v_mtrl_pk
-						, current_timestamp, v_user_pk, curdata.root_path
-					);
+					INSERT INTO attach_file
+					("TableName", "DataPk", "AttachName", "FileIndex", "FileName", "PhysicFileName", "ExtName", "FilePath", "FileSize"
+						, _status, _created, _modified, _creater_id, _modifier_id)
+					VALUES( 'cm_material', v_data_pk, 'image', 0, curdata.file_org_nm, curdata.file_nm, curdata.file_ext, curdata.file_loc, curdata.file_size
+						, '', current_timestamp, null, v_user_pk, null);
+raise WARNING 'end INSERT';
 				
 					update cm_mig_mtrl_photo set msg = 'INSERTED!' where pk = curdata.pk;
 				end if;
@@ -6528,7 +6342,7 @@ begin
 		, trim(pm_user_id) as pm_user_id
 		, pm_user_nm, work_expect_hr, work_text, user_id, insert_ts, msg
 		from cm_mig_pm
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -6541,12 +6355,10 @@ begin
 		v_pm_user_pk = null;
 		
         BEGIN
-			--            ش   ڵ尡  ̹   ִ                   .
 	        
 			select count(*) into v_exist_cnt from cm_pm 
-			where pm_no = curdata.pm_no
-			and site_id = curdata.site_id;
-		
+			where pm_no = curdata.pm_no;
+
 			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
 				v_exe_type = 'U';
 			end if;
@@ -6554,20 +6366,25 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;		
-		
-			--     
+
+
 			select equip_pk into v_equip_pk from cm_equipment 
-			where equip_cd = curdata.equip_cd and site_id = curdata.site_id;
-		
+			where equip_cd = curdata.equip_cd;
+
 			--  μ 
-			select dept_pk into cm_v_dept_pk from cm_dept where dept_cd = curdata.dept_cd;
-		
+			select id into cm_v_dept_pk from dept where "Code" = curdata.dept_cd;
+	
 			--      
-			select user_pk into v_pm_user_pk from cm_user_info where login_id = curdata.pm_user_id;
+			select "User_id" into v_pm_user_pk
+			from user_profile up
+				inner join auth_user au on up."User_id" = au.id
+			where au.username = curdata.user_id;
 
 			if (v_exe_type = 'U') then
 				--     
@@ -6583,24 +6400,24 @@ begin
 				, work_expect_hr=curdata.work_expect_hr
 				, work_text=curdata.work_text				
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				, updater_nm = v_user_nm				
 				WHERE pm_no = curdata.pm_no;
 				update cm_mig_pm set msg = 'UPDATED!' where pk = curdata.pk;
 			
 			elseif (v_exe_type = 'A') then
-				--    
-				INSERT INTO cm_pm(pm_nm, pm_no, pm_no_sort, site_id
+
+				INSERT INTO cm_pm(pm_nm, pm_no, pm_no_sort
 					, equip_pk, pm_type, per_number, cycle_type
 					, sched_start_dt, dept_pk, pm_user_pk
 			     	, work_expect_hr, work_text
 				 	, insert_ts, inserter_id, inserter_nm, use_yn, del_yn)
-				VALUES (curdata.pm_nm, curdata.pm_no, cast(curdata.pm_no as bigint), curdata.site_id
+				VALUES (curdata.pm_nm, curdata.pm_no, 1
 					, v_equip_pk, curdata.pm_type, curdata.per_number, curdata.cycle_type
 					, (case when curdata.sched_start_dt is null then null else to_date(curdata.sched_start_dt, 'YYYY-MM-DD') end)
 					, cm_v_dept_pk, v_pm_user_pk
 					, curdata.work_expect_hr, curdata.work_text
-					, current_timestamp, curdata.user_id, v_user_nm, 'Y', 'N');
+					, current_timestamp, 1, v_user_nm, 'Y', 'N');
 
 				update cm_mig_pm set msg = 'INSERTED!' where pk = curdata.pk;
 			
@@ -6806,7 +6623,7 @@ begin
 		, coalesce(t.use_yn, 'Y') as use_yn
 		, t.user_id, t.insert_ts, t.msg
 		from cm_mig_supplier t
-		where (t.msg is null or t.msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		ORDER BY t.pk, t.insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -6814,7 +6631,7 @@ begin
 		v_pk = curdata.pk;
 		v_exe_type = curdata.action_type;
 		v_user_nm = null;
-		
+		RAISE NOTICE 'v_exe_type %', v_exe_type;
         BEGIN
 			--            ش   ڵ尡  ̹   ִ                   .
 			select count(*) into v_exist_cnt from cm_supplier where supplier_cd = curdata.supplier_cd and site_id = curdata.site_id;
@@ -6825,8 +6642,10 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;		
 			
@@ -6851,28 +6670,31 @@ begin
 				, address2 = curdata.address2
 				, use_yn = case when coalesce(curdata.use_yn, 'Y')  = '' then 'Y' else coalesce(curdata.use_yn, 'Y') end
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				, updater_nm = v_user_nm
 				where supplier_cd = curdata.supplier_cd and site_id = curdata.site_id;
 
 				update cm_mig_supplier set msg = 'UPDATED!' where pk = curdata.pk;
 			
 			elseif (v_exe_type = 'A') then
+				raise notice 'INSERT START ';
 				--    
 				INSERT INTO cm_supplier(supplier_cd, supplier_nm, site_id, comp_type
 						, ceo_nm, phone, email_addr
 						, charger_nm, charger_tel, charger2_nm, charger2_tel
 						, business_class_nm, nation, local, homepage
 						, address1, address2, use_yn
-						, insert_ts, inserter_id, inserter_nm, del_yn)
+						, insert_ts, inserter_id, inserter_nm, del_yn
+						)
 				VALUES (curdata.supplier_cd, curdata.supplier_nm, curdata.site_id, curdata.comp_type
 						, curdata.ceo_nm, curdata.phone, curdata.email_addr
 						, curdata.charger_nm, curdata.charger_tel, curdata.charger2_nm, curdata.charger2_tel
 						, curdata.business_class_nm, curdata.nation, curdata.local, curdata.homepage
 						, curdata.address1, curdata.address2
 						, case when coalesce(curdata.use_yn, 'Y')  = '' then 'Y' else coalesce(curdata.use_yn, 'Y') end
-						, current_timestamp, curdata.user_id, v_user_nm, 'N');
-
+						, current_timestamp, 1, v_user_nm, 'N'
+						);
+				raise notice 'INSERT DONE ';
 				update cm_mig_supplier set msg = 'INSERTED!' where pk = curdata.pk;
 			
 			end if;
@@ -6918,18 +6740,9 @@ declare
 	v_role_cd varchar(4);
 	v_error_message varchar(1000);
 	curdata record;
+	v_user_id int;
 begin
 -- raise notice 'fntrans';
-	-- #############################
-	--          ̱׷  ̼  ó  
-	-- ltmetal salt    ⺻     null   ڿ     
-	-- call cm_prc_mig_user()
-	-- select count(*) from cm_mig_user
-	-- select count(*) from cm_user_info
-	-- delete from cm_error_log where error_log_title = 'cm_prc_mig_user';
-	-- select * from cm_error_log where error_log_title = 'cm_prc_mig_user' order by error_log_pk desc limit 1000
-	-- SELECT nextval('user_info_user_pk_seq')
-	-- #############################
 	
 	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
 	values('MIGRATION', 'cm_prc_MIG_USER', concat(' [MESSAGE] : ', '         ̱׷  ̼  ó       '));
@@ -6944,7 +6757,7 @@ begin
 		, coalesce(retire_yn, 'N') as retire_yn
 		, user_id, insert_ts, msg
 		from cm_mig_user
-		where (msg is null or msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -6956,84 +6769,90 @@ begin
 		v_user_nm = null;
 		v_user_type = null;
 		v_role_cd = null;
+		v_user_id = null;
 	
         BEGIN
 			--            ش   ڵ尡  ̹   ִ                   .
-			select count(*) into v_exist_cnt from cm_user_info where login_id = curdata.login_id;
+			select count(*) into v_exist_cnt from auth_user where username = curdata.login_id;
 			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
 				v_exe_type = 'U';
 			end if;
+raise info 'v_exist_cnt:%', v_exist_cnt;
 			v_exist_cnt = 0;
 
 
 			--  μ 
-			select dept_pk into cm_v_dept_pk from cm_dept where dept_cd = curdata.dept_cd;
+			select id into cm_v_dept_pk from dept where "Code" = curdata.dept_cd;
+raise info 'cm_v_dept_pk:%', cm_v_dept_pk;
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" user_nm into v_user_nm 
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
+raise info 'v_user_nm:%', v_user_nm;
 			end if;	
-
-			--    Һ            
-			select user_type, role_cd
-			into v_user_type, v_role_cd
-			from cm_role where role_cd = curdata.role_cd;
-		
-			if (v_role_cd is null or v_role_cd = '') then 
-				v_role_cd = 'RUC';
-			end if;
-			if (v_user_type is null or v_user_type = '') then 
-				v_user_type = 'UC';
-			end if;
-		
-
 			if (v_exe_type = 'U') then
 				--     
-				update cm_user_info
-				set user_nm = curdata.user_nm
-				, login_id = curdata.login_id
-				, user_password = curdata.user_password
-				, dept_pk = cm_v_dept_pk
+raise info 'v_exe_type:%,login_id:%,user_mail:%,is_staff:%', v_exe_type, curdata.login_id, curdata.user_mail,case when trim(curdata.retire_yn) = 'Y' then true else false end;
+				update auth_user
+				set first_name = curdata.user_nm,
+				    last_name = '',
+				    email = curdata.user_mail,
+				    is_staff = case when trim(curdata.retire_yn) = 'Y' then true else false end,
+				    is_active = true
+				where username = curdata.login_id;
+raise exception '';
+raise info 'auth_user end:';
+				
+				select id into v_user_id from auth_user where username = curdata.login_id;
+
+				update user_profile
+				set "Name" = curdata.user_nm			
+				, "Depart_id" = cm_v_dept_pk
 				, user_phone = curdata.user_phone
-				, user_mail = curdata.user_mail
-				, user_type = v_user_type
-				, job_pos = curdata.job_pos
-				, allow_login = case when trim(curdata.allow_login)  = '' then 'N' else coalesce(curdata.allow_login, 'N') end
-				, leader_yn = case when trim(curdata.leader_yn)  = '' then 'N' else coalesce(curdata.leader_yn, 'N') end
-				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
-				, updater_nm = v_user_nm
-				, salt = null
-				, del_yn = case when trim(curdata.retire_yn)  = '' then 'N' else coalesce(curdata.retire_yn, 'N') end
-				where login_id = curdata.login_id;
-			
+				, user_email = curdata.user_mail
+				, _modified = current_timestamp
+				, _modifier_id = 1
+				, del_yn = case when trim(curdata.retire_yn) = 'Y' then true else false end
+				, use_yn = 'Y'
+				where "User_id" = v_user_id;
+		raise info 'user_profile end:';	
 				update cm_mig_user set msg = 'UPDATED!' where pk = curdata.pk;
 
 			elseif (v_exe_type = 'A') then
-			
-				SELECT nextval('user_info_user_pk_seq') into v_new_user_pk;	
-				--    
-				INSERT INTO cm_user_info(user_pk, emp_no, user_nm, login_id, user_password
-				 , dept_pk, user_phone, user_mail, salt
-				 , user_type, job_pos, leader_yn, allow_login 
-				 , admin_yn, job_class_pk, use_lang_cd
-				 , insert_ts, inserter_id, inserter_nm, del_yn, use_yn)
-				VALUES (v_new_user_pk, curdata.emp_no, curdata.user_nm, curdata.login_id, curdata.user_password
-						, cm_v_dept_pk, curdata.user_phone, curdata.user_mail, null
-						, v_user_type, curdata.job_pos
-						, case when trim(curdata.allow_login)  = '' then 'N' else coalesce(curdata.allow_login, 'N') end
-						, case when trim(curdata.leader_yn)  = '' then 'N' else coalesce(curdata.leader_yn, 'N') end 
-						, 'N', null, 'ko'
-						, current_timestamp, curdata.user_id, v_user_nm
+raise info '111111';
+				INSERT INTO auth_user (
+					username, password, is_superuser, first_name, last_name,
+					email, is_staff, is_active, date_joined
+				)
+				SELECT
+				curdata.login_id,
+				'204779e25f691bba1bc5eddd1bdd1bafecb5dd7629fab4cc5efb12d0dc59eb2f',
+				FALSE,
+				curdata.user_nm,'',
+				curdata.user_mail,				
+				'Y',
+				case when trim(curdata.retire_yn) = 'Y' then true else false end,
+				current_timestamp;
+
+			raise info '222';
+
+				select id into v_new_user_pk from auth_user where username = curdata.login_id;
+raise info '333:%', v_new_user_pk;
+				INSERT INTO user_profile("User_id", "Name", lang_code, _created,_creater_id, del_yn, use_yn)
+				VALUES (v_new_user_pk, curdata.user_nm
+						, 'ko-KR'
+						, current_timestamp, 1
 						, case when trim(curdata.retire_yn)  = '' then 'N' else coalesce(curdata.retire_yn, 'N') end
 						, 'Y');
 
 				--  ⺻    
-				insert into cm_user_role(user_pk, role_cd)
-				values(v_new_user_pk, v_role_cd);
-
+--				insert into cm_user_role(user_pk, role_cd)
+--				values(v_new_user_pk, v_role_cd);
+raise info 'end';
 				update cm_mig_user set msg = 'INSERTED!' where pk = curdata.pk;
 			
 
@@ -7109,34 +6928,35 @@ begin
 	
 	for curdata in
 		select t1.pk, t1.action_type, t1.site_id, t1.temp_wo_no
-		, t1.wo_type, t1.maint_type_cd, t1.wo_title, t1.wo_status
-		, t1.equip_cd, t1.equip_nm, eq.equip_pk
-		, t1.req_dt
-		, t1.req_bsi_dept_cd, t1.req_bsi_dept_nm, t1.req_dept_cd, t1.req_dept_nm, rd.dept_pk as req_dept_pk
-		, t1.req_user_id, t1.req_user_nm
-		, t1.req_info, t1.want_dt, t1.broken_dt, t1.broken_hr
-		, t1.problem_cd, t1.cause_cd , t1.remedy_cd
-		, t1.plan_start_dt, t1.plan_end_dt
-		, (case when t1.start_dt is null then concat(t1.plan_start_dt, ' 00:00') else t1.start_dt end) as start_dt
-		, (case when t1.end_dt is null then concat(t1.plan_end_dt, ' 23:59') else t1.end_dt end) as end_dt
-		, t1.finish_dt
-		, t1.dept_cd, t1.dept_nm, d.dept_pk
-		, t1.charger_id, t1.charger_nm, cu.user_pk as charger_pk
-		, t1.work_desc, t1.tot_cost, t1.mtrl_cost, t1.labor_cost, t1.outside_cost, t1.etc_cost
-		, (case when t1.work_src = ' 系' then 'WS01' when t1.work_src = '   ' then 'WS02' when t1.work_src = '    ' then 'WS03' else null end) as work_src
-		, t1.user_id, t1.insert_ts, t1.msg
+			, t1.wo_type, t1.maint_type_cd, t1.wo_title, t1.wo_status
+			, t1.equip_cd, t1.equip_nm, eq.equip_pk
+			, t1.req_dt
+			, t1.req_bsi_dept_cd, t1.req_bsi_dept_nm, t1.req_dept_cd, t1.req_dept_nm, rd.id as req_dept_pk
+			, t1.req_user_id, t1.req_user_nm
+			, t1.req_info, t1.want_dt, t1.broken_dt, t1.broken_hr
+			, t1.problem_cd, t1.cause_cd , t1.remedy_cd
+			, t1.plan_start_dt, t1.plan_end_dt
+			, (case when t1.start_dt is null then concat(t1.plan_start_dt, ' 00:00') else t1.start_dt end) as start_dt
+			, (case when t1.end_dt is null then concat(t1.plan_end_dt, ' 23:59') else t1.end_dt end) as end_dt
+			, t1.finish_dt
+			, t1.dept_cd, t1.dept_nm, d.id as dept_pk
+			, t1.charger_id, t1.charger_nm, cu.id as charger_pk
+			, t1.work_desc, t1.tot_cost, t1.mtrl_cost, t1.labor_cost, t1.outside_cost, t1.etc_cost
+			, (case when t1.work_src = ' 系' then 'WS01' when t1.work_src = '   ' then 'WS02' when t1.work_src = '    ' then 'WS03' else null end) as work_src
+			, t1.user_id, t1.insert_ts, t1.msg		
 		from cm_mig_wo t1
-		left outer join cm_dept d on t1.dept_cd = d.dept_cd
-		left outer join cm_dept rd on t1.req_dept_cd = rd.dept_cd
+		left outer join dept d on t1.dept_cd = d."Code"
+		left outer join dept rd on t1.req_dept_cd = rd."Code"
 		left outer join cm_equipment eq on t1.equip_cd = eq.equip_cd
-		left outer join cm_user_info cu on t1.charger_id = cu.login_id
+		left outer join (select up."User_id" as id, au."username"
+						 from user_profile up
+						 inner join auth_user au on up."User_id" = au.id) cu on t1.charger_id = cu."username"
 		left outer join cm_base_code sc on t1.work_src = sc.code_nm and sc.code_grp_cd = 'work_src'
-		where (t1.msg is null or t1.msg = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR')
 		and t1.req_user_nm is not null
 		order by t1.plan_start_dt, t1.pk, t1.insert_ts
 	loop
-		raise notice 'TARGET %', curdata;	
-		
+		raise notice 'TARGET %', curdata;
 
 		v_pk = curdata.pk;
 		v_temp_wo_no = curdata.temp_wo_no;
@@ -7160,8 +6980,7 @@ begin
         BEGIN
 			--            ش   ڵ尡  ̹   ִ                   .
 			select count(*) into v_exist_cnt 
-			from cm_work_order where work_order_no = curdata.temp_wo_no
-			and site_id = curdata.site_id;
+			from cm_work_order where work_order_no = curdata.temp_wo_no;
 		
 			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
 				v_exe_type = 'U';
@@ -7170,13 +6989,20 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select user_nm into v_user_nm from cm_user_info
-				where login_id = curdata.user_id;
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
 		
 			--   û  
-			select user_pk into v_rqst_user_pk from cm_user_info where login_id = curdata.req_user_id;
+			select user_pk into v_rqst_user_pk from (
+				 select up."User_id" as id, au."username"
+				 from user_profile up
+				 inner join auth_user au on up."User_id" = au.id
+			)	cu 
+			where cu.username = curdata.req_user_id;
 			if v_rqst_user_pk is null then
 				raise exception using message = '[  û  :REQ_USER_ID NOT_FOUND]', errcode = 'P0001';
 			end if;
@@ -7262,7 +7088,7 @@ begin
 						, curdata.req_info, 'RQ,AP,CL', 'CL', curdata.wo_type
 						, v_work_order_approval_pk
 				   		, curdata.problem_cd, curdata.cause_cd, curdata.remedy_cd, curdata.site_id
-						, to_timestamp(curdata.req_dt, 'YYYY-MM-DD HH24:MI'), curdata.req_user_id, curdata.req_user_nm);
+						, to_timestamp(curdata.req_dt, 'YYYY-MM-DD HH24:MI'), 1, curdata.req_user_nm);
 
 				--      ̷    û,  Ϸ 
 				insert into cm_work_order_hist(after_status, before_status, change_reason, change_ts, changer_nm, changer_pk, work_order_pk)
@@ -7335,7 +7161,7 @@ begin
 		, cause_cd, cause_nm
 		, user_id, insert_ts, msg, site_id
 		from cm_mig_wo_fault_loc
-		where (msg is null or msg = 'error')
+		where (msg is null or upper(msg) = 'ERROR')
 		order by pk,insert_ts 
 	loop
 		-- raise notice 'TARGET %', curdata;	
@@ -7998,9 +7824,9 @@ begin
 	v_exist_cnt = 0;
 
 
---	select d.dept_pk into cm_v_own_dept_pk
---	from cm_dept d 
---	where d.dept_cd = v_own_dept_cd;
+--	select d.id into cm_v_own_dept_pk
+--	from dept d 
+--	where d."Code" = v_own_dept_cd;
 
 	--  ߼۴      翩   Ȯ  .
 	select count(*) into v_exist_cnt
@@ -8048,13 +7874,13 @@ begin
 				, m.safety_stock_amt as safety_stock_amt
 			FROM cm_mtrl_inout t
 			INNER JOIN cm_material m on t.mtrl_pk = m.mtrl_pk
-			LEFT OUTER JOIN cm_dept owd on t.own_dept_cd = owd.dept_cd
+			LEFT OUTER JOIN dept owd on t.own_dept_cd = owd."Code"
 			INNER JOIN cm_location l on t.inout_loc_cd = l.loc_cd
 			where to_char(t.inout_dt, 'YYYY-MM') = v_year_mon
 		    and m.mtrl_pk = v_mtrl_pk
 			GROUP BY m.mtrl_pk, m.mtrl_cd, m.mtrl_nm
 				, l.loc_pk, l.loc_cd, l.loc_nm
-				, owd.dept_pk, owd.dept_cd, owd.dept_nm
+				, owd.id, owd."Code", owd."Name"
 				, t.loc_cell_addr, t.ab_grade, t.inout_uprice, m.safety_stock_amt
 		), cte AS (
 			SELECT sq.*
@@ -8180,7 +8006,7 @@ begin
 	from cm_user_info where login_id = 'system' limit 1;
 
 	select tr.tag_pk, tr.data_val, tg.warn_low, tg.warn_high, tg.danger_low, tg.danger_high, tmt.alarm_disp_type, eq.equip_status
-	, eq.equip_nm, tg.tag, l.loc_nm, d.dept_nm
+	, eq.equip_nm, tg.tag, l.loc_nm, d."Name"
 	, (case when tg.warn_low is not null and tg.warn_high is not null and tg.danger_low is not null and tg.danger_high is not null then 'range'
 	   		when tg.warn_low is not null and tg.warn_high is not null and tg.danger_low is null and tg.danger_high is null then 'w_range'
 	   		when tg.warn_low is null and tg.warn_high is null and tg.danger_low is not null and tg.danger_high is not null then 'd_range'
@@ -8198,7 +8024,7 @@ begin
 	inner join cm_tag_meas_type tmt on tg.tag_meas_type_pk = tmt.tag_meas_type_pk
 	inner join cm_equipment eq on tg.equip_pk = eq.equip_pk
 	left outer join cm_location l on eq.loc_pk = l.loc_pk
-	left outer join cm_dept d on eq.dept_pk = d.dept_pk
+	left outer join dept d on eq.dept_pk = d.id
 	where tr.tag_data_pk = v_tag_data_pk
 	;
 	
@@ -8580,4 +8406,295 @@ EXCEPTION
 	
 end;
 $procedure$
+;
+
+-- DROP PROCEDURE public.cm_prc_wo_approval(int8, int8, varchar);
+
+CREATE OR REPLACE PROCEDURE public.cm_prc_wo_approval(p_work_order_pk bigint, p_accept_user_pk bigint, p_accept_user_nm character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_approval', concat(' [MESSAGE] : ', '작업요청승인'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	UPDATE cm_work_order_approval
+	SET accept_dt = CURRENT_TIMESTAMP
+		, accept_user_nm = p_accept_user_nm
+		, accept_user_pk = p_accept_user_pk
+	WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_AP'
+		, appr_line_next = 'CM'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	    , update_ts = CURRENT_TIMESTAMP
+	    , updater_id = p_accept_user_pk
+	    , updater_nm = p_accept_user_nm
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* updateEquipmentStatusAndBreaDownDt [equipment-mapper.xml] */
+--	update cm_equipment
+--	set equip_status = 'ES_BKDN'
+--	where equip_pk = v_equip_pk;
+
+	--이전설비와 이후설비
+--	update equipment
+--	set breakdown_dt = (CASE WHEN coalesce('07/08/2025 10:00:00.000', '') = '' THEN NULL ELSE to_timestamp('07/08/2025 10:00:00.000', 'YYYY-MM-DD HH24:MI') END)
+--	where equip_pk = v_equip_pk;
+
+
+	/* save [work-order-hist-mapper.xml] */
+	INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+	VALUES (p_work_order_pk, 'WOS_OC', 'WOS_AP', CURRENT_TIMESTAMP, p_accept_user_pk, p_accept_user_nm, '');
+	
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_approval', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE public.cm_prc_wo_reject_req(int8, int8, varchar, varchar);
+
+CREATE OR REPLACE PROCEDURE public.cm_prc_wo_reject_req(p_work_order_pk bigint, p_reject_user_pk bigint, p_reject_user_nm character varying, p_reject_reason character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_reject_req', concat(' [MESSAGE] : ', '작업요청 반려'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	UPDATE cm_work_order_approval
+	SET reject_dt = CURRENT_TIMESTAMP
+		, reject_user_nm = p_reject_user_nm
+		, reject_user_pk = p_reject_user_pk
+		, reject_reason = p_reject_reason
+	WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_RB'
+		, appr_line_next = 'OC'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* save [work-order-hist-mapper.xml] */
+	INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+	VALUES (p_work_order_pk, 'WOS_RQ', 'WOS_RB', CURRENT_TIMESTAMP, p_reject_user_pk, p_reject_user_nm, p_reject_reason);
+	
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_reject_req', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE public.cm_prc_wo_request(int8, int8, varchar);
+
+CREATE OR REPLACE PROCEDURE public.cm_prc_wo_request(p_work_order_pk bigint, p_accept_user_pk bigint, p_accept_user_nm character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_request', concat(' [MESSAGE] : ', '작업요청승인'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	UPDATE cm_work_order_approval
+	SET accept_dt = CURRENT_TIMESTAMP
+		, accept_user_nm = p_accept_user_nm
+		, accept_user_pk = p_accept_user_pk
+	WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_OC'
+		, appr_line_next = 'AP'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	    , update_ts = CURRENT_TIMESTAMP
+	    , updater_id = p_accept_user_pk
+	    , updater_nm = p_accept_user_nm
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* updateEquipmentStatusAndBreaDownDt [equipment-mapper.xml] */
+	update cm_equipment
+	set equip_status = 'ES_BKDN'
+	where equip_pk = v_equip_pk;
+
+	/* save [work-order-hist-mapper.xml] */
+	INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+	VALUES (p_work_order_pk, 'WOS_RQ', 'WOS_OC', CURRENT_TIMESTAMP, p_accept_user_pk, p_accept_user_nm, '');
+	
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_request', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP FUNCTION public.fn_code_name(text, text);
+
+CREATE OR REPLACE FUNCTION public.fn_code_name(code_type text, code text)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+/*
+ 	select fn_code_name('mat_type', 'product');
+  
+ */
+declare
+	v_name varchar(100);
+begin
+	
+	select "Value"
+	into v_name
+	from sys_code
+	where "CodeType" = code_type 
+	and "Code" = code
+	;
+	
+	return coalesce(v_name, code);
+
+ exception
+ 	when others then
+	 	return null;
+
+END; 
+$function$
+;
+
+-- DROP FUNCTION public.fn_json_lang_text(jsonb, varchar);
+
+CREATE OR REPLACE FUNCTION public.fn_json_lang_text(v_json jsonb, v_lang_code character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    v_text VARCHAR(500) DEFAULT NULL;
+BEGIN
+    BEGIN
+        select
+        aa->>'text' into v_text
+        from jsonb_array_elements(v_json) as aa
+        where 
+        aa->>'language' = v_lang_code;
+
+        RETURN v_text;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN NULL;
+    END;
+END;
+$function$
+;
+
+-- DROP FUNCTION public.fn_try_to_number(varchar);
+
+CREATE OR REPLACE FUNCTION public.fn_try_to_number(p_src character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    v_ret VARCHAR(100) DEFAULT NULL;
+BEGIN
+    BEGIN
+        return cast(p_src as decimal);
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN NULL;
+    END;
+END;
+$function$
+;
+
+-- DROP FUNCTION public.fn_user_nm(varchar, varchar);
+
+CREATE OR REPLACE FUNCTION public.fn_user_nm(v_user_nm character varying, v_del_yn character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+	t_nm character varying;
+begin
+	
+	select
+		case when t.del_yn = 'Y' then 
+		    CASE WHEN CHAR_LENGTH(t.user_nm) > 2 THEN 
+	        	CONCAT(SUBSTRING(t.user_nm, 1, 1),LPAD('*', CHAR_LENGTH(t.user_nm) - 2, '*')
+	            ,SUBSTRING(t.user_nm, CHAR_LENGTH(t.user_nm), CHAR_LENGTH(t.user_nm)))
+	        ELSE CONCAT(SUBSTRING(t.user_nm, 1, 1),LPAD('*', CHAR_LENGTH(t.user_nm) - 1, '*'))
+	    	end
+	    else t.user_nm end as user_nm	
+	into t_nm	    
+	FROM  (
+	    select v_user_nm as user_nm, v_del_yn as del_yn
+	) t
+	;
+
+	RETURN t_nm;
+	
+end;
+$function$
 ;

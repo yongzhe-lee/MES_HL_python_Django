@@ -161,14 +161,14 @@
                 ],
                 columnMenu: {
                     componentType: "classic",
-                    autoSize: true,
+                    
                     clearAllFilters: true,
                 },
                 columns: [
                     { field: 'id', title: '번호', width: 100 , hidden:true},
                     { field: 'tag_group_name', title: '태그그룹명', width: 150 },
                     { field: 'tag_code', title: '태그', width: 200 },
-                    { field: 'tag_name', title: '태그명', width: 200 },                    
+                    { field: 'tag_name', title: '태그명', width: 250 },
                     { field: 'equipment_name', title: '설비명', width: 150 },
                     { field: 'DASconfig_name', title: 'DAS설정', width: 150 },
                     { field: 'round_digit', title: '소수점자리수', width: 150 },
@@ -261,8 +261,10 @@
                 sch_keyword: $('#sch_keyword').val(),
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+            AjaxUtil.getAsyncData(_this.baseUrl, param, function (result) {
+                _this.grid.setData(result);
+            });
+            
         }
 
         resetData() {
@@ -334,10 +336,10 @@
         }
     };
 
-    let page = null;
+    let page = new TagPage();
 
     $(document).ready(function () {
-        page = new TagPage();
+        
 
         page.searchMainData();
     });

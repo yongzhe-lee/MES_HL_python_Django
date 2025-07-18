@@ -64,6 +64,8 @@
             </div>
         </form>
         <div class="content-ui-row connect">
+
+
             <div class="card-content grid">
                 <div class="card-group-btn">
                     <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="설비생산이력">설비생산이력</label></span>
@@ -71,39 +73,75 @@
                     </span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
-                        <button id="btnExcel">Excel</button>
+                        <button type="button" id="btnExcel">Excel</button>
                     </span>
                 </div>
                 <div id="equ_result_grid"></div>
             </div>
-        </div>
-        <div class="content-ui-row connect">
-            <div class="card-content grid">
-                <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">scale</i><label data-labelCd="설비측정데이터">설비측정데이터</label></span>
-                    <span>
-                    </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <button id="btnExcel">Excel</button>
-                    </span>
-                </div>
-                <div id="equ_result_item_grid"></div>
-                <hr />
-                <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">bug_report</i><label data-labelCd="부적합데이터">부적합데이터</label></span>
-                    <span>
-                    </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <button id="btnExcel">Excel</button>
-                    </span>
-                </div>
-                <div id="equ_defect_item_grid"></div>
-            </div>
-        </div>
 
+            <div id="tabstrip">
+                <ul>
+                    <li class="k-active">설비측정데이터</li>
+                    <li>부적합데이터</li>
+                    <li>레시피</li>
+                    <li>알람내역</li>
+                </ul>
+
+
+                <div class="card-content grid">
+                    <div class="card-group-btn">
+                        <span></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button type="button" id="btnExcelItemResult">Excel</button>
+                        </span>
+                    </div>
+                    <div id="equ_result_item_grid"></div>
+                </div>
+
+                <div class="card-content grid" style="display:none">
+                    <div class="card-group-btn">
+                        <span></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button type="button" id="btnExcelDefect">Excel</button>
+                        </span>
+                    </div>
+                    <div id="equ_defect_item_grid"></div>
+                </div>
+
+                <div class="card-content grid" style="display:none">
+                    <div class="card-group-btn">
+                        <span></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button type="button" id="btnExcelRecipe">Excel</button>
+                        </span>
+                    </div>
+                    <div id="equ_recipe_item_grid"></div>
+                </div>
+
+                <div class="card-content grid" style="display:none">
+                    <div class="card-group-btn">
+                        <span></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button type="button" id="btnExcelAlarm">Excel</button>
+                        </span>
+                    </div>
+                    <div id="alarm_grid"></div>
+                </div>
+
+            </div>
+
+
+        </div>
     </div>
+
+
+
+
+
 </div>
 
 {% verbatim %}
@@ -114,16 +152,73 @@
 <script type="text/javascript">
     class EquipmentResultPage {
         constructor() {
+
+
             this.grid = null;
             this.baseUrl = '/api/interface/equ_result';
+            this.grid = null;
+            this.item_grid = null;
+            this.defect_item_grid = null;
+            this.equ_recipe_item_grid = null
+            this.alarm_grid = null;
+
+            $("#tabstrip").kendoTabStrip({ animation:  {  open: { effects: "fadeIn" } }});
+
             this.init();
             this.initItem();
             this.initDefect();
+            this.initRecipe();
+            this.initAlarm();
+            this.initExcel();
+        }
+
+        initExcel(){
+            let _this = this;
+            $("#btnExcel, #btnExcelItemResult, #btnExcelDefect, #btnExcelRecipe").kendoButton({ 
+                icon: "file-excel", 
+                themeColor: "success",
+                click : function(){
+                    let btn_id  = this.element[0].id;
+                    let gridData= null;
+                    switch(btn_id){
+                        case "btnExcel":
+                            gridData = $("#equ_result_grid").data("kendoGrid");
+                            gridData.bind("excelExport", function (e) {   e.workbook.fileName = "equ_result.xlsx";  });
+                            break;
+                        case "btnExcelItemResult":
+                            gridData = $("#equ_result_item_grid").data("kendoGrid");
+                            gridData.bind("excelExport", function (e) {   e.workbook.fileName = "equ_item_result.xlsx";  });
+
+                            break;
+                        case "btnExcelDefect":
+                            gridData = $("#equ_defect_item_grid").data("kendoGrid");
+                            gridData.bind("excelExport", function (e) {   e.workbook.fileName = "equ_defect.xlsx";  });
+
+                            break;
+                        case "btnExcelRecipe":
+                            gridData = $("#equ_recipe_item_grid").data("kendoGrid");
+                            gridData.bind("excelExport", function (e) {   e.workbook.fileName = "equ_recipe.xlsx";  });
+                            break;
+                        case "btnExcelAlarm":
+                            gridData = $("#alarm_grid").data("kendoGrid");
+                            gridData.bind("excelExport", function (e) { e.workbook.fileName = "equ_alarm.xlsx"; });
+
+                    }
+                    
+                    gridData.saveAsExcel();
+                }
+            });
         }
 
         init() {
             let _this = this;
             let gridOption = {
+                pageable: {
+                    alwaysVisible: true,
+                    pageSizes: [20, 50, 100, 500, "all"],
+                    pageSize: 100
+                },
+                navigatable: true,
                 columns: [
                     { field: "line_nm", title: "라인", width: 80 },
                     { field: "equ_nm", title: "설비명", width: 200 },
@@ -145,18 +240,20 @@
                 change: function (e) {
                     _this.showResultItemList();
                     _this.showDefectItemList();
+                    _this.showRecipeItemList();
+                    _this.showAlarmHistoryList();
                 },
-                height: "300px"
+                height: 310
             };
             _this.grid = new Grid($("#equ_result_grid"), gridOption);
 
 
             let $line_id = $('#line_id');
-            AjaxUtil.fillDropDownOptions($line_id, 'line', 'all', null);
-            AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, $line_id.val());
+            AjaxUtil.fillDropDownOptions($line_id, 'line', null, null);
+            AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', null, null, $line_id.val());
 
             $line_id.on('change', function (e) {
-                AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', "all", null, $line_id.val());
+                AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', null, null, $line_id.val());
             });
 
 
@@ -186,8 +283,6 @@
                     _this.searchMainData();
                 }
             });
-
-
 
             $('#cboDefectYN').kendoDropDownList({});
 
@@ -222,7 +317,7 @@
                     { field: "failcode", title: "failcode", width: 80, attributes: { style: "text-align: center" } },
                     { field: "created", title: "저장일시", width: 160 },
                 ],
-                height: "300px"
+                height: 280
             };
 
             _this.item_grid = new Grid($("#equ_result_item_grid"), gridOption);
@@ -239,10 +334,69 @@
                     { field: "part_no", title: "부품번호", width: 100 },
                     { field: "created", title: "생성일", width: 100 },
                 ],
-                height: "200px"
+                height:280
             };
 
-            _this._defect_item_grid = new Grid($("#equ_defect_item_grid"), gridOption);
+            _this.defect_item_grid = new Grid($("#equ_defect_item_grid"), gridOption);
+        }
+
+        initRecipe() {
+            //equ_recipe_item_grid
+            let _this = this;
+            let gridOption = {
+                columns: [
+                    { field: "grp_nm", title: "레시피그룹", width: 100 },
+                    { field: "item_cd", title: "레시피항목", width: 100 },
+                    { field: "item_val", title: "설정값", width: 100 },
+                    { field: "created", title: "생성일", width: 100 },
+                ],
+                height: 280
+            };
+
+            _this.equ_recipe_item_grid = new Grid($("#equ_recipe_item_grid"), gridOption);
+
+        }
+
+        initAlarm() {
+            //equ_recipe_item_grid
+            let _this = this;
+            let gridOption = {
+                columns: [
+                    { field: "alarm_cd", title: "알람코드", width: 100 },
+                    { field: "alarm_nm", title: "알람명", width: 100 },
+                    { field: "alarm_num", title: "알람번호", width: 100 },
+                    { field: "details", title: "설명", width: 100 },
+                    { field: 'alarm_detail', title: "설명", width: 100 },
+                    { field: "start_dt", title: "발생일시", width: 100 },
+                    { field: "end_dt", title: "종료일시", width: 100 },
+                    { field: "data_date", title: "전송일시", width: 100 },
+                ],
+                height: 280
+            };
+
+            _this.alarm_grid = new Grid($("#alarm_grid"), gridOption);
+
+        }
+
+
+        showRecipeItemList() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            let result_id = data[0].id;
+            let param = {
+                action: 'recipe_item_list',
+                result_id: result_id
+            };
+
+            _this.equ_recipe_item_grid.setData([]);
+            let fnSuccess = function (result) {
+
+                if (result.success) {
+                    _this.equ_recipe_item_grid.setData(result.items);
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
         }
 
         showResultItemList() {
@@ -259,7 +413,7 @@
             let fnSuccess = function (result) {
 
                 if (result.success) {
-                    _this.item_grid.setData(result.data);
+                    _this.item_grid.setData(result.items);
                 }
             };
 
@@ -275,14 +429,32 @@
                 result_id: result_id
             };
 
-            _this._defect_item_grid.setData([]);
+            _this.defect_item_grid.setData([]);
             let fnSuccess = function (result) {
 
                 if (result.success) {
-                    _this._defect_item_grid.setData(result.data);
+                    _this.defect_item_grid.setData(result.items);
                 }
             };
 
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+        }
+
+        showAlarmHistoryList() {
+            let _this = this;
+            let data = _this.grid.getSelect();
+            let result_id = data[0].id;
+            let param = {
+                action: 'equ_alarm_history',
+                result_id: result_id
+            };
+
+            _this.alarm_grid.setData([]);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.alarm_grid.setData(result.items);
+                }
+            };
             AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
         }
 
@@ -316,7 +488,7 @@
             kendo.ui.progress($gg, true);
             _this.grid.setData([]);
             _this.item_grid.setData([]);
-            _this._defect_item_grid.setData([]);
+            _this.defect_item_grid.setData([]);
             let fnSuccess = function (result) {
                 if (result.success) {
                     _this.grid.setData(result.data);

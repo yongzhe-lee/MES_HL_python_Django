@@ -420,7 +420,7 @@ class DocumentResult(models.Model):
             ['DocumentForm', 'DocumentDate'],
             ['DocumentDate'],
         ]
-
+'''
 class AttachMaster(models.Model):
     id = models.AutoField(primary_key=True, db_comment="기본 키")
     TableName = models.CharField('테이블명', max_length=50, db_comment="첨부 파일이 연관된 테이블 이름")
@@ -448,6 +448,7 @@ class AttachMaster(models.Model):
         index_together = [
             ['TableName'],
         ]
+'''
 
 class AttachFile(models.Model):
     id = models.AutoField(primary_key=True, db_comment="기본 키")

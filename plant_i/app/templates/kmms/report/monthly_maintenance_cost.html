@@ -1,11 +1,375 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+	<div class="content-ui-row">
+		<form class="search-form" id="searchForm" onsubmit="return false;">
+			<div class="card-content search">
+				<div class="form-ui">			
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h L-form-item align-h">
+							<label class="k-label k-form-label" for="searchYear" data-labelCd="연도">연도</label>
+							<div class="field-wrapper">
+								<select id="searchYear" name="searchYear"></select>
+							</div>
+						</div>
+					</div>
+                    <div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h L-form-item align-h">
+							<label class="k-label k-form-label" for="woType" data-labelCd="작업유형">작업유형형</label>
+							<div class="field-wrapper">
+								<select id="woType" name="woType"></select>
+							</div>
+						</div>
+					</div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="equipLocTree" data-labelCd="보전유형">보전유형</label>
+                            <div class="field-wrapper">
+                                <select id="maintTypeCd" name="maintTypeCd" multiple="multiple"></select>
+                            </div>
+                        </div>
+                    </div>
+					<div class="col-12 col-sm-4 col-md-3">
+						<div class="form-item align-h L-form-item align-h">
+							<label class="k-label k-form-label" for="deptTree" data-labelCd="부서">부서</label>
+							<div class="field-wrapper">
+								<select id="deptPk" name="deptPk"></select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="content-ui-row connect">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="설비별 월간 정비비용 목록">설비별 월간 정비비용 목록</label></span>
+					<span>
+					</span>
+					<span>
+						<button id="btnSearch" class="btn-search">조회</button>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div id="monthlyMaintCostGrid"></div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+	class MonthlyMaintenanceCostPage {
+		constructor() {
+			this.grid = null;			
+			this.baseUrl = '/api/kmms/report';
+
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			let gridOption = {
+				autoBind: false,
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				dataSource: {
+					data: [],
+					aggregate: [
+						...Array.from({length: 12}, (_, i) => ({ 
+							field: `rsltM${i + 1}`, 
+							aggregate: "sum" 
+						})),
+						{ field: "rsltSum", aggregate: "sum" }
+					]
+				},
+				columns: [
+					{
+						title: "No",
+						field: "rowNum",
+						width: "60px",		
+					},
+					{
+						"title": "설비코드",
+						"field": "equipCd",
+						"width": "100px",
+					},
+					{
+						"title": "설비명",
+						"field": "equipNm",
+						"width": "250px",
+					},
+					{
+						"title": "구분",
+						"field": "rsltType",
+						"width": "120px",
+					},
+					{
+						"title": "전년 동월",
+						"field": "currM",
+						"width": "120px"
+					},
+					{
+						"title": "전년(합계)",
+						"field": "currSum",
+						"width": "120px"
+					},
+					// 월별 컬럼을 순환 구조로 생성
+					...Array.from({length: 12}, (_, i) => {
+						const month = i + 1;
+						const field = `rsltM${month}`;
+						return {
+							"title": `${month}월`,
+							"field": field,
+							"attributes": {
+								"style": "text-align: right"
+							},
+							"type": "number",
+							"width": "80px",
+							"template": `#=kendo.toString(${field}, 'n0')#`,
+							"aggregates": ["sum"]
+						};
+					}),
+					{
+						"title": "합계",
+						"field": "rsltSum",
+						"align": "right",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"aggregates": ["sum"]
+					},
+				],
+				dataBound: function (e) {
+					kendoUtil.showGridRowCount(this.element); // 기존 기능 유지
+
+					const grid = this;
+					const view = grid.dataSource.view();
+
+					// ✅ 월별 합계 구하기
+					const sumMap = {
+						"정비 총 비용": Array(12).fill(0),
+						"자재비": Array(12).fill(0)
+					};
+
+					view.forEach(row => {
+						// ✅ 데이터 변환 확인 - searchMainData에서 변환된 데이터와 일치
+						let type = row.rsltType;
+						if (type === "cost") {
+							type = "정비 총 비용";
+						} else if (type === "mtrlCost") {
+							type = "자재비";
+						}
+
+						if (type === "정비 총 비용" || type === "자재비") {
+							for (let i = 1; i <= 12; i++) {
+								const key = `rsltM${i}`;
+								sumMap[type][i - 1] += Number(row[key] || 0);
+							}
+						}
+					});
+
+					// ✅ footer 영역 수동 재구성
+					const $footerTable = grid.wrapper.find(".k-grid-footer table");
+					$footerTable.find("tbody").remove();
+					$footerTable.find("tfoot > tr").remove(); // ✅ 이 줄 추가: Kendo 기본 tr 제거
+
+					const $tfoot = $("<tbody>");
+					const colCount = grid.columns.length;
+
+					const footerBgColor = "#ebecf0"; // ✅ Kendo footer 기본 배경색과 동일
+
+					// ✅ 전년 동월, 전년 합계 데이터 계산 (정비 총 비용과 자재비 구분)
+					let currMSumCost = 0, currSumTotalCost = 0; // 정비 총 비용용
+					let currMSumMtrlCost = 0, currSumTotalMtrlCost = 0; // 자재비용
+					
+					view.forEach(row => {
+						if (row.rsltType === "정비 총 비용") {
+							currMSumCost += Number(row.currM || 0);
+							currSumTotalCost += Number(row.currSum || 0);
+						} else if (row.rsltType === "자재비") {
+							currMSumMtrlCost += Number(row.currM || 0);
+							currSumTotalMtrlCost += Number(row.currSum || 0);
+						}
+					});
+
+					// 첫 번째 줄: 정비 총 비용
+					const $row1 = $("<tr>").css("background", footerBgColor);
+					$row1.append(`<td colspan="3" rowspan="2" style="text-align:center;">합계</td>`);
+					$row1.append(`<td style="text-align:left;">정비 총 비용</td>`);
+					$row1.append(`<td style="text-align:right;">${currMSumCost.toFixed(2)}</td>`); // 전년 동월
+					$row1.append(`<td style="text-align:right;">${currSumTotalCost.toFixed(2)}</td>`); // 전년 합계
+					for (let i = 1; i <= 12; i++) {
+						$row1.append(`<td style="text-align:right;">${sumMap["정비 총 비용"][i - 1].toFixed(2)}</td>`);
+					}
+					const total1 = sumMap["정비 총 비용"].reduce((a, b) => a + b, 0);
+					$row1.append(`<td style="text-align:right;">${total1.toFixed(2)}</td>`);
+
+					// 두 번째 줄: 자재비
+					const $row2 = $("<tr>").css("background", footerBgColor);
+					$row2.append(`<td style="text-align:left;">자재비</td>`);
+					$row2.append(`<td style="text-align:right;">${currMSumMtrlCost.toFixed(2)}</td>`); // 전년 동월
+					$row2.append(`<td style="text-align:right;">${currSumTotalMtrlCost.toFixed(2)}</td>`); // 전년 합계
+					for (let i = 1; i <= 12; i++) {
+						$row2.append(`<td style="text-align:right;">${sumMap["자재비"][i - 1].toFixed(2)}</td>`);
+					}
+					const total2 = sumMap["자재비"].reduce((a, b) => a + b, 0);
+					$row2.append(`<td style="text-align:right;">${total2.toFixed(2)}</td>`);
+
+					$tfoot.append($row1).append($row2);
+					$footerTable.append($tfoot);
+
+					// ✅ 설비코드 / 설비명 병합
+					const trs = grid.tbody.find("tr");
+					let lastEquipCd = "", rowspan = 1, startRowIndex = -1;
+					let equipCount = 0; // 설비 카운터 추가
+
+					trs.each(function (index) {
+						const currentRow = $(this);
+						const equipCd = currentRow.find("td:eq(1)").text();
+						const equipNm = currentRow.find("td:eq(2)").text();
+
+						if (equipCd === lastEquipCd) {
+							rowspan++;
+							currentRow.find("td:eq(0)").remove(); // No 제거
+							currentRow.find("td:eq(0)").remove(); // 설비코드 제거 (인덱스가 밀림)
+							currentRow.find("td:eq(0)").remove(); // 설비명 제거 (인덱스가 밀림)
+						} else {
+							if (startRowIndex >= 0 && rowspan > 1) {
+								const startRow = trs.eq(startRowIndex);
+								startRow.find("td:eq(0)").attr("rowspan", rowspan).text(equipCount); // No 병합 및 번호 설정
+								startRow.find("td:eq(1)").attr("rowspan", rowspan); // 설비코드 병합
+								startRow.find("td:eq(2)").attr("rowspan", rowspan); // 설비명 병합
+							}
+							equipCount++; // 설비 카운터 증가
+							lastEquipCd = equipCd;
+							startRowIndex = index;
+							rowspan = 1;
+						}
+					});
+					if (startRowIndex >= 0 && rowspan > 1) {
+						const startRow = trs.eq(startRowIndex);
+						startRow.find("td:eq(0)").attr("rowspan", rowspan).text(equipCount); // No 병합 및 번호 설정
+						startRow.find("td:eq(1)").attr("rowspan", rowspan); // 설비코드 병합
+						startRow.find("td:eq(2)").attr("rowspan", rowspan); // 설비명 병합
+					}
+				},
+				height: "540px"
+			};
+			_this.grid = new Grid($("#monthlyMaintCostGrid"), gridOption);
+
+			const currentYear = new Date().getFullYear() + 1;
+
+			// 연도 배열 생성
+			const years = [];
+			for (let year = currentYear; year >= (currentYear - 10); year--) {
+				years.push({ text: year.toString(), value: year });
+			}
+
+			// Kendo DropDownList로 초기화
+			$("#searchYear").kendoDropDownList({
+				dataTextField: "text",
+				dataValueField: "value",
+				dataSource: years,
+				value: new Date().getFullYear()
+			});
+
+            AjaxUtil.fillDropDownOptions($('#woType'), 'cm_code', 'all', null, 'WO_TYPE');
+            AjaxUtil.fillMultiSelectOptions($('#maintTypeCd'), 'cm_code', 'all', null, 'MAINT_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($('#deptPk'), 'depart', 'all');
+
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "base",
+				click: function () {
+					_this.searchMainData();
+				}
+			});
+
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					page.exportExcel();
+				}
+			});
+
+		}
+
+		searchMainData() {
+			let _this = this;
+		
+			let param = FormUtil.extractForm($("#searchForm"));
+			param.action = 'monthly_maintenance_cost';
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			
+			// ✅ 월별 컬럼을 모두 숫자(Number)로 변환 (집계 오류 방지)
+			if (Array.isArray(result)) {
+				result.forEach(row => {
+					// ✅ rsltType 변환
+					if (row.rsltType === "cost") {
+						row.rsltType = "정비 총 비용";
+					} else if (row.rsltType === "mtrlCost") {
+						row.rsltType = "자재비";
+					}
+
+					// ✅ 숫자 변환
+					for (let i = 1; i <= 12; i++) {
+						const key = `rsltM${i}`;
+						row[key] = Number(row[key]) || 0;
+					}
+					row.rsltSum = Number(row.rsltSum) || 0;
+				});
+			}
+
+			// ✅ Kendo Grid에 데이터 설정
+			let grid = $("#monthlyMaintCostGrid").data("kendoGrid");
+			if (grid) {
+				grid.dataSource.data(result); // ✅ 데이터를 직접 설정
+				
+				// 월별 집계를 순환 구조로 생성
+				const aggregates = [
+					...Array.from({length: 12}, (_, i) => ({ 
+						field: `rsltM${i + 1}`, 
+						aggregate: "sum" 
+					})),
+					{ field: "rsltSum", aggregate: "sum" }
+				];
+				
+				grid.dataSource.aggregate(aggregates);
+				grid.refresh(); // ✅ UI 갱신
+			}
+		}
+
+		// 엑셀 다운로드
+		exportExcel() {
+			let gridData = $('#monthlyMaintCostGrid').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "설비별 월간 정비비용.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
+	};
+
+	let page = null;
+	page = new MonthlyMaintenanceCostPage();
+
+	$(document).ready(function () {
+		page.searchMainData();
+	});
+</script>
+{% endblock %}

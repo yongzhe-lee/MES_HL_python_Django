@@ -105,9 +105,9 @@ def location(context):
 		    and af."AttachName" = 'LOC_IMG'
 		    WHERE  t.del_yn = 'N'
             '''
-            if factory_id:
-                sql += ''' and t.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id:
+            #     sql += ''' and t.factory_pk = %(factory_pk)s
+            #     '''
             if useYn:
                 sql += ''' and t.use_yn = %(useYn)s
                 '''
@@ -131,11 +131,11 @@ def location(context):
                 '''
             if searchText:
                 sql += ''' AND ( UPPER(t.loc_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
-                OR	UPPER(t.loc_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+                OR	UPPER(t.loc_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			    )
                 '''
             if isa95Class:
-                sql += ''' AND UPPER(t.isa95_class) = UPPER(%isa95Class)s)
+                sql += ''' AND UPPER(t.isa95_class) = UPPER(%(isa95Class)s)
                 '''   
             if action == 'searchOne':
                 sql += ''' limit 1
@@ -295,9 +295,9 @@ def location(context):
                 '''
             if searchText:
                 sql += ''' AND (
-					UPPER(t.loc_nm) LIKE CONCAT('%',UPPER(%(searchText)s,'%')
+					UPPER(t.loc_nm) LIKE CONCAT('%%',UPPER(%(searchText)s,'%%')
 					OR
-					UPPER(t.loc_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+					UPPER(t.loc_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 	   			)
                 '''
             if upLocPk:
@@ -361,9 +361,9 @@ def location(context):
                 '''
             if searchText:
                 sql += ''' AND (
-					UPPER(t.loc_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+					UPPER(t.loc_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR
-					UPPER(t.loc_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+					UPPER(t.loc_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 	   			)
                 '''
             sql += ''' AND ( t.loc_pk <> %(upLocPk)s
@@ -405,7 +405,7 @@ def location(context):
 
             c.LocName = locNm
             c.LocCode = locCd
-            c.Parent_id = upLocPk
+            c.UpLocPk_id = upLocPk
             c.PlantYn = plantYn
             c.BuildingYn = buildingYn
             c.SpshopYn = spshopYn

@@ -1,0 +1,331 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+	.proc-flow {
+		font-size: 18px;
+		margin-bottom: 32px;
+	}
+
+	.proc-step {
+		border: 3px solid #00bcd4;
+		border-radius: 50%;
+		width: 80px;
+		height: 80px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: bold;
+		background: #fff;
+		color: #00bcd4;
+		font-size: 18px;
+	}
+
+		.proc-step.current {
+			border-color: #e74c3c;
+			color: #e74c3c;
+			background: #fff;
+		}
+
+	.proc-arrow {
+		font-size: 24px;
+		color: #00bcd4;
+		margin: 0 4px;
+	}
+
+	.form-section {
+		margin-bottom: 24px;
+	}
+
+	.form-label {
+		display: inline;
+		font-weight: bold;
+		margin-right: 8px;
+		font-size: 16px;
+	}
+
+	.form-desc {
+		display: inline;
+		color: #888;
+		font-size: 13px;
+	}
+	/*.form-radio-group { display: flex; gap: 24px; margin-bottom: 4px; }*/
+	.form-input, .form-select {
+		padding: 4px 8px;
+		font-size: 15px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+
+	<div style="background:#faeaea; border:1.5px solid #e74c3c; border-radius:6px; padding:12px 16px; margin-bottom:24px;">
+		<div style="color:#e74c3c; font-weight:bold; margin-bottom:4px;">Important</div>
+		<hr style="border:0; border-top:1px solid #e74c3c; margin:4px 0 8px 0;">
+		<div>
+			사이트옵션 설정 화면으로 관리지만 변경할 수 있습니다. 사이트옵션 변경은 시스템에 영향을 주기 때문에 신중하게 변경 바랍니다.<br>
+			보다 자세한 정보를 원하시면 우측 상단의 ? HELP 를 통해 확인할 수 있습니다.
+		</div>
+	</div>
+
+	<div class="proc-flow-img" style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:32px;gap:0;">
+		<div style="width:107px;position:relative;text-align:center;">
+			<div class="work-order-text" style="position:absolute;top:38px;left:0;width:100%;font-weight:bold;font-size:15px;z-index:2;">작업요청</div>
+			<img src="/static/img/sysopt_process1.png" style="width:107px;height:107px;z-index:1;" />
+		</div>
+		<div style="width:54px;height:107px;padding-top:45px;margin-left:-2px;margin-right:-2px;">
+			<img src="/static/img/sysopt_process4.png" style="width:54px;height:17px;" />
+		</div>
+		<div style="width:107px;position:relative;text-align:center;">
+			<div class="work-order-text" style="position:absolute;top:38px;left:0;width:100%;font-weight:bold;font-size:15px;z-index:2;">요청승인</div>
+			<img src="/static/img/sysopt_process2.png" style="width:107px;height:107px;z-index:1;" />
+		</div>
+		<div style="width:54px;height:107px;padding-top:45px;margin-left:-2px;margin-right:-2px;">
+			<img src="/static/img/sysopt_process4.png" style="width:54px;height:17px;" />
+		</div>
+		<div style="width:107px;position:relative;text-align:center;">
+			<div class="work-order-text" style="position:absolute;top:38px;left:0;width:100%;font-weight:bold;font-size:15px;z-index:2;">승인</div>
+			<img src="/static/img/sysopt_process2.png" style="width:107px;height:107px;z-index:1;" />
+		</div>
+		<div style="width:54px;height:107px;padding-top:45px;margin-left:-2px;margin-right:-2px;">
+			<img src="/static/img/sysopt_process4.png" style="width:54px;height:17px;" />
+		</div>
+		<div style="width:107px;position:relative;text-align:center;">
+			<div class="work-order-text" style="position:absolute;top:38px;left:0;width:100%;font-weight:bold;font-size:15px;z-index:2;">정비 작업</div>
+			<img src="/static/img/sysopt_process3.png" style="width:107px;height:107px;z-index:1;" />
+		</div>
+		<div style="width:54px;height:107px;padding-top:45px;margin-left:-2px;margin-right:-2px;">
+			<img src="/static/img/sysopt_process4.png" style="width:54px;height:17px;" />
+		</div>
+		<div style="width:107px;position:relative;text-align:center;">
+			<div class="work-order-text" style="position:absolute;top:38px;left:0;width:100%;font-weight:bold;font-size:15px;z-index:2;">작업완료</div>
+			<img src="/static/img/sysopt_process1.png" style="width:107px;height:107px;z-index:1;" />
+		</div>
+		<div style="width:54px;height:107px;padding-top:45px;margin-left:-2px;margin-right:-2px;">
+			<img src="/static/img/sysopt_process4.png" style="width:54px;height:17px;" />
+		</div>
+		<div style="width:107px;position:relative;text-align:center;">
+			<div class="work-order-text" style="position:absolute;top:38px;left:0;width:100%;font-weight:bold;font-size:15px;z-index:2;">완료</div>
+			<img src="/static/img/sysopt_process1.png" style="width:107px;height:107px;z-index:1;" />
+		</div>
+	</div>
+	<form class="proc-opts-form" id="procOptsForm" name="procOptsForm" style="max-width:900px;margin:0;">
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">Work Order 요청 승인</label>
+				수동<input id="acceptYn" name="acceptYn" data-msg="Work Order 요청 승인 여부를" />자동
+			</div>
+			<div>
+				<span class="form-desc">요청 부서의 요청 승인 절차를 진행할지 여부를 지정합니다. "자동" 선택 시에 자동으로 요청이 승인 됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">Work Order 작업 승인</label>
+				수동<input id="approvalYn" name="approvalYn" data-msg="Work Order 작업 승인 여부를" />자동
+			</div>
+			<div>
+				<span class="form-desc">정비 부서의 작업 승인 절차를 진행할지 여부를 지정합니다. "자동" 선택 시에 자동으로 작업이 승인 됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">Work Order 전체 작업비용에 인건비 포함</label>
+				미포함<input id="woLaborCostYn" name="woLaborCostYn" data-msg="인건비 포함 여부를" />포함
+			</div>
+			<div>
+				<span class="form-desc">작업비용 합산 시에 인건비 포함 여부를 지정합니다. Work Order 작업완료 시점에 설정 옵션이 적용됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">Work Order 자동완료</label>
+				미사용<input id="closeYn" name="closeYn" data-msg="Work Order 자동완료 여부를" />사용
+			</div>
+			<div>
+				<span class="form-desc">Work Order 작업완료 시에 완료 단계를 진행하지 않을 수 있습니다. "사용" 선택시 자동으로 완료 됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">예방정비(PM) 자동완료</label>
+				미사용<input id="woPmAutoFinYn" name="woPmAutoFinYn" data-msg="예방정비 자동완료 여부를" />사용
+			</div>
+			<div>
+				<span class="form-desc">예방정비 Work Order의 작업완료 시에 완료 단계를 진행하지 않을 수 있습니다. "사용" 선택시 자동으로 완료 됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">설비코드 번호매기기</label>
+				수동<input id="equipCdAuto" name="equipCdAuto" data-msg="설비코드 번호매기기 방식을" />자동
+			</div>
+			<div>
+				<span class="form-desc">설비 구분을 위한 코드를 수동으로 입력하거나 자동으로 부여되게 할 수 있습니다. 자동 선택 시 접두사+숫자 조합으로 코드 생성</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">설비코드 접두사(Prefix)</label>
+				<input type="text" class="form-input" id="equipCdPrefix" name="equipCdPrefix" value="EQ" style="width:80px;" readonly>
+			</div>
+			<div>
+				<span class="form-desc">설비코드 생성시 사용하는 접두사 문자를 지정합니다. 설비코드 번호매기기 옵션이 "자동"이면 변경이 가능합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">자재코드 번호매기기</label>
+				수동<input id="mtrlCdAuto" name="mtrlCdAuto" data-msg="자재코드 번호매기기 방식을" />자동
+			</div>
+			<div>
+				<span class="form-desc">자재 구분을 위한 코드를 수동으로 입력하거나 자동으로 부여되게 할 수 있습니다. 자동 선택 시 접두사+숫자 조합으로 코드 생성</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">자재코드 접두사(Prefix)</label>
+				<input type="text" class="form-input" id="mtrlCdPrefix" name="mtrlCdPrefix" value="MT" style="width:80px;" readonly>
+			</div>
+			<div>
+				<span class="form-desc">자재코드 생성시 사용하는 접두사 문자를 지정합니다. 자재코드 번호매기기 옵션이 "자동"이면 변경이 가능합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">보전유형별 신뢰도 코드 선택값 활성</label>
+				<select class="form-select" id="reliabCodeViewType" name="reliabCodeViewType">
+					<option value="A">사후보전만 활성</option>
+					<option value="B">사후,예방보전에 활성</option>
+					<option value="C">모든 보전유형에 활성</option>
+					<option value="D">모든 보전유형에 비활성</option>
+				</select>
+			</div>
+			<div>
+				<span class="form-desc">신뢰도 코드를 사용하지 않으면 "모든 보전유형에 비활성" 항목을 선택합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">프로젝트 지정 작업요청 시</label>
+				미사용<input id="woUseProject" name="woUseProject" data-msg="프로젝트 지정 여부를" />사용
+			</div>
+			<div>
+				<span class="form-desc">동일한 목표와 비용으로 진행되는 작업에 프로젝트 코드를 지정하여 묶음으로 관리할 수 있습니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">자재 보관위치 주소 구성방식</label>
+				<label>
+					<input type="radio" name="storLocAddrOrder" value="RLC" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;" checked>
+					랙-단-열 주소
+				</label>
+				<label style="margin-left: 20px;">
+					<input type="radio" name="storLocAddrOrder" value="RCL" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;">
+					랙-열-단 주소
+				</label>
+			</div>
+			<div>
+				<span class="form-desc">기본적으로 자재 보관위치 주소는 랙번호(알파벳) + 단번호(숫자) + 열번호(숫자) 순으로 구성됩니다. Ex. A101</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">자재 보관위치 주소 단 번호 자리수</label>
+				<label>
+					<input type="radio" name="storLocAddrLevelDigit" value="1" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;" checked>
+					1자리(숫자)
+				</label>
+				<label style="margin-left: 20px;">
+					<input type="radio" name="storLocAddrLevelDigit" value="2" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;">
+					2자리(숫자)
+				</label>
+			</div>
+			<div>
+				<span class="form-desc">2자리(숫자)의 경우 자릿수에 00이 포함됩니다. Ex.[랙-단-열, 1자리] A101 / [랙-단-열, 2자리] A0101 / A0901</span>
+			</div>
+		</div>
+	</form>
+	<div style="display: flex; justify-content: flex-start;">
+		<button type="button" class="btn-save" id="saveBtn">저장</button>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	class ProcOptsPage {
+		constructor() {
+			this.baseUrl = '/api/kmms/site_config';
+			this.init();
+		}
+
+		init() {
+			const _this = this;
+
+			$("#acceptYn").kendoSwitch().data("kendoSwitch");
+			$("#approvalYn").kendoSwitch().data("kendoSwitch");
+			$("#woLaborCostYn").kendoSwitch().data("kendoSwitch");
+			$("#closeYn").kendoSwitch().data("kendoSwitch");
+			$("#woPmAutoFinYn").kendoSwitch().data("kendoSwitch");			
+			$("#equipCdAuto").kendoSwitch().data("kendoSwitch");
+			$("#mtrlCdAuto").kendoSwitch().data("kendoSwitch");
+			$("#woUseProject").kendoSwitch().data("kendoSwitch");
+
+			$("#saveBtn").kendoButton({
+				themeColor: "base",
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault(); // 이벤트 기본 동작 방지
+					_this.saveData();
+				}
+			});
+			
+		}
+
+		saveData() {
+			let _this = this;
+
+			let ProcOpts = FormUtil.extractForm($("#procOptsForm"));	
+			let data = {
+				Site: '1',
+				ProcOpts: JSON.stringify(convertToJsonStandard(ProcOpts)),
+			}
+
+			let fnSuccess = function (res) {
+				if (res.success) {
+					Alert.alert('', res.message);
+				} else if (!res.success) {
+					Alert.alert('', res.message);
+				}
+			};
+			console.log('data:', data);
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=updateProcOpts', data, fnSuccess);
+		}
+
+		searchMainData() {
+			let _this = this;
+
+			let param = {			
+				Site: '1',
+			};
+			
+			let result = AjaxUtil.getSyncData(_this.baseUrl + '?action=read', param);				
+			let data = convertToYN(JSON.parse(result.proc_opts));	
+
+			console.log('data:', data);
+			FormUtil.BindDataForm(data, $('#procOptsForm'));
+		}
+	}
+
+	let page = null;
+	page = new ProcOptsPage();
+	$(document).ready(function () {
+		page.searchMainData();
+	});
+</script>
+{% endblock %}

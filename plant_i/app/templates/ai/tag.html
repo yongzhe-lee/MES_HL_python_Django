@@ -270,8 +270,10 @@
                 'ai_yn': 'Y'
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+            AjaxUtil.getAsyncData(_this.baseUrl, param, function (result) {
+                _this.grid.setData(result);
+            });
+           
         }
 
         resetData() {
@@ -337,10 +339,10 @@
         }
     };
 
-    let page = null;
+    let page = new TagPage();
 
     $(document).ready(function () {
-        page = new TagPage();
+        
 
         page.searchMainData();
     });

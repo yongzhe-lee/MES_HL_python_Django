@@ -1,55 +1,72 @@
 
-<div class="navigation-menu">
+<div class="navigation-approval-line" id="woApprovalLine" style="display:none;">
 	<!-- WoApprovalLine.html 상단에 삽입 -->
 	<input type="hidden" id="dataPk" value="{{ dataPk }}">
-
-	<span class="menu-item pm-icon">PM</span>
-	<span class="menu-separator">>></span>
-	<span class="menu-item">작업요청</span>
-	<span class="menu-separator">></span>
-	<span class="menu-item">요청승인</span>
-	<span class="menu-separator">></span>
-	<span class="menu-item">작업승인</span>
-	<span class="menu-separator">></span>
-	<span class="menu-item">작업완료</span>
-	<span class="menu-separator">></span>
-	<span class="menu-item">WO 완료</span>
+	<span class="approval-item pm-icon" id="woTypeDisplay">작업</span>
+	<span class="approval-separator">>></span>
+	<div id="statusMenuItems">
+		<!-- 기본 메뉴 아이템들 -->
+	</div>
 </div>
 
 <style>
-	.navigation-menu {
-		display: flex;
+	.navigation-approval-line {
+		display: inline-flex;
 		align-items: center;
 		padding: 5px 10px;
 		background-color: #f5f5f5;
 		border: 1px solid #ddd;
+		border-radius: 4px;
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
 	}
 
-	.menu-item {
+	.approval-item {
 		padding: 2px 8px;
 		font-size: 12px;
 		color: #666;
+		white-space: nowrap;
+		flex-shrink: 0;
+		display: inline-block;
 	}
 
-	.menu-item.active {
-		font-weight: bold;
-		color: #000;
+	.approval-item.active {
+		font-weight: bold !important;
+		color: white !important;
+		background-color: #007bff !important;
+		border-radius: 3px !important;
+		padding: 2px 8px !important;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+		border: 1px solid #0056b3 !important;
+		position: relative !important;
+		z-index: 1 !important;
 	}
 
-	.menu-item.pm-icon {
+	.approval-item.pm-icon {
 		background-color: #4CAF50;
 		color: white;
 		padding: 2px 8px;
 		border-radius: 3px;
+		flex-shrink: 0;
+		display: inline-block;
 	}
 
-	.menu-separator {
+	.approval-separator {
 		color: #999;
 		margin: 0 5px;
 		font-size: 11px;
+		flex-shrink: 0;
+		white-space: nowrap;
+		display: inline-block;
+	}
+
+	#statusMenuItems {
+		display: inline-flex;
+		align-items: center;
+		flex-shrink: 0;
+		white-space: nowrap;
 	}
 
 </style>
-<script type="text/javascript">
 
-</script>

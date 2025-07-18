@@ -7,34 +7,42 @@
     <div class="content-ui-row">
 
         <div class="card-content search">
-            <div class="form-ui">
+            <form id="searchForm">
+                <div class="form-ui">
 
-                <div class="col-12 col-md-4 col-lg-4 col-xl-3">
-                    <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="srch_date_range" data-labelCd="기간선택">기간선택</label>
-                        <div class="field-wrapper">
-                            <div id="srch_date_range"></div>
+                    <div class="col-12 col-md-4 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="기간선택">기간선택</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-md-3 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
+                            <div class="field-wrapper">
+                                <select id="cboLine" name="line_cd" class="form-control">
+                                    <option value="PCU-01-01">PCU-01-01</option>
+                                    <option value="SMT-04">SMT-04</option>
+                                    <option value="SMT-03">SMT-03</option>
+                                    <option value="SMT-02">SMT-02</option>
+                                    <option value="SMT-01">SMT-01</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-md-3 col-lg-1 col-xl-1">
+                        <div class="card-group-btn search">
+                            <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
                         </div>
                     </div>
                 </div>
-
-
-                <div class="col-12 col-md-3 col-lg-3 col-xl-2">
-                    <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="cboMTART" data-labelCd="라인">라인</label>
-                        <div class="field-wrapper">
-                            <select id="cboLine" name="line_cd"></select>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col-12 col-md-3 col-lg-1 col-xl-1">
-                    <div class="card-group-btn search">
-                        <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
-                    </div>
-                </div>
-            </div>
+            </form>
 
         </div>
         <div class="content-ui-row connect">
@@ -49,15 +57,13 @@
                         <button id="btnExcelSapMat">Excel</button>
                     </span>
                 </div>
-                <div id="sap_mat_grid"></div>
+                <div id="prod_plan_grid"></div>
             </div>
 
         </div>
         <div class="card-content edit">
 
         </div>
-
-
     </div>
 </div>
 
@@ -67,16 +73,15 @@
 {% block scripts %}
 
 <script type="text/javascript">
-    class IFMesWorkOrderPage {
+    class IFProductionPlanPage {
         constructor() {
             this.grid = null;
             this.init();
-            this.url = "/api/interface/mes";
+            this.baseUrl = "/api/interface/mes";
         }
 
         init() {
             let _this = this;
-
             this.init();
         }
 
@@ -95,19 +100,19 @@
                     }
                 },
                 columns: [
-                    { field: "id", title: "id", width: 100 },
+                    { field: "id", title: "id", width: 180 },
                     { field: "planDate", title: "생산계획일", width: 120 },
-                    { field: "line_cd", title: "Line", width: 120 },
+                    { field: "lineCode", title: "Line", width: 120 },
                     { field: "lineDesc", title: "Line Desc.", width: 120 },
                     { field: "planSeq", title: "계획순번", width: 120 },
                     { field: "matCode", title: "품번", width: 150 },
-                    { field: "matDesc", title: "품명", width: 250 },
+                    { field: "matDesc", title: "품명", width: 350 },
                     { field: "flowCode", title: "Flow", width: 120 },
                     { field: "planQty", title: "계획수량", width: 120 },
                     { field: "remainQty", title: "잔여량", width: 120 },
                     { field: "planStatus", title: "상태코드", width: 120 },
                     { field: "planStatusDesc", title: "상태", width: 120 },
-                    { field: "comments", title: "전일 미달성수량", width: 120 },
+                    { field: "comments", title: "전일 미달성수량", width: 200 },
                     { field: "boxComment", title: "box Comment", width: 120 },
                     { field: "ordStatus", title: "지시상태", width: 120 },
                     { field: "lastHistSeq", title: "이전순서", width: 120 },
@@ -122,15 +127,15 @@
                 },
                 dataBound: function (e) {
                 },
-                height: 500
+                height: 600
             };
 
-            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+            this.grid = new Grid($("#prod_plan_grid"), gridOption);
 
             //search form
             let today = CommonUtil.getYYYYMMDD();
-            let $cboLine = $('#cboLine');
-            AjaxUtil.fillDropDownOptions($cboLine, 'line_code', 'all', null);
+            //$('#cboLine').kendoDropDownList();
+            //AjaxUtil.fillDropDownOptions($cboLine, 'line_code', 'all', null);
 
 
 
@@ -153,7 +158,7 @@
                 icon: "search",
                 themeColor: "success",
                 click: function () {
-                    _this.searchSapMat();
+                    _this.searchProductionPlan();
                 }
             });
 
@@ -170,52 +175,45 @@
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    let gridData = $('#sap_mat_grid').data("kendoGrid");
+                    let gridData = $('#prod_plan_grid').data("kendoGrid");
                     gridData.bind("excelExport", function (e) {
                         e.workbook.fileName = "sap_mat.xlsx";
                     });
                     gridData.saveAsExcel();
                 }
             });
-
-
-
-
         }
 
-
         /********************************************************/
-
-        searchSapMat() {
+        searchProductionPlan() {
             let _this = this;
-            let url = '/api/interface/sap';
-            let matkl = $('#cboMATKL').val();
-            let mtart = $('#cboMTART').val();
-            let bklas = $('#cboBKLAS').val();
+            let $form = $('#searchForm');
+            let start_dt = $form.find("input[name=start_dt]").val();
+            let end_dt = $form.find("input[name=end_dt]").val();
+            let line_cd = $('#cboLine').val();
 
             let data = {
-                matkl: matkl,
-                mtart: mtart,
-                bklas: bklas,
-                'action': 'sap_mat'
+                start_dt: start_dt,
+                end_dt: end_dt,
+                line_cd: line_cd,
+                action: "production_plan"
             };
 
-            kendo.ui.progress($('#sap_mat_grid'), true);
-
-            AjaxUtil.getAsyncData(url, data, function (result) {
+            let $gg = $('#prod_plan_grid');
+            kendo.ui.progress($gg, true);
+            AjaxUtil.getAsyncData(this.baseUrl, data, function (result) {
                 if (result.success) {
-                    _this.sap_mat_grid.setData(result.items);
+                    _this.grid.setData(result.items);
                 }
                 else {
                     Alert.alert('오류', result.message);
                 }
-                kendo.ui.progress($('#sap_mat_grid'), false);
+                kendo.ui.progress($gg, false);
             });
         }
-
     }
 
-    let page = new IFMesWorkOrderPage();
+    let page = new IFProductionPlanPage();
     $(document).ready(function (e) {
 
     });

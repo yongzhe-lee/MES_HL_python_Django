@@ -291,7 +291,8 @@
 	}
 
 	/* 직종 테이블 관련 스타일 */
-	#jobClassTable .btn-delete {
+	#jobClassTable .btn-delete,
+	#materialTable .btn-delete {
 		background: none;
 		border: none;
 		color: #dc3545;
@@ -300,9 +301,10 @@
 		padding: 0 5px;
 	}
 
-		#jobClassTable .btn-delete:hover {
-			color: #c82333;
-		}
+	#jobClassTable .btn-delete:hover,
+	#materialTable .btn-delete:hover {
+		color: #c82333;
+	}
 
 	#jobClassTable input[type="number"] {
 		width: 100%;
@@ -326,8 +328,7 @@
 			this.baseUrl = '/api/kmms/pm_master';
 			this.pmUypeCd = null;
 			this.deptPk = null;
-			this.cycleTypeCd = null;
-			this.cmUserInfo = null;
+			this.cycleTypeCd = null;		
 			this.schedStartDt = null;			
 			$('.button-group').show(); // button-group을 기본으로 보이도록 초기화
 			this.init();
@@ -365,10 +366,10 @@
 				_this.checkCycleInfo();
 			});
 
-			this.deptPk = AjaxUtil.fillDropDownTreeOptions($("#pm_dept_pk"), "cm_depart", "select");
+			this.deptPk = AjaxUtil.fillDropDownTreeOptions($("#pm_dept_pk"), "depart", "select");
 			this.pmUypeCd = AjaxUtil.fillDropDownOptions($('#pm_type_cd'), 'cm_code', 'choose', null, 'PM_TYPE');
 			this.cycleTypeCd = AjaxUtil.fillDropDownOptions($('#cycle_type_cd'), 'cm_code', 'choose', null, 'CYCLE_TYPE');
-			this.cmUserInfo = AjaxUtil.fillDropDownOptions($('#pm_user_pk'), 'cm_user_info', 'choose');
+			AjaxUtil.fillDropDownOptions($('#pm_user_pk'), 'cm_user_info', 'choose');
 
 			let today = CommonUtil.getYYYYMMDD();
 			this.schedStartDt = $("#sched_start_dt").kendoDatePicker({
@@ -423,8 +424,74 @@
 				icon: "k-i-plus", // 기어 아이콘 (설비 관련)
 				click: function (e) {
 					e.preventDefault();
-					setModalPosition('#modalMatSel');
-					matSelectPage.show();
+					setModalPosition('#modalMatMultiSel');
+					matMultiSelectPage.show(function (data) {
+						console.log('mat_data:', data);
+						
+						// 선택된 자재 데이터가 있는지 확인
+						if (data && Array.isArray(data) && data.length > 0) {
+							$('#materialTable .no-data').remove();
+							data.forEach((material, index) => {
+								const exists = $('#materialTable tbody tr').not('.no-data').toArray().some(tr =>
+									$(tr).data('value') === material._mtrl_pk
+								);
+								if (!exists) {
+									const newRow = `
+										<tr data-value="${material._mtrl_pk}">
+											<td>${material._mtrl_cd || ''}</td>
+											<td>${material._mtrl_nm || ''}</td>
+											<td>
+												<input type="number"
+													   class="form-control form-control-sm text-end"
+													   min="0"
+													   step="1"
+													   value="1"
+													   placeholder="수량 입력"
+													   name="amt"/>
+											</td>
+											<td>${material._ant_unit_cd || material._ant_unit_nm || 'EA'}</td>
+											<td class="text-center">
+												<button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
+											</td>
+										</tr>
+									`;
+									$('#materialTable tbody').append(newRow);
+								} else {
+									Alert.alert('', '이미 추가된 자재입니다.');
+								}
+							});
+						} else if (data && !Array.isArray(data)) {
+							const material = data;
+							const exists = $('#materialTable tbody tr').not('.no-data').toArray().some(tr =>
+								$(tr).data('value') === material._mtrl_pk
+							);
+							if (!exists) {
+								$('#materialTable .no-data').remove();
+								const newRow = `
+									<tr data-value="${material._mtrl_pk}">
+										<td>${material._mtrl_cd || ''}</td>
+										<td>${material._mtrl_nm || ''}</td>
+										<td>
+											<input type="number"
+												   class="form-control form-control-sm text-end"
+												   min="0"
+												   step="1"
+												   value="1"
+												   placeholder="수량 입력"
+												   name="amt"/>
+										</td>
+										<td>${material._ant_unit_cd || material._ant_unit_nm || 'EA'}</td>
+										<td class="text-center">
+											<button type="button" class="btn-delete" onclick="deleteMaterialRow(this)">×</button>
+										</td>
+									</tr>
+								`;
+								$('#materialTable tbody').append(newRow);
+							} else {
+								Alert.alert('', '이미 추가된 자재입니다.');
+							}
+						}
+					});
 				}
 			});
 
@@ -440,33 +507,8 @@
 				click: function (e) {
 					e.preventDefault();
 					_this.saveData();
-				},
-				themeColor: "none"
-			}).closest(".k-button").css({
-				"background": "#ECF5FF",
-				"color": "#409EFF",
-				"border-color": "#B3D8FF",
-				"border": "1px solid #00a9ff",
-				"padding": "6px 12px",
-				"border-radius": "4px",
-				"cursor": "pointer",
-				"min-width": "40px",
-				"height": "28px",
-				"line-height": "1"
-			}).hover(
-				function () {
-					$(this).css({
-						"background-color": "#C2DFFF",
-						"border-color": "#0054e0"
-					});
-				},
-				function () {
-					$(this).css({
-						"background": "#ECF5FF",
-						"border-color": "#B3D8FF"
-					});
 				}
-			);
+			});
 
 			// 모달 닫기 - 닫기 버튼 클릭
 			$('#closePmModal').kendoButton({
@@ -477,7 +519,7 @@
 				}
 			});
 
-			AjaxUtil.fillDropDownOptions($('#selJobClass'), 'job_class', 'choose', null);
+			AjaxUtil.fillDropDownOptions($('#selJobClass'), 'cm_job_class', 'choose', null);
 
 			// 탭 이벤트 초기화 추가
 			_this.initTabEvents();
@@ -524,7 +566,7 @@
 
 			let funcSucc = function (resp) {
 				if (resp.success) {
-					// 기본 정보 저장 성공 시 작업 인력 저장 진행
+					// 기본 정보 저장 성공 시 작업 인력 저장 진행		
 					_this.savePmLalor(resp);
 				} else {
 					Alert.alert('error', resp.message);
@@ -608,7 +650,7 @@
 					Alert.alert('error', resp3.message);
 				}
 			}
-
+	
 			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_materials', data, funcSucc3);
 		}
 
@@ -650,11 +692,10 @@
 					id: pmId,
 				};
 
-				let pmData = AjaxUtil.getSyncData(_this.baseUrl, param1);
-
+				let pmData = AjaxUtil.getSyncData(_this.baseUrl, param1);				
 				// 계획 tab			
 				FormUtil.BindDataForm(pmData, $('#pmMasterForm'));
-
+				$("#pm_dept_pk").val(pmData.dept_pk);
 
 				let paramEquip = {
 					action: 'findOne',
@@ -669,7 +710,9 @@
 					action: 'detail_pm_labor',
 					id: pmId,
 				};
+				
 				let pmDataLabor = AjaxUtil.getSyncData(_this.baseUrl, param2);
+				console.log('pmDataLabor:', pmDataLabor);
 
 				// 3. PM 필요자재 API 호출
 				let param3 = {
@@ -677,6 +720,7 @@
 					id: pmId,
 				};
 				let pmDataMtrl = AjaxUtil.getSyncData(_this.baseUrl, param3);
+				console.log('pmDataMtrl:', pmDataMtrl);
 
 				// 2.1. 작업인력 테이블 초기화 및 데이터 바인딩
 				$('#jobClassTable tbody').empty();
@@ -779,6 +823,8 @@
 							break;
 						case 'pmWorkerMaterialContent':
 							// 추가적인 로직이 필요하면 여기에 작성
+							_this.searchLocationData();
+							_this.searchMaterialData();
 							break;
 						case 'pmWorkOrderContent':
 							var grid = $("#pmWorkOrderGrid").data("kendoGrid");
@@ -951,6 +997,21 @@
 			tbody.find('tr').not('.no-data').each((index, tr) => {
 				$(tr).find('td:first').text(index + 1);
 			});
+		}
+	}
+
+	// 자재 행 삭제 함수
+	function deleteMaterialRow(btn) {
+		const tbody = $('#materialTable tbody');
+		$(btn).closest('tr').remove();
+
+		// 모든 행이 삭제되었을 때 no-data 행 추가
+		if (tbody.children().length === 0) {
+			tbody.append(`
+				<tr class="no-data">
+					<td colspan="5">조회된 데이터가 없습니다.</td>
+				</tr>
+			`);
 		}
 	}
 </script>

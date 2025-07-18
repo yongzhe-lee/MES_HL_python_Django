@@ -55,31 +55,6 @@ def wo_labor(context):
 
             items = DbUtil.get_rows(sql, dc)
 
-        elif action == 'tempFindAll':
-            workOrderPk = gparam.get('workOrderPk')
-
-            sql = ''' 
-            select 1 as work_order_pk
-		    , 1 as work_order_no
-		    , '' as work_title
-		    , 1 as job_class_pk
-		    , '' as job_class_nm
-		    , 100 as wage_cost
-		    , 1 as user_pk
-		    , '수진' user_nm
-		    , '개발팀' dept_nm
-		    , 1 as work_hr
-		    , 1 as labor_dsc
-		    , 1 as labor_price
-		    , 1 as worker_nos
-            '''
-
-            dc = {}
-            dc['workOrderPk'] = workOrderPk
-
-            items = DbUtil.get_rows(sql, dc)
- 
-
         elif action == 'insertBatch':
             Q = posparam.get('Q')
 

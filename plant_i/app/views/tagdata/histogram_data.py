@@ -15,8 +15,8 @@ def histogram_data(context):
     items = []
     gparam = context.gparam
     posparam = context.posparam
-
     action = gparam.get('action')
+    result = {}
     
     try:
         if action =='read':
@@ -27,7 +27,6 @@ def histogram_data(context):
             tag_service = TagDataService()
             
             rows = tag_service.tag_multi_data_list2(start_date, end_date, tag_codes)
-            result = []
             tag_data = {}
             #items = {}
             items = []
@@ -46,6 +45,9 @@ def histogram_data(context):
                     'histogram_data':hist_data
                 }
                 items.append(data)
+
+            result['data'] = items
+            result['success'] = True
 
                 #hist, bin_edge = np.histogram(data, 10)
 
@@ -74,8 +76,8 @@ def histogram_data(context):
     except Exception as ex:
         source = '/api/tagdata/histogram_data'
         LogWriter.add_dblog('error', source, ex)
-        raise ex
+        result = {'success':False, 'message': str(ex)}
 
-    return items
+    return result
 
 

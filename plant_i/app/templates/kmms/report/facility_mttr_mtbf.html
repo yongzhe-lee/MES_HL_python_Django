@@ -1,11 +1,355 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 검색 폼 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-4 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchText" data-labelCd="검색키워드">검색키워드</label>
+                            <div class="field-wrapper">
+                                <input id="searchText" name="searchText" type="text" placeholder="설비코드, 설비명을 입력하세요" />
+                            </div>
+                            <button type="button" class="zoombutton" id="btnSearchEquipment" name="btnSearchEquipment"></button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="관리부서">관리부서</label>
+                            <div class="field-wrapper">
+                                <select id="deptTree" name="deptPk"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-6">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- 버튼 및 그리드 -->
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="설비별 MTTR/MTBF 목록">설비별 MTTR/MTBF 목록</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="mttrGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+{% include '../../popup/modalEquSel.html'%}
+
+<script type="text/javascript">
+class FacilityMttrMtbfPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.deptOptions = [];
+        this.isEditMode = true; // 편집 모드 활성화
+        
+        this.init();
+    }
+
+    init() {
+        this.initDatePicker();
+        this.initDeptTree();
+        this.initGrid();
+        this.bindEvents();
+    }
+
+    initDatePicker() {
+        let _this = this;
+        let today = new Date();
+        let threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+        
+        $("#searchDt").kendoDateRangePicker({
+            range: {
+                start: threeMonthsAgo,
+                end: today
+            },
+            change: function (e) {
+                // 날짜 변경 시 처리
+            },
+            format: "yyyy-MM-dd",
+            labels: false,
+            startField: "start_dt",
+            endField: "end_dt"
+        });
+    }
+
+    initDeptTree() {
+		AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            toolbar: ["columns"],
+            columnMenu: {
+                componentType: "classic",
+                autoSize: true,
+                clearAllFilters: true,
+                columns: {
+                    sort: "asc"
+                }
+            },
+            columns: [
+                {
+                    title: "No",
+                    field: "rowNum",
+                    width: "60px",
+                    hidden: true
+                },
+                {
+                    title: "설비코드",
+                    field: "equipCd",
+                    width: "120px",
+                    template: "<a href='javascript:void(0);' class='grid-column-link' data-equip-pk='#=equipPk#' data-tab='equipMasterForm'>#=equipCd#</a>"
+                    // template: "# if (equip_pk) { # <span onclick='page.onEquipInfo(#= equip_pk #)' class='my-kendo-cell-go'>#= equipCd #</span> # } else { # #= equipCd # # } #"
+                },
+                {
+                    title: "설비명",
+                    field: "equipNm",
+                    width: "200px",
+                    // template: "# if (equipCd) { # <span onclick='page.goWoHist(\"#= equipCd #\")' class='my-kendo-cell-go'>#= equipNm #</span> # } else { # #= equipNm # # } #"
+                },
+                {
+                    title: "설비등급",
+                    field: "importRankCd",
+                    width: "100px"
+                },
+                {
+                    title: "카테고리",
+                    field: "equipCategoryDesc",
+                    width: "150px"
+                },
+                {
+                    title: "부하시간",
+                    field: "operHr",
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "# if (operHr == null) { #  # } else { # #= kendo.toString(operHr, 'n1') # # } #"
+                },
+                {
+                    title: "고장시간",
+                    field: "brokenHr",
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "# if (brokenHr == null) { #  # } else { # #= kendo.toString(brokenHr, 'n2') # # } #"
+                },
+                {
+                    title: "고장횟수",
+                    field: "brokenCnt",
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "# if (brokenCnt == null) { #  # } else { # #= kendo.toString(brokenCnt, 'n0') # # } #"
+                },
+                {
+                    title: "MTTR",
+                    field: "mttr",
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "# if (mttr == null) { #  # } else { # #= kendo.toString(mttr, 'n1') # # } #"
+                },
+                {
+                    title: "MTBF",
+                    field: "mtbf",
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "# if (mtbf == null) { #  # } else { # #= kendo.toString(mtbf, 'n1') # # } #"
+                },
+                {
+                    title: "가용율",
+                    field: "operatingRate",
+                    width: "150px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                    template: "# if (operatingRate == null) { #  # } else { # #= kendo.toString(operatingRate, 'n2') # # } #"
+                }
+            ],
+            sortable: true,
+            pageable: false, // 커스텀 페이저 사용
+            dataBound: function(e) {
+                kendoUtil.showGridRowCount(this.element);
+            },
+            height: "540px"
+        };
+
+        this.grid = $("#mttrGrid").kendoGrid(gridOption).data("kendoGrid");
+        
+        // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
+        $(document).on("click", ".grid-column-link", async function (e) {
+            e.preventDefault();
+            let equipPk = $(this).data("equip-pk");
+            if (!equipPk) return;
+
+            // 이미 로드된 경우 재사용
+            if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+                equipMasterPage.show(equipPk);
+                return;
+            }
+
+            try {
+                const response = await $.get('/api/kmms/equipment?action=load_modal');
+                $('body').append(response);
+
+                // imageUploader가 준비될 때까지 대기
+                let waitForUploader = async () => {
+                    return new Promise(resolve => {
+                        let count = 0;
+                        const check = () => {
+                            if (window.imageUploader) return resolve();
+                            count++;
+                            if (count > 20) return resolve();
+                            setTimeout(check, 50);
+                        };
+                        check();
+                    });
+                };
+                await waitForUploader();
+
+                window.equipMasterPage = new EquipMaster();
+                equipMasterPage.show(equipPk);
+
+            } catch (err) {
+                console.error("equipment.html 로드 실패:", err);
+                alert("설비 정보를 불러오는데 실패했습니다.");
+            }
+        });
+    }
+
+    
+
+    bindEvents() {
+        let _this = this;
+
+        // 검색키워드 텍스트박스 초기화
+        $('#searchText').kendoTextBox();
+
+        // 검색 버튼
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        // Excel 버튼
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+
+        // 설비 검색 버튼
+        $("#btnSearchEquipment").kendoButton({
+            icon: "k-i-zoom-in",
+            rounded: "full",
+            click: function (e) {
+                e.preventDefault();
+                setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                equipSelectPage.show(function (data) {
+                    $("#searchText").val(data.equip_cd);
+                });
+            }
+        });
+
+        // 검색키워드 엔터키
+        $("#searchText").keypress(function(e) {
+            if (e.which === 13) {
+                _this.searchMainData();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+    
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'facility_mttr_mtbf';
+
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+        // Kendo Grid에 데이터 설정
+        let grid = $("#mttrGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#mttrGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "설비별 MTTR MTBF.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+
+    onEquipInfo(equip_pk) {
+        // 설비 정보 모달 팝업
+        alert("설비 정보 보기 기능을 구현하세요. 설비PK: " + equip_pk);
+    }
+
+    goWoHist(equipCd) {
+        // WO 이력 화면으로 이동
+        let params = {
+            linkType: 'MttrMtbfByEquip',
+            title: '설비별 MTTR/MTBF',
+            startDt: this.start_dt,
+            endDt: this.end_dt,
+            equipCd: equipCd
+        };
+        
+        // 실제 구현에서는 부모 창의 함수를 호출하거나 새 창을 띄움
+        console.log("WO 이력 이동:", params);
+        alert("WO 이력 화면으로 이동하는 기능을 구현하세요.");
+    }
+}
+
+// 페이지 인스턴스 생성
+let page = null;
+$(document).ready(function() {
+    page = new FacilityMttrMtbfPage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

@@ -1,13 +1,15 @@
 <div id="modalWoDetail" class="modal">
 	<div class="modal-content">
 		<div class="modal-header">
-			<h4>작업 결과입력</h4>
+			<h4>WO 상세정보</h4>
 		</div>
 
 		<div class="modal-body">
 			<!-- 결재 라인 -->
 			<div class="section-header">
-				{% include 'components/WoApprovalLine.html' with dataPk=work_order_pk  %}
+				<div id="woApprovalLineContainer_WoDetail">
+					{% include 'components/WoApprovalLine.html' with dataPk='' %}
+				</div>
 				<div>
 					<input type="checkbox" id="mergeTabsCheckbox" name="mergeTabsCheckbox" />
 					<label>작업내역 한 탭에서 보기</label>
@@ -61,7 +63,11 @@
 							</tr>
 							<tr>
 								<th>WO 번호</th>
-								<td id="req_work_order_no" width="150"></td>
+								<td width="150">
+									<a href="#" id="workOrderNoLink" data-work-order-pk="" style="color: #007bff; text-decoration: underline; cursor: pointer;">
+										<span id="req_work_order_no"></span>
+									</a>
+								</td>
 								<th width="120">PM 번호</th>
 								<td id="req_pm_no" width="150"></td>
 								<th width="120">보전유형</th>
@@ -440,142 +446,142 @@
 
 			this.bindMergeTabToggle();
 
-			$("#woSupplierGrid").kendoGrid({
-				dataSource: new kendo.data.DataSource({
-					transport: {
-						read: {
-							url: this.baseUrl,
-							dataType: "json",
-							contentType: "application/json",
-							data: function () {
-								return {
-									action: 'read_work_order_hist',
-									id: $('#work_order_pk').val()
-								};
-							}
-						}
-					},
-				}),
-				height: 100,
-				sortable: true,
-				autoBind: false, // 자동 데이터 바인딩 비활성화
-				columns: [
-					{ field: "ex_supplier_pk", title: "id", hidden: true },
-					{ field: "ex_supplier_nm", title: "외주업체명", width: 6 },
-					{ field: "cost", title: "비용", width: 4 },
-				],
-				noRecords: {
-					template: "조회된 데이터가 없습니다."
-				},
-				dataBound: function (e) {
-					const count = this.dataSource.total();
-					$("#woSupplierCount").text(`(Count: ${count})`);
-				}
-			});
+			//$("#woSupplierGrid").kendoGrid({
+			//	dataSource: new kendo.data.DataSource({
+			//		transport: {
+			//			read: {
+			//				url: this.baseUrl,
+			//				dataType: "json",
+			//				contentType: "application/json",
+			//				data: function () {
+			//					return {
+			//						action: 'read_work_order_hist',
+			//						id: $('#work_order_pk').val()
+			//					};
+			//				}
+			//			}
+			//		},
+			//	}),
+			//	height: 100,
+			//	sortable: true,
+			//	autoBind: false, // 자동 데이터 바인딩 비활성화
+			//	columns: [
+			//		{ field: "ex_supplier_pk", title: "id", hidden: true },
+			//		{ field: "ex_supplier_nm", title: "외주업체명", width: 6 },
+			//		{ field: "cost", title: "비용", width: 4 },
+			//	],
+			//	noRecords: {
+			//		template: "조회된 데이터가 없습니다."
+			//	},
+			//	dataBound: function (e) {
+			//		const count = this.dataSource.total();
+			//		$("#woSupplierCount").text(`(Count: ${count})`);
+			//	}
+			//});
 
-			$("#woManpowerGrid").kendoGrid({
-				dataSource: new kendo.data.DataSource({
-					transport: {
-						read: {
-							url: this.baseUrl,
-							dataType: "json",
-							contentType: "application/json",
-							data: function () {
-								return {
-									action: 'read_work_order_hist',
-									id: $('#work_order_pk').val()
-								};
-							}
-						}
-					},
-				}),
-				height: 100,
-				sortable: true,
-				autoBind: false, // 자동 데이터 바인딩 비활성화
-				columns: [
-					{ field: "work_order_pk", title: "id", hidden: true },
-					{ field: "job_class_nm", title: "작업인력 또는 직종 추가", width: 120 },
-					{ field: "worker_nos", title: "인원수", width: 120, },
-					{ field: "wage_cost", title: "노임단가(시급)", width: 100 },
-					{ field: "work_hr", title: "예상작업시간", width: 100 },
-					{ field: "real_work_hr", title: "실제작업시간", width: 100 }
-				],
-				noRecords: {
-					template: "조회된 데이터가 없습니다."
-				},
-				dataBound: function (e) {
-					const count = this.dataSource.total();
-					$("#woManpowerCount").text(`(Count: ${count})`);
-				}
-			});
+			//$("#woManpowerGrid").kendoGrid({
+			//	dataSource: new kendo.data.DataSource({
+			//		transport: {
+			//			read: {
+			//				url: this.baseUrl,
+			//				dataType: "json",
+			//				contentType: "application/json",
+			//				data: function () {
+			//					return {
+			//						action: 'read_work_order_hist',
+			//						id: $('#work_order_pk').val()
+			//					};
+			//				}
+			//			}
+			//		},
+			//	}),
+			//	height: 100,
+			//	sortable: true,
+			//	autoBind: false, // 자동 데이터 바인딩 비활성화
+			//	columns: [
+			//		{ field: "work_order_pk", title: "id", hidden: true },
+			//		{ field: "job_class_nm", title: "작업인력 또는 직종 추가", width: 120 },
+			//		{ field: "worker_nos", title: "인원수", width: 120, },
+			//		{ field: "wage_cost", title: "노임단가(시급)", width: 100 },
+			//		{ field: "work_hr", title: "예상작업시간", width: 100 },
+			//		{ field: "real_work_hr", title: "실제작업시간", width: 100 }
+			//	],
+			//	noRecords: {
+			//		template: "조회된 데이터가 없습니다."
+			//	},
+			//	dataBound: function (e) {
+			//		const count = this.dataSource.total();
+			//		$("#woManpowerCount").text(`(Count: ${count})`);
+			//	}
+			//});
 
-			$("#woMaterialGrid").kendoGrid({
-				dataSource: new kendo.data.DataSource({
-					transport: {
-						read: {
-							url: this.baseUrl,
-							dataType: "json",
-							contentType: "application/json",
-							data: function () {
-								return {
-									action: 'read_work_order_hist',
-									id: $('#work_order_pk').val()
-								};
-							}
-						}
-					},
-				}),
-				height: 100,
-				sortable: true,
-				autoBind: false, // 자동 데이터 바인딩 비활성화
-				columns: [
-					{ field: "work_order_hist_pk", title: "id", hidden: true },
-					{ field: "mtrl_cd", title: "자재코드", width: 120 },
-					{ field: "mtrl_nm", title: "자재명", width: 120, },
-					{ field: "unit_price", title: "자재단가", width: 100 },
-					{ field: "plan_amt", title: "예상소요량", width: 100 },
-					{ field: "amtrl_amt", title: "A급 수량", width: 100 },
-					{ field: "bmtrl_amt", title: "B급 수량", width: 100 }
-				],
-				noRecords: {
-					template: "조회된 데이터가 없습니다."
-				},
-				dataBound: function (e) {
-					const count = this.dataSource.total();
-					$("#woMaterialCount").text(`(Count: ${count})`);
-				}
-			});
+			//$("#woMaterialGrid").kendoGrid({
+			//	dataSource: new kendo.data.DataSource({
+			//		transport: {
+			//			read: {
+			//				url: this.baseUrl,
+			//				dataType: "json",
+			//				contentType: "application/json",
+			//				data: function () {
+			//					return {
+			//						action: 'read_work_order_hist',
+			//						id: $('#work_order_pk').val()
+			//					};
+			//				}
+			//			}
+			//		},
+			//	}),
+			//	height: 100,
+			//	sortable: true,
+			//	autoBind: false, // 자동 데이터 바인딩 비활성화
+			//	columns: [
+			//		{ field: "work_order_hist_pk", title: "id", hidden: true },
+			//		{ field: "mtrl_cd", title: "자재코드", width: 120 },
+			//		{ field: "mtrl_nm", title: "자재명", width: 120, },
+			//		{ field: "unit_price", title: "자재단가", width: 100 },
+			//		{ field: "plan_amt", title: "예상소요량", width: 100 },
+			//		{ field: "amtrl_amt", title: "A급 수량", width: 100 },
+			//		{ field: "bmtrl_amt", title: "B급 수량", width: 100 }
+			//	],
+			//	noRecords: {
+			//		template: "조회된 데이터가 없습니다."
+			//	},
+			//	dataBound: function (e) {
+			//		const count = this.dataSource.total();
+			//		$("#woMaterialCount").text(`(Count: ${count})`);
+			//	}
+			//});
 
-			$("#logInfoGrid").kendoGrid({
-				dataSource: new kendo.data.DataSource({
-					transport: {
-						read: {
-							url: this.baseUrl,
-							dataType: "json",
-							contentType: "application/json",
-							data: function () {
-								return {
-									action: 'read_work_order_hist',
-									id: $('#work_order_pk').val()
-								};
-							}
-						}
-					},
-				}),
-				height: 300,
-				sortable: true,
-				autoBind: false, // 자동 데이터 바인딩 비활성화
-				columns: [
-					{ field: "work_order_hist_pk", title: "id", hidden: true },
-					{ field: "after_status_nm", title: "상태", width: 120 },
-					{ field: "changer_nm", title: "담당자", width: 120, },
-					{ field: "change_reason", title: "비고", width: 100 },
-					{ field: "change_ts", title: "일시", width: 100 }
-				],
-				noRecords: {
-					template: "조회된 데이터가 없습니다."
-				}
-			});
+			//$("#logInfoGrid").kendoGrid({
+			//	dataSource: new kendo.data.DataSource({
+			//		transport: {
+			//			read: {
+			//				url: this.baseUrl,
+			//				dataType: "json",
+			//				contentType: "application/json",
+			//				data: function () {
+			//					return {
+			//						action: 'read_work_order_hist',
+			//						id: $('#work_order_pk').val()
+			//					};
+			//				}
+			//			}
+			//		},
+			//	}),
+			//	height: 300,
+			//	sortable: true,
+			//	autoBind: false, // 자동 데이터 바인딩 비활성화
+			//	columns: [
+			//		{ field: "work_order_hist_pk", title: "id", hidden: true },
+			//		{ field: "after_status_nm", title: "상태", width: 120 },
+			//		{ field: "changer_nm", title: "담당자", width: 120, },
+			//		{ field: "change_reason", title: "비고", width: 100 },
+			//		{ field: "change_ts", title: "일시", width: 100 }
+			//	],
+			//	noRecords: {
+			//		template: "조회된 데이터가 없습니다."
+			//	}
+			//});
 
 			$('.tab-button').on('click', function () {
 				const tabId = $(this).data('tab');
@@ -734,6 +740,9 @@
 			// work_order_pk 설정
 			$('#work_order_pk').val(work_order_pk);
 
+			// WoApprovalLine 동적 로드
+			this.loadWoApprovalLine(work_order_pk);
+
 			// 설비 상세 정보 API 호출
 			let param = {
 				action: 'read_work_order_summary',
@@ -741,19 +750,8 @@
 			};
 			let woSummaryData = AjaxUtil.getSyncData(_this.baseUrl, param);
 
-			this.showApprovalLine(woSummaryData);
-
 			// 1.1. summary 데이터
 			this.bindWoSummaryData(woSummaryData);
-
-			/*(이력포함 전체 appr_line(OC, AP, CM, CL)) */
-			let paramApprLine = {
-				action: 'getFullApprLine',
-				workOrderPk: work_order_pk,
-			};
-			let appr_line = AjaxUtil.getSyncData('/api/kmms/work_order', paramApprLine);
-			console.log(appr_line);//RQ,AP,CM,CL      이 데이터를 가지고 결제선을 그려라
-
 
 			// TODO: 요청정보 데이터 바인딩
 			this.getWoRequestData(woSummaryData);
@@ -786,7 +784,15 @@
 				this.activateTab($("#tabId").val(), woSummaryData);
 
 				// 그리드 데이터 리프레시
-				$("#logInfoGrid").data("kendoGrid").dataSource.read();
+				//$("#logInfoGrid").data("kendoGrid").dataSource.read();
+			}
+		}
+
+		// WoApprovalLine 동적 로드 메소드
+		loadWoApprovalLine(woNoPk) {
+			if (window.approvalLine && typeof window.approvalLine.onWorkOrderClick === 'function') {
+				// WoDetail 모달용 기본 ID 사용
+				window.approvalLine.onWorkOrderClick(woNoPk, 'WoDetail');
 			}
 		}
 
@@ -839,7 +845,7 @@
 					'left': '-9999px'
 				});
 
-				AjaxUtil.fillDropDownOptions($('#wo_work_charger_sel'), 'auth_user', 'choose', data.work_charger_pk);
+				AjaxUtil.fillDropDownOptions($('#wo_work_charger_sel'), 'cm_user_info', 'choose', data.work_charger_pk);
 
 				//위치원상복구
 				$('#wo_plan_start_dt,#wo_plan_end_dt,#wo_start_dt,#wo_end_dt').css({
@@ -874,24 +880,6 @@
 					format: "yyyy-MM-dd",
 				});
 
-			}
-		}
-
-		showApprovalLine(data) {
-			// 네비게이션 메뉴 활성화 상태 초기화
-			$('.navigation-menu .menu-item').removeClass('active');
-
-			// 작업 상태에 따른 메뉴 활성화
-			const menuMap = {
-				'작업요청': '작업요청',
-				'요청승인': '요청승인',
-				'작업승인': '작업승인',
-				'작업완료': '작업완료',
-				'WO완료': 'WO 완료',
-			};
-
-			if (menuMap[data.wo_status_nm]) {
-				$(`.navigation-menu .menu-item:contains('${menuMap[data.wo_status_nm]}')`).addClass('active');
 			}
 		}
 
@@ -939,6 +927,9 @@
 			Object.entries(reqFields).forEach(([id, value]) => {
 				$(`#${id}`).text(value);
 			});
+			
+			// 작업지시번호 하이퍼링크에 work_order_pk 설정
+			$('#workOrderNoLink').data('work-order-pk', data.work_order_pk);
 		}
 		// 작업내역 데이터 바인딩
 		getWoInfoData(data) {

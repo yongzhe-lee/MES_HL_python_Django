@@ -1,11 +1,280 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="dateType" data-labelCd="기간선택">기간선택</label>
+                            <div class="field-wrapper">
+                                <div id="dateType"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="부서별 기간별 작업 준수율">부서별 기간별 작업 준수율</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="complianceGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class DeptTaskComplianceRatePage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.dateType = 'month';
+        this.init();
+    }
+
+    init() {
+        this.initDateTypePicker();
+        this.initDatePicker();
+        this.initGrid();
+        this.bindEvents();
+    }
+
+    initDateTypePicker() {
+        $("#dateType").kendoDropDownList({
+            dataSource: [
+                { text: "월별", value: "month" },
+                { text: "연도별", value: "year" }
+            ],
+            dataTextField: "text",
+            dataValueField: "value",
+            value: "month",
+            change: (e) => {
+                this.dateType = e.sender.value();
+                this.updateDatePicker();
+            }
+        });
+    }
+
+    initDatePicker() {
+        let _this = this;
+        let today = new Date();
+        let threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+        // 기존 datepicker 인스턴스 제거
+        if ($("#searchDt_start").data("kendoDatePicker")) {
+            $("#searchDt_start").data("kendoDatePicker").destroy();
+            $("#searchDt_start").remove();
+        }
+        if ($("#searchDt_end").data("kendoDatePicker")) {
+            $("#searchDt_end").data("kendoDatePicker").destroy();
+            $("#searchDt_end").remove();
+        }
+        
+        $("#searchDt").html('<input id="searchDt_start" name="startDt" style="width:120px;" /> ~ <input id="searchDt_end" name="endDt" style="width:120px;" />');
+
+        if (this.dateType === 'month') {
+            $("#searchDt_start").kendoDatePicker({
+                start: "year",
+                depth: "year",
+                format: "yyyy-MM",
+                value: threeMonthsAgo
+            });
+            $("#searchDt_end").kendoDatePicker({
+                start: "year",
+                depth: "year",
+                format: "yyyy-MM",
+                value: today
+            });
+        } else {
+            let fiveYearsAgo = new Date(today.getFullYear() - 5, 0, 1);
+            $("#searchDt_start").kendoDatePicker({
+                start: "decade",
+                depth: "decade",
+                format: "yyyy",
+                value: fiveYearsAgo
+            });
+            $("#searchDt_end").kendoDatePicker({
+                start: "decade",
+                depth: "decade",
+                format: "yyyy",
+                value: today
+            });
+        }
+    }
+
+    updateDatePicker() {
+        this.initDatePicker();
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: [],
+                // 푸터가 원하는 대로 안나와서 일단 주석처리..
+                // 추후 수정 필요
+                // aggregate: [
+                //     { field: "totWoCnt", aggregate: "sum" },
+                //     { field: "okWoCnt", aggregate: "sum" },
+                //     { field: "okPercent", aggregate: "average" }
+                // ]
+            },
+            columns: [
+                { 
+                    title: "작업부서", 
+                    field: "deptNm" 
+                },
+                { 
+                    title: "년/월", 
+                    field: "yearMon", 
+                    width: "200px" 
+                },
+                { 
+                    title: "총 WO 발행 건수", 
+                    field: "totWoCnt", 
+                    width: "200px",
+                    template: "#=kendo.toString(totWoCnt, 'n0')#",
+                    attributes: { style: "text-align:right" },
+                    // footerTemplate: ({ totWoCnt }) => `${kendo.htmlEncode(totWoCnt.sum)}`,
+                    // footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                },
+                { 
+                    title: "일정 준수 WO 건수", 
+                    field: "okWoCnt", 
+                    width: "200px",
+                    template: "#=kendo.toString(okWoCnt, 'n0')#",
+                    attributes: { style: "text-align:right" },
+                    // footerTemplate: ({ okWoCnt }) => `${kendo.htmlEncode(okWoCnt.sum)}`,
+                    // footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                },
+                { 
+                    title: "작업준수율", 
+                    field: "okPercent", 
+                    width: "200px",
+                    template: "#=kendo.toString(okPercent, '0.00')# %",
+                    attributes: { style: "text-align:right" },
+                    // footerTemplate: ({ okPercent }) => `${kendo.toString(okPercent.average, '0.00')} %`,
+                    // footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(average, '0.00') # %</b>"
+                }
+            ],
+            scrollable: true,
+            pageable: false,
+            editable: false,
+            selectable: "row",
+            height: 400,
+            dataBound: function(e) {
+                let data = this.dataSource.data();
+            }
+        };
+        _this.grid = $("#complianceGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    // 푸터 로직 시도 실패...
+    // setSummary(items) {
+    //     let lastItem = null;
+    //     if (items === null) {
+    //         lastItem = {totWoCnt: 0, okWoCnt: 0, okPercent: 0};
+    //     } else {
+    //         lastItem = {totWoCnt: items.totWoCnt, okWoCnt: items.okWoCnt, okPercent: items.okPercent};
+    //     }
+        
+    //     this.setNumber('wocmplByDeptTermTotCnt', lastItem.totWoCnt);
+    //     this.setNumber('wocmplByDeptTermOk', lastItem.okWoCnt);
+    //     this.setNumber('wocmplByDeptTermPercent', lastItem.okPercent + '%');
+    // }
+
+    // setNumber(divId, item) {
+    //     let element = document.querySelector('#' + divId);
+    //     if (element && element.innerHTML !== undefined && element.innerHTML !== null) {
+    //         element.innerHTML = this.numberWithCommas(item);
+    //     }
+    // }
+
+    numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    bindEvents() {
+        let _this = this;
+
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+        
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    convertDateRangeToParam() {
+        return DateUtil.convertDateRangeToParam("#searchDt_start", "#searchDt_end", this.dateType);
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'dept_task_compliance_rate';
+
+        let dateParam = this.convertDateRangeToParam();
+        param.startDt = dateParam.startDt;
+        param.endDt = dateParam.endDt;
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+        let grid = $("#complianceGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#complianceGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "부서별_기간별_작업_준수율.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new DeptTaskComplianceRatePage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

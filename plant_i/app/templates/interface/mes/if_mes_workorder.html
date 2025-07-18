@@ -9,17 +9,23 @@
         <div class="card-content search">
             <div class="form-ui">
 
-                <div class="col-12 col-md-3 col-lg-3 col-xl-2">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
                     <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="cboMTART" data-labelCd="라인">라인</label>
+                        <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
                         <div class="field-wrapper">
-                            <select id="cboLine" name="line_cd"></select>
+                            <select id="cboLine" name="line_cd" class="form-control">
+                                <option value="PCU-01-01">PCU-01-01</option>
+                                <option value="SMT-04">SMT-04</option>
+                                <option value="SMT-03">SMT-03</option>
+                                <option value="SMT-02">SMT-02</option>
+                                <option value="SMT-01">SMT-01</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3 col-lg-1 col-xl-1">
+                <div class="col-12 col-sm-6 col-md-3 col-lg-1 col-xl-1">
                     <div class="card-group-btn search">
-                        <button id="btnSAPMaterialSearchDB" class="btn-search">조회</button>
+                        <button id="btnSearch" class="btn-search">조회</button>
                     </div>
                 </div>
             </div>
@@ -33,11 +39,10 @@
                         <label data-labelCd="MES작업지시목록">MES작업지시목록</label>
                     </span>
                     <span>
-                        <button id="btnSAPMaterialSearchSAP">인터페이스실행</button>
-                        <button id="btnExcelSapMat">Excel</button>
+                        <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="sap_mat_grid"></div>
+                <div id="order_grid"></div>
             </div>
 
         </div>
@@ -59,7 +64,7 @@
         constructor() {
             this.grid = null;
             this.init();
-            this.url = "/api/interface/mes";
+            this.baseUrl = "/api/interface/mes";
         }
 
         init() {
@@ -83,17 +88,16 @@
                     }
                 },
                 columns: [
-                    { field: "orderNo", title: "orderNo", width: 100 },
+                    { field: "orderNo", title: "orderNo", width: 170 },
                     { field: "lineCode", title: "Line", width: 100 },
                     { field: "lineDesc", title: "Line Desc.", width: 100 },
                     { field: "matCode", title: "품번", width: 100 },
-                    { field: "matDesc", title: "품명", width: 100 },
+                    { field: "matDesc", title: "품명", width: 350 },
                     { field: "planMonth", title: "계획월", width: 100 },
-                    { field: "flowCode", title: "Flow", width: 100 },
+                    { field: "flowCode", title: "Flow", width: 150 },
                     { field: "planQty", title: "Plan Qty.", width: 100 },
                     { field: "inputQty", title: "Input Qty.", width: 100 },
                     { field: "outQty", title: "Out Qty.", width: 100 },
-                    { field: "createTime", title: "생성일시", width: 100 },                    
                     { field: "ordQty", title: "Order Qty.", width: 100 },
                     { field: "ordInQty", title: "Order In Qty.", width: 100 },
                     { field: "ordOutQty", title: "Order Out Qty.", width: 100 },
@@ -101,84 +105,71 @@
                     { field: "rcvLossQty", title: "Loss Qty.", width: 100 },
                     { field: "ordDate", title: "Order Date", width: 100 },
                     { field: "ordStatus", title: "지시상태", width: 100 },
-                    { field: "ordStartTime", title: "지시일시", width: 100 }                    
-
+                    { field: "ordStartTime", title: "지시일시", width: 180 },
+                    { field: "createTime", title: "생성일시", width: 180 },
                 ],
                 change: function (e) {
                 },
                 dataBound: function (e) {
                 },
-                height: 500
+                height: 600
             };
 
-            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+            this.grid = new Grid($("#order_grid"), gridOption);
 
             //search form
             let today = CommonUtil.getYYYYMMDD();
             let $cboLine = $('#cboLine');
-            AjaxUtil.fillDropDownOptions($cboLine, 'line_code', 'all', null);
+            //AjaxUtil.fillDropDownOptions($cboLine, 'line_code', 'all', null);
 
-            $('#btnSAPMaterialSearchDB').kendoButton({
+            $('#btnSearch').kendoButton({
                 icon: "search",
                 themeColor: "success",
                 click: function () {
-                    _this.searchSapMat();
+                    _this.searchWorkOrder();
                 }
             });
 
-            $('#btnSAPMaterialSearchSAP').kendoButton({
-                icon: "download-light",
-                themeColor: "success",
-                click: function () {
-                    _this.showPopSapMatInterface();
-                }
-            });
 
             // 엑셀 다운로드
-            $('#btnExcelSapMat').kendoButton({
+            $('#btnExcel').kendoButton({
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
-                    let gridData = $('#sap_mat_grid').data("kendoGrid");
+                    let gridData = $('#order_grid').data("kendoGrid");
                     gridData.bind("excelExport", function (e) {
-                        e.workbook.fileName = "sap_mat.xlsx";
+                        e.workbook.fileName = "mes_workorder_list.xlsx";
                     });
                     gridData.saveAsExcel();
                 }
             });
+        }
 
-
-
+        showPopWorkOrderInterface() {
 
         }
-        
 
         /********************************************************/
 
-        searchSapMat() {
+        searchWorkOrder() {
             let _this = this;
-            let url = '/api/interface/sap';
-            let matkl = $('#cboMATKL').val();
-            let mtart = $('#cboMTART').val();
-            let bklas = $('#cboBKLAS').val();
-
+            let line_cd = $('#cboLine').val();
             let data = {
-                matkl: matkl,
-                mtart: mtart,
-                bklas: bklas,
-                'action': 'sap_mat'
+                line_cd: line_cd,
+                'action': 'workorder_list'
             };
 
-            kendo.ui.progress($('#sap_mat_grid'), true);
+            let $gg = $('#order_grid');
 
-            AjaxUtil.getAsyncData(url, data, function (result) {
+            kendo.ui.progress($gg, true);
+            AjaxUtil.getAsyncData(this.baseUrl, data, function (result) {
                 if (result.success) {
-                    _this.sap_mat_grid.setData(result.items);
+                    _this.grid.setData(result.items);
                 }
                 else {
                     Alert.alert('오류', result.message);
                 }
-                kendo.ui.progress($('#sap_mat_grid'), false);
+                kendo.ui.progress($gg, false);
             });
         }
 

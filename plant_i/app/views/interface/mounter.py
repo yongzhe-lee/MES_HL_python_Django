@@ -1,4 +1,5 @@
 from domain.services.date import DateUtil
+from domain.services.logging import LogWriter
 from domain.services.interface.mounter import IFFujiMounterService
 from domain.services.sql import DbUtil
 
@@ -33,7 +34,7 @@ def mounter(context):
             , imfr.equ_cd
             , imfr.machine
             , imfr."position"
-            , imfr."partNumber"
+            , imfr."part_num"
             , imfr.fidl
             , imfr.pickup
             , imfr.no_pickup 
@@ -58,7 +59,7 @@ def mounter(context):
                 and e.id = %(equ_id)s
                 '''
             sql+='''
-            order by imfr.data_date desc, imfr.machine, imfr."position"
+            order by imfr.data_date desc, imfr.machine, imfr."position"            
             '''
 
             data = DbUtil.get_rows(sql, dic_param)
@@ -77,8 +78,9 @@ def mounter(context):
 
 
     except Exception as ex:
+
         result['success'] = False
         result['message'] = str(ex)
-
+        LogWriter.add_dblog('error', source, ex)
 
     return result

@@ -547,7 +547,7 @@ class CmDashBoardItem(models.Model):
         return
  
 
-class CmDept(models.Model):
+class CmDeptXXX(models.Model):
     id = models.SmallAutoField(primary_key=True, db_column='dept_pk', db_comment='부서 PK')
     DeptCode = models.CharField(unique=True, max_length=20, db_column='dept_cd', db_comment='부서 코드')
     DeptName = models.CharField(max_length=100, db_column='dept_nm', db_comment='부서명')
@@ -570,7 +570,7 @@ class CmDept(models.Model):
     CostViewAuth = models.CharField(blank=True, null=True, db_column='cost_view_auth', db_comment='비용 보기 권한')
 
     class Meta:
-        db_table = 'cm_dept'
+        db_table = 'cm_dept_xxx'
         db_table_comment = '부서'
 
     def set_audit(self, user):
@@ -2251,7 +2251,7 @@ class CmUserFav(models.Model):
         # self.UpdateTs = DateUtil.get_current_datetime()
         return
  
-class CmUserInfo(models.Model):
+class CmUserInfoXXX(models.Model):
     id = models.SmallAutoField(primary_key=True, db_column='user_pk', db_comment='사용자 PK')
     UserName = models.CharField(max_length=60, db_column='user_nm', db_comment='사용자 이름')
     DeptPk = models.SmallIntegerField(db_column='dept_pk', db_comment='부서 PK')
@@ -2285,7 +2285,7 @@ class CmUserInfo(models.Model):
     UpdaterName = models.CharField(max_length=50, blank=True, null=True, db_column='updater_nm', db_comment='수정자명')
 
     class Meta:
-        db_table = 'cm_user_info'
+        db_table = 'cm_user_info_xxx'
         db_table_comment = '사용자 정보'
 
     def set_audit(self, user):
@@ -2877,3 +2877,678 @@ class CmAssetValDetail(models.Model):
     class Meta:
         db_table = 'cm_asset_val_detail'
         db_table_comment = '자산평가상세'
+
+class CmMigBaseCode(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    CodeGrpCd = models.CharField(max_length=20, blank=True, null=True, db_column='code_grp_cd', db_comment='코드그룹코드')
+    CodeCd = models.CharField(max_length=100, blank=True, null=True, db_column='code_cd', db_comment='코드')
+    CodeNm = models.CharField(max_length=100, blank=True, null=True, db_column='code_nm', db_comment='코드명')
+    CodeDsc = models.CharField(max_length=100, blank=True, null=True, db_column='code_dsc', db_comment='코드설명')
+    DispOrder = models.IntegerField(blank=True, null=True, db_column='disp_order', db_comment='표시순서')
+    UseYn = models.CharField(max_length=1, blank=True, null=True, db_column='use_yn', db_comment='사용여부')
+    GrpCd = models.CharField(max_length=30, blank=True, null=True, db_column='grp_cd', db_comment='그룹코드')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_base_code'
+        db_table_comment = '기준코드 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigChkEquip(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    ChkMastNo = models.CharField(max_length=20, blank=True, null=True, db_column='chk_mast_no', db_comment='점검마스터번호')
+    ChkMastNm = models.CharField(max_length=200, blank=True, null=True, db_column='chk_mast_nm', db_comment='점검마스터명')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_chk_equip'
+        db_table_comment = '점검설비 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigDept(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    DeptCd = models.CharField(max_length=20, blank=True, null=True, db_column='dept_cd', db_comment='부서코드')
+    DeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='dept_nm', db_comment='부서명')
+    UpDeptCd = models.CharField(max_length=20, blank=True, null=True, db_column='up_dept_cd', db_comment='상위부서코드')
+    UpDeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='up_dept_nm', db_comment='상위부서명')
+    BusinessYn = models.CharField(max_length=1, blank=True, null=True, db_column='business_yn', db_comment='사업부여부')
+    TeamYn = models.CharField(max_length=1, blank=True, null=True, db_column='team_yn', db_comment='팀여부')
+    TpmYn = models.CharField(max_length=1, blank=True, null=True, db_column='tpm_yn', db_comment='TPM여부')
+    CcCd = models.CharField(max_length=30, blank=True, null=True, db_column='cc_cd', db_comment='코스트센터코드')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_dept'
+        db_table_comment = '부서 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquip(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    EquipCategoryId = models.CharField(max_length=100, blank=True, null=True, db_column='equip_category_id', db_comment='설비카테고리ID')
+    EquipCategoryDesc = models.CharField(max_length=100, blank=True, null=True, db_column='equip_category_desc', db_comment='설비카테고리설명')
+    LocCd = models.CharField(max_length=100, blank=True, null=True, db_column='loc_cd', db_comment='위치코드')
+    LocNm = models.CharField(max_length=100, blank=True, null=True, db_column='loc_nm', db_comment='위치명')
+    UpEquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='up_equip_cd', db_comment='상위설비코드')
+    UpEquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='up_equip_nm', db_comment='상위설비명')
+    AssetNos = models.CharField(max_length=200, blank=True, null=True, db_column='asset_nos', db_comment='자산번호들')
+    ImportRankCd = models.CharField(max_length=100, blank=True, null=True, db_column='import_rank_cd', db_comment='중요도코드')
+    EquipStatus = models.CharField(max_length=20, blank=True, null=True, db_column='equip_status', db_comment='설비상태')
+    DisposedType = models.CharField(max_length=100, blank=True, null=True, db_column='disposed_type', db_comment='폐기유형')
+    DeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='dept_cd', db_comment='부서코드')
+    DeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='dept_nm', db_comment='부서명')
+    CcCd = models.CharField(max_length=100, blank=True, null=True, db_column='cc_cd', db_comment='코스트센터코드')
+    InstallDt = models.CharField(max_length=100, blank=True, null=True, db_column='install_dt', db_comment='설치일자')
+    EquipTypeCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_type_cd', db_comment='설비유형코드')
+    EquipClass = models.CharField(max_length=100, blank=True, null=True, db_column='equip_class', db_comment='설비클래스')
+    EquipTypeNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_type_nm', db_comment='설비유형명')
+    SupplierCd = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_cd', db_comment='공급업체코드')
+    SupplierNm = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_nm', db_comment='공급업체명')
+    BuyCost = models.CharField(max_length=100, blank=True, null=True, db_column='buy_cost', db_comment='구매비용')
+    WarrantyDt = models.CharField(max_length=100, blank=True, null=True, db_column='warranty_dt', db_comment='보증일자')
+    MakerCd = models.CharField(max_length=100, blank=True, null=True, db_column='maker_cd', db_comment='제조사코드')
+    MakerNm = models.CharField(max_length=100, blank=True, null=True, db_column='maker_nm', db_comment='제조사명')
+    ModelNumber = models.CharField(max_length=100, blank=True, null=True, db_column='model_number', db_comment='모델번호')
+    PartNo = models.CharField(max_length=100, blank=True, null=True, db_column='part_no', db_comment='부품번호')
+    SerialNumber = models.CharField(max_length=100, blank=True, null=True, db_column='serial_number', db_comment='시리얼번호')
+    MakeDt = models.CharField(max_length=100, blank=True, null=True, db_column='make_dt', db_comment='제조일자')
+    MtrlCd = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cd', db_comment='자재코드')
+    EnvironYn = models.CharField(max_length=1, blank=True, null=True, db_column='environ_yn', db_comment='환경설비여부')
+    EquipDsc = models.CharField(max_length=500, blank=True, null=True, db_column='equip_dsc', db_comment='설비설명')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip'
+        db_table_comment = '설비 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipBom(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    MtrlCd = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cd', db_comment='자재코드')
+    MtrlNm = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_nm', db_comment='자재명')
+    Amt = models.IntegerField(blank=True, null=True, db_column='amt', db_comment='수량')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_bom'
+        db_table_comment = '설비BOM 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipChkMst(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    ChkMastNo = models.CharField(max_length=100, blank=True, null=True, db_column='chk_mast_no', db_comment='점검마스터번호')
+    ChkMastNm = models.CharField(max_length=200, blank=True, null=True, db_column='chk_mast_nm', db_comment='점검마스터명')
+    PerNumber = models.IntegerField(blank=True, null=True, db_column='per_number', db_comment='주기번호')
+    CycleType = models.CharField(max_length=100, blank=True, null=True, db_column='cycle_type', db_comment='주기유형')
+    SchedStartDt = models.CharField(max_length=100, blank=True, null=True, db_column='sched_start_dt', db_comment='예정시작일자')
+    DeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='dept_cd', db_comment='부서코드')
+    DeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='dept_nm', db_comment='부서명')
+    ChkUserId = models.CharField(max_length=100, blank=True, null=True, db_column='chk_user_id', db_comment='점검자ID')
+    ChkUserNm = models.CharField(max_length=100, blank=True, null=True, db_column='chk_user_nm', db_comment='점검자명')
+    WorkText = models.CharField(max_length=1000, blank=True, null=True, db_column='work_text', db_comment='작업내용')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_chk_mst'
+        db_table_comment = '설비점검마스터 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipChkMstItem(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    ChkMastNo = models.CharField(max_length=100, blank=True, null=True, db_column='chk_mast_no', db_comment='점검마스터번호')
+    ChkMastNm = models.CharField(max_length=200, blank=True, null=True, db_column='chk_mast_nm', db_comment='점검마스터명')
+    ItemIdx = models.IntegerField(blank=True, null=True, db_column='item_idx', db_comment='항목인덱스')
+    ChkItemNm = models.CharField(max_length=100, blank=True, null=True, db_column='chk_item_nm', db_comment='점검항목명')
+    Lcl = models.CharField(max_length=100, blank=True, null=True, db_column='lcl', db_comment='하한값')
+    Ucl = models.CharField(max_length=100, blank=True, null=True, db_column='ucl', db_comment='상한값')
+    ChkItemUnit = models.CharField(max_length=100, blank=True, null=True, db_column='chk_item_unit', db_comment='점검항목단위')
+    Method = models.CharField(max_length=100, blank=True, null=True, db_column='method', db_comment='점검방법')
+    Guide = models.CharField(max_length=100, blank=True, null=True, db_column='guide', db_comment='점검기준')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_chk_mst_item'
+        db_table_comment = '설비점검마스터항목 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipClass(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    EquipCategoryId = models.CharField(max_length=2, blank=True, null=True, db_column='equip_category_id', db_comment='설비카테고리ID')
+    EquipCategoryDesc = models.CharField(max_length=50, blank=True, null=True, db_column='equip_category_desc', db_comment='설비카테고리설명')
+    EquipClassId = models.CharField(max_length=20, blank=True, null=True, db_column='equip_class_id', db_comment='설비클래스ID')
+    EquipClassDesc = models.CharField(max_length=120, blank=True, null=True, db_column='equip_class_desc', db_comment='설비클래스설명')
+    UseYn = models.CharField(max_length=1, blank=True, null=True, db_column='use_yn', db_comment='사용여부')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_class'
+        db_table_comment = '설비클래스 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipFile(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    FileLoc = models.CharField(max_length=100, blank=True, null=True, db_column='file_loc', db_comment='파일위치')
+    FileNm = models.CharField(max_length=100, blank=True, null=True, db_column='file_nm', db_comment='파일명')
+    FileOrgNm = models.CharField(max_length=100, blank=True, null=True, db_column='file_org_nm', db_comment='원본파일명')
+    FileSize = models.CharField(max_length=100, blank=True, null=True, db_column='file_size', db_comment='파일크기')
+    FileExt = models.CharField(max_length=100, blank=True, null=True, db_column='file_ext', db_comment='파일확장자')
+    RootPath = models.CharField(max_length=100, blank=True, null=True, db_column='root_path', db_comment='루트경로')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    FileDesc = models.CharField(max_length=100, blank=True, null=True, db_column='file_desc', db_comment='파일설명')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_file'
+        db_table_comment = '설비파일 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipPhoto(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    FileLoc = models.CharField(max_length=100, blank=True, null=True, db_column='file_loc', db_comment='파일위치')
+    FileNm = models.CharField(max_length=100, blank=True, null=True, db_column='file_nm', db_comment='파일명')
+    FileOrgNm = models.CharField(max_length=100, blank=True, null=True, db_column='file_org_nm', db_comment='원본파일명')
+    FileSize = models.CharField(max_length=100, blank=True, null=True, db_column='file_size', db_comment='파일크기')
+    FileExt = models.CharField(max_length=100, blank=True, null=True, db_column='file_ext', db_comment='파일확장자')
+    RootPath = models.CharField(max_length=100, blank=True, null=True, db_column='root_path', db_comment='루트경로')
+    PhotoDesc = models.CharField(max_length=100, blank=True, null=True, db_column='photo_desc', db_comment='사진설명')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_photo'
+        db_table_comment = '설비사진 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipSpec(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    EquipSpecNm1 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm1', db_comment='설비사양명1')
+    EquipSpecUnit1 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit1', db_comment='설비사양단위1')
+    EquipSpecValue1 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value1', db_comment='설비사양값1')
+    EquipSpecNm2 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm2', db_comment='설비사양명2')
+    EquipSpecUnit2 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit2', db_comment='설비사양단위2')
+    EquipSpecValue2 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value2', db_comment='설비사양값2')
+    EquipSpecNm3 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm3', db_comment='설비사양명3')
+    EquipSpecUnit3 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit3', db_comment='설비사양단위3')
+    EquipSpecValue3 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value3', db_comment='설비사양값3')
+    EquipSpecNm4 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm4', db_comment='설비사양명4')
+    EquipSpecUnit4 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit4', db_comment='설비사양단위4')
+    EquipSpecValue4 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value4', db_comment='설비사양값4')
+    EquipSpecNm5 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm5', db_comment='설비사양명5')
+    EquipSpecUnit5 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit5', db_comment='설비사양단위5')
+    EquipSpecValue5 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value5', db_comment='설비사양값5')
+    EquipSpecNm6 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm6', db_comment='설비사양명6')
+    EquipSpecUnit6 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit6', db_comment='설비사양단위6')
+    EquipSpecValue6 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value6', db_comment='설비사양값6')
+    EquipSpecNm7 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm7', db_comment='설비사양명7')
+    EquipSpecUnit7 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit7', db_comment='설비사양단위7')
+    EquipSpecValue7 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value7', db_comment='설비사양값7')
+    EquipSpecNm8 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm8', db_comment='설비사양명8')
+    EquipSpecUnit8 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit8', db_comment='설비사양단위8')
+    EquipSpecValue8 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value8', db_comment='설비사양값8')
+    EquipSpecNm9 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm9', db_comment='설비사양명9')
+    EquipSpecUnit9 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit9', db_comment='설비사양단위9')
+    EquipSpecValue9 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value9', db_comment='설비사양값9')
+    EquipSpecNm10 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_nm10', db_comment='설비사양명10')
+    EquipSpecUnit10 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_unit10', db_comment='설비사양단위10')
+    EquipSpecValue10 = models.CharField(max_length=100, blank=True, null=True, db_column='equip_spec_value10', db_comment='설비사양값10')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_spec'
+        db_table_comment = '설비사양 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigEquipType(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    EquipClassId = models.CharField(max_length=20, blank=True, null=True, db_column='equip_class_id', db_comment='설비클래스ID')
+    EquipClassDesc = models.CharField(max_length=120, blank=True, null=True, db_column='equip_class_desc', db_comment='설비클래스설명')
+    HierarchyPath = models.CharField(max_length=50, blank=True, null=True, db_column='hierarchy_path', db_comment='계층경로')
+    EquipTypeId = models.CharField(max_length=20, blank=True, null=True, db_column='equip_type_id', db_comment='설비유형ID')
+    EquipTypeDesc = models.CharField(max_length=120, blank=True, null=True, db_column='equip_type_desc', db_comment='설비유형설명')
+    UseYn = models.CharField(max_length=1, blank=True, null=True, db_column='use_yn', db_comment='사용여부')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_equip_type'
+        db_table_comment = '설비유형 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigLoc(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    LocCd = models.CharField(max_length=100, blank=True, null=True, db_column='loc_cd', db_comment='위치코드')
+    LocNm = models.CharField(max_length=100, blank=True, null=True, db_column='loc_nm', db_comment='위치명')
+    UpLocCd = models.CharField(max_length=100, blank=True, null=True, db_column='up_loc_cd', db_comment='상위위치코드')
+    UpLocNm = models.CharField(max_length=100, blank=True, null=True, db_column='up_loc_nm', db_comment='상위위치명')
+    PlantYn = models.CharField(max_length=1, blank=True, null=True, db_column='plant_yn', db_comment='공장여부')
+    BuildingYn = models.CharField(max_length=1, blank=True, null=True, db_column='building_yn', db_comment='건물여부')
+    SpshopYn = models.CharField(max_length=1, blank=True, null=True, db_column='spshop_yn', db_comment='특수공정여부')
+    Isa95class = models.CharField(max_length=100, blank=True, null=True, db_column='isa95class', db_comment='ISA95 Class')
+    SiteId = models.CharField(max_length=100, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+    OutOrder = models.DecimalField(max_digits=3, decimal_places=0, blank=True, null=True, db_column='out_order', db_comment='정렬순서')
+
+    class Meta:
+        db_table = 'cm_mig_loc'
+        db_table_comment = '위치 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+
+class CmMigMtrl(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    MtrlCd = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cd', db_comment='자재코드')
+    MtrlNm = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_nm', db_comment='자재명')
+    MtrlClsCd = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cls_cd', db_comment='자재분류코드')
+    MtrlClsNm = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cls_nm', db_comment='자재분류명')
+    AmtUnit = models.CharField(max_length=100, blank=True, null=True, db_column='amt_unit', db_comment='수량단위')
+    SafetyStockAmt = models.IntegerField(blank=True, null=True, db_column='safety_stock_amt', db_comment='안전재고수량')
+    UnitPrice = models.CharField(max_length=100, blank=True, null=True, db_column='unit_price', db_comment='단가')
+    UnitPriceDt = models.CharField(max_length=100, blank=True, null=True, db_column='unit_price_dt', db_comment='단가적용일')
+    MtrlDsc = models.CharField(max_length=4000, blank=True, null=True, db_column='mtrl_dsc', db_comment='자재설명')
+    MakerCd = models.CharField(max_length=100, blank=True, null=True, db_column='maker_cd', db_comment='제조사코드')
+    MakerNm = models.CharField(max_length=100, blank=True, null=True, db_column='maker_nm', db_comment='제조사명')
+    SupplierCd = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_cd', db_comment='공급업체코드')
+    SupplierNm = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_nm', db_comment='공급업체명')
+    DeliveryDays = models.IntegerField(blank=True, null=True, db_column='delivery_days', db_comment='납기일수')
+    DeliveryType = models.CharField(max_length=100, blank=True, null=True, db_column='delivery_type', db_comment='납기유형')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_mtrl'
+        db_table_comment = '자재 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigMtrlInout(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    MtrlCd = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cd', db_comment='자재코드')
+    MtrlNm = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_nm', db_comment='자재명')
+    InoutLocCd = models.CharField(max_length=100, blank=True, null=True, db_column='inout_loc_cd', db_comment='입출고위치코드')
+    LocCellAddr = models.CharField(max_length=100, blank=True, null=True, db_column='loc_cell_addr', db_comment='위치셀주소')
+    OwnDeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='own_dept_cd', db_comment='소유부서코드')
+    OwnDeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='own_dept_nm', db_comment='소유부서명')
+    InoutDiv = models.CharField(max_length=100, blank=True, null=True, db_column='inout_div', db_comment='입출고구분')
+    InoutType = models.CharField(max_length=100, blank=True, null=True, db_column='inout_type', db_comment='입출고유형')
+    InoutDt = models.CharField(max_length=100, blank=True, null=True, db_column='inout_dt', db_comment='입출고일자')
+    AbGrade = models.CharField(max_length=100, blank=True, null=True, db_column='ab_grade', db_comment='AB등급')
+    InoutQty = models.CharField(max_length=100, blank=True, null=True, db_column='inout_qty', db_comment='입출고수량')
+    InoutUprice = models.CharField(max_length=100, blank=True, null=True, db_column='inout_uprice', db_comment='입출고단가')
+    SupplierCd = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_cd', db_comment='공급업체코드')
+    SupplierNm = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_nm', db_comment='공급업체명')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_mtrl_inout'
+        db_table_comment = '자재입출고 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigMtrlPhoto(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    MtrlCd = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cd', db_comment='자재코드')
+    MtrlNm = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_nm', db_comment='자재명')
+    FileLoc = models.CharField(max_length=100, blank=True, null=True, db_column='file_loc', db_comment='파일위치')
+    FileNm = models.CharField(max_length=100, blank=True, null=True, db_column='file_nm', db_comment='파일명')
+    FileOrgNm = models.CharField(max_length=100, blank=True, null=True, db_column='file_org_nm', db_comment='원본파일명')
+    FileSize = models.CharField(max_length=100, blank=True, null=True, db_column='file_size', db_comment='파일크기')
+    FileExt = models.CharField(max_length=100, blank=True, null=True, db_column='file_ext', db_comment='파일확장자')
+    RootPath = models.CharField(max_length=100, blank=True, null=True, db_column='root_path', db_comment='루트경로')
+    PhotoDesc = models.CharField(max_length=100, blank=True, null=True, db_column='photo_desc', db_comment='사진설명')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_mtrl_photo'
+        db_table_comment = '자재사진 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigPm(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    PmNo = models.CharField(max_length=100, blank=True, null=True, db_column='pm_no', db_comment='PM번호')
+    PmNm = models.CharField(max_length=200, blank=True, null=True, db_column='pm_nm', db_comment='PM명')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    ImportRankCd = models.CharField(max_length=20, blank=True, null=True, db_column='import_rank_cd', db_comment='중요도코드')
+    PmType = models.CharField(max_length=100, blank=True, null=True, db_column='pm_type', db_comment='PM유형')
+    PerNumber = models.IntegerField(blank=True, null=True, db_column='per_number', db_comment='주기번호')
+    CycleType = models.CharField(max_length=100, blank=True, null=True, db_column='cycle_type', db_comment='주기유형')
+    SchedStartDt = models.CharField(max_length=100, blank=True, null=True, db_column='sched_start_dt', db_comment='예정시작일자')
+    DeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='dept_cd', db_comment='부서코드')
+    DeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='dept_nm', db_comment='부서명')
+    PmUserId = models.CharField(max_length=100, blank=True, null=True, db_column='pm_user_id', db_comment='PM사용자ID')
+    PmUserNm = models.CharField(max_length=100, blank=True, null=True, db_column='pm_user_nm', db_comment='PM사용자명')
+    WorkExpectHr = models.IntegerField(blank=True, null=True, db_column='work_expect_hr', db_comment='작업예상시간')
+    WorkText = models.CharField(max_length=400, blank=True, null=True, db_column='work_text', db_comment='작업내용')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_pm'
+        db_table_comment = 'PM 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigStorLocAddr(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    LocCd = models.CharField(max_length=100, blank=True, null=True, db_column='loc_cd', db_comment='위치코드')
+    LocNm = models.CharField(max_length=100, blank=True, null=True, db_column='loc_nm', db_comment='위치명')
+    LocCellAddr = models.CharField(max_length=100, blank=True, null=True, db_column='loc_cell_addr', db_comment='위치셀주소')
+    RackNo = models.CharField(max_length=100, blank=True, null=True, db_column='rack_no', db_comment='랙번호')
+    LevelNo = models.CharField(max_length=100, blank=True, null=True, db_column='level_no', db_comment='레벨번호')
+    ColNo = models.CharField(max_length=100, blank=True, null=True, db_column='col_no', db_comment='컬럼번호')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_stor_loc_addr'
+        db_table_comment = '창고위치주소 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigSupplier(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    SupplierCd = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_cd', db_comment='공급업체코드')
+    SupplierNm = models.CharField(max_length=100, blank=True, null=True, db_column='supplier_nm', db_comment='공급업체명')
+    CompType = models.CharField(max_length=100, blank=True, null=True, db_column='comp_type', db_comment='회사유형')
+    CeoNm = models.CharField(max_length=100, blank=True, null=True, db_column='ceo_nm', db_comment='대표자명')
+    Phone = models.CharField(max_length=100, blank=True, null=True, db_column='phone', db_comment='전화번호')
+    EmailAddr = models.CharField(max_length=100, blank=True, null=True, db_column='email_addr', db_comment='이메일주소')
+    ChargerNm = models.CharField(max_length=100, blank=True, null=True, db_column='charger_nm', db_comment='담당자명')
+    ChargerTel = models.CharField(max_length=100, blank=True, null=True, db_column='charger_tel', db_comment='담당자전화')
+    Charger2Nm = models.CharField(max_length=100, blank=True, null=True, db_column='charger2_nm', db_comment='담당자2명')
+    Charger2Tel = models.CharField(max_length=100, blank=True, null=True, db_column='charger2_tel', db_comment='담당자2전화')
+    BusinessClassNm = models.CharField(max_length=100, blank=True, null=True, db_column='business_class_nm', db_comment='업종명')
+    Nation = models.CharField(max_length=100, blank=True, null=True, db_column='nation', db_comment='국가')
+    Local = models.CharField(max_length=100, blank=True, null=True, db_column='local', db_comment='지역')
+    Homepage = models.CharField(max_length=100, blank=True, null=True, db_column='homepage', db_comment='홈페이지')
+    Address1 = models.CharField(max_length=300, blank=True, null=True, db_column='address1', db_comment='주소1')
+    Address2 = models.CharField(max_length=300, blank=True, null=True, db_column='address2', db_comment='주소2')
+    UseYn = models.CharField(max_length=100, blank=True, null=True, db_column='use_yn', db_comment='사용여부')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_supplier'
+        db_table_comment = '공급업체 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigUser(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    LoginId = models.CharField(max_length=100, blank=True, null=True, db_column='login_id', db_comment='로그인ID')
+    UserNm = models.CharField(max_length=100, blank=True, null=True, db_column='user_nm', db_comment='사용자명')
+    UserPassword = models.CharField(max_length=300, blank=True, null=True, db_column='user_password', db_comment='사용자비밀번호')
+    DeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='dept_cd', db_comment='부서코드')
+    DeptNm = models.CharField(max_length=20, blank=True, null=True, db_column='dept_nm', db_comment='부서명')
+    RoleCd = models.CharField(max_length=20, blank=True, null=True, db_column='role_cd', db_comment='역할코드')
+    UserMail = models.CharField(max_length=100, blank=True, null=True, db_column='user_mail', db_comment='사용자메일')
+    UserPhone = models.CharField(max_length=30, blank=True, null=True, db_column='user_phone', db_comment='사용자전화')
+    EmpNo = models.CharField(max_length=100, blank=True, null=True, db_column='emp_no', db_comment='사원번호')
+    JobPos = models.CharField(max_length=100, blank=True, null=True, db_column='job_pos', db_comment='직책')
+    AllowLogin = models.CharField(max_length=1, blank=True, null=True, db_column='allow_login', db_comment='로그인허용')
+    LeaderYn = models.CharField(max_length=1, blank=True, null=True, db_column='leader_yn', db_comment='리더여부')
+    RetireYn = models.CharField(max_length=1, blank=True, null=True, db_column='retire_yn', db_comment='퇴사여부')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=500, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_user'
+        db_table_comment = '사용자 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigWo(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, db_column='action_type', db_comment='액션타입')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    TempWoNo = models.CharField(max_length=100, blank=True, null=True, db_column='temp_wo_no', db_comment='임시작업번호')
+    WoType = models.CharField(max_length=100, blank=True, null=True, db_column='wo_type', db_comment='작업유형')
+    MaintTypeCd = models.CharField(max_length=100, blank=True, null=True, db_column='maint_type_cd', db_comment='정비유형코드')
+    WoTitle = models.CharField(max_length=1000, blank=True, null=True, db_column='wo_title', db_comment='작업제목')
+    WoStatus = models.CharField(max_length=100, blank=True, null=True, db_column='wo_status', db_comment='작업상태')
+    EquipCd = models.CharField(max_length=100, blank=True, null=True, db_column='equip_cd', db_comment='설비코드')
+    EquipNm = models.CharField(max_length=100, blank=True, null=True, db_column='equip_nm', db_comment='설비명')
+    ReqDt = models.CharField(max_length=100, blank=True, null=True, db_column='req_dt', db_comment='요청일자')
+    ReqBsiDeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='req_bsi_dept_cd', db_comment='요청사업부코드')
+    ReqBsiDeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='req_bsi_dept_nm', db_comment='요청사업부명')
+    ReqDeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='req_dept_cd', db_comment='요청부서코드')
+    ReqDeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='req_dept_nm', db_comment='요청부서명')
+    ReqUserId = models.CharField(max_length=100, blank=True, null=True, db_column='req_user_id', db_comment='요청자ID')
+    ReqUserNm = models.CharField(max_length=100, blank=True, null=True, db_column='req_user_nm', db_comment='요청자명')
+    ReqUserDeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='req_user_dept_nm', db_comment='요청자부서명')
+    ReqInfo = models.CharField(max_length=1000, blank=True, null=True, db_column='req_info', db_comment='요청정보')
+    WantDt = models.CharField(max_length=100, blank=True, null=True, db_column='want_dt', db_comment='희망일자')
+    BrokenDt = models.CharField(max_length=100, blank=True, null=True, db_column='broken_dt', db_comment='고장일자')
+    BrokenHr = models.CharField(max_length=100, blank=True, null=True, db_column='broken_hr', db_comment='고장시간')
+    ProblemCd = models.CharField(max_length=20, blank=True, null=True, db_column='problem_cd', db_comment='문제코드')
+    CauseCd = models.CharField(max_length=20, blank=True, null=True, db_column='cause_cd', db_comment='원인코드')
+    RemedyCd = models.CharField(max_length=20, blank=True, null=True, db_column='remedy_cd', db_comment='조치코드')
+    PlanStartDt = models.CharField(max_length=100, blank=True, null=True, db_column='plan_start_dt', db_comment='계획시작일자')
+    PlanEndDt = models.CharField(max_length=100, blank=True, null=True, db_column='plan_end_dt', db_comment='계획종료일자')
+    StartDt = models.CharField(max_length=100, blank=True, null=True, db_column='start_dt', db_comment='시작일자')
+    EndDt = models.CharField(max_length=100, blank=True, null=True, db_column='end_dt', db_comment='종료일자')
+    FinishDt = models.CharField(max_length=100, blank=True, null=True, db_column='finish_dt', db_comment='완료일자')
+    DeptCd = models.CharField(max_length=100, blank=True, null=True, db_column='dept_cd', db_comment='부서코드')
+    DeptNm = models.CharField(max_length=100, blank=True, null=True, db_column='dept_nm', db_comment='부서명')
+    ChargerId = models.CharField(max_length=100, blank=True, null=True, db_column='charger_id', db_comment='담당자ID')
+    ChargerNm = models.CharField(max_length=100, blank=True, null=True, db_column='charger_nm', db_comment='담당자명')
+    WorkDesc = models.CharField(max_length=1000, blank=True, null=True, db_column='work_desc', db_comment='작업설명')
+    TotCost = models.CharField(max_length=100, blank=True, null=True, db_column='tot_cost', db_comment='총비용')
+    MtrlCost = models.CharField(max_length=100, blank=True, null=True, db_column='mtrl_cost', db_comment='자재비용')
+    LaborCost = models.CharField(max_length=100, blank=True, null=True, db_column='labor_cost', db_comment='인건비')
+    OutsideCost = models.CharField(max_length=100, blank=True, null=True, db_column='outside_cost', db_comment='외주비용')
+    EtcCost = models.CharField(max_length=100, blank=True, null=True, db_column='etc_cost', db_comment='기타비용')
+    WorkSrc = models.CharField(max_length=1000, blank=True, null=True, db_column='work_src', db_comment='작업근거')
+    TmpNo = models.CharField(max_length=100, blank=True, null=True, db_column='tmp_no', db_comment='임시번호')
+    TmpMsg = models.CharField(max_length=100, blank=True, null=True, db_column='tmp_msg', db_comment='임시메시지')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=1000, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_wo'
+        db_table_comment = '작업오더 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    
+class CmMigWoFaultLoc(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', db_comment='PK')
+    ActionType = models.CharField(max_length=1, blank=True, null=True, db_column='action_type', db_comment='액션타입')
+    TempWoNo = models.CharField(max_length=100, blank=True, null=True, db_column='temp_wo_no', db_comment='임시작업번호')
+    FaultLocCd = models.CharField(max_length=20, blank=True, null=True, db_column='fault_loc_cd', db_comment='고장위치코드')
+    FaultLocNm = models.CharField(max_length=100, blank=True, null=True, db_column='fault_loc_nm', db_comment='고장위치명')
+    CauseCd = models.CharField(max_length=100, blank=True, null=True, db_column='cause_cd', db_comment='원인코드')
+    CauseNm = models.CharField(max_length=100, blank=True, null=True, db_column='cause_nm', db_comment='원인명')
+    SiteId = models.CharField(max_length=20, blank=True, null=True, db_column='site_id', db_comment='사이트ID')
+    UserId = models.CharField(max_length=20, blank=True, null=True, db_column='user_id', db_comment='사용자ID')
+    InsertTs = models.DateTimeField(blank=True, null=True, db_column='insert_ts', db_comment='등록일시')
+    Msg = models.CharField(max_length=100, blank=True, null=True, db_column='msg', db_comment='메시지')
+
+    class Meta:
+        db_table = 'cm_mig_wo_fault_loc'
+        db_table_comment = '작업오더고장위치 마이그레이션'
+
+    def set_audit(self, user):
+        if self.UserId is None:
+            self.UserId = user.username
+        self.InsertTs = DateUtil.get_current_datetime()
+        return
+    

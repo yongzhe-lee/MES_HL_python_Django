@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',                  # 메시징 프레임워크 (알림 등)
     'django.contrib.staticfiles',               # 정적 파일 관리 (CSS, JS 등)
     'domain',                                   # 사용자가 만든 domain 앱
+    
 ]
 
 # Middleware framework
@@ -53,7 +54,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware', # 인증 미들웨어 확인
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  
+    'configurations.middleware.response.RemoveCriticalResponseHeader'
 ]
 
 ROOT_URLCONF = 'configurations.urls'
@@ -104,7 +106,7 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 #DBMS_HOST = '10.226.236.34'   # 배포DB
-# DBMS_HOST = 'localhost'
+#DBMS_HOST = 'localhost'
 DBMS_HOST = '10.10.10.231'    # 개발
 
 DBMS_PORT = 5432  # 일반
@@ -121,6 +123,7 @@ DATABASES = {
         'PORT' : DBMS_PORT
     }
 }
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -147,18 +150,17 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_URL = '/static/'
 # STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # 정적 파일을 모아둘 실제 경로 , POSIX 스타일 경로는 주로 리눅스 및 macOS 환경에서 사용됩니다.
-
 # 개발 중 정적 파일을 찾을 추가 디렉터리 설정
 #STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+#STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 X_FRAME_OPTIONS = 'SAMEORIGIN'#Iframe 오류 관련 수정
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
 USE_MOBILE_LOGIN = False
 MAIN_APP_RUN = False
@@ -166,13 +168,12 @@ MAIN_APP_RUN = False
 #MOSQUITTO_HOST = "10.226.236.32"
 #MOSQUITTO_HOST = 'localhost'
 MOSQUITTO_HOST = "10.10.10.231"
-
 MOSQUITTO_USERNAME = ""
 MOSQUITTO_MQTT_PORT = 1883
 MOSQUITTO_WEBSOCKET_PORT = 9001
 
 TOPIC_SYSTEM_EVENT='klemove_system_event'
-USE_SYSTEM_EVENT = True 
+
 
 SITE_NAME = 'hlklemove'
 
@@ -189,6 +190,7 @@ AI_API_HOST= "localhost"
 
 folders = []
 FILE_UPLOAD_PATH = 'c:\\temp\\plant_i\\'     #업로드한 파일의 영구저장 장소
+MIG_UPLOAD_PATH = 'c:\\temp\\plant_i\\mig\\'     #업로드한 파일의 영구저장 장소
 EXTRA_CODE_PATH = 'c:\\temp\\plant_i\\extra\\' # 사용자 정의 코드의 저장 장소
 # 25.03.13 김하늘 추가
 FILE_TEMP_UPLOAD_PATH ='c:\\temp\\plant_i\\upload_temp\\'    # 파일업로드파일 임시저장위치

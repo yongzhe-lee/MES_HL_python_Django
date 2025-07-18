@@ -71,7 +71,7 @@ def wo_mtrl(context):
 				, wo.plan_start_dt, wo.plan_end_dt
 				, wo.start_dt, wo.end_dt, wo.want_dt
 				, e.equip_cd, e.equip_nm, l.loc_nm
-				, fn_user_nm(wcu."Name" , 'N') as rqst_user_nm
+				, cm_fn_user_nm(wcu."Name" , 'N') as rqst_user_nm
 				, wo.req_info, wo.wo_type
 				, wo.rqst_insp_yn, wo.rqst_dpr_yn, t.loc_cd, t.own_dept_cd, t.ab_grade
 				, (case when t.loc_cd is not null and t.ab_grade is null and t.a_amt = 0 and t.b_amt > 0 then 'AB_GRADE_B'

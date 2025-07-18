@@ -82,7 +82,7 @@ class SystemService():
             sql ='''select lc.id as lable_code_id
             , lcl.id as label_lang_id
             , lc."ModuleName"
-            , coalesce ((select MenuName from menu_item where MenuCode=lc.ModuleName limit 1), 'Common') as menu_name
+            , coalesce ((select "MenuName" from menu_item where "MenuCode"=lc."ModuleName" limit 1), 'Common') as menu_name
             , lc."TemplateKey"
             , lc."LabelCode"
             , lc."Description"
@@ -90,7 +90,7 @@ class SystemService():
             , lcl."DispText"
             , to_char(lcl._created ,'yyyy-mm-dd hh24:mi:ss') as disp_created
             from label_code_lang lcl
-            inner join label_code lc on lcl.LabelCode_id = lc.id
+            inner join label_code lc on lcl."LabelCode_id" = lc.id
             where lcl."LangCode" = %(lang_code)s
             and lc."ModuleName" = %(gui_code)s
             and lc."TemplateKey" = %(template_key)s
@@ -326,7 +326,7 @@ class SystemService():
                 union all 
                 select null as id
                 , mi.MenuFolder_id as pid 
-                , CONVERT(mi.MenuCode,varchar(100)) as menu_code
+                , CONVERT(mi."MenuCode",varchar(100)) as menu_code
                 , CONVERT('',varchar(100)) as folder_name
                 , mi.MenuName  as menu_name
                 , tree.depth+1

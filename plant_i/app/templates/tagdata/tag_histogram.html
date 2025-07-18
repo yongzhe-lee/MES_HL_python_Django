@@ -61,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
                             <div class="field-wrapper">
@@ -229,21 +229,51 @@
                 tag_codes: tag_codes
             };
 
-            let fnSuccess = function (result) {
-                $('#divChart').empty();
+            kendo.ui.progress($("#divChart"), true); // data 로딩 ui 시작
 
-                result.forEach(function (tag_data, idx) {
-                    let html = `<div class="col-lg-4 col-md-6 col-sm-12">
+            //let fnSuccess = function (result) {
+            //    $('#divChart').empty();
+
+            //    result.forEach(function (tag_data, idx) {
+            //        let html = `<div class="col-lg-4 col-md-6 col-sm-12">
+            //                        <div id="chart${idx}" class="chart_border"></div>
+            //                    </div>`;
+
+            //        $('#divChart').append(html);
+
+            //        _this.loadData(`chart${idx}`, tag_data.data_name, tag_data.histogram_data);
+            //    });
+
+            //    kendo.ui.progress($("#divChart"), false); // data 로딩 ui 종료
+            //};
+
+            //AjaxUtil.postAsyncData(url, param, fnSuccess);
+
+
+            let succFunc = function (result) {
+                if (result.success) {
+                    $('#divChart').empty();
+
+                    result.data.forEach(function (tag_data, idx) {
+                        let html = `<div class="col-lg-4 col-md-6 col-sm-12">
                                     <div id="chart${idx}" class="chart_border"></div>
                                 </div>`;
 
-                    $('#divChart').append(html);
+                        $('#divChart').append(html);
 
-                    _this.loadData(`chart${idx}`, tag_data.data_name, tag_data.histogram_data);
-                });
-            };
+                        _this.loadData(`chart${idx}`, tag_data.data_name, tag_data.histogram_data);
+                    });
 
-            AjaxUtil.postAsyncData(url, param, fnSuccess);
+                }
+                else {
+                    Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);
+                }
+
+                kendo.ui.progress($("#divChart"), false); // data 로딩 ui 종료
+            }
+
+            AjaxUtil.postAsyncData(url, param, succFunc);
+
         }
 
     };
@@ -257,7 +287,7 @@
             kendo.resize($("div.k-chart[data-role='chart']"));
         });
 
-        page.searchMainData();
+        //page.searchMainData(); 어차피 태그 선택이 안되어 있어서 안 해도 될듯
     });
 
 </script>

@@ -82,18 +82,38 @@ def material(context):
             MtrlClassCodePk = posparam.get('MtrlClassCodePk')
             MtrlDsc = posparam.get('mtrl_dsc')
             MakerPk = posparam.get('maker_pk')
+            if MakerPk in [None, '']:
+                MakerPk = None
+            else:
+                MakerPk = int(MakerPk)
             SafetyStockAmt = posparam.get('safety_stock_amt') or 0
             AmtUnitPk = posparam.get('amt_unit_pk')
             UnitPrice = posparam.get('unit_price')
+            if UnitPrice in [None, '']:
+                UnitPrice = None
+            else:
+                UnitPrice = float(UnitPrice)
             UnitPriceDt = posparam.get('unit_price_dt')
             SupplierPk = posparam.get('supplier_pk')
             DeliveryDays = posparam.get('delivery_days')
+            if DeliveryDays in [None, '']:
+                DeliveryDays = None
+            else:
+                DeliveryDays = int(DeliveryDays)
             DeliveryType = posparam.get('delivery_type')
             ErpMtrlCode = posparam.get('erp_mtrl_cd')
             AllowAddBom = posparam.get('allow_add_bom')
             ConstructionPk = posparam.get('construction_pk')
+            if ConstructionPk in [None, '']:
+                ConstructionPk = None
+            else:
+                ConstructionPk = int(ConstructionPk)
             EquipmentPk = posparam.get('equipment_pk')
-  
+            if EquipmentPk in [None, '']:
+                EquipmentPk = None
+            else:
+                EquipmentPk = int(EquipmentPk)
+
             if id:
                 c = CmMaterial.objects.get(id=id)
 

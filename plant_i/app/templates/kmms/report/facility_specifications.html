@@ -1,11 +1,234 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 검색 폼 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchText" data-labelCd="설비키워드">설비키워드</label>
+                            <div class="field-wrapper">
+                                <input id="searchText" name="searchText" type="text" placeholder="설비명, 설비코드를 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="관리부서">관리부서</label>
+                            <div class="field-wrapper">
+                                <select id="deptTree" name="deptPk"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="equipLocTree" data-labelCd="설비위치">설비위치</label>
+                            <div class="field-wrapper">
+                                <select id="equipLocTree" name="locPk"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- 버튼 및 그리드 -->
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="목록">목록</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="specificationsGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class FacilitySpecificationsPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.searchData = {
+            searchText: '',
+            deptPk: null,
+            locPk: null,
+        };
+        this.deptOptions = [];
+        this.locOptions = [];
+        
+        this.init();
+    }
+
+    init() {
+        this.initDeptTree();
+        this.initLocTree();
+        this.initGrid();
+        this.bindEvents();
+    }
+
+    initDeptTree() {
+		AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initLocTree() {
+        AjaxUtil.fillDropDownTreeOptions($('#equipLocTree'), 'cm_location', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            toolbar: ["columns"],
+            columnMenu: {
+                componentType: "classic",
+                autoSize: true,
+                clearAllFilters: true,
+                columns: {
+                    sort: "asc"
+                }
+            },
+            columns: [
+                {
+                    title: "설비코드",
+                    field: "equipCd",
+                    width: "80px",
+                },
+                {
+                    title: "설비명",
+                    field: "equipNm",
+                    width: "200px",
+                },
+                {
+                    title: "제조사",
+                    field: "supplierNm",
+                    width: "110px"
+                },
+                {
+                    title: "설치일",
+                    field: "installDt",
+                    width: "110px",
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                },
+                {
+                    title: "설비위치",
+                    field: "locNm",
+                    width: "80px"
+                },
+                {
+                    title: "관리부서",
+                    field: "deptNm",
+                    width: "80px"
+                },
+                {
+                    title: "No",
+                    field: "rowNum",
+                    width: "40px",
+                    attributes: {
+                        style: "text-align: right"
+                    }
+                },
+                {
+                    title: "명칭",
+                    field: "equipSpecNm",
+                    width: "70px"
+                },
+                {
+                    title: "단위",
+                    field: "equipSpecUnit",
+                    width: "70px"
+                },
+                {
+                    title: "사양",
+                    field: "equipSpecValue",
+                    width: "150px"
+                }
+            ],
+            sortable: true,
+            dataBound: function(e) {
+                kendoUtil.showGridRowCount(this.element);
+            },
+            height: "540px"
+        };
+
+        this.grid = $("#specificationsGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    bindEvents() {
+        let _this = this;
+
+        // 검색키워드 텍스트박스 초기화
+        $('#searchText').kendoTextBox();
+
+        // 검색 버튼
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        // Excel 버튼
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+
+        // 검색키워드 엔터키
+        $("#searchText").keypress(function(e) {
+            if (e.which === 13) {
+                _this.searchMainData();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'facility_specifications';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        let grid = $("#specificationsGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#specificationsGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "설비별 사용 목록.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new FacilitySpecificationsPage();
+    page.searchMainData();
+});
+</script>
+{% endblock %}

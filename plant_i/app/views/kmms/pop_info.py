@@ -38,7 +38,7 @@ def pop_info(context):
 		    WHERE notice_yn = 'Y'
             '''
             if searchText:
-                sql += ''' AND (  UPPER(popup_title) LIKE CONCAT('%',UPPER(%(searchText)s),'%') )
+                sql += ''' AND (  UPPER(popup_title) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%') )
                 '''
             if currDate:
                 sql += ''' AND to_date(%(currDate)s, 'YYYY-MM-DD') between start_date and end_date

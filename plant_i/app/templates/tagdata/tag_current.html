@@ -50,8 +50,15 @@
                         sort: "asc",
                     }
                 },
+                pageable: {
+                    refresh: false,  // 새로고침 버튼 여부
+                    pageSize: 20,  // 기본 페이지 크기(item개수)
+                    pageSizes: [10, 20, 50, 100, "all"],  // 선택 가능한 페이지 크기
+                    buttonCount: 10 // 페이지네이션 버튼 개수
+                },
                 columns: [
-                    { field: 'equip_name', title: '설비', width: 200 },
+                    { field: 'equip_name', title: '설비', width: 150 },
+                    { field: 'tag_group', title: '태그그룹', width: 150 },
                     { field: 'tag_code', title: '태그', width: 200 },
                     { field: 'tag_name', title: '태그명', width: 200 },
                     { field: 'spec', title: '관리기준', width: 150 },
@@ -62,14 +69,14 @@
 
                 },
                 dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
 
                     // grid 데이터 개수 표시
                     kendoUtil.showGridRowCount(this.element);
                 },
-                height: "540px"
+                height: "630px"
             };
             _this.grid = new Grid($("#tag_data_current_grid"), tagDataCurrentGridOption);
 
@@ -91,8 +98,21 @@
                 action: 'read',
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+            kendo.ui.progress($("#tag_data_current_grid"), true); // data 로딩 ui 시작
+
+            let succFunc = function (result) {
+                if (result.success) {
+                    //_this.grid.setData(result.data); // dataSource자체를 초기화시키므로, 기존 설정값이 무시됨
+                    _this.grid.grid.dataSource.data(result.data);
+                }
+                else {
+                    Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);
+                }
+
+                kendo.ui.progress($("#tag_data_current_grid"), false); // data 로딩 ui 종료
+            }
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, succFunc);
         }
     };
 

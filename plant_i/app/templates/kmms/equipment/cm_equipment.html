@@ -24,22 +24,6 @@
 							</div>
 						</div>
 					</div>
-					<!--<div class="col-12 col-sm-4 col-md-3">
-						<div class="form-item align-h">
-							<label class="k-label k-form-label" for="srch_equ_process" data-labelCd="프로세스">프로세스</label>
-							<div class="field-wrapper">
-								<select id="srch_equ_process" name="srch_equ_process"></select>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-sm-4 col-md-3">
-						<div class="form-item align-h">
-							<label class="k-label k-form-label" for="srch_equ_system" data-labelCd="시스템 ">시스템 </label>
-							<div class="field-wrapper">
-								<select id="srch_equ_system" name="srch_equ_system"></select>
-							</div>
-						</div>
-					</div>-->
 					<div class="col-12 col-sm-4 col-md-3">
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="설비위치">설비위치</label>
@@ -139,21 +123,9 @@
 						sort: "asc",
 					}
 				},
+                selectable: "multiple, row",
 				columns: [
-					{
-						"title": "Select All",
-						"field": "chkSelect",
-						"headerTemplate": "<input type='checkbox' id='header-equipmasterlistgrid' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-equipmasterlistgrid'></label>",
-						"template": "<input type='checkbox' id='#=equip_pk#' class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#=equip_pk#'></label>",
-						"width": "50px",
-						"attributes": {
-							"style": "text-align: center"
-						},
-						"headerAttributes": {
-							"style": "text-align: center"
-						},
-						"sortable": false
-					},
+                    { selectable: true, width: "50px" },
 					{
 						"title": "설비PK",
 						"field": "equip_pk",
@@ -335,6 +307,15 @@
 						"template": "# if (use_yn == 'Y') { # 사용 # } else { # 사용안함 # } #"
 					},
 					{
+						"title": "등록일",
+						"field": "insert_ts",
+						"align": "center",
+						"width": "100px",
+						"attributes": {
+							"style": "text-align: center"
+						}
+					},
+					{
 						"title": "고장/불용 일시",
 						"field": "breakdown_dt",					
 						"hidden": true,
@@ -396,15 +377,18 @@
                     _this.searchMainData();
                 }
             })
-            AjaxUtil.fillDropDownOptions($('#srch_equ_status'), 'cm_code', 'all', null, 'EQUIP_STATUS');
-            AjaxUtil.fillDropDownOptions($('#srch_equ_process'), 'cm_code', 'all', null, 'EQUIPMENT_PROCESS');
-            AjaxUtil.fillDropDownOptions($('#srch_equ_system'), 'cm_code', 'all', null, 'EQUIP_SYSTEM');
+			AjaxUtil.fillDropDownOptions($('#srch_equ_status'), 'cm_code', 'all', null, 'EQUIP_STATUS');
 			AjaxUtil.fillDropDownOptions($('#srch_use_yn'), 'cm_code', 'all', null, 'USE_YN');
             AjaxUtil.fillDropDownTreeOptions($('#srch_equ_loc'), 'cm_location', 'all');
 			AjaxUtil.fillDropDownOptions($('#srch_equ_category'), 'cm_equip_category', 'all', null);
-            AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all');
+            AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all', '');
             AjaxUtil.fillDropDownOptions($('#srch_equ_supplier'), 'cm_supplier', 'all', null, 'COMP_TYPE', 'CP_S,CP_B');
             $('#srch_environ_equip_yn').kendoSwitch({ checked: false });
+
+			// 카테고리 변경 시 설비분류 필터링
+			$('#srch_equ_category').on('change', function() {
+				_this.refreshEquipClassify();
+			});
 
 			$('#btnSearch').kendoButton({
 				icon: "search",
@@ -464,9 +448,7 @@
 			let param = {
 				action: 'read',
 				keyword: $('#srch_equ_name').val(),
-                equip_status: $('#srch_equ_status').val(),
-                process_cd: $('#srch_equ_process').val(),
-                system_cd: $('#srch_equ_system').val(),
+				equip_status: $('#srch_equ_status').val(),
                 loc_pk: $('#srch_equ_loc').data("kendoDropDownTree").value(),
                 equip_category_id: $('#srch_equ_category').val(),
                 equip_class_path: $('#srch_equip_class_path').data("kendoDropDownTree").value(),
@@ -474,8 +456,6 @@
                 use_yn: $('#srch_use_yn').val(),
                 environ_equip_yn: $('#srch_environ_equip_yn').data("kendoSwitch").check() ? 'Y' : 'N'
 			};
-
-			console.log('param: ', param);
 
 			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
 
@@ -495,16 +475,6 @@
 
 		}
 
-		showDetail() {
-			let _this = this;
-			let data = _this.grid.getSelect();
-			if (data.length > 0) {
-				let selectData = data[0];
-				FormUtil.BindDataForm(selectData, $('#equipmentForm'));
-				console.log("selectData:\n", selectData);
-			}
-		}
-
 		// 엑셀 다운로드
 		exportExcel() {
 			let gridData = $('#equipment_grid').data("kendoGrid");
@@ -512,6 +482,13 @@
 				e.workbook.fileName = "equipment.xlsx";
 			});
 			gridData.saveAsExcel();
+		}
+
+		refreshEquipClassify() {
+			let _this = this;
+			let selectedCategory = $('#srch_equ_category').val();
+			
+			AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all', selectedCategory);
 		}
 	};
 

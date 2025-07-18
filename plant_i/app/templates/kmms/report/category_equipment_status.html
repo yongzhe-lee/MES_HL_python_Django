@@ -1,11 +1,283 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block css %}
+<style>
+.chart-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">     
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+							<label class="k-label k-form-label" for="plantLoc" data-labelCd="공장구분">공장구분</label>
+                            <div class="field-wrapper">
+                                <select id="plantLoc" name="plantLoc"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="카테고리별 설비 현황">카테고리별 설비 현황</label></span>
+					<span>
+					</span>
+					<span>
+						<button id="btnSearch" class="btn-search">조회</button>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div class="chart-container">
+					<div id="chartRegistStatus"></div>
+				</div>
+				<div id="rmmbTblId"></div>
+			</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	class CategoryEquipmentStatusPage {
+		constructor() {
+			this.grid = null;
+			this.chart = null;
+			this.baseUrl = '/api/kmms/report';
+
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			let gridOption = {
+				autoBind: false,
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				dataSource: {
+					data: [], // 최초에는 빈 배열, 데이터는 searchMainData에서 세팅
+					aggregate: [
+						{ field: "useCnt", aggregate: "sum" },
+						{ field: "breakCnt", aggregate: "sum" },
+						{ field: "uselessCnt", aggregate: "sum" }
+					]
+				},
+				columns: [
+					{
+						title: "No",
+						field: "rowNum",
+						width: "60px",
+						footerTemplate: ""
+					},
+					{
+						"title": "카테고리",
+						"field": "groupNm",
+						"width": "100px",
+						"footerTemplate": "<div style='text-align:center;' colspan='2'>합계</div>"
+					},			
+					{
+						"title": "설비수",
+						"field": "useCnt",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: right"
+						},
+						"type": "number",
+						"template": "#=kendo.toString(useCnt, 'n0')#",
+						"footerTemplate": "<div style='text-align:right'>#: kendo.toString(sum, 'n0') #</div>",
+						"aggregates": ["sum"]
+					},
+					{
+						"title": "고장설비수",
+						"field": "breakCnt",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: right"
+						},
+						"type": "number",
+						"template": "#=kendo.toString(breakCnt, 'n0')#",
+						"footerTemplate": "<div style='text-align:right'>#: kendo.toString(sum, 'n0') #</div>",
+						"aggregates": ["sum"]
+					},
+					{
+						"title": "불용설비수",
+						"field": "uselessCnt",
+						"width": "120px",
+						"attributes": {
+							"style": "text-align: right"
+						},
+						"type": "number",
+						"template": "#=kendo.toString(uselessCnt, 'n0')#",
+						"footerTemplate": "<div style='text-align:right'>#: kendo.toString(sum, 'n0') #</div>",
+						"aggregates": ["sum"]
+					},
+				],
+				dataBound: function (e) {
+					kendoUtil.showGridRowCount(this.element); // 기존 기능 유지
+					_this.updateChart(); // 차트 업데이트
+				},
+				height: "540px"
+			};
+			_this.grid = new Grid($("#rmmbTblId"), gridOption);
+
+			// 차트 초기화
+			_this.initChart();
+
+			AjaxUtil.fillDropDownTreeOptions($('#plantLoc'), 'cm_location', 'all');
+
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "base",
+				click: function () {
+					_this.searchMainData();
+				}
+			});
+
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					page.exportExcel();
+				}
+			});
+
+		}
+
+		// 차트 초기화
+		initChart() {
+			let _this = this;
+			
+			$("#chartRegistStatus").kendoChart({
+				title: {
+					text: "카테고리별 설비 현황",
+					font: {
+						size: 16,
+						weight: "bold"
+					}
+				},
+				legend: {
+					position: "bottom"
+				},
+				seriesDefaults: {
+					type: "column",
+					stack: false
+				},
+				series: [
+					{
+						name: "설비수",
+						field: "useCnt",
+						color: "#4CAF50"
+					},
+					{
+						name: "고장설비수",
+						field: "breakCnt",
+						color: "#F44336"
+					},
+					{
+						name: "불용설비수",
+						field: "uselessCnt",
+						color: "#FF9800"
+					}
+				],
+				valueAxis: {
+					labels: {
+						format: "N0"
+					},
+					line: {
+						visible: false
+					}
+				},
+				categoryAxis: {
+					field: "groupNm",
+					labels: {
+						rotation: 45
+					},
+					majorGridLines: {
+						visible: false
+					}
+				},
+				tooltip: {
+					visible: true,
+					template: "#= series.name #: #= value #"
+				},
+				dataSource: {
+					data: []
+				},
+				height: 400
+			});
+
+			_this.chart = $("#chartRegistStatus").data("kendoChart");
+		}
+
+		// 차트 업데이트
+		updateChart() {
+			let _this = this;
+			let grid = $("#rmmbTblId").data("kendoGrid");
+			
+			if (grid && _this.chart) {
+				let data = grid.dataSource.data();
+				// 설비수(useCnt) 기준 내림차순 정렬 후 상위 10개만 추출
+				let top10 = data.slice().sort((a, b) => b.useCnt - a.useCnt).slice(0, 10);
+				_this.chart.dataSource.data(top10);
+				_this.chart.refresh();
+			}
+		}
+
+		searchMainData() {
+			let _this = this;
+
+			let param = FormUtil.extractForm($("#searchForm"));
+			param.action = 'category_equipment_status';
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			console.log(result)
+
+			// ✅ Kendo Grid에 데이터 설정
+			let grid = $("#rmmbTblId").data("kendoGrid");
+			if (grid) {
+				grid.dataSource.data(result); // ✅ 데이터를 직접 설정
+				grid.refresh(); // ✅ UI 갱신
+			}
+		}
+
+		// 엑셀 다운로드
+		exportExcel() {
+			let gridData = $('#rmmbTblId').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "설비별 월간 고장현황.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
+	};
+
+	let page = null;
+	page = new CategoryEquipmentStatusPage();
+
+	$(document).ready(function () {
+		page.searchMainData();
+	});
+</script>
+{% endblock %}

@@ -67,7 +67,7 @@ def equip_chk_sche(context):
 			, d.id as dept_pk, d."Name" as dept_nm
 			, ecm.last_chk_date, ct.code_cd as cycle_type_cd, ct.code_nm as cycle_type_nm
 			, concat(ecm.per_number, ct.code_dsc) as cycle_display_nm
-			, ecm.per_number, t.chk_user_pk, fn_user_nm(cu."Name" , 'N') as chk_user_nm
+			, ecm.per_number, t.chk_user_pk, cm_fn_user_nm(cu."Name" , 'N') as chk_user_nm
 			, t.chk_dt, t.factory_pk
 			, t.insert_ts, t.inserter_id, t.inserter_nm
 			, t.update_ts, t.updater_id, t.updater_nm
@@ -97,15 +97,15 @@ def equip_chk_sche(context):
             '''
             if searchText:
                 sql += ''' AND (
-				    UPPER(ecm.chk_mast_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(ecm.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%')
 				    OR
-				    UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(ecm.chk_mast_no) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(ecm.chk_mast_no) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(cast(t.chk_sche_no as text)) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(cast(t.chk_sche_no as text)) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			    )	
             '''
             if startDate and endDate:
@@ -225,7 +225,7 @@ def equip_chk_sche(context):
 			, d.id as dept_pk, d."Name" as dept_nm
 			, ecm.last_chk_date, ct.code_cd as cycle_type_cd, ct.code_nm as cycle_type_nm
 			, concat(ecm.per_number, ct.code_dsc) as cycle_display_nm
-			, ecm.per_number, t.chk_user_pk, fn_user_nm(cu."Name" , 'N') as chk_user_nm
+			, ecm.per_number, t.chk_user_pk, cm_fn_user_nm(cu."Name" , 'N') as chk_user_nm
 			, t.chk_dt, t.factory_pk
 			, t.insert_ts, t.inserter_id, t.inserter_nm
 			, t.update_ts, t.updater_id, t.updater_nm
@@ -490,7 +490,7 @@ def equip_chk_sche(context):
 
             sql = ''' 
             SELECT ecs.chk_sche_pk, ecs.chk_sche_no, ecm.chk_mast_pk
-			    , ecm.chk_mast_no, ecm.chk_mast_nm, d."Name" as dept_nm, fn_user_nm(cu."Name", 'N') as chk_user_nm
+			    , ecm.chk_mast_no, ecm.chk_mast_nm, d."Name" as dept_nm, cm_fn_user_nm(cu."Name", 'N') as chk_user_nm
 			    , bc.code_nm as chk_status_nm, bc.code_cd as chk_status_cd, bc.code_cd as chk_status
 			    , ecm.last_chk_date, ecs.chk_sche_dt, ecs.chk_dt
 			    , count(distinct e.equip_pk) as equip_cnt
@@ -518,15 +518,15 @@ def equip_chk_sche(context):
             '''
             if searchText:
                 sql += ''' AND (
-				    UPPER(ecm.chk_mast_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(ecm.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(ecm.chk_mast_no) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(ecm.chk_mast_no) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 				    OR
-				    UPPER(cast(t.chk_sche_no as text)) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(cast(t.chk_sche_no as text)) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			    )	
             '''
             #if chkMastNo:
@@ -651,11 +651,11 @@ def equip_chk_sche(context):
 			AND e.factory_pk = %(factory_pk)s
             '''
             if searchText:
-                sql += ''' AND ( UPPER(ecm.chk_mast_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+                sql += ''' AND ( UPPER(ecm.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR
-					UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+					UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR
-					UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+					UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 	   			)
                 '''
             if deptPk > 0:

@@ -1,0 +1,253 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+	.proc-flow {
+		font-size: 18px;
+		margin-bottom: 32px;
+	}
+
+	.proc-step {
+		border: 3px solid #00bcd4;
+		border-radius: 50%;
+		width: 80px;
+		height: 80px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: bold;
+		background: #fff;
+		color: #00bcd4;
+		font-size: 18px;
+	}
+
+		.proc-step.current {
+			border-color: #e74c3c;
+			color: #e74c3c;
+			background: #fff;
+		}
+
+	.proc-arrow {
+		font-size: 24px;
+		color: #00bcd4;
+		margin: 0 4px;
+	}
+
+	.form-section {
+		margin-bottom: 24px;
+	}
+
+	.form-label {
+		display: inline;
+		font-weight: bold;
+		margin-right: 8px;
+		font-size: 16px;
+	}
+
+	.form-desc {
+		display: inline;
+		color: #888;
+		font-size: 13px;
+	}
+	/*.form-radio-group { display: flex; gap: 24px; margin-bottom: 4px; }*/
+	.form-input, .form-select {
+		padding: 4px 8px;
+		font-size: 15px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+
+	<div style="background:#faeaea; border:1.5px solid #e74c3c; border-radius:6px; padding:12px 16px; margin-bottom:24px;">
+		<div style="color:#e74c3c; font-weight:bold; margin-bottom:4px;">Important</div>
+		<hr style="border:0; border-top:1px solid #e74c3c; margin:4px 0 8px 0;">
+		<div>
+			사이트옵션 설정 화면으로 관리지만 변경할 수 있습니다. 사이트옵션 변경은 시스템에 영향을 주기 때문에 신중하게 변경 바랍니다.<br>
+			보다 자세한 정보를 원하시면 우측 상단의 ? HELP 를 통해 확인할 수 있습니다.
+		</div>
+	</div>
+	<form class="proc-opts-form"  id="scheOptsForm" name="scheOptsForm" style="max-width:900px;margin:0;">
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">한 주의 시작 요일</label>
+				<label>
+					<input type="radio" name="startDayOfTheWeek" value="rack-row-column" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;" checked>
+					일요일
+				</label>
+				<label style="margin-left: 20px;">
+					<input type="radio" name="startDayOfTheWeek" value="rack-column-row" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;">
+					월요일
+				</label>
+			</div>
+			<div>
+				<span class="form-desc">한 주의 시작 요일을 지정합니다. 주 단위 통계에 영향이 있습니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">달력의 시작 요일</label>
+				<label>
+					<input type="radio" name="startDayOfTheCalendar" value="rack-row-column" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;" checked>
+					일요일
+				</label>
+				<label style="margin-left: 20px;">
+					<input type="radio" name="startDayOfTheCalendar" value="rack-column-row" style="width: 16px; height: 16px; appearance: auto; margin-right: 4px;">
+					월요일
+				</label>
+			</div>
+			<div>
+				<span class="form-desc">달력에 보여지는 시작 요일을 지정합니다. 작업일정 및 날짜 선택에 영향이 있습니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label for="pmAutoScheUse" class="form-label">PM일정 생성방식</label>
+				수동<input id="pmAutoScheUse" name="pmAutoScheUse" data-msg="PM일정 생성방식 여부를" />자동
+			</div>
+			<div>
+				<span class="form-desc">예방정비(PM) 일정 생성 방식을 지정합니다. "자동" 선택 시에 (설정 기간 내에) 스케줄링 됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">PM일정 생성기간</label>
+				<input type="number" class="form-input" value="1" style="width:60px;">&nbsp;
+				<select class="form-select" style="width:60px;" id="pmScheCycleType" name="pmScheCycleType">
+					<option>년</option>
+					<option>월</option>
+					<option>주</option>
+					<option>일</option>
+				</select>
+			</div>
+			<div>
+				<span class="form-desc">현재일 기준 얼마 이후의 기간의 일정을 생성할지 지정 합니다. 통상 1개월의 일정을 생성합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label for="pmAutoScheUse" class="form-label">PM 휴일일정 생성여부</label>
+				생성안함<input id="pmHolidayScheUse" name="pmHolidayScheUse" data-msg="PM휴일일정 생성여부를" />생성함	
+			</div>
+			<div>
+				<label class="form-label"></label>
+				<span class="form-desc">자동 일정 생성시 휴일에 일정을 생성할 지 여부를 지정합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label" for="autoinspschd">점검일정 생성방식</label>
+				수동<input id="autoinspschd" name="autoinspschd" data-msg="PM휴일일정 생성여부를" />자동
+			</div>
+			<div>
+				<span class="form-desc">예방점검 일정 생성 방식을 지정합니다. "자동" 선택 시에 (설정 기간 내에) 스케줄링 됩니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">점검일정 생성기간</label>
+				<input type="number" class="form-input" value="1" style="width:60px;">&nbsp;
+				<select class="form-select" style="width:60px;" id="inspScheCycleType" name="inspScheCycleType">
+					<option>년</option>
+					<option>월</option>
+					<option>주</option>
+					<option>일</option>
+				</select>
+			</div>
+			<div>
+				<span class="form-desc">현재일 기준 얼마 이후의 기간의 일정을 생성할지 지정 합니다. 통상 1개월의 일정을 생성합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label" for="inspHolidayScheUse">점검 휴일일정 생성여부</label>
+				생성안함<input id="inspHolidayScheUse" name="inspHolidayScheUse" data-msg="점검 휴일일정 생성여부를" />생성함
+			</div>
+			<div>
+				<span class="form-desc">자동 일정 생성시 휴일에 일정을 생성할 지 여부를 지정합니다.</span>
+			</div>
+		</div>
+		<div class="form-section">
+			<div style="margin-bottom: 8px;">
+				<label class="form-label">예방정비/예방점검 일정계획 알림</label>
+				<input type="number" class="form-input" value="3" id="pmPlanOutOfDate" name="pmPlanOutOfDate" style="width:60px;">
+			</div>
+		</div>
+	</form>
+	<div style="display: flex; justify-content: flex-start;">
+		<button type="button" class="btn-save" id="saveBtn">저장</button>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	class ScheOptsPage {
+		constructor() {
+			this.baseUrl = '/api/kmms/site_config';
+			this.init();
+		}
+
+		init() {
+			const _this = this;
+
+			$("#pmAutoScheUse").kendoSwitch().data("kendoSwitch");
+			$("#pmHolidayScheUse").kendoSwitch().data("kendoSwitch");
+			$("#autoinspschd").kendoSwitch().data("kendoSwitch");
+			$("#inspHolidayScheUse").kendoSwitch().data("kendoSwitch");
+
+			$("#saveBtn").kendoButton({
+				themeColor: "base",
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault(); // 이벤트 기본 동작 방지
+					_this.saveData();
+				}
+			});
+		}
+
+		saveData() {
+			let _this = this;
+
+			let ScheOpts = FormUtil.extractForm($("#scheOptsForm"));
+			let data = {
+				Site: '1',
+				ScheOpts: JSON.stringify(convertToJsonStandard(ScheOpts)),
+			}
+
+			let fnSuccess = function (res) {
+				if (res.success) {
+					Alert.alert('', res.message);
+				} else if (!res.success) {
+					Alert.alert('', res.message);
+				}
+			};
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=updateScheOpts', data, fnSuccess);
+		}
+
+		searchMainData() {
+			let _this = this;
+
+			let param = {
+				Site: '1',
+			};
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl + '?action=read', param);
+			let data = convertToYN(JSON.parse(result.sche_opts));
+
+			console.log('data:', data);
+			FormUtil.BindDataForm(data, $('#scheOptsForm'));
+		}
+
+	}
+
+	let page = null;
+	page = new ScheOptsPage();
+	$(document).ready(function () {
+		page.searchMainData();
+	});
+</script>
+{% endblock %}

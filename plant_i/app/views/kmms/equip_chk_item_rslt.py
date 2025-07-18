@@ -57,7 +57,7 @@ def equip_chk_item_rslt(context):
 		     --  , Max(t6.chk_item_rslt_num) AS chk_item_rslt_num
 		       , Max(Coalesce(t6.chk_item_rslt, '')) AS chk_item_rslt_save_data
 		       , Max(t6.chk_item_rslt_desc) AS chk_item_rslt_desc
-		       , Max(fn_user_nm(t7."Name", 'N')) AS chk_user_nm
+		       , Max(cm_fn_user_nm(t7."Name", 'N')) AS chk_user_nm
 		       , Max(t6.chk_dt) AS chk_dt
 		       , t8.code_pk	AS chk_item_unit_pk, t8.code_nm	AS chk_item_unit_nm
 		    FROM cm_equip_chk_rslt t1

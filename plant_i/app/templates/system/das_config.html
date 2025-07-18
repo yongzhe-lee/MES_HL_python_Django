@@ -169,20 +169,26 @@
                 ],
                 columnMenu: {
                     componentType: "classic",
-                    autoSize: true,
+                    autoSize: false,
                     clearAllFilters: true,
                     columns: {
                         sort: "asc",
                     }
                 },
+                pageable: {
+                    alwaysVisible: true,
+                    pageSizes: [20, 50, 100, 500, "all"],
+                    pageSize: 100
+                },
+                navigatable: true,
                 columns: [
                     // 차후 수정
                     { field: "server_name", title: "서버", width: 100 },
                     { field: "equipment_name", title: "설비", width: 150 },
-                    { field: "Name", title: "설정명", width: 200 },
+                    { field: "Name", title: "설정명", width: 300 },
                     { field: "DeviceType", title: "수집구분", width: 100 },
                     { field: "is_active", title: "활성화", width: 100 },
-                    { field: "Description", title: "설명", width: 200 },
+                    { field: "Description", title: "설명", width: 300 },
                     { field: "created", title: "생성일", width: 120 },
                 ],
                 change: function (e) {

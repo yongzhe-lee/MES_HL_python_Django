@@ -52,7 +52,7 @@ class AccountService():
             sql+=''' and ug.id = %(group)s
             '''
         if keyword:
-            sql +='''and up."Name" like concat('%%', %(keyword)s, '%%')
+            sql +='''and upper(up."Name") like concat('%%', upper(%(keyword)s), '%%')
             '''
         sql +=''' order by ug."Name", up."Name"
         '''

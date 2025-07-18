@@ -14,6 +14,7 @@ def tag_trend(context):
     action = gparam.get('action')
 
     tag_service = TagDataService()
+    result = {}
     
     try:
         if action=='read':
@@ -21,15 +22,16 @@ def tag_trend(context):
             end_date = posparam.get('end_time', '')
             tag_codes = posparam.get('tag_codes', '')
 
-            items = tag_service.tag_multi_data_list2(start_date, end_date, tag_codes)
+            result['data'] = tag_service.tag_multi_data_list2(start_date, end_date, tag_codes)
+            result['success'] = True
 
    #         sql = '''
    #         with A as (
    #             select unnest(string_to_array(%(tag_codes)s, ';')) as tag_code
    #         )
-			#select T.tag_code, T.tag_name,  t."LSL" as lsl, t."USL" as usl
-			#from Tag T 
-			#inner join A on A.tag_code = T.tag_code 
+			# select T.tag_code, T.tag_name,  t."LSL" as lsl, t."USL" as usl
+			# from Tag T 
+			# inner join A on A.tag_code = T.tag_code 
    #         '''
    #         dc = {}
    #         dc['tag_codes'] = tag_codes
@@ -49,7 +51,7 @@ def tag_trend(context):
    #         with A as (
    #             select unnest(string_to_array(%(tag_codes)s, ';')) as tag_code
    #         )
-			#select td.tag_code, td.data_date, to_char(td.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_time, td.data_value
+			# select td.tag_code, td.data_date, to_char(td.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_time, td.data_value
 	  #      from das.tag_dat td 
    #         inner join A on A.tag_code = td.tag_code
    #         where 1=1
@@ -70,13 +72,13 @@ def tag_trend(context):
    #         #    data['data'] = row
 
    #         items['rows'] = rows
-            return items
+   #         return items
 
     except Exception as ex:
         source = '/api/tagdata/tag_trend'
         LogWriter.add_dblog('error', source, ex)
-        raise ex
+        result = {'success':False, 'message': str(ex)}
 
-    return items
+    return result
 
 

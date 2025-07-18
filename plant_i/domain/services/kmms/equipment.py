@@ -7,9 +7,9 @@ class EquipmentService():
 	def __init__(self):
 		return
 
-	def searchEquipment(self, keyword, equip_status, process_cd, system_cd, loc_pk, equip_category_id, equip_class_path, supplier_pk, use_yn, environ_equip_yn):
+	def searchEquipment(self, keyword, equip_status, loc_pk, equip_category_id, equip_class_path, supplier_pk, use_yn, environ_equip_yn):
 		items = []
-		dic_param = {'keyword': keyword, 'equip_status': equip_status, 'process_cd': process_cd, 'system_cd': system_cd, 'loc_pk': loc_pk, 'equip_category_id': equip_category_id, 'equip_class_path': equip_class_path, 'supplier_pk': supplier_pk, 'use_yn': use_yn, 'environ_equip_yn': environ_equip_yn}
+		dic_param = {'keyword': keyword, 'equip_status': equip_status, 'loc_pk': loc_pk, 'equip_category_id': equip_category_id, 'equip_class_path': equip_class_path, 'supplier_pk': supplier_pk, 'use_yn': use_yn, 'environ_equip_yn': environ_equip_yn}
 
 		sql = ''' 
         with cte as (
@@ -40,8 +40,8 @@ class EquipmentService():
 		, t.ccenter_cd
 		, cc.ccenter_nm
 		, t.dept_pk
-		, d.dept_cd
-		, d.dept_nm
+		, d."Code"
+		, d."Name"
 		, t.up_equip_pk
 		, eu.equip_nm as up_equip_nm
 		, eu.equip_cd as up_equip_cd
@@ -72,7 +72,7 @@ class EquipmentService():
 		, t.doc_file_grp_cd
 		, t.equip_class_path
 		, t.equip_class_desc
-		, t.insert_ts
+		, to_char(t.insert_ts, 'YYYY-MM-DD') as insert_ts
 		, t.inserter_id
 		, t.inserter_nm
 		, t.update_ts
@@ -88,7 +88,7 @@ class EquipmentService():
 
 		from cm_equipment t
 		inner join cm_location l on t.loc_pk = l.loc_pk
-		inner join cm_dept d on t.dept_pk = d.dept_pk
+		inner join dept d on t.dept_pk = d.id
 		inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
 		left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
 		left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
@@ -109,14 +109,6 @@ class EquipmentService():
 		if use_yn:
 			sql += '''
 			AND t.use_yn = %(use_yn)s
-			'''
-		if process_cd:
-			sql += '''
-			AND t.process_cd = %(process_cd)s
-			'''
-		if system_cd:
-			sql += '''
-			AND t.system_cd = %(system_cd)s
 			'''
 		if keyword:
 			sql += ''' 
@@ -149,10 +141,9 @@ class EquipmentService():
 			sql += '''
 			and t.equip_category_id = %(equip_category_id)s
 			'''
-		# 수정 필요
 		if equip_class_path:
 			sql += '''
-			AND t.equip_class_path = %(equip_class_path)s
+			AND t.equip_class_path LIKE CONCAT('%%',CAST(%(equip_class_path)s as text),'%%')
 			'''
 		if supplier_pk:
 			sql += '''
@@ -183,8 +174,8 @@ class EquipmentService():
 		, t.disposed_date
 		, t.install_dt
 		, t.dept_pk
-		, d.dept_cd
-		, d.dept_nm
+		, d."Code"
+		, d."Name"
 		, t.asset_nos
 		, t.environ_equip_yn
 		, t.up_equip_pk
@@ -240,7 +231,6 @@ class EquipmentService():
 			table cte
 
 				order by equip_cd ASC,equip_nm asc
-				limit 100 offset (1-1)*100
 
 		) sub
 
@@ -265,13 +255,13 @@ class EquipmentService():
 			with x as (
 				select unnest(path_info_pk) as path_pk from cm_v_dept
 			)
-			select d.dept_pk
-			, max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
-			, max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
-			, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d.dept_nm else '' end) as ban_nm
+			select d.id as dept_pk
+			, max(case when d.business_yn = 'Y' then d."Name" else '' end) as business_nm
+			, max(case when d.team_yn = 'Y' then d."Name" else '' end) as team_nm
+			, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d."Name" else '' end) as ban_nm
 			from x
-			inner join cm_dept d on x.path_pk = d.dept_pk
-			group by d.dept_pk
+			inner join dept d on x.path_pk = d.id
+			group by d.id
 		) dx on sub.dept_pk = dx.dept_pk
 
 		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
@@ -322,8 +312,8 @@ class EquipmentService():
 			, t.ccenter_cd
 			, cc.ccenter_nm
 			, t.dept_pk
-			, d.dept_cd
-			, d.dept_nm
+			, d."Code"
+			, d."Name"
 			, t.up_equip_pk
 			, eu.equip_nm as up_equip_nm
 			, eu.equip_cd as up_equip_cd
@@ -370,7 +360,7 @@ class EquipmentService():
 
 			from cm_equipment t
 			inner join cm_location l on t.loc_pk = l.loc_pk
-			inner join cm_dept d on t.dept_pk = d.dept_pk
+			inner join dept d on t.dept_pk = d.id	
 			inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
 			left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
 			left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
@@ -435,8 +425,8 @@ class EquipmentService():
 		, t.disposed_date
 		, t.install_dt
 		, t.dept_pk
-		, d.dept_cd
-		, d.dept_nm
+		, d."Code"
+		, d."Name"
 		, t.asset_nos
 		, t.environ_equip_yn
 		, t.up_equip_pk
@@ -515,13 +505,13 @@ class EquipmentService():
 			with x as (
 				select unnest(path_info_pk) as path_pk from cm_v_dept
 			)
-			select d.dept_pk
-			, max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
-			, max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
-			, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d.dept_nm else '' end) as ban_nm
+			select d.id as dept_pk
+			, max(case when d.business_yn = 'Y' then d."Name" else '' end) as business_nm
+			, max(case when d.team_yn = 'Y' then d."Name" else '' end) as team_nm
+			, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d."Name" else '' end) as ban_nm
 			from x
-			inner join cm_dept d on x.path_pk = d.dept_pk
-			group by d.dept_pk
+			inner join dept d on x.path_pk = d.id
+			group by d.id
 		) dx on sub.dept_pk = dx.dept_pk
 
 		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
@@ -545,18 +535,21 @@ class EquipmentService():
 		, t.equip_nm
 		, t.loc_pk
 		, l.loc_nm
+		, t.dept_pk
+		, d."Name" as dept_nm
 		, es.code_nm as equip_status_nm 
 		, t.import_rank_pk
 		, ir.import_rank_desc as import_rank_nm
 		, ec.remark as _equip_category_remark
-		, t.asset_nos as _asset_nos
+		, t.asset_nos
 		, t.environ_equip_yn
 		, t.warranty_dt as _warranty_dt
 		from cm_equipment t		
-		inner join cm_location l on t.loc_pk = l.loc_pk		
-		inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'		
-		left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
-		left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
+			inner join cm_location l on t.loc_pk = l.loc_pk		
+			inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'		
+			inner join dept d on t.dept_pk = d.id
+			left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
+			left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
 		where t.del_yn = 'N'
 			AND t.use_yn = 'Y'
 			AND t.equip_status NOT IN ('ES_DISP')
@@ -608,7 +601,7 @@ class EquipmentService():
 			, ul.loc_cd as up_loc_cd
 			, ul.loc_nm as up_loc_nm
 			, case when ul.loc_nm is null then l.loc_nm
-				   else ul.loc_nm ||  ' \ '  || l.loc_nm
+				   else ul.loc_nm ||  ' / '  || l.loc_nm
 			  end as up_loc_path
 			, t.equip_status
 			, t.equip_status as equip_status_cd
@@ -622,8 +615,8 @@ class EquipmentService():
 			, t.ccenter_cd
 			, cc.code_nm as ccenter_nm
 			, t.dept_pk
-			, d.dept_cd
-			, d.dept_nm
+			, d."Code"
+			, d."Name"
 			, t.up_equip_pk
 			, eu.equip_nm as up_equip_nm
 			, eu.equip_cd as up_equip_cd
@@ -670,7 +663,7 @@ class EquipmentService():
 
 			from cm_equipment t
 			inner join cm_location l on t.loc_pk = l.loc_pk
-			inner join cm_dept d on t.dept_pk = d.dept_pk
+			inner join dept d on t.dept_pk = d.id
 			inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
 			left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
 			left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
@@ -712,8 +705,8 @@ class EquipmentService():
 			, t.disposed_date
 			, t.install_dt
 			, t.dept_pk
-			, d.dept_cd
-			, d.dept_nm
+			, d."Code"
+			, d."Name"
 			, t.asset_nos
 			, t.environ_equip_yn
 			, t.up_equip_pk
@@ -778,9 +771,9 @@ class EquipmentService():
 				 , p.pm_no 							/* pm번호 */
 				 , p.pm_nm 							/* PM명 */
 				 , p.dept_pk
-				 , d.dept_nm					  	/* PM부서 */
+				 , d."Name"						  	/* PM부서 */
 				 , p.pm_user_pk
-				 , cm_fn_user_nm(pmu.user_nm, pmu.del_yn) as pm_user_nm		/* PM 담당자 */
+				 , cm_fn_user_nm(pmu."Name", pmu.del_yn) as pm_user_nm		/* PM 담당자 */
 				 , p.pm_type
 				 , pt.code_nm as pm_type_nm	 		/* PM유형 */
 				 , p.per_number 					/* 주기 */
@@ -791,8 +784,8 @@ class EquipmentService():
 				 , p.use_yn	 						/* 사용여부 */
 			from cm_pm p
 			inner join cm_equipment t on p.equip_pk = t.equip_pk
-			left outer join cm_dept d on p.dept_pk = d.dept_pk
-			left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
+			left outer join dept d on p.dept_pk = d.id
+			left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
 			left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
 			left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
 			where t.del_yn = 'N'
@@ -911,27 +904,27 @@ class EquipmentService():
 		return items
 
 	# kmms - 설비정보 - 설비별작업이력 조회
-	def get_equipment_workhistory(self, keyword,):
+	def get_equipment_workhistory(self, keyword, manage_dept, loc_pk, start_dt, end_dt, maint_type_cd, equip_category_id, equip_class_path, work_dept, srch_environ_equip_only,):
 		items = []
-		dic_param = {'keyword':keyword,}
+		dic_param = {'keyword':keyword, 'manage_dept':manage_dept, 'loc_pk':loc_pk, 'start_dt':start_dt, 'end_dt':end_dt, 'maint_type_cd':maint_type_cd, 'equip_category_id':equip_category_id, 'equip_class_path':equip_class_path, 'work_dept':work_dept, 'srch_environ_equip_only':srch_environ_equip_only,}
 
 		sql = '''
 		with cte as (
-
+		
 		select t.work_order_pk
 				, t.work_order_no
 				, t.work_title
 				, t.work_text
 				, t.work_order_sort
 				, t.req_dept_pk
-				, rd.dept_nm as req_dept_nm
+				, rd."Name" as req_dept_nm
 				, rd.tpm_yn as req_dept_tpm_yn
 				, t.dept_pk
-				, wd.dept_nm as dept_nm
+				, wd."Name" as dept_nm
 				, cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
-				, cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 'WEZON') as business_nm
+				, cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 1) as business_nm
 				, t.work_charger_pk
-				, cm_fn_user_nm(wcu.user_nm, wcu.del_yn) as work_charger_nm
+				, cm_fn_user_nm(wcu."Name", wcu.del_yn) as work_charger_nm
 				, mt.code_cd as maint_type_cd
 				, mt.code_nm as maint_type_nm
 				, ws.code_cd as wo_status_cd
@@ -944,8 +937,8 @@ class EquipmentService():
 				, t.equip_pk
 				, e.equip_cd
 				, e.equip_nm
-				, ed.dept_pk as equip_dept_pk
-				, ed.dept_nm as equip_dept_nm
+				, ed.id as equip_dept_pk
+				, ed."Name" as equip_dept_nm
 				, to_char(e.warranty_dt, 'YYYY-MM-DD') AS warranty_dt
 				, t.pm_pk
 				, p.pm_no
@@ -992,8 +985,8 @@ class EquipmentService():
 				, woa.reg_dt
 				, woa.rqst_dt
 				, woa.rqst_user_nm
-				, woarqstd.dept_pk as rqst_dept_pk
-				, woarqstd.dept_nm as rqst_dept_nm
+				, woarqstd.id as rqst_dept_pk
+				, woarqstd."Name" as rqst_dept_nm
 				, woa.cancel_dt
 				, woa.cancel_user_nm
 				, woa.accept_dt
@@ -1031,25 +1024,25 @@ class EquipmentService():
 			inner join cm_equipment e on t.equip_pk = e.equip_pk
 			inner join cm_location l on e.loc_pk = l.loc_pk
 			left join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
-			left outer join cm_dept ed on e.dept_pk  = ed.dept_pk
-			left outer join cm_dept wd on t.dept_pk = wd.dept_pk
-			left outer join cm_dept rd on t.req_dept_pk = rd.dept_pk
-			left outer join cm_user_info wcu on t.work_charger_pk = wcu.user_pk
+			left outer join dept ed on e.dept_pk  = ed.id
+			left outer join dept wd on t.dept_pk = wd.id
+			left outer join dept rd on t.req_dept_pk = rd.id
+			left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
 			left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC'
 			left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC'
 			left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
 			left outer join cm_pm p on t.pm_pk = p.pm_pk
 			left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
 			left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
-			left outer join cm_user_info pmu on p.pm_user_pk = pmu.user_pk
-			left outer join cm_user_info wou on t.WORK_CHARGER_PK = wou.user_pk
+			left outer join user_profile pmu on p.pm_user_pk = pmu."User_id"
+			left outer join user_profile wou on t.WORK_CHARGER_PK = wou."User_id"
 			left outer join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
 			left outer join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
 			left outer join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
 			left outer join cm_base_code wsc on t.work_src_cd = wsc.code_cd and wsc.code_grp_cd = 'WORK_SRC'
 			left outer join cm_project prj on t.proj_cd = prj.proj_cd
-			left outer join cm_user_info woarqstu on woa.rqst_user_pk = woarqstu.user_pk
-			left outer join cm_dept woarqstd on woarqstu.dept_pk = woarqstd.dept_pk
+			left outer join user_profile woarqstu on woa.rqst_user_pk = woarqstu."User_id"
+			left outer join dept woarqstd on woarqstu."Depart_id" = woarqstd.id
 			left outer join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
 			left outer join cm_IMPORT_RANK ir on e.IMPORT_RANK_PK = ir.IMPORT_RANK_PK
 			left outer join cm_equipment ue on e.UP_EQUIP_PK  = ue.EQUIP_PK
@@ -1059,50 +1052,64 @@ class EquipmentService():
 		where 1 = 1
 		'''
 
-		# cm_v_dept_path 주의
-		if (0==1) : sql += '''
-			AND ec.equip_category_id = '01'
-
-			AND e.equip_class_path = 'a1\b11'
-
-				AND ws.code_cd <> 'WOS_DL'
-
+		if keyword:
+			sql += '''
 			AND (
-				wd.dept_pk = 23
+				UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+				OR UPPER(e.equip_nm) LIKE CONCAT('%%',UPPER(%(keyword)s),'%%')
+			)
+			'''
+		if manage_dept:
+			sql += '''
+			AND (
+				ed.id = %(manage_dept)s
 				OR
-				wd.dept_pk IN ( select dept_pk from cm_v_dept_path where 23 = path_info_pk)
+				ed.id IN ( select dept_pk from cm_v_dept_path where %(manage_dept)s = path_info_pk)
 			)
-
+			'''
+		if loc_pk:
+			sql += '''
 			AND (
-				ed.dept_pk = 1
+				l.loc_pk = %(loc_pk)s
 				OR
-				ed.dept_pk IN ( select dept_pk from cm_v_dept_path where 1 = path_info_pk)
+				l.loc_pk IN ( select loc_pk from (select * from cm_fn_get_loc_path('1')) x where %(loc_pk)s = path_info_pk)
 			)
-
-			AND (
-				l.loc_pk = 384
-				OR
-				l.loc_pk IN ( select loc_pk from (select * from cm_fn_get_loc_path('WEZON')) x where 384 = path_info_pk)
-			)
-
-			AND (
-				UPPER(e.equip_cd) LIKE CONCAT('%',UPPER(CAST('test' as text)),'%')
-				OR UPPER(e.equip_nm) LIKE CONCAT('%',UPPER(CAST('test' as text)),'%')
-
-			)
-
-    		AND e.environ_equip_yn = 'Y'
-
-    		AND mt.code_cd = 'MAINT_TYPE_GM'
-
+			'''
+		if start_dt and end_dt:
+			sql += '''
 				AND (
-					(date(t.start_dt) >= to_date('2025-03-13', 'YYYY-MM-DD') AND date(t.start_dt) <= to_date('2025-06-14', 'YYYY-MM-DD'))
+					(date(t.start_dt) >= to_date(%(start_dt)s, 'YYYY-MM-DD') AND date(t.start_dt) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
 					OR
-					(date(t.end_dt) >= to_date('2025-03-13', 'YYYY-MM-DD') AND date(t.end_dt) <= to_date('2025-06-14', 'YYYY-MM-DD'))
+					(date(t.end_dt) >= to_date(%(start_dt)s, 'YYYY-MM-DD') AND date(t.end_dt) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
 				)
-		'''
-		
+			'''
+		if maint_type_cd:
+			sql += '''
+    		AND mt.code_cd = %(maint_type_cd)s
+			'''
+		if equip_category_id:
+			sql += '''
+			AND ec.equip_category_id = %(equip_category_id)s
+			'''
+		if equip_class_path:
+			sql += '''
+			AND e.equip_class_path LIKE CONCAT('%%',CAST(%(equip_class_path)s as text),'%%')
+			'''
+		if work_dept:
+			sql += '''
+			AND (
+				wd.id = %(work_dept)s
+				OR
+				wd.id IN ( select dept_pk from cm_v_dept_path where %(work_dept)s = path_info_pk)
+			)
+			'''
+		if srch_environ_equip_only == 'Y':
+			sql += '''
+    		AND e.environ_equip_yn = 'Y'
+			'''
+
 		sql += '''
+			AND ws.code_cd <> 'WOS_DL'
 		)
 		SELECT *
 		FROM (
@@ -1136,10 +1143,10 @@ class EquipmentService():
 				select t.chk_mast_pk
 					, t.chk_mast_nm
 					, t.chk_mast_no
-					, d.dept_pk
-					, d.dept_nm
+					, d.id
+					, d."Name"
 					, t.chk_user_pk
-					, cm_fn_user_nm(cu.user_nm, cu.del_yn) as chk_user_nm
+					, cm_fn_user_nm(cu."Name", cu.del_yn) as chk_user_nm
 					, (case when (t.chk_mast_no ~ E'^[0-9]+$') = true then cast(t.chk_mast_no as integer) else 999999 end) as chk_mast_no_sort
 					, t.last_chk_date
 					, t.first_chk_date
@@ -1164,14 +1171,14 @@ class EquipmentService():
 					, t.daily_report_type_cd
 
 			FROM   cm_equip_chk_mast t
-				INNER JOIN cm_dept d ON t.dept_pk = d.dept_pk
+				INNER JOIN dept d ON t.dept_pk = d.id
 				INNER JOIN cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk
 				INNER JOIN cm_equipment e on ce.equip_pk = e.equip_pk
-				LEFT OUTER JOIN cm_user_info cu on t.chk_user_pk = cu.user_pk
+				LEFT OUTER JOIN user_profile cu on t.chk_user_pk = cu."User_id"
 				LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
 				LEFT OUTER JOIN cm_equip_chk_item eci on t.chk_mast_pk = eci.chk_mast_pk
 				LEFT OUTER JOIN cm_location l on e.loc_pk = l.loc_pk
-				LEFT OUTER JOIN cm_dept ed on e.dept_pk = ed.dept_pk
+				LEFT OUTER JOIN dept ed on e.dept_pk = ed.id
 			WHERE  t.del_yn = 'N'
 				AND t.use_yn = 'Y'
 				AND e.equip_pk = %(equipPk)s
@@ -1179,10 +1186,10 @@ class EquipmentService():
 			GROUP BY t.chk_mast_pk
 				, t.chk_mast_nm
 				, t.chk_mast_no
-				, d.dept_pk
-				, d.dept_nm
+				, d.id
+				, d."Name"
 				, t.chk_user_pk
-				, cu.user_nm
+				, cu."Name"
 				, cu.del_yn
 				, t.last_chk_date
 				, t.first_chk_date
@@ -1209,8 +1216,8 @@ class EquipmentService():
 			SELECT chk_mast_pk
 					, chk_mast_nm
 					, chk_mast_no
-					, dept_pk
-					, dept_nm
+					, id
+					, "Name"
 					, chk_user_pk
 					, chk_user_nm
 					, chk_mast_no_sort
@@ -1276,15 +1283,15 @@ class EquipmentService():
 		, t.chk_sche_dt
 		, cs.code_cd as chk_status_cd
 		, cs.code_nm as chk_status_nm
-		, d.dept_pk
-		, d.dept_nm
+		, d.id
+		, d."Name"
 		, ecm.last_chk_date
 		, ct.code_cd as cycle_type_cd
 		, ct.code_nm as cycle_type_nm
 		, concat(ecm.per_number, ct.code_dsc) as cycle_display_nm
 		, ecm.per_number
 		, t.chk_user_pk
-		, cm_fn_user_nm(cu.user_nm, cu.del_yn) as chk_user_nm
+		, cm_fn_user_nm(cu."Name", cu.del_yn) as chk_user_nm
 		, t.chk_dt
         , 1 as site_id
 		, t.insert_ts
@@ -1300,14 +1307,14 @@ class EquipmentService():
 	from cm_equip_chk_sche t
 		inner join cm_equip_chk_mast ecm on t.chk_mast_pk = ecm.chk_mast_pk
 		left outer join cm_base_code ct on ecm.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
-		left outer join cm_dept d on t.dept_pk = d.dept_pk
+		left outer join dept d on t.dept_pk = d.id
 		inner join cm_base_code cs on t.chk_status = cs.code_cd and cs.code_grp_cd = 'CHK_STATUS'
 		inner join cm_equip_chk_rslt ecr ON t.chk_sche_pk = ecr.chk_sche_pk
 		inner join cm_equipment e on ecr.equip_pk = e.equip_pk
 		left outer join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
 		inner join cm_location l on e.loc_pk = l.loc_pk
-		left outer join cm_dept ed on e.dept_pk = ed.dept_pk
-		left outer join cm_user_info cu on t.chk_user_pk = cu.user_pk
+		left outer join dept ed on e.dept_pk = ed.id
+		left outer join user_profile cu on t.chk_user_pk = cu."User_id"
 	where 1 = 1
 		AND e.equip_pk = %(equipPk)s
 		AND cs.code_cd = 'CHK_STATUS_N'
@@ -1321,15 +1328,15 @@ class EquipmentService():
 		, t.chk_sche_dt
 		, cs.code_cd
 		, cs.code_nm
-		, d.dept_pk
-		, d.dept_nm
+		, d.id
+		, d."Name"
 		, ecm.last_chk_date
 		, ct.code_cd
 		, ct.code_nm
 		, ct.code_dsc
 		, ecm.per_number
 		, t.chk_user_pk
-		, cu.user_nm
+		, cu."Name"
 		, cu.del_yn
 		, t.chk_dt    
 		, t.insert_ts
@@ -1398,8 +1405,8 @@ class EquipmentService():
 			, t.ccenter_cd
 			, cc.ccenter_nm
 			, t.dept_pk
-			, d.dept_cd
-			, d.dept_nm
+			, d."Code"
+			, d."Name"
 			, t.up_equip_pk
 			, eu.equip_nm as up_equip_nm
 			, eu.equip_cd as up_equip_cd
@@ -1446,7 +1453,7 @@ class EquipmentService():
 
 			from cm_equipment t
 			inner join cm_location l on t.loc_pk = l.loc_pk
-			inner join cm_dept d on t.dept_pk = d.dept_pk
+			inner join dept d on t.dept_pk = d.id
 			inner join cm_base_code es on t.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
 			left outer join cm_equip_category ec on t.equip_category_id = ec.equip_category_id
 			left outer join cm_import_rank ir on t.import_rank_pk = ir.import_rank_pk
@@ -1485,8 +1492,8 @@ class EquipmentService():
 			, t.disposed_date
 			, t.install_dt
 			, t.dept_pk
-			, d.dept_cd
-			, d.dept_nm
+			, d."Code"
+			, d."Name"
 			, t.asset_nos
 			, t.environ_equip_yn
 			, t.up_equip_pk
@@ -1564,13 +1571,13 @@ class EquipmentService():
 				with x as (
 					select unnest(path_info_pk) as path_pk from cm_v_dept
 				)
-				select d.dept_pk
-				, max(case when d.business_yn = 'Y' then d.dept_nm else '' end) as business_nm
-				, max(case when d.team_yn = 'Y' then d.dept_nm else '' end) as team_nm
-				, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d.dept_nm else '' end) as ban_nm
+				select d.id as dept_pk
+				, max(case when d.business_yn = 'Y' then d."Name" else '' end) as business_nm
+				, max(case when d.team_yn = 'Y' then d."Name" else '' end) as team_nm
+				, max(case when coalesce(d.business_yn, 'N') = 'N' and  coalesce(d.team_yn, 'N') = 'N' then d."Name" else '' end) as ban_nm
 				from x
-				inner join cm_dept d on x.path_pk = d.dept_pk
-				group by d.dept_pk
+				inner join dept d on x.path_pk = d.id
+				group by d.id
 			) dx on sub.dept_pk = dx.dept_pk
 
 			RIGHT JOIN (select count(*) from cte) c(total_rows) on true
@@ -1603,10 +1610,10 @@ class EquipmentService():
                    , e.equip_nm
                    , e.import_rank_pk
 		           , ir.import_rank_cd 				   AS import_rank_nm
-                   , d.dept_pk
-                   , d.dept_nm
-                   , pu.user_pk                        AS pm_user_pk
-                   , cm_fn_user_nm(pu.user_nm, pu.del_yn)                        AS pm_user_nm
+                   , d.id
+                   , d."Name"
+                   , pu."User_id"                        AS pm_user_pk
+                   , cm_fn_user_nm(pu."Name", pu.del_yn)                        AS pm_user_nm
                    , (case when (t.pm_no ~ E'^[0-9]+$') = true then cast(t.pm_no as integer) else 999999 end) as pm_no_sort
                    , pt.code_cd                        AS pm_type_cd
                    , pt.code_nm                        AS pm_type_nm
@@ -1628,7 +1635,7 @@ class EquipmentService():
                    , t.update_ts
                    , t.updater_id
                    , t.updater_nm
-	               , eqd.dept_nm as mdept_nm
+	               , eqd."Name" as mdept_nm
 		           , l.loc_nm
 	               , ec.equip_category_desc
 			        , (select code_nm from cm_base_code where code_grp_cd = 'EQUIPMENT_PROCESS' and code_cd = e.process_cd) as process_nm
@@ -1637,11 +1644,11 @@ class EquipmentService():
 	        FROM   cm_pm t
 	               INNER JOIN cm_equipment e ON t.equip_pk = e.equip_pk
 	               INNER JOIN cm_location l ON e.loc_pk = l.loc_pk
-	               LEFT OUTER JOIN cm_dept d ON t.dept_pk = d.dept_pk
+	               LEFT OUTER JOIN dept d ON t.dept_pk = d.id
 	               LEFT OUTER JOIN cm_base_code pt ON t.pm_type = pt.code_cd AND pt.code_grp_cd = 'PM_TYPE'
 	               LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
-	               LEFT OUTER JOIN cm_user_info pu ON t.pm_user_pk = pu.user_pk
-	               LEFT OUTER JOIN cm_dept eqd ON e.dept_pk = eqd.dept_pk
+	               LEFT OUTER JOIN user_profile pu ON t.pm_user_pk = pu."User_id"
+	               LEFT OUTER JOIN dept eqd ON e.dept_pk = eqd.id
 		           LEFT OUTER JOIN cm_import_rank ir on e.import_rank_pk = ir.import_rank_pk
 			        left outer join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
 	        WHERE  t.del_yn = 'N'

@@ -36,14 +36,14 @@ def work_order_hist(context):
 			, bws.code_nm as before_status_nm
 			, woh.after_status as after_status_cd
 			, aws.code_nm as after_status_nm
-			, to_char(woh.change_ts, 'yyyy-MM-dd') as change_ts
+			, to_char(woh.change_ts, 'yyyy-MM-dd HH:MM') as change_ts
 			, woh.changer_pk
-			, coalesce(woh.changer_nm, cm_fn_user_nm(cu."user_nm", 'N')) as changer_nm
+			, coalesce(woh.changer_nm, cm_fn_user_nm(cu."Name", 'N')) as changer_nm
 			, woh.change_reason
 		    from cm_work_order_hist woh
 	            inner join cm_base_code bws on woh.before_status = bws.code_cd and bws.code_grp_cd = 'WO_STATUS'
 	            inner join cm_base_code aws on aws.code_cd  = woh.after_status and aws.code_grp_cd = 'WO_STATUS'
-	            inner join cm_user_info cu on woh.changer_pk = cu.user_pk
+	            inner join user_profile cu on woh.changer_pk = cu."User_id"
 	            inner join cm_work_order wo on wo.work_order_pk = woh.work_order_pk 
 		    where woh.work_order_pk = %(workOrderPk)s
 		    order by woh.change_ts desc, woh.work_order_hist_pk desc

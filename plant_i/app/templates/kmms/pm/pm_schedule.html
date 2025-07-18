@@ -14,7 +14,20 @@
                     <div class="col-auto">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label">검색키워드</label>
-                            <input id="keyword" name="keyword" class="k-textbox" placeholder="PM번호,PM명,설비코드,설비명" style="width: 100%;" />
+                            <input id="keyword" name="keyword" class="k-textbox" placeholder="WO번호,PM번호,설비코드,설비명" style="width: 100%;" />
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">PM유형</label>
+                            <select id="srch_pm_type" name="pmType" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">상태</label>
+                            <select id="srch_wo_status" name="woStatus" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
@@ -25,44 +38,31 @@
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label">실행부서</label>
+                            <select id="srch_wo_dept" name="pmDept" style="width: 200px;"></select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label">작업계획일</label>
+                            <div id="srch_date_range"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h">
                             <label class="k-label k-form-label">설비위치</label>
                             <select id="srch_location" name="equLoc" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label">실행 부서</label>
-                            <select id="srch_dept_type" name="pmDept" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">PM유형</label>
-                            <select id="serchPmType" name="pmType" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">적용여부</label>
-                            <select id="srchApplyYn" name="applyYn" style="width: 200px;">
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">주기단위</label>
-                            <select id="srchPeriodUnit" name="cycleType" style="width: 200px;"></select>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label">다음 주기일</label>
-                            <div id="srch_date_range"></div>
+                            <label class="k-label k-form-label">카테고리</label>
+                            <select id="srch_category" name="equCategory" style="width: 200px;"></select>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
+                            <label class="k-label k-form-label" for="chk_my_task">나의 작업만</label>
                             <input id="chk_my_task" name="isMyTask">
                         </div>
                     </div>
@@ -76,22 +76,35 @@
             </div>
         </form>
         <div class="content-ui-row connect">
-            <div class="card-content grid">
-                <div class="card-group-btn">
-                    <span class="info-text">
-                        <i class="material-symbols-outlined">list_alt</i>
-                        <label data-labelCd="PM 작업일정">PM 작업일정</label>
+            <div class="card-content edit">
+                <div id="tab_strip" style="width: 100%;">
+                    <ul>
+                        <li class="k-active">목록</li>
+                        <li>일정표</li>
+                    </ul>
+                    <span class="card-group-btn" style="margin-top: 10px">
+                        <span class="info-text">
+                            <i class="material-symbols-outlined">list_alt</i>
+                            <label data-labelCd="PM 작업일정">PM 작업일정</label>
+                        </span>
+                        <span></span>
+                        <span>
+                            <!-- 오른쪽 버튼 영역-->
+                            <button id="btnSearch" class="btn-search">조회</button>
+                            <button id="btnExcel">Excel</button>
+                        </span>
                     </span>
-                    <span>
-                        <!-- 오른쪽 버튼 영역-->
-                        <button id="btnSearch" class="btn-search">조회</button>
-                        <button id="btnExcel">Excel</button>
-                    </span>
+                    <div class="tab-contents" style="padding: 0px">
+                        <div class="card-content grid" style="padding: 0px">
+                            <div id="pm_schedule_grid" style="height:540px;"></div>
+                        </div>
+                    </div>
+                    <div class="tab-contents" style="padding: 0px">
+                        <div id="simulationScheduler"></div>
+                    </div>
                 </div>
-                <div id="pm_master_grid"></div>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -117,21 +130,10 @@
             this.init();
         }
 
-        /*
-         * 그리드와 검색 조건을 초기화하는 함수
-         */
-        resetData() {
-            // 그리드 초기화
-            if (this.grid) {
-                this.grid.setData([]);
-            }
-
-            FormUtil.resetForm($("#searchForm"));
-        }
-
         init() {
             let _this = this;
-            let equipmentGridOption = {
+            this.initTabStrip();
+            let pmScheduleGridOption = {
                 toolbar: [
                     "columns"
                 ],
@@ -144,34 +146,76 @@
                     }
                 },
                 columns: [
-                    { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
+                    {
+                        field: 'pm_pk',
+                        title: 'PMPk',
+                        hidden: true,
+                        width: 0
+                    },
+                    {
+                        field: 'wo_pk',
+                        title: 'WOPk',
+                        hidden: true,
+                        width: 0
+                    },
                     {
                         field: 'work_order_no',
                         title: 'WO 번호',
-                        width: 80,
+                        width: 70,
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
                     },
                     {
-						field: 'pm_no',
+                        field: 'pm_no',
                         title: 'PM 번호',
-                        width: 150,
+                        width: 160,
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
                     },
                     {
-                        field: "work_title",
-                        title: "작업제목",
+                        field: 'work_title',
+                        title: '작업제목',
                         width: 150,
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-title-pk="#=work_order_pk#">#=work_title#</a>'
                     },
-					{ field: 'equip_cd', title: '설비코드', width: 100 },
-					{ field: 'equip_nm', title: '설비명', width: 150 },
-                    { field: 'import_rank', title: '중요도', width: 80 },
-                    { field: 'exec_dept', title: '실행부서', width: 100 },
-                    { field: 'mng_dept_nm', title: '관리부서', width: 100 },
-                    { field: 'equ_location', title: '설비위치', width: 120 },
-                    { field: 'pm_manager', title: 'PM 담당자', width: 100 },
-                    { field: 'pm_type', title: 'PM 유형', width: 80 },
-                    { field: 'cycle_type', title: '주기', width: 50 }
+                    {
+                        field: 'plan_start_dt',
+                        title: '작업계획일',
+                        width: 150,
+                    },
+                    {
+                        field: 'pm_type_nm',
+                        title: 'PM유형',
+                        width: 80
+                    },
+                    {
+                        field: 'equip_cd',
+                        title: '설비코드',
+                        width: 150
+                    },
+                    {
+                        field: 'equip_nm',
+                        title: '설비명',
+                        width: 150
+                    },
+                    {
+                        field: 'equip_category_desc',
+                        title: '카테고리',
+                        width: 150
+                    },
+                    {
+                        field: 'wo_status_nm',
+                        title: '상태',
+                        width: 90
+                    },
+                    {
+                        field: 'wo_dept_nm',
+                        title: '실행부서',
+                        width: 150
+                    },
+                    {
+                        field: 'wo_user_nm',
+                        title: '작업담당자',
+                        width: 90
+                    }
                 ],
                 dataBound: function (e) {
                     $(".grid-column-link").off("click").on("click", function (e) {
@@ -194,45 +238,32 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#pm_master_grid"), equipmentGridOption);
+            _this.grid = new Grid($("#pm_schedule_grid"), pmScheduleGridOption);
 
-            $('#keyword').kendoTextBox();
-
-            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_type"), "depart", "select");
-
-            AjaxUtil.fillDropDownOptions($('#serchPmType'), 'user_code', 'choose', null, 'PM_TYPE');
-
-            $("#srchApplyYn").kendoDropDownList({
-                dataSource: [
-                    { text: "전체", value: "" },
-                    { text: "적용", value: "Y" },
-                    { text: "미적용", value: "N" },
-                ],
-                dataTextField: "text",
-                dataValueField: "value"
-            });
-
-            $("#srchPeriodUnit").kendoDropDownList({
-                dataSource: [
-                    { text: "선택", value: "" },
-                    { text: "년", value: "Y" },
-                    { text: "월", value: "M" },
-                    { text: "주", value: "W" },
-                    { text: "일", value: "D" },
-                ],
-                dataTextField: "text",
-                dataValueField: "value"
-            });
-
-            $('#btnExcel').kendoButton({
-                icon: "file-excel",
-                themeColor: "success",
-                click: function () {
-                    page.exportExcel();
+            $("#equKeword").kendoButton({
+                icon: "k-i-zoom-in",
+                rounded: "full",
+                click: function (e) {
+                    e.preventDefault();
+                    setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                    equipSelectPage.show(function (data) {
+                        $("#keyword").val(data.equip_cd);
+                    });
                 }
             });
+            $('#keyword').kendoTextBox();
+            $('#keyword').keypress(function (e) {
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+            AjaxUtil.fillDropDownOptions($('#srch_pm_type'), 'user_code', '', null, 'PM_TYPE');
+            AjaxUtil.fillDropDownOptions($('#srch_wo_status'), 'cm_code', 'all', null, 'WO_STATUS_PM');
+			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "all");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_wo_dept"), "depart", "all");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "all");
+            AjaxUtil.fillDropDownOptions($('#srch_category'), 'cm_equip_category', 'all', null);
 
             $('#chk_my_task').kendoSwitch({
                 checked: false
@@ -242,19 +273,23 @@
                 checked: false
             });
 
-            //search form
+            let today = new Date();
+            let twoMonthsAgo = new Date(today);
+            twoMonthsAgo.setMonth(today.getMonth() - 2);
+            let twoMonthsLater = new Date(today);
+            twoMonthsLater.setMonth(today.getMonth() + 2);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: twoMonthsAgo,
+                    end: twoMonthsLater
                 },
                 change: function (e) {
 
                 },
                 format: "yyyy-MM-dd",
                 labels: false,
-                startField: "start_date",
-                endField: "end_date"
+                startField: "start_dt",
+                endField: "end_dt"
             });
 
             //form button
@@ -267,33 +302,205 @@
                     _this.searchMainData();
                 }
             }).css('visibility', 'visible');
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+        }
+
+        initTabStrip() {
+            let _this = this;
+
+            $("#tab_strip").kendoTabStrip({
+                animation: { open: { effects: "fadeIn" } },
+                activate: function (e) {
+                    let activeTabIndex = $(e.item).index();
+                    if (activeTabIndex === 0) {
+                        $("#tabLabel").text("PM 작업일정");
+                    } else if (activeTabIndex === 1) {
+                        $("#tabLabel").text("일정표");
+                    }
+                }
+            });
         }
 
         searchMainData() {
             let _this = this;
             let pm_schedule_param = FormUtil.extractForm($("#searchForm"));
-			pm_schedule_param.action = 'findAllPm';
+            pm_schedule_param.action = 'findAllPm';
+
+            // 날짜 데이터 처리
+            let startDate = '';
+            let endDate = '';
+            let dateRangePicker = $("#srch_date_range").data("kendoDateRangePicker");
+
+            if (dateRangePicker) {
+                let range = dateRangePicker.range();
+                if (range) {
+                    startDate = range.start ? kendo.toString(range.start, 'yyyy-MM-dd') : '';
+                    endDate = range.end ? kendo.toString(range.end, 'yyyy-MM-dd') : '';
+                }
+            }
+            pm_schedule_param.start_date = startDate;
+            pm_schedule_param.end_date = endDate;
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, pm_schedule_param);
             if (result) {
                 _this.grid.setData(result);
             }
+            console.log(result);
         }
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#pm_master_grid').data("kendoGrid");
+            let gridData = $('#pm_schedule_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "pm_master.xlsx";
+                e.workbook.fileName = "pm_schedule.xlsx";
             });
             gridData.saveAsExcel();
         }
 
+        loadSimulationScheduler() {
+            let _this = this;
+            let pm_schedule_param = FormUtil.extractForm($("#searchForm"));
+            pm_schedule_param.action = 'findAllPm';
+
+            let pmInfo = AjaxUtil.getSyncData(_this.baseUrl, pm_schedule_param);
+
+            this.holidayInfo = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayInfoRes' });
+            this.holidayCustom = AjaxUtil.getSyncData('/api/kmms/holiday', { action: 'findAllHolidayCustom' });
+
+            let mergedData = [];
+
+            if (Array.isArray(pmInfo)) {
+                pmInfo.forEach(info => {
+                    mergedData.push({
+                        id: info.pm_pk,
+                        title: info.pm_nm,
+                        start: info.plan_start_dt,
+                        end: info.plan_end_dt,
+                        isAllDay: true,
+                        type: '',
+                    });
+                });
+            }
+            if (Array.isArray(this.holidayInfo)) {
+                this.holidayInfo.forEach(holiday => {
+                    mergedData.push({
+                        id: holiday.id,
+                        title: holiday.name,
+                        start: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        end: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        isAllDay: true,
+                        type: holiday.type,
+                    });
+                });
+            }
+            if (Array.isArray(this.holidayCustom)) {
+                this.holidayCustom.forEach(holiday => {
+                    mergedData.push({
+                        id: holiday.id,
+                        title: holiday.name,
+                        start: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        end: new Date(holiday.year, holiday.month - 1, holiday.day),
+                        isAllDay: true,
+                        type: holiday.type,
+                    });
+                });
+            }
+            
+            var dataSource = new kendo.data.SchedulerDataSource({
+                data: mergedData,
+                schema: {
+                    model: {
+                        id: "id",
+                        fields: {
+                            id: { type: "number" },
+                            title: { field: "title", defaultValue: "No title", validation: { required: true } },
+                            start: { type: "date", field: "start" },
+                            end: { type: "date", field: "end" },
+                            isAllDay: { type: "boolean", field: "isAllDay" }
+                        }
+                    }
+                }
+            });
+
+            $("#simulationScheduler").empty();
+
+            $("#simulationScheduler").kendoScheduler({
+                date: new Date(),
+                height: 650,
+                views: [
+                    { type: "month", selected: true, eventHeight: 30 }
+                ],
+                editable: false,
+                timezone: "Asia/Seoul",
+                autoBind: true,
+                allDaySlot: true,
+                showWorkHours: false,
+                messages: {
+                    today: "오늘",
+                    allDay: "종일",
+                    date: "날짜",
+                    event: "이벤트",
+                    time: "시간",
+                    showFullDay: "하루 전체 보기",
+                    showWorkDay: "업무 시간만 보기",
+                    save: "저장",
+                    cancel: "취소",
+                    destroy: "삭제"
+                },
+                eventTemplate: (e) => {
+                    const y = e.start.getFullYear();
+                    const m = (e.start.getMonth() + 1).toString().padStart(2, '0');
+                    const d = e.start.getDate().toString().padStart(2, '0');
+                    const eventDate = `${y}-${m}-${d}`;
+
+                    // holidayInfo + holidayCustom 통합
+                    const allHolidays = [...(this.holidayInfo || []), ...(this.holidayCustom || [])];
+
+                    const isHoliday = allHolidays.some(h => {
+                        const hy = h.year;
+                        const hm = h.month.toString().padStart(2, '0');
+                        const hd = h.day.toString().padStart(2, '0');
+                        const hDate = `${hy}-${hm}-${hd}`;
+                        return hDate === eventDate;
+                    });
+
+                    const textColor = isHoliday ? '#d32f2f' : '#1976d2';
+                    const bgColor = isHoliday ? '#ffffff' : '#dff0d8';
+
+                    return `<span style="background:${bgColor};color:${textColor};border-radius:6px;padding:2px 6px;">${e.title}</span>`;
+                },
+                dataSource: dataSource
+            });
+
+            // 일정 클릭 시 alert (jQuery 이벤트 위임)
+            $("#simulationScheduler").off("click", ".k-event").on("click", ".k-event", function (e) {
+                var scheduler = $("#simulationScheduler").data("kendoScheduler");
+                var uid = $(this).data("uid");
+                var event = scheduler.occurrenceByUid(uid);
+                if (event) {
+                    //console.log('event:', event);
+                    //debugger;
+                    if (event.type == '') {
+                        // 그 외 일정은 모달창으로 표시
+                        var wnd = $("#simulationCalDetailWindow").data("kendoWindow");
+                        wnd.open();
+                    }
+                }
+            });
+        }
     };
 
     let page = new PmSchedulePage();
     $(document).ready(function () {
         page.searchMainData();
+        page.loadSimulationScheduler();
 
         // ✅ 최초에는 한 줄만 표시 (CSS에서 height: 50px; 적용)
         $("#searchFormContent").removeClass("search-expanded");

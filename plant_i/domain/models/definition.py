@@ -1048,6 +1048,40 @@ class TensionCheckResult(models.Model):
         db_table_comment = 'SMT텐션체크결과'
 
 
+
+class DefectType(models.Model):
+    '''
+    부적합유형
+    '''
+    id = models.AutoField(primary_key=True)
+    Code = models.CharField('코드', max_length=50, validators=[space_check], null=True)
+    Name = models.CharField('부적합유형명', max_length=50)
+    Coverage = models.CharField('적용범위', max_length=50, default='all')
+    #Process = models.ForeignKey(Process, on_delete=models.PROTECT, null=True)
+    Description = models.CharField('Description', max_length=500, null=True)
+    Type = models.CharField('4M구분', max_length=50, null=True)
+
+    _status = models.CharField('_status', max_length=10, null=True)
+    _created    = models.DateTimeField('_created', auto_now_add=True)
+    _modified   = models.DateTimeField('_modfied', auto_now=True, null=True)
+    _creater_id = models.IntegerField('_creater_id', null=True)
+    _modifier_id = models.IntegerField('_modifier_id', null=True)
+
+    def set_audit(self, user : User):
+        if self._creater_id is None:
+            self._creater_id = user.id
+        self._modifier_id = user.id
+        self._modified = DateUtil.get_current_datetime()
+        return
+
+    class Meta():
+        db_table = 'defect_type'
+        verbose_name = '부적합유형'
+        unique_together = [
+            ['Code'],
+            ['Name'],
+        ]
+
 '''
 25.01.14 김하늘 BOM 관련 테이블 생성 보류(추후 SAP 데이터 조회만)
 '''

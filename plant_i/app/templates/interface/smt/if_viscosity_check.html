@@ -1,0 +1,459 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboYear" data-labelCd="년도">년도</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="date_year" id="cboYear"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="line_id" data-labelCd="SMT라인">SMT라인</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="line_id" id="line_id"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="월별 확인 이력">월별 확인 이력</label></span>
+                </div>
+                <div id="month_confirm_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="솔더 점도 측정 이력">솔더 점도 측정 이력</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="visco_grid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>점도측정값 입력</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+                <form id="inputForm">
+
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="작업일">작업일</label>
+                                <div class="field-wrapper">
+                                    <input id="txtDataDate" name="DataDate" class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="보관규격확인">보관규격확인</label>
+
+                                <div class="field-wrapper">
+                                    <input type="checkbox" id="storage_temp_chk" name="StorageTemperature" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="교반조건">교반조건</label>
+                                <div class="field-wrapper">
+                                    <input type="checkbox" id="agi_cond_chk" name="AgitationCondition" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="점도계 세척확인">점도계 세척확인</label>
+                                <div class="field-wrapper">
+                                    <input type="checkbox" id="visco_clean_chk" name="CleanCheck" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="바코드">바코드</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtScanBarcode" name="barcode" class="form-control" placeholder="스캔입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="솔더품번">솔더품번</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtSolMatCode" name="sol_mat_cd" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="솔더명">솔더품명</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtSolMatName" name="sol_mat_nm" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="공급사LOT번호">공급사LOT번호</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtLotNo" name="LotNo" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="시리얼번호">시리얼번호</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtSerialNo" name="SerialNo" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="입고일자">입고일자</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtInDate" name="InDate" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="만료일자">만료일자</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtExpirationDate" name="ExpirationDate" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="점도계">점도계</label>
+                                <div class="field-wrapper">
+                                    <select class="form-control">
+                                        <option value="">선택</option>
+                                        <option value="1">점도계1</option>
+                                        <option value="2">점도계2</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="점도값">점도값</label>
+                                <div class="field-wrapper">
+                                    <input type="number" id="txtRefrigeratorInDate" name="RefrigeratorInDate" class="form-control" placeholder="점도값 입력" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="comp_name" data-labelCd="작업자">작업자</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="txtWorker" name="worker" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label " for="comp_name" data-labelCd="관리자">관리자</label>
+                                <div class="field-wrapper" style="display:flex">
+                                    <input type="text" id="txtAdmin" name="admin" class="form-control" readonly />
+                                    <button type="button" id="btnAdminCheck">관리자확인</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class ViscosityCheckPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/interface/viscosity';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let option = {
+                columns: [                    
+                    { field: "data_year", title: "년도", width: 80 },
+                    { field: "data_month", title: "월", width: 80 },
+                    { field: "lien_nm", title: "라인명", width: 100 },
+                    { field: "team_leader_confirm", title: "팀장확인여부", width: 80 },
+                    { field: "confirm_date", title: "팀장확인일", width: 120 },
+                ],
+                change: function (e) {
+
+                },
+                height: "300px"
+            };
+            _this.month_confirm_grid = new Grid($("#month_confirm_grid"), option);
+
+
+            let gridOption = {
+                columns: [
+                    { field: "chk_grp", title: "점검개소", width: 80 },
+                    { field: "item", title: "점검항목", width: 80 },
+                    { field: "std", title: "점검기준", width: 80 },
+                    { field: "mat_cd", title: "솔더구분", width: 80 },
+                ],
+                change: function (e) {
+
+                },
+                height: "300px"
+            };
+            _this.grid = new Grid($("#visco_grid"), gridOption);
+
+            let $cboYear = $("#cboYear");
+            let $line_id = $('#line_id');
+            let now = new Date();
+            let curr_month = now.getMonth() + 1;
+            AjaxUtil.fillDropDownOptions($cboYear, 'data_year', '', null);
+            AjaxUtil.fillDropDownOptions($line_id, 'smt_line', '', 2);
+
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: new Date(),
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+            //detail form
+            $('#keyword').kendoTextBox();
+
+            //search form
+            $('#keyword').keypress(function (e) {
+                // Enter(=13)키가 눌렸을 때, 기본 동작 방지 후 searchMainData 호출
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    _this.searchMainData();
+                }
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+
+            $('#btnResultExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+            $('#txtWorker').val(userinfo.username);
+
+
+            /////////////////////////////////////////////////////////
+
+            let yyyymmdd = CommonUtil.getYYYYMMDD();
+
+            $("#txtDataDate").kendoDatePicker(
+                {
+                    dateInput: true,
+                    format: "yyyy-MM-dd"
+                }
+            ).closest(".k-widget").attr("id", "datepicker_wrapper");
+            var datepicker = $("#txtDataDate").data("kendoDatePicker");
+            datepicker.value(yyyymmdd);
+
+            $('#txtDataDate').val(yyyymmdd);
+
+            // 보관규격
+            $('#storage_temp_chk').kendoCheckBox({
+                checked: false,
+                label: "2~10°C 냉장보관 "
+            });
+
+            // 교반조건
+            $('#agi_cond_chk').kendoCheckBox({
+                checked: false,
+                label: "60 sec, 1000rpm"
+            });
+
+            // 점도계 세척확인
+            $('#visco_clean_chk').kendoCheckBox({
+                checked: false,
+                label: "스핀들/온도계"
+            });
+
+            $('#btnAdminCheck').kendoButton({
+                icon: "check-circle",
+                themeColor: "error",
+                click: function () {
+                    _this.confirmAdminCheck();
+                }
+            });
+
+            let $txtSolMatCode = $('#txtSolMatCode');
+            let $txtLotNo = $('#txtLotNo');
+            let $txtSerialNo = $('#txtSerialNo');
+            let $txtInDate = $('#txtInDate');
+            let $txtExpirationDate = $('#txtExpirationDate');
+            let $txtRefrigeratorInDate = $('#txtRefrigeratorInDate');
+
+
+            let $txtScanBarcode = $('#txtScanBarcode');
+            $txtScanBarcode.on('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    let barcode = $txtScanBarcode.val();
+
+                    let arr = barcode.split(',');
+                    console.log(arr)
+                    if (arr.length == 5) {
+                        $txtLotNo.val(arr[0]);
+                        $txtSolMatCode.val(arr[1]);
+                        $txtExpirationDate.val(arr[2]);
+                        $txtInDate.val(arr[3]);
+                        $txtSerialNo.val(arr[4]);
+                    }
+
+                }
+            });
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#alram_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "line.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+
+        renderGridData(data) {
+            let _this = this;
+
+            let col_count = data.col_count;
+
+            let columns = [
+                { field: "chk_grp", title: "점검개소", width: 80 },
+                { field: "item", title: "점검항목", width: 80 },
+                { field: "std", title: "점검기준", width: 80 },
+                { field: "mat_cd", title: "품번", width: 80 }
+            ];
+
+            for (let k = 1; k <= col_count; k++) {
+
+                let col = "m" + k;
+                let title = "" + k;
+                let f = { field: col, title: title, width: 40 };
+                columns.push(f);
+            }
+
+            let gridOption = {
+                columns: columns,
+                height : "600"
+            };
+
+            if (this.grid) {
+                delete this.grid
+            }
+
+            this.grid = new Grid($("#visco_grid"), gridOption);
+            this.grid.setData(data.items);
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let data_year = $('#cboYear').val();
+            let line_id = $('#line_id').val();
+            
+            let param = {
+                data_year: data_year,
+                line_id: line_id,
+                action: 'read',
+            };
+
+            let $gg = $('#month_confirm_grid');
+            kendo.ui.progress($gg, true);
+            _this.grid.setData([]);
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.month_confirm_grid.setData(result.items);
+                }
+
+                kendo.ui.progress($gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+    }
+
+    let page = new ViscosityCheckPage();
+$(document).ready(function () {
+    page.searchMainData();
+});
+
+</script>
+
+{% endblock %}

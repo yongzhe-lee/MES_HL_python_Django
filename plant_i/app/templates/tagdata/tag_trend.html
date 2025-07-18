@@ -30,7 +30,7 @@
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 ">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srchDt" data-labelCd="일자">일자</label>
-                            <div>
+                            <div class="field-wrapper">
                                 <input id="srchDt" name="srchDt" type="date" />
                             </div>
                         </div>
@@ -38,21 +38,10 @@
 
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 ">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srchStartTime" data-labelCd="시간"></label>
+                            <label class="k-label k-form-label" for="srchStartTime" data-labelCd="시간">시간</label>
                             <div class="field-wrapper">
                                 <input id="srchStartTime" name="srchStartTime" />
-                            </div>
-                            <div class="field-wrapper">
                                 <input id="srchEndTime" name="srchEndTime" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 ">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="cboOption" data-labelCd="옵션">옵션</label>
-                            <div class="field-wrapper">
-                                <select id="cboOption" name="cboOption"></select>
                             </div>
                         </div>
                     </div>
@@ -73,6 +62,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 ">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboOption" data-labelCd="옵션">옵션</label>
+                            <div class="field-wrapper">
+                                <select id="cboOption" name="cboOption"></select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 ">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboTagGroup" data-labelCd="태그그룹">태그그룹</label>
@@ -81,8 +80,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 ">
+
+                    <div class="col-sm-6 col-md-8 col-lg-5 col-xl-5 ">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
                             <div class="field-wrapper">
                                 <select id="cboTag" name="cboTag"></select>
                             </div>
@@ -368,56 +369,67 @@
                 tag_codes: tag_codes
             };
 
+            kendo.ui.progress($("#divChart"), true); // data 로딩 ui 시작
+
             let fnSuccess = function (result) {
 
-                if (_this.chart) {
-                    _this.chart.destroy();
-                    _this.chart = null;
-                }
+                if (result.success) {
 
-                if (_this.brush_chart) {
-                    _this.brushChart.destroy();
-                    _this.brushChart = null;
-                }
-
-                $('#divChart').empty();
-
-                $('#cboTag').val().forEach(function (tag_code, idx) {
-                    let tag_data = result[tag_code];
-                    let data = tag_data.data;
-                    
-                    let series_data = [];
-                    let data_source = [];
-                    let lsl = []; //일단 되는지 확인하고 나중에 변경
-                    let usl = [];
-                    let html = '<div class="col-12"><div class="card-content edit"><div id="chart'+idx+'"></div></div></div>';
-
-                    if (show_brush) html += '<div class="col-12"><div class="card-content edit"><div id="brushchart'+idx+'"></div></div></div>';
-                    html += "</div>";
-
-                    $('#divChart').append(html);
-
-                    if (data) {
-                        data.forEach(function (item, index) {
-                            series_data.push([Date.parse(item.data_time), item.data_value]);
-                            data_source.push({ 'date': item.data_time.split(' ')[1], 'value': item.data_value });
-                            lsl.push(tag_data.lsl);
-                            usl.push(tag_data.usl);
-                        });
+                    if (_this.chart) {
+                        _this.chart.destroy();
+                        _this.chart = null;
                     }
 
-                    let series = [
-                        {
-                            name: tag_data.tag_name,
-                            data: series_data,
-                            data_source: data_source,
-                            lsl: lsl,
-                            usl: usl
-                        },
-                    ];
+                    if (_this.brush_chart) {
+                        _this.brushChart.destroy();
+                        _this.brushChart = null;
+                    }
 
-                    _this.loadData('chart' + idx, tag_data.tag_name, tag_data.lsl, tag_data.usl, show_brush, series);
-                });
+                    $('#divChart').empty();
+
+                    $('#cboTag').val().forEach(function (tag_code, idx) {
+                        let tag_data = result.data[tag_code];
+                        let data = tag_data.data;
+
+                        let series_data = [];
+                        let data_source = [];
+                        let lsl = []; //일단 되는지 확인하고 나중에 변경
+                        let usl = [];
+                        let html = '<div class="col-12"><div class="card-content edit"><div id="chart' + idx + '"></div></div></div>';
+
+                        if (show_brush) html += '<div class="col-12"><div class="card-content edit"><div id="brushchart' + idx + '"></div></div></div>';
+                        html += "</div>";
+
+                        $('#divChart').append(html);
+
+                        if (data) {
+                            data.forEach(function (item, index) {
+                                series_data.push([Date.parse(item.data_time), item.data_value]);
+                                data_source.push({ 'date': item.data_time.split(' ')[1], 'value': item.data_value });
+                                lsl.push(tag_data.lsl);
+                                usl.push(tag_data.usl);
+                            });
+                        }
+
+                        let series = [
+                            {
+                                name: tag_data.tag_name,
+                                data: series_data,
+                                data_source: data_source,
+                                lsl: lsl,
+                                usl: usl
+                            },
+                        ];
+
+                        _this.loadData('chart' + idx, tag_data.tag_name, tag_data.lsl, tag_data.usl, show_brush, series);
+                    });
+
+                }
+                else {
+                    Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);
+                }
+
+                kendo.ui.progress($("#divChart"), false); // data 로딩 ui 종료
             };
 
             AjaxUtil.postAsyncData(url, param, fnSuccess);
@@ -434,7 +446,7 @@
             kendo.resize($("div.k-chart[data-role='chart']"));
         });
 
-        page.searchMainData();
+        //page.searchMainData(); // 시작부터 데이터 호출 안해도 될듯
     });
 
 </script>

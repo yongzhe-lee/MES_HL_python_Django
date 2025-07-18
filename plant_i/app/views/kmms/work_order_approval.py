@@ -1,4 +1,5 @@
 from django import db
+from domain.services.kmms.work_order_approval import WorkOrderApprovalService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
 from domain.services.sql import DbUtil
@@ -23,6 +24,7 @@ def work_order_approval(context):
     factory_id = 1
 
     action = gparam.get('action', 'read') 
+    work_order_approval_service = WorkOrderApprovalService()
 
     try:
         if action == 'findOne':
@@ -53,13 +55,14 @@ def work_order_approval(context):
 
             woStatusCd = posparam.get('woStatusCd')
             regUserNm = user.username
-            regUserPk = user.id
+            regUserPk = user.pk
+            rqstUserNm = regUserNm
+            rqstUserPk = regUserPk
+
             rqstDt = posparam.get('rqstDt')
             if rqstDt is None:
                 rqstDt = DateUtil.get_current_datetime()
 
-            rqstUserNm = posparam.get('rqstUserNm')
-            rqstUserPk = CommonUtil.try_int(posparam.get('rqstUserPk'))
             acceptDt = posparam.get('acceptDt')
             acceptUserNm = posparam.get('acceptUserNm')
             acceptUserPk = CommonUtil.try_int(posparam.get('acceptUserPk'))
@@ -79,6 +82,9 @@ def work_order_approval(context):
             if woStatusCd:
                 c.WoStatus = woStatusCd
             c.RqstDt = rqstDt
+
+
+
             c.RqstUserName = rqstUserNm
             c.RqstUserPk = rqstUserPk
             if acceptDt:
@@ -191,6 +197,44 @@ def work_order_approval(context):
 
             return {'success': True, 'message': '작업요청이 승인되었습니다.'}
 
+        elif action == 'updateWoRequest':
+            ''' 작업요청승인 쿼리처리
+            '''
+            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            acceptUserPk = user.pk
+            acceptUserNm = user.username
+            items = work_order_approval_service.updateWoRequest(workOrderPk, acceptUserPk, acceptUserNm)   
+     
+            return {'success': True, 'message': '작업요청이 승인되었습니다.'}
+
+        elif action == 'bulkWoRequest':
+            ''' 작업요청승인 일괄쿼리처리 '''
+            import json
+            workOrderPks = posparam.get('workOrderPk')
+            if not workOrderPks:
+                workOrderPks = posparam.get('workOrderPk[]')
+            if isinstance(workOrderPks, str):
+                try:
+                    workOrderPks = json.loads(workOrderPks)
+                except Exception:
+                    workOrderPks = [workOrderPks]
+            elif not isinstance(workOrderPks, list):
+                workOrderPks = [workOrderPks]
+            acceptUserPk = user.pk
+            acceptUserNm = user.username
+            # 서비스 계층에서 배열을 그대로 넘겨 DB 프로시저 호출
+            items = work_order_approval_service.updateWoRequestBulk(workOrderPks, acceptUserPk, acceptUserNm)
+            return {'success': True, 'message': '작업요청이 승인되었습니다.'}
+
+        elif action == 'updateWoApproval':
+            ''' 작업지시승인 쿼리처리
+            '''
+            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            acceptUserPk = user.pk
+            acceptUserNm = user.username
+            items = work_order_approval_service.updateWoApproval(workOrderPk, acceptUserPk, acceptUserNm)   
+     
+            return {'success': True, 'message': '작업요청이 승인되었습니다.'}
 
         elif action == 'updateWorkFinish':
             ''' 작업완료
@@ -212,7 +256,6 @@ def work_order_approval(context):
 
             return {'success': True, 'message': '작업완료 상태로 처리되었습니다.'}
 
-
         elif action == 'updateComplete':
             ''' 완료
             '''
@@ -232,7 +275,6 @@ def work_order_approval(context):
             c.save()
 
             return {'success': True, 'message': '작업이 완료상태로 처리되었습니다.'}
-
 
         elif action == 'updateRqstDt':
             ''' 요청일 업데이트
@@ -265,6 +307,18 @@ def work_order_approval(context):
             c.save()
 
             return {'success': True, 'message': '작업지시 결재가 반려되었습니다.'}
+
+        elif action == 'updateRejectReq':
+            ''' 반려
+            '''
+            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            rejectUserPk = user.pk
+            rejectUserNm = user.username
+            rejectReason = posparam.get('reject_reason')
+
+            items = work_order_approval_service.updateWoRejectReq(workOrderPk, rejectUserPk, rejectUserNm,rejectReason)
+
+            return {'success': True, 'message': '작업요청 결재가 반려되었습니다.'}
 
         elif action == 'updateCancel':
             ''' 취소

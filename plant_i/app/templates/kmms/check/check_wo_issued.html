@@ -1,11 +1,272 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
 
-</body>
-</html>
+<div class="content-wrap">
+	<div class="content-ui-row">
+		<form id="searchForm" class="search-form">
+			<div class="card-content search">
+				<div class="form-ui-header">
+					<div id="toggleSearchBtn"></div> <!-- 삼각형 화살표 버튼 -->
+				</div>
+				<div class="form-ui" id="searchFormContent">
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">번호검색</label>
+							<div>
+								<div class="col-md-6 pr-0">
+									<input id="chkScheNo" name="chkScheNo" class="k-textbox" placeholder="점검일정번호" style="width: 100%;" />
+								</div>
+								<div class="col-md-6">
+									<input id="workOrderNo" name="workOrderNo" class="k-textbox" placeholder="WO 번호" style="width: 100%;" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">검색키워드</label>
+							<input id="searchText" name="searchText" class="k-textbox" placeholder="점검명, 설비코드, 설비명을 선택하세요" style="width: 60%;" />
+							<button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">관리부서</label>
+							<select id="equipDeptPk" name="equipDeptPk" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">작업부서</label>
+							<select id="deptPk" name="deptPk" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">작업기간</label>
+							<div id="srch_date_range"></div>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="myRequestYn">나의 WO요청건</label>
+							<input id="myRequestYn" name="myRequestYn">
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="environEquipYn">법정관리설비만</label>
+							<input id="environEquipYn" name="environEquipYn">
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="content-ui-row">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text">
+						<i class="material-symbols-outlined">list_alt</i>
+						<label data-labelCd="점검이상 발행WO">점검이상 발행WO</label>
+					</span>
+					<span>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnSearch" class="btn-search">조회</button>
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div id="check_wo_issued_grid"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% include '../../popup/modalEquSel.html'%}
+
+<script type="text/javascript">
+	class PiResultPage {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/pi_master';
+
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			
+			let checkWoIssuedGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'chkSchePk', title: '점검일정Pk', hidden: true },
+					{ field: 'workOrderPk', title: 'WO Pk', hidden: true },
+					{ 
+						field: 'chkScheNo', 
+						title: '점검일정번호', 
+						width: 150,
+						attributes: { style: "text-align: right" },
+						// template: '<a href="javascript:void(0);" class="grid-column-link" data-sche-pk="#=chkSchePk#">#=chkScheNo#</a>'
+					},
+					{ 
+						field: 'chkMastNm', 
+						title: '점검명', 
+						width: 150
+					},
+					{ 
+						field: 'equipCd', 
+						title: '설비코드', 
+						width: 150
+					},
+					{ 
+						field: 'equipNm', 
+						title: '설비명', 
+						width: 150
+					},
+					{ 
+						field: 'workOrderNo', 
+						title: 'WO번호', 
+						width: 100,
+						attributes: { style: "text-align: right" },
+						// template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-pk="#=workOrderPk#">#=workOrderNo#</a>'
+					},
+					{ 
+						field: 'workTitle', 
+						title: '작업제목', 
+						width: 200
+					},
+					{ 
+						field: 'woStatusNm', 
+						title: 'WO 상태', 
+						width: 100,
+						attributes: { style: "text-align: center" }
+					},
+					{ 
+						field: 'term', 
+						title: '작업기간', 
+						width: 200,
+						attributes: { style: "text-align: center" },
+						template: '#=startDt# ~ #=endDt#'
+					}
+				],
+				height: "540px",
+			};
+			
+			_this.grid = new Grid($("#check_wo_issued_grid"), checkWoIssuedGridOption);
+
+			$('#chkScheNo').kendoTextBox();
+			$('#workOrderNo').kendoTextBox();
+			$('#searchText').kendoTextBox();
+			
+			$("#equKeword").kendoButton({
+                icon: "k-i-zoom-in",
+                rounded: "full",
+                click: function (e) {
+                    e.preventDefault();
+                    setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                    equipSelectPage.show(function (data) {
+                        $("#searchText").val(data.equip_cd);
+                    });
+                }
+            });
+
+			AjaxUtil.fillDropDownTreeOptions($("#equipDeptPk"), "depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#deptPk"), "depart", "select");
+
+			const today = new Date();
+			const threeMonthsAgo = new Date();
+			threeMonthsAgo.setMonth(today.getMonth() - 3);
+			
+			$("#srch_date_range").kendoDateRangePicker({
+				range: {
+					start: threeMonthsAgo,
+					end: today
+				},
+				change: function (e) {
+				},
+				format: "yyyy-MM-dd",
+				labels: false,
+				startField: "start_date",
+				endField: "end_date"
+			});
+
+			$('#myRequestYn').kendoSwitch({checked: true});
+			$('#environEquipYn').kendoSwitch({checked: false});
+
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "base",
+				click: function () {
+					_this.searchMainData();
+				}
+			});
+
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					_this.exportExcel();
+				}
+			});
+		}
+
+		searchMainData() {
+			let _this = this;
+			let param = FormUtil.extractForm($("#searchForm"));
+			param.action = 'findAllCheckWoIssued';
+			
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			console.log(result);
+			let grid = $("#check_wo_issued_grid").data("kendoGrid");
+			if (grid) {
+				grid.dataSource.data(result);
+				grid.refresh();
+			}
+		}
+
+		exportExcel() {
+			let gridData = $('#check_wo_issued_grid').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "점검이상 발행WO.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
+	}
+
+	let page = null;
+	page = new PiResultPage();
+
+	$(document).ready(function () {
+		page.searchMainData();
+
+		$("#searchFormContent").removeClass("search-expanded");
+
+		$(document).on("click", "#toggleSearchBtn", function () {
+			let searchForm = $("#searchFormContent");
+
+			if (searchForm.hasClass("search-expanded")) {
+				searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
+				$("#toggleSearchBtn").removeClass("expanded");
+			} else {
+				searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
+				$("#toggleSearchBtn").addClass("expanded");
+			}
+		});
+	});
+</script>
+
+{% endblock %}

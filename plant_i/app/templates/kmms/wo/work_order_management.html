@@ -13,16 +13,16 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색키워드">검색키워드</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명을 입력 입력하세요" />
+                                <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 설비코드, 설비명, 작업담당자를 입력하세요" />
                             </div>
                             <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="wo_status" data-labelCd="상태">상태</label>
+                            <label class="k-label k-form-label" for="wo_status_view" data-labelCd="상태">상태</label>
                             <div class="field-wrapper">
-                                <select id="wo_status" name="wo_status"></select>
+                                <select id="wo_status_view" name="wo_status_view"></select>
                             </div>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
                     <span class="card-group-btn" style="margin-top: 10px">
                         <span class="info-text">
                             <i class="material-symbols-outlined">list_alt</i>
-                            <label id="tabLabel" data-labelCd="작업요청">작업요청</label>
+                            <label id="tabLabel" data-labelCd="작업지시">작업지시</label>
                         </span>
                         <span></span>
                         <span>
@@ -118,7 +118,7 @@
                     </span>
                     <div class="tab-contents" style="padding: 0px">
                         <div class="card-content grid" style="padding: 0px">
-                            <div id="work_order_grid" style="height:540px;"></div>
+                            <div id="work_order_management_grid" style="height:540px;"></div>
                         </div>
                     </div>
                     <div class="tab-contents" style="padding: 0px">
@@ -135,14 +135,16 @@
 {% endblock %}
 {% block scripts %}
 
-{% include '../../popup/modalEquSel.html'%}
+{% include '../../popup/modalWoDetail.html'%}
+{% include '../../popup/modalMyWorkResultInfo.html'%}
+{% include '../../popup/modalWoStatHist.html'%}
 
 <script type="text/javascript">
-    class CmEquipmentPage {
+    class WoOrderManagementPage {
         constructor() {
             this.grid = null;
             this.upload = null;
-			this.baseUrl = '/api/kmms/work_order';
+            this.baseUrl = '/api/kmms/work_order';
             this.schedulerData = [];
             this.holidayInfo = null;
             this.holidayCustom = null;
@@ -173,28 +175,13 @@
                     {
                         field: 'wo_type_nm',
                         title: '유형',
-                        width: 60,
-                        attributes: { style: "text-align: center;" }, 
+                        width: 80,
+                        attributes: { style: "text-align: center;" },
                         template: "#= rqst_insp_yn == 'Y' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--insp\">점검</span>' : (rqst_dpr_yn == 'Y' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--dpr\">사후</span>' : (wo_type == 'PM' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--pm\">PM</span>' : (wo_start_type == 'RQ' ? '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--wor\">WO</span>' : '<span class=\"my-grid-btn my-grid-btn--mini my-grid-btn--wo\">WO</span>'))) #"
                     },
-                    {
-                        field: 'work_order_no',
-                        title: '작업지시번호',
-                        width: 120,
-                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#'>#= work_order_no != null ? work_order_no : '임시저장' #</a>"
-                    },
-                    {
-                        field: 'work_title',
-                        title: '작업제목',
-                        width: 250,
-                        //template: "# if (write_yn && (curr_dept_pk == dept_pk || curr_team_pk == dept_pk || curr_ban_pk == dept_pk || curr_team_pk == dept_team_pk || login_tpm_dept_yn === 'Y') && (wo_status_cd == 'WOS_AP' || wo_status_cd == 'WOS_CM')) { # <a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#' data-dept-pk='#=dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #"
-                    },
-                    {
-                        field: 'wo_status_nm',
-                        title: '상태',
-                        width: 100,
-                        template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>"
-                    },
+                    { field: 'work_order_no', title: '작업지시번호', width: "180px", template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-no-pk=\"#=work_order_pk#\">#= work_order_no != null ? work_order_no : '임시저장' #</a>" },
+                    { field: 'work_title', title: '작업제목', width: 150, template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-title-pk=\"#=work_order_pk#\">#=work_title#</a>" },
+                    { field: 'wo_status_nm', title: '상태', width: "100px", template: "<a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-pk='#=work_order_pk#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=wo_status_nm#</a>" },
                     { field: 'equip_cd', title: '설비코드', width: 120 },
                     { field: 'equip_nm', title: '설비명', width: 150 },
                     { field: 'start_end_period', title: '작업기간', width: 200 },
@@ -212,7 +199,7 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#work_order_grid"), woGridOption);
+            _this.grid = new Grid($("#work_order_management_grid"), woGridOption);
 
             // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
             $(document).on("click", ".grid-column-link", async function (e) {
@@ -225,9 +212,10 @@
                 if (woNoPk) {
                     woDetailPage.show(woNoPk, 1);
                 } else if (woTitlePk) {
-                    $("#modalMyWorkReq").fadeIn();
+                    setModalPosition('#modalMyWorkResultInfo', { width: '70%', height: '70%' });
+                    myWorkResultInfoPage.show(woTitlePk);
                 } else if (woStatusPk) {
-                    woStatHistPage.show();
+                    woStatHistPage.show(woStatusPk);
                 }
             });
 
@@ -244,21 +232,24 @@
                 }
             });
             $('#keyword').kendoTextBox();
-            AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+            AjaxUtil.fillDropDownOptions($('#wo_status_view'), 'cm_code', 'all', null, 'WO_STATUS_VIEW');
+            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
             AjaxUtil.fillDropDownOptions($('#wo_type'), 'cm_code', 'all', null, 'WO_TYPE');
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
             AjaxUtil.fillDropDownOptions($('#problem_cd'), 'cm_reliab_codes', 'all', null, 'PC');
-            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'cm_depart', 'all');
+            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'depart', 'all');
             $('#srch_wo_no_only').kendoSwitch({ checked: false });
             $('#srch_my_work_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
 
             AjaxUtil.fillDropDownOptions($('#srch_date'), 'cm_code', 'all', null, 'DATE_TYPE');
+            let today = new Date();
+            let threeMonthsAgo = new Date(today);
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: threeMonthsAgo,
+                    end: today
                 },
                 change: function (e) {
 
@@ -319,14 +310,14 @@
             }
 
             let param = {
-                action: 'read',
+                action: 'work_order_management_read',
                 keyword: $('#keyword').val(),
-                wo_status: $('#wo_status').val(),
+                wo_status_view: $('#wo_status_view').val(),
                 dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
-                // 기간 srch_date
+                srch_date: $('#srch_date').val(),
                 start_dt: startDate,
                 end_dt: endDate,
-                // 작업유형 wo_type
+                wo_type: $('#wo_type').val(),
                 maint_type_cd: $('#maint_code').val(),
                 problem_cd: $('#problem_cd').val(),
                 req_dept: $("#req_dept").data("kendoDropDownTree").value(),
@@ -337,9 +328,8 @@
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-
             // ✅ Kendo Grid에 데이터 설정
-            let grid = $("#work_order_grid").data("kendoGrid");
+            let grid = $("#work_order_management_grid").data("kendoGrid");
             if (grid) {
                 grid.dataSource.data(result); // ✅ 데이터를 직접 설정
                 grid.refresh(); // ✅ UI 갱신
@@ -348,9 +338,9 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#work_order_grid').data("kendoGrid");
+            let gridData = $('#work_order_management_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "work_order_approval.xlsx";
+                e.workbook.fileName = "work_order_management.xlsx";
             });
             gridData.saveAsExcel();
         }
@@ -392,7 +382,7 @@
                     });
                 });
             }
-            console.log('schedulerData', mergedData);
+            
             var dataSource = new kendo.data.SchedulerDataSource({
                 data: mergedData,
                 schema: {
@@ -479,7 +469,7 @@
     };
 
     let page = null;
-    page = new CmEquipmentPage();
+    page = new WoOrderManagementPage();
 
     $(document).ready(function () {
         page.searchMainData();

@@ -33,6 +33,7 @@ def equ_result(context):
             , ier.sn
             , ln."Name" as line_nm
             , ier.sn_new
+            , ier.sn_items
             , ier.pcb_input
             , ier.pcb_cn
             , ier.pcb_size 
@@ -92,9 +93,9 @@ def equ_result(context):
             inner join if_equ_result_item ieri on ieri.rst_id = ier.id
             where ier.id= %(result_id)s
             '''
-            data = DbUtil.get_rows(sql, dic_param)
+            items = DbUtil.get_rows(sql, dic_param)
             result['success'] = True
-            result["data"] = data
+            result["items"] = items
 
         elif action=="defect_item_list":
             result_id = gparam.get('result_id')
@@ -110,10 +111,51 @@ def equ_result(context):
             inner join if_equ_defect_item aa on aa.rst_id = ier.id
             where ier.id= %(result_id)s
             '''
-            data = DbUtil.get_rows(sql, dic_param)
+            items = DbUtil.get_rows(sql, dic_param)
             result['success'] = True
-            result["data"] = data
+            result["items"] = items
 
+        elif action=="recipe_item_list":
+            result_id = gparam.get('result_id')
+            dic_param = {"result_id": result_id}
+            sql='''
+            select 
+            aa.grp_nm
+            , aa.item_cd
+            , aa.item_val
+            , to_char(aa._created, 'yyyy-mm-dd hh24:mi:ss') created
+            from if_equ_result ier 
+            inner join if_equ_recipe aa on aa.rst_id = ier.id
+            where ier.id= %(result_id)s
+            '''
+            items = DbUtil.get_rows(sql, dic_param)
+            result['success'] = True
+            result["items"] = items
+
+        elif action=="equ_alarm_history":
+            result_id = gparam.get('result_id')
+            dic_param = {"result_id": result_id}
+            sql='''
+            select 
+            bb.alarm_cd
+            , cc.alarm_nm 
+            , cc.alarm_num 
+            , bb.details
+            , to_char(aa.data_date, 'yyyy-mm-dd hh24:mi:ss') data_date
+            , to_char(bb.start_dt, 'yyyy-mm-dd hh24:mi:ss') start_dt
+            , to_char(bb.end_dt, 'yyyy-mm-dd hh24:mi:ss') end_dt
+            , bb.module_no
+            , bb.part_number
+            , bb.equ_cd 
+            from if_equ_result aa
+            inner join equ_alarm_hist bb on bb.rst_id =aa.id
+            left join equ_alarm cc on cc.alarm_cd  = bb.alarm_cd 
+            where ier.id= %(result_id)s
+            order by aa.data_date desc
+            '''
+            items = DbUtil.get_rows(sql, dic_param)
+            result['success'] = True
+            result["items"] = items
         else:
             raise Exception("잘못된 호출")
 

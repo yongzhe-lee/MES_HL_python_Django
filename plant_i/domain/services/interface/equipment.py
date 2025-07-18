@@ -17,16 +17,15 @@ class IFEquipmentResultService():
         :return: None
         """
         source  = f"IFEquipmentResultService.rst_equipment_topic_handler - topic :{topic}"
-
         now = DateUtil.get_current_datetime()
+        #print(topic, payload)
 
-        print(topic, payload)
         dic_payload = None
         try:
-
             dic_payload = json.loads(payload)
         except Exception as ppex:
             LogWriter.add_dblog("error", source, ppex)
+            return
 
         state = dic_payload.get('state', None)
         sn = dic_payload.get('sn', None)
@@ -113,6 +112,7 @@ class IFEquipmentResultService():
                     if_defect_item.defect_nm = dt.get('failure_cause', None)
                     if_defect_item.ComponentName = dt.get('comp_name', None)
                     if_defect_item.PartNumber = dt.get('comp_part_nr', None)
+                    if_defect_item.final_result = dt.get("final_result", "NG")
                     if_defect_item._created = now
                     if_defect_item.save()
 
@@ -159,17 +159,17 @@ class IFEquipmentResultService():
                         if_recipe2.save()
 
 
-                    screw_items = recipe_items.get("screw_items", None)
-                    if screw_items:
-                        item_cd = screw_items.get("item_cd", [])
-                        item_val = screw_items.get("item_val", [])
+                    screw_recipe_items = recipe_items.get("screw_recipe_items", None)
+                    screw_recipe_value = recipe_items.get("screw_recipe_value", None)
+
+                    if screw_recipe_items:
                         idx = 0
-                        for cd in item_cd:
+                        for cd in screw_recipe_items:
                             if_recipe = IFEquipmentRecipe()
                             if_recipe.EquipmentResult = equ_result
-                            if_recipe.GroupName="screw_items"
+                            if_recipe.GroupName="screw_recipe_items"
                             if_recipe.item_cd = cd
-                            if_recipe.item_val = item_val[idx]
+                            if_recipe.item_val = screw_recipe_value[idx]
                             if_recipe._created = now
                             if_recipe.save()
                             idx = idx+1

@@ -132,8 +132,8 @@ def base_code(context):
                 '''
             if searchText:
                 sql += ''' AND (
-				UPPER(coalesce(t.code_nm,'')) LIKE CONCAT('%',UPPER(#{searchText}),'%')
-    			OR UPPER(coalesce(t.code_cd,'')) LIKE CONCAT('%',UPPER(#{searchText}),'%')
+				UPPER(coalesce(t.code_nm,'')) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+    			OR UPPER(coalesce(t.code_cd,'')) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			)
                 '''
 

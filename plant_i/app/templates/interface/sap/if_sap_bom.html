@@ -31,7 +31,7 @@
                         <label data-labelCd="SAP BOM">SAP BOM</label>
                     </span>
                     <span>
-                        <button type="button" id="btnShowBOMSearchSAP">SAP인터페이스</button>
+                        <button type="button" id="btnShowBOMSearchSAP" class="y_write_auth">SAP인터페이스</button>
                         <button id="btnExcelBOM">Excel</button>
                     </span>
                 </div>
@@ -48,16 +48,7 @@
         <div class="card-content">
             <form>
                 <div class="edit-form-ui">
-                    <div class="col-5">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="txtBaseDate" data-labelCd="기준일자">기준일자</label>
-                            <div class="field-wrapper">
-                                <input type="text" id="txtBaseDate" name="base_date" class="form-control" />
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-5">
+                    <div class="col-10">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="txtBaseDate" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
@@ -82,10 +73,21 @@
                     <div class="col-12">
                         <hr />
                     </div>
+
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="txtBaseDate" data-labelCd="기준일자">기준일자</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtBaseDate" name="base_date" class="form-control" />
+
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-12">
                         <div class="form-item align-h">
                             <div class="field-wrapper">
-                                <select multiple class="form-control" id="cboMatItems" name="mat_items"></select>
+                                <select multiple="multiple" class="form-control" id="cboMatItems" name="mat_items"></select>
                             </div>
                         </div>
                     </div>
@@ -204,8 +206,13 @@
             });
 
             
+            let $cboMatItems = $("#cboMatItems").kendoMultiSelect({ dataTextField: "text", dataValueField: 'value' });
+            let $cboMatItemsData = $("#cboMatItems").data("kendoMultiSelect");
+            
 
             let matSearchGridOption = {
+                navigatable: true,
+                allowCopy: true,
                 toolbar: [
                     "columns"
                 ],
@@ -218,28 +225,80 @@
                     }
                 },
                 columns: [
-                    { template: '<input type="checkbox" class="chkbx k-checkbox k-checkbox-md k-rounded-md" />', title: "선택", width: 80, headerAttributes: { style: "text-align: center; justify-content: center" } },
-                    { field: "stab_bmeng", title: "품목구분", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
-                    { field: "stab_idnrk", title: "품목코드", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
-                    { field: "stab_mnglg", title: "품목명", width: 150, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { selectable: true, width: 50 },
+                    { field: "mat_cd", title: "품목코드", width: 130, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "mat_nm", title: "품목명", width: 300, headerAttributes: { style: "text-align: center; justify-content: center" } },
                 ],
+                change: function (e) {
+                    var grid = e.sender;
+                    var rows = grid.select();
+                    
+                    let items = [];
+                    rows.each(function (e) {
+                        let value = grid.dataItem(this).mat_cd;
+                        let text = grid.dataItem(this).mat_nm;
+                        items.push({ 'text': text, 'value': value });
+                    });
+                    
+                    $cboMatItemsData.value(items);
+
+                },
+                dataBound: function (e) {
+                    var grid = this;
+
+                    grid.tbody.find("tr").dblclick(function (e) {
+                        var dataItem = grid.dataItem(this);
+                        
+                    });
+                    
+                },
                 height: 250
             };
 
-            let $parent_mat_grid= new Grid($("#parent_mat_grid"), matSearchGridOption);
+            let $parent_mat_grid = new Grid($("#parent_mat_grid"), matSearchGridOption);
+
+            //let grid_data = $("#parent_mat_grid").data("kendoGrid");
 
             $('#btnMatSearch').kendoButton({
                 themeColor: "success",
                 click: function () {
+                    let keyword = $('#txtKeyword').val();
+                    let param = {
+                        'action': 'material_search',
+                        'keyword': keyword
+                    };
+
+                    AjaxUtil.getAsyncData(_this.url, param, function (result) {
+                        if (result.success) {
+                            $parent_mat_grid.setData(result.items);
+                        } else {
+                            Alert.alert("품목조회오류", result.message);
+                        }
+
+                    });
+
                 }
             });
 
-            let $cboMatItems = $('#cboMatItems');
+
+
+            
 
             $('#btnRequestSapMat').kendoButton({
                 themeColor: "success",
                 click: function () {
 
+                    var grid = $("#parent_mat_grid").data("kendoGrid");
+
+                    let rows =grid.select();
+                    
+                    let items = [];
+                    rows.each(function (e) {
+                        let value = grid.dataItem(this).mat_cd;
+                        let text = grid.dataItem(this).mat_nm;
+                        items.push({ 'text': text, 'value': value });
+                    });
+                    console.log(items);
                     Alert.confirm("SAP BOM 인터페이스", "실행하시겠습니까?", function () {
                         _this.requestSapBom();
                     });

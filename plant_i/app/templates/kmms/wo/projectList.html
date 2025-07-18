@@ -14,7 +14,7 @@
                             <label class="
                                    k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="sch_keyword" name="sch_keyword" placeholder="프로젝트명을 입력하세요" />
+                                <input id="sch_keyword" name="sch_keyword" placeholder="프로젝트코드, 프로젝트명을 입력하세요" />
                             </div>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="프로젝트 목록">프로젝트 목록</label></span>
                     <span>
                     </span>
                     <span>
@@ -113,6 +113,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label essential" for="proj_status" data-labelCd="상태">상태</label>
+                                <div class="field-wrapper">
+                                    <select id="proj_status" name="proj_status" ></select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-12">
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="proj_purpose" data-labelCd="설명">설명</label>
@@ -165,10 +173,10 @@
                     { field: 'proj_cd', title: '프로젝트코드', width: 80 },
                     { field: 'proj_nm', title: '프로젝트명', width: 100 },
                     { field: 'manager_id', title: 'manager_id', hidden: true },
-                    { field: 'manager_nm', title: '프로젝트 관리자', width: 80 },
+                    { field: 'user_nm', title: '프로젝트 관리자', width: 80 },
                     { field: 'plan_start_dt', title: '계획 시작일', width: 100 },
                     { field: 'plan_end_dt', title: '계획 마침일', width: 80 },
-                    { field: 'status', title: '상태', width: 80 },
+                    { field: 'status_nm', title: '상태', width: 80 },
                     { field: 'proj_tot_cost', title: '총예산', width: 100 },
                 ],
                 dataBound: function (e) {
@@ -213,6 +221,7 @@
             $("#plan_start_dt").kendoDatePicker({ format: "yyyy-MM-dd" });
             $("#plan_end_dt").kendoDatePicker({ format: "yyyy-MM-dd" });
             $('#manager_nm').kendoTextBox({});
+            AjaxUtil.fillDropDownOptions($('#proj_status'), 'cm_code', '', 'PREP', 'PRJ_STATUS')
             $('#proj_purpose').kendoTextBox();
 
             $('#proj_purpose').on('input', function () {
@@ -292,6 +301,8 @@
             let formData = _this.grid.getSelect();
             if (formData.length > 0) {
                 let selectData = formData[0];
+                selectData.manager_nm = selectData.user_nm;
+                selectData.proj_status = selectData.status;
                 FormUtil.BindDataForm(selectData, $('#detailForm'));
                 $('#btnDelete').prop('disabled', false);
                 console.log("selectData:\n", selectData);

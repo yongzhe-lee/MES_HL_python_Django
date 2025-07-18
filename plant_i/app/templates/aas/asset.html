@@ -1,12 +1,17 @@
 {% extends "app/layout.html" %}
 {% block css %}
-{% endblock %}
 
+<style>
+    .aas-panel {
+        height: calc(100vh - 110px);
+    }
+</style>
+{% endblock %}
 {% block content %}
 <div class="content-wrap">
     <div class="content-ui-row">
-        <form class="search-form" id="searchForm" onsubmit="return false;">
-            <div class="card-content search">
+        <div class="card-content search">
+            <form class="search-form" id="searchForm" onsubmit="return false;">
                 <div class="form-ui">
                     <div class="col-12 col-sm-6 col-md-5 col-xl-3">
                         <div class="form-item align-h">
@@ -42,8 +47,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
 
         <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
             <div class="content-ui-row connect">
@@ -58,24 +63,24 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
-
+        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5" style="height: calc(100vh - 110px);" id="divDetail">
             <div class="content-ui-row connect">
                 <div class="card-content edit">
                     <div class="card-group-btn">
                         <span class="info-text"><i class="material-symbols-outlined">list_alt</i>자산 상세/수정정보</span>
                         <span>
-                            <button id="btnAssetSave"></button>
-                            <button id="btnAssetDelete"></button>
+                            <button id="btnAssetSave" class="y_write_auth"></button>
+                            <button id="btnAssetDelete" class="y_write_auth"></button>
                         </span>
                     </div>
-                    <form id="specAssetForm">
+                    <form id="assetForm">
+                        <div style="display:none"><input type="text" id="asset_pk" name="asset_pk" /></div>
                         <div class="edit-form-ui">
                             <div class="col-6 col-sm-12">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label essential" for="asset_kind" data-labelCd="자산구분">자산구분</label>
                                     <div class="field-wrapper">
-                                        <select id="asset_kind" name="asset_kind" class="form-control"></select>
+                                        <select id="asset_kind" name="asset_kind"></select>
                                     </div>
                                 </div>
                             </div>
@@ -83,18 +88,16 @@
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label essential" for="asset_type" data-labelCd="자산종류">자산종류</label>
                                     <div class="field-wrapper">
-                                        <select id="asset_type" name="asset_type" class="form-control"></select>
+                                        <select id="asset_type" name="asset_type"></select>
                                     </div>
                                 </div>
                             </div>
-
-
                             <div class="col-12">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label" data-labelCd="Gloabl Asset ID">Gloabl Asset ID</label>
                                     <div class="field-wrapper" style="display:flex">
-                                        <input id="txtGlobalAssetID" name="global_asset_id" class="form-control" placeholder="http://plant-i.hlklemove.com/assets/식별자" />&nbsp;
-                                        <button id="btnShowGolbalIdsPage">생성</button>
+                                        <input id="txtGlobalAssetID" name="global_asset_id" placeholder="http://plant-i.hlklemove.com/assets/식별자" />&nbsp;
+                                        <button id="btnShowGolbalIdsPage" class="y_write_auth">생성</button>
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +115,7 @@
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label"></label>
                                     <div class="field-wrapper">
-                                        <img src="/static/img/no-image.png" id="imgThumbnail" />
+                                        <img src="/static/img/no-image.png" id="imgThumbnail" style="max-width:500px;" />
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +124,7 @@
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label essential" for="asset_type" data-labelCd="작성자">작성자</label>
                                     <div class="field-wrapper">
-                                        <input id="txtCreateUser" name="create_username" class="form-control" readonly />
+                                        <input id="txtCreateUser" name="creator" readonly />
                                     </div>
                                 </div>
                             </div>
@@ -129,7 +132,7 @@
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label essential" for="asset_type" data-labelCd="작성일">작성일</label>
                                     <div class="field-wrapper">
-                                        <input id="txtCreated" name="created" class="form-control" readonly />
+                                        <input id="txtCreated" name="created" readonly />
                                     </div>
                                 </div>
                             </div>
@@ -139,14 +142,16 @@
                             <div class="col-12">
                                 <div class="form-item align-h">
                                     <label class="k-label k-form-label" data-labelCd="AAS Id">AAS Id</label>
-                                    <div class="field-wrapper">
-                                        <input id="txtAASShortId" name="aas_short_id" class="form-control" readonly />
+                                    <div class="field-wrapper" style="display:flex">
+                                        <input id="txtAASId" name="aas_id" readonly />&nbsp;
+                                        <button id="btnShowSearchAASPage" class="y_write_auth"></button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </form>
-                </div>
+                    <hr />
+                    </div>
                 <div class="card-content edit">
                     <div class="card-group-btn">
                         <span class="info-text"><i class="material-symbols-outlined">list_alt</i> 자산 식별자 관리</span>
@@ -212,7 +217,26 @@
                     <button type="button" id="btnMakeGlobalId">채택</button>
                 </span>
             </div>
+        </div>
+    </div>
+</div>
 
+<div id="tmplPopupSearchAAS" class="content-wrap popup" style="display:none">
+    <div class="card-content grid">
+        <div class="card-group-btn">
+            <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="AAS Tree">AAS Tree</label></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div id="aas_grid"></div>
+        <div class="edit-form-ui">
+            <div class="form-item align-h">
+                <label class="k-label k-form-label" for="txtSelectedMatCd" data-labelCd="선택">선택</label>
+                <div class="field-wrapper" style="display:flex">
+                    <input type="text" id="txtSelectAASID" name="aas_id"  class="form-control"/>&nbsp;
+                    <button type="button" id="btnSelectAAS">선택</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -224,7 +248,7 @@
                 <div class="edit-form-ui">
                     <div class="col-12">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="type" data-labelCd="이름">이름</label>
+                            <label class="k-label k-form-label essential" for="type" data-labelCd="이름">이름</label>
                             <div class="field-wrapper">
                                 <input type="text" id="txtName" value="" />
                             </div>
@@ -232,9 +256,17 @@
                     </div>
                     <div class="col-12">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="txtGlobalId" data-labelCd="값">값</label>
+                            <label class="k-label k-form-label essential" for="txtGlobalId" data-labelCd="값">값</label>
                             <div class="field-wrapper">
                                 <input type="text" id="txtValue" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="txtGlobalId" data-labelCd="외부시스템출처">외부시스템출처</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="externalSubjectId" value="" placeholder="externalSubjectId" />
                             </div>
                         </div>
                     </div>
@@ -257,14 +289,17 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    class DetailAssetPage {
+    class AssetDetailPage {
         constructor() {
             this.grid = null;
-            this.baseUrl = '/api/aas/asset';
+            this.baseUrl = '/api/aas/assetgui';
+            this.$assetForm = $('#assetForm');
+            this.$divDetail = $("#divDetail");
             this.init();
 
             this.initGlobalIdPopup();
             this.initSpecificIdPopup();
+            this.initSearchAASPopup();
         }
 
         init() {
@@ -275,26 +310,29 @@
                 ],
                 columnMenu: {
                     componentType: "classic",
-                    autoSize: true,
+                    autoSize: false,
                     clearAllFilters: true,
                     columns: {
                         sort: "asc",
                     }
                 },
+                pageable: {
+                    alwaysVisible: true,
+                    pageSizes: [20, 50, 100, 500, "all"],
+                    pageSize: 100
+                },
+                navigatable: true,
                 columns: [
-                    { field: "asset_type", title: "자산구분", width: 100 },
-                    { field: "global_asset_id", title: "Global Asset ID", width: 200 },
-                    { field: "aas_input_yn", title: "AAS등록여부", width: 100 },
-                    { field: "thumbnail_img", title: "Thumbnail", width: 100 },
-                    { field: "created", title: "생성일", width: 120 },
+                    //{ field: "asset_kind", title: "자산구분", width: 100 },
+                    { field: "asset_type", title: "자산종류", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "global_asset_id", title: "Global Asset ID", width: 200, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "aas_yn", title: "AAS등록여부", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "thumbnail_yn", title: "Thumbnail", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "creator", title: "작성자", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "created", title: "작성일", width: 180, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
                 ],
                 change: function (e) {
                     _this.showDetail();
-                },
-                dataBound: function (e) {
-                    //for (var i = 0; i < this.columns.length; i++) {
-                    //    this.autoFitColumn(i);
-                    //};
                 },
                 height: 700
             };
@@ -308,7 +346,9 @@
                 if (e.keyCode == 13) {
                     _this.searchMainData();
                 }
-            })
+            });
+
+            $('#txtAASId, #txtGlobalAssetID,#txtCreateUser,#txtCreated').kendoTextBox();
 
             $('#btnSearch').kendoButton({
                 icon: "search",
@@ -318,7 +358,15 @@
                 }
             });
 
-            // 그리드위 
+            $('#btnShowSearchAASPage').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.showPopSearchAAS();
+                }
+            });
+
+            // 그리드위
             $('#btnExcel').kendoButton({
                 icon: "file-excel",
                 themeColor: "success",
@@ -330,7 +378,7 @@
             // AssetInformation Form [
             // Global ID 추가 팝업 생성
             $('#btnShowGolbalIdsPage').kendoButton({
-                icon: "search",
+                icon: "globe-link",
                 themeColor: "warning",
                 click: function () {
                     _this.showGlobalAseetIds();
@@ -363,7 +411,7 @@
                 icon: "save",
                 themeColor: "info",
                 click: function () {
-                    Alert.alert("자산추가/수정", "구현중..");
+                    _this.saveAsset();
                 }
             });
 
@@ -385,12 +433,17 @@
                 }
             });
 
+            if (userinfo.can_write() == false) {
+                var upload = $fileThumbnail.data("kendoUpload");
+                upload.disable();
+            }
+
             $fileThumbnail.on('change', function (e) {
                 let files = e.currentTarget.files;
                 let file;
                 if (files.length > 0) {
                     file = files[0];
-                    
+
                     let img = $imgThumbnail[0];
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -398,13 +451,11 @@
                         img.setAttribute('src', e.target.result);
                         img.setAttribute('style', "width:120px;");
                         img.setAttribute('data-file', file.name);
-                        
+
                     };
                     reader.readAsDataURL(file);
                 }
             });
-
-
 
             /*
             // SpecificID 팝업창에서 선택
@@ -412,13 +463,10 @@
                 icon: "upload",
                 themeColor: "info",
                 click: function () {
-                    
+
                 }
             });
             */
-
-
-
 
             //detail form
             // combo.py에서 정의해서 사용. value = Type, text = Type
@@ -427,6 +475,8 @@
                 columns: [
                     { field: "name", title: "Name", width: 80 },
                     { field: "value", title: "Value", width: 100 },
+                    { field: "externalSubjectId", title: "외부시스템출처(externalSubjectId)", width: 200 },
+                    { field: "semantic_id", title: "부가정보(semantic)", width: 200 },
                 ],
                 change: function (e) {
 
@@ -441,12 +491,11 @@
         }
 
         initGlobalIdPopup() {
-
-
+            let _this = this;
             // GlobalId Page 팝업윈도우 설정
-            $('#tmpGlolbalIdsPage').kendoWindow({
-                width: "600", // windowWidth
-                height: "300",
+            this.$globalIdsPopWin = $('#tmpGlolbalIdsPage').kendoWindow({
+                width: 600, // windowWidth
+                height: 300,
                 title: "Asset Global ID",
                 visible: false,
                 actions: ["Close"],
@@ -457,7 +506,9 @@
 
             // txtGlobalId, cboType
             let $txtGlobalId = $('#txtGlobalId').kendoTextBox();
-            let $txtPopupGlobalAssetId = $('#txtPopupGlobalAssetId').kendoTextBox();
+            let $txtPopupGlobalAssetId = $('#txtPopupGlobalAssetId');
+            $txtPopupGlobalAssetId.kendoTextBox();
+
             let $txtAssetId = $('#txtAssetId ').kendoTextBox();
             $txtAssetId.on('change', function (e) {
                 //console.log($txtAssetId.val());
@@ -472,12 +523,15 @@
                 click: function () {
                     let pop_gid = $txtPopupGlobalAssetId.val();
                     $('#txtGlobalAssetID').val(pop_gid);
+                    _this.$globalIdsPopWin.data("kendoWindow").close();
                 }
             });
         }
 
         initSpecificIdPopup() {
-            $('#tmpSpecificIdPage').kendoWindow({
+            let _this = this;
+
+            this.$specificIdPopWin = $('#tmpSpecificIdPage').kendoWindow({
                 width: "600", // windowWidth
                 height: "300",
                 title: "Specific Id Add",
@@ -496,13 +550,142 @@
                 icon: "search",
                 themeColor: "success",
                 click: function () {
-                    let pop_gid = $txtPopupGlobalAssetId.val();
-                    $('#txtGlobalAssetID').val(pop_gid);
+                    let name = $txtName.val();
+                    let val = $txtValue.val();
+
+                    if (name == "" | val == "") {
+                        Alert.alert("입력오류", "입력값을 확인하세요");
+                        return;
+                    }
+
+
+                    let asset_pk = $('#asset_pk').val();
+
+                    if (asset_pk == "") {
+                        Alert.alert("입력오류", "선택/저장 입력된 자산이 없습니다.");
+                        return;
+                    }
+
+                    let data = {
+                        name: name,
+                        value: val,
+                        asset_pk: asset_pk
+                    };
+
+                    let fnsuccess = function (result) {
+                        if (result.success) {
+                            _this.$specificIdPopWin.data("kendoWindow").close();
+                        } else {
+                            Alert.alert("자산식별자저장오류", result.message);
+                        }
+                    };
+                }
+            });
+
+            $('#externalSubjectId').kendoTextBox();
+
+        }
+
+        initSearchAASPopup() {
+            let _this = this;
+
+            let $txtSelectAASID = $('#txtSelectAASID');
+
+            //품번조회 팝업 초기화
+            //tmplPopupMaterialCode
+            this.$tmplPopupSearchAAS = $("#tmplPopupSearchAAS");
+            this.$tmplPopupSearchAAS.kendoWindow({
+                width: "800", // windowWidth
+                height: "600",
+                title: "AAS검색조회",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            //aas_grid
+            let option = {
+                columns: [
+                    { field: "id", title: "id", width: 120 },
+                    { field: "id_short", title: "id_short", width: 100 },
+                    { field: "displayName", title: "Name", width: 200 },                    
+                ],
+                change: function (e) {
+                    let selectedRow = _this.$aas_grid.getSelect();
+                    if (selectedRow.length > 0) {
+                        let r = selectedRow[0];
+                        $txtSelectAASID.val(r.id);
+                    }
+                },
+                dataBound: function (e) {
+                    kendoUtil.showGridRowCount(this.element);
+                },
+                height: 400
+            };
+            this.$aas_grid = new Grid($("#aas_grid"), option);
+
+            $('#btnSelectAAS').kendoButton({
+                icon: "search",
+                themeColor: "success",
+                click: function () {
+                    let aas_id = $txtSelectAASID.val();
+                    $('#txtAASId').val(aas_id);
+                    _this.$tmplPopupSearchAAS.data("kendoWindow").close();                    
                 }
             });
 
         }
 
+        showPopSearchAAS() {
+            let _this = this;
+            this.$tmplPopupSearchAAS.data("kendoWindow").center().open();
+
+            let $gg = $('#aas_grid');
+            //this.aas_grid
+            kendo.ui.progress($gg, true);
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.$aas_grid.setData(result.items);
+                } else {
+                    Alert.alert("AAS조회오류", result.message);
+                }
+                kendo.ui.progress($gg, false);
+            };
+            let keyword = "";// $('#txtKeyword').val();
+            let param = { action: "search_aas", keyword: keyword };
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnsuccess);
+        }
+
+        saveAsset() {
+            let _this = this;
+            let data = FormUtil.extractForm(this.$assetForm);
+            if (data.global_asset_id == "") {
+                Alert.alert("Asset Information 입력누락", "Gloabl Asset ID");
+                return;
+            }
+
+
+            kendo.ui.progress(this.$divDetail, true);
+
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("Asset Infomation", "저장되었습니다.");
+                    let asset_pk = result.asset_pk;
+                    $('#asset_pk').val(asset_pk);
+                    _this.searchMainData();
+                } else {
+                    Alert.alert("저장오류", result.message);
+                }
+
+                kendo.ui.progress(_this.$divDetail, false);
+            };
+
+            let fdata = new FormData(this.$assetForm[0]);
+            let url = this.baseUrl + "?action=save_asset";
+            AjaxUtil.postFileAsyncData(url, fdata, fnsuccess);
+        }
 
         showGlobalAseetIds() {
             let _this = this;
@@ -511,51 +694,64 @@
         }
 
         showSpecificAssetIds() {
+            let _this = this;
             $('#tmpSpecificIdPage').data("kendoWindow").center().open();
         }
 
         searchMainData() {
             let _this = this;
 
-            const startDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().start);
-            const endDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().end);
+            let $searchForm = $('#searchForm');
+            let param = FormUtil.extractForm($searchForm);
 
-            // 9시간 추가(date객체가 UTC 기준이라 서버로 넘어갈 때 9시간 빠져서 넘어감)
-            startDate.setHours(startDate.getHours() + 9);
-            endDate.setHours(endDate.getHours() + 9);
-
-            let param = {
-                action: 'read',
-                // 날짜를 YYYY-MM-DD 형태로 변환 & 시간 제외해서 넘기기
-                start: startDate.toISOString().split("T")[0],
-                end: endDate.toISOString().split("T")[0],
-                log_type: $('#srch_log_type').val(),
-                keyword: $('#keyword').val(),
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.items);
+                } else {
+                    Alert.alert("조회오류", result.message);
+                }
             };
 
-            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
-            _this.grid.setData(result);
+            let url = this.baseUrl + "?action=read";
+            AjaxUtil.getAsyncData(url, param, fnsuccess);
         }
 
         showDetail() {
             let _this = this;
-            let data = _this.grid.getSelect();
-            console.log(data)
-
-            if (data.length > 0) {
-                let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#systemLogForm'));
-
-                $('#log_type').data("kendoDropDownList").value(selectData.type);
+            let data = this.grid.getSelect();
+            let $imgThumbnail = $('#imgThumbnail');
+            if (data.length == 0) {
+                return;
             }
-        }
 
+            let asset_pk = data[0].asset_pk;
+            $imgThumbnail.attr("src", "/static/img/no-image.png");
+            let param = { action: "detail_asset", asset_pk: asset_pk };
+
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    let data = result.data;
+                    FormUtil.BindDataForm(data, _this.$assetForm);
+                    if (data.default_thumbnail_id) {
+                        let src_url = "/api/files/aas?model_type=resource&data_pk=" + data.default_thumbnail_id;
+                        $imgThumbnail.attr("src", src_url);
+                    }
+
+                    // 자산식별자 데이터
+                    // this.specificAsssetIdsGrid
+
+                } else {
+                    Alert.alert("상세조회오류", result.message);
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnsuccess);
+        }
     };
 
-
-    let page = new DetailAssetPage();
+    let page = new AssetDetailPage();
     $(document).ready(function () {
-        //page.searchMainData();
+        page.searchMainData();
     });
 
 </script>

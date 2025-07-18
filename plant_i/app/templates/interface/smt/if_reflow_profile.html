@@ -1,0 +1,880 @@
+{% extends "app/layout.html" %}
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="측정일">측정일</label>
+                            <div class="field-wrapper">
+                                <div id="srch_date_range"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboEquipment" data-labelCd="Reflow">Reflow</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="equ_cd" id="cboEquipment">
+                                    <option value="">전체</option>
+                                    <option value="smt4.reflow" selected="selected">smt4.reflow</option>
+                                    <option value="smt1.reflow">smt1.reflow</option>
+                                    <option value="smt2.reflow">smt2.reflow</option>
+                                    <option value="smt3.reflow">smt3.reflow</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="keyword" data-labelCd="품번">품번</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="txtKeyword" name="keyword" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="Reflow Profile">Reflow Profile</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="reflow_profile_grid"></div>
+            </div>
+        </div>
+        <form id="profileForm" name="profileForm" enctype="multipart/form-data">
+            <div style="display:none">
+                <input type="text" id="t_id" name="t_id" />
+                <input type="text" id="b_id" name="b_id" />
+                <input type="text" id="data_id" name="data_id" />
+            </div>
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>기본정보</span>
+                    <span>
+                        <button id="btnClear" title="신규" class="y_write_auth"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장" class="y_write_auth"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제" class="y_write_auth"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+                <div class="edit-form-ui">
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="measured_at" data-labelCd="측정일시">측정일시</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="measured_at" name="measured_at" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="mat_cd" data-labelCd="품번">품번</label>
+                            <div class="field-wrapper" style="display:flex">
+                                <input type="text" id="mat_cd" name="mat_cd" />&nbsp;<button type="button" id="btnShowPopSearchMaterial"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="equ_cd"  data-labelCd="Reflow선택">Reflow선택</label>
+                            <div class="field-wrapper">
+                                <select class="form-control" name="equ_cd" id="equ_cd">
+                                    <option value="smt4.reflow" selected="selected">smt4.reflow</option>
+                                    <option value="smt1.reflow">smt1.reflow</option>
+                                    <option value="smt2.reflow">smt2.reflow</option>
+                                    <option value="smt3.reflow">smt3.reflow</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="edit-form-ui">
+                    <div class="col-12">
+                        <div class="row">
+                            <table class="table table-striped table-hover">
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <td data-labelCd="Fan Level" rowspan="2" style="text-align:center; vertical-align:middle">Fan Level</td>
+                                    <td data-labelCd="Max Temp(Peak)">Max Temp(Peak)</td>
+                                    <td data-labelCd="Pre Heating(Sec)">Pre Heating(Sec)</td>
+                                    <td data-labelCd="Delta T(Cooling)">Delta T(Cooling)</td>
+                                    <td data-labelCd="Above 220 degree">Above 220 degree</td>
+                                    <td data-labelCd="Flux & Dwell">Flux & Dwell</td>
+                                    <td data-labelCd="Delta T(Peak)">Delta T(Peak)</td>
+                                    <td data-labelCd="설비산소농도">설비산소농도</td>
+                                    <td data-labelCd="CBS Position">CBS Position</td>
+                                    <td data-labelCd="Acceptable">Acceptable</td>
+                                </tr>
+                                <tr>
+                                    <td>222~225 degree</td>
+                                    <td>~2 sec(30~150 degree)</td>
+                                    <td>&gt; 0.5~3 degree/sec. </td>
+                                    <td>25~60 degree </td>
+                                    <td>60~120 sec(150~190 degree)</td>
+                                    <td>-2 degree/sec.</td>
+                                    <td>400~1000PPM</td>
+                                    <td>47~53(50&plusmn;3)</td>
+                                    <td>YES, NO </td>
+                                </tr>
+                                <tr>
+                                    <th>TOP</th>
+                                    <td><input type="number" id="t_fan_level" name="t_fan_level" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_max_peak_temp" name="t_max_peak_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_pre_heat_temp" name="t_pre_heat_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_delta_cool_temp" name="t_delta_cool_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_above_deg_sec" name="t_above_deg_sec" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_flux_dwell_sec" name="t_flux_dwell_sec" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_delta_peak_temp" name="t_delta_peak_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_oxy_conc" name="t_oxy_conc" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="t_cbs_pos" name="t_cbs_pos" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td>
+                                        <select id="t_acceptable" name="t_acceptable" style="width:100%" class="form-control select-sm">
+                                            <option value="YES">YES</option>
+                                            <option value="NO">NO</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>BOTTOM</th>
+                                    <td><input type="number" id="b_fan_level" name="b_fan_level" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_max_peak_temp" name="b_max_peak_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_pre_heat_temp" name="b_pre_heat_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_delta_cool_temp" name="b_delta_cool_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_above_deg_sec" name="b_above_deg_sec" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_flux_dwell_sec" name="b_flux_dwell_sec" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_delta_peak_temp" name="b_delta_peak_temp" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_oxy_conc" name="b_oxy_conc" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td><input type="number" id="b_cbs_pos" name="b_cbs_pos" value="" class="form-control input-sm" placeholder="입력하세요" /></td>
+                                    <td>
+                                        <select id="b_acceptable" name="b_acceptable" style="width:100%" class="form-control select-sm">
+                                            <option value="YES">YES</option>
+                                            <option value="NO">NO</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="txtDescription" data-labelCd="문제점, 조치사항">문제점, 조치사항</label>
+                            <div class="field-wrapper">
+                                <textarea id="txtDescription" name="description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label essential" for="att_file" data-labelCd="첨부사진">첨부사진</label>
+                            <div class="field-wrapper">
+                                <input type="file" id="profile_file" name="profile_file" />
+                            </div>
+                            <div id="divImage"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" data-labelCd="작성자">작성자</label>
+                            <div class="field-wrapper">
+                                <input type="text" name="creator" class="form-control" readonly="readonly" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" data-labelCd="작성일">작성일</label>
+                            <div class="field-wrapper">
+                                <input type="text" name="created" readonly="readonly" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" data-labelCd="수정자">수정자</label>
+                            <div class="field-wrapper">
+                                <input type="text" name="modifier" readonly="readonly" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" data-labelCd="수정일">수정일</label>
+                            <div class="field-wrapper">
+                                <input type="text" name="modified" readonly="readonly" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="tmplPopupMaterialCode" class="content-wrap popup" style="display:none">
+
+    <div class="edit-form-ui">
+        <div class="form-item align-h">
+            <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
+            <div class="field-wrapper" style="display:flex">
+                <select id="cboLine" name="line_cd" class="form-control">
+                    <option value="PCU-01-01">PCU-01-01</option>
+                    <option value="SMT-04">SMT-04</option>
+                    <option value="SMT-03">SMT-03</option>
+                    <option value="SMT-02">SMT-02</option>
+                    <option value="SMT-01">SMT-01</option>
+                </select>&nbsp;
+                <button type="button" id="btnWorkOrderSearch">작업지시조회</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-content">
+        <div class="card-group-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div id="order_grid"></div>
+        <div class="edit-form-ui">
+            <div class="form-item align-h">
+                <label class="k-label k-form-label" for="txtSelectedMatCd" data-labelCd="선택품번">선택품번</label>
+                <div class="field-wrapper" style="display:flex">
+                    <input type="text" id="txtSelectedMatCd" name="mat_cd" />&nbsp;
+                    <button type="button" id="btnSelectedMatCd">선택</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    class ReflowProfilePage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/interface/reflow_profile';
+            this.$form = $('#profileForm');
+            this.current_data_id = null;
+            this.$divImage = $('#divImage');
+            this.init();
+        }
+
+        isValidDate(year, month, day) {
+            const date = new Date(`${year}-${month}-${day}`);
+            return (
+                date.getFullYear() === parseInt(year) &&
+                (date.getMonth() + 1) === parseInt(month) &&
+                date.getDate() === parseInt(day)
+            );
+        }
+
+        formatDateString(input) {
+            const formattedPattern = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])\s(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
+
+            input = input.replace(/\s+/g, ''); //공백제거
+
+            if (formattedPattern.test(input)) {
+                const [, year, month, day] = input.match(formattedPattern);
+                if (this.isValidDate(year, month, day)) return input;
+                throw new Error("Invalid calendar date.");
+            }
+
+            const rawPattern = /^(\d{4})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])(0[0-9]|1[0-9]|2[0-3])([0-5][0-9])$/;
+            const match = input.match(rawPattern);
+            if (match) {
+                const [, year, month, day, hour, minute] = match;
+                if (this.isValidDate(year, month, day)) {
+                    return `${year}-${month}-${day} ${hour}:${minute}`;
+                }
+                throw new Error("Invalid calendar date.");
+            }
+
+            throw new Error("Invalid date format.");
+        }
+
+        check_fan_level(v) {
+            let result = true;
+            return result;
+        }
+
+        check_max_peak_temp(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value >= 222 & value <= 225) {
+                    result = true;
+                }
+            } catch {
+
+            }
+            return result;
+        }
+        check_pre_heat_temp(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 2) {
+                    result = true;
+                }
+            } catch {
+
+            }
+            return result;
+        }
+        check_delta_cool_temp(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 0.5 & value >= -3) {
+                    result = true;
+                }
+            } catch {
+
+            }
+            return result;
+        }
+        check_above_deg_sec(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 60 & value >= 25) {
+                    result = true;
+                }
+            } catch {
+
+            }
+
+            return result;
+        }
+        check_flux_dwell_sec(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 120 & value >= 60) {
+                    result = true;
+                }
+            } catch {
+
+            }
+
+            return result;
+        }
+        check_delta_peak_temp(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 2) {
+                    result = true;
+                }
+            } catch {
+
+            }
+
+            return result;
+        }
+        check_oxy_conc(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 1000 & value >= 400) {
+                    result = true;
+                }
+            } catch {
+
+            }
+
+            return result;
+        }
+        check_cbs_pos(v) {
+            let result = false;
+            try {
+                let value = Number(v);
+                if (value <= 53 & value >= 47) {
+                    result = true;
+                }
+            } catch {
+
+            }
+
+            return result;
+        }
+
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                allowCopy: {
+                    delimeter: ",",
+                },
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    autoSize: false,
+                },
+                pageable: {
+                    alwaysVisible: true,
+                    pageSizes: [20, 50, 100, 500, "all"],
+                    pageSize: 100
+                },
+                navigatable: true,
+                columns: [
+                    { field: "equ_cd", title: "Reflow", width: 100, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "measured_date", title: "Date", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" }, cellRowspan: true },
+                    { field: "measured_time", title: "Time", width: 80, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" }, cellRowspan: true },
+                    { field: "mat_cd", title: "Product", width: 120, headerAttributes: { style: "text-align: center; justify-content: center" }, cellRowspan: true },
+                    { field: "pcb_side", title: "PCB Side", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "fan_level", title: "Fan Level", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "max_peak_temp", title: "Max Temp(Peak)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "pre_heat_temp", title: "Pre-heating", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "delta_cool_temp", title: "Delta T(Cooling)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "above_deg_sec", title: "Above 220 degree", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "flux_dwell_sec", title: "Flix & Dwell", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "delta_peak_temp", title: "Delta T(Peak)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "oxy_conc", title: "설비산소농도", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "cbs_pos", title: "CBS Position", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "acceptable", title: "Acceptable", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                ],
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: 300
+            };
+            _this.grid = new Grid($("#reflow_profile_grid"), gridOption);
+
+            $('#cboEquipment').on('change', function (e) {
+                _this.searchMainData();
+            });
+
+            let dtStart = new Date();
+            dtStart.setDate(dtStart.getDate() - 7);
+
+            //search form
+            $("#srch_date_range").kendoDateRangePicker({
+                range: {
+                    start: dtStart,
+                    end: new Date()
+                },
+                change: function (e) {
+
+                },
+                format: "yyyy-MM-dd",
+                labels: false,
+                startField: "start_dt",
+                endField: "end_dt"
+            });
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+
+
+            let $measured_at = $("#measured_at")
+            $measured_at.kendoDateTimePicker({
+                //dateInput : true,
+                //autoAdjust : true,
+                value: new Date(),
+                min: new Date(2025, 0, 1),
+                max: new Date(2030, 0, 25),
+                format: "yyyy-MM-dd HH:mm",
+                interval: 1,
+            });
+            $measured_at.on('change', function (e) {
+                let v = $measured_at.val();
+                try {
+                    v = _this.formatDateString(v);
+                    $measured_at.val(v);
+                } catch {
+                    Alert.alert("날짜 포맷 오류", v);
+                    e.preventDefault();
+                    $measured_at.val("");
+                }
+            });
+
+            // APUC "C" TOP
+            $('#txtKeyword').kendoTextBox({ clearButton: true });
+            $('#mat_cd').kendoTextBox({ clearButton: true });
+            $('#btnShowPopSearchMaterial').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.showPopSearchWorkOrderMaterial();
+                }
+            });
+
+            $('#cboEquipment, #equ_cd').kendoDropDownList({ size: "small" });
+
+            // fan_level,max_peak_temp,pre_heat_temp,delta_cool_temp,above_deg_sec,flux_dwell_sec,delta_peak_temp,oxy_conc,cbs_pos
+            //acceptable
+            let $t_acceptable = $('#t_acceptable');
+            let $b_acceptable = $('#b_acceptable');
+            let cmap = new Map();
+
+            cmap.set("fan_level", this.check_fan_level);
+            cmap.set("max_peak_temp", this.check_max_peak_temp);
+            cmap.set("pre_heat_temp", this.check_pre_heat_temp);
+            cmap.set("delta_cool_temp", this.check_delta_cool_temp);
+            cmap.set("above_deg_sec", this.check_above_deg_sec);
+            cmap.set("flux_dwell_sec", this.check_flux_dwell_sec);
+            cmap.set("delta_peak_temp", this.check_delta_peak_temp);
+            cmap.set("oxy_conc", this.check_oxy_conc);
+            cmap.set("cbs_pos", this.check_cbs_pos);
+
+            for (const [kk, f] of cmap) {
+                let $t = $("#t_" + kk);
+                let $b = $("#b_" + kk);
+                $t.on("change", function (e) {
+                    let v = e.target.value;
+                    if (f(v)) {
+                        $t_acceptable.val("YES");
+                        $t.removeAttr("style");
+                    } else {
+                        $t_acceptable.val("NO");
+                        $t.css('font-weight', 'bold');
+                        $t.css('color', 'red');
+                    }
+                });
+
+                $b.on("change", function (e) {
+                    let v = e.target.value;
+                    if (f(v)) {
+                        $b_acceptable.val("YES");
+                        $b.removeAttr("style");
+                    } else {
+                        $b_acceptable.val("NO");
+                        $b.css('font-weight', 'bold');
+                        $b.css('color', 'red');
+                    }
+                });
+            }
+
+            //profile_file
+            this.$profile_file = $('#profile_file').kendoUpload({
+                select: function (e) {
+                    if (e.files.length > 20) {
+                        Alert.alert("첨부오류", "Please select max 20 files.");
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            $('#txtDescription').kendoTextArea({ rows: 3 });
+
+            //버튼
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.$form[0].reset();
+                    _this.$form.find("#t_id, #b_id, #data_id").val("");
+                }
+            });
+
+            $('#btnSave').kendoButton({
+                themeColor: "info",
+                click: function () {
+                    _this.saveProfile();
+                }
+            });
+
+            $('#btnDelete').kendoButton({
+                themeColor: "error",
+                click: function () {
+
+                    if (userinfo.can_write()) {
+                        _this.deleteProfile();
+                    } else {
+                        Alert.alert("Reflow Profile 삭제오류", "권한이 없습니다.");
+                    }
+                }
+            });
+
+            this.$divImage.on('click', "img", function (e) {
+                let url = this.src;
+                window.open(url);
+            });
+
+            this.initPopupMaterial();
+        }
+
+        initPopupMaterial() {
+            let _this = this;
+
+            //품번조회 팝업 초기화
+            //tmplPopupMaterialCode
+            this.$tmplPopupMaterialCode = $("#tmplPopupMaterialCode");
+            this.$tmplPopupMaterialCode.kendoWindow({
+                width: "860", // windowWidth
+                height: "500",
+                title: "작업지시정보조회",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 팝업 닫을 때 특별한 정리 로직이 필요하면 여기에 구현
+                }
+            });
+
+            $("#btnWorkOrderSearch").kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchWorkOrder();
+
+                }
+            });
+            let $txtSelectedMatCd = $('#txtSelectedMatCd').kendoTextBox();
+            let $mat_cd = $('#mat_cd');
+            $('#btnSelectedMatCd').kendoButton({
+                icon: "check",
+                themeColor: "success",
+                click: function () {
+                    let mat_cd = $txtSelectedMatCd.val();
+                    $mat_cd.val(mat_cd);
+                    _this.$tmplPopupMaterialCode.data("kendoWindow").close();
+                }
+            });
+
+            let gridOption = {
+                allowCopy: {
+                    delimeter: ",",
+                },
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    autoSize: false,
+                },
+                columns: [
+                    { field: "orderNo", title: "지시번호", width: 120, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "lineCode", title: "라인코드", width: 80, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "matCode", title: "품번", width: 80, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "matDesc", title: "품명", width: 250, attributes: { style: "text-align: left" }, headerAttributes: { style: "text-align: center; justify-content: center" } }
+                ],
+                change: function (e) {
+                    let selectedRow = _this.order_grid.getSelect();
+                    if (selectedRow.length > 0) {
+                        let r = selectedRow[0];
+                        $txtSelectedMatCd.val(r.matCode);
+                    }
+                },
+                height: 300
+            };
+            _this.order_grid = new Grid($("#order_grid"), gridOption);
+
+
+        }
+
+        searchWorkOrder() {
+            let _this = this;
+            let line_cd = $('#cboLine').val();
+
+            let param = {
+                line_cd: line_cd,
+                action: "search_workorder"
+            };
+
+            kendo.ui.progress($('#order_grid'), true);
+            let fnsuccess = function (result) {
+                if (result.success) {
+                    _this.order_grid.setData(result.items);
+                } else {
+                    Alert.alert("MES 작업지시오류", result.message);
+                }
+                kendo.ui.progress($('#order_grid'), false);
+            };
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnsuccess);
+        }
+
+
+        saveProfile() {
+
+            let _this = this;
+            let data = FormUtil.extractForm(this.$form);
+
+            if (data.equ_cd != 'smt4.reflow') {
+                Alert.alert("Profile입력", "SMT4라인만 입력할수 있습니다.");
+                return;
+            }
+            // measured_at, mat_cd
+            if (!data.mat_cd) {
+                Alert.alert("Profile입력", "품번을 입력하세요");
+                return;
+            }
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("Profile저장", "저장되었습니다.");
+                    _this.searchMainData();
+                } else {
+                    Alert.alert("Profile저장오류", result.message);
+                }
+            }
+
+            Alert.confirm("입력확인", "저장하시겠습니까?", function () {
+                let url = _this.baseUrl + "?action=save_profile";
+                let form = _this.$form[0];
+                let form_data = new FormData(form);
+                AjaxUtil.postFileAsyncData(url, form_data, fnSuccess);
+            });
+        }
+
+        deleteProfile() {
+            let _this = this;
+            let selectedRow = this.grid.getSelect();
+
+            if (selectedRow.length == 0) {
+                return;
+            }
+            let data_id = selectedRow[0].data_id;
+            let data = FormUtil.extractForm(this.$form);
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("Profile 삭제", "삭제되었습니다.");
+                    _this.searchMainData();
+                } else {
+                    Alert.alert("삭제오류", result.message);
+                }
+            };
+        }
+
+        showDetail() {
+            let _this = this;
+
+            let selectedRow = this.grid.getSelect();
+            let data_id = selectedRow[0].data_id
+            //console.log(data_id);
+
+            if (data_id != this.current_data_id) {
+                let param = { data_id: data_id, action: 'detail' };
+
+                _this.$form[0].reset();
+                _this.$form.find("#t_id, #b_id, #data_id").val("");
+                _this.$divImage.empty();
+
+                this.$profile_file.data("kendoUpload").clearAllFiles();
+
+                AjaxUtil.getAsyncData(this.baseUrl, param, function (result) {
+                    if (result.success) {
+                        //console.log(result);
+                        let data = result.data;
+                        let file_items = result.file_items;
+                        FormUtil.BindDataForm(data, _this.$form);
+
+                        $("#measured_at").val(data.measured_date + " " + result.data.measured_time);
+
+                        if (file_items.length > 0) {
+
+                            $.each(file_items, function (idx, item) {
+                                let img_src = "/api/files/download?file_id=" + item.id;
+                                let imgHtml = '<img id="img_' + item.id + '" src="' + img_src + '" width="600px" />';
+                                _this.$divImage.append(imgHtml);
+                            });
+
+                        }
+                        _this.current_data_id = data.data_id;
+                    }
+                    else {
+                        Alert.alert("Profile조회오류", result.message);
+
+                    }
+                });
+            }
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#reflow_profile_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "reflow_profile.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+
+        // 현재작업지시 조회해서 해당되는 품번리스트 목록 조회
+        showPopSearchWorkOrderMaterial() {
+            let _this = this;
+            this.$tmplPopupMaterialCode.data("kendoWindow").center().open();
+        }
+
+        searchMainData() {
+            let _this = this;
+            let start_dt = $('input[name=start_dt]').val();
+            let end_dt = $('input[name=end_dt]').val();
+            let equ_cd = $('#cboEquipment').val();
+            let param = {
+                equ_cd: equ_cd,
+                start_dt: start_dt,
+                end_dt: end_dt,
+                action: 'read'
+            };
+
+            let $gg = $('#reflow_profile_grid');
+            kendo.ui.progress($gg, true);
+            _this.grid.setData([]);
+            _this.$form[0].reset();
+            _this.$form.find("#t_id, #b_id, #data_id").val("");
+            _this.$divImage.empty();
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.items);
+                }
+                else {
+                    Alert.alert("조회오류", result.message);
+                }
+
+                kendo.ui.progress($gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+    }
+
+    let page = new ReflowProfilePage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

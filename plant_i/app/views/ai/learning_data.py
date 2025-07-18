@@ -33,6 +33,7 @@ from matplotlib.colors import to_hex
 import plotly
 import plotly.graph_objs as go
 import plotly.io as pio
+import plotly.express as px
 
 
 # 24.07.31 김하늘 추가 첨부파일 루트 주소를 가져오기
@@ -193,6 +194,8 @@ def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
                     y=y,
                     mode=graph['mode'],
                     name=graph['name'],
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
                     meta={'auto_x': True}  # x값이 자동 생성된 경우를 메타정보로 추가
                 )
             if dims == 2 and graph['data'].shape[1] == 1:  # 1차원 데이터(np array) -> 차원 축소된 값
@@ -203,6 +206,8 @@ def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
                     y=y,
                     mode=graph['mode'],
                     name=graph['name'],
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
                     meta={'auto_x': False} 
                 )
             elif dims == 2 and graph['data'].shape[1] == 2:  # 2차원 데이터
@@ -212,6 +217,8 @@ def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
                     y=y,
                     mode=graph['mode'],
                     name=graph['name'],
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
                     meta={'auto_x': False} 
                 )
             elif dims == 2 and graph['data'].shape[1] == 3:  # 3차원 데이터
@@ -222,6 +229,8 @@ def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
                     z=z,
                     mode='markers',
                     marker= dict(size=2),
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
                     # marker=dict(size= max(1, 10 - len(graph['data']) // 1000)),   # 데이터가 많을수록 크기 감소
                     name=graph['name']
             )
@@ -247,7 +256,8 @@ def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
         auto_x = all(trace.meta.get('auto_x', False) for trace in data)
         xaxis = dict(
             title=title.get('x', ''),
-            tickmode='linear' if auto_x else 'auto',  # x값이 자동 생성된 경우에만 linear 설정
+            # tickmode='linear' if auto_x else 'auto',  # x값이 자동 생성된 경우에만 linear 설정
+            tickmode='auto',  # x값이 자동 생성된 경우에만 linear 설정
             nticks=20,  # 최대 눈금 개수 제한
         )
 
@@ -401,6 +411,7 @@ def learning_data(context):
                 scatter_data = {
                     'data': pca_result['X_pca'], 
                     'name': f'{new_dim}차원 데이터', 
+                    'color': pca_result['X_test'], 
                     'mode': 'markers'
                     }
 
@@ -693,6 +704,7 @@ def learning_data(context):
 	                -- UNION all
 	                SELECT
 		                'PLC' as data_source
+                        , 'tag_dat' as table_name
 		                , t.tag_code as var_code
 		                , t.tag_name as var_name
 	                FROM tag t
@@ -700,7 +712,7 @@ def learning_data(context):
 	                --	LEFT OUTER JOIN data_src ds ON t.data_src_id = ds.id
 	                --	WHERE ds."SourceType" = 'PLC'
 	                WHERE 1=1
-		                AND tag_code NOT ILIKE '%%em%%'
+		                AND tag_code NOT ILIKE '%%.em.%%'
 		                AND t."Equipment_id" = %(equ_id)s
 	                ),
                 EM as (
@@ -711,6 +723,7 @@ def learning_data(context):
    	                -- UNION all     
 	                SELECT
 		                'EM' AS data_source
+                        , 'em_tag_dat' as table_name
 		                , t.tag_code AS var_code
 		                , t.tag_name AS var_name
 	                FROM tag t
@@ -718,19 +731,19 @@ def learning_data(context):
 	                --	LEFT OUTER JOIN data_src ds ON t.data_src_id = ds.id
 	                --	WHERE ds."SourceType" = 'EM'
 	                WHERE 1=1
-		                AND tag_code LIKE '%%em%%'
+		                AND tag_code LIKE '%%.em.%%'
 		                AND t."Equipment_id" = %(equ_id)s	
 	                ),	
                 MES as (
 	                SELECT * 
 	                FROM (
 	                    VALUES
-	                        ('MES', 'id', 'MES검사결과품번(식별용)'),
-	                        ('MES', 'mat_cd', '품목코드'),
-	                        ('MES', 'bom_ver', 'BOM_VER'),
-	                        ('MES', 'data_date', '데이터생성일시'),
-	                        ('MES', 'state', 'MES검사결과(합부)')
-                    ) as ier(data_source, var_code, var_name)
+	                        ('MES', 'if_equ_result', 'id', 'MES검사결과품번(식별용)'),
+	                        ('MES', 'if_equ_result', 'mat_cd', '품목코드'),
+	                        ('MES', 'if_equ_result', 'bom_ver', 'BOM_VER'),
+	                        ('MES', 'if_equ_result', 'data_date', '데이터생성일시'),
+	                        ('MES', 'if_equ_result', 'state', 'MES검사결과(합부)')
+                    ) as ier(data_source, table_name, var_code, var_name)
                 ),
                 MES_ITEM as (
 	                -- SELECT * 
@@ -744,6 +757,7 @@ def learning_data(context):
 
                     SELECT
 	                    'MES_ITEM' AS data_source,
+                        'if_equ_result_item' AS table_name,
   	                    eri.test_item_cd AS var_code,
   	                    '테스트 항목 코드' || ROW_NUMBER() OVER (ORDER BY eri.test_item_cd) AS var_name
                     FROM if_equ_result_item eri 
@@ -755,36 +769,36 @@ def learning_data(context):
 	                SELECT * 
 	                FROM (
 	                    VALUES
-	                        ('QMS', 'mat_cd', '품목코드'),
-	                        ('QMS', 'bom_ver', 'BOM_VER'),
-	                        ('QMS', 'state', 'QMS검사결과(합부)')
-                    ) as iqr(data_source, var_code, var_name)
+	                        ('QMS', 'if_qms_defect', 'mat_cd', '품목코드'),
+	                        ('QMS', 'if_qms_defect', 'bom_ver', 'BOM_VER'),
+	                        ('QMS', 'if_qms_defect', 'state', 'QMS검사결과(합부)')
+                    ) as iqr(data_source, table_name, var_code, var_name)
                 ),
                 Viscosity as (
 	                SELECT * 
 	                FROM (
 	                    VALUES
-	                        ('Viscosity', 'storage_temp', '보관규격체크'),
-	                        ('Viscosity', 'agi_cond', '교반조건체크'),
-	                        ('Viscosity', 'clean_check', '세척확인'),
-	                        ('Viscosity', 'refr_in_date', '냉장고입고일자'),
-	                        ('Viscosity', 'visc_value', '점도값')
-                    ) as visc(data_source, var_code, var_name)
+	                        ('Viscosity', 'visco_chk_result', 'storage_temp', '보관규격체크'),
+	                        ('Viscosity', 'visco_chk_result',  'agi_cond', '교반조건체크'),
+	                        ('Viscosity', 'visco_chk_result',  'clean_check', '세척확인'),
+	                        ('Viscosity', 'visco_chk_result',  'refr_in_date', '냉장고입고일자'),
+	                        ('Viscosity', 'visco_chk_result',  'visc_value', '점도값')
+                    ) as visc(data_source, table_name, var_code, var_name)
                 ),
                 Tention as (
 	                SELECT * 
 	                FROM (
 	                    VALUES
-	                        ('Tention', 'barcode', '바코드'),
-	                        ('Tention', 'tension_value1', 'Tension Value 1'),
-	                        ('Tention', 'tension_value2', 'Tension Value 2'),
-	                        ('Tention', 'tension_value3', 'Tension Value 3'),
-	                        ('Tention', 'tension_value4', 'Tension Value 4'),
-	                        ('Tention', 'tension_value5', 'Tension Value 5'),
-	                        ('Tention', 'Result', '점도값'),
-	                        ('Tention', 'worker_id', '작업자'),
-	                        ('Tention', 'defect_reason', '불량사유')
-                    ) as tent(data_source, var_code, var_name)
+	                        ('Tention', 'ten_chk_result', 'barcode', '바코드'),
+	                        ('Tention', 'ten_chk_result',  'tension_value1', 'Tension Value 1'),
+	                        ('Tention', 'ten_chk_result',  'tension_value2', 'Tension Value 2'),
+	                        ('Tention', 'ten_chk_result',  'tension_value3', 'Tension Value 3'),
+	                        ('Tention', 'ten_chk_result',  'tension_value4', 'Tension Value 4'),
+	                        ('Tention', 'ten_chk_result',  'tension_value5', 'Tension Value 5'),
+	                        ('Tention', 'ten_chk_result',  'Result', '점도값'),
+	                        ('Tention', 'ten_chk_result',  'worker_id', '작업자'),
+	                        ('Tention', 'ten_chk_result',  'defect_reason', '불량사유')
+                    ) as tent(data_source, table_name, var_code, var_name)
                 )
                 select * from PLC
                 union all
@@ -907,8 +921,18 @@ def learning_data(context):
             SELECT 
                 mc.id
                 , (mc."VarIndex" + 1) AS var_index
-                , mc."VarName" AS var_code
                 , mc."Source" AS data_source
+                , (case mc."Source" 
+                    when 'PLC' then 'tag_dat'
+                    when 'EM' then 'em_tag_dat'
+                    when 'QMS' then 'if_qms_defect'
+                    when 'MES' then 'if_equ_result'
+                    when 'MES_ITEM' then 'if_equ_result_item'
+                    when 'Viscosity' then 'visco_chk_result'
+                    when 'Tention' then 'ten_chk_result'
+                    end
+                    ) as table_name
+                , mc."VarName" AS var_code
                 , t.tag_name AS var_name
             FROM ds_model_col mc
             LEFT JOIN tag t ON t.tag_code = mc.tag_code
@@ -1203,16 +1227,16 @@ def learning_data(context):
 
             return items
 
-        # 우선 사용 보류. 
+        # 시스템 로직이 아닌 쿼리로 데이터 넣어준 경우에만 사용
         elif action == 'make_col_info':
-            ''' table 데이터 읽어서 컬럼정보를 만들어서 저장한다.
+            ''' table 데이터 읽어서 컬럼정보를 만들어서 저장.
             '''
             md_id = CommonUtil.try_int(gparam.get('md_id'))
             #md_id = gparam.get('md_id')
 
             daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
-            daService.make_col_info(df, csv=False)
+            daService.make_col_info(df, manual=False)
 
             return {'success':True, 'message':'' }
 
@@ -1404,42 +1428,7 @@ def learning_data(context):
             #plt.show()
 
             return {'success':True, 'chart_url': chart_url}
-
-            import matplotlib.pyplot as plt
-            import seaborn as sns
-
-            plt.hist(df_sat["어린이"], bins=10)  # bins: 몇개의 구간으로 나눌 것인가 -> 막대의 수
-            plt.show()
-
-            plt.boxplot(df_2018_apr["어린이"])
-            plt.show()
-
-            sns.histplot(data=df_sat, x="어른")
-            plt.show()
-
-            fig, ax = plt.subplots()
-            # 문제 13.
-
-            # ax.hist를 이용해서 가격(price)의 분포를 구합니다. 이때, bins=10, color='indigo'입니다.
-            ax.hist(df['price'], bins=10, color='indigo')
-            ax.set_xlabel('price')
-            ax.set_ylabel('count')
-            ax.set_facecolor('white')
-
-            sns.boxplot(data=df_2018_apr, y="어린이")
-
-            ncol = 4
-            nrow = 10
-            fig, ax = plt.subplots(nrows=nrow, ncols=ncol, figsize=(20, 40))
-
-            for i, X_Feature in enumerate(X_Features):
-                row = i // ncol
-                col = (i % ncol)
-                ax1 = ax[row, col]
-                ax1.hist(train_X[X_Feature],bins=100)    
-                ax1.set_title(X_Feature)
-            plt.show()
-           
+          
 
         elif action == 'ds_col_count_plot':
             ''' 범주형 히스토그램
@@ -1479,6 +1468,7 @@ def learning_data(context):
                 else:
                     axis = ax[index]
                 sns.countplot(x=key, data=df, ax=axis)
+                axis.set_xticklabels(axis.get_xticklabels(), rotation=45)
                 #ax[index].set_title(key)
                 #plt.xticks(rotation=45)
             #plt.subplots_adjust(hspace=10)
@@ -1711,27 +1701,27 @@ def learning_data(context):
             scatter_url = daService.plt_url(pp)
             return {'success':True, 'chart_url': scatter_url } 
 
-            import matplotlib.pyplot as plt
+            # import matplotlib.pyplot as plt
 
-            #sns.scatterplot(data=df,x="전용면적(평)",y="거래금액(만원)")
-            #plt.savefig("problem_4.png") # 채점을 위한 코드입니다.
+            # #sns.scatterplot(data=df,x="전용면적(평)",y="거래금액(만원)")
+            # #plt.savefig("problem_4.png") # 채점을 위한 코드입니다.
 
-            #df_corr=df.corr(numeric_only=True)
-            #sns.heatmap(df_corr, annot=True)
+            # #df_corr=df.corr(numeric_only=True)
+            # #sns.heatmap(df_corr, annot=True)
 
-            pp = sns.pairplot(stage1_data, x_vars=stage1_data.columns[[14,19,24,29,34]], y_vars=stage1_data.columns[[39,44,49]], diag_kind='hist')
+            # pp = sns.pairplot(stage1_data, x_vars=stage1_data.columns[[14,19,24,29,34]], y_vars=stage1_data.columns[[39,44,49]], diag_kind='hist')
 
-            #pair plot을 그려줍니다.
-            for ax in pp.axes.flatten():
-                ax.xaxis.label.set_rotation(90) #xlabel과 ylabel를 회전시킵니다.
-                ax.yaxis.label.set_rotation(0)
-                ax.yaxis.label.set_ha('right')
+            # #pair plot을 그려줍니다.
+            # for ax in pp.axes.flatten():
+            #     ax.xaxis.label.set_rotation(90) #xlabel과 ylabel를 회전시킵니다.
+            #     ax.yaxis.label.set_rotation(0)
+            #     ax.yaxis.label.set_ha('right')
 
-            #xlabel과 ylabel의 크기를 키웁니다.
-            [plt.setp(item.xaxis.get_label(), 'size', 20) for item in pp.axes.ravel()] 
-            [plt.setp(item.yaxis.get_label(), 'size', 20) for item in pp.axes.ravel()]
+            # #xlabel과 ylabel의 크기를 키웁니다.
+            # [plt.setp(item.xaxis.get_label(), 'size', 20) for item in pp.axes.ravel()] 
+            # [plt.setp(item.yaxis.get_label(), 'size', 20) for item in pp.axes.ravel()]
 
-            plt.show()
+            # plt.show()
 
         elif action == 'ds_var_corr_sheet':
             ''' 상관계수 조회
@@ -1899,7 +1889,8 @@ def learning_data(context):
             is_editable = (
                 mt_id and
                 # q.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
-                DsModelTrain.objects.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
+                DsModelTrain.objects.filter(id=mt_id, TrainStatus__in=['INITIALIZED', 'FAILED']).exists()
+                # DsModelTrain.objects.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
             )
             is_new = not is_editable
 
@@ -2016,9 +2007,12 @@ def learning_data(context):
 
             mt = DsModelTrain.objects.get(id=mt_id)
 
-            # 학습 상태가 시작 전이어야 삭제 허용
-            if mt.TrainStatus != 'INITIALIZED':
-                items = {'success': False, 'message': '이미 학습이 시작된 정보는 삭제할 수 없습니다.'}
+            # # 학습 상태가 시작 전이어야 삭제 허용
+            # if mt.TrainStatus != 'INITIALIZED':
+            #     items = {'success': False, 'message': '이미 학습이 시작된 정보는 삭제할 수 없습니다.'}
+            if mt.TrainStatus in ['PENDING', 'TRAINING']:
+                items = {'success': False, 'message': '훈련이 진행중인 정보는 삭제할 수 없습니다. 학습이 완료된 후 다시 시도해주세요.'}
+
             else:
                 # 연결된 정보 삭제
                 DsModelParam.objects.filter(DsModelTrain_id=mt_id).delete()
@@ -2116,8 +2110,9 @@ def learning_data(context):
                 df.dropna(inplace=True)
 
                 # # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
-                df['data_date'] = pd.to_datetime(df['data_date'])
-                df.set_index('data_date', inplace=True)
+                # df['data_date'] = pd.to_datetime(df['data_date'])
+                # df.set_index('data_date', inplace=True)
+                df.set_index('id', inplace=True)
 
                 # 인코딩 대상 컬럼
                 # categorical_cols = ['tag_code', 'mat_cd'] # PLC 데이터 사용 시
@@ -2130,11 +2125,23 @@ def learning_data(context):
                     df[col] = le.fit_transform(df[col])
                     label_encoders[col] = le  # 나중에 역변환이나 테스트셋에도 재사용 가능
 
+                # # 피벗용 전처리
+                # state_mapping = df[['id', 'state']].drop_duplicates().set_index('data_date')
+                # # 피벗: 시간(data_date) 기준, tag_code를 컬럼으로 만들고 data_value 값 채우기
+                # pivot_df = df.pivot_table(index='id', columns='tag_code', values='data_value')
+                # # 피벗된 df에 rst_id, state 다시 병합 (data_date 기준으로)
+                # pivot_df = pivot_df.merge(state_mapping, left_index=True, right_index=True)
 
+                # 이후에는 기존과 동일하게 features 지정 가능
+                # state를 제외한 나머지 컬럼을 피쳐로
+
+                # features = list(pivot_df.columns.difference(['state', 'id']))  # 분석에 필요 없는 id와 y를 제외한 컬럼(feature)분리
+                features = list(df.columns.difference(['state', 'id', 'data_date']))  # 분석에 필요 없는 id와 y를 제외한 컬럼(feature)분리
                 # features = ['tag_code', 'data_value', 'rst_id', 'mat_cd'] # 독립변수
                 # features = ['tag_code', 'data_value', 'mat_cd']  # rst_id는 feature에서 제거
-                # features = ['mat_cd', 'screw1_1', 'screw1_2', 'screw1_3', 'screw1_4', 'screw1_5', 'screw1_6']  # 독립변수 - 로컬
-                features = ['mat_cd', 'SCREW1_1', 'SCREW1_2', 'SCREW1_3', 'SCREW1_4', 'SCREW1_5', 'SCREW1_6']  # 독립변수 - 배포()
+                # features = ['mat_cd', 'screw1_1', 'screw1_2', 'screw1_3', 'screw1_4', 'screw1_5', 'screw1_6']  # 독립변수 - 로컬(item)
+                # features = ['mat_cd', 'SCREW1_1', 'SCREW1_2', 'SCREW1_3', 'SCREW1_4', 'SCREW1_5', 'SCREW1_6']  # 독립변수 - 배포(item)
+
                 target_column = 'state' # 종속변수
 
                 # rst_id로 안묶고 진행할 때
@@ -2173,7 +2180,35 @@ def learning_data(context):
                 # model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=payload.params.RANDOM_STATE) # base_estimator -> estimators로 바꼈대
                 # model = AdaBoostClassifier(estimator=rf_model, n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
                 # model = AdaBoostClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
-                model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+                # model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']), max_depth=int(param_dict['MAX_DEPTH']))
+                # model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
+
+                # model = RandomForestClassifier(
+                #     n_estimators=int(param_dict.get('N_ESTIMATORS', 50)), 
+                #     random_state=int(param_dict.get('RANDOM_STATE', 42)), 
+                #     max_depth=int(param_dict.get('MAX_DEPTH', None)),
+                #     min_samples_leaf=int(param_dict.get('MIN_SAMPLES_LEAF', None)),
+                #     min_samples_split=int(param_dict.get('MIN_SAMPLES_SPLIT', None)),
+                #     max_features=int(param_dict.get('MAX_FEATURES', None)),
+                #     bootstrap=param_dict.get('BOOTSTRAP', None)
+                #     )
+
+                # 기본 파라미터
+                rf_params = {
+                    'n_estimators': int(param_dict.get('N_ESTIMATORS', 50)),
+                    'random_state': int(param_dict.get('RANDOM_STATE', 42)),
+                    'bootstrap': str(param_dict.get('BOOTSTRAP', 'True')).lower() in ['true', '1']
+                }
+
+                optional_params = ['MAX_DEPTH', 'MAX_FEATURES', 'MIN_SAMPLES_LEAF', 'MIN_SAMPLES_SPLIT']
+
+                for k in optional_params:
+                    v = param_dict.get(k)
+                    if v is not None:
+                        rf_params[k.lower()] = int(v)   # 파라미터로 받았을 때만 model 인자로 추가
+
+                model = RandomForestClassifier(**rf_params) # **변수: 딕셔너리를 풀어서 파라미터로 전달
+
                 # pca_model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=0)
             
                 # 모델 훈련(비교)
@@ -2263,9 +2298,25 @@ def learning_data(context):
                 # graph2 = {'data':sampled_test_df[target_column], 'mode':'lines+markers', 'name':'실제 값'}
 
                 #알고리즘에 대한 상태, feature importance.모델설명 그래프
-                title = {'main':'model 예측 추이', 'x':'테스트 데이터(무작위 rst_id가 같은 데이터로 샘플링)', 'y':'예측값(state)'}
-                graph1 = {'data':y_test, 'mode':'lines+markers', 'name':'실제 값'}
-                graph2 = {'data':test_predictions, 'mode':'lines+markers', 'name':'모델 예측값'} #이게 위로 가야 예측결과가 잘보임
+                title = {'main':'model 예측 추이', 'x':'테스트 데이터', 'y':'예측값(state)'}
+
+                graph1 = {
+                    'data':y_test, 
+                    # 'data': np.column_stack((y_test.index.values, y_test.values)),  # (x, y) 묶기
+                    'mode':'lines+markers', 
+                    'name':'실제값(0,1)',
+                    'text': y_test.index.astype(int).astype(str).values,   # hover용 index
+                    'hovertemplate': 'rst_id: %{text}<br>값: %{y}<extra></extra>'
+                    }
+
+                graph2 = {
+                    'data':test_predictions, 
+                    # 'data': np.column_stack((y_test.index.values, test_predictions)),
+                    'mode':'lines+markers', 
+                    'name':'모델 예측값(0,1)',
+                    'text': y_test.index.astype(int).astype(str).values,   # hover용 index
+                    'hovertemplate': 'rst_id: %{text}<br>값: %{y}<extra></extra>'
+                    } #이게 위로 가야(2번) 예측결과가 잘보임
 
                 pred_plotly = visualize_to_plotly(title, graph1, graph2)
 
@@ -2279,12 +2330,22 @@ def learning_data(context):
                 # print(feature_importance_df)
 
                 # 시각화 - 특성중요도가 0인 것들은 제외
-                fig1 = plt.figure(figsize=(10, 6))
+                feat_fig = plt.figure(figsize=(10, 6))
                 sns.barplot(x='Importance', y='Feature', data=feature_importance_df[feature_importance_df['Importance'] > 0])
                 plt.title('Feature Importance')
 
-                feat_chart_url = daService.plt_url(fig1)
-                # plt.close(fig1)
+                feat_chart_url = daService.plt_url(feat_fig)
+
+                
+                # tree 시각화
+                from sklearn.tree import plot_tree
+
+                tree_fig = plt.figure(figsize=(10, 6))
+                plot_tree(model.estimators_[(int(param_dict['N_ESTIMATORS']) - 1)], feature_names=features, filled=True, rounded=True)
+                # plot_tree(model.estimators_[49], feature_names=features, filled=True, rounded=True)
+
+                tree_chart_url = daService.plt_url(tree_fig)
+
 
                 # ROC AUR 그래프
                 from sklearn.metrics import roc_curve, roc_auc_score
@@ -2307,7 +2368,6 @@ def learning_data(context):
                 plt.tight_layout()
 
                 roc_train_chart_url = daService.plt_url(fig_train)
-                # plt.close(fig_train)
 
                 # ROC Curve - Test
                 fpr_test, tpr_test, thresholds_test = roc_curve(y_test, test_prob[:, 1])
@@ -2331,7 +2391,9 @@ def learning_data(context):
                 print("test_prob 샘플:", test_prob[:10, 1])
                 print("test_prob[:, 1]:", test_prob[:, 1])
 
-
+                mt.TrainStatus = 'COMPLETED'
+                mt.set_audit(user)
+                mt.save()
                 # 훈련 및 예측이 완료되면 결과값 서버에 전달
                 # 시각화 부분 분리해야 함 특성중요도 그래프 추가할것
 
@@ -2339,6 +2401,7 @@ def learning_data(context):
                     'success':True, 
                     'pca_plotly': pred_plotly,
                     'feat_chart_url': feat_chart_url,
+                    'tree_chart_url': tree_chart_url,
                     'roc_train_chart_url': roc_train_chart_url, 
                     'roc_test_chart_url': roc_test_chart_url,
                     # 'metric': metric

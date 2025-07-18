@@ -22,9 +22,9 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="dept_pk" data-labelCd="관리부서">관리부서</label>
+                            <label class="k-label k-form-label" for="manage_dept" data-labelCd="관리부서">관리부서</label>
                             <div class="field-wrapper">
-                                <select id="dept_pk" name="dept_pk"></select>
+                                <select id="manage_dept" name="manage_dept"></select>
                             </div>
                         </div>
                     </div>
@@ -70,9 +70,9 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="dept_name" data-labelCd="작업부서">작업부서</label>
+                            <label class="k-label k-form-label" for="work_dept" data-labelCd="작업부서">작업부서</label>
                             <div class="field-wrapper">
-                                <select id="dept_name" name="dept_name"></select>
+                                <select id="work_dept" name="work_dept"></select>
                             </div>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="equipment_grid"></div>
+                <div id="equip_workhist_grid"></div>
             </div>
         </div>
     </div>
@@ -113,8 +113,11 @@
 
 {% block scripts %}
 
+{% include '../../popup/modalEquSel.html'%}
+{% include '../../popup/modalWoDetail.html'%}
+
 <script type="text/javascript">
-    class EquipmentPage {
+    class CmEquipWorkhistPage {
         constructor() {
             this.grid = null;
             this.upload = null;
@@ -140,11 +143,11 @@
                 columns: [
                     // 기본 정보
                     { field: 'equip_pk', title: '설비pk', width: 0, hidden: true },
-                    { field: 'equip_cd', title: '설비코드', width: 150 },
+                    { field: 'equip_cd', title: '설비코드', width: 150, template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_cd#</a>' },
                     { field: 'equip_nm', title: '설비명', width: 200 },
                     { field: 'loc_nm', title: '설비위치', width: 150 },
                     { field: 'term', title: '작업기간', width: 300, template: "#=start_dt# ~ #=end_dt#" },
-                    { field: 'work_src_nm', title: '작업제목', width: 150 },
+                    { field: 'work_title', title: '작업제목', width: 150, template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-title-pk=\"#=work_order_pk#\">#=work_title#</a>" },
                     { field: 'req_dept_nm', title: '요청부서', width: 150 },
                     { field: 'dept_nm', title: '작업부서', width: 150 },
                     { field: 'wo_status_nm', title: '작업상태', width: 100 },
@@ -160,7 +163,51 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#equipment_grid"), equipmentGridOption);
+            _this.grid = new Grid($("#equip_workhist_grid"), equipmentGridOption);
+
+            // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
+            $(document).on("click", ".grid-column-link", async function (e) {
+                e.preventDefault();
+                let equipPk = $(this).data("equip-pk");
+                let woTitlePk = $(this).data("wo-title-pk");
+
+                if (equipPk) {
+                    // 이미 모달이 있으면 재사용
+					if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+                        equipMasterPage.show(equipPk);                        
+                        return;
+                    }
+                    // 없으면 ajax로 모달 html 동적 로드
+					try {
+						const response = await $.get('/api/kmms/equipment?action=load_modal');
+						$('body').append(response);
+
+						// imageUploader가 준비될 때까지 대기
+						let waitForUploader = async () => {
+							return new Promise(resolve => {
+								let count = 0;
+								const check = () => {
+									if (window.imageUploader) return resolve();
+									count++;
+									if (count > 20) return resolve();
+									setTimeout(check, 50);
+								};
+								check();
+							});
+						};
+						await waitForUploader();
+
+						window.equipMasterPage = new EquipMaster();
+						equipMasterPage.show(equipPk);
+
+					} catch (err) {
+						console.error("equipment.html 로드 실패:", err);
+						alert("설비 정보를 불러오는데 실패했습니다.");
+					}
+                } else if (woTitlePk) {
+                    woDetailPage.show(woTitlePk, 1);
+                }
+            });
 
             //search form
             $('#keyword').kendoTextBox();
@@ -184,12 +231,15 @@
                 }
             });
 
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#manage_dept'), 'depart', 'all');
             AjaxUtil.fillDropDownTreeOptions($('#srch_equ_loc'), 'cm_location', 'all');
+            let today = new Date();
+            let threeMonthsAgo = new Date(today);
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: threeMonthsAgo,
+                    end: today
                 },
                 change: function (e) {
 
@@ -199,11 +249,15 @@
                 startField: "start_dt",
                 endField: "end_dt"
             });
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#work_dept'), 'depart', 'all');
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
             AjaxUtil.fillDropDownOptions($('#srch_equ_category'), 'cm_equip_category', 'all', null);
-            AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all');
+            AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all', '');
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
+
+			$('#srch_equ_category').on('change', function() {
+				_this.refreshEquipClassify();
+			});
 
             //form button
             $('#btnSearch').kendoButton({
@@ -242,35 +296,41 @@
             let param = {
                 action: 'read_equip_workhist',
                 keyword: $('#keyword').val() || '',
-                //dept_pk: $('#dept_pk').data("kendoDropDownTree").value(),
-                //loc_pk: $('#srch_equ_loc').data("kendoDropDownTree").value(),
-                //start_dt: startDate,
-                //end_dt: endDate,
-                //maint_type_cd: $('#maint_code').val(),
-                //equip_category_id: $('#srch_equ_category').val(),
-                //equip_class_path: $('#srch_equip_class_path').data("kendoDropDownTree").value(),
-                //req_dept: $('#req_dept').data("kendoDropDownTree").value(),
+                manage_dept: $('#manage_dept').data("kendoDropDownTree").value(),
+                loc_pk: $('#srch_equ_loc').data("kendoDropDownTree").value(),
+                start_dt: startDate,
+                end_dt: endDate,
+                maint_type_cd: $('#maint_code').val(),
+                equip_category_id: $('#srch_equ_category').val(),
+                equip_class_path: $('#srch_equip_class_path').data("kendoDropDownTree").value(),
+                work_dept: $('#work_dept').data("kendoDropDownTree").value(),
 
-                //srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N',
+                srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N',
             };
 
             let result = AjaxUtil.getSyncData(_this.baseUrl, param);
             _this.grid.setData(result);
-            console.log('result: ', result);
         }
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#equipment_grid').data("kendoGrid");
+            let gridData = $('#equip_workhist_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
                 e.workbook.fileName = "equip_workhist.xlsx";
             });
             gridData.saveAsExcel();
         }
+
+        refreshEquipClassify() {
+			let _this = this;
+			let selectedCategory = $('#srch_equ_category').val();
+			
+			AjaxUtil.fillDropDownTreeOptions($('#srch_equip_class_path'), 'cm_equip_classify', 'all', selectedCategory);
+		}
     };
 
     let page = null;
-    page = new EquipmentPage();
+    page = new CmEquipWorkhistPage();
 
     $(document).ready(function () {
         page.searchMainData();

@@ -108,7 +108,7 @@
 						</div>
 						<!-- 파일 탭 컨텐츠 -->
 						<div class="tab-pane" id="fileTab" style="height: 400px;">
-							{% include 'components/FileUpload.html' %}
+							{% include 'components/FileUpload.html' with tableName='cm_work_order' attachName='file' dataPk=cm_work_order.work_order_pk|default:'' %}
 						</div>
 					</div>
 				</div>
@@ -117,7 +117,7 @@
 		<!-- 버튼 영역 -->
 		<div class="modal-footer">
 			<button type="button" class="btn-save" id="preSaveBtn">임시저장</button>
-			<button type="button" class="btn-save" id="saveBtn">저장</button>
+			<button type="button" class="btn-save" id="saveBtn">작업요청</button>
 			<button type="button" class="btn-close" id="closeMyWorkReqModal">닫기</button>
 		</div>
 	</div>
@@ -254,6 +254,32 @@
 			this.selectedRow_wo = null;
 
 			this.init();
+		}
+
+		// 부모 페이지 새로고침 함수
+		refreshParentPage() {
+			try {
+				// 1. page 객체가 존재하는 경우
+				if (typeof page !== 'undefined' && page.searchMainData) {
+					page.searchMainData();
+				}
+				// 2. window.opener가 존재하는 경우 (팝업에서 열린 경우)
+				else if (window.opener && typeof window.opener.page !== 'undefined' && window.opener.page.searchMainData) {
+					window.opener.page.searchMainData();
+				}
+				// 3. 부모 프레임이 존재하는 경우
+				else if (window.parent && window.parent !== window && typeof window.parent.page !== 'undefined' && window.parent.page.searchMainData) {
+					window.parent.page.searchMainData();
+				}
+				// 4. 페이지 새로고침
+				else {
+					location.reload();
+				}
+			} catch (error) {
+				console.warn('부모 페이지 새로고침 실패:', error);
+				// 최후의 수단으로 페이지 새로고침
+				location.reload();
+			}
 		}
 
 		init() {
@@ -523,12 +549,12 @@
 
 			};
 
-			AjaxUtil.fillDropDownOptions($('#wo_maint_type_cd'), 'cm_code', 'all', null, 'MAINT_TYPE');
-			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "cm_depart", "select");
+			AjaxUtil.fillDropDownOptions($('#wo_maint_type_cd'), 'cm_code', 'all', 'MAINT_TYPE_BM', 'MAINT_TYPE');
+			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "depart", "select");
 			AjaxUtil.fillDropDownOptions($('#wo_work_charger_pk'), 'cm_user_info', 'choose', null);
 			AjaxUtil.fillDropDownOptions($('#cycleType'), 'cm_code', 'choose', null, 'CYCLE_TYPE');
 			AjaxUtil.fillDropDownOptions($('#woProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
-			AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', null, 'WS_TYPE');
+			AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', 'WS01', 'WS_TYPE');
 			AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
 
 			let today = CommonUtil.getYYYYMMDD();
@@ -665,6 +691,7 @@
 
 			$("#preSaveBtn").kendoButton({
 				icon: "k-i-save",
+				themeColor: "gray",
 				click: function (e) {
 					e.preventDefault();
 					_this.preSaveData();
@@ -808,7 +835,23 @@
 
 			let funcSucc = function (resp) {
 				if (resp.success) {
+					//파일 저장
+					const result = fetchSomeData();					
+					
+					Alert.alert('', resp.message);
+					FormUtil.resetForm($("#wo_req_form"));
+					$("#editor").data("kendoEditor").value('');
+					$("#work_order_pk").val('');
+					if (window.fileUploader && typeof window.fileUploader.clearFiles === 'function') {
+						window.fileUploader.dataPk = '';
+						window.fileUploader.clearFiles();
+					}
+					AjaxUtil.fillDropDownOptions($('#wo_maint_type_cd'), 'cm_code', 'all', 'MAINT_TYPE_BM', 'MAINT_TYPE');
+					AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', 'WS01', 'WS_TYPE');		
 
+					$("#modalMyWorkReq").fadeOut();
+					// 부모 페이지 새로고침
+					_this.refreshParentPage();
 
 				} else {
 					Alert.alert('error', resp.message);
@@ -816,16 +859,14 @@
 			};
 
 			console.log('preSaveData', data);
-
 			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
-			$("#modalMyWorkReq").fadeOut();
+			
 		}
 
 		saveData() {
 			let _this = this;
 			let data = FormUtil.extractForm($('#wo_req_form'));
-			data.woStatusCd = 'WOS_OC';//요청완료
-			console.log('wo_req_form_data', data);
+			data.woStatusCd = 'WOS_OC';//요청완료	
 
 			// 유효성 검사
 			if (!data.equip_pk) {
@@ -870,17 +911,32 @@
 
 			let funcSucc = function (resp) {
 				if (resp.success) {
+					//파일 저장
+					const result = fetchSomeData();
 
+					Alert.alert('', resp.message);
+					FormUtil.resetForm($("#wo_req_form"));
+					$("#editor").data("kendoEditor").value('');
+					$("#work_order_pk").val('');
+					if (window.fileUploader && typeof window.fileUploader.clearFiles === 'function') {
+						window.fileUploader.dataPk = '';
+						window.fileUploader.clearFiles();
+					}
+					AjaxUtil.fillDropDownOptions($('#wo_maint_type_cd'), 'cm_code', 'all', 'MAINT_TYPE_BM', 'MAINT_TYPE');
+					AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', 'WS01', 'WS_TYPE');	
+
+					$("#modalMyWorkReq").fadeOut();
+					
+					// 부모 페이지 새로고침
+					_this.refreshParentPage();
 
 				} else {
 					Alert.alert('error', resp.message);
 				}
 			};
 
-			console.log('preSaveData', data);
-
 			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', data, funcSucc);
-			$("#modalMyWorkReq").fadeOut();
+			
 		}
 
 		// 탭 전환 이벤트 핸들러
@@ -988,5 +1044,53 @@
 		let rowCount = 0;
 
 	});
+
+	function showMainFileFromUploader() {
+		if (!window.fileUploader) return;
+
+		const fileDataList = window.fileUploader.getFilesData();
+		const mainFile = fileDataList.find(file => file); // 첫 번째 파일
+
+		const container = document.querySelector('#modalEquipMaster .file-container');
+		if (container) {
+			if (mainFile) {
+				container.innerHTML = `
+					<div style="text-align: center;">
+						<i class="fas fa-file" style="font-size: 48px; color: #1e4f88;"></i>
+						<div style="margin-top: 10px; color: #333;">${mainFile.name}</div>
+						<div style="color: #666; font-size: 12px;">${formatFileSize(mainFile.size)}</div>
+					</div>
+				`;
+			} else {
+				// fallback 파일 표시
+				container.innerHTML = `
+					<div style="text-align: center;">
+						<i class="fas fa-file" style="font-size: 48px; color: #999;"></i>
+						<div style="margin-top: 10px; color: #999;">No file</div>
+					</div>
+				`;
+			}
+		}
+	}
+
+	function formatFileSize(bytes) {
+		if (bytes === 0) return '0 Bytes';
+		const k = 1024;
+		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+	}
+
+	function fetchSomeData() {
+		try {
+			if (window.fileUploader && typeof window.fileUploader.saveFiles === 'function' && window.fileUploader.getFilesData && window.fileUploader.getFilesData().length > 0) {
+				const fileResult = window.fileUploader.saveFiles();
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			alert(error.message);
+			throw error;
+		}
+	}
 
 </script>

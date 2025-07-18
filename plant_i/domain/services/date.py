@@ -121,6 +121,13 @@ class DateUtil(object):
             data_date = datetime.strptime(data_date, '%Y-%m-%d')
         return (data_date.replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
+    @staticmethod
+    def string_to_datetime(value:datetime, format='%Y-%m-%d %H:%M:%S'):
+        """문자열을 datetime으로 변환
+        """
+        if type(value) is str:
+            return datetime.strptime(value, format)
+        return value
 
     #@classmethod
     #def timedelta_minutes(cls, start_time, end_time):

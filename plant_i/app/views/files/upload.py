@@ -37,8 +37,8 @@ def upload(context, request):
 
             for file in files:
                 try:
-                    if file.size > 52428800:
-                        raise ValueError('파일 용량은 50MB 이하만 가능합니다.')
+                    if file.size > 524288000:   # 원복 필요(임의로 나만 늘려서 쓰고 커밋 안하는중)
+                        raise ValueError('파일 용량은 500MB 이하만 가능합니다.')
 
                     ext = file.name.split('.')[-1].lower()
                     if accepts and ext not in accepts.split(','):

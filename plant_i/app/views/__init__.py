@@ -215,14 +215,13 @@ class ApiModuleView(MESBaseView):
 
         return self.api_execute(request, *args, **kwargs)
 
-class FilesView(View):
+class FilesView(MESBaseView):
     http_method_names = ['get', 'post']
-
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+   
 
     def execute(self, request, *args, **kwargs):
+
+
         view_name = kwargs.get('view_name')
         try:
             module_path = 'app.views.files.{}'.format(view_name)
@@ -256,6 +255,15 @@ class FilesView(View):
         content = json.dumps(dic_content, ensure_ascii=False)
         res = HttpResponse(status=500, reason=reason, content=content)
         return res
+
+
+    def response401(self, request, reason):
+        dic_content = {'message': reason}
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            content = json.dumps(dic_content, ensure_ascii=False)
+            return HttpResponse(status=401, reason=reason, content=content)
+
+        return render(request, '401.html', dic_content)
 
 class GUITemplatesView(MESBaseView):
     http_method_names = ['get']
@@ -495,7 +503,6 @@ class SystemDefaultRenderer():
                 'mqtt_host': settings.MOSQUITTO_HOST,
                 'mqtt_web_port': settings.MOSQUITTO_WEBSOCKET_PORT,
                 'system_topic' : settings.TOPIC_SYSTEM_EVENT,
-                'use_system_event' : settings.USE_SYSTEM_EVENT
             }
         )
    

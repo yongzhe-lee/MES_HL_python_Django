@@ -1,6 +1,8 @@
 import os, json
+
 from domain.services.date import DateUtil
 from domain.services.sql import DbUtil
+from domain.services.logging import LogWriter
 from domain.services.interface.sap import SapInterfaceService
 
 from domain.models.interface import IFSapBOM, IFSapMaterial, IFSapMaterialStock, IFSapPcbRandomNumber, IFSapMaterial
@@ -109,20 +111,6 @@ def sap(context):
             count = len(items)
             result['count'] = count
 
-            '''
-                      "MAKTX": "ESC ECU (UB TPMS_DOM,C-SAS,HAC,VSM,ESS,I",
-          "BKLAS": "FERT",
-          "PRICE": "30900.13",
-          "WERKS": "1319",
-          "MTART": "FERT",
-          "PEINH": "100",
-          "MATKL": "",
-          "MEINS": "PC",
-          "BKBEZ": "Inhouse made",
-          "GROES": "",
-          "ZCTIME": "0.0",
-          "MATNR": "010.006-107"
-            '''
 
             for t in items:
                 if_sap_mat = IFSapMaterial()
@@ -246,7 +234,7 @@ def sap(context):
 
         elif action=="local_sap_mat":
             curr_dir = os.getcwd()
-            filepath = curr_dir + '/domain/_sql/interface/sap_mat.json'
+            filepath = curr_dir + '/domain/_sql/interface/sap/sap_mat.json'
             with open(filepath, 'r', encoding="utf8") as f:
                 filedata = f.read()
 
@@ -422,9 +410,30 @@ def sap(context):
                 if_sap_mat.set_audit(user)
                 if_sap_mat.save()
 
+        elif action=="material_search":
+            keyword = gparam.get('keyword')
+
+            dic_param = {"keyword" : keyword}
+            sql = '''
+            select 
+            m."Code" as mat_cd
+            , m."Name" as mat_nm
+            from material m
+            where m.mat_type in ('FERT','HALB')           
+            '''
+            if keyword:
+                sql+='''
+                '''
+
+            items = DbUtil.get_rows(sql, dic_param)
+            result["success"] = True
+            result['items'] = items
+
+        else:
+            print("")
     except Exception as ex:
         result["success"] = False
         result["message"] = str(ex)
-
+        LogWriter.add_dblog('error', source, ex)
 
     return result

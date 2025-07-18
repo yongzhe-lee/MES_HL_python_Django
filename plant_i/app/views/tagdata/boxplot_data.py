@@ -23,6 +23,7 @@ def boxplot_data(context):
     gparam = context.gparam
     posparam = context.posparam
     action = gparam.get('action')
+    result = {}
     
     try:
         if  action =='read':
@@ -34,7 +35,7 @@ def boxplot_data(context):
 
             items = tag_service.tag_multi_data_list2(start_date, end_date, tag_codes)
 
-            result = []
+            result['data'] = []
             tag_data = {}
             for tag_code, value in items.items():
                 data_name = value['tag_name']
@@ -55,8 +56,10 @@ def boxplot_data(context):
                     'box_data': box_data,
                     'outlier': outlier,
                 }
-                result.append(dc)
-        
+                result['data'].append(dc)
+
+            result['success'] = True
+
             return result
 
             data = [1, 2, 3.3, 5.1, 6.3, 2.1, 1.4, 4.3, 10]
@@ -85,8 +88,8 @@ def boxplot_data(context):
     except Exception as ex:
         source = '/api/tagdata/boxplot_data'
         LogWriter.add_dblog('error', source, ex)
-        raise ex
+        result = {'success':False, 'message': str(ex)}
 
-    return items
+    return result
 
 

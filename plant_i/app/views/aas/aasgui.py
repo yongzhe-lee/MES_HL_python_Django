@@ -1,13 +1,14 @@
-
-from re import sub
-from django.db import DatabaseError, transaction
+import os, uuid
+from django.db import transaction
 
 from domain.services.logging import LogWriter
-from domain.services.sql import DbUtil
-from domain.models.aas import DBAdministration, DBAssetAdministrationShell, DBSubModelElementCollection, DBSubmodel, DBPropertyElement, DBSubmodelElement
+from domain.models.aas import DBAdministration, DBAssetAdministrationShell, DBFileElement, DBSubModelElementCollection, DBSubmodel, DBPropertyElement
+from domain.models.aas import DBSubmodelElement
 from domain.models.aas import DBReference, AASSubmodelReferences, DBReferenceKey
-from domain.services.aas.data import AASDataService
+from domain.services.aas import AASDataService
 from domain.services.common import CommonUtil
+from configurations import settings
+
 
 def aasgui(context) :
     '''
@@ -119,31 +120,12 @@ def aasgui(context) :
 
             result['success'] = True
             result['aas_pk'] = aas.aas_pk
-
-
-        elif action=="aas_delete":
-            aas_pk = posparam.get('aas_pk')
-
-            if aas_pk is None:
-                raise Exception("삭제할 AAS의 PK가 없습니다.")
-
-            aas = DBAssetAdministrationShell.objects.get(aas_pk = aas_pk)
-            aas._status = 'D'  # 삭제 상태로 변경
-            aas.set_audit(user)
-            aas.save()
-
-        elif action=="submodel_detail":
-            sm_pk = gparam.get('sm_pk')
-            aas_pk = gparam.get('aas_pk')
-
-            data = aas_data_service.get_submodel_detail(sm_pk, lang_code, aas_pk)
-            result['success'] = True
-            result['data'] = data
+            return result
 
         elif action=="save_submodel":
             aas_pk = posparam.get('aas_pk')
             sm_pk = posparam.get('sm_pk')
-            kind = posparam.get('kind')  # Instance or Type
+            model_kind = posparam.get('model_kind', 'Instance')  # Instance or Type
             category = posparam.get('category')  # VARIABLE, COLLECTION, etc.
             id_short = posparam.get('id_short')
             id = aas_data_service.make_id_with_short_id(id_short,"submodel")
@@ -161,15 +143,13 @@ def aasgui(context) :
             if not aas_pk:
                 raise Exception("AAS PK가 입력되지 않았습니다.")
 
-
-
             submodel = None
             if sm_pk:
                 # 기존 submodel 수정
                 submodel = DBSubmodel.objects.get(submodel_pk = sm_pk)
                 submodel.displayName = aas_data_service.set_multi_language_text(submodel.displayName, language, displayName)
                 submodel.description = aas_data_service.set_multi_language_text(submodel.description, language, description)
-                submodel.kind = kind
+                submodel.kind = model_kind
                 submodel.category = category
                 submodel.set_audit(user)
 
@@ -184,7 +164,7 @@ def aasgui(context) :
                             # 기존 중복이 없으면 DBReferenceKey에 등록되어 있는 정보도 업데이트 해야 한다.
                             DBReferenceKey.objects.filter(type="SUBMODEL", value=submodel.id, Reference__type="ModelReference").upate(value=submodel.id)
                             submodel.id_short = id_short
-                            submodel.id = id
+                    submodel.id = id
 
                     submodel.save()
 
@@ -197,7 +177,7 @@ def aasgui(context) :
                 submodel = DBSubmodel()
                 submodel.id =id
                 submodel.id_short = id_short
-                submodel.kind = kind
+                submodel.kind = model_kind
                 submodel.category = category
                 dic_displayNames = []
                 dic_displayNames.append({'language' : language, 'text': displayName})
@@ -237,14 +217,9 @@ def aasgui(context) :
                         aas_submodel_ref.set_audit(user)
                         aas_submodel_ref.save()
 
-
-
-
             result['success'] = True
             result["sm_pk"] = submodel.submodel_pk
-
-        elif action=="search_submodel_list":
-            keyword = gparam.get('keyword')
+            return result
 
 
         elif action=="property_detail":
@@ -252,66 +227,89 @@ def aasgui(context) :
             data = aas_data_service.get_property_detail(sme_pk, lang_code)
             result['success'] = True
             result['data'] = data
+            return result
 
         elif action=='save_property':
-            sm_pk = posparam.get('sm_pk')
+            sm_pk = posparam.get('p_sm_pk')
+            p_sme_pk = posparam.get('p_sme_pk')
             sme_pk = posparam.get('sme_pk')
+
             id_short = posparam.get('id_short')
             lang_code = posparam.get('lang_code')
             displayName = posparam.get('displayName')
             description = posparam.get('description')
             valueType = posparam.get('valueType')
             value = posparam.get('value')
+            value_id = posparam.get('value_id')
 
             category = 'VARIABLE' #= posparam.get('category')
 
-            if sm_pk is None:
-                raise Exception("submodel pk가 입력되지 않았습니다.")
+            if not sm_pk :
+                if not p_sme_pk:
+                    raise Exception("submodel pk가 입력되지 않았습니다.")
 
             submodel_element = None
             prpt_element = None
             if sme_pk:
                 submodel_element = DBSubmodelElement.objects.get(sme_pk = sme_pk)
                 submodel_element.id_short = id_short
-                submodel_element.ModelKind = "INSTANCE"
-
+                submodel_element.ModelKind = "Instance"
+                submodel_element.category = category
+                submodel_element.displayName = CommonUtil.find_and_set_multilanguage_text(submodel_element.displayName, lang_code,  displayName)
+                submodel_element.description = CommonUtil.find_and_set_multilanguage_text(submodel_element.description, lang_code,  description)
                 submodel_element.set_audit(user)
-                submodel_element.save()
-
-                prpt_element = DBPropertyElement.objects.get(SubmodelElement=submodel_element)
-
-                arr_displayName = submodel_element.displayName
-                arr_description = submodel_element.description
-
-                CommonUtil.find_and_set_multilanguage_text(submodel_element.displayName, lang_code,  displayName)
-                CommonUtil.find_and_set_multilanguage_text(submodel_element.description, lang_code,  description)
-
-                prpt_element.valueType = valueType
-                prpt_element.value = value
-
-                prpt_element.set_audit(user)
-                prpt_element.save()
-
+                
+                with transaction.atomic():
+                    submodel_element.save()
+                    prpt_element = DBPropertyElement.objects.get(SubmodelElement=submodel_element)
+                    prpt_element.valueType = valueType
+                    prpt_element.value = value
+                    prpt_element.set_audit(user)
+                    prpt_element.save()
 
             else:
+                # 신규 Property 등록
+                # id_short 가 중복되는지 체크해야 한다.
+                id_short_exist = DBSubmodelElement.objects.filter(id_short=id_short).exists()
+                if id_short_exist:
+                    raise Exception(f"Property id_short '{id_short}' already exists.")
+
+                # id_short 중복이 없으면 신규 등록
                 submodel_element = DBSubmodelElement()
                 submodel_element.category = category
                 submodel_element.id_short = id_short
+                submodel_element.modelType = 'Property'
                 submodel_element.displayName = [{'language' : lang_code, 'text': displayName}]
                 submodel_element.description = [{'language' : lang_code, 'text': description}]
                 submodel_element.set_audit(user)
-                submodel_element.save()
 
-                prpt_element = DBPropertyElement(SubmodelElement = submodel_element)
-                prpt_element.valueType = valueType
-                prpt_element.value = value
-                prpt_element.set_audit(user)
-                prpt_element.save()
+                if sm_pk:
+                    submodel = DBSubmodel.objects.get(submodel_pk=sm_pk)
+                    submodel_element.Submodel = submodel
+                
+                # value_id 처리 루틴 추가
+                if value_id is not None:
+                    print(f"Value ID: {value_id}")
+
+                with transaction.atomic():
+                    submodel_element.save()
+
+                    prpt_element = DBPropertyElement(SubmodelElement = submodel_element)
+                    prpt_element.valueType = valueType
+                    prpt_element.value = value
+                    prpt_element.set_audit(user)
+                    prpt_element.save()
+
+                    if p_sme_pk:
+                        # 부모가 collection 인경우에는 values에 추가해야함
+                        submodelitem_collection = DBSubModelElementCollection.objects.get(sme_pk = p_sme_pk)
+                        submodelitem_collection.values.add(submodel_element)
+                        submodelitem_collection.set_audit(user)
+                        submodelitem_collection.save()
 
 
             result['success'] = True
             result['data'] = submodel_element.sme_pk
-
 
         elif action=="submodel_element_collection_detail":
             sme_pk = gparam.get('data_pk')
@@ -330,87 +328,88 @@ def aasgui(context) :
             # 컬렉션 밑에 컬렉션을 등록하는 경우에는 submodel_element_collection_values 에 추가해야한다.
             # 이 경우는 submodel_element, submodel_element_collection, submodel_element_collection_values 에 다 등록해야 한다.
 
-
-            sm_pk = posparam.get('sm_pk')
+            p_sm_pk = posparam.get('p_sm_pk')
             sme_pk = posparam.get('sme_pk')
+            p_sme_pk = posparam.get('p_sme_pk')
             lang_code = posparam.get('lang_code')
             displayName = posparam.get('displayName')
             description = posparam.get('description')
             id_short = posparam.get('id_short')
             valueType = posparam.get('valueType')
             value = posparam.get('value')
+            category = posparam.get('category')
+            ModelKind = posparam.get("model_kind", "Instance") # Instance, Template
 
             submodel_element = None
             submodel_element_collection = None
-            if sm_pk:
-                # 1. sm_pk가 있으면 부모가 submodel 바로 하위의 컬렉션이다. 
-
-                if sme_pk is None:
-                    # 기존 서브모델 하위의 신규 컬렉션 등록
-                    submodel_element = DBSubmodelElement()
-                    submodel_element.displayName = []
-                    submodel_element.description = []
-                    CommonUtil.find_and_set_multilanguage_text(submodel_element.displayName, lang_code, displayName);
-                    CommonUtil.find_and_set_multilanguage_text(submodel_element.description, lang_code, description);
-                    submodel_element.set_audit(user)
-                    submodel_element.save()
-
-                    submodel_element_collection =  DBSubModelElementCollection(sme_pk = submodel_element.sme_pk)
-                    submodel_element_collection.set_audit(user)
-                    submodel_element_collection.save()
-
-                else:
-                    # 기존 서브모델 하위의 기존 컬렉션 수정
-                    submodel_element = DBSubmodelElement.objects.get(sme_pk = sme_pk)
-                    CommonUtil.find_and_set_multilanguage_text(submodel_element.displayName, lang_code, displayName);
-                    CommonUtil.find_and_set_multilanguage_text(submodel_element.description, lang_code, description);
-                    submodel_element.set_audit(user)
-                    submodel_element.save()
-
+            
+            if sme_pk:
+                # 기존 update
+                submodel_element = DBSubmodelElement.objects.get(sme_pk = sme_pk)
+                submodel_element.id_short = id_short
+                submodel_element.category = category
+                submodel_element.ModelKind = ModelKind
+                submodel_element.modelType = "Collection"
+                submodel_element.displayName = CommonUtil.find_and_set_multilanguage_text(submodel_element.displayName, lang_code, displayName);
+                submodel_element.description = CommonUtil.find_and_set_multilanguage_text(submodel_element.description, lang_code, description);                    
+                submodel_element.set_audit(user)
+                submodel_element.save()
 
             else:
-                # 2. sm_pk가 없으면 부모가 collection 인 경우 이다.
-                # 컬렉션인 경우 상위 컬렉션이 번호와 현재컬렉션 번호를 다 체크해야한다.
-                # 부모 컬렉션 PK : p_sme_pk , 본인 컬렉션 PK sme_pk 
-                p_sme_pk = posparam.get('p_sme_pk')
-                if p_sme_pk is None:
-                    raise Exception("부모없이 컬렉션을 등록하려 했습니다.")
+                # 무조건 신규create
+                if p_sm_pk:
+                    submodel = DBSubmodel.objects.get(submodel_pk =p_sm_pk )
 
-                parent_collection = DBSubModelElementCollection(sme_pk=p_sme_pk)
-
-                if sme_pk is None:
-                    submodel_element = DBSubmodelElement()
-                    submodel_element.displayName = []
-                    submodel_element.description = []
-                    CommonUtil.find_and_set_multilanguage_text(submodel_element.displayName, lang_code, displayName);
-                    CommonUtil.find_and_set_multilanguage_text(submodel_element.description, lang_code, description);
+                    # 기존 서브모델 하위의 신규 컬렉션 등록
+                    submodel_element = DBSubmodelElement(Submodel=submodel)
+                    submodel_element.category = category
+                    submodel_element.id_short = id_short
+                    submodel_element.modelType = 'Collection'
+                    submodel_element.displayName = CommonUtil.find_and_set_multilanguage_text([], lang_code, displayName);
+                    submodel_element.description = CommonUtil.find_and_set_multilanguage_text([], lang_code, description);                    
                     submodel_element.set_audit(user)
-                    submodel_element.save()
-                    submodel_element_collection =  DBSubModelElementCollection(sme_pk = submodel_element.sme_pk)
-                    submodel_element_collection.set_audit(user)
-                    submodel_element_collection.save()
 
-                    # submodel_element_collection_values 있는지 체크필요
-                    parent_collection.values.add(submodel_element_collection)
-                    parent_collection.set_audit(user)
-                    parent_collection.save()
-                    
+                    with transaction.atomic():
+                        submodel_element.save()
+                        submodel_element_collection =  DBSubModelElementCollection(sme_pk = submodel_element.sme_pk)
+                        submodel_element_collection.set_audit(user)
+                        submodel_element_collection.save()
 
+                else:
+                    if not p_sme_pk:
+                        raise Exception("부모없이 등록하려 했습니다.")
 
-            submodel_element.id_short = id_short
-            #submodel_element.Submodel_sm_pk = sm_pk
-            submodel_element.modelType = 'Collection'
-            submodel_element.set_audit(user)
-            submodel_element.save()
+                    # 부모컬렉션 조회
+                    parent_collection = DBSubModelElementCollection.objects.get(sme_pk=p_sme_pk)
+
+                    submodel_element = DBSubmodelElement()
+                    submodel_element.id_short = id_short
+                    submodel_element.modelType = 'Collection'
+                    submodel_element.displayName = CommonUtil.find_and_set_multilanguage_text([], lang_code, displayName);
+                    submodel_element.description = CommonUtil.find_and_set_multilanguage_text([], lang_code, description);                    
+                    submodel_element.set_audit(user)
+
+                    with transaction.atomic():
+                        submodel_element.save()
+                        submodel_element_collection =  DBSubModelElementCollection(sme_pk = submodel_element.sme_pk)
+                        submodel_element_collection.set_audit(user)
+                        submodel_element_collection.save()
+
+                        # submodel_element_collection_values 있는지 체크필요
+                        # 부모컬렉션추가
+                        parent_collection.values.add(submodel_element_collection)
+                        parent_collection.set_audit(user)
+                        parent_collection.save()
+
 
             result['data'] = submodel_element.sme_pk
             result['success'] = True
 
-
-
         elif action=='submodel_element_list':
+
             sm_pk = gparam.get('sm_pk')
             sme_elements = aas_data_service.get_submodel_element_list(sm_pk, lang_code)
+
             result['success'] = True
             result['items'] = sme_elements
 
@@ -420,24 +419,127 @@ def aasgui(context) :
             result['success'] = True
             result['items'] = items
 
-        else:
 
-            category = posparam.get('category')
+        elif action=="save_file_element":
+
+            p_sm_pk = posparam.get('p_sm_pk')
+            data_pk = posparam.get('sme_pk')
+            p_sme_pk = posparam.get('p_sme_pk')
+            lang_code = posparam.get('lang_code')
+            displayName = posparam.get('displayName')
             description = posparam.get('description')
             id_short = posparam.get('id_short')
-            aas_id = posparam.get('aas_id')
-            asset_pk = posparam.get('asset_pk')
-            disp_name_pk = posparam.get('disp_name_pk')
-            desc_pk = posparam.get('desc_pk')
+            category = posparam.get('category')
+            ModelKind = posparam.get("model_kind", "Instance") # Instance, Template
 
-            aas = DBAssetAdministrationShell()
-            aas.category = category
-            aas.displayName.id = disp_name_pk
-            if desc_pk:
-                aas.description.id = desc_pk
+            file = context.request.FILES.get('file_element', None)
+            if not data_pk and not file:
+                raise Exception("파일이 첨부되지 않았습니다.")
 
+
+            submodel_element = None
+            if data_pk:
+                submodel_element = DBSubmodelElement.objects.get(sme_pk=data_pk)
+            else:
+                submodel_element = DBSubmodelElement()
+                if p_sm_pk:
+                    submodel = DBSubmodel.objects.get(submodel_pk=p_sm_pk)
+                    submodel_element.Submodel = submodel
+                    if p_sme_pk:
+                        raise Exception("Submodel과 SubmodelElementCollection 상위개체가 동시에 선택입력되었습니다.")
+                else:
+                    if not p_sme_pk:
+                        raise Exception("부모없이 등록하려 했습니다.")
+
+            submodel_element.id_short = id_short
+            submodel_element.category = category
+            submodel_element.ModelKind = ModelKind
+            submodel_element.modelType = "File"
+            submodel_element.displayName = CommonUtil.find_and_set_multilanguage_text([], lang_code, displayName)
+            submodel_element.description = CommonUtil.find_and_set_multilanguage_text([], lang_code, description)
+            submodel_element.set_audit(user)
+
+            with transaction.atomic():
+                submodel_element.save()
+                file_element = None
+
+                if data_pk:
+                    file_element = DBFileElement.objects.get(SubmodelElement=submodel_element) # 이미 저장되어 있는 경우
+                else:
+                    file_element = DBFileElement(SubmodelElement=submodel_element) # 신규등록
+
+
+                # 업데이트의 경우 파일을 첨부하지 않을 수 있다.
+                if file: 
+                    ext = file.name.split('.')[-1].lower()
+                    save_folder_path = os.path.join(settings.FILE_UPLOAD_PATH, "aas\\resources")
+
+                    if not os.path.exists(save_folder_path):
+                        os.makedirs(save_folder_path)
+
+                    if ext in ['py', 'js', 'aspx', 'asp', 'jsp', 'php', 'cs', 'ini', 'htaccess', 'exe', 'dll']:
+                        raise ValueError('업로드가 금지된 확장자입니다.')
+
+                    content_type= CommonUtil.get_content_type_ex(ext)
+                    file_name = f'fe_{submodel_element.sme_pk}_{uuid.uuid4()}.{ext}'
+                    file_element.content_type = content_type
+                    file_element.filename = file.name
+                    file_element.value = f"aas\\resources\\{file_name}"
+                    with open(os.path.join(save_folder_path, file_name), mode='wb') as upload_file:
+                        upload_file.write(file.read())
+
+
+
+                file_element.set_audit(user)
+                file_element.save()
+
+                if p_sme_pk and not data_pk:
+                    # 부모컬렉션 조회
+                    parent_collection = DBSubModelElementCollection.objects.get(sme_pk=p_sme_pk)
+                    parent_collection.values.add(file_element)
+                    parent_collection.save()
+                
+
+            result['data'] = submodel_element.sme_pk
+            result['success'] = True
+
+
+        elif action=="file_element_detail":
+            sme_pk = gparam.get('data_pk')
+            data = aas_data_service.get_file_detail(sme_pk, lang_code)
+            result['success'] = True
+            result['data'] = data
+
+        elif action=="search_submodel_list":
+            keyword = gparam.get('keyword')
+            return result
+
+
+        elif action=="aas_delete":
+            aas_pk = posparam.get('aas_pk')
+
+            if aas_pk is None:
+                raise Exception("삭제할 AAS의 PK가 없습니다.")
+
+            aas = DBAssetAdministrationShell.objects.get(aas_pk = aas_pk)
+            aas._status = 'D'  # 삭제 상태로 변경
             aas.set_audit(user)
             aas.save()
+
+            return result
+
+        elif action=="submodel_detail":
+            sm_pk = gparam.get('sm_pk')
+            aas_pk = gparam.get('aas_pk')
+
+            data = aas_data_service.get_submodel_detail(sm_pk, lang_code, aas_pk)
+            result['success'] = True
+            result['data'] = data
+
+            return result
+
+        else:
+           raise Exception("action 오류")
 
     except Exception as ex:
         LogWriter.add_dblog("error", source, ex)

@@ -101,8 +101,8 @@ def regression_a(context):
 
 
     except Exception as ex:
-        source = 'regression_a : action-{}'.format(action)
+        source = '/api/tagdata/regression_a : action-{}'.format(action)
         LogWriter.add_dblog('error', source , ex)
-        raise ex
+        items = {'success':False}
 
     return items

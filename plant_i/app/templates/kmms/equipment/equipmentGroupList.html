@@ -13,7 +13,7 @@
                         <div class="form-item align-h L-form-item align-h">
                             <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
-                                <input id="sch_keyword" name="sch_keyword" placeholder="업체코드,업체명" />
+                                <input id="sch_keyword" name="sch_keyword" placeholder="카테고리 ID, 카테고리를 입력하세요" />
                             </div>
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                     <div class="tab-contents">
                         <div class="card-content grid">
                             <div class="card-group-btn">
-                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="카테고리 목록">카테고리 목록</label></span>
                                 <span>
                                 </span>
                                 <span>
@@ -60,7 +60,7 @@
                     <div class="tab-contents">
                         <div class="card-content grid">
                             <div class="card-group-btn">
-                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="종류 목록">종류 목록</label></span>
                                 <span>
                                 </span>
                                 <span>
@@ -75,7 +75,7 @@
                     <div class="tab-contents">
                         <div class="card-content grid">
                             <div class="card-group-btn">
-                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="업체 목록">업체 목록</label></span>
+                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="유형 목록">유형 목록</label></span>
                                 <span>
                                 </span>
                                 <span>
@@ -698,7 +698,7 @@
                         Alert.alert('', '설비 종류를 선택해주세요.');
                         return;
                     }
-                    formData.hierarchy_path = formData.parent_id + '\\' + formData.equip_class_id;
+                    formData.hierarchy_path = formData.parent_id + '/' + formData.equip_class_id;
                     formData.class_type = 'TYPES';
                     break;
             }
@@ -711,6 +711,8 @@
                     Alert.alert('', '저장되었습니다.');
                     _this.searchMainData(activeTab);
                     _this.resetForm();
+                    
+                    _this.updateDropdownData(activeTab);
                 } else if (!res.success) {
                     Alert.alert('', res.message);
                 }
@@ -755,7 +757,25 @@
                     break;
             }
             FormUtil.resetForm($(detailForm));
+            
+            $(detailForm + ' #use_yn').data('kendoSwitch').check(true);
+            
             $('#btnDelete').prop('disabled', true);
+        }
+
+        updateDropdownData(activeTab) {
+            let _this = this;
+            
+            if (activeTab === 0) {
+                AjaxUtil.fillDropDownOptions($('#classDetailForm #category_id'), 'cm_equip_category', 'all', null);
+                
+                AjaxUtil.fillDropDownOptions($('#typeDetailForm #parent_id'), 'cm_equip_classify', 'all', null, 'TYPES');
+            }
+            else if (activeTab === 1) {
+                AjaxUtil.fillDropDownOptions($('#typeDetailForm #parent_id'), 'cm_equip_classify', 'all', null, 'TYPES');
+            }
+            else if (activeTab === 2) {
+            }
         }
     }
 

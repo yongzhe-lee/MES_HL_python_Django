@@ -2,13 +2,13 @@ import datetime
 from app.views.kmms.reliab_code import CmReliabCodes
 from domain import init_once
 from configurations import settings
-from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmEquipClassify, CmImportRank, CmProject, CmSupplier, CmUserInfo
+from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmEquipClassify, CmImportRank, CmProject, CmSupplier
 from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
 from domain.models.system import MenuFolder, MenuItem, SystemCode, SystemLog, Factory, Unit
 from domain.models.definition import Code, CodeGroup, Company ,DASConfig, DASServer, Equipment, EquipmentGroup, Line, Material, Site, TagMaster, TagGroup, MaterialGroup
-from domain.models.kmms import JobClass, Project
+from domain.models.cmms import CmJobClass, CmProject
 from django.contrib.auth.models import User
 
 #from django.core.cache import cache
@@ -30,7 +30,6 @@ class ComboService(object):
             'aas_kind' : cls.aas_kind,
             'asset_kind' : cls.aas_kind,
             'asset_type': cls.asset_type,
-            'auth_user': cls.auth_user,
             'code_group': cls.code_group,
             'code': cls.code,
             'company': cls.company,
@@ -45,8 +44,7 @@ class ComboService(object):
             'equipment_type' : cls.equipment_type,
             'equip_category' : cls.equip_category,
             'factory' : cls.factory,
-            'input_yn' : cls.input_yn,
-            'job_class': cls.job_class,
+            'input_yn' : cls.input_yn,    
             'language' : cls.language,
             'line' : cls.line,
             'line_equipment' : cls.line_equipment,
@@ -56,8 +54,7 @@ class ComboService(object):
             'material' : cls.material,
             'menu_folder': cls.menu_folder,
             'menu_item': cls.menu_item,
-            'project': cls.project,
-            # 'plant': cls.plant,
+            'sap_storage_location' : cls.sap_storage_location,
             'site': cls.site,
             'smt_line' : cls.smt_line,
             'system_code': cls.system_code,
@@ -67,11 +64,9 @@ class ComboService(object):
             'unit': cls.unit,
             'user_code': cls.user_code,
             'user_group': cls.user_group,
-
             'cm_base_code': cls.cm_base_code,
             'cm_code': cls.cm_code,
-            'cm_code_group': cls.cm_code_group,
-            'cm_depart': cls.cm_depart,
+            'cm_code_group': cls.cm_code_group,      
             'cm_equip_category': cls.cm_equip_category,
             'cm_equip_classify': cls.cm_equip_classify,
             'cm_import_rank': cls.cm_import_rank,
@@ -79,6 +74,7 @@ class ComboService(object):
             'cm_reliab_codes': cls.cm_reliab_codes,
             'cm_supplier': cls.cm_supplier,
             'cm_user_info': cls.cm_user_info,
+            'cm_job_class': cls.cm_job_class,
             
         }
         cls.__initialized__ = True
@@ -153,16 +149,6 @@ class ComboService(object):
             items.append(dic)
         return items
 
-
-    # @classmethod
-    # def plant(cls, cond1, cond2, cond3):
-    #     q = Plant.objects.values('id','Name').filter(DelYn='N')
-    #     q = q.order_by('id')
-        
-    #     items = [{'value': item['id'], 'text': item['Name']} for item in q]
-    #     return items
-
-
     @classmethod
     def unit(cls, cond1, cond2, cond3):
         q = Unit.objects.values('id','Name').filter(DelYn='N')
@@ -184,6 +170,22 @@ class ComboService(object):
     def smt_line(cls, cond1, cond2, cond3):
         q = Line.objects.filter(smt_yn='Y').values('id', 'Code', 'Name').order_by('Name')
         items = [ {'value': item['id'],  'text': item['Code'] + '(' + item['Name'] + ')' } for item in q ]
+        return items
+
+    @classmethod
+    def sap_storage_location(cls, cond1, cond2, cond3):
+        items = [
+            {'value' : 4000, 'text' : '1st Warehouse(4000)'},
+            {'value' : 4001, 'text' : '전자소자(4001)'},
+            {'value' : 4002, 'text' : 'Kardex sector1(4002)'},
+            {'value' : 4091, 'text' : 'SMD(4091)'},
+            {'value' : 4100, 'text' : 'SMD PCB storage(4100)'},
+            {'value' : 4310, 'text' : 'HPC#1(4310)'},
+            {'value' : 5000, 'text' : '2nd Warehouse(5000)'},
+            {'value' : 5002, 'text' : 'Carousel(5002)'},
+            {'value' : 5091, 'text' : 'SMD Plant2(5091)'}
+        ]
+
         return items
 
     @classmethod
@@ -506,32 +508,11 @@ class ComboService(object):
         q = q.order_by('DispOrder', 'Name')
         items = [ {'value': entry['Code'], 'text':entry['Name'], 'group':entry['CodeGroupCode']} for entry in q ]
         return items
-
+    
     @classmethod
-    def auth_user(cls, cond1, cond2, cond3):
-        """
-        콤보박스 데이터 조회 (auth_user 테이블 사용)
-        """
-        q = User.objects.filter(
-            is_active=True
-        ).values(
-            'id',
-            'username',
-            'first_name'
-        ).order_by('first_name')
-
-        items = [
-            {
-                'value': item['id'],
-                'text': f"{item['first_name']}"
-            } for item in q
-        ]
-        return items
-
-    @classmethod
-    def job_class(cls, cond1, cond2, cond3):
-        query = JobClass.objects.values('job_class_pk', 'Name').order_by('Name')
-        items = [ {'value': entry['job_class_pk'], 'text':entry['Name']} for entry in query ]
+    def cm_job_class(cls, cond1, cond2, cond3):
+        query = CmJobClass.objects.values('id', 'JobClassName').order_by('JobClassName')
+        items = [ {'value': entry['id'], 'text':entry['JobClassName']} for entry in query ]
         return items
 
     @classmethod
@@ -573,21 +554,15 @@ class ComboService(object):
                 q = q.filter(CmBaseCodeGroup=cond_list)
             else:
                 q = q.filter(CmBaseCodeGroup=cond1)
-        if cond2:
-            if ',' in cond2:
-                cond2 = cond2.replace(' ', '')
-                cond_list = cond2.split(',')
-                q = q.filter(Code__in=cond_list)
-            else:
-                q = q.filter(Code=cond2)
+        if cond2 != 'UseYnAll':
+            q = q.filter(UseYn='Y')
         if cond3:
             if ',' in cond3:
                 cond3 = cond3.replace(' ', '')
                 cond_list = cond3.split(',')
-                q = q.exclude(Code__in=cond_list)
+                q = q.filter(Code__in=cond_list)
             else:
-                q = q.exclude(Code=cond3)
-        q = q.filter(UseYn='Y')
+                q = q.filter(Code=cond3)
         q = q.order_by('DispOrder', 'CodeName')
         items = [ {'value': entry['CodeCd'], 'text':entry['CodeName']} for entry in q ]
         return items
@@ -619,12 +594,6 @@ class ComboService(object):
         q = q.filter(UseYn='Y')
         q = q.order_by('DispOrder', 'CodeName')
         items = [ {'value': entry['id'], 'text':entry['CodeName']} for entry in q ]
-        return items
-    
-    @classmethod 
-    def project(cls, cond1, cond2, cond3):
-        query = Project.objects.values('proj_cd', 'proj_nm').order_by('proj_nm')
-        items = [ {'value': entry['proj_cd'], 'text':entry['proj_nm']} for entry in query ]
         return items
 
     @classmethod 
@@ -668,34 +637,23 @@ class ComboService(object):
     @classmethod
     def cm_equip_classify(cls, cond1, cond2, cond3):
         sql = '''
-        select distinct "parent_id" as value, "parent_id" as text from cm_equip_classify
-        where "parent_id" is not null
+        select distinct "equip_class_id" as value, "equip_class_desc" as text from cm_equip_classify
+        where "class_type" = 'CLASS'
         '''
         items = DbUtil.get_rows(sql)
         return items
 
     @classmethod
-    def cm_depart(cls, cond1, cond2, cond3):
-        sql = ''' 
-        select 
-            dept_pk, "dept_cd" , "dept_nm"
-        from cm_dept d 
-        order by "dept_nm"
-        '''
-        data = DbUtil.get_rows(sql)
-        items = [ {'value': entry['dept_pk'], 'text':entry['dept_nm']} for entry in data ]
-        return items
-
-    @classmethod
     def cm_user_info(cls, cond1, cond2, cond3):
         """
-        콤보박스 데이터 조회 (cm_user_info 테이블 사용)
+        콤보박스 데이터 조회 (cm_user_info 테이블 사용) -> (user_profile 테이블 사용)
         """
         sql = ''' 
         select 
-            user_pk, "login_id" , "user_nm"
-        from cm_user_info
-        order by "user_nm"
+            up."User_id" as user_pk, au.username as login_id, up."Name" as user_nm
+        from user_profile up
+        inner join auth_user au on up."User_id" = au.id
+        order by up."Name"
         '''
         data = DbUtil.get_rows(sql)
         items = [ {'value': entry['user_pk'], 'text':entry['user_nm']} for entry in data ]

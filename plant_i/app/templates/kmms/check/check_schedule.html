@@ -1,4 +1,4 @@
-﻿{% extends "app/layout.html" %}
+{% extends "app/layout.html" %}
 {% block css %}
 <style>
 </style>
@@ -14,7 +14,7 @@
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색키워드">검색키워드</label>
                             <div class="field-wrapper">
-                                <input id="keyword" name="keyword" placeholder="점검일정번호,점검번호,점검명,설비코드,설비명" />
+                                <input id="keyword" name="keyword" placeholder="점검일정번호,점검번호,점검명,설비코드,설비명을 입력하세요" />
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@
             $('#keyword').kendoTextBox();
 
             AjaxUtil.fillDropDownOptions($('#srch_state'), 'cm_code', 'all', null, 'CHK_STATUS');
-            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "cm_depart", "select");
+			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
 
 
             $('#btnExcel').kendoButton({

@@ -1,4 +1,4 @@
-class MQTTMessageClient {
+﻿class MQTTMessageClient {
 
     constructor(host, port) {
         let _this = this;
@@ -66,6 +66,33 @@ class MQTTMessageClient {
     }
 
     disconnect() {
+
+        console.log('called disconnect');
+
+        //added by choi : 기존 topic들 clear한다
+        // 모든 구독 해제
+        if (this.topics) {
+            for (let topic in this.topics) {
+                this.client.unsubscribe(topic);
+                console.log('topic unsubscribe');
+            }
+        }
+        this.topics = {};
+
+        //choi : 이게 호출이 안되네????
+        let onDisConnected = function () {
+            _this.mqttConnected = false;
+            console.log('Succes to disconnect to subscription server');
+        };
+
+        let onDisConnectedFailure = function () {
+            _this.mqttConnected = false;
+            console.log('Failed to disconnect to subscription server');
+        };
+        //eof
+
+        //choi : 이함수는 안되는 것 같음
+        //this.client.disconnect({ onSuccess: onDisConnected, onFailure: onDisConnectedFailure });
         this.client.disconnect();
     }
 

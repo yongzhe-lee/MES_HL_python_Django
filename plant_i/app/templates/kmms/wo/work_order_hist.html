@@ -15,21 +15,22 @@
                             <div class="field-wrapper">
                                 <input id="keyword" name="keyword" placeholder="작업번호, 작업제목, 작업내역, 설비코드, 설비명" />
                             </div>
-                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>                        </div>
+                            <button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
+                        </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="wo_type_nm" data-labelCd="작업유형">작업유형</label>
+                            <label class="k-label k-form-label" for="wo_type" data-labelCd="작업유형">작업유형</label>
                             <div class="field-wrapper">
-                                <select id="wo_type_nm" name="wo_type_nm"></select>
+                                <select id="wo_type" name="wo_type"></select>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="wo_status_nm" data-labelCd="상태">상태</label>
+                            <label class="k-label k-form-label" for="wo_status" data-labelCd="상태">상태</label>
                             <div class="field-wrapper">
-                                <select id="wo_status_nm" name="wo_status_nm"></select>
+                                <select id="wo_status" name="wo_status"></select>
                             </div>
                         </div>
                     </div>
@@ -44,7 +45,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="maint_code" data-labelCd="보전유형">보전유형</label>
                             <div class="field-wrapper">
@@ -52,15 +53,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="loc_nm" data-labelCd="설비위치">설비위치</label>
+                            <label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="설비위치">설비위치</label>
                             <div class="field-wrapper">
-                                <select id="loc_nm" name="loc_nm"></select>
+                                <select id="srch_equ_loc" name="srch_equ_loc"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="dept_pk" data-labelCd="작업부서">작업부서</label>
                             <div class="field-wrapper">
@@ -68,7 +69,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="problem_cd" data-labelCd="현상">현상</label>
                             <div class="field-wrapper">
@@ -76,7 +77,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cause_cd" data-labelCd="원인">원인</label>
                             <div class="field-wrapper">
@@ -84,7 +85,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="remedy_nm" data-labelCd="조치">조치</label>
                             <div class="field-wrapper">
@@ -94,8 +95,8 @@
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_my_req_only">작업종료일 기준</label>
-                            <input id="srch_my_req_only" name="srch_my_req_only">
+                            <label class="k-label k-form-label" for="srch_end_date_only">작업종료일 기준</label>
+                            <input id="srch_end_date_only" name="srch_end_date_only">
                         </div>
                     </div>
                     <div class="col-12 col-sm-4 col-md-3">
@@ -122,7 +123,7 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="work_order_grid"></div>
+                <div id="work_order_hist_grid"></div>
             </div>
         </div>
     </div>
@@ -135,14 +136,17 @@
 
 {% block scripts %}
 
+{% include '../../popup/modalMyWorkReq.html'%}
+{% include '../../popup/modalWoDetail.html'%}
+{% include '../../popup/modalWoStatHist.html'%}
 {% include '../../popup/modalEquSel.html'%}
 
 <script type="text/javascript">
-    class WorkOrderPage {
+    class WorkOrderHistPage {
         constructor() {
             this.grid = null;
             this.upload = null;
-			this.baseUrl = '/api/kmms/work_order';
+            this.baseUrl = '/api/kmms/work_order';
 
             this.comboDept = [];
 
@@ -206,7 +210,7 @@
                 },
                 height: "540px"
             };
-            _this.grid = new Grid($("#work_order_grid"), woGridOption);
+            _this.grid = new Grid($("#work_order_hist_grid"), woGridOption);
 
             // 그리드 클릭 이벤트를 document.ready에서 한 번만 바인딩
             // 임시 저장일 경우에만 클릭이 가능하고 클릭할 경우 편집 팝업 기능 필요
@@ -246,13 +250,16 @@
                     _this.searchMainData();
                 }
             });
-            AjaxUtil.fillDropDownOptions($('#wo_type_nm'), 'cm_code', 'all', null, 'WO_STATUS');
-            AjaxUtil.fillDropDownOptions($('#wo_status_nm'), 'cm_code', 'all', null, 'WO_STATUS');
-            AjaxUtil.fillDropDownOptions($('#srch_date'), 'cm_code', 'all', null, 'DATE_TYPE');
+            AjaxUtil.fillDropDownOptions($('#wo_type'), 'cm_code', 'all', null, 'WO_TYPE', 'UseYnAll');
+            AjaxUtil.fillDropDownOptions($('#wo_status'), 'cm_code', 'all', null, 'WO_STATUS');
+            AjaxUtil.fillDropDownOptions($('#srch_date'), 'cm_code', null, null, 'DATE_TYPE');
+            let today = new Date();
+            let threeMonthsAgo = new Date(today);
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: threeMonthsAgo,
+                    end: today
                 },
                 change: function (e) {
 
@@ -263,13 +270,13 @@
                 endField: "end_dt"
             });
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
-            AjaxUtil.fillDropDownTreeOptions($('#loc_nm'), 'cm_depart', 'all');
-            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'cm_depart', 'all');
+            AjaxUtil.fillDropDownTreeOptions($('#srch_equ_loc'), 'cm_location', 'all');
+			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
             AjaxUtil.fillDropDownOptions($('#problem_cd'), 'cm_reliab_codes', 'all', null, 'PC');
             AjaxUtil.fillDropDownOptions($('#cause_cd'), 'cm_reliab_codes', 'all', null, 'CC');
-            AjaxUtil.fillDropDownOptions($('#remedy_nm'), 'user_code', 'all', null, 'CYCLE_TYPE');
+            AjaxUtil.fillDropDownOptions($('#remedy_nm'), 'cm_reliab_codes', 'all', null, 'RC');
 
-            $('#srch_my_req_only').kendoSwitch({ checked: false });
+            $('#srch_end_date_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
 
             //form button
@@ -308,21 +315,21 @@
             }
 
             let param = {
-                action: 'read',
+                action: 'work_order_hist_read',
                 keyword: $('#keyword').val(),
-                //작업유형 wo_type_nm
+                wo_type: $('#wo_type').val(),
                 wo_status: $('#wo_status').val(),
-                //기간 srch_date
-                //start_dt: startDate,
-                //end_dt: endDate,
+                srch_date: $('#srch_date').val(),
+                start_dt: startDate,
+                end_dt: endDate,
                 maint_type_cd: $('#maint_code').val(),
-                //설비위치 loc_nm
+                loc_pk: $('#srch_equ_loc').data("kendoDropDownTree").value(),
                 dept_pk: $("#dept_pk").data("kendoDropDownTree").value(),
                 problem_cd: $('#problem_cd').val(),
                 cause_cd: $('#cause_cd').val(),
-                //조치 remedy_nm
+                remedy_nm: $('#remedy_nm').val(),
 
-                //작업 종료일 기준 srch_end_date
+                srch_end_date_only: $('#srch_end_date_only').data("kendoSwitch").check() ? 'Y' : 'N',
                 srch_environ_equip_only: $('#srch_environ_equip_only').data("kendoSwitch").check() ? 'Y' : 'N'
             };
 
@@ -332,16 +339,16 @@
 
         // 엑셀 다운로드
         exportExcel() {
-            let gridData = $('#work_order_grid').data("kendoGrid");
+            let gridData = $('#work_order_hist_grid').data("kendoGrid");
             gridData.bind("excelExport", function (e) {
-                e.workbook.fileName = "equipment.xlsx";
+                e.workbook.fileName = "work_order_hist.xlsx";
             });
             gridData.saveAsExcel();
         }
     };
 
     let page = null;
-    page = new WorkOrderPage();
+    page = new WorkOrderHistPage();
 
     $(document).ready(function () {
         page.searchMainData();

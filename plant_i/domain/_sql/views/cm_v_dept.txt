@@ -1,33 +1,33 @@
--- cm_v_dept source
+-- public.cm_v_dept source
 
-CREATE OR REPLACE VIEW cm_v_dept
+CREATE OR REPLACE VIEW public.cm_v_dept
 AS WITH RECURSIVE dc2 AS (
-         SELECT t1.dept_pk,
-            t1.up_dept_pk,
-            t1.dept_nm,
-            concat('', t1.dept_nm) AS indent_dept_nm,
+         SELECT t1.id::smallint AS dept_pk,
+            t1."UpDept_id"::smallint AS up_dept_pk,
+            t1."Name" AS dept_nm,
+            concat('', t1."Name") AS indent_dept_nm,
             1 AS level,
-            ARRAY[t1.dept_pk] AS path_info_pk,
-            ARRAY[t1.dept_cd::text] AS path_info,
-            t1.dept_cd,
-            ut1.dept_cd AS up_dept_cd
-           FROM cm_dept t1
-             LEFT JOIN cm_dept ut1 ON t1.up_dept_pk = ut1.dept_pk
-          WHERE t1.up_dept_pk IS NULL AND t1.del_yn::text = 'N'::text
+            ARRAY[t1.id::smallint] AS path_info_pk,
+            ARRAY[t1."Code"::text] AS path_info,
+            t1."Code" AS dept_cd,
+            ut1."Code" AS up_dept_cd
+           FROM dept t1
+             LEFT JOIN dept ut1 ON t1."UpDept_id" = ut1.id
+          WHERE t1."UpDept_id" IS NULL AND t1."DelYN"::text = 'N'::text
         UNION ALL
-         SELECT t2.dept_pk,
-            t2.up_dept_pk,
-            t2.dept_nm,
-            concat(rpad(''::text, s.level * 2, '¡¡'::text), t2.dept_nm) AS indent_dept_nm,
+         SELECT t2.id::smallint AS dept_pk,
+            t2."UpDept_id"::smallint AS up_dept_pk,
+            t2."Name" AS dept_nm,
+            concat(rpad(''::text, s.level * 2, 'ã€€'::text), t2."Name") AS indent_dept_nm,
             s.level + 1,
-            s.path_info_pk || t2.dept_pk,
-            s.path_info || t2.dept_cd::text,
-            t2.dept_cd,
-            ut2.dept_cd AS up_dept_cd
-           FROM cm_dept t2
-             LEFT JOIN cm_dept ut2 ON t2.up_dept_pk = ut2.dept_pk
-             JOIN dc2 s ON s.dept_pk = t2.up_dept_pk
-          WHERE t2.del_yn::text = 'N'::text
+            s.path_info_pk || t2.id::smallint,
+            s.path_info || t2."Code"::text,
+            t2."Code" AS dept_cd,
+            ut2."Code" AS up_dept_cd
+           FROM dept t2
+             LEFT JOIN dept ut2 ON t2."UpDept_id" = ut2.id
+             JOIN dc2 s ON s.dept_pk = t2."UpDept_id"
+          WHERE t2."DelYN"::text = 'N'::text
         )
  SELECT dc2.dept_pk,
     dc2.up_dept_pk,

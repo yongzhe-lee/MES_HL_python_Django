@@ -10,7 +10,7 @@
         <form class="search-form" id="searchForm">
             <div class="card-content search">
                 <div class="form-ui">
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" data-labelCd="기간"> 기간</label>
                             <div class="field-wrapper">
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
                             <div class="field-wrapper">
@@ -37,7 +37,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
                             <div class="field-wrapper">
@@ -45,15 +45,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="tagGroup" data-labelCd="태그 그룹">태그 그룹</label>
+                            <label class="k-label k-form-label" for="tagGroup" data-labelCd="태그그룹">태그그룹</label>
                             <div class="field-wrapper">
                                 <select id="tagGroup" name="tagGroup"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="tag" data-labelCd="태그">태그</label>
                             <div class="field-wrapper">
@@ -100,20 +100,38 @@
 
         init() {
             let _this = this;
-            this.grid = $("#tagDataStatisticsGrid").kendoGrid({
-                height: 630,
+
+            let statGridOption = {
+                height: 600,
                 sortable: true,
-                pageable: false,
+                //pageable: false,
+                pageable: {
+                    refresh: false,  // 새로고침 버튼 여부
+                    pageSize: 20,  // 기본 페이지 크기(item개수)
+                    pageSizes: [10, 20, 50, 100, "all"],  // 선택 가능한 페이지 크기
+                    buttonCount: 10 // 페이지네이션 버튼 개수
+                },
                 columns: [
-                    { field: "tag_code", title: "태그", width: "150px" },
-                    { field: "tag_name", title: "태그명", width: "150px" },
+                    //{ field: "tag_group", title: "태그그룹", width: "150px" },
+                    { field: "tag_code", title: "태그", width: "200px" },
+                    { field: "tag_name", title: "태그명", width: "200px" },
                     { field: "count_value", title: "데이터수", width: "150px", attributes: { style: "text-align: right;" } },
                     { field: "avg_value", title: "평균", width: "150px", attributes: { style: "text-align: right;" } },
                     { field: "min_value", title: "최소", width: "150px", attributes: { style: "text-align: right;" } },
                     { field: "max_value", title: "최대", width: "150px", attributes: { style: "text-align: right;" } },
                     { field: "std_value", title: "표준편차", width: "150px", attributes: { style: "text-align: right;" } },
-                ]
-            }).data("kendoGrid");
+                ],
+                dataBound: function (e) {
+                    //for (var i = 0; i < this.columns.length; i++) {
+                    //    this.autoFitColumn(i);
+                    //};
+
+                    // grid 데이터 개수 표시
+                    kendoUtil.showGridRowCount(this.element);
+                },
+            };
+
+            _this.grid = new Grid($("#tagDataStatisticsGrid"), statGridOption);
 
             $('#btnExcel').kendoButton({
                 icon: "file-excel",
@@ -167,7 +185,7 @@
             let tag_group_pk = $('#tagGroup').val();  
 
             let url = '/api/tagdata/tag_statistics';
-            let data = {
+            let param = {
                 action : 'read',
                 start_date : srchStartDt,
                 end_date : srchEndDt,
@@ -175,10 +193,21 @@
                 tag_group_pk : tag_group_pk,
             };
 
-            AjaxUtil.getAsyncData(url, data, function (result) {
-                _this.grid.dataSource.data(result);
-            });
+            kendo.ui.progress($("#tagDataStatisticsGrid"), true); // data 로딩 ui 시작
 
+            let succFunc = function (result) {
+                if (result.success) {
+                    //_this.grid.setData(result.data); // dataSource자체를 초기화시키므로, 기존 설정값이 무시됨
+                    _this.grid.grid.dataSource.data(result.data);
+                }
+                else {
+                    Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);
+                }
+
+                kendo.ui.progress($("#tagDataStatisticsGrid"), false); // data 로딩 ui 종료
+            }
+
+            AjaxUtil.getAsyncData(url, param, succFunc);
         }
     }
 

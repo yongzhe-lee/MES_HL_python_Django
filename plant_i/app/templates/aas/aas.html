@@ -35,8 +35,8 @@
             <div class="card-group-btn">
                 <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="AAS목록">AAS목록</label></span>
                 <div>
-                    <button id="btnAddRoot" type="button" title="AAS등록" tabindex="0" class="btn-role-group"></button>
-                    <button id="btnAdminManage" type="button" title="Ver, Rev관리" class="btn-role-group"></button>
+                    <button id="btnAddRoot" type="button" title="AAS등록" tabindex="0" class="y_write_auth"></button>
+                    <button id="btnAdminManage" type="button" title="Ver, Rev관리" class="y_write_auth"></button>
                 </div>
             </div>
             <ul class="tree" id="aas_tree"></ul>
@@ -48,9 +48,9 @@
             <div class="card-group-btn">
                 <span class="info-text"><i class="material-symbols-outlined">edit_square</i>AAS상세입력</span>
                 <span>
-                    <button type="button" name="save" title="저장" class="btn-role-group"></button>
-                    <button type="button" name="delete" title="삭제" class="btn-role-group"></button>
-                    <button type="button" name="add_child" title="하위항목선택등록" class="btn-role-group"></button>
+                    <button type="button" name="save" title="저장" class="y_write_auth"></button>
+                    <button type="button" name="delete" title="삭제" class="y_write_auth"></button>
+                    <button type="button" name="add_child" title="하위항목선택등록" class="y_write_auth"></button>
                 </span>
             </div>
             <form>
@@ -133,7 +133,7 @@
                         </div>
                         <div class="aas-input-group">
                             <label class="k-label k-form-label ">Thumbnail</label>
-                            <img src="/static/img/no-image.png" id="imgThumbnail" />
+                            <img src="/static/img/no-image.png" id="imgAASThumbnail" />
                         </div>
                     </div>
 
@@ -152,9 +152,9 @@
                 <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="Submodel">Submodel</label></span>
                 <span>
                     <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
-                    <button name="save" class="btn-role-group"><i class="material-symbols-outlined">save</i></button>
-                    <button name="delete" class="btn-role-group"><i class="material-symbols-outlined">delete</i></button>
-                    <button name="add_child" class="btn-role-group"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
+                    <button name="save" class="y_write_auth"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete" class="y_write_auth"><i class="material-symbols-outlined">delete</i></button>
+                    <button name="add_child" class="y_write_auth"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
                 </span>
             </div>
             <form>
@@ -178,10 +178,9 @@
                             <label class="k-label k-form-label essential" for="id" data-labelCd="id">id</label>
                             <input name="id" class="form-control aas-form-control" readonly placeholder="자동생성" />
                         </div>
-
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label" for="kind" data-labelCd="적용범위">적용범위</label>
-                            <select name="kind" class="form-control aas-form-control">
+                            <label class="k-label k-form-label" for="model_kind" data-labelCd="적용범위">적용범위</label>
+                            <select name="model_kind" class="form-control aas-form-control">
                                 <option value="Template">재사용(공유, Template)</option>
                                 <option value="Instance">특정자산(전용, Instance)</option>
                             </select>
@@ -195,14 +194,12 @@
                                 <option value="EVENT">이벤트</option>
                             </select>
                         </div>
-
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="semantic_id" data-labelCd="Semantic ID">Semantic ID</label>
                             <input name="semantic_id" class="form-control aas-form-control" readonly />
                             <button type="button" class="btn-search" name="btnShowPopupSemanticId">입력</button>
                             <div style="display:none"><input name="semantic_ref_pk" class="form-control aas-form-control" readonly /></div>
                         </div>
-
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
                             <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
@@ -219,19 +216,22 @@
                 </div>
             </form>
         </div>
-
+        
         <div class="right-panel aas-panel" id="div_subcollection_detail" style="display: none;">
             <div class="card-group-btn">
                 <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="SubmodelElement Collection">SubmodelElement Collection</label></span>
                 <span>
                     <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
-                    <button name="save" class="btn-role-group"><i class="material-symbols-outlined">save</i></button>
-                    <button name="delete" class="btn-role-group"><i class="material-symbols-outlined">delete</i></button>
-                    <button name="add_child" class="btn-role-group"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
+                    <button name="save" class="y_write_auth"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete" class="y_write_auth"><i class="material-symbols-outlined">delete</i></button>
+                    <button name="add_child" class="y_write_auth"><i class="material-symbols-outlined">format_list_bulleted_add</i></button>
                 </span>
             </div>
             <form>
+                <input type="hidden" name="p_sme_pk" value="" />
+                <input type="hidden" name="p_sm_pk" value="" />
                 <input type="hidden" name="sme_pk" value="" />
+
                 <div class="right-panel-content">
 
                     <div class="aas-info">
@@ -258,6 +258,21 @@
                         </div>
 
                         <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="model_kind" data-labelCd="적용범위">적용범위</label>
+                            <select name="model_kind" class="form-control aas-form-control">
+                                <option value="Template">재사용(공유, Template)</option>
+                                <option value="Instance">특정자산(전용, Instance)</option>
+                            </select>
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="semantic_id" data-labelCd="Semantic ID">Semantic ID</label>
+                            <input name="semantic_id" class="form-control aas-form-control" readonly />
+                            <button type="button" class="btn-search" name="btnShowPopupSemanticId">입력</button>
+                            <div style="display:none"><input name="semantic_ref_pk" class="form-control aas-form-control" readonly /></div>
+                        </div>
+
+
+                        <div class="aas-input-group">
                             <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
                             <textarea name="description" class="form-control aas-form-control"></textarea>
                         </div>
@@ -275,12 +290,14 @@
                 <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="Property Element">Property Element</label></span>
                 <span>
                     <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
-                    <button name="save"><i class="material-symbols-outlined">save</i></button>
-                    <button name="delete"><i class="material-symbols-outlined">delete</i></button>
+                    <button name="save" class="y_write_auth"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete" class="y_write_auth"><i class="material-symbols-outlined">delete</i></button>
                 </span>
             </div>
             <div class="right-panel-content">
                 <form>
+                    <input type="hidden" name="p_sme_pk" value="" />
+                    <input type="hidden" name="p_sm_pk" value="" />
                     <input type="hidden" name="sme_pk" value="" />
 
                     <div class="aas-info">
@@ -296,9 +313,30 @@
                             <label class="k-label k-form-label essential" for="id_short" data-labelCd="id Short">id Short</label>
                             <input name="id_short" class="form-control aas-form-control" />
                         </div>
+
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
+                            <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
+                            <select name="lang_code" class="form-control aas-form-control">
+                                <option value="ko-KR">한글</option>
+                                <option value="en-US">English</option>
+                            </select>
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                            <textarea name="description" class="form-control aas-form-control"></textarea>
+                        </div>
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="category" data-labelCd="Category">Category</label>
                             <input name="category" class="form-control aas-form-control" placeholder="category" />
+                        </div>
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="model_kind" data-labelCd="적용범위">적용범위</label>
+                            <select name="model_kind" class="form-control aas-form-control">
+                                <option value="Template">재사용(공유, Template)</option>
+                                <option value="Instance">특정자산(전용, Instance)</option>
+                            </select>
                         </div>
 
                         <div class="aas-input-group">
@@ -337,23 +375,26 @@
                         </div>
 
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="value" data-labelCd="value">value</label>
+                            <label class="k-label k-form-label essential" for="value" data-labelCd="Value">Value</label>
                             <input name="value" class="form-control aas-form-control" />
                         </div>
-
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
-                            <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
-                            <select name="lang_code" class="form-control aas-form-control">
-                                <option value="ko-KR">한글</option>
-                                <option value="en-US">English</option>
-                            </select>
+                            <label class="k-label k-form-label essential" for="value_id" data-labelCd="Value ID">Value ID</label>
+                            <input name="value_id" class="form-control aas-form-control" /> <button type="button" class="btn-search" name="btnShowPopupPrptValueID">입력</button>
                         </div>
 
                         <div class="aas-input-group">
-                            <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
-                            <textarea name="description" class="form-control aas-form-control"></textarea>
+                            <label class="k-label k-form-label essential" for="semantic_id" data-labelCd="Semantic ID">Semantic ID</label>
+                            <input name="semantic_id" class="form-control aas-form-control" readonly />
+                            <button type="button" class="btn-search" name="btnShowPopupSemanticId">입력</button>
+                            <div style="display:none"><input name="semantic_ref_pk" class="form-control aas-form-control" readonly /></div>
                         </div>
+
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="displayName" data-labelCd="Qualifier">Qualifier</label>
+                            <!--type, valuetype, value-->
+                        </div>
+
                         <div class="aas-input-group">
                             <label class="k-label k-form-label" for="displayName" data-labelCd="생성일">생성일</label>
                             <input name="created" class="form-control aas-form-control" readonly />
@@ -369,9 +410,68 @@
                 <span class="info-text"><i class="material-symbols-outlined">edit_square</i><label data-labelCd="File Element">File Element</label></span>
                 <span>
                     <button name="clear"><i class="material-symbols-outlined">refresh</i></button>
-                    <button name="save" class="btn-role-group"><i class="material-symbols-outlined">save</i></button>
-                    <button name="delete" class="btn-role-group"><i class="material-symbols-outlined">delete</i></button>
+                    <button name="save" class="y_write_auth"><i class="material-symbols-outlined">save</i></button>
+                    <button name="delete" class="y_write_auth"><i class="material-symbols-outlined">delete</i></button>
                 </span>
+            </div>
+            <div class="right-panel-content">
+                <form>
+                    <input type="hidden" name="p_sme_pk" value="" />
+                    <input type="hidden" name="p_sm_pk" value="" />
+                    <input type="hidden" name="sme_pk" value="" />
+
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label" for="p_display_name" data-labelCd="상위">상위</label>
+                            <input name="p_display_name" class="form-control aas-form-control" readonly />
+                        </div>
+                    </div>
+                    <hr />
+
+                    <div class="aas-input-group">
+                        <label class="k-label k-form-label essential" for="id_short" data-labelCd="id Short">id Short</label>
+                        <input name="id_short" class="form-control aas-form-control" />
+                    </div>
+                    <div class="aas-input-group">
+                        <label class="k-label k-form-label essential" for="category" data-labelCd="Category">Category</label>
+                        <input name="category" class="form-control aas-form-control" placeholder="category" />
+                    </div>
+                    <div class="aas-input-group">
+                        <label class="k-label k-form-label" for="model_kind" data-labelCd="적용범위">적용범위</label>
+                        <select name="model_kind" class="form-control aas-form-control">
+                            <option value="Template">재사용(공유, Template)</option>
+                            <option value="Instance">특정자산(전용, Instance)</option>
+                        </select>
+                    </div>
+
+                    <div class="aas-input-group">
+                        <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
+                        <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
+                        <select name="lang_code" class="form-control aas-form-control">
+                            <option value="ko-KR">한글</option>
+                            <option value="en-US">English</option>
+                        </select>
+                    </div>
+                    <div class="aas-input-group">
+                        <label class="k-label k-form-label" for="description" data-labelCd="비고">비고</label>
+                        <textarea name="description" class="form-control aas-form-control"></textarea>
+                    </div>
+                    <div class="aas-info">
+                        <div class="aas-input-group">
+                            <label class="k-label k-form-label essential" for="file_element" data-labelCd="File">File</label>
+                            <input name="file_element" type="file" class="form-control aas-form-control" />
+                            <div id="divFileElement">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="aas-input-group">
+                        <label class="k-label k-form-label" data-labelCd="작성일">작성일</label>
+                        <input name="created" placeholder="YYYY-MM-DD hh:mm:ss" class="form-control aas-form-control" readonly="readonly" />
+                        <input name="creator" placeholder="creator" class="form-control aas-form-control" />
+                    </div>
+                </form>
             </div>
 
         </div>
@@ -383,6 +483,9 @@
     <div class="content-ui-row">
         <div class="card-content edit">
             <form>
+                <input type="hidden" name="p_sme_pk" value="" />
+                <input type="hidden" name="p_sm_pk" value="" />
+
                 <div class="edit-form-ui">
                     <div class="col-12">
                         <div class="form-item align-h">
@@ -419,6 +522,10 @@
     <div class="content-ui-row">
         <div class="card-content edit">
             <form>
+                <input type="hidden" name="parentType" value="" />
+                <input type="hidden" name="p_sme_pk" value="" />
+                <input type="hidden" name="p_sm_pk" value="" />
+
                 <div class="edit-form-ui">
                     <div class="col-12">
                         <div class="form-item align-h">
@@ -436,7 +543,7 @@
                                     <option value="PropertyElement">Property Element</option>
                                     <option value="FileElement">File Element</option>
                                     <option value="SubmodelElementCollection">SubmodelElement Collection</option>
-                                    
+
                                 </select>
                             </div>
                         </div>
@@ -452,6 +559,7 @@
         </div>
     </div>
 </div>
+
 <div id="tmplPopupSemanticIdSearch" class="content-wrap popup" style="display:none">
     <div class="content-ui-row">
         <div class="card-content edit">
@@ -532,18 +640,15 @@
     </div>
 </div>
 
-
-
-
 {% verbatim %}
 <script type="text/x-kendo-template" id="aasTemplate">
     <li>
     # if(sub_items.length>0) { #
-        <div class="tree-node aas_detail" aas_pk="#=aas_pk#" gubun="aas">
+        <div class="tree-node">
             <span class="toggle-btn aas-node">-</span>
             <i class="material-symbols-outlined folder-open">folder_open</i>
             <span class="aas-title">#: gubun # </span>
-            <span>#: displayName #</span>
+            <span class="aas_detail" aas_pk="#=aas_pk#" gubun="aas">#: displayName #</span>
             <span class="aas-time"> #: created #</span>
         </div>
         <ul id="aas_sub_#=aas_pk#">
@@ -553,10 +658,10 @@
          let gubun = item.gubun;
         #
          # if(gubun=="aas"){ #
-            <div class="tree-node aas_detail" aas_pk="#=item.aas_pk#" gubun="aas">
+            <div class="tree-node">
                 <span class="toggle-btn aas-node">-</span><i class="material-symbols-outlined folder-open">folder_open</i>
                 <span class="aas-title">#: item.gubun # </span>
-                <span>#: item.displayName #</span>
+                <span class="aas_detail" aas_pk="#=item.aas_pk#" gubun="aas">#: item.displayName #</span>
                 <span class="aas-time"> (#:item.id_short #) , #: item.created #</span>
             </div>
             # if(item.sub_items.length>0) {#
@@ -564,17 +669,26 @@
                     #
                     for(let sidx=0;sidx<item.sub_items.length; sidx++){
                       let sm_item = item.sub_items[sidx];
+                       if (sm_item.gubun=="aas") {
                     #
-                    <li>
-                        <div class="tree-node submodel_detail" sm_pk="#=sm_item.sm_pk#" gubun="#= sm_item.gubun #" aas_pk="#=item.aas_pk#">
-                            <span class="toggle-btn submodel-node" sm_pk="#=sm_item.sm_pk#" >+</span>
-                            <i class="material-symbols-outlined folder-open">folder</i>
-                            <span class="sub-title"> #: sm_item.gubun # </span>
-                            <span>#: sm_item.displayName # </span>
-                            <span class="aas-time">(#: sm_item.id_short #) #: sm_item.created #</span>
-                        </div>
-                        <ul id="sm_#=sm_item.sm_pk#" class="hidden"></ul>
-                    </li>
+
+                    #
+                       }
+                       else {
+                    #
+                        <li>
+                            <div class="tree-node">
+                                <span class="toggle-btn submodel-node" sm_pk="#=sm_item.sm_pk#" >+</span>
+                                <i class="material-symbols-outlined folder-open">folder</i>
+                                <span class="sub-title"> #: sm_item.gubun # </span>
+                                <span class="submodel_detail" sm_pk="#=sm_item.sm_pk#" gubun="#= sm_item.gubun #" aas_pk="#=item.aas_pk#">#: sm_item.displayName # </span>
+                                <span class="aas-time">(#: sm_item.id_short #) #: sm_item.created #</span>
+                            </div>
+                            <ul id="sm_#=sm_item.sm_pk#" class="hidden"></ul>
+                        </li>
+                    #
+                       }
+                    #
                     # } #
 
                 </ul>
@@ -582,11 +696,11 @@
          # } else { #
 
             <li>
-                <div class="tree-node submodel_detail" gubun="#= item.gubun #" sm_pk="#=item.sm_pk#" aas_pk="#=item.aas_pk#">
+                <div class="tree-node">
                     <span class="toggle-btn submodel-node" gubun="#= item.gubun #" sm_pk="#=item.sm_pk#" >+</span>
                     <i class="material-symbols-outlined folder-open">folder</i>
                     <span class="sub-title"> #: item.gubun # </span>
-                    <span>#: item.displayName # </span>
+                    <span class="submodel_detail" gubun="#= item.gubun #" sm_pk="#=item.sm_pk#" aas_pk="#=item.aas_pk#">#: item.displayName # </span>
                     <span class="aas-time"> #: item.created #</span>
                 </div>
                 <ul id="sm_#=item.sm_pk#" class="hidden"></ul>
@@ -596,45 +710,47 @@
         # } #
         </ul>
     # } else { #
-        <div class="tree-node aas_detail" aas_pk="#=aas_pk#" gubun="aas">
+        <div class="tree-node">
             <span class="toggle-btn aas-node"></span>
             <i class="material-symbols-outlined folder-open">folder_open</i>
             <span class="aas-title">#: gubun # </span>
-            <span>#: displayName #</span><span class="aas-time">(#:id_short #) ,  #: created #</span>
+            <span class="aas_detail" aas_pk="#=aas_pk#" gubun="aas">#: displayName #</span>
+            <span class="aas-time">(#:id_short #) ,  #: created #</span>
         </div>
     # } #
     </li>
 </script>
 
 <script type="text/x-kendo-template" id="smeTemplate">
-     # for (let i=0;i<data.length; i++) { let item = data[i]; #
+     # for (let i=0;i<data.length; i++) { 
+           let item = data[i]; 
+     #
       <li>
           # if (item.gubun =='prop'){ #
-              <ul class="tree-node sme_prpt_detail" data_pk="#=item.sme_pk#" gubun="#= item.gubun #">
+              <ul class="tree-node">
                   <li>
                       <span class="prop-title">Prop</span>
-                      <a>#= item.displayName # = #=item.prpt_value#</a>
+                      <span class="sme_prpt_detail" data_pk="#=item.sme_pk#" gubun="#= item.gubun #">#= item.displayName # = #=item.prpt_value#</span>
                       <span class="aas-time"> (#= item.created #)</span>
                   </li>
               </ul>
           # } #
-
           # if (item.gubun =='file'){ #
-              <ul class="tree-node sme_file_detail" data_pk="#=item.sme_pk#" gubun="#= item.gubun #">
+              <ul class="tree-node">
                   <li>
-                      <span class="prop-title">Prop</span>
-                      <a> #= item.displayName #</a>
+                      <span class="prop-title">File</span>
+                      <span class="sme_file_detail" data_pk="#=item.sme_pk#" gubun="#= item.gubun #">#= item.displayName #</span>
                       <span class="aas-time"> (#= item.created #)</span>
                   </li>
               </ul>
           # } #
 
          # if (item.gubun =='coll') { #
-              <div class="tree-node sme_collection_detail" gubun="#=item.gubun#" data_pk="#=item.sme_pk#">
+              <div class="tree-node">
                   <span class="toggle-btn sme-coll-node" data_pk="#=item.sme_pk#">+</span>
                   <i class="material-symbols-outlined folder">folder</i>
                   <span class="sub-title"> #: item.gubun # </span>
-                  <a>#: item.displayName # </a>
+                  <span class="sme_collection_detail" gubun="#=item.gubun#" data_pk="#=item.sme_pk#">#: item.displayName # </span>
                   <span class="aas-time"> #: item.created #</span>
               </div>
               <ul class="hidden"></ul>
@@ -660,7 +776,7 @@
             this.$div_subcollection_detail = $('#div_subcollection_detail');
             this.$div_prpt_detail = $('#div_prpt_detail');
             this.$div_file_detail = $('#div_file_detail');
-            this.$aasData = null;
+            
             this.$tmplPopupSemanticIdSearchWin = null;
             this.init();
             this.initTree();
@@ -669,16 +785,11 @@
             this.initSubmodelItemCollection();
             this.initPropertyElement();
             this.initFileElement();
-
             this.initSemanticIDPopup();
-
-
         }
-
 
         initSemanticIDPopup() {
             let _this = this;
-
             // Submodel Semantic ID 입력팝업화면
             this.$tmplPopupSemanticIdSearchWin = $('#tmplPopupSemanticIdSearch').kendoWindow({
                 width: "700", // windowWidth
@@ -692,10 +803,8 @@
             });
 
             //reference_type, key_type
-
             this.$tmplPopupSemanticIdSearchWin.find('select[name=reference_type]').kendoDropDownList();
             this.$tmplPopupSemanticIdSearchWin.find('select[name=key_type]').kendoDropDownList();
-
       
             // Submodel Semantic ID 입력팝업화면에서 선택완료 버튼클릭
             let $btn = this.$tmplPopupSemanticIdSearchWin.find('button[name=btnSemanticIdSelect]');
@@ -770,6 +879,38 @@
                     _this.searchMainData();
                 }
             });
+
+            // AAS에서 하위 모델 (aas, submodel )선택하는 팝업
+            this.$tmplAASSubItemChoiceWin = $('#tmplAASSubItemChoice').kendoWindow({
+                width: "500", // windowWidth
+                height: "300",
+                title: "AAS하위항목 선택등록",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 별도 구현, 여기에 구현하면 안됨
+                }
+            });
+
+            // Submodel, SubmodelElementCollection에서 SubmodelElement 추가시 선택하는 팝업
+            this.$tmplSubmodelElementSelectionWin = $('#tmplPopupSubmodelElementSelection').kendoWindow({
+                width: "500", // windowWidth
+                height: "300",
+                title: "SubmodelElement 선택등록",
+                visible: false,
+                actions: ["Close"],
+                close: () => {
+                    // 별도 구현, 여기에 구현하면 안됨
+                }
+            });
+
+            this.$tmplSubmodelElementSelectionWin.find("select[name=submodelelement_type]").kendoDropDownList();
+
+            // 서브모델 하위추가
+            this.$tmplSubmodelElementSelectionWin.find("button[name=btnSelectSubmodelElementType]").on('click', function (e) {
+                _this.selectSubmodelElementType();
+            });
+
         }
 
         initAAS() {
@@ -808,47 +949,31 @@
                 dataValueField: "value"
             });
 
-            this.$tmplAASSubItemChoiceWin = $('#tmplAASSubItemChoice').kendoWindow({
-                width: "500", // windowWidth
-                height: "300",
-                title: "AAS하위항목 선택등록",
-                visible: false,
-                actions: ["Close"],
-                close: () => {
-                    // 별도 구현, 여기에 구현하면 안됨
-                }
-            });
-
             // 하위항목유형 선택버튼 클릭시 aas, submodel에 따라 분기처리
             $('#btnSelectAASSubType').kendoButton({
                 icon: 'insert-bottom',
                 themeColor: "info",
                 click: function () {
+
                     _this.$tmplAASSubItemChoiceWin.data("kendoWindow").close();
                     let aasSubType = $cboAASSubItemType.val();
                     let $aas_form = _this.$div_aas_detail.find('form');
+                    let p_display_name = $aas_form.find("input[name=displayName]").val();
+                    let p_aas_pk = $aas_form.find("input[name=aas_pk]").val();
                     if (aasSubType == "aas") {
-
                         $aas_form[0].reset();
-
-                        $('#p_aas_pk').val("");
-                        $('#aas_pk').val("");
-                        $aas_form.find('#p_aas_pk').val(_this.$aasData.aas_pk);
-                        $aas_form.find('input[name=p_display_name]').val(_this.$aasData.displayName);
-
+                        $aas_form.find('input[name=aas_pk]').val("");
+                        $aas_form.find("input[name=p_display_name]").val(p_display_name);
+                        $aas_form.find('input[name=p_aas_pk]').val(p_aas_pk);
                     } else if (aasSubType == "submodel") {
                         let $form = _this.$div_submodel_detail.find('form');
                         $form[0].reset();
-
                         $form.find('input[name=sm_pk]').val('');
-                        $form.find('input[name=aas_pk]').val(_this.$aasData.aas_pk);
-                        $form.find('input[name=p_display_name]').val(_this.$aasData.displayName);
+                        $form.find('input[name=aas_pk]').val(p_aas_pk);
+                        $form.find('input[name=p_display_name]').val(p_display_name);
                         _this.hideAllDetail();
-
                         _this.$div_submodel_detail.show();
-
                     }
-
                 }
             });
 
@@ -870,51 +995,67 @@
 
         }
 
+        selectSubmodelElementType() {
+            let _this = this;
+            let $form = null;
+            let $popupForm = this.$tmplSubmodelElementSelectionWin.find("form");
+            let parentType = $popupForm.find("input[name=parentType]").val();
+            let submodelelement_type = $popupForm.find("select[name=submodelelement_type]").val();            
+            let p_sm_pk = $popupForm.find("input[name=p_sm_pk]").val();
+            let p_sme_pk = $popupForm.find("input[name=p_sme_pk]").val();
+            let p_display_name = $popupForm.find("input[name=p_display_name]").val();
+
+            switch (submodelelement_type) {
+                case "PropertyElement":
+                    _this.hideAllDetail();
+                    $form = _this.$div_prpt_detail.find("form");
+                    $form[0].reset();
+                    $form.find('input[name=p_sm_pk]').val(p_sm_pk);
+                    $form.find('input[name=sme_pk]').val("");
+                    $form.find('input[name=p_sme_pk]').val(p_sme_pk);
+                    $form.find("input[name=p_display_name]").val(p_display_name);
+
+                    _this.$div_prpt_detail.show();
+                    break;
+                case "FileElement":
+                    _this.hideAllDetail();
+                    $form = _this.$div_file_detail.find("form");
+                    $form[0].reset();
+                    $form.find('input[name=p_sm_pk]').val(p_sm_pk)
+                    $form.find('input[name=sme_pk]').val("")
+                    $form.find('input[name=p_sme_pk]').val(p_sme_pk);
+                    $form.find("input[name=p_display_name]").val(p_display_name);
+
+                    _this.$div_aas_detail.find("#divFileElement").empty();
+
+
+                    _this.$div_file_detail.show();
+                    break;
+                case "SubmodelElementCollection":
+                    _this.hideAllDetail();
+                    $form = _this.$div_subcollection_detail.find("form");
+                    $form[0].reset();
+                    $form.find('input[name=p_sm_pk]').val(p_sm_pk)
+                    $form.find('input[name=sme_pk]').val("")
+                    $form.find('input[name=p_sme_pk]').val(p_sme_pk);
+                    $form.find("input[name=p_display_name]").val(p_display_name);
+
+                    _this.$div_subcollection_detail.show();
+                    break;
+                default:
+                    Alert.alert("Submodel Element Type오류", "submodelelement_type");
+                    break;
+            }
+
+            _this.$tmplSubmodelElementSelectionWin.data("kendoWindow").close();
+        }
+
         ///////////////////////////////////////////////////////////////////////////////
         // Submodel
         initSubModel() {
 
             let _this = this;
             let $submodel_form = _this.$div_submodel_detail.find('form');
-
-            // Submodel에서 SubmodelElement 추가시 선택하는 팝업
-            this.$tmplSubmodelElementSelectionWin = $('#tmplPopupSubmodelElementSelection').kendoWindow({
-                width: "500", // windowWidth
-                height: "300",
-                title: "SubmodelElement 선택등록",
-                visible: false,
-                actions: ["Close"],
-                close: () => {
-                    // 별도 구현, 여기에 구현하면 안됨
-                }
-            });
-
-            let $cboSubmodelElementType = this.$tmplSubmodelElementSelectionWin.find("select[name=submodelelement_type]").kendoDropDownList();
-            this.$tmplSubmodelElementSelectionWin.find("button[name=btnSelectSubmodelElementType]").on('click', function (e) {
-                let submodelelement_type = $cboSubmodelElementType.val();
-
-                switch (submodelelement_type) {
-                    case "PropertyElement":
-                        _this.hideAllDetail();
-                        _this.$div_prpt_detail.show();
-                        break;
-                    case "FileElement":
-                        _this.hideAllDetail();
-                        _this.$div_file_detail.show();
-                        break;
-                    case "SubmodelElementCollection":
-                        _this.hideAllDetail();
-                        _this.$div_subcollection_detail.show();
-                        break;
-                    default:
-                        Alert.alert("Submodel Element Type오류", "submodelelement_type");
-                        break;
-                }
-
-                _this.$tmplSubmodelElementSelectionWin.data("kendoWindow").close();
-            });
-
-
             this.$div_submodel_detail.find("button[name=clear]").kendoButton({
                 themeColor: "base",
                 click: function () {
@@ -944,8 +1085,22 @@
                 click: function () {
                     // submodelelement(PropertyElement, FileElement..),submodelelementcollection 등등을 선택할 수 있는 팝업을 생성
                     // 팝업창에서 상위 부모 이름 설정
-                    let p_display_name = $submodel_form.find("input[name=displayName]").val()
-                    _this.$tmplSubmodelElementSelectionWin.find("input[name=p_display_name]").val(p_display_name);
+                    let sm_pk = $submodel_form.find("input[name=sm_pk]").val();
+                    let p_display_name = $submodel_form.find("input[name=displayName]").val();
+
+                    let $popupForm = _this.$tmplSubmodelElementSelectionWin.find("form")
+
+                    $popupForm.find("input[name=p_display_name]").val(p_display_name);
+                    $popupForm.find("input[name=parentType]").val("submodel");
+
+                    
+                    if (!sm_pk) {
+                        Alert.alert("Submodel 하위항목추가 오류", "Submodel을 저장후에 하위항목을 추가할 수 있습니다.");
+                        return;
+                    }
+
+                    $popupForm.find("input[name=p_sm_pk]").val(sm_pk);
+                    $popupForm.find("input[name=p_sme_pk]").val("");
                     _this.$tmplSubmodelElementSelectionWin.data("kendoWindow").center().open();
                 }
             });
@@ -958,38 +1113,50 @@
         }
 
         initSubmodelItemCollection() {
+            let _this = this;
+            let $sumodelcollection_form = _this.$div_subcollection_detail.find('form');
 
             //SubmodelElementCollection
             this.$div_subcollection_detail.find('button[name=clear]').kendoButton({
                 themeColor: "base",
                 click: function () {
+                    Alert.alert("property 삭제", '구현중입니다.');
                 }
             });
+
             this.$div_subcollection_detail.find('button[name=save]').kendoButton({
                 themeColor: "info",
                 click: function () {
-                    _this.saveSubmodelElementCollection();
+                    Alert.confirm("Submodel Collection 저장확인", "저장하시겠습니까?", function () {
+                        _this.saveSubmodelElementCollection();
+                    });
                 }
             });
+
             this.$div_subcollection_detail.find('button[name=delete]').kendoButton({
                 themeColor: "error",
                 click: function () {
+                    Alert.alert("property 삭제", '구현중입니다.');
                 }
             });
 
-            // 서브모델엘리먼트컬렉션 하위 항목 추가
+            // 서브모델엘리먼트컬렉션에서 하위 항목 추가
             this.$div_subcollection_detail.find("button[name=add_child]").kendoButton({
                 themeColor: "info",
                 click: function () {
-                    let $form = _this.$div_subcollection_detail.find('form');
-
+                    let p_display_name = $sumodelcollection_form.find("input[name=displayName]").val();
+                    let p_sme_pk = $sumodelcollection_form.find("input[name=sme_pk]").val();
+                    _this.$tmplSubmodelElementSelectionWin.find("input[name=parentType]").val("submodelelementcollection");
+                    _this.$tmplSubmodelElementSelectionWin.find("input[name=p_display_name]").val(p_display_name);
+                    _this.$tmplSubmodelElementSelectionWin.find("input[name=p_sm_pk]").val("");
+                    _this.$tmplSubmodelElementSelectionWin.find("input[name=p_sme_pk]").val(p_sme_pk);
+                    _this.$tmplSubmodelElementSelectionWin.data("kendoWindow").center().open();
                 }
             });
-
         }
 
         initPropertyElement() {
-
+            let _this = this;
             //PropertyElement
             //SubmodelElementCollection
             this.$div_prpt_detail.find('button[name=clear]').kendoButton({
@@ -1001,7 +1168,9 @@
             this.$div_prpt_detail.find('button[name=save]').kendoButton({
                 themeColor: "info",
                 click: function () {
-                    _this.savePropertyElement();
+                    Alert.confirm("Property 저장", "저장하시겠습니가?", function () {
+                        _this.savePropertyElement();
+                    });
                 }
             });
 
@@ -1010,10 +1179,26 @@
                 click: function () {
                 }
             });
-
         }
 
         initFileElement() {
+            let _this = this;
+            ///
+            let $form = _this.$div_file_detail.find("form");
+            let $fileElement = $form.find("input[name=file_element]").kendoUpload({
+                remove: function (e) {
+                    if (userinfo.can_write() == false) {
+                        return;
+                    }
+                }
+            });
+
+            if (userinfo.can_write()==false) {
+                var upload = $fileElement.data("kendoUpload");
+                upload.disable();
+            }
+
+            this.$fileElement = $fileElement;
 
             //FileElement
             this.$div_file_detail.find('button[name=clear]').kendoButton({
@@ -1024,6 +1209,9 @@
             this.$div_file_detail.find('button[name=save]').kendoButton({
                 themeColor: "info",
                 click: function () {
+                    Alert.confirm("FileElement Save", "저장하시겠습니까?", function () {
+                        _this.saveFileElement();
+                    });
                 }
             });
             this.$div_file_detail.find('button[name=delete]').kendoButton({
@@ -1033,31 +1221,19 @@
             });
         }
 
-
-
-
-
         addRootNode() {
             // 최상위 등록시 필요
             let _this = this;
-
             this.hideAllDetail();
-
             let $form = this.$div_aas_detail.find('form');
             $form[0].reset();
 
             $('#p_aas_pk').val("");
             $('#aas_pk').val("");
 
-
             this.$div_aas_detail.find("button[name=delete]").hide();
             this.$div_aas_detail.find("button[name=add_child]").hide();
             this.$div_aas_detail.show();
-        }
-
-        showManagement() {
-            //좌측 트리에서 현재 선택된 항목을 확인해서 AAS의 경우에만 administrative 정보를 관리해야한다.
-
         }
 
         showAASDetail($item) {
@@ -1083,7 +1259,7 @@
 
             let fnSuccess = function (result) {
                 if (result.success) {
-                    _this.$aasData = result.data; //하위항목추가시 설정할 데이터로 사용ㅇ함
+
                     let aasData = result.data;
                     FormUtil.BindDataForm(aasData, $form);
 
@@ -1105,7 +1281,6 @@
             AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
 
         }
-
 
         saveAASData() {
             let _this = this;
@@ -1154,9 +1329,9 @@
             let _this = this;
             let $form = _this.$div_subcollection_detail.find("form");
             let data = FormUtil.extractForm($form);
+
             let fnSuccess = function (result) {
-                if (result.success) {
-                    alert(result.data);
+                if (result.success) {                    
                     Alert.alert("저장확인", '저장되었습니다.');
                 }
                 else {
@@ -1188,7 +1363,8 @@
 
             let fnSaveSuccess = function (result) {
                 if (result.success) {
-                    Alert.alert('Submodel 저장확인', '저장하였습니다.');
+                    Alert.alert('Submodel 저장확인', '저장되었습니다.');
+                    _this.searchMainData();
                 } else {
                     Alert.alert('Submodel 저장오류', result.message);
                 }
@@ -1247,13 +1423,9 @@
                 }
                 else {
                     toggleBtn.textContent = '-';
-                }
-
-                if (toggleBtn.textContent == '-') {
                     let $node = $(node);
-                    if ($node.attr('loaded') != '1') {
-                        this.submodelElementsRender($node);
-                    }
+                    this.submodelElementsRender($node);
+                    //if ($node.attr('loaded') != '1') {                                           }
                 }
             }
         }
@@ -1281,11 +1453,13 @@
                         _this.showPropertyDetail($(this), $node);
                     });
 
+                    $sm_children_ul.find('.sme_file_detail').on('click', function () {
+                        _this.showFileElementDetail($(this));
+                    });
+
                     $sm_children_ul.find('.sme-coll-node').on('click', function () {
                         let $collNode = $(this);
-                        if ($collNode.attr('loaded') != "1") {
-                            _this.submodelElementsCollectionRender($collNode);
-                        }
+                        _this.submodelElementsCollectionRender($collNode);
                         _this.aasToggleNode(this);
 
                     });
@@ -1320,24 +1494,40 @@
                     //console.log($children_ul);
 
                     let items = result.items;
+
                     let template = kendo.template($('#smeTemplate').html());
 
                     let arrHtml = [];
-
                     $children_ul.empty();
                     let html = template(items);
                     $children_ul.html(html);
+
+                    //하위자식이 있는경우
+                    if (items.length > 0) {
+
+                    } else {
+                        //하위자식이 없는경우
+                    }
+
+
                     $children_ul.find('.sme_prpt_detail').on('click', function () {
                         _this.showPropertyDetail($(this), $node);
                     });
 
-                    $children_ul.find('.sme-coll-node').on('click', function () {
+                    $children_ul.find('.sme-coll-node').off('click').on('click', function () {
+                        //alert('sme-coll-node');
                         _this.submodelElementsCollectionRender($(this));
                         _this.aasToggleNode(this);
                     });
                     $children_ul.find('.sme_collection_detail').on('click', function () {
                         _this.showSubmodelElementsCollectionDetail($(this));
                     });
+
+                    $children_ul.find('.sme_file_detail').on('click', function () {
+                        _this.showFileElementDetail($(this));
+                    });
+
+                    
 
                     $node.attr('loaded', "1");
                 }
@@ -1356,12 +1546,15 @@
             this.$div_subcollection_detail.show();
             let $form = this.$div_subcollection_detail.find("form");
             let $lang_code = this.$div_subcollection_detail.find('select[name=lang_code]');
-            let param = { action: "submodel_element_collection_detail", data_pk: data_pk };
+            let param = {
+                action: "submodel_element_collection_detail",
+                data_pk: data_pk
+            };
             let fnSuccess = function (result) {
                 if (result.success) {
                     let submodelCollData = result.data;
                     FormUtil.BindDataForm(submodelCollData, $form);
-
+                    
                     $lang_code.off('change').on('change', function () {
                         let selectedLangCode = $lang_code.val();
                         let disp_text = _this.getLangTextFromJson(selectedLangCode, submodelCollData.json_displayname);
@@ -1371,6 +1564,53 @@
                     });
 
 
+                }
+            };
+
+            AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
+        }
+
+
+        showFileElementDetail($node) {
+            let _this = this;
+            let data_pk = $node.attr("data_pk");
+            this.hideAllDetail();
+            this.$div_file_detail.show();
+            let $form = this.$div_file_detail.find("form");
+            $form[0].reset();
+
+            var upload = this.$fileElement.data("kendoUpload");
+            upload.clearAllFiles();
+
+            let param = {
+                action: "file_element_detail",
+                data_pk: data_pk
+            };
+
+
+            let $lang_code = this.$div_file_detail.find('select[name=lang_code]');
+            let $divFileElement = $form.find("#divFileElement");
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    let fileData = result.data;
+                    FormUtil.BindDataForm(fileData, $form);
+                    $lang_code.off('change').on('change', function () {
+                        let selectedLangCode = $lang_code.val();
+                        let disp_text = _this.getLangTextFromJson(selectedLangCode, fileData.json_displayname);
+                        let desc_text = _this.getLangTextFromJson(selectedLangCode, fileData.json_description);
+                        $form.find("input[name=displayName]").val(disp_text);
+                        $form.find("input[name=description]").text(desc_text);
+                    });
+
+                    //$img.attr("src", "/api/files/aas?model_type=file&data_pk=" + fileData.sme_pk);
+                    let url = "/api/files/aas?model_type=file&data_pk=" + fileData.sme_pk
+                    let html = '📦<a href="' + url + '">' + fileData.filename + '</a> ';  //<i class="material-symbols-outlined">delete</i></span></a> <i class="material-symbols-outlined">attach_file</i>
+                    
+                    $divFileElement.append(html);
+                }
+                else {
+                    Alert.alert("FileElement 조회오류", result.message);
                 }
             };
 
@@ -1431,6 +1671,29 @@
             AjaxUtil.getAsyncData(this.baseUrl, param, fnSuccess);
         }
 
+        saveFileElement() {
+            let _this = this;
+            let $form = this.$div_file_detail.find("form");
+            let $inputFile = $form.find("input[name=file_element]");
+
+            if ($inputFile[0].files.count == 0) {
+                Alert.alert("File Element 입력누락" , "파일을 선택하세요");
+                return;
+            }
+
+            let form_data = new FormData($form[0]);
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    Alert.alert("FileElement 저장", "저장되었습니다.");
+                } else {
+                    Alert.alert("FileElement 저장오류", result.message);
+                }
+            }
+
+            let url = this.baseUrl + "?action=save_file_element";
+            AjaxUtil.postFileAsyncData(url, form_data, fnSuccess);
+        }
+
         showAASTreeList(aasItems) {
             let _this = this;
             let arrHtmls = [];
@@ -1459,8 +1722,13 @@
             });
 
             this.$aasTree.find('.submodel-node').on('click', function () {
+                
                 _this.submodelToggleNode(this);
             });
+        }
+
+        showManagement() {
+            Alert.alert("리비전관리", "기능구현중입니다.");
         }
 
         searchMainData() {
@@ -1488,7 +1756,6 @@
     };
 
     let page = new AASPage();
-
     $(document).ready(function () {
         page.searchMainData();
     });
@@ -1504,7 +1771,6 @@
 
     $('#aas_tree').on('click', '.tree-node', function (e) {
         e.stopPropagation(); // 하위 요소 클릭시 중복 이벤트 방지
-
         $('.tree-node').removeClass('active');
         $(this).addClass('active');
     });

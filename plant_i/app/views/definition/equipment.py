@@ -206,7 +206,11 @@ def equipment(context):
             return tree
 
         try:
+            category = gparam.get('category', None)
             equip_classes = CmEquipClassify.objects.filter(UseYn='Y').values('EquipClassCode', 'EquipClassCode', 'ParentCode')
+
+            if category:
+                equip_classes = equip_classes.filter(CategoryCode=category)
 
             equip_classify_tree = build_tree(list(equip_classes))
 

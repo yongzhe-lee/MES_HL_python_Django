@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-sm-4 col-md-3">
+                    <div class="col-6 col-sm-4 col-md-4 col-lg-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srchStartTime" data-labelCd="시간"></label>
                             <div class="field-wrapper">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
 
-                    <div class="col-4 col-md-3 col-lg-3 col-xl-2">
+                    <div class="col-4 col-md-4 col-lg-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboLine" data-labelCd="라인">라인</label>
                             <div class="field-wrapper">
@@ -57,7 +57,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-4 col-md-3 col-lg-3 col-xl-2">
+                    <div class="col-4 col-md-4 col-lg-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboEquip" data-labelCd="설비">설비</label>
                             <div class="field-wrapper">
@@ -65,7 +65,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-4 col-md-3 col-lg-3 col-xl-2">
+                    <div class="col-4 col-md-4 col-lg-3">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="cboTagGroup" data-labelCd="태그그룹">태그그룹</label>
                             <div class="field-wrapper">
@@ -74,8 +74,9 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="col-6 col-md-6 col-lg-6 col-xl-6">
                         <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboTag" data-labelCd="태그">태그</label>
                             <div class="field-wrapper">
                                 <select id="cboTag" name="cboTag"></select>
                             </div>
@@ -249,53 +250,90 @@
                 tag_codes: tag_codes
             };
 
-            let result = AjaxUtil.getSyncData(url, param);
+            kendo.ui.progress($("#divChart"), true); // data 로딩 ui 시작
 
-            if (result != null) {
-                if (_this.chart) {
-                    _this.chart.destroy();
-                    _this.chart = null;
+            //let result = AjaxUtil.getSyncData(url, param);
+            //let succFunc = function (result) {
+            //    if (result != null) {
+            //        if (_this.chart) {
+            //            _this.chart.destroy();
+            //            _this.chart = null;
+            //        }
+
+            //        $('#divChart').empty();
+
+            //        result.forEach(function (tag_data, idx) {
+            //            let tag_cnt = tag.length;
+            //            let sizeVal = 12 / tag_cnt;
+
+            //            let html = '<div class="col-lg-' + sizeVal + ' col-md-6 col-sm-12"><span id="chartInfo_' + idx + '">Info</span><br/><br/><div id="chart_' + idx + '" class="chart_border"></div></div>'
+            //            html += "</div>";
+
+            //            $('#divChart').append(html);
+
+            //            _this.loadChart('chart_' + idx, tag_data.name_x + '(X)-' + tag_data.name_y + '(Y)', tag_data);
+
+            //            let text = 'r-square=' + tag_data.r2;
+            //            text += ', p-value=' + tag_data.p;
+            //            if (tag_data.first_equation != '')
+            //                text += ', ' + tag_data.first_equation;
+
+            //            $('#chartInfo_' + idx).text(text);
+            //        })
+            //    };
+
+            //    kendo.ui.progress($("#divChart"), false); // data 로딩 ui 종료
+            //}
+
+            let succFunc = function (result) {
+                if (result.success) {
+                    if (_this.chart) {
+                        _this.chart.destroy();
+                        _this.chart = null;
+                    }
+
+                    $('#divChart').empty();
+
+                    result.data.forEach(function (tag_data, idx) {
+                        let tag_cnt = tag.length;
+                        let sizeVal = 12 / tag_cnt;
+
+                        let html = '<div class="col-lg-' + sizeVal + ' col-md-6 col-sm-12"><span id="chartInfo_' + idx + '">Info</span><br/><br/><div id="chart_' + idx + '" class="chart_border"></div></div>'
+                        html += "</div>";
+
+                        $('#divChart').append(html);
+
+                        _this.loadChart('chart_' + idx, tag_data.name_x + '(X)-' + tag_data.name_y + '(Y)', tag_data);
+
+                        let text = 'r-square=' + tag_data.r2;
+                        text += ', p-value=' + tag_data.p;
+                        if (tag_data.first_equation != '')
+                            text += ', ' + tag_data.first_equation;
+
+                        $('#chartInfo_' + idx).text(text);
+                    })
+                }
+                else {
+                    Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);
                 }
 
-                $('#divChart').empty();
+                kendo.ui.progress($("#divChart"), false); // data 로딩 ui 종료
+            }
 
-                result.forEach(function (tag_data, idx) {
-                    let tag_cnt = tag.length;
-                    let sizeVal = 12 / tag_cnt;
-
-                    let html = '<div class="col-lg-' + sizeVal + ' col-md-6 col-sm-12"><span id="chartInfo_' + idx + '">Info</span><br/><br/><div id="chart_' + idx + '" class="chart_border"></div></div>'
-                    html += "</div>";
-
-                    $('#divChart').append(html);
-
-                    _this.loadChart('chart_' + idx, tag_data.name_x + '(X)-' + tag_data.name_y + '(Y)', tag_data);
-
-                    let text = 'r-square=' + tag_data.r2;
-                    text += ', p-value=' + tag_data.p;
-                    if (tag_data.first_equation != '')
-                        text += ', ' + tag_data.first_equation;
-
-                    $('#chartInfo_' + idx).text(text);
-                })
-            };
+            AjaxUtil.getAsyncData(url, param, succFunc);
         }
-
     };
 
     let page = new chartScatter();
 
     $(document).ready(function () {
         
-
         // kendo chart 반응형 처리
         $(window).resize(function () {
             kendo.resize($("div.k-chart[data-role='chart']"));
         });
 
-        page.searchMainData();
-
-
-
+        //page.searchMainData(); 처음 로딩때 데이터x
     });
 
 </script>

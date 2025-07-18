@@ -1,5 +1,4 @@
 from domain.gui import GUIConfiguration
-from domain.models.cmms import CmDept
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 from domain.models.user import Depart
@@ -65,7 +64,7 @@ def depart(context):
             '''
             if dept_name:
                 sql += '''
-                AND d."Name" = %(dept_name)s
+                AND UPPER(d."Name") LIKE CONCAT('%%',UPPER(CAST(%(dept_name)s as text)),'%%')
                 '''
 
             dc = {}
@@ -189,18 +188,18 @@ def depart(context):
             def build_tree(nodes, parent_id=None):
                 tree = []
                 for node in nodes:
-                    if node["Parent"] == parent_id:
+                    if node["UpDept_id"] == parent_id:
                         children = build_tree(nodes, node["id"])
                         tree.append({
                             "id": node["id"],
-                            "text": node["DeptName"],
+                            "text": node["Name"],
                             "items": children if children else []
                         })
                 return tree
 
             try:
                 # DB에서 부서 정보 조회
-                departments = CmDept.objects.filter(UseYn='Y', DelYn='N').values('id', 'DeptName', 'Parent')
+                departments = Depart.objects.filter(UseYN='Y', DelYN='N').values('id', 'Name', 'UpDept_id')
                 #print("📌 부서 데이터 확인:", list(departments))  # 🚀 로그 추가
 
                 # 트리 구조 변환

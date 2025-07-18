@@ -1,0 +1,207 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+	.proc-flow {
+		font-size: 18px;
+		margin-bottom: 32px;
+	}
+
+	.proc-step {
+		border: 3px solid #00bcd4;
+		border-radius: 50%;
+		width: 80px;
+		height: 80px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: bold;
+		background: #fff;
+		color: #00bcd4;
+		font-size: 18px;
+	}
+
+		.proc-step.current {
+			border-color: #e74c3c;
+			color: #e74c3c;
+			background: #fff;
+		}
+
+	.proc-arrow {
+		font-size: 24px;
+		color: #00bcd4;
+		margin: 0 4px;
+	}
+
+	.form-section {
+		margin-bottom: 24px;
+	}
+
+	.form-label {
+		display: inline;
+		font-weight: bold;
+		margin-right: 8px;
+		font-size: 16px;
+	}
+
+	.form-desc {
+		display: inline;
+		color: #888;
+		font-size: 13px;
+	}
+	/*.form-radio-group { display: flex; gap: 24px; margin-bottom: 4px; }*/
+	.form-input, .form-select {
+		padding: 4px 8px;
+		font-size: 15px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+
+	/* 마이그레이션 페이지 전용 스타일 */
+	.migration-container {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.warning-section {
+		background: #faeaea;
+		border-radius: 6px;
+		padding: 12px 16px;
+	}
+
+	.migration-form-section {
+		border: 1.5px solid #e74c3c;
+		border-radius: 6px;
+		padding: 16px;
+		background: #fff;
+		max-width: 900px;
+	}
+
+	.migration-form-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-bottom: 16px;
+	}
+	.mig-btn-red {
+		background: #e74c3c;
+		color: #fff;
+		border: none;
+		border-radius: 4px;
+		padding: 6px 16px;
+		font-size: 14px;
+		font-weight: bold;
+		cursor: pointer;
+		transition: background 0.2s;
+		white-space: nowrap;
+	}
+	.mig-btn-red:hover {
+		background: #c0392b;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <div class="migration-container">
+            <!-- 주의사항 섹션 -->
+            <div class="warning-section">
+                <div style="color:#e74c3c; font-weight:bold; margin-bottom:4px;">* 주의사항</div>
+                <hr style="border:0; border-top:1px solid #e74c3c; margin:4px 0 8px 0;">
+                <div style="color:#333;">
+                    1. 선택상자에서 마이그레이션 유형을 선택 후, 작성된 파일을 첨부하세요.<br>
+                    2. 'Execute Migration' 버튼을 눌러 마이그레이션을 실행하세요.
+                </div>
+            </div>
+            
+            <!-- 마이그레이션 유형 섹션 -->
+            <form id="migForm" class="proc-opts-form migration-form-section" name="migForm">
+                <div class="form-section">
+                    <div class="migration-form-row">
+                        <span style="font-weight:bold; font-size:15px;">마이그레이션 유형</span>
+                        <select id="migrationType" name="migrationType" class="form-select" style="min-width:120px;"></select>
+                        <button type="button" id="execBtn" class="mig-btn-red">Execute Migration</button>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <input type="file" id="migFile" name="migFile" style="width:100%; max-width:400px;" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	class CmMigPage {
+		constructor() {
+			this.baseUrl = '/api/kmms/mig';
+			this.init();
+		}
+
+		init() {
+			const _this = this;
+
+			// MigList.vue의 migList와 동일하게 옵션 추가
+			const migList = [
+				{ id: 'DEPT', label: '부서', path: 'app/static/MIG_FILE/01.부서.xlsx' },
+				{ id: 'USER_INFO', label: '사용자', path: 'app/static/MIG_FILE/02.사용자.xlsx' },
+				{ id: 'LOCATION', label: '설비위치', path: 'app/static/MIG_FILE/03.설비위치.xlsx' },
+				{ id: 'SUPPLIER', label: '업체정보', path: 'app/static/MIG_FILE/04.업체정보.xlsx' },
+				{ id: 'BASE_CODE', label: '기초코드', path: 'app/static/MIG_FILE/05.기초코드.xlsx' },
+				{ id: 'MATERIAL', label: '자재', path: 'app/static/MIG_FILE/06.자재.xlsx' },
+				{ id: 'EQUIP_CLASS', label: '설비종류', path: 'app/static/MIG_FILE/07.설비종류.xlsx' },
+				{ id: 'EQUIP_TYPE', label: '설비유형', path: 'app/static/MIG_FILE/08.설비유형.xlsx' },
+				{ id: 'EQUIPMENT', label: '설비', path: 'app/static/MIG_FILE/09.설비.xlsx' },
+				{ id: 'EQUIP_SPEC', label: '설비사양', path: 'app/static/MIG_FILE/설비사양.xlsx' },
+				{ id: 'MTRL_PHOTO', label: '자재사진', path: 'app/static/MIG_FILE/자재사진.xlsx' },
+				{ id: 'EQUIP_PHOTO', label: '설비사진', path: 'app/static/MIG_FILE/설비사진.xlsx' },
+				{ id: 'EQUIP_FILE', label: '설비파일', path: 'app/static/MIG_FILE/설비파일.xlsx' },
+				{ id: 'PM', label: 'PM', path: 'app/static/MIG_FILE/PM.xlsx' },
+				{ id: 'EQUIPCHKMAST', label: '점검마스터', path: 'app/static/MIG_FILE/점검마스터.xlsx' },
+				{ id: 'CHKEQUIP', label: '점검설비', path: 'app/static/MIG_FILE/점검설비.xlsx' },
+				{ id: 'EQUIPCHKITEM', label: '점검항목', path: 'app/static/MIG_FILE/점검항목.xlsx' },
+				{ id: 'WO', label: 'WO', path: 'app/static/MIG_FILE/WO.xlsx' },
+				
+			];
+			const $select = $('#migrationType');
+			$select.empty();
+			migList.forEach(opt => {
+				$select.append(`<option value="${opt.id}" data-path="${opt.path}">${opt.label}</option>`);
+			});
+
+			$('#execBtn').on('click', function () {
+				let $select = $('#migrationType');
+				let $fileInput = $('#migFile');
+				let file = $fileInput[0].files[0];
+				let formData = new FormData();
+				formData.append('action', 'mig');
+				formData.append('migrationType', $select.val());
+				formData.append('migFile', file);
+				formData.append('path', $select.find('option:selected').data('path'));
+				formData.append('Site', '1');
+
+				let fnSuccess = function (res) {
+					if (res.success) {
+						Alert.alert('', res.message);
+					} else if (!res.success) {
+						Alert.alert('', res.message);
+					}
+				};
+
+				AjaxUtil.postFileAsyncData('/api/kmms/mig', formData, fnSuccess);
+			});
+		}
+
+	}
+
+	let page = null;
+	page = new CmMigPage();
+	$(document).ready(function () {
+	
+	});
+</script>
+{% endblock %}

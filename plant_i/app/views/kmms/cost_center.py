@@ -1,8 +1,9 @@
 from django import db
+from domain.models.user import Depart
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
-from domain.models.cmms import CmCostCenter, CmEquipment, CmDept
+from domain.models.cmms import CmCostCenter, CmEquipment
 
 def cost_center(context):
     '''
@@ -29,7 +30,7 @@ def cost_center(context):
         q = CmEquipment.objects.filter(CcenterCode=ccenterCd)
         if q.first():
             return 1
-        q = CmDept.objects.filter(CcenterCode=ccenterCd)
+        q = Depart.objects.filter(CcenterCode=ccenterCd)
         if q.first():
             return 1
         else:
@@ -52,9 +53,9 @@ def cost_center(context):
                     '''
             if searchText:
                 sql += ''' AND (
-				    UPPER(ccenter_cd) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+				    UPPER(ccenter_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
     			    OR
-    			    UPPER(ccenter_nm) LIKE CONCAT('%',UPPER(%(searchText)s),'%')
+    			    UPPER(ccenter_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			    )
                 '''
 

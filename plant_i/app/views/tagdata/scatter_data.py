@@ -18,8 +18,8 @@ def scatter_data(context):
     items = []
     gparam = context.gparam
     posparam = context.posparam
-
     action = gparam.get('action')
+    result = {}
     
     try:
         if action =='read':
@@ -220,10 +220,12 @@ def scatter_data(context):
                 }
                 items.append(data)
 
+            result['data'] = items
+            result['success'] = True
 
     except Exception as ex:
         source = '/api/tagdata/scatter_data'
         LogWriter.add_dblog('error', source, ex)
-        raise ex
+        result = {'success':False, 'message': str(ex)}
 
-    return items
+    return result

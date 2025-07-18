@@ -2,9 +2,23 @@ import requests
 
 class MESInterfaceService():
 
-    host = "http://localhost:8080"  # Replace with actual MES host
+    host = "http://localhost:8080"  # 웹서버내 다른 포트로 연결됨
     def __def__(self):
         pass
+
+    def convert_to_array(self, dic_res):
+        items = []
+        if dic_res["success"]:
+            rows = dic_res['data']
+            for r in rows:
+                row = {}
+                for c in r:
+                    name = c.get("Name")
+                    value = c.get("Value")
+                    row[name] = value
+                items.append(row)
+        return items
+
 
     def get_production_plan_all(self, fromDate:str, toDate:str, line:str, product:str):
         #ProductPlanAll
@@ -15,10 +29,14 @@ class MESInterfaceService():
             "line" : line,
             "product" : product
         }
+
         response = requests.get(url, param)
         if response.status_code != 200:
             raise Exception(f"Error: {response.status_code} - {response.text}")
+
         return response.json()
+        
+        
     
     def get_production_plan_excel(self, fromDate:str, toDate:str, line:str, product:str):
         #ProductPlanExcel

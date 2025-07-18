@@ -12,9 +12,7 @@
                     <div class="form-item align-h">
                         <label class="k-label k-form-label" for="mat_cd_stock" data-labelCd="창고">창고</label>
                         <div class="field-wrapper">
-                            <select id="cboStockLocation" name="loc_cd" class="form-control">
-                                <option value="4000">제품창고(4000)</option>
-                            </select>
+                            <select id="cboStockLocation" name="loc_cd" class="form-control"></select>
                         </div>
                     </div>
                 </div>
@@ -52,6 +50,10 @@
     </div>
 </div>
 
+
+
+
+
 {% endblock %}
 {% block scripts %}
 
@@ -85,6 +87,7 @@
                     }
                 },
                 columns: [
+                    { field: "data_date", title: "기준일시", width: 100, headerAttributes: { style: "text-align: center; justify-content: center" } },
                     { field: "stab_werks", title: "플랜트", width: 100, headerAttributes: { style: "text-align: center; justify-content: center" } },
                     { field: "stab_matnr", title: "품목코드", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
                     { field: "stab_maktx", title: "품목명", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
@@ -105,7 +108,9 @@
             };
 
             this.stock_grid = new Grid($("#stock_grid"), gridOption);
-
+            //sap_storage_location
+            //$('#cboStockLocation')
+            AjaxUtil.fillDropDownOptions($('#cboStockLocation'), 'sap_storage_location', null, null);
 
             $('#btnStockSearch').click(function (ex) {
                 _this.searchSapStock();
