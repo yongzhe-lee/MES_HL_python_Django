@@ -981,16 +981,16 @@ class WorkOrderService():
 
 		return items
 
-	# WO사후등록
+	# WO사후등록 조회
 	def get_post_work_management_list(self, keyword, post_wo_status, req_dept, start_dt, end_dt, maint_type_cd, dept_pk, srch_my_work_only, srch_environ_equip_only, current_user_id):
 		items = []
-		dic_param = {'keyword': keyword, 'post_wo_status': post_wo_status, 'req_dept': req_dept, 'start_dt': start_dt, 'end_dt': end_dt, 'maint_type_cd': maint_type_cd, 'dept_pk': dept_pk, 'srch_my_work_only': srch_my_work_only, 'srch_environ_equip_only': srch_environ_equip_only, 'current_user_id': current_user_id}
+		dic_param = {'keyword': keyword, 'post_wo_status': post_wo_status, 'req_dept': req_dept, 'start_dt': start_dt, 'end_dt': end_dt, 'maint_type_cd': maint_type_cd, 'dept_pk': dept_pk, 'srch_my_work_only': srch_my_work_only, 'srch_environ_equip_only': srch_environ_equip_only, 'current_user_id': current_user_id, 'dateConds': 'startdt'}
 
 		sql = '''
+		/* findAll [work-order-mapper.xml] */
 		with cte as (
-
-		select t.work_order_pk
-				, COALESCE(t.work_order_no, '임시저장') AS work_order_no
+			select t.work_order_pk
+				, t.work_order_no
 				, t.work_title
 				, t.work_text
 				, t.work_order_sort
@@ -1000,7 +1000,7 @@ class WorkOrderService():
 				, t.dept_pk
 				, wd."Name" as dept_nm
 				, cm_fn_get_dept_team_pk(t.dept_pk) as dept_team_pk
-				, cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, 1) as business_nm
+				, cm_fn_get_dept_cd_business_nm(t.req_dept_busi_cd, '1') as business_nm
 				, t.work_charger_pk
 				, cm_fn_user_nm(wcu."Name", wcu.del_yn) as work_charger_nm
 				, mt.code_cd as maint_type_cd
@@ -1011,7 +1011,7 @@ class WorkOrderService():
 				, t.plan_end_dt
 				, t.start_dt
 				, t.end_dt
-				, to_char(t.want_dt, 'yyyy-MM-dd') as want_dt
+				, t.want_dt
 				, t.equip_pk
 				, e.equip_cd
 				, e.equip_nm
@@ -1061,7 +1061,7 @@ class WorkOrderService():
 				, t.appr_line_next
 				, t.work_order_approval_pk
 				, woa.reg_dt
-				, to_char(woa.rqst_dt, 'yyyy-MM-dd') as rqst_dt
+				, woa.rqst_dt
 				, woa.rqst_user_nm
 				, woarqstd.id as rqst_dept_pk
 				, woarqstd."Name" as rqst_dept_nm
@@ -1081,7 +1081,7 @@ class WorkOrderService():
 				, ue.equip_nm AS up_equip_name
 				, ec.equip_category_id
 				, ec.equip_category_desc
-				, ec.remark
+        		, ec.remark
 				, e.equip_class_path
 				, e.equip_class_desc
 				, av.code_nm as first_asset_status
@@ -1106,9 +1106,9 @@ class WorkOrderService():
 			left outer join dept wd on t.dept_pk = wd.id
 			left outer join dept rd on t.req_dept_pk = rd.id
 			left outer join user_profile wcu on t.work_charger_pk = wcu."User_id"
-			left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC'
-			left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC'
-			left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC'
+			left outer join cm_reliab_codes wp on t.problem_cd = wp.reliab_cd and wp."types" = 'PC' 
+			left outer join cm_reliab_codes wc on t.cause_cd  = wc.reliab_cd and wc."types" = 'CC' 
+			left outer join cm_reliab_codes wr on t.remedy_cd  = wr.reliab_cd and wr."types" = 'RC' 
 			left outer join cm_pm p on t.pm_pk = p.pm_pk
 			left outer join cm_base_code ct on p.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
 			left outer join cm_base_code pt on p.pm_type  = pt.code_cd and pt.code_grp_cd = 'PM_TYPE'
@@ -1128,7 +1128,10 @@ class WorkOrderService():
 			left outer join cm_work_order_supplier wos on wos.work_order_pk = t.work_order_pk
 			left outer join cm_ex_supplier es on es.ex_supplier_pk = wos.ex_supplier_pk
 		where 1 = 1
+			AND t.wo_status NOT IN ('DUMMY')
+			AND t.wo_status IN ('WOS_RW', 'WOS_DL',  'WOS_CL')
 		'''
+
 		if keyword:
 			sql += '''
 				AND (
@@ -1149,44 +1152,27 @@ class WorkOrderService():
 				rd.id IN ( select dept_pk from cm_v_dept_path where %(req_dept)s = path_info_pk)
 				)
 			'''
-		if post_wo_status == '10':
-			sql += '''
-				AND (t.wo_status = 'WOS_RW' AND t.end_dt IS NULL)
-			'''
-		elif post_wo_status == '20':
-			sql += '''
-				AND (t.wo_status = 'WOS_RW' AND t.end_dt IS NOT NULL)
-			'''
-		elif post_wo_status == '30':
-			sql += '''
-				AND t.wo_status = 'WOS_CL'
-			'''
+
 		if maint_type_cd:
 			sql += '''
 				AND mt.code_cd = %(maint_type_cd)s
-			'''
-		if dept_pk:
-			sql += '''
-				AND (
-				wd.id = %(dept_pk)s
-				OR
-				wd.id IN ( select dept_pk from cm_v_dept_path where %(dept_pk)s = path_info_pk)
-				)
-			'''
-		if start_dt and end_dt:
-			sql += '''
-				AND (
-			 	(date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
-								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) >= to_date(%(start_dt)s, 'YYYY-MM-DD')
-			 		AND date(case when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
-								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
-			 	OR
-			 	(date(case 		when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
-								when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) >= to_date(%(start_dt)s, 'YYYY-MM-DD')
-			 		AND date(case 	when 'rqstdt' = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
-									when 'rqstdt' = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
-				)
-			'''
+			'''		
+
+		# if start_dt and end_dt:
+		# 	sql += '''
+		# 		AND (
+		# 	 	(date(case when %(dateConds)s = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
+		# 						when%(dateConds)s = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) >= to_date(%(start_dt)s, 'YYYY-MM-DD')
+		# 	 		AND date(case when %(dateConds)s = 'rqstdt' then COALESCE(woa.rqst_dt, t.start_dt)
+		# 						when %(dateConds)s = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.start_dt, t.plan_start_dt) end) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
+		# 	 	OR
+		# 	 	(date(case 		when %(dateConds)s = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
+		# 						when %(dateConds)s = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) >= to_date(%(start_dt)s, 'YYYY-MM-DD')
+		# 	 		AND date(case 	when %(dateConds)s = 'rqstdt' then COALESCE(woa.rqst_dt, t.end_dt)
+		# 							when %(dateConds)s = 'wantdt' then COALESCE(t.want_dt, woa.rqst_dt) else coalesce(t.end_dt, t.plan_end_dt) end) <= to_date(%(end_dt)s, 'YYYY-MM-DD'))
+		# 		)
+		# 	'''
+
 		if srch_my_work_only == 'Y':
 			sql += '''
 				AND t.work_charger_pk = %(current_user_id)s
@@ -1197,19 +1183,10 @@ class WorkOrderService():
 			'''
 
 		sql += '''
-			AND t.wo_status IN (
-
-		        	'WOS_RW'
-				 ,
-		        	'WOS_DL'
-				 ,
-		        	'WOS_CL'
-
-			)
-			AND coalesce(t.rqst_dpr_yn, 'N') = 'N'
+			AND coalesce(t.rqst_dpr_yn, 'N') = 'Y'	
 		)
 		SELECT *
-		FROM (table cte  order by rqst_dt DESC ,    work_order_sort DESC ) sub
+		FROM (table cte order by work_order_sort DESC) sub
 		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
 		WHERE total_rows != 0
 		order by pm_no desc, work_order_no desc

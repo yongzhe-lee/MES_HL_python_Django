@@ -181,44 +181,4 @@ def equipment(context):
             #    return items
             #raise ex
 
-    # elif action == 'save_photo':
-    #     eq_id = posparam.get('eq_id', '')
-    #     file_id = posparam.get('file_id',None)
-    #     if eq_id:
-    #         fileService = FileService()
-    #         file_id_list = file_id.split(',')
-    #         for id in file_id_list:
-    #             fileService.updateDataPk(id, eq_id)
-
-    #         items = {'success' : True}
-
-    elif action == 'cm_equip_classify_tree':
-        def build_tree(nodes, parent_id=None):
-            tree = []
-            for node in nodes:
-                if node["ParentCode"] == parent_id:
-                    children = build_tree(nodes, node["EquipClassCode"])
-                    tree.append({
-                        "id": node["EquipClassCode"],
-                        "text": node["EquipClassCode"],
-                        "items": children if children else []
-                    })
-            return tree
-
-        try:
-            category = gparam.get('category', None)
-            equip_classes = CmEquipClassify.objects.filter(UseYn='Y').values('EquipClassCode', 'EquipClassCode', 'ParentCode')
-
-            if category:
-                equip_classes = equip_classes.filter(CategoryCode=category)
-
-            equip_classify_tree = build_tree(list(equip_classes))
-
-            # ✅ `{ "items": [...] }` 형식으로 반환
-            items = {"items": equip_classify_tree}
-
-        except Exception as e:
-            print("🚨 서버 오류 발생:", str(e))  # 🚀 콘솔에 오류 로그 출력
-            items = {"error": str(e)}
-
     return items

@@ -4,7 +4,6 @@ Definition of urls for qm_lims.
 
 from django.urls import path, re_path
 
-
 from app.views.account import AccountLoginView, AccountLogoutView
 from app import forms
 from app.views.das import DASDeviceView
@@ -22,7 +21,7 @@ from app.views.aas import AASView, AssetView
 from django.conf import settings
 from django.conf.urls.static import static
 
-from app.views.kmms.mig import mig_page
+from app.views.scheduler.kmms import kmms
 
 urlpatterns = [
     # dt resource 관련
@@ -39,20 +38,19 @@ urlpatterns = [
     path('aas/swagger', AASDefaultRenderer.swagger , name='aas_swagger'),
     path('aas/<str:short_id>', AASView.as_view() , name='aas'),
     path('aas/<str:short_id>/asset', AssetView.as_view() , name='aas_asset_list'),
-    path('aas/<str:short_id>/asset/<str:global_asset_id>', AssetView.as_view() , name='aas_asset'),
-
-    
+    path('aas/<str:short_id>/asset/<str:global_asset_id>', AssetView.as_view() , name='aas_asset'),    
 
     # DAS에서 호출하는 API
     path('api/das_device', DASDeviceView.as_view(), name='das'), # DAS에서 호출한다, 인증관련 이슈
 
     path('test/', SystemDefaultRenderer.test, name='test'),
     path('setup/', SystemDefaultRenderer.setup, name='setup'),
+    # kmms 마이그레이션 화면
+    path('setup/kmms/mig', SystemDefaultRenderer.mig, name='kmms_mig'),
 
     path('api/alive', SystemDefaultRenderer.alive, name="alive"),
     path('api/files/<str:view_name>', FilesView.as_view()),
     path('api/<str:task_name>/<str:view_name>', ApiModuleView.as_view(), name='api'),
-
 
     # GUIConfiguration 기반
     path('gui/<str:gui_code>/', GUITemplatesView.as_view(), name='gui1'),
@@ -63,9 +61,9 @@ urlpatterns = [
     
     # 사용자정의 api 호출
     path('extra/<str:task>/<str:key>', ExtraDefinitionView.as_view(), name='extra'),
-
-    # kmms 마이그레이션 화면
-    path('kmms/mig', mig_page, name='kmms_mig'),
+    
+    # kmms 스케줄러 api 호출
+    path('scheduler/kmms', kmms, name='kmms_scheduler'),
 
 ]
 

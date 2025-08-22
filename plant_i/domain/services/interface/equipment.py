@@ -1,4 +1,4 @@
-
+﻿
 import json
 from datetime import datetime
 
@@ -7,6 +7,10 @@ from domain.services.logging import LogWriter
 from domain.models.definition import EquipAlarmHistory
 from domain.services.date import DateUtil
 class IFEquipmentResultService():
+
+    #added by choi : 2025/08/17
+    topic_payloads = {}  # topic별 payload 저장용 클래스 변수
+
     def __init__(self):
         pass
 
@@ -230,3 +234,25 @@ class IFEquipmentResultService():
             LogWriter.add_dblog("error", source, ex)
         return
    
+    #added by choi : 2025/08/17
+    #              : dt용 수신이벤트 핸들러를 정의. 
+    #              : 여기에서 수신데이타를 저장해 두고 요청한 api에서 읽어가게 함. 여기 환경은 thread환경임
+    def dt_equipment_topic_handler(self, topic, payload):
+        """
+        MQTT에서 수신한 payload를 처리하는 핸들러
+        :param payload: MQTT에서 수신한 payload
+        :return: None
+        """
+        source  = f"IFEquipmentResultService.dt_equipment_topic_handler - topic :{topic}"
+        now = DateUtil.get_current_datetime()
+        print(topic, payload)
+
+        dic_payload = None
+        try:
+            dic_payload = json.loads(payload)
+        except Exception as ppex:
+            LogWriter.add_dblog("error", source, ppex)
+            return
+
+        self.__class__.topic_payloads[topic] = dic_payload
+        

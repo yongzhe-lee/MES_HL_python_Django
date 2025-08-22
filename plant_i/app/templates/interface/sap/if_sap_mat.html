@@ -133,6 +133,7 @@
     class IFSapMaterialPage {
         constructor() {
             this.grid = null;
+            this.$sap_mat_grid = null;
             this.init();
             this.url = "/api/interface/sap";
         }
@@ -178,7 +179,7 @@
                 height: 720
             };
 
-            this.sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
+            this.$sap_mat_grid = new Grid($("#sap_mat_grid"), gridOption);
 
             //search form
             let today = CommonUtil.getYYYYMMDD();
@@ -320,7 +321,7 @@
 
             AjaxUtil.getAsyncData(url, data, function (result) {
                 if (result.success) {
-                    _this.sap_mat_grid.setData(result.items);
+                    _this.$sap_mat_grid.setData(result.items);
                 }
                 else {
                     Alert.alert('오류', result.message);

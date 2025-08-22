@@ -19,25 +19,24 @@
                     </div>
                     <div class="col-12 col-md-6 col-lg-4 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="equ_id" data-labelCd="마운터">마운터</label>
+                            <label class="k-label k-form-label" for="equ_cd" data-labelCd="마운터">마운터</label>
                             <div class="field-wrapper">
-                                <select class="form-control" name="equ_id" id="equ_id">
-                                    <option value="">마운터선택</option>
-                                    <option value="37">smt4.mnt1</option>
-                                    <option value="38">smt4.mnt2</option>
-                                    <option value="39">smt4.mnt3</option>
-                                    <option value="40">smt4.mnt4</option>
-                                    <option value="41">smt4.mnt5</option>
-                                    <option value="42">smt4.mnt6</option>
-                                    <option value="43">smt4.mnt7</option>
-                                    <option value="44">smt4.mnt8</option>
-                                    <option value="45">smt4.mnt9</option>
-                                    <option value="46">smt4.mnt10</option>
-                                    <option value="47">smt4.mnt11</option>
-                                    <option value="48">smt4.mnt12</option>
-                                    <option value="49">smt4.mnt13</option>
-                                    <option value="50">smt4.mnt14</option>
-                                    <option value="51">smt4.mnt15</option>
+                                <select class="form-control" name="equ_cd" id="equ_cd">
+                                    <option value="smt4.mnt1">smt4.mnt1</option>
+                                    <option value="smt4.mnt2">smt4.mnt2</option>
+                                    <option value="smt4.mnt3">smt4.mnt3</option>
+                                    <option value="smt4.mnt4">smt4.mnt4</option>
+                                    <option value="smt4.mnt5">smt4.mnt5</option>
+                                    <option value="smt4.mnt6">smt4.mnt6</option>
+                                    <option value="smt4.mnt7">smt4.mnt7</option>
+                                    <option value="smt4.mnt8">smt4.mnt8</option>
+                                    <option value="smt4.mnt9">smt4.mnt9</option>
+                                    <option value="smt4.mnt10">smt4.mnt10</option>
+                                    <option value="smt4.mnt11">smt4.mnt11</option>
+                                    <option value="smt4.mnt12">smt4.mnt12</option>
+                                    <option value="smt4.mnt13">smt4.mnt13</option>
+                                    <option value="smt4.mnt14">smt4.mnt14</option>
+                                    <option value="smt4.mnt15">smt4.mnt15</option>
                                 </select>
                             </div>
                         </div>
@@ -53,7 +52,7 @@
         <div class="content-ui-row connect">
             <div class="card-content grid">
                 <div class="card-group-btn">
-                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="마운터 픽업레이트">마운터 픽업레이트</label></span>
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="마운터 픽업레이트">마운터 픽업레이트</label> &nbsp;<span id="totalCountContainer"></span></span>
                     <span></span>
                     <span>
                         <!-- 오른쪽 버튼 영역-->
@@ -61,12 +60,25 @@
                     </span>
                 </div>
                 <div id="pickup_rate_grid"></div>
+                <div class="align-items-center">
+                    <nav aria-label="Page navigation" class="me-3">
+                        <ul class="pagination page-mg" id="pageNav"></ul>
+                    </nav>
+                    <div>
+                        <select id="cboItemPerPage" class="input-page-ctrl" style="width:auto">
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                            <option value="0">all</option>
+                        </select>
+                        <span class="me-2">item per page</span>
+                    </div>
+                </div>
+
+
             </div>
         </div>
-
-
-
-
 
     </div>
 </div>
@@ -76,43 +88,159 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    class Paginator {
+
+        constructor(paginationContainerId, itemsPerPage, onPageChange = null) {
+            let _this = this;
+            this.itemsPerPage = itemsPerPage;
+            this.$paginationContainer = $('#' + paginationContainerId);
+            this.$totalCountContainer = $('#totalCountContainer');
+            this.currentPage = 1;
+            this.totalPages = 1;
+            this.totalCount = 0;
+            this.onPageChange = onPageChange;
+            this.range = 5;
+
+            this.$cboItemPerPage = $('#cboItemPerPage').kendoDropDownList({
+                value: itemsPerPage,
+                change: function (e) {
+                    _this.itemsPerPage = parseInt(this.value());
+                    _this.goToPage(1);
+                }
+            });
+            
+
+            this.$cboItemPerPage.on('change', (e) => {
+                this.itemsPerPage = parseInt(this.$cboItemPerPage.val());
+                this.goToPage(1);
+            });
+
+        }
+
+        render() {
+            this.renderPagination();
+        }
+
+        setTotalCount(total_count) {
+            this.totalCount = total_count;
+            this.totalPages = Math.ceil(total_count / this.itemsPerPage);
+            this.$totalCountContainer.text(`(총 ${this.totalCount.toLocaleString()}건)`);
+        }
+
+
+
+        renderPagination() {
+            const $ul = this.$paginationContainer;
+            $ul.empty();
+
+            const self = this;
+            const addPageItem = (label, page = null, disabled = false, active = false, isEllipsis = false) => {
+                const $li = $('<li>').addClass('page-item');
+                if (disabled) $li.addClass('disabled');
+                if (active) $li.addClass('active');
+                if (isEllipsis) $li.addClass('disabled');
+
+                const $a = $('<a>')
+                    .addClass('page-link')
+                    .attr('href', '#')
+                    .text(label);
+
+                if (!disabled && !isEllipsis && page !== null) {
+                    $a.on('click', function (e) {
+                        e.preventDefault();
+                        self.goToPage(page);
+                    });
+                }
+
+                $li.append($a);
+                $ul.append($li);
+            };
+
+            // Prev
+            addPageItem('Previous', this.currentPage - 1, this.currentPage === 1);
+
+            const total = this.totalPages;
+            const curr = this.currentPage;
+            const range = this.range;
+            const pages = [];
+
+            // Always include first page
+            pages.push(1);
+
+            // Insert range around current page
+            for (let i = curr - range; i <= curr + range; i++) {
+                if (i > 1 && i < total) {
+                    pages.push(i);
+                }
+            }
+
+            // Always include last page
+            if (total > 1) pages.push(total);
+
+            // Remove duplicates and sort
+            const uniquePages = [...new Set(pages)].sort((a, b) => a - b);
+
+            // Insert ellipsis
+            for (let i = 0; i < uniquePages.length; i++) {
+                const page = uniquePages[i];
+                if (i > 0 && uniquePages[i] !== uniquePages[i - 1] + 1) {
+                    addPageItem('...', null, true, false, true);
+                }
+                addPageItem(page, page, false, page === curr);
+            }
+
+            // Next
+            addPageItem('Next', this.currentPage + 1, this.currentPage === total);
+        }
+
+        goToPage(page) {
+            //console.log(`itemsPerPage :  ${this.itemsPerPage}, page : ${page}`);
+            //if (page < 1 || page > this.totalPages) return;
+            this.currentPage = page;
+            this.render();
+
+            if (typeof this.onPageChange === 'function') {
+                this.onPageChange(this.currentPage);
+            }
+        }
+    }
+</script>
+
 <script type="text/javascript">
     class FujiPickupRatePage {
         constructor() {
             this.grid = null;
             this.baseUrl = '/api/interface/mounter';
-            this.init();
 
+            this.paginator = new Paginator('pageNav', 500, (current_pag) => { this.searchPageData(current_pag) });
+            this.init();
         }
 
         init() {
             let _this = this;
             let gridOption = {
-                pageable: {
-                    alwaysVisible: true,
-                    pageSizes: [20, 50, 100, 500, "all"],
-                    pageSize: 100
-                },
                 navigatable: true,
                 columns: [
-                    { field: "job", title: "job", width: 350 },
-                    { field: "position", title: "position", width: 100 },
-                    { field: "part_num", title: "Part Number", width: 120 },
-                    { field: "fidl", title: "fidl", width: 120 },
-                    { field: "pickup", title: "픽업횟수", width: 100 },
-                    { field: "no_pickup", title: "픽업실패횟수", width: 100 },
-                    { field: "usage", title: "사용횟수", width: 100 },
-                    { field: "reject", title: "Reject 횟수", width: 100 },
-                    { field: "error", title: "에러횟수", width: 100 },
-                    { field: "dislodge", title: "이탈횟수", width: 100 },
-                    { field: "rescan", title: "리스캔 횟수", width: 100 },
-                    { field: "lcr", title: "lcr", width: 100 },
-                    { field: "pickup_ratio", title: "pickup(%)", width: 100 },
-                    { field: "reject_ratio", title: "reject(%)", width: 100 },
-                    { field: "error_ration", title: "error(%)", width: 100 },
-                    { field: "dislodge_ration", title: "dislodge(%)", width: 100 },
-                    { field: "success_ratio", title: "success(%)", width: 100 },
-                    { field: "data_date", title: "전송일시", width: 160 },
+                    { field: "id", title: "id", width: 120, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "job", title: "job", width: 350, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "position", title: "position", width: 100, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "part_num", title: "Part Number", width: 120, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "fidl", title: "fidl", width: 120, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "pickup", title: "픽업횟수", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "no_pickup", title: "픽업실패횟수", width: 120, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "usage", title: "사용횟수", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "reject", title: "Reject 횟수", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "error", title: "에러횟수", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "dislodge", title: "이탈횟수", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "rescan", title: "리스캔 횟수", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "lcr", title: "lcr", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "pickup_ratio", title: "pickup(%)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "reject_ratio", title: "reject(%)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "error_ration", title: "error(%)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "dislodge_ration", title: "dislodge(%)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "success_ratio", title: "success(%)", width: 100, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "data_date", title: "전송일시", width: 160, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
                 ],
                 change: function (e) {
                 },
@@ -120,10 +248,10 @@
             };
             _this.grid = new Grid($("#pickup_rate_grid"), gridOption);
 
-            AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, 2);
-
-            $('#equ_id').on('change', function (e) {
-                _this.searchMainData();
+            //AjaxUtil.fillDropDownOptions($('#equ_id'), 'line_equipment', 'all', null, 2);
+            $('#equ_cd').kendoDropDownList();
+            $('#equ_cd').on('change', function (e) {
+                _this.searchPageData(1);
             });
 
 
@@ -142,27 +270,22 @@
                 endField: "end_dt"
             });
 
-
-
             //form button
             $('#btnSearch').kendoButton({
                 icon: "search",
                 themeColor: "base",
                 click: function () {
-                    _this.searchMainData();
+                    _this.paginator.goToPage(1);
                 }
             });
 
-            $('#btnResultExcel').kendoButton({
+            $('#btnExcel').kendoButton({
                 icon: "file-excel",
                 themeColor: "success",
                 click: function () {
                     page.exportExcel();
                 }
             });
-
-
-
         }
 
         // 엑셀 다운로드
@@ -174,24 +297,32 @@
             gridData.saveAsExcel();
         }
 
-        searchMainData() {
+        searchPageData(currentPage) {
+
+            // 루틴구현
             let _this = this;
             let start_dt = $('input[name=start_dt]').val();
             let end_dt = $('input[name=end_dt]').val();
-            let equ_id = $('#equ_id').val();
+            let equ_cd = $('#equ_cd').val();
+
             let param = {
-                equ_id: equ_id,
+                equ_cd: equ_cd,
                 start_dt: start_dt,
                 end_dt: end_dt,
-                action: 'read'
+                item_per_page: this.paginator.itemsPerPage,
+                current_page: currentPage,
+                action: 'raw_data_pickup_rate'
             };
 
             let $gg = $('#pickup_rate_grid');
             kendo.ui.progress($gg, true);
             _this.grid.setData([]);
+
             let fnSuccess = function (result) {
                 if (result.success) {
                     _this.grid.setData(result.data);
+                    _this.paginator.setTotalCount(result.total_count);
+                    _this.paginator.render();
                 }
 
                 kendo.ui.progress($gg, false);
@@ -199,13 +330,13 @@
 
             AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }
+
     }
 
     let page = new FujiPickupRatePage();
-$(document).ready(function () {
-    page.searchMainData();
-});
-
+    $(document).ready(function () {
+        page.searchPageData(1);
+    });
 </script>
 
 {% endblock %}

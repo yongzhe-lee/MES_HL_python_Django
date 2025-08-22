@@ -30,7 +30,7 @@ def anoti_mail_hist(context):
     action = gparam.get('action', 'read') 
 
     try:
-        if action == 'findAll']:
+        if action == ['findAll']:
             resultType = gparam.get('resultType')
             notiGrpType = gparam.get('notiGrpType')
             startDate = gparam.get('startDate')
@@ -55,9 +55,9 @@ def anoti_mail_hist(context):
             left join user_profile uu on t.updater_id = uu."User_id"
     	    where 1 = 1
             '''
-            if factory_id > 0:
-                sql += ''' and t.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id > 0:
+            #     sql += ''' and t.factory_pk = %(factory_pk)s
+            #     '''
             if resultType:
                 sql += ''' and t.result_type = %(resultType)s
                 '''
@@ -246,12 +246,13 @@ def anoti_mail_hist(context):
             left join user_profile cu on t.inserter_id = cu."User_id"
             left join user_profile uu on t.updater_id = uu."User_id"
     	    where 1 = 1
-            and t.factory_pk = %(factory_pk)s
+
             AND ( t.result_type = 'W'
 		    	OR ( t.result_type in ('F', 'R') AND t.error_cnt <= 5)
 	    	)
             '''
 
+            # -- and t.factory_pk = %(factory_pk)s
             dc = {}
             dc['factory_pk'] = factory_id
 

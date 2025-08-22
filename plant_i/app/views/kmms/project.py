@@ -66,8 +66,8 @@ def project(context):
 		    left join cm_base_code bc on UPPER(t.status) = upper(bc.code_cd) 
             and upper(bc.code_grp_cd) = 'PRJ_STATUS'
 		    where 1=1
-            AND t.factory_pk = %(factory_id)s
             '''
+            # AND t.factory_pk = %(factory_id)s
             # if siteId:
             #     sql += ''' t.use_yn = %(siteId)s
             #         '''
@@ -123,13 +123,13 @@ def project(context):
 		    left join cm_base_code bc on UPPER(t.status) = upper(bc.code_cd) 
             and upper(bc.code_grp_cd) = 'PRJ_STATUS'
 		    where 1=1
-            AND t.factory_pk = %(factory_id)s
             AND t.proj_cd = %(projCd)S
             '''
+            # AND t.factory_pk = %(factory_id)s
 
             dc = {}
             dc['projCd'] = projCd
-            dc['siteId'] = siteId
+            # dc['siteId'] = siteId
 
             items = DbUtil.get_row(sql, dc)
 
@@ -141,7 +141,7 @@ def project(context):
             planEndDt = posparam.get('plan_end_dt')
             managerId = CommonUtil.try_int(posparam.get('manager_id'))
             projPurpose = posparam.get('proj_purpose')
-            projTotCost = posparam.get('proj_tot_cost')
+            projTotCost = CommonUtil.try_int(posparam.get('proj_tot_cost'))
             status = posparam.get('proj_status')
             inserterId = posparam.get('inserterId')
             
@@ -207,11 +207,11 @@ def project(context):
 			    , count(*) as cnt
 			    from cm_work_order
 			    where proj_cd = %(proj_cd)s
-                and factory_pk = %(factory_id)s
 			) t
 			left join cm_i18n t1 on t.i18n_code = t1.lang_code
 			where t.cnt > 0
             '''
+                # and factory_pk = %(factory_id)s
             dc = {}
             dc['projCd'] = projCd
             dc['factory_id'] = factory_id

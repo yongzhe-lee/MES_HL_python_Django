@@ -9,7 +9,7 @@
             <div class="card-content search">
                 <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
                 <div class="form-ui">
-                    <div class="col-12 col-sm-6 col-md-5 col-xl-3">
+                    <div class="col-12 col-sm-6 col-md-6 col-md-4 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="srch_date_range" data-labelCd="발생일">발생일</label>
                             <div class="field-wrapper">
@@ -19,7 +19,7 @@
                     </div>
 
 
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-6 col-md-4 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="line_id" data-labelCd="라인">라인</label>
                             <div class="field-wrapper">
@@ -27,7 +27,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-6 col-md-4 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="equ_id" data-labelCd="설비">설비</label>
                             <div class="field-wrapper">
@@ -36,12 +36,11 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-md-6 col-md-4 col-lg-4 col-xl-4">
                         <div class="form-item align-h">
                             <label class="k-label k-form-label" for="keyword" data-labelCd="검색어">검색어</label>
                             <div class="field-wrapper">
                                 <input id="keyword" name="keyword" placeholder="알람코드, 내용" />
-                                
                             </div>
                         </div>
                     </div>
@@ -194,7 +193,9 @@
                     { field: "equ_nm", title: "설비", width: 100 },
                     { field: "alarm_cd", title: "알람코드", width: 100 },
                     { field: "alarm_num", title: "알람번호", width: 100 },
-                    { field: "alarm_nm", title: "알람명", width: 200 },
+                    { field: "alarm_nm", title: "알람명", width: 500 },
+                    { field: "details", title: "상세", width: 300 },
+                    { field: "part_number", title: "part num", width: 120 },
                     { field: "start_dt", title: "알람발생일시", width: 160 },
                     { field: "end_dt", title: "알람종료일시", width: 160 },
                     { field: "data_date", title: "전송일시", width: 160 },
@@ -363,6 +364,7 @@
                 action: 'alarm_history_list',
                 keyword: keyword
             };
+
 
             let $gg = $('#alarm_history_grid');
             kendo.ui.progress($gg, true);

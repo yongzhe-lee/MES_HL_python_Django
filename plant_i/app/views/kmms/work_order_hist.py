@@ -74,8 +74,8 @@ def work_order_hist(context):
         elif action == 'save':
             workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             changerPk = CommonUtil.try_int(posparam.get('changerPk'))
-            beforeStatusCd = posparam.get('beforeStatusCd')
-            afterStatusCd = posparam.get('afterStatusCd')            
+            beforeStatusCd = posparam.get('BeforeStatus')
+            afterStatusCd = posparam.get('AfterStatus')            
             changerNm = posparam.get('changerNm')
             changeReason = posparam.get('changeReason')            
  

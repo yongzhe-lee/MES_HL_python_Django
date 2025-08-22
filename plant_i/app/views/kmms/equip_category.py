@@ -49,11 +49,10 @@ def equip_category(context):
                     OR UPPER(t.remark) LIKE CONCAT('%%',UPPER(CAST(%(keyword)s as text)),'%%')
                 )
                 '''
-            if useYn:
-                sql += ''' AND t.use_yn = %(useYn)s
-                '''
 
-            sql += ''' ORDER BY t.equip_category_id
+            sql += ''' 
+            AND t.use_yn = 'Y'
+            ORDER BY t.equip_category_id
             '''
 
             dc = {}

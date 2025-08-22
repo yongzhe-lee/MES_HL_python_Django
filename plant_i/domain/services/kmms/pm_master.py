@@ -63,7 +63,6 @@ class PMService():
 			       LEFT OUTER JOIN cm_import_rank ir on e.import_rank_pk = ir.import_rank_pk
 				    left outer join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
 		    WHERE  t.del_yn = 'N'
-    		    AND t.use_yn = 'Y'
             '''
         if keyword:
             sql += '''
@@ -528,7 +527,7 @@ class PMService():
 		    FROM ( table cte order by plan_start_dt ASC  ) sub
 		    RIGHT JOIN (select count(*) from cte) c(total_rows) on true
 		    WHERE total_rows != 0
-            order by pm_no desc, cast(work_order_no as INTEGER) desc
+            order by pm_no desc, work_order_no desc
             '''
 
         try:
@@ -598,11 +597,345 @@ class PMService():
             items = DbUtil.get_rows(sql, {'id':id})
             if len(items)>0:
                 data = items[0]
+                
+                # workOrderCount 추가
+                work_order_count = self.get_pm_work_order_count(id)
+                data['work_order_count'] = work_order_count
+                
         except Exception as ex:
             LogWriter.add_dblog('error','PMService.get_pm_master_detail', ex)
             raise ex
 
         return data
+
+    def selectPmScheSimulationCycleByMon(self,fromDate,toDate,deptPk,userPk):
+        items = []
+        dic_param = {'fromDate': fromDate,'toDate': toDate,'deptPk': deptPk,'userPk': userPk}
+
+        sql = '''
+                with recursive scheview as (
+                    select t1.pm_pk
+                    , t1.sched_start_dt
+                    , t1.sched_start_dt as curr_date
+                    , t1.cycle_type
+                    , t1.per_number
+                    , d.id as dept_pk
+                    , d."Name" as dept_nm
+                    , u."User_id" as user_pk
+                    , cm_fn_user_nm(u."Name", u.del_yn) as user_nm
+                    , cm_fn_dateadd(date(t1.sched_start_dt), replace(replace(replace(replace(replace(t1.cycle_type, 'CYCLE_TYPE_', ''), 'M', 'month'), 'Y', 'year'), 'W', 'week'), 'D', 'day'), t1.per_number) as next_date    
+                    from cm_pm t1
+                    inner join dept d on t1.dept_pk = d.id
+                    inner join user_profile u on t1.pm_user_pk = u."User_id"
+                    where t1.use_yn = 'Y' and t1.del_yn = 'N'
+                    '''
+        if deptPk:
+            sql += '''
+                    AND (
+                            d.id = %(deptPk)s
+                            OR
+                            d.id In (select dept_pk from cm_v_dept_path where %(deptPk)s = path_info_pk)
+                    )
+            '''
+
+        if userPk:
+            sql += '''
+                        AND u."User_id" = %(userPk)s
+            '''
+
+        sql += '''  
+
+                    UNION
+                    select t2.pm_pk
+                            , t2.sched_start_dt     
+                            , t2.next_date as next_date
+                            , t2.cycle_type
+                            , t2.per_number
+                            , t2.dept_pk
+                            , t2.dept_nm
+                            , t2.user_pk
+                            , t2.user_nm
+                        , cm_fn_dateadd(date(t2.next_date), replace(replace(replace(replace(replace(t2.cycle_type, 'CYCLE_TYPE_', ''), 'M', 'month'), 'Y', 'year'), 'W', 'week'), 'D', 'day'), t2.per_number) as next_date     
+                    from scheview t2
+                    where t2.next_date <= to_date(%(toDate)s, 'YYYYMMDD')
+             )
+             , schelist as (
+                    select p.pm_pk
+                            , p.sched_start_dt      
+                            , p.sched_start_dt as next_date
+                            , p.cycle_type
+                            , p.per_number
+		                    , d.id as dept_pk
+		                    , d."Name" as dept_nm
+		                    , u."User_id" as user_pk
+                            , cm_fn_user_nm(u."Name", u.del_yn) as user_nm
+                    from cm_pm p
+                    inner join dept d on p.dept_pk = d.id
+                    inner join user_profile u on p.pm_user_pk = u."User_id"
+                    where p.use_yn = 'Y' and p.del_yn = 'N'
+                    and p.sched_start_dt between to_date(%(fromDate)s, 'YYYYMMDD') and to_date(%(toDate)s, 'YYYYMMDD')
+
+                    '''
+        if deptPk:
+            sql += '''
+                    AND (
+                            d.id = %(deptPk)s
+                            OR
+                            d.id In (select dept_pk from cm_v_dept_path where %(deptPk)s = path_info_pk)
+                    )
+            '''
+
+        if userPk:
+            sql += '''
+                        AND u."User_id" = %(userPk)s
+            '''
+
+        sql += '''  
+
+                    UNION
+                    select pm_pk
+                            , sched_start_dt        
+                            , next_date
+                            , cycle_type
+                            , per_number
+                            , dept_pk
+                            , dept_nm
+                            , user_pk
+                            , user_nm
+                    from scheview
+                    where next_date between to_date(%(fromDate)s, 'YYYYMMDD') and to_date(%(toDate)s, 'YYYYMMDD')
+             ) , cte as (
+
+             select to_date(cm_fn_get_work_day(to_char(next_date, 'YYYY-MM-DD')), 'YYYY-MM-DD') as next_date   
+
+                                             , dept_pk      
+                                             , dept_nm      
+                                             , user_pk      
+                                             , user_nm      
+                                             , count(*) as cnt
+                             from schelist
+                             group by next_date, dept_pk, dept_nm, user_pk, user_nm
+                     )
+             select next_date as sche_dt
+                    , next_date as sche_dt_label
+                     , dept_pk
+                     , dept_nm
+                     , user_pk
+                     , user_nm
+                     , cnt
+             from cte order by next_date;
+        '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'PMService.selectPmScheSimulationCycleByMon', ex)
+            raise ex
+
+        return items
+
+    def selectPmScheSimulationByMon(self, fromDate,toDate,deptPk,userPk):
+        items = []
+        dic_param = {'fromDate': fromDate,'toDate': toDate,'deptPk': deptPk,'userPk': userPk}
+
+        sql = '''
+                	SELECT to_char(p.sched_start_dt, 'YYYYMMDD') as sche_dt
+                        , to_char(p.sched_start_dt, 'YYYY-MM-DD') as sche_dt_label
+                        , d.id as dept_pk
+                        , d."Name" as dept_nm
+                        , u."User_id" as user_pk
+                        , fn_user_nm(u."Name", u.del_yn) as user_nm     
+                        , count(*) as cnt
+                    FROM cm_pm p
+                    INNER JOIN dept d on p.dept_pk = d.id 
+                    inner join user_profile u on p.pm_user_pk = u."User_id"
+                    WHERE (p.sched_start_dt >= to_date(%(fromDate)s, 'YYYYMMDD') AND p.sched_start_dt <= to_date(%(toDate)s, 'YYYYMMDD'))
+                    '''
+        if deptPk:
+            sql += '''
+                    AND (
+                            d.id = %(deptPk)s
+                            OR
+                            d.id In (select dept_pk from cm_v_dept_path where %(deptPk)s = path_info_pk)
+                    )
+            '''
+
+        if userPk:
+            sql += '''
+                        AND u."User_id" = %(userPk)s
+            '''
+
+        sql += '''                    
+                    GROUP BY p.sched_start_dt, d.id, d."Name", u."User_id", u."Name", u.del_yn;
+        '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'PMService.selectPmScheSimulationByMon', ex)
+            raise ex
+
+        return items
+
+    def get_pm_work_order_count(self, pm_pk):
+        """PM에 해당하는 Work Order 개수 조회"""
+        sql = '''
+        SELECT COUNT(*) as cnt
+        FROM cm_work_order t
+        WHERE t.pm_pk = %(pm_pk)s
+        '''
+        try:
+            result = DbUtil.get_rows(sql, {'pm_pk': pm_pk})
+            if len(result) > 0:
+                return result[0]['cnt']
+            return 0
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_pm_work_order_count', ex)
+            return 0
+
+    # WO 상세 작업내역 탭 #############################################################
+    # 고장부위 목록 조회
+    def get_breakdown_point(self, work_order_pk):
+        sql = '''
+        /* findAll [wo-fault-loc-mapper.xml] */
+
+        select t.work_order_pk
+        , t.fault_loc_cd
+        , fl.reliab_nm as fault_loc_nm
+        , t.fault_loc_desc
+        , t.cause_cd
+        , woc.reliab_nm as cause_nm
+        , t.insert_dt
+        , t.inserter_id
+        , ui."Name" as inserter_nm
+        from cm_wo_fault_loc t
+        left outer join cm_reliab_codes fl on t.fault_loc_cd  = fl.reliab_cd AND fl."types" = 'FC'
+        -- and fl.site_id = 'WEZON'
+        left outer join cm_reliab_codes woc on t.cause_cd  = woc.reliab_cd AND woc."types" = 'CC'
+        -- and woc.site_id = 'WEZON'
+        left outer join user_profile ui on t.inserter_id = ui."User_id"
+        WHERE t.work_order_pk = %(work_order_pk)s
+        '''
+        try:
+            items = DbUtil.get_rows(sql, {'work_order_pk':work_order_pk})
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_breakdown_point', ex)
+            raise ex
+        return items
+
+    # WO 상세 작업 인력/자재 탭 ########################################################
+    # 외주업체 목록 조회
+    def get_work_order_supplier(self, work_order_pk):
+        sql = '''
+        /* findAll [work-order-supplier-mapper.xml] */
+
+		select wos.work_order_pk
+		, wos.ex_supplier_pk
+		, wos.cost
+		, es.ex_supplier_cd
+		, es.ex_supplier_nm
+		, wo.work_order_no
+		, wo.work_title
+		from cm_work_order_supplier wos
+		inner join cm_work_order wo on wos.work_order_pk = wo.work_order_pk
+		inner join cm_ex_supplier es on wos.ex_supplier_pk = es.ex_supplier_pk
+		where wos.work_order_pk = %(work_order_pk)s
+        '''
+        try:
+            items = DbUtil.get_rows(sql, {'work_order_pk':work_order_pk})
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_work_order_supplier', ex)
+            raise ex
+        return items
+
+    # 작업인력 목록 조회
+    def get_work_order_manpower(self, work_order_pk):
+        sql = '''
+        /* findAll [wo-labor-mapper.xml] */
+
+		select 	t.work_order_pk
+				, wo.work_order_no
+				, wo.work_title
+				, t.job_class_pk
+				, jc.job_class_nm
+				, coalesce(t.labor_price, (case when coalesce(t.emp_pk, 0) = 0 then jc.wage_cost else empjc.wage_cost end)) as wage_cost
+				, t.emp_pk as user_pk
+				, fn_user_nm(empu."Name", empu.del_yn) as user_nm
+				, empd."Name"
+				, t.work_hr
+				, t.real_work_hr
+				, t.labor_dsc
+				, t.labor_price
+				, t.worker_nos
+                , case when t.emp_pk is null then jc.job_class_nm else fn_user_nm(empu."Name", empu.del_yn) || ' (' || empd."Name" || ' )' end as some_nm
+		from cm_wo_labor t
+		    inner join cm_work_order wo on t.work_order_pk = wo.work_order_pk
+		    left outer join cm_job_class jc on t.job_class_pk = jc.job_class_pk
+		    left outer join user_profile empu on t.emp_pk = empu."User_id"
+		    left outer join dept empd on empu."Depart_id" = empd.id
+		    left outer join cm_job_class empjc on empu.job_class_pk = empjc.job_class_pk
+		WHERE 1 = 1
+		AND t.work_order_pk = %(work_order_pk)s
+        order by t.id;
+        '''
+        try:
+            items = DbUtil.get_rows(sql, {'work_order_pk':work_order_pk})
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_work_order_manpower', ex)
+            raise ex
+        return items
+
+    # 작업자재 목록 조회
+    def get_work_order_material(self, work_order_pk):
+        sql = '''
+        /* findAll [wo-mtrl-mapper.xml] */
+
+        select t.work_order_pk
+                , wo.work_order_no
+                , wo.work_title
+                , t.mtrl_pk
+                , m.mtrl_cd
+                , m.mtrl_nm
+                , t.plan_amt
+                , t.a_amt
+                , t.b_amt
+                , t.unit_price
+                , t.loc_cd
+                , t.own_dept_cd
+                , t.ab_grade
+                , (case when t.loc_cd is not null and t.ab_grade is null and t.a_amt = 0 and t.b_amt > 0 then 'AB_GRADE_B'
+                        when t.loc_cd is not null and t.ab_grade is null and t.a_amt > 0 and t.b_amt = 0 then 'AB_GRADE_A'
+                        else t.ab_grade end ) as ab_grade_cd
+                , sum(case when pl.pinv_loc_status = 'PINV_EXEC' then 1 else 0 end) as pinv_loc_count
+        from cm_wo_mtrl t
+        inner join cm_work_order wo on t.work_order_pk = wo.work_order_pk
+        inner join cm_material m on t.mtrl_pk = m.mtrl_pk
+        left outer join cm_pinv_loc_mtrl plm on m.mtrl_cd = plm.mtrl_cd
+        left outer join cm_pinv_loc pl on plm.pinv_loc_pk = pl.pinv_loc_pk
+        WHERE 1 = 1
+        AND t.work_order_pk = %(work_order_pk)s
+        group by t.work_order_pk
+        , wo.work_order_no
+        , wo.work_title
+        , t.mtrl_pk
+        , m.mtrl_cd
+        , m.mtrl_nm
+        , t.plan_amt
+        , t.a_amt
+        , t.b_amt
+        , t.unit_price
+        , t.loc_cd
+        , t.own_dept_cd
+        , t.ab_grade
+        '''
+        try:
+            items = DbUtil.get_rows(sql, {'work_order_pk':work_order_pk})
+        except Exception as ex:
+            LogWriter.add_dblog('error','PMService.get_work_order_material', ex)
+            raise ex
+        return items
+    ################################################################################
+
 
     def get_pm_master_detail(self, id):
         sql = '''
@@ -835,17 +1168,17 @@ class PMService():
         SELECT
             t.work_order_no,				-- WO 번호
             woa.reg_dt, 					-- WO 생성일
-            ws."Code" AS wo_status_cd,
-            ws."Name" AS wo_status_nm,  	-- WO 상태
+            ws.code_cd AS wo_status_cd,
+            ws.code_nm AS wo_status_nm,  	-- WO 상태
             t.plan_start_dt, 				-- 작업계획일
             t.end_dt, 						-- 작업완료일
             p.pm_user_pk,
             cm_fn_user_nm(au."first_name", cast(au.is_active as VARCHAR)) AS user_nm,	-- 담당자
             COUNT(*) OVER() AS total_rows	-- 전체 행 수 추가
-        FROM work_order t
-            INNER JOIN work_order_approval woa ON t.work_order_approval_pk = woa.work_order_approval_pk
-            INNER JOIN pm p ON t.pm_pk = p.pm_pk
-            INNER JOIN code ws ON t.wo_status = ws."Code" AND ws."CodeGroupCode" = 'WO_STATUS'
+        FROM cm_work_order t
+            INNER JOIN cm_work_order_approval woa ON t.work_order_approval_pk = woa.work_order_approval_pk
+            INNER JOIN cm_pm p ON t.pm_pk = p.pm_pk
+            INNER JOIN cm_base_code ws ON t.wo_status = ws.code_cd AND ws.code_grp_cd = 'WO_STATUS'
             LEFT JOIN auth_user au ON p.pm_user_pk = au.id
         WHERE t.PM_PK = %(pm_pk)s
         ORDER BY t.end_dt DESC	-- 작업 완료일 정렬
@@ -869,24 +1202,24 @@ class PMService():
 	         , wo.work_order_pk
 	         , wo.work_order_no
 	         , '작성(생성)' as after_status_nm
-	         , to_char(wo."_created", 'YYYY-MM-DD')  as change_ts
-	         , coalesce(wo."_creater_nm", cm_fn_user_nm(cu.first_name, case when cu.is_active then 'Y' else 'N' end)) as changer_nm
+	         , to_char(wo.insert_ts, 'YYYY-MM-DD')  as change_ts
+	         , coalesce(wo.inserter_nm, cm_fn_user_nm(cu.first_name, case when cu.is_active then 'Y' else 'N' end)) as changer_nm
 	         , '' AS change_reason
-        from work_order wo
-        inner join auth_user cu on wo."_creater_id" = cu.id
+        from cm_work_order wo
+        inner join auth_user cu on wo.inserter_id = cu.id
         where wo.work_order_pk = %(work_order_pk)s
         UNION ALL
-        SELECT woh.id as work_order_hist_pk
+        SELECT woh.work_order_hist_pk as work_order_hist_pk
 	        , woh.work_order_pk
 	        , wo.work_order_no
-	        , aws."Name" as after_status_nm
+	        , aws.code_nm as after_status_nm
 	        , to_char(woh.change_ts, 'YYYY-MM-DD') as change_ts
 	        , coalesce(woh.changer_nm, cm_fn_user_nm(cu.first_name, case when cu.is_active then 'Y' else 'N' end)) as changer_nm
 	        , woh.change_reason
-        from work_order_hist woh
-        inner join code aws on woh.after_status = aws."Code" and aws."CodeGroupCode" = 'WO_STATUS'
+        from cm_work_order_hist woh
+        inner join cm_base_code aws on woh.after_status = aws.code_cd and aws.code_grp_cd = 'WO_STATUS'
         inner join auth_user cu on woh.changer_pk = cu.id
-        inner join work_order wo on woh.work_order_pk = wo.work_order_pk
+        inner join cm_work_order wo on woh.work_order_pk = wo.work_order_pk
         where woh.work_order_pk = %(work_order_pk)s
         order by change_ts desc, work_order_hist_pk desc
         ;
@@ -1110,23 +1443,17 @@ class PMService():
         return exec_cnt
 
     def executeMakeSchedulePm(self, sche_type, pm_pk_list, start_date, end_date):
-        sql = '''
-                select cm_fn_make_schedule_pm(%(sche_type)s
-                , %(pm_pk)s
-                , to_date(%(start_date)s, 'YYYYMMDD')
-                , to_date(%(end_date)s, 'YYYYMMDD')
-                , '1')
-        '''
         results = []
         try:
             for pm_pk in pm_pk_list:
-                params = {
-                    'sche_type': sche_type,
-                    'pm_pk': pm_pk,
-                    'start_date': start_date.replace('-', ''),
-                    'end_date': end_date.replace('-', '')
-                }
-                items = DbUtil.get_rows(sql, params)
+                sql = f'''
+                        select cm_fn_make_schedule_pm('{sche_type}'
+                        , {pm_pk}
+                        , to_date('{start_date.replace('-', '')}', 'YYYYMMDD')
+                        , to_date('{end_date.replace('-', '')}', 'YYYYMMDD')
+                        , '1')
+                '''
+                items = DbUtil.get_rows(sql)
                 if items:
                     results.append(items[0])
         except Exception as ex:

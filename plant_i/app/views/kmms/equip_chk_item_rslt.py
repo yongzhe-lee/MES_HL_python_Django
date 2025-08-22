@@ -54,7 +54,7 @@ def equip_chk_item_rslt(context):
 		       , t4.item_idx, t4.chk_item_nm
 		       , t4.lcl, t4.ucl
 		       , Max(Coalesce(t6.chk_item_rslt, '')) AS chk_item_rslt
-		     --  , Max(t6.chk_item_rslt_num) AS chk_item_rslt_num
+		       , Max(t6.chk_item_rslt_num) AS chk_item_rslt_num
 		       , Max(Coalesce(t6.chk_item_rslt, '')) AS chk_item_rslt_save_data
 		       , Max(t6.chk_item_rslt_desc) AS chk_item_rslt_desc
 		       , Max(cm_fn_user_nm(t7."Name", 'N')) AS chk_user_nm
@@ -66,7 +66,7 @@ def equip_chk_item_rslt(context):
 		    inner join cm_equip_chk_item_mst t4 on t4.chk_sche_pk = t3.chk_sche_pk
 		    left join cm_equip_chk_item_rslt t6 on t6.chk_rslt_pk = t1.chk_rslt_pk 
 		    and t6.chk_item_pk = t4.chk_item_pk
-		    left join user_profile t7 on t7."user_id"  = t6.chk_user_pk
+		    left join user_profile t7 on t7."User_id"  = t6.chk_user_pk
 		    left join cm_base_code t8 on t8.code_pk = t4.chk_item_unit_pk
 		    WHERE  t1.chk_rslt_pk = %(chkRsltPk)s
 		    GROUP  BY t1.chk_rslt_pk, t4.chk_item_pk, t3.chk_sche_pk
@@ -95,7 +95,7 @@ def equip_chk_item_rslt(context):
             dc = {}
             dc['chkRsltPk'] = chkRsltPk
 
-            items = DbUtil.get_rows(sql, dc)
+            items = DbUtil.get_row(sql, dc)
 
         elif action == 'insert':
             chkRsltPk = CommonUtil.try_int(posparam.get('chkRsltPk'))
@@ -119,21 +119,32 @@ def equip_chk_item_rslt(context):
             return {'success': True, 'message': '설비점검항목결과가 등록되었습니다.'}
 
         elif action == 'insertUpdate':
-            ''' 사용 안 하는듯
+            ''' 
+            점검작업 결과 저장
             '''
             chkRsltPk = CommonUtil.try_int(posparam.get('chkRsltPk'))
             chkItemPk = CommonUtil.try_int(posparam.get('chkItemPk'))
-            #chkSchePk = CommonUtil.try_int(posparam.get('chkSchePk'))
+            chkSchePk = CommonUtil.try_int(posparam.get('chkSchePk'))
             chkItemRslt = posparam.get('chkItemRslt')
             chkItemRsltDesc = posparam.get('chkItemRsltDesc')
             chkItemRsltNum = posparam.get('chkItemRsltNum')
             
-            sql = ''' 		CALL cm_prc_equip_item_rslt_upsert(
-			%(chkItemPk)s, %(chkItemRslt)s, %(chkItemRsltDesc)s
-			, %(chkUserPk)s, %(chkItemRsltNum)s
-			, %(chkRsltPk)s, %(chkSchePk)s
-		    )
-            '''
+            # chkItemRsltNum이 빈 문자열이거나 None이면 None으로 처리
+            if chkItemRsltNum == '' or chkItemRsltNum is None:
+                chkItemRsltNum = None
+            
+            sql = ''' 	
+                    /* insertUpdate [equip-chk-item-rslt-mapper.xml] */
+                    call cm_prc_equip_item_rslt_upsert(
+			            %(chkRsltPk)s::bigint,           -- jdbcType=BIGINT,  mode=IN
+                        %(chkItemPk)s::bigint,           -- jdbcType=BIGINT,  mode=IN
+                        %(chkSchePk)s::bigint,           -- jdbcType=BIGINT,  mode=IN
+                        %(chkItemRslt)s::varchar,        -- jdbcType=VARCHAR, mode=IN
+                        %(chkItemRsltDesc)s::varchar,    -- jdbcType=VARCHAR, mode=IN
+                        %(chkUserPk)s::bigint,           -- jdbcType=BIGINT,  mode=IN
+                        %(chkItemRsltNum)s::integer      -- jdbcType=INTEGER, mode=IN
+		            )                
+                '''
             dc = {}
             dc['chkItemPk'] = chkItemPk
             dc['chkItemRslt'] = chkItemRslt
@@ -142,6 +153,7 @@ def equip_chk_item_rslt(context):
             dc['chkItemRsltNum'] = chkItemRsltNum
             dc['chkRsltPk'] = chkRsltPk
             dc['chkSchePk'] = chkSchePk
+
             ret = DbUtil.execute(sql, dc)
 
             return {'success': True, 'message': '설비점검항목결과가 등록되었습니다.'}

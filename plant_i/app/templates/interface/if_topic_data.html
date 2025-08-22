@@ -200,15 +200,8 @@
 
         startsSubscribe() {
             let _this = this;
-            if (gui.main_app_run != "Y") {
-                Alert.alert("설정확인필요", "MQTT기능이 활성화 되어 있지 않습니다.");
-                return;
-            }
-
             let topic = this.$cboTopic.val()
-
             if (topic == "") {
-
                 Alert.alert("입력오류", "TOPIC이 설정되지 않았습니다.");
                 return;
             }
@@ -222,7 +215,9 @@
 
             this.mqttclient = new MQTTMessageClient(gui.mqtt_host, gui.mqtt_port);
             this.mqttclient.setTopicMessageHandler(topic, this.web_event_handler);
-            this.mqttclient.connect();
+
+            let use_ssl = window.location.protocol === 'https:'
+            this.mqttclient.connect(use_ssl);
         }
 
     }

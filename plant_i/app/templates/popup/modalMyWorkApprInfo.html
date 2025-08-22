@@ -17,109 +17,142 @@
 				</div>
 			</div>
 			<div class="top-section">
-				<div class="form-group col-md-3">
-					<label for="req_dept_nm">요청부서</label>
-					<input type="text" class="form-control" id="req_dept_nm" name="req_dept_nm" readonly placeholder="요청 후 번호 생성">
-				</div>
-				<div class="form-group col-md-3">
-					<label for="inserter_nm" class="required">요청자</label>
-					<input type="text" class="form-control" id="inserter_nm" name="inserter_nm" readonly placeholder="관련 설비를 선택하세요">
-				</div>
-				<div class="form-group col-md-3">
-					<label for="insert_ts">요청일</label>
-					<input type="text" class="form-control" id="insert_ts" name="insert_ts" readonly>
-				</div>
+				<div class="modal-table-header-line"></div>
+				<table class="detail-table">
+					<tr>
+						<th width="150">요청부서</th>
+						<td id="req_dept_nm" width="150"></td>
+						<th width="150">요청자</th>
+						<td id="req_user_nm" width="150"></td>
+						<th width="150">요청일</th>
+						<td id="req_date" width="150"></td>
+						<th width="150">희망일</th>
+						<td id="req_want_dt" width="150"></td>
+					</tr>
+					<tr>
+						<th>요청사항 </th>
+						<td id="appr_req_info" colspan="7">요청사항이 있습니다. 왼쪽 버튼을 눌러 확인하세요.</td>
+					</tr>
+					<tr>
+						<th>WO 번호</th>
+						<td id="appr_work_order_no" width="150"></td>
+						<th>설비</th>
+						<td id="appr_equip_cd_nm" colspan="3"></td>
+						<th>보증만료일</th>
+						<td id="appr_warranty_dt" width="150"></td>
+					</tr>
+					<tr>
+						<th>작업제목 </th>
+						<td id="appr_wo_work_title" colspan="7"></td>
+					</tr>
+					<tr>
+						<th width="120">보전유형</th>
+						<td id="appr_maint_type_nm" width="100"></td>
+						<th>계획기간</th>
+						<td id="appr_plan_period" colspan="3"></td>
+						<th>고장일시</th>
+						<td id="appr_breakdown_dt" width="100"></td>
+					</tr>
+				</table>
 			</div>
 			<form id="wo_req_form" name="wo_req_form">
 				<!-- 가이드라인 섹션 -->
 				<div class="top-section">
 					<div class="form-row">
-						<div class="form-group second-group col-md-11">
-							<label for="wo_work_title" class="required">작업제목 *</label>
-							<input type="text" class="form-control" id="wo_work_title" name="work_title" placeholder="200자 이하로 입력하세요">
+						<div class="form-group col-md-4">
+							<label for="wo_work_dept_pk" class="required">작업부서</label>
+							<select id="wo_work_dept_pk" name="dept_pk" data-msg="작업부서를"></select>
 						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group col-md-3">
-							<label>WO 번호</label>
-							<input type="hidden" id="work_order_pk" name="work_order_pk" />
-							<input type="text" class="form-control" id="work_order_no" name="work_order_no" readonly placeholder="요청 후 번호 생성">
-						</div>
-						<div class="form-group col-md-3">
-							<label for="wo_equ_name" class="required">설비 *</label>
-							<input type="hidden" id="wo_equ_pk" name="equip_pk" />
-							<input type="text" class="form-control" id="wo_equ_name" name="equip_nm" readonly placeholder="관련 설비를 선택하세요">
-						</div>
-						<div class="form-group col-md-3">
-							<label>설비위치</label>
-							<input type="hidden" id="wo_loc_pk" name="wo_loc_pk" />
-							<input type="text" class="form-control" id="wo_loc_nm" name="loc_nm" readonly>
-						</div>
-						<div class="form-group col-md-3">
-							<label>보증만료일</label>
-							<input type="text" class="form-control" id="wo_warranty_dt" name="warranty_dt" readonly>
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group col-md-3">
-							<label for="wo_work_dept_pk" class="required">작업부서 *</label>
-							<select id="wo_work_dept_pk" name="dept_pk" disabled></select>
-						</div>
-						<div class="form-group col-md-3">
-							<label for="wo_work_charger_pk" class="required">작업담당자 *</label>
-							<select id="wo_work_charger_pk" name="work_charger_pk" disabled>
+						<div class="form-group col-md-4">
+							<label for="wo_work_charger_pk" class="required">작업담당자</label>
+							<select id="wo_work_charger_pk" name="work_charger_pk" data-msg="작업담당자를">
+								<option value="">작업담당자를 선택하세요</option>
 							</select>
 						</div>
-						<div class="form-group col-md-3" style="display: flex; flex-direction: column;">
-							<label for="want_dt" class="required">희망일자(마침) *</label>
-							<div class="field-wrapper">
-								<input type="date" id="want_dt" name="want_dt" disabled />
-							</div>
-						</div>
-						<div class="form-group col-md-3">
-							<label for="breakdown_dt" class="required">고장일시 *</label>
-							<div class="field-wrapper">
-								<input type="date" id="breakdown_dt" name="breakdown_dt" disabled />
-							</div>
+						<div class="form-group second-group col-md-4">
+							<label for="appr_wo_maint_type_cd" class="required">보전유형</label>
+							<select id="appr_wo_maint_type_cd" name="appr_wo_maint_type_cd" data-msg="보전유형을"></select>
 						</div>
 					</div>
-					<div class="form-row" style="justify-content: flex-start;">
+					<div class="form-row">
 						<div class="form-group col-12 col-md-3">
-							<label class="required">현상 *</label>
-							<select id="woProblem" name="problem_cd" disabled></select>
+							<label for="woPostProblem" data-labelCd="현상 *"></label>
+							<button type="button" class="plusbutton" id="addProblem" name="addProblem"></button>
+							<select id="woPostProblem" name="woPostProblem" data-msg="현상을"></select>
 						</div>
 						<div class="form-group col-12 col-md-3">
-							<label for="wcType">작업구분</label>
-							<select id="wcType" name="work_src_cd" disabled></select>
+							<label for="cause_cd_post" data-labelCd="원인 *"></label>
+							<button type="button" class="plusbutton" id="addCause" name="addCause"></button>
+							<select id="cause_cd_post" name="cause_cd_post" data-msg="원인을"></select>
 						</div>
 						<div class="form-group col-12 col-md-3">
-							<label for="projectName">프로젝트</label>
-							<select id="projectName" name="proj_cd" disabled></select>
+							<label for="selectRemedy" data-labelCd="조치 *"></label>
+							<button type="button" class="plusbutton" id="addRemedy" name="addRemedy"></button>
+							<select id="selectRemedy" name="selectRemedy" data-msg="조치를"></select>
+						</div>
+						<div class="form-group col-12 col-md-3">
+							<label>프로젝트</label>
+							<button type="button" class="plusbutton" id="selectProject" name="selectProject"></button>
+							<select id="projectName" name="proj_cd"></select>
 						</div>
 					</div>
+					<div class="form-row">
+						<div class="form-group col-12 col-md-3">
+							<label>작업구분</label>
+							<select id="wcType" name="work_src_cd"></select>
+						</div>
 
-				</div>
-				<!-- 요청정보 섹션 -->
-				<div class="section">
-					<div class="tab-group">
-						<button class="tab-button active" data-tab="myWorkReqForm">요청정보</button>
-						<button class="tab-button" data-tab="fileTab">파일</button>
-					</div>
-					<div class="tab-content">
-						<!-- 요청정보 탭 컨텐츠 -->
-						<div class="tab-pane active" id="myWorkReqForm">
-							<label>요청사항</label>
-							<section class="section">
-								<textarea id="editor" name="reqInfo" style="height:300px" aria-label="editor"></textarea>
-							</section>
+						<div class="form-group col-12 col-md-6">
+							<label class="required">작업계획일</label>
+							<div style="display: flex; align-items: center; gap: 5px;">
+								<div class="field-wrapper">
+									<input type="date" id="sDayWorkPost" name="sDayWorkPost" data-msg="작업계획일을" style="flex: 1;">
+								</div>
+								<span>~</span>
+								<div class="field-wrapper">
+									<input type="date" id="eDayWorkPost" name="eDayWorkPost" data-msg="작업계획일을" style="flex: 1;">
+								</div>
+							</div>
 						</div>
-						<!-- 파일 탭 컨텐츠 -->
-						<div class="tab-pane" id="fileTab" style="height: 400px;">
-							{% include 'components/FileUpload.html' with tableName='cm_work_order' attachName='file' dataPk=cm_work_order.work_order_pk|default:'' %}
+						<div class="form-group col-12 col-md-3">
+							<label class="required" for="breakDownDate">고장일시</label>
+							<div class="field-wrapper">
+								<input type="datetime" id="breakDownDate" name="breakDownDate" data-msg="고장일시를"></input>
+							</div>
 						</div>
 					</div>
 				</div>
 			</form>
+
+			<!-- 외주업체 컨텐츠 -->
+			<div class="grid-content">
+				<div class="grid-header" style="display: flex; align-items: center; gap: 8px; justify-content: flex-start;">
+					<label data-labelCd="외주업체" style="margin: 0; min-width: 80px;">외주업체</label>
+					<select id="selectExSupplier" name="selectExSupplier" style="margin: 0; width: 250px;"></select>
+				</div>
+				<div id="woExSupplierGrid"></div>
+			</div>
+
+			<!-- 작업 인력/자재 컨텐츠 -->
+			<div class="grid-content">
+				<div class="grid-header" style="display: flex; align-items: center; gap: 8px; justify-content: flex-start;">
+					<label data-labelCd="작업인력 또는 직종" style="margin: 0; min-width: 80px;"></label>
+					<select id="selJobClass" name="selJobClass" style="margin: 0; width: 250px;">
+						<option value="">직종을 선택하세요</option>
+					</select>
+					<div style="flex:1;"></div>
+					<div style="text-align: right;">
+						<button class="btn-save" id="setMeAsWork" name="setMeAsWork">나를 작업자로</button>
+						<button class="btn-save" id="selWoLabor" name="selWoLabor">작업인력 선택</button>
+					</div>
+				</div>
+				<div id="woLaborGrid"></div>
+			</div>
+
+			<!-- 파일 탭 컨텐츠 -->
+			<div id="fileTab">
+				{% include 'components/FileUpload.html' with tableName='cm_work_order' attachName='file' dataPk=cm_work_order.work_order_pk|default:'' %}
+			</div>
 		</div>
 		<!-- 버튼 영역 -->
 		<div class="modal-footer">
@@ -137,7 +170,7 @@
 		<form id="rejectReasonForm">
 			<div class="form-row">
 				<div class="form-group col-12">
-					<label for="reject_reason" class="required" style="color: red;">반려사유 *</label>
+					<label for="reject_reason" class="required">반려사유</label>
 					<textarea class="form-control" id="reject_reason" name="reject_reason" placeholder="4000자 이하로 입력하세요" rows="6" style="resize: vertical;"></textarea>
 					<div class="char-counter" style="text-align: right; margin-top: 5px; color: #666;">
 						<span id="charCount">0</span> / 4000 bytes
@@ -151,6 +184,119 @@
 		<button type="button" class="btn-close" id="btnCloseReject">닫기</button>
 	</div>
 </div>
+
+<!-- 현상 Kendo Window 팝업 -->
+<div id="reliabCodesWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui">
+		<form id="reliabForm">
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="reliab_cd" class="required">현상코드</label>
+					<input type="text" class="form-control" id="reliab_cd" name="reliabCd" placeholder="25자 이하로 입력하세요">
+				</div>
+				<div class="form-group col-md-6">
+					<label for="reliab_nm" class="required">현상코드명</label>
+					<input type="text" class="form-control" id="reliab_nm" name="reliabNm" placeholder="50자 이하로 입력하세요">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="grid-section">
+		<h5>최근 등록된 현상코드</h5>
+		<div id="reliabCodesGrid"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnSaveReliabCodes">저장</button>
+		<button type="button" class="btn-close" id="btnCloseReliabCodes">닫기</button>
+	</div>
+</div>
+
+<!-- 원인 Kendo Window 팝업 -->
+<div id="reliabCodesWindowCC" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui">
+		<form id="reliabFormCC">
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="reliab_cd_cc" class="required">원인코드</label>
+					<input type="text" class="form-control" id="reliab_cd_cc" name="reliabCd" placeholder="25자 이하로 입력하세요">
+				</div>
+				<div class="form-group col-md-6">
+					<label for="reliab_nm_cc" class="required">원인코드명</label>
+					<input type="text" class="form-control" id="reliab_nm_cc" name="reliabNm" placeholder="50자 이하로 입력하세요">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="grid-section">
+		<h5>최근 등록된 원인코드</h5>
+		<div id="reliabCodesGridCC"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnSaveReliabCodesCC">저장</button>
+		<button type="button" class="btn-close" id="btnCloseReliabCodesCC">닫기</button>
+	</div>
+</div>
+
+<!-- 조치 Kendo Window 팝업 -->
+<div id="reliabCodesWindowRC" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui">
+		<form id="reliabFormRC">
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="reliab_cd_rc" class="required">조치코드</label>
+					<input type="text" class="form-control" id="reliab_cd_rc" name="reliabCd" placeholder="25자 이하로 입력하세요">
+				</div>
+				<div class="form-group col-md-6">
+					<label for="reliab_nm_rc" class="required">조치코드명</label>
+					<input type="text" class="form-control" id="reliab_nm_rc" name="reliabNm" placeholder="50자 이하로 입력하세요">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="grid-section">
+		<h5>최근 등록된 조치코드</h5>
+		<div id="reliabCodesGridRC"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnSaveReliabCodesRC">저장</button>
+		<button type="button" class="btn-close" id="btnCloseReliabCodesRC">닫기</button>
+	</div>
+</div>
+
+<!-- 프로젝트 Kendo Window 팝업 -->
+<div id="cmProjectWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
+	<div class="form-ui" style="height: 60px;">
+		<form id="cmProjectForm">
+			<div class="form-row">
+				<div class="form-group col-md-3">
+					<label for="proj_cd" class="required">프로젝트</label>
+					<input type="text" class="form-control" id="proj_cd" name="proj_cd" placeholder="25자 이하로 입력하세요">
+				</div>
+				<div class="form-group col-md-3">
+					<label for="proj_nm" class="required">프로젝트명</label>
+					<input type="text" class="form-control" id="proj_nm" name="proj_nm" placeholder="50자 이하로 입력하세요">
+				</div>
+			</div>
+			<div class="form-row">
+				<label for="proj_cd" class="required">계획 시작일 / 마침일</label>
+				<div class="form-group col-md-6" style="display: flex; align-items: center;">
+					<input type="date" id="plan_start_dt" name="plan_start_dt" style="flex:1;" />
+					<span style="margin: 0 8px;">~</span>
+					<input type="date" id="plan_end_dt" name="plan_end_dt" style="flex:1;" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="grid-section">
+		<h5>최근 등록된 프로젝트</h5>
+		<div id="cmProjectGrid"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn-close" id="btnSaveProject">저장</button>
+		<button type="button" class="btn-close" id="btnCloseProject">닫기</button>
+	</div>
+</div>
+
 <style>
 
 	.modal-body {
@@ -316,6 +462,135 @@
 				}
 			});
 
+			$("#woExSupplierGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: '/api/kmms/pm_master',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_work_order_supplier',
+									id: _this.workOrderPk
+								};
+							}
+						}
+					}
+				}),
+				height: 100,
+				sortable: true,
+				autoBind: false,
+				editable: { confirmation: false },
+				columns: [
+					{ field: "id", title: "id", hidden: true },
+					{ field: "ex_supplier_nm", title: "외주업체명", width: 400 },
+					{
+						field: "cost",
+						title: "비용",
+						width: 400,
+						editor: currencyEditor,
+						template: function (dataItem) {
+							if (dataItem.cost == null || dataItem.cost === "") return "";
+							var cost = Number(dataItem.cost);
+							if (isNaN(cost)) return dataItem.cost;
+							return "₩ " + kendo.toString(cost, "n0");
+						},
+						attributes: { style: "text-align: right;" },
+					},
+					{
+						command: {
+							text: "삭제",
+							click: function (e) {
+								e.preventDefault();
+								var tr = $(e.target).closest("tr");
+								var grid = $("#woExSupplierGrid").data("kendoGrid");
+								grid.removeRow(tr);
+							}
+						},
+						title: "삭제",
+						width: 50
+					}
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				},
+				dataBound: function (e) {
+					const count = this.dataSource.total();
+					$("#woSupplierCount").text(`(Count: ${count})`);
+				},		
+			});
+
+			$("#woLaborGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: '/api/kmms/pm_master',
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_work_order_manpower',
+									id: _this.workOrderPk
+								};
+							}
+						}
+					}
+				}),
+				height: 100,
+				sortable: true,
+				autoBind: false,
+				editable: { confirmation: false },
+				columns: [
+					{ field: "job_class_nm", title: "작업자/직종", width: "20%", editable: false },
+					{
+						field: "labor_price",
+						title: "노임단가(시급)",
+						width: "20%",
+						editor: currencyEditor,
+						template: function (dataItem) {
+							if (dataItem.labor_price == null || dataItem.labor_price === "") return "";
+							var cost = Number(dataItem.labor_price);
+							if (isNaN(cost)) return dataItem.labor_price;
+							return "₩ " + kendo.toString(cost, "n0");
+						},
+						attributes: { style: "text-align: right;" },
+					},
+					{
+						field: "worker_nos",
+						title: "인원수",
+						width: "25%",
+						editor: function (container, options) {
+							if (options.model.isJobClassRow) {
+								numberOnlyEditor(container, options);
+							} else {
+								$('<input name="' + options.field + '" type="number" class="k-input k-textbox" style="text-align:right; width:100%;" readonly value="1" />').appendTo(container);
+							}
+						}
+					},
+					{ field: "work_hr", title: "예상작업시간", width: "15%", attributes: { style: "text-align: right;" }, editor: numberOnlyEditor },
+					{ field: "real_work_hr", title: "실제작업시간", width: "15%", attributes: { style: "text-align: right;" }, editor: numberOnlyEditor },
+					{
+						command: {
+							text: "삭제",
+							click: function (e) {
+								e.preventDefault();
+								var tr = $(e.target).closest("tr");
+								var grid = $("#woLaborGrid").data("kendoGrid");
+								grid.removeRow(tr);
+							}
+						},
+						title: "삭제",
+						width: "10%"
+					}
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				},
+			});
+
 			// 데이터 로드 함수
 			this.loadPmData = function (pmPk) {
 				let param = {
@@ -327,12 +602,19 @@
 
 			};
 
+			AjaxUtil.fillDropDownOptions($('#appr_wo_maint_type_cd'), 'cm_code', 'all', null, 'MAINT_TYPE');
+			AjaxUtil.fillDropDownOptions($('#woPostProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
+			AjaxUtil.fillDropDownOptions($('#cause_cd_post'), 'cm_reliab_codes', 'choose', null, 'CC');
+			AjaxUtil.fillDropDownOptions($('#selectRemedy'), 'cm_reliab_codes', 'choose', null, 'RC');
 			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "depart", "select");
 			AjaxUtil.fillDropDownOptions($('#wo_work_charger_pk'), 'cm_user_info', 'choose', null);
 			AjaxUtil.fillDropDownOptions($('#cycleType'), 'cm_code', 'choose', null, 'CYCLE_TYPE');
 			AjaxUtil.fillDropDownOptions($('#woProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
 			AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', 'WS01', 'WS_TYPE');
 			AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
+
+			AjaxUtil.fillDropDownOptions($('#selectExSupplier'), 'cm_ex_supplier', 'choose', null, null);
+			AjaxUtil.fillDropDownOptions($('#selJobClass'), 'cm_job_class', 'choose', null);
 
 			let today = CommonUtil.getYYYYMMDD();
 			$("#want_dt").kendoDatePicker({
@@ -355,6 +637,14 @@
 				format: "yyyy-MM-dd"
 			});
 
+			$("#sDayWorkPost").kendoDatePicker({
+				format: "yyyy-MM-dd",
+			});
+
+			$("#eDayWorkPost").kendoDatePicker({
+				format: "yyyy-MM-dd"
+			});
+
 			$("#start_dt").kendoDatePicker({
 				value: today,
 				format: "yyyy-MM-dd",
@@ -363,6 +653,11 @@
 			$("#end_dt").kendoDatePicker({
 				value: today,
 				format: "yyyy-MM-dd"
+			});
+
+			$("#breakDownDate").kendoDateTimePicker({
+				value: today,
+				format: "yyyy-MM-dd HH:mm"
 			});
 
 			$('#selectEquipment').kendoButton({
@@ -384,6 +679,355 @@
 				}
 			});
 
+			$('#addProblem').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '현상코드 등록',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '50vw',
+					}
+					popupComn.openTempPopup($("#reliabCodesWindow"), options);
+					_this.refreshReliabGrid();
+				}
+			});
+
+			$('#addCause').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '원인코드 등록',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '50vw',
+					}
+					popupComn.openTempPopup($("#reliabCodesWindowCC"), options);
+					_this.refreshReliabGridCC();
+				}
+			});
+
+			$('#addRemedy').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '조치코드 등록',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '50vw',
+					}
+					popupComn.openTempPopup($("#reliabCodesWindowRC"), options);
+					_this.refreshReliabGridRC();
+				}
+			});
+
+			$('#selectProject').kendoButton({
+				themeColor: "base",
+				icon: "k-i-plus",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					//기존 common.js 이용
+					const options = {
+						title: '프로젝트 등록',
+						visible: false,
+						modal: true,
+						actions: [],
+						appendTo: "body",
+						width: '50vw',
+					}
+					popupComn.openTempPopup($("#cmProjectWindow"), options);
+					_this.refreshProjectGrid();
+				}
+			});
+
+			$('#btnSearchWoCopy').kendoButton({
+				themeColor: "base",
+				icon: "k-i-search",
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					_this.refreshWoCopyGrid();
+				}
+			});
+
+			$("#btnSaveReliabCodes").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					let formData = FormUtil.extractForm($("#reliabForm"));
+
+					formData.types = 'PC'; // 현상코드 타입 지정
+					formData.useYn = 'Y'; // 사용 여부 기본값 Y
+
+					if (!formData.reliabCd || !formData.reliabNm) {
+						Alert.alert('', '현상코드와 현상코드명을 입력해주세요.');
+						return;
+					}
+					let fnSuccess = function (res) {
+						if (res.success) {
+							FormUtil.resetForm($("#reliabForm"));
+							_this.refreshReliabGrid();
+							Alert.alert('', res.message);
+						} else if (!res.success) {
+							Alert.alert('', res.message);
+						}
+					};
+					AjaxUtil.postAsyncData('/api/kmms/reliab_code' + '?action=insert', formData, fnSuccess);
+				}
+			});
+
+			$("#btnCloseReliabCodes").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#woPostProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
+					$("#reliabCodesWindow").data("kendoWindow").close();
+				}
+			});
+
+			$("#btnSaveReliabCodesCC").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					let formData = FormUtil.extractForm($("#reliabFormCC"));
+
+					formData.types = 'CC'; // 현상코드 타입 지정
+					formData.useYn = 'Y'; // 사용 여부 기본값 Y
+
+					if (!formData.reliabCd || !formData.reliabNm) {
+						Alert.alert('', '원인코드와 원인코드명을 입력해주세요.');
+						return;
+					}
+					let fnSuccess = function (res) {
+						if (res.success) {
+							FormUtil.resetForm($("#reliabFormCC"));
+							_this.refreshReliabGridCC();
+							Alert.alert('', res.message);
+						} else if (!res.success) {
+							Alert.alert('', res.message);
+						}
+					};
+					AjaxUtil.postAsyncData('/api/kmms/reliab_code' + '?action=insert', formData, fnSuccess);
+				}
+			});
+
+			$("#btnCloseReliabCodesCC").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#cause_cd_post'), 'cm_reliab_codes', 'choose', null, 'CC');
+					$("#reliabCodesWindowCC").data("kendoWindow").close();
+				}
+			});
+
+			$("#btnSaveReliabCodesRC").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					let formData = FormUtil.extractForm($("#reliabFormRC"));
+
+					formData.types = 'RC'; // 현상코드 타입 지정
+					formData.useYn = 'Y'; // 사용 여부 기본값 Y
+
+					if (!formData.reliabCd || !formData.reliabNm) {
+						Alert.alert('', '조치코드와 조치코드명을 입력해주세요.');
+						return;
+					}
+					let fnSuccess = function (res) {
+						if (res.success) {
+							FormUtil.resetForm($("#reliabFormRC"));
+							_this.refreshReliabGridRC();
+							Alert.alert('', res.message);
+						} else if (!res.success) {
+							Alert.alert('', res.message);
+						}
+					};
+					AjaxUtil.postAsyncData('/api/kmms/reliab_code' + '?action=insert', formData, fnSuccess);
+				}
+			});
+
+			$("#btnCloseReliabCodesRC").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#selectRemedy'), 'cm_reliab_codes', 'choose', null, 'RC');
+					$("#reliabCodesWindowRC").data("kendoWindow").close();
+				}
+			});
+
+			$("#btnSaveReliabCodesFC").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					// 폼 데이터 추출
+					let formData = FormUtil.extractForm($("#reliabFormFC"));
+					// 필수값 체크
+					if (!formData.selectReliabFc) {
+						Alert.alert('', '고장부위를 선택하세요.');
+						return;
+					}
+					if (!formData.selectReliabCc) {
+						Alert.alert('', '원인을 선택하세요.');
+						return;
+					}
+					if (!formData.reliab_desc_fc) {
+						Alert.alert('', '고장설명을 입력하세요.');
+						return;
+					}
+					// 그리드에 데이터 추가
+					var grid = $("#breakdownPointGrid").data("kendoGrid");
+					if (grid) {
+						grid.dataSource.add({
+							breakdown_code: formData.selectReliabFc, // 실제 코드/명칭 매핑 필요시 수정
+							breakdown_name: $("#selectReliabFc option:selected").text(),
+							cause: $("#selectReliabCc option:selected").text(),
+							desc: formData.reliab_desc_fc,
+							reg_user: window.currentUserName || '사용자', // 실제 사용자명 변수로 대체
+							reg_date: kendo.toString(new Date(), 'yyyy-MM-dd')
+						});
+					}
+					// 폼 리셋 및 팝업 닫기
+					FormUtil.resetForm($("#reliabFormFC"));
+					$("#reliabCodesWindowFC").data("kendoWindow").close();
+				}
+			});
+
+			$("#btnCloseReliabCodesFC").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#selectRemedy'), 'cm_reliab_codes', 'choose', null, 'FC');
+					$("#reliabCodesWindowFC").data("kendoWindow").close();
+				}
+			});
+
+			$("#btnSaveProject").kendoButton({
+				icon: "k-i-save", // 저장 아이콘
+				themeColor: "base",
+				click: function () {
+					let formData = FormUtil.extractForm($("#cmProjectForm"));
+
+					if (!formData.proj_cd || !formData.proj_nm) {
+						Alert.alert('', '프로젝트코드와 프로젝트명을 입력해주세요.');
+						return;
+					}
+					let fnSuccess = function (res) {
+						if (res.success) {
+							FormUtil.resetForm($("#cmProjectForm"));
+							_this.refreshProjectGrid();
+							Alert.alert('', res.message);
+						} else if (!res.success) {
+							Alert.alert('', res.message);
+						}
+					};
+					AjaxUtil.postAsyncData('/api/kmms/project' + '?action=insert', formData, fnSuccess);
+				}
+			});
+
+			$("#btnCloseProject").kendoButton({
+				themeColor: "base",
+				click: function () {
+					AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
+					$("#cmProjectWindow").data("kendoWindow").close();
+				}
+			});
+
+			$('#setMeAsWork').kendoButton({
+				themeColor: "base",
+				icon: "k-i-zoom-in", // 줌인 아이콘
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					const grid = $("#woLaborGrid").data("kendoGrid");
+					if (!grid) return;
+
+					// 현재 로그인 사용자 정보
+					console.log(userinfo);
+					const user_nm = userinfo.username;
+					var param = {
+						action: 'getCurrentDept',
+					};
+					const dept_nm = AjaxUtil.getSyncData('/api/system/depart', param).items.dept_nm;
+					const womtrl = user_nm + ' (' + dept_nm + ')';
+
+					// 이미 추가된 작업자인지 확인 (user_nm+dept_nm 기준)
+					const exists = grid.dataSource.data().some(item => item.womtrl === womtrl);
+					if (exists) {
+						Alert.alert('', '이미 추가된 작업자입니다.');
+						return;
+					}
+
+					grid.dataSource.add({
+						job_class_nm: womtrl,
+						labor_price: 0,
+						worker_nos: 1,
+						work_hr: 0,
+						real_work_hr: 0,
+						isReadOnly: true
+					});
+				}
+			});
+
+			$('#selWoLabor').kendoButton({
+				themeColor: "base",
+				icon: "k-i-zoom-in", // 줌인 아이콘
+				rounded: "full",
+				size: "small",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalManMulti', { width: '40%', height: '60%' });
+					woLoborMultiSelPage.show(function (data) {				
+						let dataArr = Array.isArray(data) ? data : [data];
+						const grid = $("#woLaborGrid").data("kendoGrid");
+						if (!grid) return;
+
+						dataArr.forEach(function (user) {
+							let user_pk = user.user_pk;
+							let user_dept_nm = user.user_nm + (user.dept_nm ? ' (' + user.dept_nm : '') + ')';
+
+							// 이미 추가된 작업자인지 확인 (user_pk 기준)
+							const exists = grid.dataSource.data().some(item => item.user_pk === user_pk);
+							if (exists) {
+								// 이미 추가된 경우는 건너뜀
+								return;
+							}
+
+							grid.dataSource.add({
+								user_pk: user_pk,
+								job_class_nm: user_dept_nm, // 작업자/직종 컬럼에 user_dept_nm 값 사용
+								labor_price: 0,
+								worker_nos: 1,
+								work_hr: 0,
+								real_work_hr: 0,
+								isReadOnly: true
+							});
+						});
+					});
+				}
+			});
+
+
 			// ESC 키 누를 때 모달 닫기
 			$(document).on('keydown', (e) => {
 				if (e.keyCode === 27) { // ESC key
@@ -394,7 +1038,7 @@
 			$("#btnRejectApprInfo").kendoButton({
 				themeColor: "error",
 				click: function (e) {
-					e.preventDefault();				
+					e.preventDefault();
 					//기존 common.js 이용
 					const options = {
 						title: '반려',
@@ -416,7 +1060,7 @@
 					_this.ApprovalApprInfo();
 				},
 				themeColor: "none"
-			});			
+			});
 
 			$("#btnRejectReq").kendoButton({
 				themeColor: "base",
@@ -467,8 +1111,121 @@
 				}
 			});
 
-			// 탭 이벤트 초기화 추가
-			_this.initTabEvents();
+			let reliabGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'reliab_cd', title: '현상코드', width: 80 },
+					{
+						field: "reliab_nm", title: "현상코드명", width: 150,
+					},
+					{
+						field: 'insert_ts',
+						title: '최근  등록일',
+						width: 120,
+						template: '#= kendo.toString(kendo.parseDate(insert_ts), "yyyy-MM-dd HH:mm:ss") #'
+					},
+				],
+				height: "220px"
+			};
+
+			_this.reliabGrid = new Grid($("#reliabCodesGrid"), reliabGridOption);
+
+			let reliabGridOptionCC = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'reliab_cd', title: '원인코드', width: 80 },
+					{
+						field: "reliab_nm", title: "원인코드명", width: 150,
+					},
+					{
+						field: 'insert_ts',
+						title: '최근  등록일',
+						width: 120,
+						template: '#= kendo.toString(kendo.parseDate(insert_ts), "yyyy-MM-dd HH:mm:ss") #'
+					},
+				],
+				height: "220px"
+			};
+
+			_this.reliabGridCC = new Grid($("#reliabCodesGridCC"), reliabGridOptionCC);
+
+			let reliabGridOptionRC = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'reliab_cd', title: '조치코드', width: 80 },
+					{
+						field: "reliab_nm", title: "조치코드명", width: 150,
+					},
+					{
+						field: 'insert_ts',
+						title: '최근  등록일',
+						width: 120,
+						template: '#= kendo.toString(kendo.parseDate(insert_ts), "yyyy-MM-dd HH:mm:ss") #'
+					},
+				],
+				height: "220px"
+			};
+
+			_this.reliabGridRC = new Grid($("#reliabCodesGridRC"), reliabGridOptionRC);
+
+			let projectGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'proj_cd', title: '프로젝트코드', width: 80 },
+					{
+						field: "proj_nm", title: "프로젝트명", width: 150,
+					},
+					{
+						field: 'insert_ts',
+						title: '최근  등록일',
+						width: 120,
+						template: '#= kendo.toString(kendo.parseDate(insert_ts), "yyyy-MM-dd HH:mm:ss") #'
+					},
+				],
+				height: "220px"
+			};
+
+			_this.projectGrid = new Grid($("#cmProjectGrid"), projectGridOption);
 
 			// 문자 카운터 초기화
 			_this.initCharCounter();
@@ -482,20 +1239,12 @@
 					{
 						name: "fontName",
 						items: [
-							{ text: "Andale Mono", value: "\"Andale Mono\"" }, // Font-family names composed of several words should be wrapped in \" \"
 							{ text: "Arial", value: "Arial" },
-							{ text: "Arial Black", value: "\"Arial Black\"" },
-							{ text: "Book Antiqua", value: "\"Book Antiqua\"" },
-							{ text: "Comic Sans MS", value: "\"Comic Sans MS\"" },
-							{ text: "Courier New", value: "\"Courier New\"" },
 							{ text: "Georgia", value: "Georgia" },
 							{ text: "Helvetica", value: "Helvetica" },
 							{ text: "Impact", value: "Impact" },
-							{ text: "Symbol", value: "Symbol" },
 							{ text: "Tahoma", value: "Tahoma" },
-							{ text: "Terminal", value: "Terminal" },
 							{ text: "Times New Roman", value: "\"Times New Roman\"" },
-							{ text: "Trebuchet MS", value: "\"Trebuchet MS\"" },
 							{ text: "Verdana", value: "Verdana" },
 						]
 					},
@@ -515,26 +1264,36 @@
 					{ name: "separator4", type: "separator" },
 					"createLink",
 					"unlink",
-					"insertImage",
-					{ name: "separator5", type: "separator" },
-					"tableWizard",
-					"tableProperties",
-					"tableCellProperties",
-					"createTable",
-					"addRowAbove",
-					"addRowBelow",
-					"addColumnLeft",
-					"addColumnRight",
-					"deleteRow",
-					"deleteColumn",
-					"mergeCellsHorizontally",
-					"mergeCellsVertically",
-					"splitCellHorizontally",
-					"splitCellVertically",
-					"tableAlignLeft",
-					"tableAlignCenter",
-					"tableAlignRight"
+					"insertImage"
 				]
+			});
+
+			// 외주업체 선택 시 그리드에 추가
+			$('#selectExSupplier').on('change', function () {
+				const supplierId = $(this).val();
+				const supplierName = $('#selectExSupplier option:selected').text();
+
+				if (!supplierId) return; // 선택 안 했으면 무시
+
+				// 그리드 객체 가져오기
+				const grid = $("#woExSupplierGrid").data("kendoGrid");
+				if (!grid) return;
+
+				// 이미 추가된 업체인지 확인
+				const exists = grid.dataSource.data().some(item => item.ex_supplier_nm === supplierName);
+				if (exists) {
+					Alert.alert('', '이미 추가된 외주업체입니다.');
+					return;
+				}
+
+				// 그리드에 데이터 추가
+				grid.dataSource.add({
+					ex_supplier_nm: supplierName,
+					cost: 0 // 또는 기본값
+				});
+
+				// 선택 초기화(원하면)
+				$(this).val('');
 			});
 		}
 
@@ -559,6 +1318,7 @@
 
 			let funcSucc = function (resp) {
 				if (resp.success) {
+					Alert.alert('', '승인처리되었습니다.');
 					$("#modalMyWorkApprInfo").fadeOut();
 					// 부모 페이지 새로고침
 					_this.refreshParentPage();
@@ -581,11 +1341,6 @@
 			// 유효성 검사
 			if (!data.equip_pk) {
 				Alert.alert('', '설비를 선택해주세요.');
-				return;
-			}
-
-			if (!$('#wo_work_title').val()) {
-				Alert.alert('', '작업제목 을 입력해주세요.');
 				return;
 			}
 
@@ -643,28 +1398,10 @@
 
 		}
 
-		// 탭 전환 이벤트 핸들러
-		initTabEvents() {
-			let _this = this;
-
-			$('.tab-button').on('click', function (e) {
-				e.preventDefault()
-				const tabId = $(this).data('tab');
-				$('.tab-button').removeClass('active').removeAttr('style');
-				$('.tab-pane').removeClass('active').hide();
-				$(this).addClass('active').css({
-					'background': '#1e4f88',
-					'color': 'white',
-					'border-color': '#1e4f88'
-				});
-				if (tabId) $('#' + tabId).addClass('active').show();
-			});
-		}
-
 		show(work_order_pk) {
 			let _this = this;
 			_this.workOrderPk = work_order_pk;
-			
+
 			// WoApprovalLine 동적 로드
 			this.loadWoApprovalLine(work_order_pk);
 
@@ -682,21 +1419,33 @@
 				};
 
 				let woData = AjaxUtil.getSyncData(_this.baseUrl, param);
+				console.log('woData:', woData);
 
-				$("#req_dept_nm").val(woData.req_dept_nm);
-				$("#inserter_nm").val(woData.inserter_nm);
-				$("#insert_ts").val(woData.insert_ts);
+				$("#req_dept_nm").text(woData.req_dept_nm);
+				$("#req_user_nm").text(woData.rqst_user_nm);
+				$("#req_date").text(woData.rqst_dt);
+				$("#req_want_dt").text(woData.want_dt);
 
-				FormUtil.BindDataForm(woData, $('#wo_req_form'));
-				var decoded = $('<div/>').html(woData.req_info || '').text();
+				$("#appr_req_info").text($("<div>").html(woData.req_info).text());
 
-				$("#editor").data("kendoEditor").value(decoded);
+				$("#appr_work_order_no").text(woData.work_order_no);
+				$("#appr_equip_cd_nm").text(woData.equip_nm);
+				$("#appr_warranty_dt").text(woData.want_dt);
+
+				$("#appr_wo_work_title").text(woData.work_title);
+
+				$("#appr_maint_type_nm").text(woData.maint_type_nm);
+				$("#appr_plan_period").text(woData.start_dt + ' - ' + woData.end_dt);
+				$("#appr_breakdown_dt").text(woData.breakdown_dt);
 
 				// approvalLine.js를 사용하여 결재라인 표시
 				if (window.approvalLine) {
 					// MyWorkAppr 모달용 고유 ID 사용
 					window.approvalLine.onWorkOrderClick(_this.workOrderPk, 'MyWorkAppr');
 				}
+
+				// 그리드 데이터 로드
+				_this.loadGridData();
 
 			}
 
@@ -707,6 +1456,21 @@
 		loadWoApprovalLine(woNoPk) {
 			if (window.approvalLine && typeof window.approvalLine.onWorkOrderClick === 'function') {
 				window.approvalLine.onWorkOrderClick(woNoPk);
+			}
+		}
+
+		// 그리드 데이터 로드 메소드
+		loadGridData() {
+			let _this = this;
+			
+			const woExSupplierGrid = $("#woExSupplierGrid").data("kendoGrid");
+			if (woExSupplierGrid) {
+				woExSupplierGrid.dataSource.read();
+			}
+
+			const woLaborGrid = $("#woLaborGrid").data("kendoGrid");
+			if (woLaborGrid) {
+				woLaborGrid.dataSource.read();
 			}
 		}
 
@@ -724,6 +1488,66 @@
 				}));
 			}
 		}
+
+		refreshReliabGridCC() {
+			let param = {
+				action: 'findAll',
+				types: 'CC', // 현상코드 타입
+				useYn: 'Y'   // 사용 여부
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/reliab_code', param);
+			let kendoGrid = $("#reliabCodesGridCC").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+
+		refreshReliabGridRC() {
+			let param = {
+				action: 'findAll',
+				types: 'RC', // 현상코드 타입
+				useYn: 'Y'   // 사용 여부
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/reliab_code', param);
+			let kendoGrid = $("#reliabCodesGridRC").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+
+		refreshReliabGridFC() {
+			let param = {
+				action: 'findAll',
+				types: 'FC', // 현상코드 타입
+				useYn: 'Y'   // 사용 여부
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/reliab_code', param);
+			let kendoGrid = $("#reliabCodesGridFC").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+
+		refreshProjectGrid() {
+			let param = {
+				action: 'findAll',
+				useYn: 'Y'   // 사용 여부
+			};
+			let result = AjaxUtil.getSyncData('/api/kmms/project', param);
+			let kendoGrid = $("#cmProjectGrid").data("kendoGrid");
+			if (kendoGrid) {
+				kendoGrid.setDataSource(new kendo.data.DataSource({
+					data: result
+				}));
+			}
+		}
+
 	}
 
 	myWorkApprInfoPage = new MyWorkApprInfo();
@@ -736,6 +1560,37 @@
 		};
 
 		let rowCount = 0;
+
+		// selJobClass 선택 시 woLaborGrid에 추가
+		$('#selJobClass').on('change', function () {
+			const job_class_pk = $(this).val();
+			const job_class_nm = $('#selJobClass option:selected').text();
+
+			if (!job_class_pk) return;
+
+			const grid = $("#woLaborGrid").data("kendoGrid");
+			if (!grid) return;
+
+			// 이미 추가된 직종인지 확인
+			const exists = grid.dataSource.data().some(item => item.job_class_pk === job_class_pk);
+			if (exists) {
+				Alert.alert('', '이미 추가된 직종입니다.');
+				return;
+			}
+
+			// 그리드에 데이터 추가 (초기값을 숫자 0으로)
+			grid.dataSource.add({
+				job_class_pk: job_class_pk,
+				job_class_nm: job_class_nm,
+				labor_price: 0,
+				worker_nos: 1,
+				work_hr: 0,
+				real_work_hr: 0,
+				isJobClassRow: true
+			});
+
+			$(this).val('');
+		});
 
 	});
 
@@ -785,6 +1640,24 @@
 			alert(error.message);
 			throw error;
 		}
+	}
+
+	// 화폐 입력란 에디터
+	function currencyEditor(container, options) {
+		$('<input name="' + options.field + '" type="text" class="k-input k-textbox" style="text-align:right; width:100%;" />')
+			.appendTo(container)
+			.on('input', function () {
+				this.value = this.value.replace(/[^0-9]/g, '');
+			});
+		$('<span style="position:absolute; right:16px; top:8px; color:#888; pointer-events:none;">₩</span>').appendTo(container);
+	}
+	// 숫자만 입력 에디터
+	function numberOnlyEditor(container, options) {
+		$('<input name="' + options.field + '" type="number" min="0" class="k-input k-textbox" style="text-align:right; width:100%;" />')
+			.appendTo(container)
+			.on('input', function () {
+				this.value = this.value.replace(/[^0-9]/g, '');
+			});
 	}
 
 </script>

@@ -18,7 +18,7 @@ def report(context):
     reportService = CmReportService()
 
     try:
-        # 설비별 월간 고장현황황
+        # 설비별 월간 고장현황
         if action == 'facility_monthly_status':            
             searchYear = gparam.get('searchYear', None)
             deptTree = gparam.get('deptTree', None)
@@ -104,7 +104,7 @@ def report(context):
 
             items = reportService.facility_specifications(searchText, deptPk, locPk)
 
-############# 점검통계 ################################################################
+############# 작업통계 ################################################################
 
         # 부서별 기간별 WO 발행 실적
         elif action == 'wm_wo_dept_performance':
@@ -133,7 +133,14 @@ def report(context):
 
             items = reportService.top_working_hours_wo(startDt, endDt, reqDeptPk, deptPk)
 
-        # 상위 작업비용 WO
+        # 정비비용 현황
+        elif action == 'conservation_cost_status':
+            searchYearMonth = gparam.get('searchYearMonth', None)
+            deptPk = gparam.get('deptPk', None)
+
+            items = reportService.conservation_cost_status(searchYearMonth, deptPk)
+
+        # 작업비용 상위 WO
         elif action == 'top_work_cost_wo':
             startDt = gparam.get('startDt', None)
             endDt = gparam.get('endDt', None)
@@ -141,6 +148,26 @@ def report(context):
             deptPk = gparam.get('deptPk', None)
 
             items = reportService.top_work_cost_wo(startDt, endDt, reqDeptPk, deptPk)
+
+        # 아웃소싱 작업건수
+        elif action == 'outsourced_tasks_count':
+            dateType = gparam.get('dateType', None)
+            searchYearMonth = gparam.get('searchYearMonth', None)
+            searchYear = gparam.get('searchYear', None)
+            workSrc = gparam.get('workSrc', None)
+            deptPk = gparam.get('deptPk', None)
+
+            items = reportService.outsourced_tasks_count(dateType, searchYearMonth, searchYear, workSrc, deptPk)
+
+        # 아웃소싱 작업건수 차트
+        elif action == 'outsourced_tasks_count_total':
+            dateType = gparam.get('dateType', None)
+            searchYearMonth = gparam.get('searchYearMonth', None)
+            searchYear = gparam.get('searchYear', None)
+            workSrc = gparam.get('workSrc', None)
+            deptPk = gparam.get('deptPk', None)
+
+            items = reportService.outsourced_tasks_count_total(dateType, searchYearMonth, searchYear, workSrc, deptPk)
 
         # 부서별 예방 정비율
         elif action == 'dept_pm_rate':
@@ -173,7 +200,9 @@ def report(context):
             startDt = gparam.get('startDt', None)
             endDt = gparam.get('endDt', None)
 
-            items = reportService.dept_task_compliance_rate(dateType, startDt, endDt)
+            rows = reportService.dept_task_compliance_rate(dateType, startDt, endDt)
+            footer = reportService.dept_task_compliance_rate_footer(dateType, startDt, endDt)
+            items = {"rows": rows, "footer": footer}
 
         # 부서별 작업 요청 통계
         elif action == 'dept_work_request_stats':
@@ -184,6 +213,46 @@ def report(context):
             deptPk = gparam.get('deptPk', None)
 
             items = reportService.dept_work_request_stats(dateType, startDt, endDt, reqDeptPk, deptPk)
+
+############# PM통계 ################################################################
+
+        # 카테고리별 PM 현황
+        elif action == 'pm_status_by_category':
+
+            items = reportService.pm_status_by_category()
+
+        # 부서별 PM WO 완료율
+        elif action == 'pm_wo_completion_rate':
+            dateType = gparam.get('dateType', None)
+            startDt = gparam.get('startDt', None)
+            endDt = gparam.get('endDt', None)
+
+            rows = reportService.pm_wo_completion_rate(dateType, startDt, endDt)
+            footer = reportService.pm_wo_completion_rate_footer(dateType, startDt, endDt)
+            items = {"rows": rows, "footer": footer}
+
+############# 점검통계 ################################################################
+
+        # 설비종류별 점검마스터
+        elif action == 'facility_inspection_master':
+            
+            items = reportService.facility_inspection_master()
+
+        # 점검결과 이상 설비목록
+        elif action == 'inspection_issues':
+            searchText = gparam.get('searchText', None)
+            startDt = gparam.get('startDt', None)
+            endDt = gparam.get('endDt', None)
+
+            items = reportService.inspection_issues(searchText, startDt, endDt)
+
+        # 점검 수행 통계
+        elif action == 'inspection_stats':
+            dateType = gparam.get('dateType', None)
+            startDt = gparam.get('startDt', None)
+            endDt = gparam.get('endDt', None)
+
+            items = reportService.inspection_stats(dateType, startDt, endDt)
 
     except Exception as ex:
         source = 'kmms/report : action-{}'.format(action)

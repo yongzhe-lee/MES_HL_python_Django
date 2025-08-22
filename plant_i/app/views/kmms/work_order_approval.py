@@ -1,10 +1,11 @@
+import json
 from django import db
 from domain.services.kmms.work_order_approval import WorkOrderApprovalService
 from domain.services.logging import LogWriter
 from domain.services.date import DateUtil
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
-from domain.models.cmms import CmWorkOrderApproval
+from domain.models.cmms import CmExSupplier, CmJobClass, CmMaterial, CmWoFaultLoc, CmWoLabor, CmWoMtrl, CmWorkOrderApproval, CmWorkOrderSupplier, CmWorkOrder
 
 def work_order_approval(context):
     '''
@@ -218,7 +219,7 @@ def work_order_approval(context):
                     workOrderPks = json.loads(workOrderPks)
                 except Exception:
                     workOrderPks = [workOrderPks]
-            elif not isinstance(workOrderPks, list):
+            if not isinstance(workOrderPks, list):
                 workOrderPks = [workOrderPks]
             acceptUserPk = user.pk
             acceptUserNm = user.username
@@ -247,7 +248,7 @@ def work_order_approval(context):
             thistime = DateUtil.get_current_datetime()
  
             c = CmWorkOrderApproval.objects.get(id=workOrderApprovalPk)
-            c,WorkFinishDt = thistime
+            c.WorkFinishDt = thistime
             c.WorkFinishUserName = workFinishUserNm
             c.WorkFinishUserPk = workFinishUserPk
 
@@ -255,6 +256,221 @@ def work_order_approval(context):
             c.save()
 
             return {'success': True, 'message': '작업완료 상태로 처리되었습니다.'}
+
+        elif action == 'updateWoFinish':
+            ''' 작업완료 쿼리처리
+            '''
+            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            tempSave = posparam.get('tempSave', 'N') # 임시저장구분 기본값:  N
+
+            problemCd = posparam.get('problem_cd')
+            causeCd = posparam.get('cause_cd')
+            remedyCd = posparam.get('remedy_cd')
+            projCd = posparam.get('proj_cd')
+            workSrcCd = posparam.get('work_src_cd')
+
+            workChargerPk = posparam.get('work_charger_pk')
+            planStartDt = posparam.get('start')
+            planEndDt = posparam.get('end')
+            startDt = posparam.get('start_dt')
+            endDt = posparam.get('end_dt')
+            workText = posparam.get('reqInfo')
+            
+            woFaultLoc = posparam.get('woFaultLoc')
+            woSupplier = posparam.get('woSupplier')
+            woLabor = posparam.get('woLabor')
+            woMtrl = posparam.get('woMtrl')
+            
+            mtrlCost = posparam.get('mtrlCost')
+            laborCost = posparam.get('laborCost')
+            outsideCost = posparam.get('outsideCost')
+            etcCost = posparam.get('etcCost')
+            totCost = posparam.get('totCost')
+
+            finishUserPk = user.pk
+            finishUserNm = user.username
+
+            cause_cd = posparam.get('cause_cd')
+            remedy_cd = posparam.get('remedy_cd')
+            try:
+                work_order = CmWorkOrder.objects.get(id=workOrderPk)
+                work_order.CauseCode = cause_cd
+                work_order.RemedyCode = remedy_cd
+                work_order.set_audit(user)
+                work_order.save()
+            except CmWorkOrder.DoesNotExist:
+                pass
+
+            #작업내역(전체)
+            items = work_order_approval_service.updateWoFinish(workOrderPk, tempSave, problemCd, causeCd, remedyCd, projCd, workSrcCd
+                                                               , workChargerPk, planStartDt, planEndDt, startDt, endDt, workText
+                                                               , finishUserPk, finishUserNm,mtrlCost,laborCost,outsideCost,etcCost,totCost)
+            
+            ######################################################
+            # region 작업지시 고장위치 정보
+            woFaultLocs = []
+            if woFaultLoc and isinstance(woFaultLoc, str):    
+                    import json as json_module
+                    woFaultLocs = json_module.loads(woFaultLoc)
+            elif woFaultLoc and isinstance(woFaultLoc, list):    
+                woFaultLocs = woFaultLoc
+
+            cm_wo_fault_loc_list = []
+            # woFaultLocs 데이터를 CmWoFaultLoc 모델 객체로 변환
+            for fault_loc_data in woFaultLocs:    
+                insert_dt = fault_loc_data.get('insert_dt')
+                if insert_dt:
+                    from datetime import datetime
+                    insert_dt = datetime.strptime(insert_dt, '%Y-%m-%d') 
+                
+                cm_wo_fault_loc = CmWoFaultLoc(
+                    CmWorkOrder_id=workOrderPk,
+                    FaultLocCode=fault_loc_data.get('fault_loc_cd'),    
+                    CauseCode=fault_loc_data.get('cause_cd'),
+                    FaultLocDesc=fault_loc_data.get('fault_loc_desc'),
+                    InserterId=user.pk,
+                    InsertDt=insert_dt
+                                    )
+                cm_wo_fault_loc_list.append(cm_wo_fault_loc)
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWoFaultLoc.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_wo_fault_loc_list:
+                CmWoFaultLoc.objects.bulk_create(cm_wo_fault_loc_list)
+            #endregion
+            ######################################################
+
+            ######################################################
+            # region 작업지시 외부업체 정보
+            woSuppliers = []
+            if woSupplier and isinstance(woSupplier, str):    
+                    import json as json_module
+                    woSuppliers = json_module.loads(woSupplier)
+            elif woSupplier and isinstance(woSupplier, list):
+                woSuppliers = woSupplier
+            cm_work_order_supplier_list = []
+            for item in woSuppliers:
+                # ex_supplier_pk가 null이 아닌 경우에만 객체 생성
+                ex_supplier_pk = item.get('ex_supplier_pk')
+                if ex_supplier_pk is not None:
+                    # CmExSupplier 인스턴스 가져오기
+                    try:
+                        ex_supplier_instance = CmExSupplier.objects.get(id=ex_supplier_pk)
+                        cm_work_order_supplier = CmWorkOrderSupplier(
+                            CmWorkOrder_id=workOrderPk,
+                            CmExSupplier=ex_supplier_instance,    
+                            Cost=CommonUtil.try_int(item.get('cost')),      
+                        )
+                        cm_work_order_supplier_list.append(cm_work_order_supplier)
+                    except CmExSupplier.DoesNotExist:
+                        # ex_supplier_pk가 존재하지 않는 경우 해당 항목을 건너뜀
+                        continue
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWorkOrderSupplier.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_work_order_supplier_list:
+                CmWorkOrderSupplier.objects.bulk_create(cm_work_order_supplier_list)
+            #endregion
+            ######################################################
+            
+            ######################################################
+            # region 작업지시 인력 정보
+            woLabors = []
+            if woLabor and isinstance(woLabor, str):    
+                    import json as json_module
+                    woLabors = json_module.loads(woLabor)
+            elif woLabor and isinstance(woLabor, list):
+                woLabors = woLabor
+            cm_wo_labor_list = []
+            for item in woLabors:
+                # emp_pk가 null이 아닌 경우에만 객체 생성
+                emp_pk = item.get('emp_pk')
+                job_class_pk = item.get('job_class_pk')
+                
+                if emp_pk is not None:
+                    
+                    job_class_instance = None
+                    if job_class_pk is not None:
+                        try:
+                            job_class_instance = CmJobClass.objects.get(id=job_class_pk)
+                        except CmJobClass.DoesNotExist:
+                            job_class_instance = None
+                    
+                    cm_wo_labor = CmWoLabor(
+                        CmWorkOrder_id=workOrderPk,
+                        CmJobClass=job_class_instance,
+                        EmpPk=emp_pk or None,                         
+                        LaborPrice=item.get('labor_price'),
+                        WorkerNos=item.get('worker_nos'),
+                        WorkHr=item.get('work_hr'),
+                        RealWorkHr=item.get('real_work_hr'),
+                    )
+                    cm_wo_labor_list.append(cm_wo_labor)
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWoLabor.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_wo_labor_list:
+                CmWoLabor.objects.bulk_create(cm_wo_labor_list)            
+            #endregion
+            ######################################################
+
+            ######################################################
+            # region 작업지시 자재 정보
+            woMtrls = []
+            if woMtrl and isinstance(woMtrl, str):    
+                    import json as json_module
+                    woMtrls = json_module.loads(woMtrl)
+            elif woMtrl and isinstance(woMtrl, list):
+                woMtrls = woMtrl
+            cm_wo_mtrl_list = []
+            for item in woMtrls:
+                # mtrl_pk가 null이 아닌 경우에만 객체 생성
+                mtrl_pk = item.get('mtrl_pk')
+                if mtrl_pk is not None:
+                    # CmMaterial 인스턴스 가져오기
+                    try:
+                        material_instance = CmMaterial.objects.get(id=mtrl_pk)
+                        cm_wo_mtrl = CmWoMtrl(
+                            CmWorkOrder_id=workOrderPk,
+                            CmMaterial=material_instance, 
+                            UnitPrice=item.get('unit_price'),
+                            AAmt=item.get('a_amt'),
+                            BAmt=item.get('b_amt'),
+                        )
+                        cm_wo_mtrl_list.append(cm_wo_mtrl)
+                    except CmMaterial.DoesNotExist:
+                        # mtrl_pk가 존재하지 않는 경우 해당 항목을 건너뜀
+                        continue
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWoMtrl.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_wo_mtrl_list:
+                CmWoMtrl.objects.bulk_create(cm_wo_mtrl_list)
+            #endregion
+            ######################################################
+
+            return {'success': True, 'message': '작업완료 상태로 처리되었습니다.'}
+
+        elif action == 'updateWoFinishPost':
+            ''' 사후작업완료 쿼리처리
+            '''
+            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            finishUserPk = user.pk
+            finishUserNm = user.username
+
+            #작업내역(전체)
+
+            items = work_order_approval_service.updateWoFinishPost(workOrderPk, finishUserPk, finishUserNm)
+
+            return {'success': True, 'message': '사후작업완료 등록이 완료되었습니다.'}
 
         elif action == 'updateComplete':
             ''' 완료
@@ -267,7 +483,7 @@ def work_order_approval(context):
             thistime = DateUtil.get_current_datetime()
  
             c = CmWorkOrderApproval.objects.get(id=workOrderApprovalPk)
-            c,FinishDt = thistime
+            c.FinishDt = thistime
             c.FinishUserName = finishUserNm
             c.FinishUserPk = finishUserPk
 
@@ -283,7 +499,7 @@ def work_order_approval(context):
             rqstDt = posparam.get('rqstDt')
  
             c = CmWorkOrderApproval.objects.get(id=workOrderApprovalPk)
-            c,RqstDt = rqstDt
+            c.RqstDt = rqstDt
             #c.set_audit(user)
             c.save()
 
@@ -299,10 +515,10 @@ def work_order_approval(context):
             thistime = DateUtil.get_current_datetime()
  
             c = CmWorkOrderApproval.objects.get(id=workOrderApprovalPk)
-            c,RejectDt = thistime
-            c,RejectUserName = rejectUserNm
-            c,RejectUserPk = rejectUserPk
-            c,RejectReason = rejectReason
+            c.RejectDt = thistime
+            c.RejectUserName = rejectUserNm
+            c.RejectUserPk = rejectUserPk
+            c.RejectReason = rejectReason
             #c.set_audit(user)
             c.save()
 
@@ -330,10 +546,10 @@ def work_order_approval(context):
             thistime = DateUtil.get_current_datetime()
  
             c = CmWorkOrderApproval.objects.get(id=workOrderApprovalPk)
-            c,CancelDt = thistime
-            c,CancelUserName = cancelUserNm
-            c,CancelUserPk = cancelUserPk
-            c,CancelReason = cancelReason
+            c.CancelDt = thistime
+            c.CancelUserName = cancelUserNm
+            c.CancelUserPk = cancelUserPk
+            c.CancelReason = cancelReason
             #c.set_audit(user)
             c.save()
 

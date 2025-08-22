@@ -1,4 +1,6 @@
+import os
 from domain.services.sql import DbUtil
+from domain.models import DBResource
 
 class AssetService:
     """
@@ -15,7 +17,7 @@ class AssetService:
         ai.asset_pk
         , a.id as aas_id
         , a.aas_pk
-        , fn_json_lang_text(a."displayName", %(lang_code)s) as "displayName"
+        , a."displayName"
         , ai."assetKind"
         , fn_code_name('asset_type', ai."assetType") as asset_type
         , ai."globalAssetId" as global_asset_id
@@ -57,3 +59,4 @@ class AssetService:
         
         items = DbUtil.get_rows(sql, dic_param)
         return items
+

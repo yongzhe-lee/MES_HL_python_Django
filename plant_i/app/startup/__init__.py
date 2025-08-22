@@ -1,8 +1,9 @@
 
 import os, atexit, json
 from django.apps import AppConfig
-from .mqtt import MQTTApplication
-from configurations import settings
+#from .mqtt import MQTTApplication
+#from .mqtt import MQTTApplication4DT
+#from configurations import settings
 from datetime import datetime
 # 파일 락(lock file) 또는 OS-level mutex로 프로세스 중복 방지
 #lock_file_path = os.path.join(tempfile.gettempdir(), 'planti_web_app.lock')
@@ -71,15 +72,6 @@ def on_exit():
 class MainAppConfig(AppConfig):
     name = 'app.startup'
     def ready(self):
-
-        #print("마이그레이션금지==> settings.MAIN_APP_RUN : ", settings.MAIN_APP_RUN)
-        if settings.MAIN_APP_RUN:
-            #if is_already_running():
-            #    print("#########already_running###########")
-            #    return
-            #mark_running("MainAppConfig.ready")
-
-            mqtt_application = MQTTApplication()
-            mqtt_application.ready()
-
+        #DT용 MQTT를 활성화함. 그때 그때 필요할때 구독하는게 좋은데 일단 있는 소스를 활용해서 받아 보자
+        #MQTTApplication4DT().ready()
         return

@@ -1,10 +1,21 @@
-
+import re
 from domain.models.aas import DBSubmodelElement
 from domain.services.sql import DbUtil
 
 class AASDataService():
     def __init__(self):
         pass
+
+
+    def is_valid_id_short(self, id_short: str) -> bool:
+        """
+        AAS id_short 규칙 검사 (AASd-002)
+        - 영문자(A-Z, a-z), 숫자(0-9), 언더스코어(_)만 허용
+        - 첫 글자는 반드시 영문자
+        """
+        pattern = r'^[A-Za-z][A-Za-z0-9_]*$'
+        return bool(re.match(pattern, id_short))
+
 
     def make_id_with_short_id(self, id_short, model_type):
         '''
@@ -37,9 +48,9 @@ class AASDataService():
 
         return dic_data
 
-    def get_aas_list(self, keyword, lang_code):
+    def get_aas_list(self, keyword):
 
-        dic_param = {"keyword": keyword, "lang_code" :lang_code}
+        dic_param = {"keyword": keyword}
 
         sql ='''
         with recursive aas_tree as ( 
@@ -50,11 +61,11 @@ class AASDataService():
                , a1.id_short
                , a1.description
                , a1."displayName"
-               , a1.base_aas_pk as parent_pk
+               , a1.parent_aas_pk as parent_pk
                , 0 as lvl
                , a1._created
               from aas a1
-              where a1.base_aas_pk is null
+              where a1.parent_aas_pk is null
               union all
               select
               a2.aas_pk
@@ -62,11 +73,11 @@ class AASDataService():
               , a2.id_short
               , a2.description
               , a2."displayName"  
-              , a2.base_aas_pk as parent_pk
+              , a2.parent_aas_pk as parent_pk
               , at1.lvl+1
               , a2._created
               from aas a2
-              inner join at1 on at1.aas_pk = a2.base_aas_pk      
+              inner join at1 on at1.aas_pk = a2.parent_aas_pk
             )        
 	          select 
 	          a.aas_pk 
@@ -84,7 +95,7 @@ class AASDataService():
         '''
         if keyword:
             sql+='''
-            and exists ( select 1  from jsonb_array_elements(a."displayName") as kk  where  kk->>'language' = %(lang_code)s and upper(kk->>'text') like concat('%%',upper(%(keyword)s),'%%'))
+            a."displayName" like concat('%%',upper(%(keyword)s),'%%')
             '''
 
         sql+='''
@@ -112,7 +123,7 @@ class AASDataService():
 	          , aas_tree.sm_pk
 	          , aas_tree.id
 	          , aas_tree.id_short
-	          , fn_json_lang_text(aas_tree."displayName", %(lang_code)s) as "displayName"
+	          , aas_tree."displayName"
               , aas_tree.gubun  
               , to_char(aas_tree._created, 'yyyy-mm-dd hh24:mi:ss') created
           , aas_tree.lvl
@@ -159,18 +170,16 @@ class AASDataService():
 
         return aas_items
 
-    def get_aas_detail(self, aas_pk, lang_code='ko-KR'):
-        dic_param = {"aas_pk": aas_pk, "lang_code" :lang_code}
+    def get_aas_detail(self, aas_pk):
+        dic_param = {"aas_pk": aas_pk}
         sql='''
         select 
         a.aas_pk 
         , a.id
-        , a.id_short
-        , %(lang_code)s as lang_code
-        , fn_json_lang_text(a.description, %(lang_code)s) as "description" 
-        , fn_json_lang_text(a."displayName", %(lang_code)s) as "displayName"
-        , a.description as json_description
-        , a."displayName" as json_displayname
+        , a.id_short 
+        , a.description
+        , a."displayName"
+        , a.language
         , 'aas' as gubun
         , (select count(*) from specific_asset where specific_asset.asset_pk= ai.asset_pk) as asset_count
         , to_char(a._created, 'yyyy-mm-dd hh24:mi:ss') created
@@ -180,22 +189,22 @@ class AASDataService():
         , ai."assetKind"
         , fn_code_name('asset_type', ai."assetType") as asset_type
         , ai."globalAssetId" as global_asset_id
-        , fn_json_lang_text(pa."displayName", %(lang_code)s) as p_display_name
+        , pa."displayName" as p_display_name
         , adm.version
         , adm.revision
         from aas a
         left join administration adm on adm.admin_pk = a.admin_pk
         left join asset_info ai on a.asset_pk = ai.asset_pk 
         left join resource r on r.res_pk = ai."defaultThumbnail_id"
-        left join aas as pa on pa.aas_pk = a.base_aas_pk
+        left join aas as pa on pa.aas_pk = a.parent_aas_pk
         where a.aas_pk=%(aas_pk)s
         '''
         data = DbUtil.get_row(sql, dic_param)
         return data
 
-    def get_submodel_detail(self, sm_pk, lang_code, aas_pk):
+    def get_submodel_detail(self, sm_pk, aas_pk):
 
-        dic_param = {"sm_pk": sm_pk, "lang_code":lang_code, "aas_pk": aas_pk}
+        dic_param = {"sm_pk": sm_pk, "aas_pk": aas_pk}
 
         sql='''
         select
@@ -205,14 +214,14 @@ class AASDataService():
         , sb.aas_pk as parent_pk
         , sb.id
         , sb.id_short
-        , %(lang_code)s as lang_code
-        , fn_json_lang_text(sb.description, %(lang_code)s) as "description" 
-        , fn_json_lang_text(sb."displayName", %(lang_code)s) as "displayName"
+        , sb.language
+        , sb.description as "description" 
+        , sb."displayName" as "displayName"
         , sb.description as json_description
         , sb."displayName" as json_displayname
         , 'sub' as gubun
         , to_char(sb._created, 'yyyy-mm-dd hh24:mi:ss') created
-        , fn_json_lang_text(a."displayName", 'ko-KR') as p_display_name
+        , a."displayName" as p_display_name
         , case when sb.aas_pk is null then 'share' else 'exclusive' end as scope
         from submodel sb
         left join aas_submodel_refs asr on asr.aas_pk =%(aas_pk)s
@@ -224,8 +233,8 @@ class AASDataService():
         data = DbUtil.get_row(sql, dic_param)
         return data
 
-    def get_submodel_element_collection_detail(self, sme_pk, lang_code):
-        dic_param = {"sme_pk": sme_pk, 'lang_code' : lang_code}
+    def get_submodel_element_collection_detail(self, sme_pk):
+        dic_param = {"sme_pk": sme_pk}
         sql='''
         with aa as (
         select 
@@ -237,7 +246,7 @@ class AASDataService():
         , sme.id_short
         , sme."ModelKind"
         , sme."modelType"
-        , sme."displayName" as "displayName"
+        , sme."displayName"
         , sme.description as description
         , case when sm.sm_pk is null then sme_parent."displayName" else sm."displayName" end as p_display_name
         , case when sm.sm_pk is null then sme_parent."modelType" else 'submodel' end as "p_modelType"
@@ -258,11 +267,9 @@ class AASDataService():
         , aa.id_short
         , aa."ModelKind"
         , aa."modelType"
-        , aa."displayName" as json_displayname
-        , aa.description as json_description
-        , fn_json_lang_text(aa."displayName" , %(lang_code)s) as "displayName"
-        , fn_json_lang_text(aa.description , %(lang_code)s) as description
-        , fn_json_lang_text(aa.p_display_name, %(lang_code)s) as p_display_name
+        , aa."displayName"
+        , aa.description
+        , aa.p_display_name
         , aa."p_modelType"
         , to_char(aa._created, 'yyyy-mm-dd hh24:mi:ss') created
         from aa
@@ -271,11 +278,11 @@ class AASDataService():
         return data
 
 
-    def get_property_detail(self, sme_pk, lang_code):
+    def get_property_detail(self, sme_pk):
         '''
         PropertElement 단건 상세조회
         '''
-        dic_param = {"sme_pk": sme_pk, 'lang_code' : lang_code}
+        dic_param = {"sme_pk": sme_pk}
         sql='''
         with aa as(
         select 
@@ -313,28 +320,26 @@ class AASDataService():
         , aa."modelType"
         , aa."ModelKind"
         , aa.category
-        , fn_json_lang_text(aa."displayName", %(lang_code)s) as "displayName"
-        , fn_json_lang_text(aa.description, %(lang_code)s) as description
-        , aa."displayName" as json_displayname
-        , aa.description as json_description
+        , aa."displayName"
+        , aa.description
         , aa."valueType"
         , aa.value
         , aa.value_id
         , aa.value_id_ref_type
         , aa.semantice_type
         , aa.semanctic_id
-        , fn_json_lang_text(aa.p_display_name, %(lang_code)s) as p_display_name
+        , aa.p_display_name
         , aa."p_modelType"
         , to_char(aa._created, 'yyyy-mm-dd hh24:mi:ss') created
         from aa
         '''
         data = DbUtil.get_row(sql, dic_param)
         return data
-    def get_file_detail(self, sme_pk, lang_code):
+    def get_file_detail(self, sme_pk):
         '''
         FileElement 단건 상세조회
         '''
-        dic_param = {"sme_pk": sme_pk, 'lang_code' : lang_code}
+        dic_param = {"sme_pk": sme_pk}
         sql='''
         with aa as(
         select 
@@ -370,16 +375,14 @@ class AASDataService():
         , aa."modelType"
         , aa."ModelKind"
         , aa.category
-        , fn_json_lang_text(aa."displayName", %(lang_code)s) as "displayName"
-        , fn_json_lang_text(aa.description, %(lang_code)s) as description
-        , aa."displayName" as json_displayname
-        , aa.description as json_description
+        , aa."displayName"
+        , aa.description
         , aa.value
         , aa.content_type
         , aa.filename
         , aa.semantice_type
         , aa.semanctic_id
-        , fn_json_lang_text(aa.p_display_name, %(lang_code)s) as p_display_name
+        , aa.p_display_name
         , aa."p_modelType"
         , to_char(aa._created, 'yyyy-mm-dd hh24:mi:ss') created
         from aa
@@ -388,11 +391,11 @@ class AASDataService():
         return data
 
 
-    def get_submodel_element_list(self, sm_pk, lang_code='ko-KR'):
+    def get_submodel_element_list(self, sm_pk):
         '''
         submodel 하위 submodel 엘리먼트 목록을 가져온다
         '''
-        dic_param = {'sm_pk' : sm_pk, 'lang_code' : lang_code} 
+        dic_param = {'sm_pk' : sm_pk} 
         sql = '''
         select 
         sme.sme_pk
@@ -410,8 +413,8 @@ class AASDataService():
           else 
             'etc' 
           end as gubun
-        , fn_json_lang_text(sme.description, %(lang_code)s) as "description"    
-        , fn_json_lang_text(sme."displayName", %(lang_code)s) as "displayName"
+        , sme.description
+        , sme."displayName"
         , to_char(sme._created, 'yyyy-mm-dd hh24:mi:ss') created
         , pe.value as prpt_value
         , fe.value as file_value
@@ -426,13 +429,13 @@ class AASDataService():
         items = DbUtil.get_rows(sql, dic_param)
         return items
 
-    def get_submodel_element_collection_items(self, sme_pk, lang_code='ko-KR'):
-        dic_param = {'sme_pk' : sme_pk, 'lang_code' : lang_code} 
+    def get_submodel_element_collection_items(self, sme_pk):
+        dic_param = {'sme_pk' : sme_pk} 
 
         sql='''
         select        
         smev.dbsubmodelelement_id as sme_pk
-        , fn_json_lang_text(sme."displayName", %(lang_code)s) as "displayName"
+        , sme."displayName"
         , sme."modelType"
          , case sme."modelType" when 'Property' then 
              'prop' 

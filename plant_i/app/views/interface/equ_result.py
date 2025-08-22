@@ -23,9 +23,12 @@ def equ_result(context):
             end_dt = gparam.get('end_dt') + " 23:59:59"
             equ_id= gparam.get('equ_id')
             defect_yn = gparam.get("defect_yn")
-            keyword = gparam.get('keyword') # 품번이나 품목명
+            sn = gparam.get('keyword') # 품번이나 품목명
 
-            dic_param = { 'start_dt' : start_dt, "end_dt" : end_dt , "equ_id" : equ_id, "keyword" : keyword}
+            if sn :
+                sn = sn.upper()
+
+            dic_param = { 'start_dt' : start_dt, "end_dt" : end_dt , "equ_id" : equ_id, "sn" : sn}
 
             sql='''
             select
@@ -33,7 +36,7 @@ def equ_result(context):
             , ier.sn
             , ln."Name" as line_nm
             , ier.sn_new
-            , ier.sn_items
+            , ier.sn_items_txt
             , ier.pcb_input
             , ier.pcb_cn
             , ier.pcb_size 
@@ -51,20 +54,24 @@ def equ_result(context):
             left join equ e on e."Code" =ier.equ_cd
             left join line ln on ln.id  = e.line_id 
             left join material m on m."Code"=ier.mat_cd
-            where 
-            ier.data_date between %(start_dt)s and %(end_dt)s
+            where 1=1
             '''
-            if equ_id:
+            if sn:
                 sql+='''
-                and e.id = %(equ_id)s
+                and ( ier.sn like concat('%%', %(sn)s, '%%') or ier.sn_items_txt like concat('%%', %(sn)s, '%%') )
                 '''
+            else:
+                sql+='''
+                and ier.data_date between %(start_dt)s and %(end_dt)s
+                '''
+                if equ_id:
+                    sql+='''
+                    and e.id = %(equ_id)s
+                    '''
+
             if defect_yn=="Y":
                 sql+='''
                 and ier.state !='0'
-                '''
-            if keyword:
-                sql+='''
-                and ( upper(ier.mat_cd) like concat('%%', upper(%(keyword)s), '%%')  or  upper(ier.mat_desc) like concat('%%', upper(%(keyword)s), '%%') )
                 '''
 
             sql+='''
@@ -104,8 +111,9 @@ def equ_result(context):
             select 
             aa.defect_cd
             ,aa.defect_nm
-            , aa.part_no
-            , aa.component_nm
+            , aa.part_num
+            , aa.comp_nm
+            , aa.sn
             , to_char(aa._created, 'yyyy-mm-dd hh24:mi:ss') created
             from if_equ_result ier 
             inner join if_equ_defect_item aa on aa.rst_id = ier.id
@@ -150,7 +158,7 @@ def equ_result(context):
             from if_equ_result aa
             inner join equ_alarm_hist bb on bb.rst_id =aa.id
             left join equ_alarm cc on cc.alarm_cd  = bb.alarm_cd 
-            where ier.id= %(result_id)s
+            where aa.id= %(result_id)s
             order by aa.data_date desc
             '''
             items = DbUtil.get_rows(sql, dic_param)

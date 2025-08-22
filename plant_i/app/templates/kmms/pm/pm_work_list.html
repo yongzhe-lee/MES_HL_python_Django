@@ -124,27 +124,31 @@
                     }
                 },
                 columns: [
-                    { field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지   
+                    { field: 'pm_pk', title: 'PM PK', hidden: true, headerAttributes: { style: 'text-align: center; justify-content: center;' } },  // ✅ pm_pk 값 유지   
                     {
 					    field: 'pm_no',
                         title: 'PM 번호',
                         width: 150,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: left;' },
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
                     },
-                    { field: "pm_nm", title: "PM 명", width: 150 },
-				    { field: "pm_type_nm", title: "PM 유형", width: 100 },
-				    { field: 'equip_cd', title: '설비코드', width: 100 },
-                    { field: 'equip_nm', title: '설비명', width: 150 },
-				    { field: 'equip_category_desc', title: '카테고리', width: 100 },                 
+                    { field: "pm_nm", title: "PM 명", width: 150, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+				    { field: "pm_type_nm", title: "PM 유형", width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+				    { field: 'equip_cd', title: '설비코드', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+                    { field: 'equip_nm', title: '설비명', width: 150, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+				    { field: 'equip_category_desc', title: '카테고리', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },                 
 				    {
 					    field: 'work_order_no',
 					    title: 'WO 번호',
 					    width: 100,
+					    headerAttributes: { style: 'text-align: center; justify-content: center;' },
+					    attributes: { style: 'text-align: center;' },
 					    template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
 				    },
-				    { field: 'insert_ts', title: 'WO생성일', width: 100 },
-				    { field: 'wo_status_nm', title: 'WO상태', width: 100 },
-				    { field: 'plan_start_dt', title: '작업계획일', width: 100 },
+				    { field: 'insert_ts', title: 'WO생성일', width: 110, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' }, template: '#= insert_ts ? insert_ts.replace("T", " ").split(".")[0] : "" #' },
+				    { field: 'wo_status_nm', title: 'WO상태', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+				    { field: 'plan_start_dt', title: '작업계획일', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
                 ],
                 dataBound: function (e) {
                     $(".grid-column-link").off("click").on("click", function (e) {

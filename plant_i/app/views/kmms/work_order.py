@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from django import db
 from app.views.kmms.work_order_hist import DateUtil
 from domain.models import user
@@ -5,7 +6,7 @@ from domain.services.kmms.work_order import WorkOrderService
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
-from domain.models.cmms import CmWorkOrder, CmEquipment, CmWoLabor, CmWoMtrl, CmWorkOrderSupplier, CmWoFaultLoc, CmWorkOrderHist
+from domain.models.cmms import CmExSupplier, CmJobClass, CmMaterial, CmWorkOrder, CmEquipment, CmWoLabor, CmWoMtrl, CmWorkOrderSupplier, CmWoFaultLoc, CmWorkOrderHist
 from datetime import datetime
 import json
 from domain.services.kmms.site_config import CmSiteConfigService
@@ -62,8 +63,6 @@ def handle_work_order_hist(work_order_pk, posparam, request):
     # posparam 복사 및 work_order_pk 추가
     posparam = dict(posparam)
     posparam['changerPk'] = request.user.id
-    posparam['beforeStatusCd'] = 'WOS_RQ'
-    posparam['afterStatusCd'] = 'WOS_RQ'
     posparam['changerNm'] = request.user.username
     posparam['workOrderPk'] = work_order_pk
     context = Context(gparam, posparam, request)
@@ -157,7 +156,6 @@ def work_order(context):
 
             try:
                 items = workorder_service.get_my_work_request_list(keyword, req_dept, rqst_user_nm, start_dt, end_dt, wo_status, maint_type_cd, dept_pk, problem_cd, cause_cd, srch_wo_no_only, srch_my_req_only, srch_environ_equip_only, srch_non_del_only, current_user_id)
-                print(items)
             except Exception as ex:
                 source = 'api/kmms/work_order, action:{}'.format(action)
                 LogWriter.add_dblog('error', source, ex)
@@ -336,12 +334,13 @@ def work_order(context):
                     , cm_fn_user_nm(wcu."Name", wcu.del_yn) as work_charger_nm
                     , mt.code_cd as maint_type_cd
                     , mt.code_nm as maint_type_nm
+                    , t.wo_status
                     , ws.code_cd as wo_status_cd
                     , ws.code_nm as wo_status_nm
                     , t.plan_start_dt
                     , t.plan_end_dt
-                    , t.start_dt
-                    , t.end_dt
+                    , to_char(t.start_dt, 'YYYY-MM-DD') as start_dt
+                    , to_char(t.end_dt, 'YYYY-MM-DD') as end_dt
                     , to_char(t.want_dt, 'yyyy-MM-dd') as want_dt
                     , t.equip_pk                    
                     , e.equip_cd
@@ -391,8 +390,8 @@ def work_order(context):
                     , t.appr_line
                     , t.appr_line_next
                     , t.work_order_approval_pk
-                    , woa.reg_dt
-                    , woa.rqst_dt
+                    , to_char(woa.reg_dt, 'YYYY-MM-DD') as reg_dt
+                    , to_char(woa.rqst_dt, 'YYYY-MM-DD') as rqst_dt
                     , woa.rqst_user_nm
                     , woarqstd.id as rqst_dept_pk
                     , woarqstd."Name" as rqst_dept_nm
@@ -865,9 +864,10 @@ def work_order(context):
             where t.maint_type_cd = 'MAINT_TYPE_BM'
             and t.wo_status NOT IN ('WOS_CL','WOS_DL')
             and t.equip_pk = %(equipPk)s
-            and t.factory_pk = %(factory_pk)s
+
             order by t.work_order_pk desc
             '''
+            # -- and t.factory_pk = %(factory_pk)s
             dc={}
             dc['equipPk'] = equipPk
             dc['factory_pk'] = factory_id
@@ -895,9 +895,11 @@ def work_order(context):
 
             sql = ''' SELECT coalesce(max(cast(work_order_no AS integer))+1,1) AS work_order_no
             FROM  cm_work_order
-            WHERE factory_pk = %(factory_pk)s
+
+            WHERE 1 = 1
             AND  ( work_order_no ~ e'^[0-9]+$') = true
             '''
+            # -- WHERE factory_pk = %(factory_pk)s
             dc={}
             dc['factory_pk'] = factory_id
 
@@ -910,17 +912,9 @@ def work_order(context):
             workOrderApprovalPk = handle_work_order_approval(posparam, request)
             tempSave = posparam.get('tempSave', 'N') # 임시저장구분 기본값:  N
 
-            if tempSave == 'Y':
-                workOrderPk = None  # 임시저장 시에는 workOrderPk를 None으로 설정
-            else:
-                workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
             
             equipPk = CommonUtil.try_int(posparam.get('equipPk'))
-
-            if tempSave == 'Y' :  # 신규 등록시 번호 생성
-                workOrderNo = posparam.get('workOrderNo')
-            else:
-                workOrderNo = generate_wo_number()      
 
             workOrderSort = posparam.get('workOrderSort')
             workTitle = posparam.get('workTitle')
@@ -961,6 +955,8 @@ def work_order(context):
             if_send_yn = posparam.get('if_send_yn')
             rqstInspYn = posparam.get('rqstInspYn', 'N')  # 초기값 설정
             rqstDprYn = posparam.get('rqstDprYn', 'N')   # 초기값 설정
+            BeforeStatus = posparam.get('BeforeStatus', 'WOS_RQ')  # 이전 상태
+            AfterStatus= posparam.get('AfterStatus', 'WOS_RQ')  # 이후 상태
 
             if workOrderPk ==None:
                 wo = CmWorkOrder()
@@ -977,6 +973,170 @@ def work_order(context):
                 wo.IfSendYn = if_send_yn
                 wo.RqstInspYn = rqstInspYn  # 초기값 설정
                 wo.RqstDprYn = rqstDprYn    # 초기값 설정
+            else:
+                wo = CmWorkOrder.objects.get(id=workOrderPk)
+                wo.WorkText = workText
+                wo.RqstInspYn = rqstInspYn  # 초기값 설정
+                wo.RqstDprYn = rqstDprYn    # 초기값 설정
+
+            wo.CmEquipment_id = equipPk
+
+            if tempSave == 'Y' :  # 신규 등록시 번호 생성
+                workOrderNo = posparam.get('workOrderNo')
+            else:
+                if wo.WorkOrderNo is None:
+                    workOrderNo = generate_wo_number()  
+                else:
+                    workOrderNo = wo.WorkOrderNo
+
+            if workOrderNo:
+                wo.WorkOrderNo = workOrderNo
+                wo.WorkOrderSort = workOrderSort
+
+            wo.WorkTitle = workTitle
+
+            wo.ReqInfo = reqInfo
+            wo.WoStatus = woStatusCd
+            wo.MaintTypeCode = maintTypeCd
+            wo.WoType = woType
+            wo.WantDt = wantDt
+            # 로그인 사용자의 부서 PK를 사용
+            wo.ReqDeptPk = user.userprofile.Depart.id if user.userprofile.Depart else None
+
+            if planStartDt:
+                wo.PlanStartDt = planStartDt
+            if planEndDt:
+                wo.PlanEndDt = planEndDt
+            if startDt:
+                wo.StartDt = startDt
+            else:
+                wo.StartDt = None
+            if endDt:
+                wo.EndDt = endDt
+            else:
+                wo.EndDt = None
+            wo.DeptPk = deptPk
+            wo.WorkChargerPk = workChargerPk
+
+            # apprLine 자동 설정: ProcOpts의 acceptYn이 true면 'RQ'로 설정
+            site_id = '1'  # 환경에 맞게 필요시 수정
+            site_config_service = CmSiteConfigService()
+            site_config = site_config_service.read(site_id)
+            if site_config and site_config.get('proc_opts'):
+                try:
+                    proc_opts = json.loads(site_config['proc_opts'])
+                    if proc_opts.get('acceptYn') is True:
+                        apprLine = 'RQ'
+                except Exception as e:
+                    pass  # 파싱 실패 시 무시
+
+            wo.ApprLine = apprLine
+            wo.ApprLineNext = apprLineNext       
+
+            wo.WorkSrcCode = workSrcCd
+            wo.BreakdownDt = breakdownDt
+            wo.CauseCode = causeCd
+            wo.ProblemCode = problemCd
+            wo.ProjCode = projCd
+            wo.Factory_id = 1
+            wo.set_audit(user)
+            wo.save()
+            print("PK:", wo.id)  # 저장 후 PK가 할당되는지 확인
+
+            if tempSave == 'N':
+                handle_work_order_hist(wo.id, posparam, request)
+
+            return {'success': True, 'message': '작업지시 정보가 저장되었습니다.'}
+
+        elif action == 'save_post':
+           #파라미터 전환
+            posparam = CommonUtil.snake_to_camel_dict(posparam)
+            tempSave = posparam.get('tempSave', 'N') # 임시저장구분 기본값:  N
+
+            if tempSave == 'N':
+                #작업 결재정보 먼저 등록
+                workOrderApprovalPk = handle_work_order_approval(posparam, request)
+
+            woFaultLoc = posparam.get('woFaultLoc')
+            woSupplier = posparam.get('woSupplier')
+            woLabor = posparam.get('woLabor')
+            woMtrl = posparam.get('woMtrl')
+
+            mtrlCost = posparam.get('mtrlCost')
+            laborCost = posparam.get('laborCost')
+            outsideCost = posparam.get('outsideCost')
+            etcCost = posparam.get('etcCost')
+            totCost = posparam.get('totCost')
+
+            if tempSave == 'Y':
+                workOrderPk = None  # 임시저장 시에는 workOrderPk를 None으로 설정
+            else:
+                workOrderPk = CommonUtil.try_int(posparam.get('workOrderPk'))
+            
+            equipPk = CommonUtil.try_int(posparam.get('equipPk'))
+
+            if tempSave == 'Y' :  # 신규 등록시 번호 생성
+                workOrderNo = posparam.get('workOrderNo')
+            else:
+                workOrderNo = generate_wo_number()      
+
+            workOrderSort = posparam.get('workOrderSort')
+            workTitle = posparam.get('workTitle')
+            workText = posparam.get('workText')
+            reqInfo = posparam.get('reqInfo')
+
+            if tempSave == 'N':
+                woStatusCd = 'WOS_CL'  # 등록완료 시 상태를 요청완료'WOS_CL'로 설정
+            else:
+                woStatusCd = 'WOS_RW' #임시저장 시 상태를 'WOS_RW'로 설정
+            
+            maintTypeCd = posparam.get('maintTypeCd')
+            woType = posparam.get('woType', 'WO')
+            wantDt = posparam.get('wantDt')
+            planStartDt = wantDt
+            planEndDt = wantDt
+            startDt =wantDt
+            endDt = wantDt
+            deptPk = posparam.get('deptPk')
+            workChargerPk = posparam.get('workChargerPk')
+            pmPk = posparam.get('pmPk')
+            apprLine = posparam.get('apprLine', 'RW,CL')  # 초기값 설정
+            apprLineNext = posparam.get('apprLineNext', 'RW')
+            reqDeptPk = posparam.get('reqDeptPk')
+            pmReqType = posparam.get('pmReqType')
+            workSrcCd = posparam.get('workSrcCd')
+            breakdownDt = posparam.get('breakdownDt')
+            causeCd = posparam.get('causeCd')
+            problemCd = posparam.get('problemCd')
+            remedyCd = posparam.get('remedyCd')
+            projCd = posparam.get('projCd')
+            workSrcCd = posparam.get('workSrcCd')
+            totCost = posparam.get('totCost')
+            mtrlCost = posparam.get('mtrlCost')
+            laborCost = posparam.get('laborCost')
+            outsideCost = posparam.get('outsideCost')
+            etcCost = posparam.get('etcCost')
+            if_send_yn = posparam.get('if_send_yn')
+            rqstInspYn = posparam.get('rqstInspYn', 'N')  # 초기값 설정
+            rqstDprYn = posparam.get('rqstDprYn', 'Y')   # 초기값 설정
+            BeforeStatus = posparam.get('BeforeStatus', 'WOS_RW')  # 이전 상태, 기본값은 'WOS_RW'
+            AfterStatus= posparam.get('AfterStatus', 'WOS_CL')  # 이후 상태, 기본값은 'WOS_CL'
+
+            if workOrderPk ==None:
+                wo = CmWorkOrder()
+                wo.CmWorkOrderApproval_id = workOrderApprovalPk
+                wo.CmPm_id = pmPk
+                if pmReqType:
+                    wo.PmReqType = pmReqType
+                wo.RemedyCode = remedyCd
+                wo.TotCost = totCost
+                wo.MtrlCost = mtrlCost
+                wo.LaborCost = laborCost
+                wo.OutsideCost = outsideCost
+                wo.EtcCost = etcCost
+                wo.IfSendYn = if_send_yn
+                wo.RqstInspYn = rqstInspYn  # 초기값 설정
+                wo.RqstDprYn = rqstDprYn    # 초기값 설정 
             else:
                 wo = CmWorkOrder.objects.get(id=workOrderPk)
                 wo.WorkText = workText
@@ -1040,6 +1200,158 @@ def work_order(context):
 
             if tempSave == 'N':
                 handle_work_order_hist(wo.id, posparam, request)
+                CmEquipment.objects.filter(id=equipPk).update(FirstAssetStatus=None)                
+
+            ######################################################
+            # region 작업지시 고장위치 정보
+            woFaultLocs = []
+            if woFaultLoc and isinstance(woFaultLoc, str):    
+                    import json as json_module
+                    woFaultLocs = json_module.loads(woFaultLoc)
+            elif woFaultLoc and isinstance(woFaultLoc, list):    
+                woFaultLocs = woFaultLoc
+
+            cm_wo_fault_loc_list = []
+            # woFaultLocs 데이터를 CmWoFaultLoc 모델 객체로 변환
+            for fault_loc_data in woFaultLocs:    
+                insert_dt = fault_loc_data.get('insert_dt')
+                if insert_dt:
+                    from datetime import datetime
+                    insert_dt = datetime.strptime(insert_dt, '%Y-%m-%d') 
+                
+                cm_wo_fault_loc = CmWoFaultLoc(
+                    CmWorkOrder_id=workOrderPk,
+                    FaultLocCode=fault_loc_data.get('fault_loc_cd'),    
+                    CauseCode=fault_loc_data.get('cause_cd'),
+                    FaultLocDesc=fault_loc_data.get('fault_loc_desc'),
+                    InserterId=user.pk,
+                    InsertDt=insert_dt
+                                    )
+                cm_wo_fault_loc_list.append(cm_wo_fault_loc)
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWoFaultLoc.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_wo_fault_loc_list:
+                CmWoFaultLoc.objects.bulk_create(cm_wo_fault_loc_list)
+            #endregion
+            ######################################################
+
+            ######################################################
+            # region 작업지시 외부업체 정보
+            woSuppliers = []
+            if woSupplier and isinstance(woSupplier, str):    
+                    import json as json_module
+                    woSuppliers = json_module.loads(woSupplier)
+            elif woSupplier and isinstance(woSupplier, list):
+                woSuppliers = woSupplier
+            cm_work_order_supplier_list = []
+            for item in woSuppliers:
+                # ex_supplier_pk가 null이 아닌 경우에만 객체 생성
+                ex_supplier_pk = item.get('ex_supplier_pk')
+                if ex_supplier_pk is not None:
+                    # CmExSupplier 인스턴스 가져오기
+                    try:
+                        ex_supplier_instance = CmExSupplier.objects.get(id=ex_supplier_pk)
+                        cm_work_order_supplier = CmWorkOrderSupplier(
+                            CmWorkOrder_id=workOrderPk,
+                            CmExSupplier=ex_supplier_instance,    
+                            Cost=CommonUtil.try_int(item.get('cost')),      
+                        )
+                        cm_work_order_supplier_list.append(cm_work_order_supplier)
+                    except CmExSupplier.DoesNotExist:
+                        # ex_supplier_pk가 존재하지 않는 경우 해당 항목을 건너뜀
+                        continue
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWorkOrderSupplier.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_work_order_supplier_list:
+                CmWorkOrderSupplier.objects.bulk_create(cm_work_order_supplier_list)
+            #endregion
+            ######################################################
+            
+            ######################################################
+            # region 작업지시 인력 정보
+            woLabors = []
+            if woLabor and isinstance(woLabor, str):    
+                    import json as json_module
+                    woLabors = json_module.loads(woLabor)
+            elif woLabor and isinstance(woLabor, list):
+                woLabors = woLabor
+            cm_wo_labor_list = []
+            for item in woLabors:
+                # emp_pk가 null이 아닌 경우에만 객체 생성
+                emp_pk = item.get('emp_pk')
+                job_class_pk = item.get('job_class_pk')
+                
+                if emp_pk is not None:
+                    
+                    job_class_instance = None
+                    if job_class_pk is not None:
+                        try:
+                            job_class_instance = CmJobClass.objects.get(id=job_class_pk)
+                        except CmJobClass.DoesNotExist:
+                            job_class_instance = None
+                    
+                    cm_wo_labor = CmWoLabor(
+                        CmWorkOrder_id=workOrderPk,
+                        CmJobClass=job_class_instance,
+                        EmpPk=emp_pk or None,                         
+                        LaborPrice=item.get('labor_price'),
+                        WorkerNos=item.get('worker_nos'),
+                        WorkHr=item.get('work_hr'),
+                        RealWorkHr=item.get('real_work_hr'),
+                    )
+                    cm_wo_labor_list.append(cm_wo_labor)
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWoLabor.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_wo_labor_list:
+                CmWoLabor.objects.bulk_create(cm_wo_labor_list)            
+            #endregion
+            ######################################################
+
+            ######################################################
+            # region 작업지시 자재 정보
+            woMtrls = []
+            if woMtrl and isinstance(woMtrl, str):    
+                    import json as json_module
+                    woMtrls = json_module.loads(woMtrl)
+            elif woMtrl and isinstance(woMtrl, list):
+                woMtrls = woMtrl
+            cm_wo_mtrl_list = []
+            for item in woMtrls:
+                # mtrl_pk가 null이 아닌 경우에만 객체 생성
+                mtrl_pk = item.get('mtrl_pk')
+                if mtrl_pk is not None:
+                    # CmMaterial 인스턴스 가져오기
+                    try:
+                        material_instance = CmMaterial.objects.get(id=mtrl_pk)
+                        cm_wo_mtrl = CmWoMtrl(
+                            CmWorkOrder_id=workOrderPk,
+                            CmMaterial=material_instance, 
+                            UnitPrice=item.get('unit_price'),
+                            AAmt=item.get('a_amt'),
+                            BAmt=item.get('b_amt'),
+                        )
+                        cm_wo_mtrl_list.append(cm_wo_mtrl)
+                    except CmMaterial.DoesNotExist:
+                        # mtrl_pk가 존재하지 않는 경우 해당 항목을 건너뜀
+                        continue
+
+            # Bulk Insert 전에 workOrderPk 검색조건의 모든 데이터 삭제
+            CmWoMtrl.objects.filter(CmWorkOrder_id=workOrderPk).delete()
+            
+            # Bulk Insert 실행 (한 번의 쿼리로 저장)
+            if cm_wo_mtrl_list:
+                CmWoMtrl.objects.bulk_create(cm_wo_mtrl_list)
+            #endregion
+            ######################################################
 
             return {'success': True, 'message': '작업지시 정보가 저장되었습니다.'}
 
@@ -1367,9 +1679,10 @@ def work_order(context):
             inner join cm_base_code mt on t.maint_type_cd = mt.code_cd
             and mt.code_grp_cd = 'MAINT_TYPE'
             WHERE mt.code_cd = 'MAINT_TYPE_BM'
-            AND t.factory_pk = %(factory_pk)s
+
             AND e.equip_pk = %(equipPk)s
             '''
+            # -- AND t.factory_pk = %(factory_pk)s
             if woTypeCd:
                 sql += ''' AND t.wo_type = %(woTypeCd)s
                 '''
@@ -1399,8 +1712,9 @@ def work_order(context):
             , t.wo_status as wo_status_cd
             FROM cm_work_order t
             WHERE t.wo_status IN ('WOS_CL', 'WOS_DL')
-            AND t.factory_pk = %(factory_pk)s
+
             '''
+            # -- AND t.factory_pk = %(factory_pk)s
             dc = {}
             dc['factory_pk'] = factory_id
 
@@ -1760,9 +2074,10 @@ def work_order(context):
             , factory_pk as site_id
             from cm_work_order
             where work_order_no = %(workOrderPk)s
-            and factory_pk = %(factory_pk)s
+            
             '''
 
+            # -- and factory_pk = %(factory_pk)s
             dc = {}
             dc['workOrderNo'] = workOrderNo
             dc['factory_pk'] = factory_id

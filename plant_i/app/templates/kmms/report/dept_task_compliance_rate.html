@@ -53,6 +53,7 @@ class DeptTaskComplianceRatePage {
         this.grid = null;
         this.baseUrl = '/api/kmms/report';
         this.dateType = 'month';
+
         this.init();
     }
 
@@ -61,6 +62,7 @@ class DeptTaskComplianceRatePage {
         this.initDatePicker();
         this.initGrid();
         this.bindEvents();
+        this.searchMainData();
     }
 
     initDateTypePicker() {
@@ -137,13 +139,6 @@ class DeptTaskComplianceRatePage {
             autoBind: false,
             dataSource: {
                 data: [],
-                // 푸터가 원하는 대로 안나와서 일단 주석처리..
-                // 추후 수정 필요
-                // aggregate: [
-                //     { field: "totWoCnt", aggregate: "sum" },
-                //     { field: "okWoCnt", aggregate: "sum" },
-                //     { field: "okPercent", aggregate: "average" }
-                // ]
             },
             columns: [
                 { 
@@ -161,8 +156,7 @@ class DeptTaskComplianceRatePage {
                     width: "200px",
                     template: "#=kendo.toString(totWoCnt, 'n0')#",
                     attributes: { style: "text-align:right" },
-                    // footerTemplate: ({ totWoCnt }) => `${kendo.htmlEncode(totWoCnt.sum)}`,
-                    // footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerTemplate: "<div id='deptTaskComplianceRateTotCnt' style='font-weight:bold;text-align:right;'>0</div>"
                 },
                 { 
                     title: "일정 준수 WO 건수", 
@@ -170,8 +164,7 @@ class DeptTaskComplianceRatePage {
                     width: "200px",
                     template: "#=kendo.toString(okWoCnt, 'n0')#",
                     attributes: { style: "text-align:right" },
-                    // footerTemplate: ({ okWoCnt }) => `${kendo.htmlEncode(okWoCnt.sum)}`,
-                    // footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(sum, 'n0') #</b>",
+                    footerTemplate: "<div id='deptTaskComplianceRateOkCnt' style='font-weight:bold;text-align:right;'>0</div>"
                 },
                 { 
                     title: "작업준수율", 
@@ -179,8 +172,7 @@ class DeptTaskComplianceRatePage {
                     width: "200px",
                     template: "#=kendo.toString(okPercent, '0.00')# %",
                     attributes: { style: "text-align:right" },
-                    // footerTemplate: ({ okPercent }) => `${kendo.toString(okPercent.average, '0.00')} %`,
-                    // footerTemplate: "<b style='color:rgb(78,81,85)'>#: kendo.toString(average, '0.00') # %</b>"
+                    footerTemplate: "<div id='deptTaskComplianceRatePercent' style='font-weight:bold;text-align:right;'>0 %</div>"
                 }
             ],
             scrollable: true,
@@ -193,31 +185,6 @@ class DeptTaskComplianceRatePage {
             }
         };
         _this.grid = $("#complianceGrid").kendoGrid(gridOption).data("kendoGrid");
-    }
-
-    // 푸터 로직 시도 실패...
-    // setSummary(items) {
-    //     let lastItem = null;
-    //     if (items === null) {
-    //         lastItem = {totWoCnt: 0, okWoCnt: 0, okPercent: 0};
-    //     } else {
-    //         lastItem = {totWoCnt: items.totWoCnt, okWoCnt: items.okWoCnt, okPercent: items.okPercent};
-    //     }
-        
-    //     this.setNumber('wocmplByDeptTermTotCnt', lastItem.totWoCnt);
-    //     this.setNumber('wocmplByDeptTermOk', lastItem.okWoCnt);
-    //     this.setNumber('wocmplByDeptTermPercent', lastItem.okPercent + '%');
-    // }
-
-    // setNumber(divId, item) {
-    //     let element = document.querySelector('#' + divId);
-    //     if (element && element.innerHTML !== undefined && element.innerHTML !== null) {
-    //         element.innerHTML = this.numberWithCommas(item);
-    //     }
-    // }
-
-    numberWithCommas(x) {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     bindEvents() {
@@ -246,8 +213,11 @@ class DeptTaskComplianceRatePage {
 
     searchMainData() {
         let _this = this;
-        let param = FormUtil.extractForm($("#searchForm"));
-        param.action = 'dept_task_compliance_rate';
+        
+        let param = {
+            action: 'dept_task_compliance_rate',
+            dateType: this.dateType === 'month' ? 'MON' : 'YEAR',
+        };
 
         let dateParam = this.convertDateRangeToParam();
         param.startDt = dateParam.startDt;
@@ -256,9 +226,16 @@ class DeptTaskComplianceRatePage {
         let result = AjaxUtil.getSyncData(_this.baseUrl, param);
 
         let grid = $("#complianceGrid").data("kendoGrid");
-        if (grid) {
-            grid.dataSource.data(result);
+        if (grid && result) {
+            grid.dataSource.data(result.rows);
             grid.refresh();
+
+            if (result.footer && result.footer.length > 0) {
+                const data = result.footer[0];
+                $("#deptTaskComplianceRateTotCnt").text(kendo.toString(data.totWoCnt, "n0"));
+                $("#deptTaskComplianceRateOkCnt").text(kendo.toString(data.totOkCnt, "n0"));
+                $("#deptTaskComplianceRatePercent").text(data.okPercent + " %");
+            }
         }
     }
 
@@ -274,7 +251,6 @@ class DeptTaskComplianceRatePage {
 let page = null;
 $(document).ready(function() {
     page = new DeptTaskComplianceRatePage();
-    page.searchMainData();
 });
 </script>
 {% endblock %}

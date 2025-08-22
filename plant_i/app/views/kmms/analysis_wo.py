@@ -56,7 +56,7 @@ def analysis_wo(context):
 			    WHERE t.wo_type = 'WO'
 			    AND t.wo_status in('WOS_CL') /* 완료 WOS_CL */
 			    AND to_tsvector(t.work_text)  @@ query
-			    AND t.factory_pk = %(factory_pk)s
+
 		   		) AS sc
 		    WHERE sc.score > 0
 		    ORDER BY sc.score desc
@@ -83,6 +83,7 @@ def analysis_wo(context):
 		    RIGHT JOIN (select count(*) from cte) c(total_rows) on true
 		    WHERE total_rows != 0
             '''
+			    # -- AND t.factory_pk = %(factory_pk)s
 
             dc = {}
             dc['pageSize'] = pageSize
@@ -114,8 +115,9 @@ def analysis_wo(context):
                 and wo.wo_status = 'WOS_CL'
                 and wo.wo_type ='WO'
                 and wo.maint_type_cd = 'MAINT_TYPE_BM'
-                AND wo.factory_pk = %(factory_pk)s
+
                 '''
+                # -- AND wo.factory_pk = %(factory_pk)s
             if searchYear:
                 sql += ''' AND to_char(wo.end_dt,'YYYY') = %(searchYear)s
                 '''
@@ -237,8 +239,10 @@ def analysis_wo(context):
 			and rp.use_yn = 'Y' 
 			and rp."types" = 'RC' 
 			and rp.factory_pk = wo.factory_pk
-			WHERE wo.factory_pk = %(factory_pk)s
+
+			WHERE 1 = 1
             '''
+			# -- WHERE wo.factory_pk = %(factory_pk)s
             if startDate and endDate:
                 sql += ''' AND to_char(end_dt,'yyyy-mm-dd') >= %(startDate)s and to_char(end_dt,'yyyy-mm-dd') <= %(endDate)s
                 '''
@@ -336,8 +340,10 @@ def analysis_wo(context):
 		    and bc.use_yn = 'Y' 
             and bc."types" = 'PC' 
             and bc.factory_pk = wo.factory_pk
-			WHERE wo.factory_pk = %(factory_pk)s
+
+			WHERE 1 = 1
             '''
+			# -- WHERE wo.factory_pk = %(factory_pk)s
             if startDate and endDate:
                 sql += ''' AND to_char(end_dt,'yyyy-mm-dd') >= %(startDate)s and to_char(end_dt,'yyyy-mm-dd') <= %(endDate)s
                 '''
@@ -426,8 +432,10 @@ def analysis_wo(context):
 		    and ca.use_yn = 'Y' 
             and ca."types" = 'CC' 
             and ca.factory_pk = wo.factory_pk
-			WHERE wo.factory_pk = %(factory_pk)s
+			
+            WHERE 1 = 1
             '''
+			# -- WHERE wo.factory_pk = %(factory_pk)s
             if startDate and endDate:
                 sql += ''' AND to_char(wo.end_dt,'yyyy-mm-dd') >= %(startDate)s and to_char(wo.end_dt,'yyyy-mm-dd') <= %(endDate)s
                 '''

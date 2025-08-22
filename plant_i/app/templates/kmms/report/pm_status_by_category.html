@@ -1,11 +1,258 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block css %}
+<style>
+.chart-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <div class="content-ui-row connect">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="카테고리별 PM 현황">카테고리별 PM 현황</label></span>
+					<span>
+					</span>
+					<span>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnSearch" class="btn-search">조회</button>
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div class="chart-container">
+					<div id="chartPmMasterStatus"></div>
+				</div>
+				<div id="pmMasterStatusGrid"></div>
+			</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	class PmMasterStatusPage {
+		constructor() {
+			this.grid = null;
+			this.chart = null;
+			this.baseUrl = '/api/kmms/report';
+
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			let gridOption = {
+				autoBind: false,
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				dataSource: {
+					data: [],
+					aggregate: [
+						{ field: "groupNm", aggregate: "count" },
+						{ field: "totCnt", aggregate: "sum" },
+						{ field: "useCnt", aggregate: "sum" },
+						{ field: "delCnt", aggregate: "sum" }
+					]
+				},
+				columns: [
+					{
+						field: 'groupNm',
+						title: '카테고리',
+						width: '400px',
+						footerTemplate: "<b style='color:rgb(78,81,85)'>합계</b>",
+					},
+					{
+						field: 'totCnt',
+						title: 'PM 마스터 건수',
+						attributes: {style: 'text-align:right'},
+						template: "#=kendo.toString(totCnt, 'n0')#",
+						footerTemplate: "<b style='color:rgb(78,81,85)' class='up-text-right'>#=kendo.toString(sum, 'n0')#</b>",
+						footerAttributes: {style: 'text-align:right'},
+					},
+					{
+						field: 'useCnt',
+						title: '사용안함 건수',
+						attributes: {style: 'text-align:right'},
+						template: "#=kendo.toString(useCnt, 'n0')#",
+						footerTemplate: "<b style='color:rgb(78,81,85)' class='up-text-right'>#=kendo.toString(sum, 'n0')#</b>",
+						footerAttributes: {style: 'text-align:right'},
+					},
+					{
+						field: 'delCnt',
+						title: '삭제 건수',
+						attributes: {style: 'text-align:right'},
+						template: "#=kendo.toString(delCnt, 'n0')#",
+						footerTemplate: "<b style='color:rgb(78,81,85)' class='up-text-right'>#=kendo.toString(sum, 'n0')#</b>",
+						footerAttributes: {style: 'text-align:right'},
+					},
+				],
+				dataBound: function (e) {
+					kendoUtil.showGridRowCount(this.element);
+					_this.updateChart();
+				},
+				height: "540px",
+				sortable: true,
+				scrollable: true,
+				pageable: false,
+				editable: false,
+				selectable: 'row',
+				excel: {
+					fileName: '카테고리별 PM 마스터 현황.xlsx',
+					filterable: false,
+					allPages: true,
+				},
+				excelExport: this.exportGridWithTemplatesContent
+			};
+			_this.grid = new Grid($("#pmMasterStatusGrid"), gridOption);
+
+			// 차트 초기화
+			_this.initChart();
+
+			AjaxUtil.fillDropDownTreeOptions($('#plantLoc'), 'cm_location', 'all');
+
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "base",
+				click: function () {
+					_this.searchMainData();
+				}
+			});
+
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					page.exportExcel();
+				}
+			});
+
+		}
+
+		// 차트 초기화
+		initChart() {
+			let _this = this;
+			
+			$("#chartPmMasterStatus").kendoChart({
+				title: {
+					text: "카테고리별 PM 마스터 현황",
+					font: {
+						size: 16,
+						weight: "bold"
+					}
+				},
+				legend: {
+					position: "bottom"
+				},
+				seriesDefaults: {
+					type: "column",
+					stack: false
+				},
+				series: [
+					{
+						name: "PM 마스터 건수",
+						field: "totCnt",
+						color: "#4CAF50"
+					}
+				],
+				valueAxis: {
+					labels: {
+						format: "N0"
+					},
+					line: {
+						visible: false
+					}
+				},
+				categoryAxis: {
+					field: "groupNm",
+					majorGridLines: {
+						visible: false
+					}
+				},
+				tooltip: {
+					visible: true,
+					template: "#= series.name #: #= value #"
+				},
+				dataSource: {
+					data: []
+				},
+				height: 300
+			});
+
+			_this.chart = $("#chartPmMasterStatus").data("kendoChart");
+		}
+
+		// 차트 업데이트
+		updateChart() {
+			let _this = this;
+			let grid = $("#pmMasterStatusGrid").data("kendoGrid");
+			
+			if (grid && _this.chart) {
+				let data = grid.dataSource.data();
+				// TOTSUM 제외
+				let filteredData = data.filter(function (item) {
+					return item.groupNm !== 'TOTSUM';
+				});
+				
+				// PM 마스터 건수(totCnt) 기준 내림차순 정렬 후 상위 10개만 추출
+				let top10 = filteredData.slice().sort((a, b) => b.totCnt - a.totCnt).slice(0, 10);
+				_this.chart.dataSource.data(top10);
+				_this.chart.refresh();
+			}
+		}
+
+		searchMainData() {
+			let _this = this;
+
+			let param = {};
+			param.action = 'pm_status_by_category';
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			
+			// TOTSUM 제외
+			let returnDatas = result.filter(function (item) {
+				return item.groupNm !== 'TOTSUM';
+			});
+
+			let grid = $("#pmMasterStatusGrid").data("kendoGrid");
+			if (grid) {
+				grid.dataSource.data(returnDatas);
+				grid.refresh();
+			}
+		}
+
+		// 엑셀 다운로드
+		exportExcel() {
+			let gridData = $('#pmMasterStatusGrid').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "카테고리별 PM 마스터 현황.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
+	};
+
+	let page = null;
+	page = new PmMasterStatusPage();
+
+	$(document).ready(function () {
+		page.searchMainData();
+	});
+</script>
+{% endblock %}

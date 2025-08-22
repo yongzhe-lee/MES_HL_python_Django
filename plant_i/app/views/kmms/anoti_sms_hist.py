@@ -50,9 +50,9 @@ def anoti_sms_hist(context):
             left outer join user_profile uu on uu."User_id" = t.updater_id
     	    where 1 = 1
             '''
-            if factory_id > 0:
-                sql += ''' and t.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id > 0:
+            #     sql += ''' and t.factory_pk = %(factory_pk)s
+            #     '''
             if resultType:
                 sql += ''' and t.result_type = %(resultType)s
                 '''

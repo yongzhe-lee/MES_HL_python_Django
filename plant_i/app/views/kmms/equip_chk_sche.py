@@ -92,9 +92,9 @@ def equip_chk_sche(context):
 			left join user_profile cu on cu."User_id" = t.chk_user_pk 
 		    where 1 = 1
             '''
-            sql += ''' AND ecm.factory_pk = e.factory_pk 
-		    AND e.factory_pk = %(factory_pk)s
-            '''
+            # sql += ''' AND ecm.factory_pk = e.factory_pk 
+		    # AND e.factory_pk = %(factory_pk)s
+            # '''
             if searchText:
                 sql += ''' AND (
 				    UPPER(ecm.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%')
@@ -426,11 +426,12 @@ def equip_chk_sche(context):
 				    from cm_equip_chk_sche t
 				    inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = t.chk_mast_pk
 				    WHERE (cast(t.chk_sche_no as text)  ~ E'^[0-9]+$') = true
-				    and ecm.factory_pk = %(factory_pk)s
+                    
 				    ) as sub_table
 			)) + 1, '1')
 			from cm_equip_chk_sche
             '''
+				    # -- and ecm.factory_pk = %(factory_pk)s
 
             dc = {}
             dc['factory_pk'] = factory_id
@@ -648,8 +649,9 @@ def equip_chk_sche(context):
 			-- and (date(t1.chkScheDt) >= to_date(%(startDate)s, 'YYYY-MM-DD')
 			-- AND date(t1.chkScheDt) <= to_date(%(endDate)s, 'YYYY-MM-DD'))
 			AND ecm.factory_pk = e.factory_pk
-			AND e.factory_pk = %(factory_pk)s
+
             '''
+			# -- AND e.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND ( UPPER(ecm.chk_mast_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR

@@ -119,12 +119,13 @@
 						"title": "자재코드",
 						"field": "mtrl_cd",
 						"width": "150px",
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-mtrl-pk="#=mtrl_pk#" data-mode="read">#=mtrl_cd#</a>'
 					},
 					{
 						"title": "자재명",
 						"field": "mtrl_nm",
 						"width": "250px",
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-mtrl-pk="#=mtrl_pk#" data-tab="materialMasterTab">#=mtrl_nm#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-mtrl-pk="#=mtrl_pk#" data-mode="edit">#=mtrl_nm#</a>'
 					},
 					{
 						"title": "자재사양",
@@ -219,11 +220,12 @@
             $(document).on("click", ".grid-column-link", async function (e) {
 				e.preventDefault();		
 				let mtrlPk = $(this).data("mtrl-pk");
+				let mode = $(this).data("mode"); // 읽기모드 또는 편집모드
 				if (!mtrlPk) return;
 
 				// 이미 로드된 경우 재사용
 				if ($('#modalMaterialMaster').length > 0 && typeof materialMasterPage !== 'undefined') {
-					materialMasterPage.show(mtrlPk);
+					materialMasterPage.show(mtrlPk, mode);
 					return;
 				}
 
@@ -249,7 +251,7 @@
 
                     // ✅ 3. 이제 MaterialMaster 실행
                     window.materialMasterPage = new MaterialMaster();
-					materialMasterPage.show(mtrlPk);
+					materialMasterPage.show(mtrlPk, mode);
 
                 } catch (err) {
                     console.error("material.html 로드 실패:", err);
@@ -281,13 +283,6 @@
 				}
 			});
 
-			$('#btnSave').kendoButton({
-				themeColor: "info",
-				click: function () {
-					_this.saveData();
-				}
-			});
-
             // 검색어 입력 시 엔터 키 바인딩
             kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
             kendoUtil.bindEnterKey('#sch_supplier_nm', () => this.searchMainData());
@@ -298,6 +293,13 @@
 				icon: "plus",
 				themeColor: "base",
 				click: async function () {
+					// 이미 로드된 경우 재사용
+					if ($('#modalMaterialMaster').length > 0 && typeof materialMasterPage !== 'undefined') {
+						materialMasterPage.resetForm();
+						materialMasterPage.show(null, 'add');
+						return;
+					}
+
 					try {
 						// ✅ 1. material.html 먼저 append
 						const response = await $.get('/api/kmms/material?action=load_modal');
@@ -320,7 +322,7 @@
 
 						// ✅ 3. 이제 MaterialMaster 실행
 						window.materialMasterPage = new MaterialMaster();
-						$("#modalMaterialMaster").fadeIn(); // 추가 버튼 클릭 시 모달 보이게 함
+						materialMasterPage.show(null, 'edit'); // 등록 시 편집모드로 열기
 
 					} catch (err) {
 						console.error("material.html 로드 실패:", err);

@@ -858,6 +858,50 @@ class EquipmentService():
 			raise ex
 
 		return data
+
+	# 설비 위치 변경이력 조회
+	def get_equip_loc_hist(self, equip_pk):
+		items = []
+		sql = '''
+			SELECT equip_pk
+				, equip_loc_hist_pk
+				, equip_loc_bef
+				, equip_loc_aft
+				, TO_CHAR(INSERT_TS, 'YYYY-MM-DD HH24:MI') AS insert_ts
+				, inserter_nm 
+			FROM cm_equip_loc_hist
+			WHERE equip_pk = %(equip_pk)s
+		'''
+
+		try:
+			items = DbUtil.get_rows(sql, {'equip_pk':equip_pk})
+		except Exception as ex:
+			LogWriter.add_dblog('error','EquipmentService.get_equip_loc_hist', ex)
+			raise ex
+
+		return items
+
+	# 설비 관리부서 변경이력 조회
+	def get_equip_dept_hist(self, equip_pk):
+		items = []
+		sql = '''
+			SELECT equip_pk
+				, equip_dept_hist_pk
+				, equip_dept_bef
+				, equip_dept_aft
+				, TO_CHAR(INSERT_TS, 'YYYY-MM-DD HH24:MI') AS insert_ts
+				, inserter_nm 
+			FROM cm_equip_dept_hist
+			WHERE equip_pk = %(equip_pk)s
+		'''
+		
+		try:
+			items = DbUtil.get_rows(sql, {'equip_pk':equip_pk})
+		except Exception as ex:
+			LogWriter.add_dblog('error','EquipmentService.get_equip_dept_hist', ex)
+			raise ex
+
+		return items
 		
 	# kmms - 설비정보 - 불용설비 조회
 	def get_equipment_disposed(self, keyword, srchCat, srch_dept, start_date, end_date):
@@ -1120,7 +1164,7 @@ class EquipmentService():
 		) sub
 		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
 		WHERE total_rows != 0
-		order by pm_no desc, cast(work_order_no as INTEGER) desc
+		order by pm_no desc, work_order_no desc
 
 		'''
 

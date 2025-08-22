@@ -50,8 +50,6 @@ class IFSapMaterial(models.Model):
         ]
 
 class IFSapBOM(models.Model):
-
-   
     id  = models.AutoField(primary_key=True)
     stab_werks = models.CharField('플랜트', max_length=4)
     stab_matnr = models.CharField('상위자재', max_length=18)
@@ -215,6 +213,7 @@ class IFEquipmentResult(models.Model):
     sn = models.CharField('대표시리얼번호', max_length=100, null=True)
     sn_new = models.CharField('변경시리얼번호', max_length=100, null=True) # 하우징 PCB Assembly 에서만 들어온다
     sn_items = models.JSONField('다중시리얼번호', null=True) # SMT#4 에서만 들어온다
+    sn_items_txt = models.TextField("시리얼번호문자열", null=True, db_column="sn_items_txt") 
     pcb_cn = models.CharField('PCB 번호', max_length=100, null=True) # 레이저마킹에서만 들어온다
     pcb_input = models.DateTimeField('pcb_input', null=True) #smt 전용
     pcb_size = models.CharField('pcb size', max_length=100, null=True) #smt 전용
@@ -241,7 +240,14 @@ class IFEquipmentResult(models.Model):
         verbose_name = 'MES 설비생산데이터 인터페이스'
         unique_together = [
             ["equ_cd", "data_date","sn"]
-        ] 
+        ]
+        indexes = [
+            models.Index(fields=['data_date', 'sn'], name='idx_equ_result_datadate_sn'),
+            models.Index(fields=['data_date'], name='idx_equ_result_data_date'),
+            models.Index(fields=['sn'], name='idx_equ_result_sn'),
+            models.Index(fields=['sn_items_txt'], name='idx_equ_result_sn_items_txt')
+        ]
+
 
 class IFEquipmentResultItem(models.Model):
     '''
@@ -270,7 +276,6 @@ class IFEquipmentResultItem(models.Model):
     failcode = models.CharField('failcode', max_length=2000, null=True)
     _status = models.CharField('_status', max_length=10, null=True)
     _created = models.DateTimeField('_created', auto_now_add=True)
-    
 
     class Meta():
         db_table = 'if_equ_result_item'
@@ -361,6 +366,10 @@ class IFMounterPickupRate(models.Model):
     class Meta():
         db_table = 'if_mnt_pickup_rate'
         verbose_name = 'mouter pickup rate'
+        indexes = [
+            models.Index(fields=['data_date', 'equ_cd'], name='idx_impr_datetequcd')
+        ]
+
 
 
 class IFReflowProfile(models.Model):
@@ -674,21 +683,25 @@ class VanItemResult(models.Model):
         ]
 
 class IFLog(models.Model):
-
     id = models.BigAutoField(primary_key=True)
-    task = models.CharField('인터페이스업무데이터구분', max_length=50, null =True)
-    method = models.CharField('인터페이스방법', max_length=50, null =True)
-    contents = models.TextField('인터페이스내용', null =True)
-    equ_cd = models.CharField('설비코드', max_length=20, null =True)
-    mat_cd = models.CharField('품목코드', max_length=50, null =True)
-    rev_no = models.CharField('REVISION번호', max_length=2, null =True)
-    is_success  = models.CharField(' success yn', max_length=1, default="Y")
-    log_date = models.DateTimeField('로그일시', auto_now_add=True)
-    _creater_id = models.IntegerField('_creater_id', null=True)
+    log_date = models.DateTimeField('로그일시', auto_now_add=True, db_column='log_date')
+    task = models.CharField('인터페이스업무데이터구분', max_length=50, null =True, db_column="task")
+    method = models.CharField('인터페이스방법', max_length=50, null =True, db_column='method')
+    query = models.CharField('query', max_length=2000, null =True, db_column = 'query')
+    Parameter = models.TextField('요청파라미터', null =True, db_column="api_param")
+    contents = models.TextField('인터페이스내용', null =True, db_column='contents')
+    rev_no = models.CharField('REVISION번호', max_length=10, null =True, db_column='rev_no')
+    success_yn  = models.CharField(' success yn', max_length=1, default="Y", db_column="success_yn")
+    SecondTaken = models.IntegerField('소요시간(초)', null=True, blank=True, db_column="sec_taken")
+    _creater_id = models.IntegerField('실행자', null=True)
 
     class Meta():
         db_table = 'if_log'
         verbose_name = '인터페이스 이력 로그'
-        unique_together = [
+
+        indexes = [
+            models.Index(fields=['log_date', 'task'], name='idx_iflog_datetask'),
+            models.Index(fields=['log_date'], name='idx_iflog_date')
         ]
+
 

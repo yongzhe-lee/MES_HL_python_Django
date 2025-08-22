@@ -46,7 +46,16 @@
     <Compile Include="app\templates\interface\if_log.html">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\templates\kmms\migration\01_mig_dept.html">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\templates\kmms\migration\02_mig_user.html">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\aas\aasgui.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\aas\aasx.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\aas\shells.py">
@@ -74,10 +83,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\definition\bom.py" />
-    <Compile Include="app\views\definition\cm_code.py" />
     <Compile Include="app\views\definition\defect_type.py" />
     <Compile Include="app\views\definition\location.py" />
+    <Compile Include="app\views\definition\smt.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\files\aas.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\files\aasx.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\views\interface\equ_result.py">
@@ -117,6 +131,9 @@
     <Compile Include="app\views\kmms\anoti_mail_hist.py" />
     <Compile Include="app\views\kmms\alarm_noti_user.py" />
     <Compile Include="app\views\kmms\chk_equip.py" />
+    <Compile Include="app\views\kmms\cm_code.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\kmms\equip_chk_item_template.py" />
     <Compile Include="app\views\kmms\equip_chk_sche.py" />
     <Compile Include="app\views\kmms\equip_chk_rslt.py" />
@@ -145,7 +162,6 @@
     <Compile Include="app\views\kmms\base_code_grp.py" />
     <Compile Include="app\views\kmms\base_code.py" />
     <Compile Include="app\views\kmms\equip_dept_hist.py" />
-    <Compile Include="app\views\kmms\equip_group.py" />
     <Compile Include="app\views\kmms\equip_loc_hist.py" />
     <Compile Include="app\views\kmms\equip_part_mtrl.py" />
     <Compile Include="app\views\kmms\equip_spec.py" />
@@ -171,6 +187,15 @@
     </Compile>
     <Compile Include="app\views\kmms\pi_master.py" />
     <Compile Include="app\views\kmms\pm_master.py" />
+    <Compile Include="app\views\migration\mig_spreadsheet.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\sample_page\spreadSheet.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\views\scheduler\kmms.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\views\static.py">
       <SubType>Code</SubType>
     </Compile>
@@ -184,7 +209,16 @@
     </Compile>
     <Compile Include="domain\models\cmms.py" />
     <Compile Include="domain\models\da.py" />
+    <Compile Include="domain\models\smt.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\aas\aas_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\aas\asset.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\aas\aasx.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="domain\services\aas\shells.py">
@@ -324,6 +358,9 @@
     <Compile Include="domain\services\kmms\material.py" />
     <Compile Include="domain\services\kmms\equip_chk_rslt.py" />
     <Compile Include="domain\services\kmms\mig.py" />
+    <Compile Include="domain\services\kmms\mig_spreadsheet.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\kmms\pi_master.py" />
     <Compile Include="domain\services\kmms\equipment.py" />
     <Compile Include="domain\services\kmms\pm_master.py" />
@@ -335,6 +372,12 @@
     <Compile Include="domain\services\kmms\work_order.py" />
     <Compile Include="domain\services\logging.py" />
     <Compile Include="domain\services\mqtt.py" />
+    <Compile Include="domain\services\sample_page\spreadSheet.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="domain\services\scheduler\kmms.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="domain\services\setup\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -413,9 +456,11 @@
     <Folder Include="app\templates\interface\smt\" />
     <Folder Include="app\templates\interface\sap\" />
     <Folder Include="app\templates\kmms\" />
-    <Folder Include="app\templates\kmms\check\" />
+    <Folder Include="app\templates\kmms\migration\" />
+    <Folder Include="app\templates\kmms\pi\" />
     <Folder Include="app\templates\kmms\equipment\" />
     <Folder Include="app\templates\kmms\material\" />
+    <Folder Include="app\templates\kmms\code\" />
     <Folder Include="app\templates\kmms\report\" />
     <Folder Include="app\templates\kmms\wo\" />
     <Folder Include="app\templates\kmms\pm\" />
@@ -455,13 +500,15 @@
     <Folder Include="app\views\aas\" />
     <Folder Include="app\views\interface\" />
     <Folder Include="app\views\dashboard\" />
+    <Folder Include="app\views\migration\" />
+    <Folder Include="app\views\sample_page\" />
+    <Folder Include="app\views\scheduler\" />
     <Folder Include="app\views\popup\" />
     <Folder Include="app\views\system\" />
     <Folder Include="app\views\tagdata\" />
     <Folder Include="app\views\tagdata\__pycache__\" />
     <Folder Include="configurations\" />
     <Folder Include="configurations\middleware\" />
-    <Folder Include="configurations\middleware\__pycache__\" />
     <Folder Include="domain\" />
     <Folder Include="domain\migrations\" />
     <Folder Include="domain\models\" />
@@ -474,6 +521,8 @@
     <Folder Include="domain\services\kmms\" />
     <Folder Include="domain\services\aas\" />
     <Folder Include="domain\services\interface\" />
+    <Folder Include="domain\services\sample_page\" />
+    <Folder Include="domain\services\scheduler\" />
     <Folder Include="domain\services\system_definition\" />
     <Folder Include="domain\_sql\" />
     <Folder Include="domain\services\" />
@@ -495,9 +544,11 @@
     <Folder Include="domain\_sql\interface\mes\" />
     <Folder Include="domain\_sql\interface\van\" />
     <Folder Include="domain\_sql\interface\sap\" />
-    <Folder Include="domain\_sql\kmms_function\" />
     <Folder Include="domain\_sql\partition\" />
     <Folder Include="domain\_sql\views\" />
+    <Folder Include="static\" />
+    <Folder Include="static\resource\" />
+    <Folder Include="static\resource\dt\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\favicon.ico" />
@@ -1055,6 +1106,7 @@
     <Content Include="app\static\resource\kendo_ui\styles\material-smoke.css" />
     <Content Include="app\static\resource\kendo_ui\typescript\kendo.all.d.ts" />
     <Content Include="app\templates\components\WoApprovalLine.html" />
+    <Content Include="app\templates\dashboard\dt_main_smt.html" />
     <Content Include="app\templates\dashboard\dt_main.html" />
     <Content Include="app\templates\interface\mes\if_mes_oee_data.html" />
     <Content Include="app\templates\interface\mes\if_mes_product_plan.html" />
@@ -1066,7 +1118,12 @@
     <Content Include="app\templates\interface\sap\if_sap_mat.html" />
     <Content Include="app\templates\interface\sap\if_sap_pcb_random.html" />
     <Content Include="app\templates\interface\sap\if_sap_stock.html" />
-    <Content Include="app\templates\kmms\holidayCustom.html" />
+    <Content Include="app\templates\interface\smt\smt_definition.html">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="app\templates\kmms\code\chkItem.html" />
+    <Content Include="app\templates\kmms\code\ex_supplier.html" />
+    <Content Include="app\templates\kmms\code\holidayCustom.html" />
     <Content Include="app\templates\kmms\mig.html" />
     <Content Include="app\templates\kmms\proc_opts.html" />
     <Content Include="app\templates\kmms\sche_opts.html" />
@@ -1074,9 +1131,14 @@
     <Content Include="app\templates\popup\modalEquCategorySel.html" />
     <Content Include="app\templates\popup\modalEqus.html" />
     <Content Include="app\templates\popup\modalEquClassSel.html" />
+    <Content Include="app\templates\popup\modalchkItemMultiSel.html" />
+    <Content Include="app\templates\popup\modalManMultiSel.html" />
+    <Content Include="app\templates\popup\modalEquipMultiSel.html" />
     <Content Include="app\templates\popup\modalMyWorkApprInfo.html" />
+    <Content Include="app\templates\popup\modalMyWorkPost.html" />
     <Content Include="app\templates\popup\modalMyWorkReqInfo.html" />
     <Content Include="app\templates\popup\modalMyWorkResultInfo.html" />
+    <Content Include="app\templates\popup\modalPICopy.html" />
     <Content Include="app\templates\popup\modalResultEdit.html" />
     <Content Include="app\templates\popup\modalItems.html" />
     <Content Include="app\templates\popup\modalMatMultiSel.html" />
@@ -1085,8 +1147,7 @@
     <Content Include="app\templates\popup\modalScheMakeConfirm.html" />
     <Content Include="app\templates\popup\modalWoCopy.html" />
     <Content Include="app\templates\popup\modalWoStatHist.html" />
-    <Content Include="configurations\middleware\__pycache__\response.cpython-311.pyc" />
-    <Content Include="configurations\middleware\__pycache__\__init__.cpython-311.pyc" />
+    <Content Include="app\templates\sample_page\spreadSheet.html" />
     <Content Include="domain\_sql\05.dummy_date.sql" />
     <Content Include="domain\_sql\06.ai.sql">
       <SubType>Code</SubType>
@@ -1115,6 +1176,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\das_config\PLC\35_smt4.unload.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="domain\_sql\interface\base.sql">
       <SubType>Code</SubType>
     </Content>
     <Content Include="domain\_sql\interface\equipment\hpc1\das_eol.json" />
@@ -1181,7 +1245,11 @@
     <Content Include="domain\_sql\interface\mes\10.oee_line_analysis.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\kmms_function\cm_fn_all.txt" />
+    <Content Include="static\resource\dt\WeZon_Web.data.br" />
+    <Content Include="static\resource\dt\WeZon_Web.framework.js.br" />
+    <Content Include="static\resource\dt\WeZon_Web.loader.js" />
+    <Content Include="static\resource\dt\WeZon_Web.wasm.br" />
+    <Content Include="static\resource\dt\WeZon_Web.worker.js.br" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all.min.intellisense.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.all-vsdoc.js" />
     <None Include="app\static\resource\kendo_ui\vsdoc\kendo.dataviz.min.intellisense.js" />
@@ -1245,9 +1313,9 @@
     <Content Include="app\templates\interface\smt\if_tension_check.html" />
     <Content Include="app\templates\interface\smt\if_viscosity_check.html" />
     <Content Include="app\templates\interface\smt\if_mnt_pickup_rate.html" />
-    <Content Include="app\templates\kmms\check\check_schedule_m.html" />
-    <Content Include="app\templates\kmms\check\check_wo_issued.html" />
-    <Content Include="app\templates\kmms\cm_code.html" />
+    <Content Include="app\templates\kmms\pi\check_schedule_m.html" />
+    <Content Include="app\templates\kmms\pi\check_wo_issued.html" />
+    <Content Include="app\templates\kmms\code\cm_code.html" />
     <Content Include="app\templates\definition\defect.html" />
     <Content Include="app\templates\definition\equip_work_hist.html" />
     <Content Include="app\templates\definition\equip_obsolete.html" />
@@ -1261,16 +1329,15 @@
     <Content Include="app\templates\kmms\equipment\cm_equipment.html" />
     <Content Include="app\templates\kmms\equipment\cm_equip_disposed.html" />
     <Content Include="app\templates\kmms\equipment\cm_equip_workhist.html" />
-    <Content Include="app\templates\kmms\equipment\equipmentGroupList.html" />
-    <Content Include="app\templates\kmms\equipment\locList.html" />
+    <Content Include="app\templates\kmms\code\equipmentGroupList.html" />
+    <Content Include="app\templates\kmms\code\locList.html" />
     <Content Include="app\templates\kmms\material\cm_material.html" />
-    <Content Include="app\templates\kmms\material\storLocAddrList.html" />
-    <Content Include="app\templates\kmms\material\supplier.html" />
+    <Content Include="app\templates\kmms\code\storLocAddrList.html" />
+    <Content Include="app\templates\kmms\code\supplier.html" />
     <Content Include="app\templates\kmms\pm\pm_schedule_m.html" />
     <Content Include="app\templates\kmms\report\asset_evaluation_report.html" />
     <Content Include="app\templates\kmms\report\asset_valuation_statistics.html" />
     <Content Include="app\templates\kmms\report\category_equipment_status.html" />
-    <Content Include="app\templates\kmms\report\causes_of_each_failure_part.html" />
     <Content Include="app\templates\kmms\report\conservation_cost_status.html" />
     <Content Include="app\templates\kmms\report\critical_equipment_status.html" />
     <Content Include="app\templates\kmms\report\dept_overdue_tasks.html" />
@@ -1295,7 +1362,7 @@
     <Content Include="app\templates\kmms\report\top_working_hours_wo.html" />
     <Content Include="app\templates\kmms\report\top_wo_in_work_cost.html" />
     <Content Include="app\templates\kmms\report\wm_wo_dept_performance.html" />
-    <Content Include="app\templates\kmms\wo\projectList.html" />
+    <Content Include="app\templates\kmms\code\projectList.html" />
     <Content Include="app\templates\kmms\wo\work_order_cancel_list.html" />
     <Content Include="app\templates\kmms\wo\work_order_hist.html" />
     <Content Include="app\templates\kmms\wo\work_order_management.html" />
@@ -1340,17 +1407,17 @@
     <Content Include="app\templates\definition\material.html" />
     <Content Include="app\templates\definition\company.html" />
     <Content Include="app\templates\definition\factory.html" />
-    <Content Include="app\templates\kmms\check\check_result.html" />
-    <Content Include="app\templates\kmms\check\check_result_list.html" />
-    <Content Include="app\templates\kmms\check\check_work_daily.html" />
-    <Content Include="app\templates\kmms\check\check_work_list.html" />
+    <Content Include="app\templates\kmms\pi\check_result.html" />
+    <Content Include="app\templates\kmms\pi\check_result_list.html" />
+    <Content Include="app\templates\kmms\pi\check_work_daily.html" />
+    <Content Include="app\templates\kmms\pi\check_work_list.html" />
     <Content Include="app\templates\kmms\equ_grade.html" />
     <Content Include="app\templates\kmms\pm\pm_schedule.html" />
     <Content Include="app\templates\kmms\pm\pm_master.html" />
     <Content Include="app\templates\kmms\cycle.html" />
     <Content Include="app\templates\kmms\pm\pm_work_list.html" />
-    <Content Include="app\templates\kmms\check\check_master.html" />
-    <Content Include="app\templates\kmms\check\check_schedule.html" />
+    <Content Include="app\templates\kmms\pi\check_master.html" />
+    <Content Include="app\templates\kmms\pi\check_schedule.html" />
     <Content Include="app\templates\kmms\pm\pm_result.html" />
     <Content Include="app\templates\kmms\pm\pm_result_list.html" />
     <Content Include="app\templates\kmms\work_order.html" />
@@ -1472,21 +1539,6 @@
     <Content Include="domain\_sql\interface\인터페이스계정.txt">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="domain\_sql\kmms_function\cm_fn_make_schedule_insp.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_round_val.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_equip_classify.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_equip_classify_ctg.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_dept_path_names.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_dept_cd_business_nm.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_datediff.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_dept_team_pk.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_minutediff.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_user_nm.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_tree.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_site_loc_tree.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_path.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_plant_nm.txt" />
-    <Content Include="domain\_sql\kmms_function\cm_fn_get_loc_area_line.txt" />
     <Content Include="domain\_sql\partition\em_tag_dat.txt" />
     <Content Include="domain\_sql\partition\tag_dat.txt" />
     <Content Include="domain\_sql\01.기초데이터.sql" />

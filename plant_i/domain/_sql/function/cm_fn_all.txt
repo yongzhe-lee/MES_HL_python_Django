@@ -1,6 +1,6 @@
--- DROP FUNCTION public.cm_fn_dateadd(date, varchar, numeric);
+-- DROP FUNCTION cm_fn_dateadd(date, varchar, numeric);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_dateadd(target_date date, date_type character varying, date_val numeric)
+CREATE OR REPLACE FUNCTION cm_fn_dateadd(target_date date, date_type character varying, date_val numeric)
  RETURNS date
  LANGUAGE sql
 AS $function$
@@ -8,9 +8,9 @@ AS $function$
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_datediff(timestamp, timestamp);
+-- DROP FUNCTION cm_fn_datediff(timestamp, timestamp);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_datediff(date1 timestamp without time zone, date2 timestamp without time zone)
+CREATE OR REPLACE FUNCTION cm_fn_datediff(date1 timestamp without time zone, date2 timestamp without time zone)
  RETURNS integer
  LANGUAGE sql
 AS $function$
@@ -18,9 +18,9 @@ SELECT cast(date1 as date) - cast(date2 as date) as DateDifference
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_business_cd(int8);
+-- DROP FUNCTION cm_fn_get_dept_business_cd(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_business_cd(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_business_cd(cm_v_dept_pk bigint)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -41,9 +41,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_business_nm(int8);
+-- DROP FUNCTION cm_fn_get_dept_business_nm(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_business_nm(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_business_nm(cm_v_dept_pk bigint)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -64,9 +64,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_business_pk(int8);
+-- DROP FUNCTION cm_fn_get_dept_business_pk(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_business_pk(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_business_pk(cm_v_dept_pk bigint)
  RETURNS bigint
  LANGUAGE plpgsql
 AS $function$
@@ -87,9 +87,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_cd_business_nm(text, int4);
+-- DROP FUNCTION cm_fn_get_dept_cd_business_nm(text, int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_cd_business_nm(cm_v_dept_cd text, v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_cd_business_nm(cm_v_dept_cd text, v_factory_pk integer)
  RETURNS text
  LANGUAGE plpgsql
 AS $function$
@@ -108,9 +108,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_cd_business_nm(text, varchar);
+-- DROP FUNCTION cm_fn_get_dept_cd_business_nm(text, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_cd_business_nm(cm_v_dept_cd text, v_site_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_cd_business_nm(cm_v_dept_cd text, v_site_id character varying)
  RETURNS text
  LANGUAGE plpgsql
 AS $function$
@@ -121,16 +121,17 @@ begin
 	into business_nm 
 	from dept 
 	where upper("Code") = upper(cm_v_dept_cd)
-	and upper("Site_id") = upper(v_site_id);
+--	and upper("Site_id") = upper(v_site_id)
+	;
 	
 	return business_nm;
 end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_path(varchar, varchar);
+-- DROP FUNCTION cm_fn_get_dept_path(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_path(v_site_id character varying, v_team_yn character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_path(v_site_id character varying, v_team_yn character varying)
  RETURNS TABLE(dept_pk bigint, dept_cd character varying, dept_nm character varying, site_id character varying, path_info character varying, path_info_pk bigint)
  LANGUAGE plpgsql
 AS $function$
@@ -173,9 +174,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_path_names(int8);
+-- DROP FUNCTION cm_fn_get_dept_path_names(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_path_names(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_path_names(cm_v_dept_pk bigint)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -200,9 +201,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_pk(varchar, varchar);
+-- DROP FUNCTION cm_fn_get_dept_pk(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_pk(cm_v_dept_cd character varying, v_site_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_pk(cm_v_dept_cd character varying, v_site_id character varying)
  RETURNS integer
  LANGUAGE plpgsql
 AS $function$
@@ -223,9 +224,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_team_busi_yn(int8);
+-- DROP FUNCTION cm_fn_get_dept_team_busi_yn(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_team_busi_yn(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_team_busi_yn(cm_v_dept_pk bigint)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -246,9 +247,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_team_nm(int8);
+-- DROP FUNCTION cm_fn_get_dept_team_nm(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_team_nm(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_team_nm(cm_v_dept_pk bigint)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -269,9 +270,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_dept_team_pk(int8);
+-- DROP FUNCTION cm_fn_get_dept_team_pk(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_dept_team_pk(cm_v_dept_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_dept_team_pk(cm_v_dept_pk bigint)
  RETURNS bigint
  LANGUAGE plpgsql
 AS $function$
@@ -292,9 +293,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_equip(varchar);
+-- DROP FUNCTION cm_fn_get_equip(varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_equip(v_site_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_equip(v_site_id character varying)
  RETURNS TABLE(equip_pk bigint, up_equip_pk bigint, equip_category_id character varying, dept_pk bigint, equip_nm character varying, site_id character varying, environ_equip_yn character, indent_equip_nm character varying, equip_status_cd character varying, equip_status_nm character varying, lvl integer, path_info bigint[], equip_cd character varying)
  LANGUAGE plpgsql
 AS $function$
@@ -382,9 +383,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_equip(varchar, varchar);
+-- DROP FUNCTION cm_fn_get_equip(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_equip(v_site_id character varying, v_equip_cd character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_equip(v_site_id character varying, v_equip_cd character varying)
  RETURNS TABLE(equip_pk bigint, up_equip_pk bigint, equip_category_id character varying, dept_pk bigint, equip_nm character varying, site_id character varying, environ_equip_yn character, indent_equip_nm character varying, equip_status_cd character varying, equip_status_nm character varying, lvl integer, path_info bigint[], equip_cd character varying)
  LANGUAGE plpgsql
 AS $function$
@@ -473,9 +474,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_equip_classify(int4);
+-- DROP FUNCTION cm_fn_get_equip_classify(int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_equip_classify(v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_equip_classify(v_factory_pk integer)
  RETURNS TABLE(id character varying, up_id character varying, equip_class_id character varying, equip_class_desc character varying, parent_id character varying, equip_class_pk integer, up_equip_class_pk integer, hierarchy_path character varying, path_info character varying, lvl integer, class_type character varying, factory_pk integer)
  LANGUAGE plpgsql
 AS $function$
@@ -484,8 +485,9 @@ declare
 begin
 	for v_rec in(
 		WITH RECURSIVE cte AS (
-         SELECT (t1.class_type::text || '_'::text) || t1.equip_class_id::text AS id,
-         	(case when coalesce(t1.parent_id, '') = '' then null else (ut1.class_type::text || '_'::text) || ut1.equip_class_id::text end) AS up_id,
+         SELECT 
+			(T1.CLASS_TYPE || '_' || T1.EQUIP_CLASS_ID) AS ID,
+			CASE WHEN T1.PARENT_ID IS NULL THEN NULL ELSE  (UT1.CLASS_TYPE || '_' || UT1.EQUIP_CLASS_ID)  END AS UP_ID,
             t1.equip_class_id,
             t1.equip_class_desc,
             ut1.equip_class_id AS parent_id,
@@ -503,8 +505,9 @@ begin
           AND t1.class_type::text = 'CLASS'::text
           AND t1.factory_pk = v_factory_pk
         UNION ALL
-         SELECT (t2.class_type::text || '_'::text) || t2.equip_class_id::text AS id,
-         	(case when coalesce(t2.parent_id, '') = '' then null else (s.class_type::text || '_'::text) || s.equip_class_id::text end) AS up_id,
+         SELECT
+			(T2.CLASS_TYPE || '_' || T2.EQUIP_CLASS_ID) AS ID,
+			CASE WHEN T2.PARENT_ID IS NULL THEN NULL ELSE  (S.CLASS_TYPE || '_' || S.EQUIP_CLASS_ID)  END AS UP_ID,
             t2.equip_class_id,
             t2.equip_class_desc,
             s.equip_class_id AS parent_id,
@@ -516,8 +519,8 @@ begin
             t2.class_type,
             t2.factory_pk
            from cte s
-           left outer join cm_equip_classify t2 ON t2.parent_id::text = s.equip_class_id::text
-          AND t2.class_type::text = 'TYPES'::text 
+           left outer join cm_EQUIP_CLASSIFY T2 ON T2.PARENT_ID = S.EQUIP_CLASS_ID
+            AND T2.CLASS_TYPE = 'TYPES'
           AND t2.factory_pk = v_factory_pk
           AND t2.parent_id IS NOT NULL 
           AND array_to_string(s.path_info || t2.equip_class_id::text, '\'::text) = t2.hierarchy_path::text
@@ -556,9 +559,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_equip_classify_ctg(int4, varchar);
+-- DROP FUNCTION cm_fn_get_equip_classify_ctg(int4, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_equip_classify_ctg(v_factory_pk integer, v_category_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_equip_classify_ctg(v_factory_pk integer, v_category_id character varying)
  RETURNS TABLE(id character varying, up_id character varying, equip_class_id character varying, equip_class_desc character varying, parent_id character varying, equip_class_pk integer, up_equip_class_pk integer, hierarchy_path character varying, path_info character varying, lvl integer, class_type character varying, factory_pk integer, category_id character varying)
  LANGUAGE plpgsql
 AS $function$
@@ -567,7 +570,7 @@ declare
 begin
 	for v_rec in(
 		WITH recursive CTE AS (
-		SELECT
+			SELECT
 				(T1.CLASS_TYPE || '_' || T1.EQUIP_CLASS_ID) AS ID,
 				CASE WHEN T1.PARENT_ID IS NULL THEN NULL ELSE  (UT1.CLASS_TYPE || '_' || UT1.EQUIP_CLASS_ID)  END AS UP_ID,
 				T1.EQUIP_CLASS_ID,
@@ -582,7 +585,7 @@ begin
 				T1.factory_pk as factory_pk,
 				T1.CATEGORY_ID
 			FROM cm_EQUIP_CLASSIFY T1
-			LEFT JOIN cm_EQUIP_CLASSIFY UT1 ON T1.PARENT_ID = UT1.EQUIP_CLASS_ID AND T1.factory_pk = UT1.factory_pk
+			LEFT JOIN cm_EQUIP_CLASSIFY UT1 ON T1.PARENT_ID = UT1.EQUIP_CLASS_ID --AND T1.factory_pk = UT1.factory_pk
 			WHERE T1.PARENT_ID IS NULL
 				AND T1.CLASS_TYPE = 'CLASS'
 				AND T1.factory_pk = v_factory_pk
@@ -606,9 +609,9 @@ begin
 			LEFT JOIN cm_EQUIP_CLASSIFY T2 ON T2.PARENT_ID = S.EQUIP_CLASS_ID
 				AND T2.CLASS_TYPE = 'TYPES'
 				AND T2.factory_pk = v_factory_pk
-				AND T2.PARENT_ID IS NOT NULL
-				AND concat(S.PATH_INFO || ',' || T2.EQUIP_CLASS_ID) = REPLACE(T2.HIERARCHY_PATH, '\', ',')
-			WHERE S.factory_pk IS NOT NULL AND T2.EQUIP_CLASS_ID IS NOT NULL
+--				AND T2.PARENT_ID IS NOT NULL
+				AND concat(S.PATH_INFO || ',' || T2.EQUIP_CLASS_ID) = REPLACE(T2.HIERARCHY_PATH, '/', ',')
+			WHERE T2.EQUIP_CLASS_ID IS NOT NULL
 		)
 		 SELECT CTE.ID AS ID,
 			CTE.UP_ID AS UP_ID,
@@ -644,9 +647,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_if_dept(varchar, varchar, varchar, int8, int8);
+-- DROP FUNCTION cm_fn_get_if_dept(varchar, varchar, varchar, int8, int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_if_dept(startdate character varying, enddate character varying, searchtext character varying, p_page bigint, p_size bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_if_dept(startdate character varying, enddate character varying, searchtext character varying, p_page bigint, p_size bigint)
  RETURNS TABLE(if_dept_code character varying, if_dept_name character varying, if_dept_uper character varying, if_column_1 character varying, if_column_2 character varying, if_column_3 character varying, if_column_4 character varying, if_column_5 character varying, total_rows integer)
  LANGUAGE plpgsql
 AS $function$
@@ -689,9 +692,9 @@ END;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_if_userinfo(varchar, varchar, varchar, int8, int8);
+-- DROP FUNCTION cm_fn_get_if_userinfo(varchar, varchar, varchar, int8, int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_if_userinfo(startdate character varying, enddate character varying, searchtext character varying, p_page bigint, p_size bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_if_userinfo(startdate character varying, enddate character varying, searchtext character varying, p_page bigint, p_size bigint)
  RETURNS TABLE(if_user_id character varying, if_sabun character varying, if_user_name character varying, if_dept_code character varying, if_column_1 character varying, if_column_2 character varying, if_column_3 character varying, if_column_4 character varying, if_column_5 character varying, if_column_6 character varying, if_column_7 character varying, if_column_8 character varying, if_column_9 character varying, if_column_10 character varying, if_column_11 character varying, if_column_12 character varying, if_column_13 character varying, if_column_14 character varying, if_column_15 character varying, if_column_16 character varying, if_column_17 character varying, if_column_18 character varying, if_column_19 character varying, total_rows integer)
  LANGUAGE plpgsql
 AS $function$
@@ -764,9 +767,9 @@ END;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_img_url(varchar, varchar, varchar, varchar, varchar, varchar);
+-- DROP FUNCTION cm_fn_get_img_url(varchar, varchar, varchar, varchar, varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_img_url(v_file_stre_cours character varying, v_root_path character varying, v_file_stre_nm character varying, v_file_ext character varying, v_static_url character varying, v_site_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_img_url(v_file_stre_cours character varying, v_root_path character varying, v_file_stre_nm character varying, v_file_ext character varying, v_static_url character varying, v_site_id character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -796,9 +799,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_incineration(int8);
+-- DROP FUNCTION cm_fn_get_incineration(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_incineration(v_loc_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_incineration(v_loc_pk bigint)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -819,9 +822,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_last_insp_date(int8);
+-- DROP FUNCTION cm_fn_get_last_insp_date(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_last_insp_date(p_chk_mast_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_last_insp_date(p_chk_mast_pk bigint)
  RETURNS date
  LANGUAGE plpgsql
 AS $function$
@@ -907,9 +910,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_last_pm_date(int8);
+-- DROP FUNCTION cm_fn_get_last_pm_date(int8);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_last_pm_date(p_pm_pk bigint)
+CREATE OR REPLACE FUNCTION cm_fn_get_last_pm_date(p_pm_pk bigint)
  RETURNS date
  LANGUAGE plpgsql
 AS $function$
@@ -987,9 +990,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_loc_area_line(int4, varchar);
+-- DROP FUNCTION cm_fn_get_loc_area_line(int4, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_area_line(v_factory_pk integer, v_lvl_type character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_loc_area_line(v_factory_pk integer, v_lvl_type character varying)
  RETURNS TABLE(cd character varying, up_cd character varying, id bigint, up_id bigint, label character varying, lvl bigint, path_info character varying, path_info_desc character varying, path_info_pk character varying, lvl_type character varying, sub_count bigint, status_cd character varying, status_nm character varying, factory_pk integer, factory_name character varying, use_yn character varying)
  LANGUAGE plpgsql
 AS $function$
@@ -1080,9 +1083,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_loc_area_line(varchar, varchar);
+-- DROP FUNCTION cm_fn_get_loc_area_line(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_area_line(v_site_id character varying, v_lvl_type character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_loc_area_line(v_site_id character varying, v_lvl_type character varying)
  RETURNS TABLE(cd character varying, up_cd character varying, id bigint, up_id bigint, label character varying, lvl bigint, path_info character varying, path_info_desc character varying, path_info_pk character varying, lvl_type character varying, sub_count bigint, status_cd character varying, status_nm character varying, site_id character varying, site_desc character varying, use_yn character varying)
  LANGUAGE plpgsql
 AS $function$
@@ -1169,9 +1172,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_loc_path(int4);
+-- DROP FUNCTION cm_fn_get_loc_path(int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_path(v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_loc_path(v_factory_pk integer)
  RETURNS TABLE(loc_pk bigint, path_info_pk bigint, loc_cd character varying, path_info_cd character varying, factory_pk integer)
  LANGUAGE plpgsql
 AS $function$
@@ -1205,9 +1208,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_loc_plant_nm(int8, int4);
+-- DROP FUNCTION cm_fn_get_loc_plant_nm(int8, int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_plant_nm(v_loc_pk bigint, v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_loc_plant_nm(v_loc_pk bigint, v_factory_pk integer)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -1236,9 +1239,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_loc_plant_nm_code(varchar, int4);
+-- DROP FUNCTION cm_fn_get_loc_plant_nm_code(varchar, int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_plant_nm_code(v_loc_cd character varying, v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_loc_plant_nm_code(v_loc_cd character varying, v_factory_pk integer)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -1269,9 +1272,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_loc_tree(int4);
+-- DROP FUNCTION cm_fn_get_loc_tree(int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_loc_tree(v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_loc_tree(v_factory_pk integer)
  RETURNS TABLE(cd character varying, up_cd character varying, id bigint, up_id bigint, label character varying, lvl integer, path_info text[], path_info_desc text[], path_info_pk bigint[], lvl_type character varying, sub_count integer, status_cd character varying, status_nm character varying, factory_pk integer, factory_name character varying, use_yn character)
  LANGUAGE plpgsql
 AS $function$
@@ -1341,9 +1344,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_next_sche_date(date, date, date, varchar, numeric);
+-- DROP FUNCTION cm_fn_get_next_sche_date(date, date, date, varchar, numeric);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_next_sche_date(p_sche_date date, p_make_start_date date, p_make_end_date date, p_cycle_type_code character varying, p_per_number numeric)
+CREATE OR REPLACE FUNCTION cm_fn_get_next_sche_date(p_sche_date date, p_make_start_date date, p_make_end_date date, p_cycle_type_code character varying, p_per_number numeric)
  RETURNS date
  LANGUAGE plpgsql
 AS $function$
@@ -1394,9 +1397,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_regular_day(date, date, numeric, varchar);
+-- DROP FUNCTION cm_fn_get_regular_day(date, date, numeric, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_regular_day(p_plan_date date, p_last_date date, p_per_number numeric, p_cycle_type character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_regular_day(p_plan_date date, p_last_date date, p_per_number numeric, p_cycle_type character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -1427,8 +1430,9 @@ begin
 			v_cycle_code = 'days';	
 		end if;	
 		
-		--            ֱ       
+		raise info 'p_last_date:%, p_per_number:%,v_cycle_code:%', p_last_date, p_per_number, v_cycle_code;
 		select to_char(cast(p_last_date as date) + (p_per_number || v_cycle_code)::INTERVAL, 'YYYY-MM-DD') into v_plan_date;
+		raise info 'v_plan_date:%', v_plan_date;
 		
 	end if; 
 	
@@ -1488,9 +1492,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_seq(varchar);
+-- DROP FUNCTION cm_fn_get_seq(varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_seq(p_gubun character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_seq(p_gubun character varying)
  RETURNS bigint
  LANGUAGE plpgsql
 AS $function$
@@ -1516,9 +1520,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_site_loc_equip(varchar, varchar);
+-- DROP FUNCTION cm_fn_get_site_loc_equip(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_site_loc_equip(v_site_id character varying, v_up_cd character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_site_loc_equip(v_site_id character varying, v_up_cd character varying)
  RETURNS TABLE(cd character varying, up_cd character varying, id bigint, label character varying, lvl integer, lvl_type character varying, path_info text[], equip_status_cd character varying, equip_status_nm character varying, equip_class_path character varying, equip_class_desc character varying, dept_cd character varying, dept_nm character varying, import_rank_cd character varying, import_rank_nm character varying, business_nm character varying, asset_nos character varying, sub_count integer, site_id character varying)
  LANGUAGE plpgsql
 AS $function$
@@ -1620,9 +1624,9 @@ begin
 end; $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_site_loc_tree(int4);
+-- DROP FUNCTION cm_fn_get_site_loc_tree(int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_site_loc_tree(v_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_get_site_loc_tree(v_factory_pk integer)
  RETURNS TABLE(cd character varying, up_cd character varying, id bigint, up_id bigint, label character varying, lvl integer, path_info text[], path_info_desc text[], path_info_pk bigint[], path_info_ordr text[], lvl_type character varying, sub_count integer, status_cd character varying, status_nm character varying, factory_pk integer, factory_name character varying, use_yn character)
  LANGUAGE plpgsql
 AS $function$
@@ -1738,9 +1742,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_thumb_img(varchar, int8, varchar, varchar);
+-- DROP FUNCTION cm_fn_get_thumb_img(varchar, int8, varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_thumb_img(v_attach_type character varying, v_attach_pk bigint, v_static_url character varying, v_site_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_thumb_img(v_attach_type character varying, v_attach_pk bigint, v_static_url character varying, v_site_id character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -1771,9 +1775,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_work_day(varchar);
+-- DROP FUNCTION cm_fn_get_work_day(varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_work_day(p_plan_date character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_work_day(p_plan_date character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -1833,9 +1837,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_get_workdays(varchar, varchar);
+-- DROP FUNCTION cm_fn_get_workdays(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_get_workdays(v_startdate character varying, v_enddate character varying)
+CREATE OR REPLACE FUNCTION cm_fn_get_workdays(v_startdate character varying, v_enddate character varying)
  RETURNS integer
  LANGUAGE plpgsql
 AS $function$
@@ -1877,9 +1881,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_isnumeric(text);
+-- DROP FUNCTION cm_fn_isnumeric(text);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_isnumeric(text)
+CREATE OR REPLACE FUNCTION cm_fn_isnumeric(text)
  RETURNS boolean
  LANGUAGE plpgsql
  IMMUTABLE STRICT
@@ -1894,9 +1898,9 @@ END;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_last_day(date);
+-- DROP FUNCTION cm_fn_last_day(date);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_last_day(conv_date date)
+CREATE OR REPLACE FUNCTION cm_fn_last_day(conv_date date)
  RETURNS date
  LANGUAGE plpgsql
 AS $function$
@@ -1909,9 +1913,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_last_str(varchar, varchar);
+-- DROP FUNCTION cm_fn_last_str(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_last_str(p_full_str character varying, p_find_str character varying)
+CREATE OR REPLACE FUNCTION cm_fn_last_str(p_full_str character varying, p_find_str character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -1928,9 +1932,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_make_schedule_insp(varchar, int8, date, date, int4);
+-- DROP FUNCTION cm_fn_make_schedule_insp(varchar, int8, date, date, int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_make_schedule_insp(p_sche_type character varying, p_chk_mast_pk bigint, p_make_start_date date, p_make_end_date date, p_factory_pk integer)
+CREATE OR REPLACE FUNCTION cm_fn_make_schedule_insp(p_sche_type character varying, p_chk_mast_pk bigint, p_make_start_date date, p_make_end_date date, p_factory_pk integer)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -2206,9 +2210,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_make_schedule_pm(varchar, int8, date, date, varchar);
+-- DROP FUNCTION cm_fn_make_schedule_pm(varchar, int8, date, date, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_make_schedule_pm(p_sche_type character varying, p_pm_pk bigint, p_make_start_date date, p_make_end_date date, p_site_id character varying)
+CREATE OR REPLACE FUNCTION cm_fn_make_schedule_pm(p_sche_type character varying, p_pm_pk bigint, p_make_start_date date, p_make_end_date date, p_site_id character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -2272,19 +2276,19 @@ begin
 	v_error_log = '';	
 
 	select t.cycle_type, t.per_number, t.sched_start_dt, t.next_chk_date
-	, (case when t.cycle_type = 'CYCLE_TYPE_Y' then 'year' 
-	   	when t.cycle_type = 'CYCLE_TYPE_M' then 'month' when t.cycle_type = 'CYCLE_TYPE_W' then 'week'
-	   	when t.cycle_type = 'CYCLE_TYPE_D' then 'day' else '' end)
-	, coalesce(up."User_id", t.dept_pk) as dept_pk
-	, t.pm_user_pk, au.username, up."Name", eq.dept_pk
-	, cm_fn_get_last_pm_date(t.pm_pk) as next_pm_data
-	into v_cycle_type, v_per_number, v_sched_start_dt, v_next_chk_date, v_cycle_type_code
-	, v_pm_dept_pk, v_pm_user_pk, v_pm_login_id, v_pm_user_nm, v_req_dept_pk, v_next_pm_date
+		, (case when t.cycle_type = 'CYCLE_TYPE_Y' then 'year' 
+		   	when t.cycle_type = 'CYCLE_TYPE_M' then 'month' when t.cycle_type = 'CYCLE_TYPE_W' then 'week'
+		   	when t.cycle_type = 'CYCLE_TYPE_D' then 'day' else '' end)
+		, coalesce(up."User_id", t.dept_pk) as dept_pk
+		, t.pm_user_pk, au.username, up."Name", eq.dept_pk
+		, cm_fn_get_last_pm_date(t.pm_pk) as next_pm_data
+		into v_cycle_type, v_per_number, v_sched_start_dt, v_next_chk_date, v_cycle_type_code
+		, v_pm_dept_pk, v_pm_user_pk, v_pm_login_id, v_pm_user_nm, v_req_dept_pk, v_next_pm_date
 	from cm_pm t
-	inner join cm_equipment eq on t.equip_pk = eq.equip_pk
-	inner join auth_user au on up."User_id" = au.id
-	left outer join dept d on t.dept_pk = d.id
-	left outer join user_profile up on t.pm_user_pk = up."User_id"
+		inner join cm_equipment eq on t.equip_pk = eq.equip_pk
+		left join user_profile up on t.pm_user_pk = up."User_id"
+		left join auth_user au on up."User_id" = au.id
+		left join dept d on t.dept_pk = d.id		
 	where t.pm_pk = p_pm_pk and t.use_yn = 'Y' and t.del_yn = 'N' 
 	and eq.site_id = p_site_id
 	;
@@ -2394,7 +2398,7 @@ raise notice '날짜에 도달한경우';
 				v_work_order_pk = 0;
 				v_work_order_approval_pk = 0;
 
-				select nextval('work_order_approval_work_order_approval_pk_seq') into v_work_order_approval_pk;
+				select nextval('cm_work_order_approval_work_order_approval_pk_seq') into v_work_order_approval_pk;
 			
 				insert into cm_work_order_approval (work_order_approval_pk, wo_status
 				, reg_dt, reg_user_nm, reg_user_pk, rqst_dt, rqst_user_nm, rqst_user_pk
@@ -2406,7 +2410,7 @@ raise notice '날짜에 도달한경우';
 				);
 
 				-- 스케줄링생성.
-				select nextval('work_order_work_order_pk_seq') into v_work_order_pk;
+				select nextval('cm_work_order_work_order_pk_seq') into v_work_order_pk;
 
 				select coalesce(MAX((select work_order_no from (select max(cast(work_order_no as integer)) as work_order_no 
 					from cm_work_order WHERE (work_order_no ~ E'^[0-9]+$') = true ) as sub_table)) + 1, '1') into v_work_order_no
@@ -2488,9 +2492,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_minutediff(timestamp, timestamp);
+-- DROP FUNCTION cm_fn_minutediff(timestamp, timestamp);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_minutediff(date1 timestamp without time zone, date2 timestamp without time zone)
+CREATE OR REPLACE FUNCTION cm_fn_minutediff(date1 timestamp without time zone, date2 timestamp without time zone)
  RETURNS integer
  LANGUAGE plpgsql
 AS $function$
@@ -2503,9 +2507,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_round_val(float8, int4);
+-- DROP FUNCTION cm_fn_round_val(float8, int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_round_val(val1 double precision, val2 integer)
+CREATE OR REPLACE FUNCTION cm_fn_round_val(val1 double precision, val2 integer)
  RETURNS numeric
  LANGUAGE sql
 AS $function$
@@ -2513,9 +2517,9 @@ SELECT round(cast(val1 as numeric), val2)
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_timestampdiff(timestamp, timestamp);
+-- DROP FUNCTION cm_fn_timestampdiff(timestamp, timestamp);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_timestampdiff(date1 timestamp without time zone, date2 timestamp without time zone)
+CREATE OR REPLACE FUNCTION cm_fn_timestampdiff(date1 timestamp without time zone, date2 timestamp without time zone)
  RETURNS numeric
  LANGUAGE plpgsql
 AS $function$
@@ -2528,9 +2532,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_user_nm(varchar, varchar);
+-- DROP FUNCTION cm_fn_user_nm(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_user_nm(v_user_nm character varying, v_del_yn character varying)
+CREATE OR REPLACE FUNCTION cm_fn_user_nm(v_user_nm character varying, v_del_yn character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -2558,9 +2562,9 @@ end;
 $function$
 ;
 
--- DROP FUNCTION public.cm_fn_week(timestamp, int4);
+-- DROP FUNCTION cm_fn_week(timestamp, int4);
 
-CREATE OR REPLACE FUNCTION public.cm_fn_week(conv_date timestamp without time zone, opts integer)
+CREATE OR REPLACE FUNCTION cm_fn_week(conv_date timestamp without time zone, opts integer)
  RETURNS integer
  LANGUAGE plpgsql
 AS $function$
@@ -2573,9 +2577,51 @@ end;
 $function$
 ;
 
--- DROP PROCEDURE public.cm_prc_ic_if_tag_data_ins(json);
+-- DROP PROCEDURE cm_prc_equip_item_rslt_upsert(int8, int8, int8, varchar, varchar, int8, int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_ic_if_tag_data_ins(jsontag json)
+CREATE OR REPLACE PROCEDURE cm_prc_equip_item_rslt_upsert(chkrsltpk bigint, chkitempk bigint, chkschepk bigint, chkitemrslt character varying, chkitemrsltdesc character varying, chkuserpk bigint, chkitemrsltnum integer)
+ LANGUAGE plpgsql
+AS $procedure$
+DECLARE v_cnt int := 0;
+BEGIN
+  SELECT COUNT(*) INTO v_cnt
+  FROM cm_work_order wo
+  WHERE wo.chk_rslt_pk = chkrsltpk;
+
+  IF COALESCE(v_cnt,0) = 0 THEN
+    SELECT COUNT(*) INTO v_cnt
+    FROM cm_equip_chk_item_rslt
+    WHERE chk_rslt_pk = chkrsltpk
+      AND chk_item_pk = chkitempk;
+
+    IF COALESCE(v_cnt,0) > 0 THEN
+      UPDATE cm_equip_chk_item_rslt
+         SET chk_item_rslt      = NULLIF(chkitemrslt,''),
+             chk_item_rslt_desc = NULLIF(chkitemrsltdesc,''),
+             chk_user_pk        = chkuserpk,
+             chk_dt             = CURRENT_TIMESTAMP,
+             chk_item_rslt_num  = chkitemrsltnum   -- ★ 그대로 대입
+       WHERE chk_rslt_pk = chkrsltpk
+         AND chk_item_pk = chkitempk;
+    ELSE
+      INSERT INTO cm_equip_chk_item_rslt(
+        chk_rslt_pk, chk_item_pk, chk_sche_pk,
+        chk_item_rslt, chk_item_rslt_desc,
+        chk_user_pk, chk_dt, chk_item_rslt_num
+      ) VALUES (
+        chkrsltpk, chkitempk, chkschepk,
+        NULLIF(chkitemrslt,''), NULLIF(chkitemrsltdesc,''),
+        chkuserpk, CURRENT_TIMESTAMP, chkitemrsltnum  -- ★ 그대로 대입
+      );
+    END IF;
+  END IF;
+END;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_ic_if_tag_data_ins(json);
+
+CREATE OR REPLACE PROCEDURE cm_prc_ic_if_tag_data_ins(jsontag json)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -2661,9 +2707,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_if_dept_code();
+-- DROP PROCEDURE cm_prc_if_dept_code();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_if_dept_code()
+CREATE OR REPLACE PROCEDURE cm_prc_if_dept_code()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -2780,9 +2826,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_if_mail_send();
+-- DROP PROCEDURE cm_prc_if_mail_send();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_if_mail_send()
+CREATE OR REPLACE PROCEDURE cm_prc_if_mail_send()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -2873,9 +2919,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_if_sms_send();
+-- DROP PROCEDURE cm_prc_if_sms_send();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_if_sms_send()
+CREATE OR REPLACE PROCEDURE cm_prc_if_sms_send()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -2969,9 +3015,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_insp_plan_alarm_ins();
+-- DROP PROCEDURE cm_prc_insp_plan_alarm_ins();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_insp_plan_alarm_ins()
+CREATE OR REPLACE PROCEDURE cm_prc_insp_plan_alarm_ins()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3127,9 +3173,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_job_call_pre_month_stock(inout int4);
+-- DROP PROCEDURE cm_prc_job_call_pre_month_stock(inout int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_job_call_pre_month_stock(INOUT o_ret integer)
+CREATE OR REPLACE PROCEDURE cm_prc_job_call_pre_month_stock(INOUT o_ret integer)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3162,9 +3208,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_job_insp_schedule(inout int4);
+-- DROP PROCEDURE cm_prc_job_insp_schedule(inout int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_job_insp_schedule(INOUT o_ret integer)
+CREATE OR REPLACE PROCEDURE cm_prc_job_insp_schedule(INOUT o_ret integer)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3189,12 +3235,12 @@ raise notice '   ˽    ٸ      ';
 		where s.status = 'A'
 	loop
 		-- 2.     Ʈ       Ʈ config   ȸ	
-		select coalesce(sc.sche_opts ->> 'inspAutoScheUse', 'false')
-		, coalesce(sc.sche_opts ->> 'inspScheCycleType', 'X')
-		, coalesce(sc.sche_opts ->> 'inspScheCycleDay', '0')
+		select coalesce(sc.sche_opts::json ->> 'inspAutoScheUse', 'false')
+		, coalesce(sc.sche_opts::json ->> 'inspScheCycleType', 'X')
+		, coalesce(sc.sche_opts::json ->> 'inspScheCycleDay', '0')
 		, sc.sche_opts::text
 		into v_insp_auto_sche_use, v_insp_sche_cycle_type, v_insp_sche_cycle_day, v_sche_opts
-		from cm_site_config sc where site_id = cur_site.site_id
+		from cm_site_config sc where site = cur_site.site_id
 		;
 		
 		--      ٸ    뿩   Ȯ  
@@ -3202,7 +3248,7 @@ raise notice '   ˽    ٸ      ';
 		
 			v_exe_count = 0;
 			--      ٸ   α       
-			INSERT INTO cm_swing_schedule.equip_chk_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[   ˽    ٸ     ][' || cur_site.site_id || '] ' || v_sche_opts);
+			INSERT INTO cm_equip_chk_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[PI scheduler][' || cur_site.site_id || '] ' || v_sche_opts);
 			
 			--          ħ      ϱ 
 			select to_char(now(), 'YYYYMMDD') as start_date
@@ -3238,7 +3284,7 @@ raise notice '   ˽    ٸ      ';
 			end loop;	
 		
 			--      α       
-			INSERT INTO cm_swing_schedule.equip_chk_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[   ˽    ٸ  Ϸ ][' || cur_site.site_id || ']    ' || v_exe_count::text || '          Ǿ    ϴ .');
+			INSERT INTO cm_equip_chk_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[PI scheduler][' || cur_site.site_id || ']    ' || v_exe_count::text || '          Ǿ    ϴ .');
 	
 		end if;
 		
@@ -3260,9 +3306,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_job_mat_pre_mon_stock(in varchar, in varchar, inout int4);
+-- DROP PROCEDURE cm_prc_job_mat_pre_mon_stock(in varchar, in varchar, inout int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_job_mat_pre_mon_stock(p_preyearmon character varying, p_mode character varying, INOUT v_result integer)
+CREATE OR REPLACE PROCEDURE cm_prc_job_mat_pre_mon_stock(p_preyearmon character varying, p_mode character varying, INOUT v_result integer)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3462,9 +3508,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_job_mat_pre_mon_stock_mtrl(in varchar, in int8, inout int4);
+-- DROP PROCEDURE cm_prc_job_mat_pre_mon_stock_mtrl(in varchar, in int8, inout int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_job_mat_pre_mon_stock_mtrl(p_preyearmon character varying, v_mtrl_pk bigint, INOUT v_result integer)
+CREATE OR REPLACE PROCEDURE cm_prc_job_mat_pre_mon_stock_mtrl(p_preyearmon character varying, v_mtrl_pk bigint, INOUT v_result integer)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3664,9 +3710,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_job_pm_schedule(inout int4);
+-- DROP PROCEDURE cm_prc_job_pm_schedule(inout int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_job_pm_schedule(INOUT o_ret integer)
+CREATE OR REPLACE PROCEDURE cm_prc_job_pm_schedule(INOUT o_ret integer)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3691,12 +3737,12 @@ raise notice 'pm     ٸ      ';
 		where s.status = 'A'
 	loop
 		-- 2.     Ʈ       Ʈ config   ȸ	
-		select coalesce(sc.sche_opts ->> 'pmAutoScheUse', 'false')
-		, coalesce(sc.sche_opts ->> 'pmScheCycleType', 'X')
-		, coalesce(sc.sche_opts ->> 'pmScheCycleDay', '0')
+		select coalesce(sc.sche_opts::json ->> 'pmAutoScheUse', 'false')
+		, coalesce(sc.sche_opts::json ->> 'pmScheCycleType', 'X')
+		, coalesce(sc.sche_opts::json ->> 'pmScheCycleDay', '0')
 		, sc.sche_opts::text
 		into v_pm_auto_sche_use, v_pm_sche_cycle_type, v_pm_sche_cycle_day, v_sche_opts
-		from cm_site_config sc where site_id = cur_site.site_id
+		from cm_site_config sc where site = cur_site.site_id
 		;
 		
 		--      ٸ    뿩   Ȯ  
@@ -3704,7 +3750,7 @@ raise notice 'pm     ٸ      ';
 		
 			v_exe_count = 0;
 			--      ٸ   α       
-			INSERT INTO cm_swing_schedule.pm_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[PM     ٸ     ][' || cur_site.site_id || '] ' || v_sche_opts);
+			INSERT INTO cm_pm_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[PM scheduler][' || cur_site.site_id || '] ' || v_sche_opts);
 			
 			--          ħ      ϱ 
 			select to_char(now(), 'YYYYMMDD') as start_date
@@ -3739,7 +3785,7 @@ raise notice 'pm     ٸ      ';
 			end loop;	
 		
 			--      α       
-			INSERT INTO cm_swing_schedule.pm_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[PM     ٸ  Ϸ ][' || cur_site.site_id || ']    ' || v_exe_count::text || '          Ǿ    ϴ .');
+			INSERT INTO cm_pm_sche_send_log(send_dt, send_log) VALUES (CURRENT_TIMESTAMP , '[PM scheduler][' || cur_site.site_id || ']    ' || v_exe_count::text || '          Ǿ    ϴ .');
 	
 		end if;
 		
@@ -3761,9 +3807,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_job_smtp();
+-- DROP PROCEDURE cm_prc_job_smtp();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_job_smtp()
+CREATE OR REPLACE PROCEDURE cm_prc_job_smtp()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3803,9 +3849,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_logs_delete();
+-- DROP PROCEDURE cm_prc_logs_delete();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_logs_delete()
+CREATE OR REPLACE PROCEDURE cm_prc_logs_delete()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3832,9 +3878,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_base_code();
+-- DROP PROCEDURE cm_prc_mig_base_code();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_base_code()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_base_code()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -3960,9 +4006,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_chk_equip();
+-- DROP PROCEDURE cm_prc_mig_chk_equip();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_chk_equip()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_chk_equip()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4093,9 +4139,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_dept();
+-- DROP PROCEDURE cm_prc_mig_dept();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_dept()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_dept()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4125,7 +4171,7 @@ begin
 		, coalesce(tpm_yn, 'N') as tpm_yn
 		, cc_cd, site_id, user_id, insert_ts, msg
 		from cm_mig_dept
-		where (msg is null or upper(msg) = 'ERROR')
+		where (msg is null or upper(msg) = 'ERROR' or action_type = 'U')
 		order by pk, insert_ts 
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -4164,6 +4210,7 @@ RAISE INFO 'v_exe_type:%',v_exe_type;
 				, tpm_yn = case when trim(curdata.tpm_yn)  = '' then 'N' else curdata.tpm_yn end 
 				, ccenter_cd = curdata.cc_cd
 				, "Factory_id" = 1
+				, "Site_id" = curdata.site_id
 				, _modified = current_timestamp
 				, _modifier_id = 1
 				where id = (select id from dept where "Code" = curdata.dept_cd limit 1);
@@ -4178,6 +4225,7 @@ RAISE INFO 'v_exe_type:%',v_exe_type;
 					, tpm_yn
 					, ccenter_cd
 					, "Factory_id"
+					, "Site_id"
 					, _created, _creater_id, "DelYN", "UseYN")
 				VALUES (curdata.dept_cd, curdata.dept_nm, v_up_dept_pk
 					, case when trim(curdata.team_yn)  = '' then 'N' else curdata.team_yn end 
@@ -4185,6 +4233,7 @@ RAISE INFO 'v_exe_type:%',v_exe_type;
 					, case when trim(curdata.tpm_yn)  = '' then 'N' else curdata.tpm_yn end 
 					, curdata.cc_cd
 					, 1
+					, curdata.site_id :: int
 					, current_timestamp, 1, 'N', 'Y');
 				update cm_mig_dept set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
@@ -4214,9 +4263,144 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip();
+-- DROP PROCEDURE cm_prc_mig_dept(inout int4);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_dept(INOUT r_count integer)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_cnt integer;
+	v_up_dept_pk bigint;
+	v_exist_cnt integer;
+	v_user_nm varchar(30);
+	v_exe_type char(1);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+-- raise notice 'fntrans';
+	-- #############################
+	--  μ     ̱׷  ̼  ó  
+	-- call cm_prc_mig_dept()
+	-- #############################
+
+	r_count := 0;
+
+	-- curdata 전체 개수 미리 카운트
+    SELECT COUNT(*) INTO r_count
+    FROM cm_mig_dept
+    WHERE (msg IS NULL OR UPPER(msg) = 'ERROR' OR action_type = 'U');
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_MIG_DEPT', concat(' [MESSAGE] : ', ' μ     ̱׷  ̼  ó       '));
+	
+	v_cnt = 0; 
+	
+	for curdata in
+		select pk, action_type, dept_cd, dept_nm, up_dept_cd, up_dept_nm
+		, coalesce(business_yn, 'N') as business_yn
+		, coalesce(team_yn, 'N') as team_yn
+		, coalesce(tpm_yn, 'N') as tpm_yn
+		, cc_cd, site_id, user_id, insert_ts, msg
+		from cm_mig_dept
+		where (msg is null or upper(msg) = 'ERROR' or action_type = 'U')
+		order by pk, insert_ts 
+	loop
+		raise notice 'TARGET %', curdata;	
+		
+		v_exe_type = curdata.action_type;
+		v_up_dept_pk = null;
+		v_user_nm = null;
+
+		BEGIN		
+			--            ش   ڵ尡  ̹   ִ                   .
+			select count(*) into v_exist_cnt from dept where "Code" = curdata.dept_cd;
+			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
+				v_exe_type = 'U';
+			end if;
+			v_exist_cnt = 0;
+		
+			--      μ 
+			select id into v_up_dept_pk from dept where "Code" = curdata.up_dept_cd;
+			
+			--      
+			if (coalesce(curdata.user_id, '') <> '') then
+				select up."Name" as user_nm into v_user_nm 			
+				from user_profile up
+					inner join auth_user au on up."User_id" = au.id
+				where au.username = curdata.user_id;
+				v_user_nm = coalesce(v_user_nm, 'system');
+			end if;	
+
+			if (v_exe_type = 'U') then
+RAISE INFO 'v_exe_type:%',v_exe_type; 
+				update dept
+				set "Name" = curdata.dept_nm
+				, "UpDept_id" = v_up_dept_pk
+				, "UpDeptCode" = curdata.up_dept_cd
+				, team_yn = case when trim(curdata.team_yn)  = '' then 'N' else curdata.team_yn end 
+				, business_yn = case when trim(curdata.business_yn)  = '' then 'N' else curdata.business_yn end 
+				, tpm_yn = case when trim(curdata.tpm_yn)  = '' then 'N' else curdata.tpm_yn end 
+				, ccenter_cd = curdata.cc_cd
+				, "Factory_id" = 1
+				, "Site_id" = curdata.site_id
+				, _modified = current_timestamp
+				, _modifier_id = 1
+				where id = (select id from dept where "Code" = curdata.dept_cd limit 1);
+	RAISE INFO 'UPDATE END:'; 		
+				update cm_mig_dept set msg = 'UPDATED!' where pk = curdata.pk;				
+			
+			elseif (v_exe_type = 'A') then
+				--    
+				INSERT INTO dept("Code", "Name", "UpDept_id"
+					, team_yn
+					, business_yn
+					, tpm_yn
+					, ccenter_cd
+					, "Factory_id"
+					, "Site_id"
+					, _created, _creater_id, "DelYN", "UseYN")
+				VALUES (curdata.dept_cd, curdata.dept_nm, v_up_dept_pk
+					, case when trim(curdata.team_yn)  = '' then 'N' else curdata.team_yn end 
+					, case when trim(curdata.business_yn)  = '' then 'N' else curdata.business_yn end 
+					, case when trim(curdata.tpm_yn)  = '' then 'N' else curdata.tpm_yn end 
+					, curdata.cc_cd
+					, 1
+					, curdata.site_id
+					, current_timestamp, 1, 'N', 'Y');
+				update cm_mig_dept set msg = 'INSERTED!' where pk = curdata.pk;
+			
+			end if;
+        EXCEPTION
+            WHEN others THEN
+				v_error_message := SQLERRM;
+				update cm_mig_dept set msg = 'error' where pk = curdata.pk;
+                insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+				values('MIGRATION', 'cm_prc_MIG_DEPT', ' [MESSAGE : ' || curdata.pk::text || '] : ' || v_error_message);
+        END; 
+		
+		
+		v_cnt = v_cnt + 1;		
+	end loop;
+
+	-- 루프 끝나면 r_count에 대입
+	r_count := v_cnt;
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_dept set msg = 'error' where pk = curdata.pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_mig_dept', ' [MESSAGE : ' || curdata.pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_mig_equip();
+
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4361,14 +4545,16 @@ begin
 			--  μ 
 			select id into cm_v_dept_pk from dept where "Code" = curdata.dept_cd;
 
+			/*
+				ES_OPER:가동중,ES_BKDN:고장,ES_DISP:불용,ES_IDLE:유휴
+				DP1:매각,DP2:대여,DP3:해체,DP4:폐기,DP5:기증,DP6:기타
+			*/
 			if (curdata.equip_status = 'A') then
 				v_equip_status = concat('ES_DISP');
 				v_disposed_type = 'DP1';
---				v_disposed_date = to_date('20201231','YYYYMMDD')::timestamp;
 			elsif (curdata.equip_status = 'S') then
 				v_equip_status = concat('ES_DISP');
 				v_disposed_type = 'DP4';
---				v_disposed_date = to_date('20201231','YYYYMMDD')::timestamp;
 			elsif (curdata.equip_status = 'O') then
 				v_equip_status = 'ES_OPER';
 			elsif (curdata.equip_status = 'B') then
@@ -4470,9 +4656,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_bom();
+-- DROP PROCEDURE cm_prc_mig_equip_bom();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_bom()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_bom()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4591,9 +4777,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_chk_mst();
+-- DROP PROCEDURE cm_prc_mig_equip_chk_mst();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_chk_mst()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_chk_mst()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4669,7 +4855,7 @@ begin
 			select "User_id" into v_chk_user_pk
 			from user_profile up
 				inner join auth_user au on up."User_id" = au.id
-			where au.username = curdata.user_id;
+			where au.username = curdata.chk_user_id;
 
 			if (v_exe_type = 'A') then
 RAISE INFO 'XXXX';
@@ -4716,9 +4902,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_chk_mst_item();
+-- DROP PROCEDURE cm_prc_mig_equip_chk_mst_item();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_chk_mst_item()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_chk_mst_item()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4767,12 +4953,11 @@ begin
 		v_chk_item_unit_pk = null;
 		
         BEGIN
-			--    ˸     
+
 			select chk_mast_pk into v_chk_mast_pk 
 			from cm_equip_chk_mast 
 			where chk_mast_no = curdata.chk_mast_no;
 		
-			--            ش   ڵ尡  ̹   ִ                   .
 			select count(*) into v_exist_cnt 
 			from cm_equip_chk_item 
 			where chk_mast_pk = v_chk_mast_pk
@@ -4785,7 +4970,7 @@ begin
 				v_exe_type = 'U';
 			end if;
 			v_exist_cnt = 0;
-
+raise info '11111111';
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
 				select up."Name" as user_nm into v_user_nm 			
@@ -4856,9 +5041,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_class();
+-- DROP PROCEDURE cm_prc_mig_equip_class();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_class()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_class()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -4869,6 +5054,7 @@ declare
 	v_exe_type char(1);
 	v_error_message varchar(1000);
 	v_pk bigint;
+	v_category_cnt integer;
 	curdata record;
 begin
 -- raise notice 'fntrans';
@@ -4894,13 +5080,14 @@ begin
 		, site_id 
 		, user_id, insert_ts, msg
 		from cm_mig_equip_class
-		where (msg is null or upper(msg) = 'ERROR')
+		where (coalesce(msg,'') = '' or upper(msg) = 'ERROR' or  upper(msg) = 'UPDATED!' )
 		ORDER BY PK, INSERT_TS
 	loop
 		raise notice 'TARGET %', curdata;	
 		
 		v_exe_type = curdata.action_type;
 		v_user_nm = null;
+		v_category_cnt = 0;
 		v_pk = curdata.pk;
 		
         BEGIN
@@ -4925,7 +5112,7 @@ begin
 				where au.username = curdata.user_id;
 				v_user_nm = coalesce(v_user_nm, 'system');
 			end if;	
-
+raise info 'v_exe_type:%', v_exe_type;
 			if (v_exe_type = 'U') then
 				--     
 				update cm_equip_classify
@@ -4942,13 +5129,18 @@ begin
 				update cm_mig_equip_class set msg = 'UPDATED!' where pk = curdata.pk;
 
 			elseif (v_exe_type = 'A') then
-				raise notice 'v_exe_type: %', v_exe_type;
-				--설비 카테고리도 같이 일괄 등록하는 로직을 추가 by 이용재
-				INSERT INTO cm_equip_category(equip_category_id, equip_category_desc
-						, use_yn, insert_ts, inserter_id)
+				raise notice 'v_exe_type: %, curdata:%', v_exe_type, curdata;
+			
+				select count(*) into v_category_cnt from cm_equip_category where equip_category_id = curdata.equip_category_id;
+				if (v_category_cnt = 0) then
+					--설비 카테고리도 같이 일괄 등록하는 로직을 추가 by 이용재
+					INSERT INTO cm_equip_category(equip_category_id, equip_category_desc
+							, use_yn, insert_ts, inserter_id)
 					VALUES(curdata.equip_category_id, curdata.equip_class_desc
-						, 'Y', current_timestamp, 1);
+							, 'Y', current_timestamp, 1);
+				end if;
 
+raise info 'equip_category_id 가 중복되어도 종류는 등록 가능해야 함' ;
 				--설비 유형 등록
 				INSERT INTO cm_equip_classify(equip_class_id, equip_class_desc
 					, hierarchy_path, category_id
@@ -4958,7 +5150,7 @@ begin
 						, curdata.equip_class_id, curdata.equip_category_id
 						, 'CLASS', curdata.use_yn
 						, current_timestamp, 1);
-
+raise info 'INSERT INTO cm_equip_classify ============';
 				update cm_mig_equip_class set msg = 'INSERTED!' where pk = curdata.pk;
 			end if;
         EXCEPTION
@@ -4987,9 +5179,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_file();
+-- DROP PROCEDURE cm_prc_mig_equip_file();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_file()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_file()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -5102,9 +5294,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_photo();
+-- DROP PROCEDURE cm_prc_mig_equip_photo();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_photo()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_photo()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -5218,15 +5410,16 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_spec();
+-- DROP PROCEDURE cm_prc_mig_equip_spec();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_spec()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_spec()
  LANGUAGE plpgsql
 AS $procedure$
 declare
 	v_cnt integer;
 	v_pk bigint;
 	v_exist_cnt integer;
+	v_user_id integer;
 	v_user_nm varchar(30);
 	v_exe_type char(1);
 	v_error_message varchar(1000);
@@ -5285,6 +5478,7 @@ begin
 
 		v_pk = curdata.pk;
 		v_exe_type = curdata.action_type;
+		v_user_id = null;
 		v_user_nm = null;
 		v_exist_cnt1 = null;
 		v_exist_cnt2 = null;
@@ -5302,7 +5496,7 @@ begin
 
 			--      
 			if (coalesce(curdata.user_id, '') <> '') then
-				select up."Name" as user_nm into v_user_nm 			
+				select up."Name" as user_nm, up."User_id" as user_id into v_user_nm , v_user_id		
 				from user_profile up
 					inner join auth_user au on up."User_id" = au.id
 				where au.username = curdata.user_id;
@@ -5333,52 +5527,52 @@ begin
 				--     
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit1, equip_spec_value = curdata.equip_spec_value1
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm1 and coalesce(v_exist_cnt1, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit2, equip_spec_value = curdata.equip_spec_value2
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm2 and coalesce(v_exist_cnt2, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit3, equip_spec_value = curdata.equip_spec_value3
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm3 and coalesce(v_exist_cnt3, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit4, equip_spec_value = curdata.equip_spec_value4
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm4 and coalesce(v_exist_cnt4, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit5, equip_spec_value = curdata.equip_spec_value5
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm5 and coalesce(v_exist_cnt5, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit6, equip_spec_value = curdata.equip_spec_value6
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm6 and coalesce(v_exist_cnt6, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit7, equip_spec_value = curdata.equip_spec_value7
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm7 and coalesce(v_exist_cnt7, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit8, equip_spec_value = curdata.equip_spec_value8
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm8 and coalesce(v_exist_cnt8, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit9, equip_spec_value = curdata.equip_spec_value9
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm9 and coalesce(v_exist_cnt9, 0) > 0;
 
 				update cm_equip_spec
 				set equip_spec_unit = curdata.equip_spec_unit10, equip_spec_value = curdata.equip_spec_value10
-				, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+				, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 				where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm10 and coalesce(v_exist_cnt10, 0) > 0;
 
 				update cm_mig_equip_spec set msg = 'UPDATED!' where pk = curdata.pk;
@@ -5389,13 +5583,13 @@ begin
 				if (coalesce(v_exist_cnt1, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm1, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm1, curdata.equip_spec_unit1, curdata.equip_spec_value1, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm1, curdata.equip_spec_unit1, curdata.equip_spec_value1, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm1, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit1, equip_spec_value = curdata.equip_spec_value1
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm1 and coalesce(v_exist_cnt1, 0) > 0;			
 					end if;
 				end if;
@@ -5404,13 +5598,13 @@ begin
 				if (coalesce(v_exist_cnt2, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm2, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm2, curdata.equip_spec_unit2, curdata.equip_spec_value2, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm2, curdata.equip_spec_unit2, curdata.equip_spec_value2, current_timestamp, v_user_id, v_user_nm);
 					end if;	
 				else
 					if (coalesce(curdata.equip_spec_nm2, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit2, equip_spec_value = curdata.equip_spec_value2
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm2 and coalesce(v_exist_cnt2, 0) > 0;						
 					end if;
 				end if;
@@ -5419,13 +5613,13 @@ begin
 				if (coalesce(v_exist_cnt3, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm3, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm3, curdata.equip_spec_unit3, curdata.equip_spec_value3, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm3, curdata.equip_spec_unit3, curdata.equip_spec_value3, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm3, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit3, equip_spec_value = curdata.equip_spec_value3
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm3 and coalesce(v_exist_cnt3, 0) > 0;
 					end if;
 				end if;
@@ -5434,13 +5628,13 @@ begin
 				if (coalesce(v_exist_cnt4, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm4, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm4, curdata.equip_spec_unit4, curdata.equip_spec_value4, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm4, curdata.equip_spec_unit4, curdata.equip_spec_value4, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm4, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit4, equip_spec_value = curdata.equip_spec_value4
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm4 and coalesce(v_exist_cnt4, 0) > 0;
 					end if;
 				end if;
@@ -5449,13 +5643,13 @@ begin
 				if (coalesce(v_exist_cnt5, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm5, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm5, curdata.equip_spec_unit5, curdata.equip_spec_value5, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm5, curdata.equip_spec_unit5, curdata.equip_spec_value5, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm5, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit5, equip_spec_value = curdata.equip_spec_value5
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm5 and coalesce(v_exist_cnt5, 0) > 0;
 					end if;
 				end if;
@@ -5464,13 +5658,13 @@ begin
 				if (coalesce(v_exist_cnt6, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm6, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm6, curdata.equip_spec_unit6, curdata.equip_spec_value6, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm6, curdata.equip_spec_unit6, curdata.equip_spec_value6, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm6, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit6, equip_spec_value = curdata.equip_spec_value6
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm6 and coalesce(v_exist_cnt6, 0) > 0;
 					end if;
 				end if;
@@ -5479,13 +5673,13 @@ begin
 				if (coalesce(v_exist_cnt7, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm7, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm7, curdata.equip_spec_unit7, curdata.equip_spec_value7, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm7, curdata.equip_spec_unit7, curdata.equip_spec_value7, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm7, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit7, equip_spec_value = curdata.equip_spec_value7
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm7 and coalesce(v_exist_cnt7, 0) > 0;
 					end if;
 				end if;
@@ -5494,13 +5688,13 @@ begin
 				if (coalesce(v_exist_cnt8, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm8, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm8, curdata.equip_spec_unit8, curdata.equip_spec_value8, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm8, curdata.equip_spec_unit8, curdata.equip_spec_value8, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm8, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit8, equip_spec_value = curdata.equip_spec_value8
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm8 and coalesce(v_exist_cnt8, 0) > 0;
 					end if;
 				end if;
@@ -5509,13 +5703,13 @@ begin
 				if (coalesce(v_exist_cnt9, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm9, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm9, curdata.equip_spec_unit9, curdata.equip_spec_value9, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm9, curdata.equip_spec_unit9, curdata.equip_spec_value9, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm9, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit9, equip_spec_value = curdata.equip_spec_value9
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm9 and coalesce(v_exist_cnt9, 0) > 0;
 					end if;
 				end if;
@@ -5524,13 +5718,13 @@ begin
 				if (coalesce(v_exist_cnt10, 0) = 0) then
 					if (coalesce(curdata.equip_spec_nm10, '') <> '') then
 						INSERT INTO cm_equip_spec(equip_pk, equip_spec_nm, equip_spec_unit, equip_spec_value, insert_ts, inserter_id, inserter_nm)
-						VALUES (v_equip_pk, curdata.equip_spec_nm10, curdata.equip_spec_unit10, curdata.equip_spec_value10, current_timestamp, 1, v_user_nm);
+						VALUES (v_equip_pk, curdata.equip_spec_nm10, curdata.equip_spec_unit10, curdata.equip_spec_value10, current_timestamp, v_user_id, v_user_nm);
 					end if;
 				else
 					if (coalesce(curdata.equip_spec_nm10, '') <> '') then
 						update cm_equip_spec
 						set equip_spec_unit = curdata.equip_spec_unit10, equip_spec_value = curdata.equip_spec_value10
-						, update_ts = current_timestamp, updater_id = curdata.user_id, updater_nm = v_user_nm
+						, update_ts = current_timestamp, updater_id = v_user_id, updater_nm = v_user_nm
 						where equip_pk = v_equip_pk and equip_spec_nm = curdata.equip_spec_nm10 and coalesce(v_exist_cnt10, 0) > 0;
 					end if;
 				end if;
@@ -5563,9 +5757,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_equip_type();
+-- DROP PROCEDURE cm_prc_mig_equip_type();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_equip_type()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_equip_type()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -5689,9 +5883,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_loc();
+-- DROP PROCEDURE cm_prc_mig_loc();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_loc()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_loc()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -5834,9 +6028,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_mtrl();
+-- DROP PROCEDURE cm_prc_mig_mtrl();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_mtrl()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_mtrl()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -5876,7 +6070,7 @@ begin
 		, maker_cd, maker_nm, supplier_cd, supplier_nm
 		, delivery_days, delivery_type, user_id, insert_ts, msg
 		from cm_mig_mtrl
-		where (msg is null or upper(msg) = 'ERROR')
+		where (coalesce(msg,'') = '' or upper(msg) = 'ERROR' or  upper(msg) = 'UPDATED!' )
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -5966,7 +6160,7 @@ begin
 		
 			v_line = '9';
 --			raise notice 'v_line: %', v_line;
---			raise notice 'v_exe_type: %', v_exe_type;
+			raise notice 'v_exe_type: %', v_exe_type;
 			if (v_exe_type = 'U') then
 				--     
 				update cm_material
@@ -5982,10 +6176,11 @@ begin
 				, supplier_pk = v_supplier_pk
 				, maker_pk = v_maker_pk
 				, update_ts = current_timestamp
-				, updater_id = curdata.user_id
+				, updater_id = 1
 				, updater_nm = v_user_nm
 				where mtrl_cd = curdata.mtrl_cd and site_id = curdata.site_id;
 				v_line = '10';
+raise notice 'update: %', v_maker_pk;
 				update cm_mig_mtrl set msg = 'UPDATED!' where pk = curdata.pk;
 			elseif (v_exe_type = 'A') then
 				--    
@@ -6034,9 +6229,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_mtrl_inout();
+-- DROP PROCEDURE cm_prc_mig_mtrl_inout();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_mtrl_inout()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_mtrl_inout()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -6174,9 +6369,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_mtrl_photo();
+-- DROP PROCEDURE cm_prc_mig_mtrl_photo();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_mtrl_photo()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_mtrl_photo()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -6296,9 +6491,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_pm();
+-- DROP PROCEDURE cm_prc_mig_pm();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_pm()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_pm()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -6382,7 +6577,7 @@ begin
 			select "User_id" into v_pm_user_pk
 			from user_profile up
 				inner join auth_user au on up."User_id" = au.id
-			where au.username = curdata.user_id;
+			where au.username = curdata.pm_user_id;
 
 			if (v_exe_type = 'U') then
 				--     
@@ -6394,7 +6589,7 @@ begin
 				, cycle_type=curdata.cycle_type
 				, sched_start_dt=(case when curdata.sched_start_dt is null then null else to_date(curdata.sched_start_dt, 'YYYY-MM-DD') end)				
 				, dept_pk=cm_v_dept_pk
-				, pm_user_pk=v_pm_user_pk
+				, pm_user_pk= v_pm_user_pk
 				, work_expect_hr=curdata.work_expect_hr
 				, work_text=curdata.work_text				
 				, update_ts = current_timestamp
@@ -6404,19 +6599,19 @@ begin
 				update cm_mig_pm set msg = 'UPDATED!' where pk = curdata.pk;
 			
 			elseif (v_exe_type = 'A') then
-
+raise info 'curdata: %', curdata;
 				INSERT INTO cm_pm(pm_nm, pm_no, pm_no_sort
 					, equip_pk, pm_type, per_number, cycle_type
 					, sched_start_dt, dept_pk, pm_user_pk
 			     	, work_expect_hr, work_text
-				 	, insert_ts, inserter_id, inserter_nm, use_yn, del_yn)
+				 	, insert_ts, inserter_id, inserter_nm, use_yn, del_yn,factory_pk)
 				VALUES (curdata.pm_nm, curdata.pm_no, 1
 					, v_equip_pk, curdata.pm_type, curdata.per_number, curdata.cycle_type
 					, (case when curdata.sched_start_dt is null then null else to_date(curdata.sched_start_dt, 'YYYY-MM-DD') end)
 					, cm_v_dept_pk, v_pm_user_pk
 					, curdata.work_expect_hr, curdata.work_text
-					, current_timestamp, 1, v_user_nm, 'Y', 'N');
-
+					, current_timestamp, 1, v_user_nm, 'Y', 'N',1);
+raise info 'v_exe_type2: %', v_exe_type;
 				update cm_mig_pm set msg = 'INSERTED!' where pk = curdata.pk;
 			
 			end if;
@@ -6446,9 +6641,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_stor_loc_addr();
+-- DROP PROCEDURE cm_prc_mig_stor_loc_addr();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_stor_loc_addr()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_stor_loc_addr()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -6583,9 +6778,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_supplier();
+-- DROP PROCEDURE cm_prc_mig_supplier();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_supplier()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_supplier()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -6721,9 +6916,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_user();
+-- DROP PROCEDURE cm_prc_mig_user();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_user()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_user()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -6739,6 +6934,7 @@ declare
 	v_error_message varchar(1000);
 	curdata record;
 	v_user_id int;
+	v_UserGroup_id int;
 begin
 -- raise notice 'fntrans';
 	
@@ -6755,7 +6951,7 @@ begin
 		, coalesce(retire_yn, 'N') as retire_yn
 		, user_id, insert_ts, msg
 		from cm_mig_user
-		where (msg is null or upper(msg) = 'ERROR')
+		where (coalesce(msg,'') = '' or upper(msg) = 'ERROR')
 		order by pk, insert_ts
 	loop
 		raise notice 'TARGET %', curdata;	
@@ -6768,9 +6964,10 @@ begin
 		v_user_type = null;
 		v_role_cd = null;
 		v_user_id = null;
+
 	
         BEGIN
-			--            ش   ڵ尡  ̹   ִ                   .
+			
 			select count(*) into v_exist_cnt from auth_user where username = curdata.login_id;
 			if (v_exe_type = 'A' and coalesce(v_exist_cnt, 0) > 0) then
 				v_exe_type = 'U';
@@ -6779,7 +6976,16 @@ raise info 'v_exist_cnt:%', v_exist_cnt;
 			v_exist_cnt = 0;
 
 
-			--  μ 
+			if lower(v_role_cd) = 'admin' or lower(v_role_cd) = '관리자' then
+				select id into v_UserGroup_id from user_group where "Code" = 'admin';
+			end if;
+
+			if lower(coalesce(v_role_cd, '')) = '' then			
+				select id into v_UserGroup_id from user_group where "Code" = 'user';
+			end if;		
+
+raise info 'v_role_cd:%', v_role_cd; 
+
 			select id into cm_v_dept_pk from dept where "Code" = curdata.dept_cd;
 raise info 'cm_v_dept_pk:%', cm_v_dept_pk;
 
@@ -6792,6 +6998,8 @@ raise info 'cm_v_dept_pk:%', cm_v_dept_pk;
 				v_user_nm = coalesce(v_user_nm, 'system');
 raise info 'v_user_nm:%', v_user_nm;
 			end if;	
+
+raise info 'v_exe_type:%', v_exe_type;
 			if (v_exe_type = 'U') then
 				--     
 raise info 'v_exe_type:%,login_id:%,user_mail:%,is_staff:%', v_exe_type, curdata.login_id, curdata.user_mail,case when trim(curdata.retire_yn) = 'Y' then true else false end;
@@ -6802,11 +7010,11 @@ raise info 'v_exe_type:%,login_id:%,user_mail:%,is_staff:%', v_exe_type, curdata
 				    is_staff = case when trim(curdata.retire_yn) = 'Y' then true else false end,
 				    is_active = true
 				where username = curdata.login_id;
-raise exception '';
-raise info 'auth_user end:';
-				
-				select id into v_user_id from auth_user where username = curdata.login_id;
 
+raise info 'auth_user end:';
+			
+				select id into v_user_id from auth_user where username = curdata.login_id;
+raise info 'v_user_id:%', v_user_id;
 				update user_profile
 				set "Name" = curdata.user_nm			
 				, "Depart_id" = cm_v_dept_pk
@@ -6814,10 +7022,12 @@ raise info 'auth_user end:';
 				, user_email = curdata.user_mail
 				, _modified = current_timestamp
 				, _modifier_id = 1
+				, "UserGroup_id" = v_UserGroup_id
 				, del_yn = case when trim(curdata.retire_yn) = 'Y' then true else false end
 				, use_yn = 'Y'
 				where "User_id" = v_user_id;
 		raise info 'user_profile end:';	
+
 				update cm_mig_user set msg = 'UPDATED!' where pk = curdata.pk;
 
 			elseif (v_exe_type = 'A') then
@@ -6840,16 +7050,15 @@ raise info '111111';
 
 				select id into v_new_user_pk from auth_user where username = curdata.login_id;
 raise info '333:%', v_new_user_pk;
-				INSERT INTO user_profile("User_id", "Name", lang_code, _created,_creater_id, del_yn, use_yn)
+				INSERT INTO user_profile("User_id", "Name", lang_code, _created,_creater_id, "UserGroup_id", del_yn, use_yn)
 				VALUES (v_new_user_pk, curdata.user_nm
 						, 'ko-KR'
 						, current_timestamp, 1
+						, v_UserGroup_id
 						, case when trim(curdata.retire_yn)  = '' then 'N' else coalesce(curdata.retire_yn, 'N') end
 						, 'Y');
 
-				--  ⺻    
---				insert into cm_user_role(user_pk, role_cd)
---				values(v_new_user_pk, v_role_cd);
+
 raise info 'end';
 				update cm_mig_user set msg = 'INSERTED!' where pk = curdata.pk;
 			
@@ -6882,9 +7091,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_wo();
+-- DROP PROCEDURE cm_prc_mig_wo();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_wo()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_wo()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7120,9 +7329,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mig_wo_fault_loc();
+-- DROP PROCEDURE cm_prc_mig_wo_fault_loc();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mig_wo_fault_loc()
+CREATE OR REPLACE PROCEDURE cm_prc_mig_wo_fault_loc()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7254,9 +7463,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_mttr_mtbf_info_ins();
+-- DROP PROCEDURE cm_prc_mttr_mtbf_info_ins();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_mttr_mtbf_info_ins()
+CREATE OR REPLACE PROCEDURE cm_prc_mttr_mtbf_info_ins()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7347,9 +7556,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_pm_insp_alarm_ins();
+-- DROP PROCEDURE cm_prc_pm_insp_alarm_ins();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_pm_insp_alarm_ins()
+CREATE OR REPLACE PROCEDURE cm_prc_pm_insp_alarm_ins()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7382,9 +7591,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_pm_notdone_alarm_ins();
+-- DROP PROCEDURE cm_prc_pm_notdone_alarm_ins();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_pm_notdone_alarm_ins()
+CREATE OR REPLACE PROCEDURE cm_prc_pm_notdone_alarm_ins()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7600,9 +7809,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_pm_plan_alarm_ins();
+-- DROP PROCEDURE cm_prc_pm_plan_alarm_ins();
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_pm_plan_alarm_ins()
+CREATE OR REPLACE PROCEDURE cm_prc_pm_plan_alarm_ins()
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7768,9 +7977,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_safety_stock_alarm_ins(int8, varchar, varchar, varchar, varchar, varchar, varchar);
+-- DROP PROCEDURE cm_prc_safety_stock_alarm_ins(int8, varchar, varchar, varchar, varchar, varchar, varchar);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_safety_stock_alarm_ins(v_mtrl_pk bigint, v_own_dept_cd character varying, v_inout_loc_cd character varying, v_loc_cell_addr character varying, v_inout_uprice character varying, v_ab_grade character varying, v_year_mon character varying)
+CREATE OR REPLACE PROCEDURE cm_prc_safety_stock_alarm_ins(v_mtrl_pk bigint, v_own_dept_cd character varying, v_inout_loc_cd character varying, v_loc_cell_addr character varying, v_inout_uprice character varying, v_ab_grade character varying, v_year_mon character varying)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -7963,9 +8172,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_tag_data_alarm_ins(int8);
+-- DROP PROCEDURE cm_prc_tag_data_alarm_ins(int8);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_tag_data_alarm_ins(v_tag_data_pk bigint)
+CREATE OR REPLACE PROCEDURE cm_prc_tag_data_alarm_ins(v_tag_data_pk bigint)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -8292,9 +8501,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_tag_data_ins(varchar, varchar, timestamp);
+-- DROP PROCEDURE cm_prc_tag_data_ins(varchar, varchar, timestamp);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_tag_data_ins(p_tag character varying, p_data_val character varying, p_data_dt timestamp without time zone)
+CREATE OR REPLACE PROCEDURE cm_prc_tag_data_ins(p_tag character varying, p_data_val character varying, p_data_dt timestamp without time zone)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -8362,9 +8571,9 @@ end;
 $procedure$
 ;
 
--- DROP PROCEDURE public.cm_prc_update_sequence(varchar, varchar, varchar);
+-- DROP PROCEDURE cm_prc_update_sequence(varchar, varchar, varchar);
 
-CREATE OR REPLACE PROCEDURE public.cm_prc_update_sequence(p_table_nm character varying, p_table_pk character varying, p_seq_nm character varying)
+CREATE OR REPLACE PROCEDURE cm_prc_update_sequence(p_table_nm character varying, p_table_pk character varying, p_seq_nm character varying)
  LANGUAGE plpgsql
 AS $procedure$
 declare
@@ -8406,9 +8615,404 @@ end;
 $procedure$
 ;
 
--- DROP FUNCTION public.fn_code_name(text, text);
+-- DROP PROCEDURE cm_prc_wo_approval(int8, int8, varchar);
 
-CREATE OR REPLACE FUNCTION public.fn_code_name(code_type text, code text)
+CREATE OR REPLACE PROCEDURE cm_prc_wo_approval(p_work_order_pk bigint, p_accept_user_pk bigint, p_accept_user_nm character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_approval', concat(' [MESSAGE] : ', '작업요청승인'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	UPDATE cm_work_order_approval
+	SET accept_dt = CURRENT_TIMESTAMP
+		, accept_user_nm = p_accept_user_nm
+		, accept_user_pk = p_accept_user_pk
+	WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_AP'
+		, appr_line_next = 'CM'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	    , update_ts = CURRENT_TIMESTAMP
+	    , updater_id = p_accept_user_pk
+	    , updater_nm = p_accept_user_nm
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* updateEquipmentStatusAndBreaDownDt [equipment-mapper.xml] */
+--	update cm_equipment
+--	set equip_status = 'ES_BKDN'
+--	where equip_pk = v_equip_pk;
+
+	--이전설비와 이후설비
+--	update equipment
+--	set breakdown_dt = (CASE WHEN coalesce('07/08/2025 10:00:00.000', '') = '' THEN NULL ELSE to_timestamp('07/08/2025 10:00:00.000', 'YYYY-MM-DD HH24:MI') END)
+--	where equip_pk = v_equip_pk;
+
+
+	/* save [work-order-hist-mapper.xml] */
+	INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+	VALUES (p_work_order_pk, 'WOS_OC', 'WOS_AP', CURRENT_TIMESTAMP, p_accept_user_pk, p_accept_user_nm, '');
+	
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_approval', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_wo_approval_bulk(_int8, int8, varchar);
+
+CREATE OR REPLACE PROCEDURE cm_prc_wo_approval_bulk(p_work_order_pks bigint[], p_accept_user_pk bigint, p_accept_user_nm character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+    v_work_order_pk bigint; -- ★ 루프 변수
+    v_work_order_approval_pk bigint;
+    v_work_title varchar(200);
+    v_equip_pk integer;
+    v_after_status varchar(20);
+    v_error_message varchar(1000);
+    curdata record;
+begin
+    FOREACH v_work_order_pk IN ARRAY p_work_order_pks LOOP  -- ★ 배열 순회
+        begin
+            insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+            values('MIGRATION', 'cm_prc_wo_approval_bulk', concat(' [MESSAGE] : ', '작업요청승인', ' PK=', v_work_order_pk));
+
+            select work_order_approval_pk, work_title, equip_pk
+                into v_work_order_approval_pk, v_work_title, v_equip_pk
+            from cm_work_order 
+            where work_order_pk = v_work_order_pk;
+
+            /* updateAccept */
+            UPDATE cm_work_order_approval
+            SET accept_dt = CURRENT_TIMESTAMP,
+                accept_user_nm = p_accept_user_nm,
+                accept_user_pk = p_accept_user_pk
+            WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+            /* acceptWorkOrder */
+            UPDATE cm_work_order
+            SET wo_status = 'WOS_AP',
+                appr_line_next = 'CM',
+                work_title = v_work_title,
+                req_info = '<p>' || v_work_title || '</p>',
+                update_ts = CURRENT_TIMESTAMP,
+                updater_id = p_accept_user_pk,
+                updater_nm = p_accept_user_nm
+            WHERE work_order_pk = v_work_order_pk;
+
+            /* save history */
+            INSERT INTO cm_work_order_hist 
+                (work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+            VALUES 
+                (v_work_order_pk, 'WOS_OC', 'WOS_AP', CURRENT_TIMESTAMP, p_accept_user_pk, p_accept_user_nm, '');
+        EXCEPTION  
+            WHEN OTHERS THEN 
+            BEGIN 
+                v_error_message := SQLERRM;
+                insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+                values('MIGRATION', 'cm_prc_wo_approval_bulk', 
+                       ' [MESSAGE : ' || v_work_order_pk::text || '] : ' || v_error_message);
+            END;
+        end;
+    END LOOP;
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_wo_finish(int8, varchar, int8, varchar, int8, int8, int8, int8, int8);
+
+CREATE OR REPLACE PROCEDURE cm_prc_wo_finish(p_work_order_pk bigint, p_temp_save character varying, p_finish_user_pk bigint, p_finish_user_nm character varying, p_mtrl_cost bigint, p_labor_cost bigint, p_outside_cost bigint, p_etc_cost bigint, p_tot_cost bigint)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_finish', concat(' [MESSAGE] : ', '작업요청승인'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	if (p_temp_save != 'Y') then
+		UPDATE cm_work_order_approval
+		SET finish_dt = CURRENT_TIMESTAMP
+			, finish_user_nm = p_finish_user_nm
+			, finish_user_pk = p_finish_user_pk
+		WHERE work_order_approval_pk = v_work_order_approval_pk;
+	end if;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_CL'
+		, appr_line_next = 'CL'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	    , update_ts = CURRENT_TIMESTAMP
+	    , updater_id = p_finish_user_pk
+	    , updater_nm = p_finish_user_nm
+		,mtrl_cost = p_mtrl_cost
+		,labor_cost = p_labor_cost
+		,outside_cost = p_outside_cost
+		,etc_cost = p_etc_cost
+		,tot_cost = p_tot_cost
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* updateEquipmentStatusAndBreaDownDt [equipment-mapper.xml] */
+--	update cm_equipment
+--	set equip_status = 'ES_BKDN'
+--	where equip_pk = v_equip_pk;
+
+	--이전설비와 이후설비
+--	update equipment
+--	set breakdown_dt = (CASE WHEN coalesce('07/08/2025 10:00:00.000', '') = '' THEN NULL ELSE to_timestamp('07/08/2025 10:00:00.000', 'YYYY-MM-DD HH24:MI') END)
+--	where equip_pk = v_equip_pk;
+
+	/* save [work-order-hist-mapper.xml] */
+
+	if (p_temp_save != 'Y') then
+		INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+		VALUES (p_work_order_pk, 'WOS_AP', 'WOS_CM', CURRENT_TIMESTAMP, p_finish_user_pk, p_finish_user_nm, '');
+	end if;
+
+	/* insertEquipBom (완료시 설비의 BOM으로 자재 추가) [work-order-mapper.xml] */
+--	INSERT INTO CM_EQUIP_PART_MTRL(EQUIP_PK, MTRL_PK, AMT, USE_YN, DEL_YN, INSERT_TS, INSERTER_ID, INSERTER_NM)
+--	SELECT wo.EQUIP_PK, wm.MTRL_PK, 1, 'Y', 'N', CURRENT_TIMESTAMP, 'system', '관리자'
+--	FROM CM_WO_MTRL wm
+--		INNER JOIN CM_MATERIAL m ON wm.MTRL_PK = m.MTRL_PK
+--		INNER JOIN CM_WORK_ORDER wo ON wm.WORK_ORDER_PK = wo.WORK_ORDER_PK
+--		LEFT OUTER JOIN CM_EQUIP_PART_MTRL epm ON wm.MTRL_PK = epm.MTRL_PK AND wo.EQUIP_PK = epm.EQUIP_PK
+--	WHERE wm.WORK_ORDER_PK = p_work_order_pk
+--		AND m.ALLOW_ADD_BOM = 'Y'
+--		AND epm.MTRL_PK IS NULL
+--	GROUP BY wo.EQUIP_PK, wm.MTRL_PK;
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_finish', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_wo_reject_req(int8, int8, varchar, varchar);
+
+CREATE OR REPLACE PROCEDURE cm_prc_wo_reject_req(p_work_order_pk bigint, p_reject_user_pk bigint, p_reject_user_nm character varying, p_reject_reason character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_reject_req', concat(' [MESSAGE] : ', '작업요청 반려'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	UPDATE cm_work_order_approval
+	SET reject_dt = CURRENT_TIMESTAMP
+		, reject_user_nm = p_reject_user_nm
+		, reject_user_pk = p_reject_user_pk
+		, reject_reason = p_reject_reason
+	WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_RB'
+		, appr_line_next = 'OC'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* save [work-order-hist-mapper.xml] */
+	INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+	VALUES (p_work_order_pk, 'WOS_RQ', 'WOS_RB', CURRENT_TIMESTAMP, p_reject_user_pk, p_reject_user_nm, p_reject_reason);
+	
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_reject_req', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_wo_request(int8, int8, varchar);
+
+CREATE OR REPLACE PROCEDURE cm_prc_wo_request(p_work_order_pk bigint, p_accept_user_pk bigint, p_accept_user_nm character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+	v_work_order_approval_pk bigint;
+	v_work_title varchar(200);
+	v_equip_pk integer;
+	v_after_status varchar(20);
+	v_error_message varchar(1000);
+	curdata record;
+begin
+	
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_request', concat(' [MESSAGE] : ', '작업요청승인'));
+
+	select work_order_approval_pk, work_title, equip_pk into v_work_order_approval_pk, v_work_title, v_equip_pk
+	from cm_work_order 
+	where work_order_pk = p_work_order_pk;
+
+	/* updateAccept (작업요청승인) [work-order-approval-mapper.xml] */
+	UPDATE cm_work_order_approval
+	SET accept_dt = CURRENT_TIMESTAMP
+		, accept_user_nm = p_accept_user_nm
+		, accept_user_pk = p_accept_user_pk
+	WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+	/* acceptWorkOrder (작업요청승인) [work-order-mapper.xml] */
+	UPDATE cm_work_order
+	SET wo_status = 'WOS_OC'
+		, appr_line_next = 'AP'
+	    , work_title = v_work_title
+	    , req_info = '<p>' || v_work_title || '</p>'
+	    , update_ts = CURRENT_TIMESTAMP
+	    , updater_id = p_accept_user_pk
+	    , updater_nm = p_accept_user_nm
+	WHERE work_order_pk = p_work_order_pk;
+
+	/* updateEquipmentStatusAndBreaDownDt [equipment-mapper.xml] */
+	update cm_equipment
+	set equip_status = 'ES_BKDN'
+	where equip_pk = v_equip_pk;
+
+	/* save [work-order-hist-mapper.xml] */
+	INSERT INTO cm_work_order_hist	(work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+	VALUES (p_work_order_pk, 'WOS_RQ', 'WOS_OC', CURRENT_TIMESTAMP, p_accept_user_pk, p_accept_user_nm, '');
+	
+
+EXCEPTION  
+  WHEN OTHERS THEN 
+  BEGIN 
+	v_error_message := SQLERRM;
+	update cm_mig_loc set msg = 'error' where pk = v_pk;
+	insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+	values('MIGRATION', 'cm_prc_wo_request', ' [MESSAGE : ' || v_pk::text || '] : ' || v_error_message);
+  END;
+	
+end;
+$procedure$
+;
+
+-- DROP PROCEDURE cm_prc_wo_request_bulk(_int8, int8, varchar);
+
+CREATE OR REPLACE PROCEDURE cm_prc_wo_request_bulk(p_work_order_pks bigint[], p_accept_user_pk bigint, p_accept_user_nm character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+declare
+    v_work_order_pk bigint; -- ★ 루프 변수
+    v_work_order_approval_pk bigint;
+    v_work_title varchar(200);
+    v_equip_pk integer;
+    v_after_status varchar(20);
+    v_error_message varchar(1000);
+    curdata record;
+begin
+    FOREACH v_work_order_pk IN ARRAY p_work_order_pks LOOP  -- ★ 배열 순회
+        begin
+            insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+            values('MIGRATION', 'cm_prc_wo_request_bulk', concat(' [MESSAGE] : ', '작업요청승인', ' PK=', v_work_order_pk));
+
+            select work_order_approval_pk, work_title, equip_pk
+                into v_work_order_approval_pk, v_work_title, v_equip_pk
+            from cm_work_order 
+            where work_order_pk = v_work_order_pk;
+
+            /* updateAccept */
+            UPDATE cm_work_order_approval
+            SET accept_dt = CURRENT_TIMESTAMP,
+                accept_user_nm = p_accept_user_nm,
+                accept_user_pk = p_accept_user_pk
+            WHERE work_order_approval_pk = v_work_order_approval_pk;
+
+            /* acceptWorkOrder */
+            UPDATE cm_work_order
+            SET wo_status = 'WOS_OC',
+                appr_line_next = 'AP',
+                work_title = v_work_title,
+                req_info = '<p>' || v_work_title || '</p>',
+                update_ts = CURRENT_TIMESTAMP,
+                updater_id = p_accept_user_pk,
+                updater_nm = p_accept_user_nm
+            WHERE work_order_pk = v_work_order_pk;
+
+            /* save history */
+            INSERT INTO cm_work_order_hist 
+                (work_order_pk, before_status, after_status, change_ts, changer_pk, changer_nm, change_reason)
+            VALUES 
+                (v_work_order_pk, 'WOS_RQ', 'WOS_OC', CURRENT_TIMESTAMP, p_accept_user_pk, p_accept_user_nm, '');
+        EXCEPTION  
+            WHEN OTHERS THEN 
+            BEGIN 
+                v_error_message := SQLERRM;
+                insert into cm_error_log(error_log_type, error_log_title, error_log_desc)
+                values('MIGRATION', 'cm_prc_wo_request_bulk', 
+                       ' [MESSAGE : ' || v_work_order_pk::text || '] : ' || v_error_message);
+            END;
+        end;
+    END LOOP;
+end;
+$procedure$
+;
+
+-- DROP FUNCTION fn_code_name(text, text);
+
+CREATE OR REPLACE FUNCTION fn_code_name(code_type text, code text)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -8437,9 +9041,9 @@ END;
 $function$
 ;
 
--- DROP FUNCTION public.fn_json_lang_text(jsonb, varchar);
+-- DROP FUNCTION fn_json_lang_text(jsonb, varchar);
 
-CREATE OR REPLACE FUNCTION public.fn_json_lang_text(v_json jsonb, v_lang_code character varying)
+CREATE OR REPLACE FUNCTION fn_json_lang_text(v_json jsonb, v_lang_code character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -8463,9 +9067,9 @@ END;
 $function$
 ;
 
--- DROP FUNCTION public.fn_try_to_number(varchar);
+-- DROP FUNCTION fn_try_to_number(varchar);
 
-CREATE OR REPLACE FUNCTION public.fn_try_to_number(p_src character varying)
+CREATE OR REPLACE FUNCTION fn_try_to_number(p_src character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$
@@ -8482,9 +9086,9 @@ END;
 $function$
 ;
 
--- DROP FUNCTION public.fn_user_nm(varchar, varchar);
+-- DROP FUNCTION fn_user_nm(varchar, varchar);
 
-CREATE OR REPLACE FUNCTION public.fn_user_nm(v_user_nm character varying, v_del_yn character varying)
+CREATE OR REPLACE FUNCTION fn_user_nm(v_user_nm character varying, v_del_yn character varying)
  RETURNS character varying
  LANGUAGE plpgsql
 AS $function$

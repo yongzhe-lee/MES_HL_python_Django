@@ -1,4 +1,4 @@
-﻿from configurations import settings
+from configurations import settings
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.services.logging import LogWriter
@@ -118,6 +118,90 @@ class EquipCheckRstService():
             items = DbUtil.get_rows(sql, dc)
         except Exception as ex:
             LogWriter.add_dblog('error', 'EquipCheckRstService.findAll', ex)
+            raise
+
+        return items
+
+    def findOne(self, dcparam):
+        items = []
+        chkSchePk = CommonUtil.try_int(dcparam.get('chkSchePk'))        
+
+        sql = ''' 
+            select t.chk_rslt_pk
+			, t.chk_sche_pk
+			, ecs.chk_sche_no
+			, d.id as dept_pk
+			, d."Name" as dept_nm
+			, ecs.chk_sche_dt
+			, ecs.chk_dt
+			, ecs.chk_sche_type
+			, ecm.chk_mast_no
+			, ecm.chk_mast_nm
+			, ecm.per_number
+			, ecm.last_chk_date
+			, ecm.work_text
+			, t.equip_pk
+			, e.equip_nm
+			, e.equip_cd
+			, l.loc_nm
+			, ec.equip_category_desc
+			, es.code_nm as equip_status_nm
+			, e.equip_dsc
+			, t.chk_rslt
+			, t.rslt_dsc
+			, t.chk_req_type
+			, t.chk_item_tot
+			, t.abn_item_cnt
+			, to_char(t.insert_ts, 'yyyy-mm-dd') as insert_ts
+			, t.inserter_id
+			, t.inserter_nm
+			, t.update_ts
+			, t.updater_id
+			, t.updater_nm
+			, e.equip_class_path
+			, e.equip_class_desc
+			, cu."User_id" as chk_user_pk, cm_fn_user_nm(cu."Name", 'N') as chk_user_nm
+			, ct.code_cd as cycle_type_cd, ct.code_nm as cycle_type_nm
+			, concat(ecm.per_number, ct.code_dsc) as cycle_display_nm
+			, cs.code_cd as chk_status_cd, cs.code_nm as chk_status_nm
+			, count(t.chk_rslt_pk) as tot_count
+			, sum(case when t.chk_rslt = 'N' then 1 else 0 end) as normal_count
+			, sum(case when t.chk_rslt = 'A' then 1 else 0 end) as abNormal_count
+			, sum(case when t.chk_rslt = 'C' then 1 else 0 end) as unableCheck_count
+			, ecm.daily_report_cd, ecm.daily_report_type_cd
+		from cm_equip_chk_rslt t
+			inner join cm_equip_chk_sche ecs on t.chk_sche_pk = ecs.chk_sche_pk
+			inner join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk	
+			left join dept d on d.id = ecs.dept_pk
+			inner join cm_equipment e on t.equip_pk = e.equip_pk
+			left outer join cm_base_code cs on ecs.chk_status = cs.code_cd and cs.code_grp_cd = 'CHK_STATUS'
+			left join user_profile cu on cu."User_id" = ecs.chk_user_pk
+			left outer join cm_base_code ct on ecm.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+			left outer join cm_location l on e.loc_pk = l.loc_pk
+			left outer join cm_equip_category ec on e.equip_category_id = ec.equip_category_id
+			left outer join cm_base_code es on e.equip_status = es.code_cd and es.code_grp_cd = 'EQUIP_STATUS'
+		where t.chk_sche_pk = %(chkSchePk)s
+		group by t.chk_rslt_pk, t.chk_sche_pk, ecs.chk_sche_no, d.id, d."Name"
+			, ecs.chk_sche_dt, ecs.chk_dt, ecs.chk_sche_type
+			, ecm.chk_mast_no, ecm.chk_mast_nm, ecm.per_number, ecm.last_chk_date, ecm.work_text
+			, t.equip_pk, e.equip_nm, t.chk_rslt, t.rslt_dsc, t.chk_req_type, t.chk_item_tot
+			, t.abn_item_cnt, t.insert_ts, t.inserter_id, t.inserter_nm, t.update_ts, t.updater_id, t.updater_nm
+			, cu."User_id", cu."Name"	
+			, ct.code_cd, ct.code_nm, ct.code_dsc, cs.code_cd, cs.code_nm
+			, e.equip_cd, l.loc_nm, ec.equip_category_desc, e.equip_class_path, e.equip_class_desc
+			, es.code_nm, e.equip_dsc, ecm.daily_report_cd, ecm.daily_report_type_cd ;        
+        '''
+
+        dc = {
+            'chkSchePk': chkSchePk,
+        }
+
+        try:
+            items = DbUtil.get_row(sql, dc)
+            items = CommonUtil.res_snake_to_camel(items)
+
+        except Exception as ex:
+            LogWriter.add_dblog('error', 'EquipCheckRstService.findOne', ex)
             raise
 
         return items

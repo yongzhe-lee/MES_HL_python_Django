@@ -1,4 +1,6 @@
+from ctypes import Array
 import pytz
+import calendar
 
 from  datetime import datetime, timedelta
 from dateutil.parser import parse as date_parse
@@ -128,6 +130,13 @@ class DateUtil(object):
         if type(value) is str:
             return datetime.strptime(value, format)
         return value
+
+
+    @staticmethod
+    def get_day_count(year: int, month: int) -> int:
+        """해당 년, 월의 일수(컬럼 수)를 반환합니다."""
+        return calendar.monthrange(year, month)[1]
+    
 
     #@classmethod
     #def timedelta_minutes(cls, start_time, end_time):

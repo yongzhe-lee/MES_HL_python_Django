@@ -106,6 +106,19 @@ def depart(context):
             dc['keyword'] = keyword
             data = DbUtil.get_rows(sql, dc)
             result = {'items': data}
+
+        elif action == 'getCurrentDept':
+            username = user.username
+            sql = '''
+            select d.id as dept_pk,d."Name" as dept_nm from dept d
+	            inner join user_profile up on d.id = up."Depart_id"
+	            inner join auth_user au on up."User_id" = au.id
+            where au.username  = %(username)s
+            '''   
+            dc = {}
+            dc['username'] = username
+            data = DbUtil.get_row(sql, dc)
+            result = {'items': data}
             
         elif action =='save':
             dept_id = posparam.get('dept_id')

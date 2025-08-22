@@ -122,7 +122,7 @@ def alarm(context):
             '''
             if equ_id:
                 sql+='''
-                and ea.id=%(equ_id)s
+                and e.id=%(equ_id)s
                 '''
 
             sql+='''

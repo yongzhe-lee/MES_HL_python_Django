@@ -74,6 +74,7 @@
 		</div>
 	</div>
 </div>
+
 <!-- PM일정생성 Kendo Window 팝업 -->
 <div id="makePmScheWindow" class="dynamic-window" style="display:none; overflow: visible; height: auto; max-height: none;">
 	<div class="col-auto">
@@ -90,6 +91,7 @@
 		<button type="button" class="btn-close" id="btnCancelScheduleModal">취소</button>
 	</div>
 </div>
+
 {% verbatim %}
 {% endverbatim %}
 {% endblock %}
@@ -130,22 +132,23 @@
 				},
 				selectable: "multiple, row",
 				columns: [
-					{ selectable: true, width: "50px" },
-					{ field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
-					{ field: 'pm_no', title: 'PM 번호', width: 120 },
+					{ selectable: true, width: "50px", headerAttributes: { style: 'text-align: center; justify-content: center;' } },
+					{ field: 'pm_pk', title: 'PM PK', hidden: true, headerAttributes: { style: 'text-align: center; justify-content: center;' } },  // ✅ pm_pk 값 유지
+					{ field: 'pm_no', title: 'PM 번호', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' }, template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#" data-mode="read">#=pm_no#</a>' },
 					{
 						field: "pm_nm",
 						title: "PM명",
 						width: 150,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: left;' },
 					},
-					{ field: 'pm_type_nm', title: 'PM 유형', width: 80 },
-					{ field: 'equip_cd', title: '설비코드', width: 100 },
-					{ field: 'equip_nm', title: '설비명', width: 150 },
-					{ field: 'equip_cd', title: '카테고리', width: 100 },
-					{ field: 'dept_nm', title: '실행부서', width: 100 },
-					{ field: 'equip_cd', title: '최종 PM 생성일', width: 100 },
-					{ field: 'cycle_type_nm', title: '주기', width: 50 }
+					{ field: 'pm_type_nm', title: 'PM 유형', width: 80, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'equip_cd', title: '설비코드', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+					{ field: 'equip_nm', title: '설비명', width: 150, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+					{ field: 'equip_cd', title: '카테고리', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+					{ field: 'Name', title: '실행부서', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'equip_cd', title: '최종 PM 생성일', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'cycle_type_nm', title: '주기', width: 50, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } }
 				],
 
 				dataBound: function (e) {
@@ -154,9 +157,10 @@
 							e.preventDefault();
 							let pmPk = $(this).data("pm-pk");
 							let equipPk = $(this).data("equip-pk");
+							let mode = $(this).data("mode");
 							if (pmPk) {
 								setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
-								pmMasterPage.show(pmPk);
+								pmMasterPage.show(pmPk, mode);
 							} else if (equipPk) {
 								// 기존 팝업/인스턴스 완전 제거
 								$('#modalEquipMaster').remove();
@@ -180,7 +184,7 @@
 				height: "540px"
 			};
 			_this.grid = new Grid($("#pm_schedule_m_grid"), pmScheduleMGridOption);
-			
+
 			$("#makePmScheRange").kendoDateRangePicker({
 				range: {
 					start: new Date(),
@@ -194,16 +198,16 @@
 
 			$('#keyword').kendoTextBox();
 			$("#equKeword").kendoButton({
-                icon: "k-i-zoom-in",
-                rounded: "full",
-                click: function (e) {
-                    e.preventDefault();
-                    setModalPosition('#modalEqu', { width: '70%', height: '70%' });
-                    equipSelectPage.show(function (data) {
-                        $("#keyword").val(data.equip_cd);
-                    });
-                }
-            });
+				icon: "k-i-zoom-in",
+				rounded: "full",
+				click: function (e) {
+					e.preventDefault();
+					setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+					equipSelectPage.show(function (data) {
+						$("#keyword").val(data.equip_cd);
+					});
+				}
+			});
 
 			AjaxUtil.fillDropDownOptions($('#serchPmType'), 'cm_base_code', 'choose', null, 'PM_TYPE');
 			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "select");
@@ -235,7 +239,7 @@
 			});
 
 			// PM일정생성 Kendo Window 초기화
-			$("#makePmScheWindow").kendoWindow({			
+			$("#makePmScheWindow").kendoWindow({
 				title: "PM일정생성",
 				visible: false,
 				modal: true,
@@ -262,7 +266,7 @@
 				themeColor: "info",     // info 테마 사용
 				fillMode: "outline",    // outline 스타일로 변경
 				click: function (e) {
-					e.preventDefault();					
+					e.preventDefault();
 					// pm_master_grid에서 선택된 row가 있는지 확인
 					var grid = $("#pm_schedule_m_grid").data("kendoGrid");
 					var selected = grid.select();
@@ -300,7 +304,7 @@
 					var grid = $("#pm_schedule_m_grid").data("kendoGrid");
 					var selected = grid.select();
 					var selectedData = [];
-					selected.each(function() {
+					selected.each(function () {
 						var dataItem = grid.dataItem(this);
 						selectedData.push(dataItem);
 					});
@@ -308,8 +312,7 @@
 
 					let fnSuccess = function (res) {
 						Alert.alert('', 'PM 일정이 수동으로 생성되었습니다.');
-					};
-					console.log('pm_schedule_param:', pm_schedule_param);
+					};	
 					AjaxUtil.postAsyncData('/api/kmms/pm_master' + '?action=executeMakeSchedulePm', pm_schedule_param, fnSuccess);
 
 				}

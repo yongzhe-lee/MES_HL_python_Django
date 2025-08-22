@@ -116,6 +116,8 @@
 
 {% include '../../popup/modalWoDetail.html'%}
 {% include '../../popup/modalPmMaster.html'%}
+{% include '../../popup/modalMyWorkResultInfo.html'%}
+{% include '../../popup/modalEquSel.html'%}
 
 
 <script type="text/javascript">
@@ -150,71 +152,95 @@
                         field: 'pm_pk',
                         title: 'PMPk',
                         hidden: true,
-                        width: 0
+                        width: 0,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' }
                     },
                     {
                         field: 'wo_pk',
                         title: 'WOPk',
                         hidden: true,
-                        width: 0
+                        width: 0,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' }
                     },
                     {
                         field: 'work_order_no',
                         title: 'WO 번호',
-                        width: 70,
+                        width: 100,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: center;' },
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-no-pk="#=work_order_pk#">#=work_order_no#</a>'
                     },
                     {
                         field: 'pm_no',
                         title: 'PM 번호',
                         width: 160,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: left;' },
                         template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_no#</a>'
                     },
                     {
                         field: 'work_title',
                         title: '작업제목',
                         width: 150,
-                        template: '<a href="javascript:void(0);" class="grid-column-link" data-wo-title-pk="#=work_order_pk#">#=work_title#</a>'
-                    },
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: left;' },
+						template: "# if (wo_status_nm === 'WO완료') { # #= work_title # # } else { # <a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-title-pk=\"#=work_order_pk#\">#=work_title#</a> # } #"
+					},					
                     {
                         field: 'plan_start_dt',
                         title: '작업계획일',
                         width: 150,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: center;' }
                     },
                     {
                         field: 'pm_type_nm',
                         title: 'PM유형',
-                        width: 80
+                        width: 100,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: center;' }
                     },
                     {
                         field: 'equip_cd',
                         title: '설비코드',
-                        width: 150
+                        width: 150,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: left;' }
                     },
                     {
                         field: 'equip_nm',
                         title: '설비명',
-                        width: 150
+                        width: 150,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: left;' }
                     },
                     {
                         field: 'equip_category_desc',
                         title: '카테고리',
-                        width: 150
+                        width: 150,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: left;' }
                     },
                     {
                         field: 'wo_status_nm',
                         title: '상태',
-                        width: 90
+                        width: 90,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: center;' }
                     },
                     {
                         field: 'wo_dept_nm',
                         title: '실행부서',
-                        width: 150
+                        width: 150,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: center;' }
                     },
                     {
                         field: 'wo_user_nm',
                         title: '작업담당자',
-                        width: 90
+                        width: 120,
+                        headerAttributes: { style: 'text-align: center; justify-content: center;' },
+                        attributes: { style: 'text-align: center;' }
                     }
                 ],
                 dataBound: function (e) {
@@ -224,15 +250,16 @@
                         let woNoPk = $(this).data("wo-no-pk");
                         let pmPk = $(this).data("pm-pk");
                         let woTitlePk = $(this).data("wo-title-pk");
-                   
+
                         if (woNoPk) {
-							woDetailPage.show(woNoPk, 1);
+                            woDetailPage.show(woNoPk, 1);
                         }
                         else if (pmPk) {
-							pmMasterPage.show(pmPk);
+                            pmMasterPage.show(pmPk, 'read');
                         }
                         else if (woTitlePk) {
-							woDetailPage.show(woTitlePk, 2);
+							$('#woTypeDisplay_MyWorkAppr').text('PM');
+							myWorkResultInfoPage.show(woTitlePk, 'edit', 'pm');
                         }
                     });
                 },
@@ -260,8 +287,8 @@
             });
             AjaxUtil.fillDropDownOptions($('#srch_pm_type'), 'user_code', '', null, 'PM_TYPE');
             AjaxUtil.fillDropDownOptions($('#srch_wo_status'), 'cm_code', 'all', null, 'WO_STATUS_PM');
-			AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "all");
-			AjaxUtil.fillDropDownTreeOptions($("#srch_wo_dept"), "depart", "all");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept"), "depart", "all");
+            AjaxUtil.fillDropDownTreeOptions($("#srch_wo_dept"), "depart", "all");
             AjaxUtil.fillDropDownTreeOptions($("#srch_location"), "cm_location", "all");
             AjaxUtil.fillDropDownOptions($('#srch_category'), 'cm_equip_category', 'all', null);
 
@@ -378,11 +405,34 @@
 
             if (Array.isArray(pmInfo)) {
                 pmInfo.forEach(info => {
+                    // 날짜 데이터 검증 및 변환
+                    let startDate = null;
+                    let endDate = null;
+
+                    if (info.plan_start_dt) {
+                        startDate = new Date(info.plan_start_dt);
+                        if (isNaN(startDate.getTime())) {
+                            startDate = new Date();
+                        }
+                    } else {
+                        startDate = new Date();
+                    }
+
+                    if (info.plan_end_dt) {
+                        endDate = new Date(info.plan_end_dt);
+                        if (isNaN(endDate.getTime())) {
+                            endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // 하루 추가
+                        }
+                    } else {
+                        endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // 하루 추가
+                    }
+
                     mergedData.push({
                         id: info.pm_pk,
-                        title: info.pm_nm,
-                        start: info.plan_start_dt,
-                        end: info.plan_end_dt,
+                        work_order_pk: info.work_order_pk, // work_order_pk 추가
+                        title: info.pm_nm || '제목 없음',
+                        start: startDate,
+                        end: endDate,
                         isAllDay: true,
                         type: '',
                     });
@@ -390,29 +440,39 @@
             }
             if (Array.isArray(this.holidayInfo)) {
                 this.holidayInfo.forEach(holiday => {
-                    mergedData.push({
-                        id: holiday.id,
-                        title: holiday.name,
-                        start: new Date(holiday.year, holiday.month - 1, holiday.day),
-                        end: new Date(holiday.year, holiday.month - 1, holiday.day),
-                        isAllDay: true,
-                        type: holiday.type,
-                    });
+                    if (holiday.year && holiday.month && holiday.day) {
+                        let startDate = new Date(holiday.year, holiday.month - 1, holiday.day);
+                        if (!isNaN(startDate.getTime())) {
+                            mergedData.push({
+                                id: holiday.id,
+                                title: holiday.name || '휴일',
+                                start: startDate,
+                                end: new Date(holiday.year, holiday.month - 1, holiday.day),
+                                isAllDay: true,
+                                type: holiday.type,
+                            });
+                        }
+                    }
                 });
             }
             if (Array.isArray(this.holidayCustom)) {
                 this.holidayCustom.forEach(holiday => {
-                    mergedData.push({
-                        id: holiday.id,
-                        title: holiday.name,
-                        start: new Date(holiday.year, holiday.month - 1, holiday.day),
-                        end: new Date(holiday.year, holiday.month - 1, holiday.day),
-                        isAllDay: true,
-                        type: holiday.type,
-                    });
+                    if (holiday.year && holiday.month && holiday.day) {
+                        let startDate = new Date(holiday.year, holiday.month - 1, holiday.day);
+                        if (!isNaN(startDate.getTime())) {
+                            mergedData.push({
+                                id: holiday.id,
+                                title: holiday.name || '휴일',
+                                start: startDate,
+                                end: new Date(holiday.year, holiday.month - 1, holiday.day),
+                                isAllDay: true,
+                                type: holiday.type,
+                            });
+                        }
+                    }
                 });
             }
-            
+
             var dataSource = new kendo.data.SchedulerDataSource({
                 data: mergedData,
                 schema: {
@@ -420,15 +480,23 @@
                         id: "id",
                         fields: {
                             id: { type: "number" },
-                            title: { field: "title", defaultValue: "No title", validation: { required: true } },
-                            start: { type: "date", field: "start" },
-                            end: { type: "date", field: "end" },
-                            isAllDay: { type: "boolean", field: "isAllDay" }
+                            title: { field: "title", defaultValue: "제목 없음", validation: { required: true } },
+                            start: { type: "date", field: "start", validation: { required: true } },
+                            end: { type: "date", field: "end", validation: { required: true } },
+                            isAllDay: { type: "boolean", field: "isAllDay", defaultValue: true }
                         }
                     }
+                },
+                error: function (e) {
+                    console.error("Scheduler 데이터 소스 오류:", e);
                 }
             });
 
+            // 기존 Scheduler 인스턴스 정리
+            let existingScheduler = $("#simulationScheduler").data("kendoScheduler");
+            if (existingScheduler) {
+                existingScheduler.destroy();
+            }
             $("#simulationScheduler").empty();
 
             $("#simulationScheduler").kendoScheduler({
@@ -455,6 +523,11 @@
                     destroy: "삭제"
                 },
                 eventTemplate: (e) => {
+                    // 날짜 객체 검증
+                    if (!e.start || !(e.start instanceof Date) || isNaN(e.start.getTime())) {
+                        return `<span style="background:#ffebee;color:#c62828;border-radius:6px;padding:2px 6px;">날짜 오류</span>`;
+                    }
+
                     const y = e.start.getFullYear();
                     const m = (e.start.getMonth() + 1).toString().padStart(2, '0');
                     const d = e.start.getDate().toString().padStart(2, '0');
@@ -464,6 +537,7 @@
                     const allHolidays = [...(this.holidayInfo || []), ...(this.holidayCustom || [])];
 
                     const isHoliday = allHolidays.some(h => {
+                        if (!h.year || !h.month || !h.day) return false;
                         const hy = h.year;
                         const hm = h.month.toString().padStart(2, '0');
                         const hd = h.day.toString().padStart(2, '0');
@@ -479,19 +553,36 @@
                 dataSource: dataSource
             });
 
-            // 일정 클릭 시 alert (jQuery 이벤트 위임)
+            // 일정 클릭 시 이벤트 처리 (jQuery 이벤트 위임)
             $("#simulationScheduler").off("click", ".k-event").on("click", ".k-event", function (e) {
-                var scheduler = $("#simulationScheduler").data("kendoScheduler");
-                var uid = $(this).data("uid");
-                var event = scheduler.occurrenceByUid(uid);
-                if (event) {
-                    //console.log('event:', event);
-                    //debugger;
-                    if (event.type == '') {
-                        // 그 외 일정은 모달창으로 표시
-                        var wnd = $("#simulationCalDetailWindow").data("kendoWindow");
-                        wnd.open();
+                try {
+                    var scheduler = $("#simulationScheduler").data("kendoScheduler");
+                    if (!scheduler) {
+                        console.error("Scheduler 인스턴스를 찾을 수 없습니다.");
+                        return;
                     }
+
+                    var uid = $(this).data("uid");
+                    if (!uid) {
+                        console.error("이벤트 UID를 찾을 수 없습니다.");
+                        return;
+                    }
+
+                    var event = scheduler.occurrenceByUid(uid);
+                    if (!event) {
+                        console.error("이벤트를 찾을 수 없습니다.");
+                        return;
+                    }
+
+                    console.log('클릭된 이벤트:', event);
+
+                    if (typeof myWorkResultInfoPage !== 'undefined' && typeof myWorkResultInfoPage.show === 'function') {
+                        $('#woTypeDisplay_MyWorkAppr').text('PM');
+                        myWorkResultInfoPage.show(event.work_order_pk, 'edit', 'pm');
+                    }
+                } catch (error) {
+                    console.error("이벤트 클릭 처리 중 오류 발생:", error);
+                    alert("이벤트 정보를 불러오는 중 오류가 발생했습니다.");
                 }
             });
         }
@@ -517,6 +608,151 @@
                 $("#toggleSearchBtn").addClass("expanded");  // 🔹 expanded 클래스 추가
             }
         });
+
+        // ★ 변경: 모달들이 동시에 열릴 때 FileUploader 인스턴스 간 충돌 방지
+        // 각 모달의 FileUploader 인스턴스가 독립적으로 동작하도록 보장
+        $(document).on('DOMNodeInserted', function(e) {
+            if (e.target.nodeType === Node.ELEMENT_NODE) {
+                // FileUpload 컴포넌트가 삽입되었는지 확인
+                if (e.target.querySelector && e.target.querySelector('.file-section')) {
+                    const uid = e.target.querySelector('.file-section').id.replace('_uploadContainer', '');
+                    if (uid) {
+                        console.log(`[${uid}] FileUpload 컴포넌트 DOM 삽입 감지`);
+                        
+                        // FileUploader 인스턴스가 생성될 때까지 대기
+                        const checkFileUploader = () => {
+                            if (window[uid + '_fileUploader']) {
+                                const fileUploader = window[uid + '_fileUploader'];
+                                console.log(`[${uid}] FileUploader 인스턴스 초기화 완료:`, fileUploader);
+                                console.log(`[${uid}] FileUploader readOnly 상태:`, fileUploader.readOnly);
+                                console.log(`[${uid}] FileUploader DOM 요소들:`, {
+                                    uploadContainer: document.getElementById(uid + '_uploadContainer'),
+                                    fileInput: document.getElementById(uid + '_fileDocInput'),
+                                    uploadButton: document.getElementById(uid + '_uploadButton')
+                                });
+                            } else {
+                                console.log(`[${uid}] FileUploader 인스턴스 아직 생성되지 않음, 재시도 중...`);
+                                setTimeout(checkFileUploader, 50);
+                            }
+                        };
+                        
+                        // 약간의 지연 후 체크 시작
+                        setTimeout(checkFileUploader, 100);
+                    }
+                }
+            }
+        });
+
+        // 모달 열기 시 FileUploader 인스턴스 상태 확인
+        $(document).on('click', '[data-modal]', function() {
+            const modalId = $(this).data('modal');
+            console.log(`모달 열기 시도: ${modalId}`);
+            
+            // 모달이 열리기 전에 현재 FileUploader 인스턴스들 상태 확인
+            if (window['woDetail_fileUploader']) {
+                console.log('[woDetail] 현재 FileUploader 상태:', {
+                    readOnly: window['woDetail_fileUploader'].readOnly,
+                    uid: window['woDetail_fileUploader'].uid
+                });
+            }
+            
+            if (window['myWorkResult_fileUploader']) {
+                console.log('[myWorkResult] 현재 FileUploader 상태:', {
+                    readOnly: window['myWorkResult_fileUploader'].readOnly,
+                    uid: window['myWorkResult_fileUploader'].uid
+                });
+            }
+        });
+
+        // 모달 닫기 시 FileUploader 인스턴스 정리
+        $(document).on('click', '.btn-close, .modal-close', function() {
+            const modal = $(this).closest('.modal');
+            if (modal.length > 0) {
+                const modalId = modal.attr('id');
+                console.log(`모달 닫기: ${modalId}`);
+                
+                // 모달이 닫힐 때 해당 모달의 FileUploader 인스턴스 정리
+                if (modalId === 'modalWoDetail') {
+                    const woDetailUploader = window['woDetail_fileUploader'];
+                    if (woDetailUploader) {
+                        console.log('[woDetail] FileUploader 인스턴스 정리');
+                    }
+                } else if (modalId === 'modalMyWorkResultInfo') {
+                    const myWorkResultUploader = window['myWorkResult_fileUploader'];
+                    if (myWorkResultUploader) {
+                        console.log('[myWorkResult] FileUploader 인스턴스 정리');
+                    }
+                }
+            }
+        });
+
+        // ★ 추가: 브라우저 콘솔에서 직접 FileUploader 상태 확인할 수 있는 전역 함수
+        window.debugFileUploaders = function() {
+            console.log('=== FileUploader 인스턴스 디버깅 ===');
+            
+            // woDetail FileUploader 상태
+            if (window['woDetail_fileUploader']) {
+                const woDetail = window['woDetail_fileUploader'];
+                console.log('[woDetail] FileUploader:', {
+                    uid: woDetail.uid,
+                    readOnly: woDetail.readOnly,
+                    tableName: woDetail.tableName,
+                    dataPk: woDetail.dataPk
+                });
+                
+                // DOM 요소 상태 확인
+                const woDetailElements = {
+                    uploadContainer: document.getElementById('woDetail_uploadContainer'),
+                    fileInput: document.getElementById('woDetail_fileDocInput'),
+                    uploadButton: document.getElementById('woDetail_uploadButton')
+                };
+                console.log('[woDetail] DOM 요소들:', woDetailElements);
+            } else {
+                console.log('[woDetail] FileUploader 인스턴스 없음');
+            }
+            
+            // myWorkResult FileUploader 상태
+            if (window['myWorkResult_fileUploader']) {
+                const myWorkResult = window['myWorkResult_fileUploader'];
+                console.log('[myWorkResult] FileUploader:', {
+                    uid: myWorkResult.uid,
+                    readOnly: myWorkResult.readOnly,
+                    tableName: myWorkResult.tableName,
+                    dataPk: myWorkResult.dataPk
+                });
+                
+                // DOM 요소 상태 확인
+                const myWorkResultElements = {
+                    uploadContainer: document.getElementById('myWorkResult_uploadContainer'),
+                    fileInput: document.getElementById('myWorkResult_fileDocInput'),
+                    uploadButton: document.getElementById('myWorkResult_uploadButton')
+                };
+                console.log('[myWorkResult] DOM 요소들:', myWorkResultElements);
+            } else {
+                console.log('[myWorkResult] FileUploader 인스턴스 없음');
+            }
+            
+            console.log('=== 디버깅 완료 ===');
+        };
+        
+        // ★ 추가: 특정 FileUploader의 readOnly 모드를 강제로 변경할 수 있는 함수
+        window.setFileUploaderMode = function(uid, isReadOnly) {
+            const fileUploader = window[uid + '_fileUploader'];
+            if (fileUploader && typeof fileUploader.setReadOnlyMode === 'function') {
+                console.log(`[${uid}] readOnly 모드를 ${isReadOnly ? '읽기' : '편집'} 모드로 강제 변경`);
+                fileUploader.setReadOnlyMode(isReadOnly);
+                return true;
+            } else {
+                console.error(`[${uid}] FileUploader 인스턴스를 찾을 수 없거나 setReadOnlyMode 메서드가 없습니다.`);
+                return false;
+            }
+        };
+        
+        console.log('FileUploader 디버깅 도구가 로드되었습니다.');
+        console.log('사용법:');
+        console.log('- debugFileUploaders() : 모든 FileUploader 인스턴스 상태 확인');
+        console.log('- setFileUploaderMode("woDetail", true) : woDetail을 읽기 모드로 설정');
+        console.log('- setFileUploaderMode("myWorkResult", false) : myWorkResult를 편집 모드로 설정');
 
     });
 

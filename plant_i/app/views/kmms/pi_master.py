@@ -113,19 +113,10 @@ def pi_master(context):
 
             pi.save()
 
+            #--------점검설비 등록        
+            CmChkEquip.objects.filter(CmEquipChkMaster=pi.id).delete()
 
-
-            #java : saveWithCascade
-            #--------점검설비 등록
-            #java : deleteByChkMastPk(equipChkMast.getChkMastPk());
-
-            #chkMastPk = CommonUtil.try_int(posparam.get('chkMastPk'))
-            CmChkEquip.objects.filter(CmEquipChkMaster=pi.id).delete()  
-
-            #java : chkEquipMapper.insertBatch(map);
-            #chkMastPk = CommonUtil.try_int(posparam.get('chkMastPk'))
             chkEquips =posparam.get('chkEquips')
-
             chkEquip_list = chkEquips.split(',')
 
             for item in chkEquip_list:
@@ -133,26 +124,19 @@ def pi_master(context):
                 c = CmChkEquip()
                 c.CmEquipChkMaster_id = pi.id
                 c.CmEquipment_id = equip_pk
-                #c.set_audit(user)
                 c.save()
 
 
-            #------------점검항목 등록
-            #java : equipChkItemMapper.deleteUpdateBatch(map);
+            #------------점검항목 등록            
             ''' 등록 및 수정전에 삭제된것 삭제처리
             '''
             raw_items  = posparam.get('equipChkItems')
-
             try:
                 equipChkItems = json.loads(raw_items)
             except (TypeError, json.JSONDecodeError):
                 equipChkItems = []  # 또는 raise 예외처리
 
-
-            #pk_list = equipChkItems.split(',')
             q = CmEquipChkItem.objects.filter(CmEquipChkMaster=pi.id)
-            #choi : front에서 삭제하면 서버에는 빠지는 것들이 생김
-            #q = q.exclude(id__in=pk_list)  
             q.delete()
 
 
@@ -160,7 +144,6 @@ def pi_master(context):
             itemOrder = 1;
             for item in equipChkItems:
                 chkItemUnitPk = CommonUtil.try_int(item.get('chkItemUnitPk'))
-                #itemIdx = CommonUtil.try_int(item.get('itemIdx'))
                 itemIdx = itemOrder;
                 itemOrder = itemOrder + 1;   #1증가
                 chkItemNm = item.get('chk_item_nm')
@@ -168,7 +151,6 @@ def pi_master(context):
                 ucl = item.get('ucl')
                 method = item.get('method')
                 guide = item.get('guide')
-                #dailyReportItemCd = item.get('dailyReportItemCd')
                 dailyReportItemCd = "test"
 
                 c = CmEquipChkItem()
@@ -192,6 +174,19 @@ def pi_master(context):
             source = 'api/kmms/pi_master, action:{}'.format(action)
             LogWriter.add_dblog('error', source, ex)
             raise ex
+
+    elif action=='delete':
+        id = posparam.get('chkMastPk',None)
+
+        try: 
+            CmEquipChkMaster.objects.filter(id=id).update(UseYn='N')
+            items = {'success': True}
+
+        except Exception as ex:
+            source = 'api/kmms/pi_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            raise ex
+
     #점검마스터 조회
     #java : com.yullin.swing.inspection.domain.EquipChkMast 
     #     : equip-check-mast-mapper.xml
@@ -292,20 +287,20 @@ def pi_master(context):
 
         chkMastPk = CommonUtil.try_int( gparam.get('chkMastPk') )
         sql = ''' 
-        select t.work_order_no				/* WO 번호 */
-		        , woa.reg_dt 					/* WO 생성일 */
-		        , ws.code_cd as wo_status_cd
+        select t.work_order_no as wo_no				/* WO 번호 */
+		        , t.work_title as wo_title					/* WO 제목 */
 		        , ws.code_nm as wo_status_nm  	/* WO 상태 */
+		        , wt.code_nm as wo_type_nm		/* WO 유형 */
 		        , t.plan_start_dt 				/* 작업계획일 */
-		        , t.end_dt 					/* 작업완료일 */
-		        , ecm.chk_user_pk as chk_mast_pk
- 		        , cm_fn_user_nm(pmu."Name", pmu.del_yn) as chk_user_nm		/* 담당자 */
+		        , t.end_dt as plan_end_dt		/* 작업완료일 */
+		        , cm_fn_user_nm(pmu."Name", pmu.del_yn) as wo_user_nm		/* 담당자 */
         from cm_work_order t
 	        inner join cm_work_order_approval woa on t.work_order_approval_pk = woa.work_order_approval_pk
 	        inner join cm_equip_chk_rslt ecr on t.chk_rslt_pk = ecr.chk_rslt_pk
 	        inner join cm_equip_chk_sche ecs on ecr.chk_sche_pk  = ecs.chk_sche_pk
 	        inner join cm_equip_chk_mast ecm on ecs.chk_mast_pk = ecm.chk_mast_pk
 	        inner join cm_base_code ws on t.wo_status = ws.code_cd and ws.code_grp_cd = 'WO_STATUS'
+	        inner join cm_base_code wt on t.wo_type = wt.code_cd and wt.code_grp_cd = 'WO_TYPE'
 	        left outer join user_profile pmu on ecm.chk_user_pk = pmu."User_id"
         where ecm.chk_mast_pk = %(chkMastPk)s
 	        and t.plan_start_dt < to_date(REPLACE(CURRENT_DATE::varchar, '-', ''), 'YYYYMMDD')
@@ -386,20 +381,20 @@ def pi_master(context):
         items = pi_master_service.findAll(dcparam)
 
     elif action == 'selectEquipChkScheSimulationCycleByMon':
-        calDeptPk = gparam.get('calDeptPk', None)
-        calChkUserPk = gparam.get('calChkUserPk', None)
-        calSearchType = gparam.get('calSearchType', None)
         fromDate = gparam.get('calFromDate', None)
         toDate = gparam.get('calToDate', None)
+        deptPk = gparam.get('calDeptPk', None)
+        userPk = gparam.get('calChkUserPk', None)
 
-        items = pi_master_service.selectEquipChkScheSimulationCycleByMon(calDeptPk, calChkUserPk,calSearchType,fromDate,toDate )
+        items = pi_master_service.selectEquipChkScheSimulationCycleByMon(fromDate,toDate,deptPk,userPk )
 
     elif action == 'selectEquipChkScheSimulationByMon':
-        calDeptPk = gparam.get('calDeptPk', None)
-        calChkUserPk = gparam.get('calChkUserPk', None)
-        calSearchType = gparam.get('calSearchType', None)
+        fromDate = gparam.get('fromDate', None)
+        toDate = gparam.get('toDate', None)
+        deptPk = gparam.get('calDeptPk', None)
+        userPk = gparam.get('calChkUserPk', None)
 
-        items = pi_master_service.selectEquipChkScheSimulationByMon(calDeptPk, calChkUserPk,calSearchType )
+        items = pi_master_service.selectEquipChkScheSimulationByMon(fromDate,toDate,deptPk,userPk)
 
     return items
 

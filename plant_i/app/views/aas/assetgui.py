@@ -50,7 +50,7 @@ def assetgui(context) :
             ai.asset_pk
             , a.id as aas_id
             , a.aas_pk
-            , fn_json_lang_text(a."displayName", %(lang_code)s) as "displayName"
+            , a."displayName"
             , ai."assetKind"
             , fn_code_name('asset_type', ai."assetType") as asset_type
             , ai."globalAssetId" as global_asset_id
@@ -110,6 +110,9 @@ def assetgui(context) :
             result["items"] = items
 
         elif action=="save_asset":
+
+            # asset Infomation에서 path는 상대경로 resource에서 path는물리적경로를 저장한다.
+
             asset_pk = posparam.get("asset_pk")
             asset_kind = posparam.get("asset_kind")
             asset_type = posparam.get("asset_type")
@@ -126,18 +129,21 @@ def assetgui(context) :
             asset_info.assetKind = asset_kind
             asset_info.assetType = asset_type
             asset_info.globalAssetId = global_asset_id
-
-
             resource = None
             with transaction.atomic():
 
                 # 업데이트의 경우 파일을 첨부하지 않을 수 있다.
                 if file:
-                    ext = file.name.split('.')[-1].lower()
+                    # asset Infomation에서 path는 상대경로 resource에서 path는물리적경로를 저장한다.
+
+                    ext = os.path.splitext(file.name)[1].replace('.','') or "png"
                     content_type= CommonUtil.get_content_type_ex(ext)
-                    save_folder_path = os.path.join(settings.FILE_UPLOAD_PATH, "asset\\resources")
-                    file_name = f'asset_thumbnail_{uuid.uuid4()}.{ext}'
-                    path = f"asset\\resources\\{file_name}"
+
+                    resource_directory = f"/resources/thumbnails/"
+                    save_folder_path = os.path.join(settings.AAS_BASE_PATH, resource_directory.lstrip('/').replace('/', os.sep))
+                    filename = f"{uuid.uuid4()}.{ext}"
+
+                    physical_path = os.path.join(save_folder_path, filename)
 
                     if not os.path.exists(save_folder_path):
                         os.makedirs(save_folder_path)
@@ -147,14 +153,17 @@ def assetgui(context) :
                     else:
                         resource = DBResource()
 
+
                     resource.contentType = content_type
-                    resource.path = path
-                    asset_info.path = path
+                    resource.path = physical_path # 물리적경로
+
+                    
+                    asset_info.path = f'{resource_directory}{filename}' # 상대경로
 
                     resource.set_audit(request.user)
                     resource.save()
                     asset_info.defaultThumbnail = resource
-                    with open(os.path.join(save_folder_path, file_name), mode='wb') as upload_file:
+                    with open(physical_path, mode='wb') as upload_file:
                         upload_file.write(file.read())
                 else:
                     # 파일이 없으면 기존의 파일을 그대로 사용한다.
@@ -198,22 +207,22 @@ def assetgui(context) :
               , a1.id
               , a1.id_short
               , a1."displayName"
-              , a1.base_aas_pk as parent_pk
+              , a1.parent_aas_pk as parent_pk
               , 0 as lvl
               , a1._created
               from aas a1
-              where a1.base_aas_pk is null
+              where a1.parent_aas_pk is null
               union all
               select
               a2.aas_pk
               , a2.id
               , a2.id_short
               , a2."displayName"  
-              , a2.base_aas_pk as parent_pk
+              , a2.parent_aas_pk as parent_pk
               , at1.lvl+1
               , a2._created
               from aas a2
-              inner join at1 on at1.aas_pk = a2.base_aas_pk      
+              inner join at1 on at1.aas_pk = a2.parent_aas_pk      
             )
             select 
              a.aas_pk
@@ -221,7 +230,7 @@ def assetgui(context) :
              , a.id
              , a.id_short
              , a."displayName"
-             , fn_json_lang_text(a."displayName", %(lang_code)s) as "displayName"
+             , a."displayName"
              , 'aas' as gubun
              , a._created 
              , a.lvl as lvl

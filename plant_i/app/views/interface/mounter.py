@@ -19,13 +19,26 @@ def mounter(context):
     source = f'/api/interface/mounter?{action}'
 
     try:
-        if action=="read":
+        if action=="raw_data_pickup_rate":
 
             start_dt = gparam.get('start_dt')
             end_dt = gparam.get('end_dt') + " 23:59:59"
-            equ_id= gparam.get('equ_id')
+            equ_cd= gparam.get('equ_cd')
+            item_per_page = gparam.get('item_per_page', 50)
+            current_page = gparam.get('current_page', 1)
 
-            dic_param = { 'start_dt' : start_dt, "end_dt" : end_dt , "equ_id" : equ_id}
+            limit = int(item_per_page)
+            offset = limit *(int(current_page)-1)
+
+            dic_param = { 'start_dt' : start_dt, "end_dt" : end_dt , "equ_cd" : equ_cd, "limit" : limit, "offset" : offset}
+            count_sql = '''
+            select 
+            count(*) as total_count from 
+            if_mnt_pickup_rate 
+            where 1=1 
+            and data_date between %(start_dt)s and %(end_dt)s
+            '''
+     
 
             sql='''
             select
@@ -51,21 +64,31 @@ def mounter(context):
             , imfr.success_ratio
             , to_char(imfr.data_date, 'yyyy-mm-dd hh24:mi:ss') as data_date
             from if_mnt_pickup_rate imfr
-            left join equ e on e."Code" = imfr.equ_cd
             where imfr.data_date between %(start_dt)s and %(end_dt)s
             '''
-            if equ_id:
+            if equ_cd:
                 sql+='''
-                and e.id = %(equ_id)s
+                and  imfr.equ_cd= %(equ_cd)s
+                '''
+                # count query 반영
+                count_sql+='''
+                and equ_cd= %(equ_cd)s
                 '''
             sql+='''
-            order by imfr.data_date desc, imfr.machine, imfr."position"            
+            order by imfr.data_date desc, imfr.machine, imfr."position"
             '''
 
+            if limit:
+                sql+='''
+                limit %(limit)s
+                offset %(offset)s 
+                '''
+
             data = DbUtil.get_rows(sql, dic_param)
+            dic_count = DbUtil.get_row(count_sql, dic_param)
             result['success'] = True
             result["data"] = data
-
+            result["total_count"] = dic_count.get("total_count")
    
         elif action=="test":
            service = IFFujiMounterService()

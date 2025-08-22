@@ -1,11 +1,601 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="dateType" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <input id="dateType" name="dateType" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchYearMonth" data-labelCd="검색 월">검색 월</label>
+                            <div class="field-wrapper">
+                                <input id="searchYearMonth" name="searchYearMonth" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchYear" data-labelCd="검색 연도">검색 연도</label>
+                            <div class="field-wrapper">
+                                <input id="searchYear" name="searchYear" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="workSrc" data-labelCd="작업구분">작업구분</label>
+                            <div class="field-wrapper">
+                                <input id="workSrc" name="workSrc" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="부서">부서</label>
+                            <div class="field-wrapper">
+                                <input id="deptTree" name="deptPk"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="아웃소싱 작업건수">아웃소싱 작업건수</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                
+                <!-- 차트 영역 -->
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="radarChart" style="width:100%; height:360px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="pieChart1" style="width:100%; height:360px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="pieChart2" style="width:100%; height:360px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="pieChart3" style="width:100%; height:360px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12 text-right mt-2 mb-2" style="font-size: 11px;">
+                        (단위: 원)
+                    </div>
+                </div>
+                
+                <!-- 테이블 영역 -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="outsourcedTasksCountGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class OutsourcedTasksCountPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.radarChart = null;
+        this.pieChart1 = null;
+        this.pieChart2 = null;
+        this.pieChart3 = null;
+        this.dateType = 'month';
+        this.labelType = '전체';
+        
+        this.init();
+    }
+
+    init() {
+        this.initDateType();
+        this.initDatePickers();
+        this.initWorkSrc();
+        this.initDeptTree();
+        this.initGrid();
+        this.initCharts();
+        this.bindEvents();
+        this.searchMainData();
+    }
+
+    initDateType() {
+        $("#dateType").kendoDropDownList({
+            dataSource: [
+                { text: "월별", value: "month" },
+                { text: "연도별", value: "year" }
+            ],
+            dataTextField: "text",
+            dataValueField: "value",
+            value: "month",
+            change: (e) => {
+                this.dateType = e.sender.value();
+                this.toggleDatePickers();
+            }
+        });
+    }
+
+    initDatePickers() {
+        let today = new Date();
+        let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        let currentYear = new Date(today.getFullYear(), 1, 1);
+        
+        $("#searchYearMonth").kendoDatePicker({
+            format: "yyyy-MM",
+            value: currentMonth,
+            start: "year",
+            depth: "year"
+        });
+
+        $("#searchYear").kendoDatePicker({
+            format: "yyyy",
+            value: currentYear,
+            start: "decade",
+            depth: "decade"
+        });
+
+        this.toggleDatePickers();
+    }
+
+    toggleDatePickers() {
+        if (this.dateType === 'month') {
+            $("#searchYearMonth").closest('.col-12').show();
+            $("#searchYear").closest('.col-12').hide();
+        } else {
+            $("#searchYearMonth").closest('.col-12').hide();
+            $("#searchYear").closest('.col-12').show();
+        }
+    }
+
+    initWorkSrc() {
+        AjaxUtil.fillDropDownOptions($('#workSrc'), 'cm_code', 'all', null, 'WS_TYPE');
+    }
+
+    initDeptTree() {
+        AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: []
+            },
+            columns: [
+                { 
+                    title: "No", 
+                    field: "No", 
+                    width: "50px",
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "항목", 
+                    field: "itemNm",
+                    attributes: { style: "text-align:center" }
+                },
+                { 
+                    title: "전체건수", 
+                    field: "totCount",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.totCount, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "전체 조치비용", 
+                    field: "totCost",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.totCost, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "조치건수", 
+                    field: "actCount",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.actCount, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "조치비용", 
+                    field: "actCost",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.actCost, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "조치율(%)", 
+                    field: "actRate",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.actRate, 'n2') + '%';
+                    },
+                    attributes: { style: "text-align:right" }
+                }
+            ],
+            scrollable: true,
+            pageable: false,
+            editable: false,
+            selectable: "row",
+            height: 400,
+        };
+        _this.grid = $("#outsourcedTasksCountGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    initCharts() {
+        this.initRadarChart();
+        this.initPieCharts();
+    }
+
+    initRadarChart() {
+        $("#radarChart").kendoChart({
+            title: {
+                text: "",
+                position: "top"
+            },
+            legend: {
+                position: "top"
+            },
+            seriesDefaults: {
+                type: "radarLine",
+                style: "smooth"
+            },
+            series: [
+                {
+                    name: "자체수리",
+                    data: [0, 0, 0, 0]
+                },
+                {
+                    name: "외주수리",
+                    data: [0, 0, 0, 0]
+                },
+                {
+                    name: "사내/외주수리",
+                    data: [0, 0, 0, 0]
+                }
+            ],
+            categoryAxis: {
+                categories: ["사후보전", "개량보전", "개량보전", "일반작업"]
+            },
+            valueAxis: {
+                labels: {
+                    format: "N0"
+                }
+            },
+            tooltip: {
+                visible: true,
+                format: "N0",
+                template: "#= series.name #: #= value #"
+            }
+        });
+        this.radarChart = $("#radarChart").data("kendoChart");
+    }
+
+    initPieCharts() {
+        // 사내수리 작업건수 파이차트
+        $("#pieChart1").kendoChart({
+            title: {
+                text: "사내수리 작업건수",
+                position: "top"
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "pie",
+                labels: {
+                    visible: true,
+                    position: "outsideEnd",
+                    template: "#= category #: #= value#%"
+                }
+            },
+            series: [{
+                name: "사내수리 작업건수",
+                data: []
+            }],
+            tooltip: {
+                visible: true,
+                template: "#= category #: #= value#%"
+            }
+        });
+        this.pieChart1 = $("#pieChart1").data("kendoChart");
+
+        // 외주수리 작업건수 파이차트
+        $("#pieChart2").kendoChart({
+            title: {
+                text: "외주수리 작업건수",
+                position: "top"
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "pie",
+                labels: {
+                    visible: true,
+                    position: "outsideEnd",
+                    template: "#= category #: #= value#%"
+                }
+            },
+            series: [{
+                name: "외주수리 작업건수",
+                data: []
+            }],
+            tooltip: {
+                visible: true,
+                template: "#= category #: #= value#%"
+            }
+        });
+        this.pieChart2 = $("#pieChart2").data("kendoChart");
+
+        // 사내/외주수리 작업건수 파이차트
+        $("#pieChart3").kendoChart({
+            title: {
+                text: "사내/외주수리 작업건수",
+                position: "top"
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "pie",
+                labels: {
+                    visible: true,
+                    position: "outsideEnd",
+                    template: "#= category #: #= value#%"
+                }
+            },
+            series: [{
+                name: "사내/외주수리 작업건수",
+                data: []
+            }],
+            tooltip: {
+                visible: true,
+                template: "#= category #: #= value#%"
+            }
+        });
+        this.pieChart3 = $("#pieChart3").data("kendoChart");
+    }
+
+    bindEvents() {
+        let _this = this;
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'outsourced_tasks_count';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        if (result) {
+            _this.updateGridData(result);
+            _this.searchTotalData(param);
+        }
+    }
+
+    searchTotalData(param) {
+        let _this = this;
+        param.action = 'outsourced_tasks_count_total';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        if (result) {
+            _this.updateChartData(result);
+        }
+    }
+
+    updateGridData(data) {
+        for (let i = 0; i < data.length - 1; i++) {
+            data[i].No = i + 1;
+        }
+        
+        let grid = $("#outsourcedTasksCountGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(data);
+            this.updateColumnHeaders();
+            grid.refresh();
+        }
+    }
+
+    updateColumnHeaders() {
+        let grid = $("#outsourcedTasksCountGrid").data("kendoGrid");
+        if (grid) {
+            grid.setOptions({
+                columns: [
+                    grid.options.columns[0], // No
+                    grid.options.columns[1], // 항목
+                    grid.options.columns[2], // 전체건수
+                    grid.options.columns[3], // 전체 조치비용
+                    {
+                        ...grid.options.columns[4],
+                        title: '조치건수(' + this.labelType + ')'
+                    },
+                    {
+                        ...grid.options.columns[5],
+                        title: '조치비용(' + this.labelType + ')'
+                    },
+                    grid.options.columns[6] // 조치율
+                ]
+            });
+        }
+    }
+
+    updateChartData(data) {
+        if (!data || data.length === 0) return;
+        
+        let firstCount = [];
+        let secondCount = [];
+        let thirdCount = [];
+        let radarLabels = [];
+        let pieLabels = [];
+        
+        for (let i = 0; i < data.length; i++) {
+            firstCount.push(Number(data[i].firstCount) || 0);
+            secondCount.push(Number(data[i].secondCount) || 0);
+            thirdCount.push(Number(data[i].thirdCount) || 0);
+            radarLabels.push(data[i].itemNm);
+            pieLabels.push(data[i].itemNm);
+        }
+
+        // 레이더 차트 업데이트
+        this.radarChart.setOptions({
+            categoryAxis: {
+                categories: radarLabels
+            },
+            series: [
+                {
+                    name: "자체수리",
+                    data: firstCount
+                },
+                {
+                    name: "외주수리",
+                    data: secondCount
+                },
+                {
+                    name: "사내/외주수리",
+                    data: thirdCount
+                }
+            ]
+        });
+
+        // 파이 차트 업데이트
+        this.updatePieCharts(data, pieLabels);
+    }
+
+    updatePieCharts(data, pieLabels) {
+        let firstTotalCount = data.reduce((sum, item) => sum + (Number(item.firstCount) || 0), 0);
+        let secondTotalCount = data.reduce((sum, item) => sum + (Number(item.secondCount) || 0), 0);
+        let thirdTotalCount = data.reduce((sum, item) => sum + (Number(item.thirdCount) || 0), 0);
+
+        let pieData1 = [];
+        let pieData2 = [];
+        let pieData3 = [];
+
+        for (let i = 0; i < data.length; i++) {
+            pieData1.push({
+                category: data[i].itemNm,
+                value: this.getPercent(data[i].firstCount, firstTotalCount)
+            });
+            pieData2.push({
+                category: data[i].itemNm,
+                value: this.getPercent(data[i].secondCount, secondTotalCount)
+            });
+            pieData3.push({
+                category: data[i].itemNm,
+                value: this.getPercent(data[i].thirdCount, thirdTotalCount)
+            });
+        }
+
+        // 데이터가 없을 때 처리
+        if (firstTotalCount === 0) {
+            pieData1 = [{ category: '작업건수', value: 100 }];
+        }
+        if (secondTotalCount === 0) {
+            pieData2 = [{ category: '작업건수', value: 100 }];
+        }
+        if (thirdTotalCount === 0) {
+            pieData3 = [{ category: '작업건수', value: 100 }];
+        }
+
+        this.pieChart1.setOptions({
+            series: [{
+                name: "사내수리 작업건수",
+                data: pieData1
+            }]
+        });
+
+        this.pieChart2.setOptions({
+            series: [{
+                name: "외주수리 작업건수",
+                data: pieData2
+            }]
+        });
+
+        this.pieChart3.setOptions({
+            series: [{
+                name: "사내/외주수리 작업건수",
+                data: pieData3
+            }]
+        });
+    }
+
+    getPercent(x, y) {
+        if (y === 0) return 0;
+        return Math.round((x / y) * 100 * 100) / 100;
+    }
+
+    exportExcel() {
+        let gridData = $('#outsourcedTasksCountGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "아웃소싱_작업건수.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new OutsourcedTasksCountPage();
+});
+</script>
+{% endblock %}

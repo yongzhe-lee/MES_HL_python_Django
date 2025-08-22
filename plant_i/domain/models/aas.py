@@ -5,15 +5,15 @@ from django.contrib.auth.models import User
 from basyx.aas.model.base import MultiLanguageNameType, MultiLanguageTextType, Reference
 from domain.services.date import DateUtil
 
-ModelingKindChoices = [
-    ('Instance', 'Instance'),
-    ('Template', 'Template'), 
-]
+ASSET_KIND_CHOICES = [
+        ('INSTANCE', 'INSTANCE'),
+        ('TYPE', 'TYPE'),
+    ]
+MODELLING_KIND_CHOICES = [
+        ('INSTANCE', 'INSTANCE'),
+        ('TEMPLATE', 'TEMPLATE'),
+    ]
 
-AssetKindChoices = [
-    ('Type','Type'),
-    ('Instance','Instance')
-]
 
 '''
 # 사용안함, JSON필드로 대체함
@@ -257,11 +257,16 @@ class DBAssetSpecificassetIds(models.Model):
         
 
 class DBAssetInformation(models.Model):
+    '''
+    AssetInformation 객체를 생성할 때 globalAssetId 또는 specificAssetId 중 하나는 반드시 설정되어야 한다는 규칙입니다.
+    '''
+
     asset_pk = models.AutoField(primary_key=True, db_column='asset_pk')
-    assetKind = models.CharField(max_length=50, null=True) #  TYPE, INSTANCE, NOT_APPLICABLE
+    assetKind = models.CharField(max_length=50, choices=ASSET_KIND_CHOICES, null=True) #  TYPE, INSTANCE, NOT_APPLICABLE
+    
     assetType = models.CharField(max_length=50, null=True) # 자산종류 equipment, tool, material, product, software, document, person, organization, location, other
     globalAssetId = models.CharField(max_length=1000, null = True, unique=True)
-
+    globalAssetIdType = models.CharField( max_length=20, choices=[('IRI', 'IRI'), ('IRDI', 'IRDI'), ('Custom', 'Custom')], default='IRI')
     path = models.CharField(max_length=2000, null = True) # default thumbnail path에 해당됨
     defaultThumbnail = models.ForeignKey(DBResource, on_delete=models.DO_NOTHING, null=True)
     #SpecificAssetIds = models.ManyToManyField('DBSpecificAssetId', through=DBAssetSpecificassetIds, related_name='asset_specificassetids', related_query_name='asset_specificassetids' )
@@ -472,7 +477,8 @@ class DBSubmodelElement(models.Model):
     '''
 
     sme_pk = models.AutoField(primary_key=True, db_column='sme_pk')
-    id_short = models.CharField(max_length=200, null =True, unique=True)
+    # The id_short must start with a letter (Constraint AASd-002)
+    id_short = models.CharField(max_length=200, null =True) # unique 해제함 ,id_short 필드는 문자, 숫자, 언더스코어(_)만 포함해야 하며, 공백, 특수문자, 한글, 하이픈(-) 등이 들어가면 안 됩니다.
     category = models.CharField(max_length=50, null=True) #"constant", "parameter", "variable" measurement, info
     ModelKind = models.CharField(max_length=50, null=True) #models.SmallIntegerField(null=True) # 0 : Template, 1: Instance
     modelType = models.CharField(max_length=50) # Property, Collection, Operation, Event, File, Reference Element    
@@ -484,8 +490,10 @@ class DBSubmodelElement(models.Model):
 
     #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodelelement_displayName')
     #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodelelement_description')
-    displayName = models.JSONField(null=True);
-    description = models.JSONField(null=True);
+    language = models.CharField(max_length=10, null=True, default='ko-KR')
+    displayName = models.CharField(null=True, max_length=200);
+    description = models.CharField(null=True, max_length=2000);
+
 
 
     Submodel = models.ForeignKey('DBSubmodel', on_delete=models.DO_NOTHING, null=True, db_column='sm_pk')
@@ -562,7 +570,7 @@ class DBPropertyElement(models.Model):
 
 class DBBlobElement(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
-    value = models.TextField(max_length=2000) # BlobType
+    value = models.BinaryField()
     mimeType = models.CharField(max_length=500) # ContentType
 
     _status = models.CharField('_status', max_length=10, null=True)
@@ -585,6 +593,7 @@ class DBBlobElement(models.Model):
 class DBFileElement(models.Model):
     SubmodelElement = models.OneToOneField(DBSubmodelElement, on_delete=models.DO_NOTHING, db_column='sme_pk', primary_key=True)
     value = models.CharField(max_length=2000) # PathType
+    path = models.CharField(max_length=2000, null = True) # 물리적경로
     content_type = models.CharField(max_length=500) # ContentType
     filename = models.CharField(max_length=500, null=True, db_column="filename")
     _status = models.CharField('_status', max_length=10, null=True)
@@ -762,7 +771,7 @@ class DBSubmodel(models.Model):
     submodel_pk = models.AutoField(primary_key=True, db_column='sm_pk')
     id = models.CharField(max_length=2000, unique=True)
     id_short = models.CharField(max_length=200, null =True, unique=True)
-    kind = models.CharField(max_length=50, null =True) #SmallIntegerField(null=True) # 0 : Template, 1: Instance
+    kind = models.CharField(max_length=50, null =True, choices= MODELLING_KIND_CHOICES)
     category = models.CharField(max_length=100, null=True)
     semanticId = models.ForeignKey(DBReference, on_delete=models.CASCADE, null=True, related_name='submodel_semanticId', db_column='semantic_id')
     assetAdministrationShell = models.ForeignKey('DBAssetAdministrationShell', on_delete=models.CASCADE, null=True, db_column='aas_pk')
@@ -773,8 +782,11 @@ class DBSubmodel(models.Model):
     #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodel_displayName')
     #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name=  'submodel_description')
 
-    displayName = models.JSONField(null=True);
-    description = models.JSONField(null=True);
+
+    language = models.CharField(max_length=10, null=True, default='ko-KR')
+    displayName = models.CharField(null=True, max_length=200);
+    description = models.CharField(null=True, max_length=2000);
+
 
     
     _status = models.CharField('_status', max_length=10, null=True)
@@ -890,9 +902,11 @@ class AASSubmodelReferences(models.Model):
         self._modifier_id = user.id
         self._modified = DateUtil.get_current_datetime()
         return
+    
 
     class Meta:
         db_table = 'aas_submodel_refs'
+        unique_together = [['aas','reference']]
 
 
 
@@ -903,18 +917,27 @@ class DBAssetAdministrationShell(models.Model) :
     aas_pk = models.AutoField(primary_key=True)
     id = models.CharField(max_length=2000, unique=True)
     category = models.CharField(max_length=50, null=True)
+
+    # id_short 필드는 문자, 숫자, 언더스코어(_)만 포함해야 하며, 공백, 특수문자, 한글, 하이픈(-) 등이 들어가면 안 됩니다.
     id_short = models.CharField(max_length=200, null =True, unique=True)
+
     Administration = models.ForeignKey(DBAdministration, db_column='admin_pk', on_delete=models.DO_NOTHING, null=True)
     AssetInformation = models.ForeignKey(DBAssetInformation, db_column='asset_pk', on_delete=models.DO_NOTHING, null=True)
-    derivedFrom = models.ForeignKey('self', db_column='base_aas_pk', on_delete=models.CASCADE, null=True, related_name='aas_derivedFrom')
+
+    # parent는 AAS UI나 계층구조 트리뷰 구성 시 필수적입니다.
+    # derivedFrom은 템플릿 기반 인스턴스 생성, 디지털 트윈의 버전/유형 관리에 매우 유용합니다.
+    parent = models.ForeignKey('self', db_column='parent_aas_pk', on_delete=models.CASCADE, null=True, related_name='aas_parent')
+    derivedFrom = models.ForeignKey('self', db_column='derivedfrom_aas_pk', on_delete=models.CASCADE, null=True, related_name='aas_derivedFrom')
+
     embeddedDataSpecifications = models.ManyToManyField(DBEmbeddedDataSpecification, through=AASDataSpecification, related_name='aas_dataspecs', related_query_name='aas_dataspecs')
     Extensions = models.ManyToManyField(DBExtension, through=AASExtensions, related_name='aas_extensions', related_query_name='aas_extensions')
     submodels = models.ManyToManyField(DBReference,  through=AASSubmodelReferences, related_name='aas_submodel_references', related_query_name='aas_submodel_references')
     #displayName = models.ForeignKey('LanguageItem', db_column='disp_name_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_displayName')
     #description = models.ForeignKey('LanguageItem', db_column='desc_pk', on_delete = models.DO_NOTHING, null=True, related_name= 'aas_description')
 
-    displayName = models.JSONField(null=True);
-    description = models.JSONField(null=True);
+    language = models.CharField(max_length=10, null=True, default='ko-KR')
+    displayName = models.CharField(null=True, max_length=200);
+    description = models.CharField(null=True, max_length=2000);
 
     #dispaly_name : MultiLanguageTextType = None   
 

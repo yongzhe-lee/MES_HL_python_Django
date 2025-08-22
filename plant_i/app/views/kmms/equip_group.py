@@ -137,8 +137,8 @@ def equip_group(context):
                 '''
             sql += '''
             where 1=1 
-            AND t.factory_pk = %(factory_pk)s
             '''
+            # -- AND t.factory_pk = %(factory_pk)s
             if types:
                 sql += ''' AND t.class_type = UPPER(%(types)s)
                 '''

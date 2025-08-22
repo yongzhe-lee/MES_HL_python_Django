@@ -161,7 +161,7 @@ class DeptWorkCostsPage {
                     title: "요청부서", 
                     field: "deptNm", 
                     width: "150px", 
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # #=deptNm# # } #",
+                    template: "#=deptNm#",
                     footerTemplate: "<b style='color:rgb(78,81,85)'>합계</b>" 
                 },
                 { 
@@ -169,7 +169,7 @@ class DeptWorkCostsPage {
                     field: "yearMon", 
                     width: "100px", 
                     attributes: { style: "text-align:left" }, 
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # #=yearMon# # } #",
+                    template: "#=yearMon#",
                     footerTemplate: "<b style='color:rgb(78,81,85)'></b>" 
                 },
                 { 
@@ -178,7 +178,7 @@ class DeptWorkCostsPage {
                     width: "100px", 
                     attributes: { style: "text-align:right" }, 
                     type: "number",
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # ￦#=kendo.toString(totCost, 'n0')# # } #",
+                    template: "￦#=kendo.toString(totCost, 'n0')#",
                     footerTemplate: ({ totCost }) => `￦ ${kendo.htmlEncode(totCost.sum)}`,
                     footerAttributes: { style: "text-align: right" },
                 },
@@ -188,7 +188,7 @@ class DeptWorkCostsPage {
                     width: "100px", 
                     attributes: { style: "text-align:right" }, 
                     type: "number",
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # ￦#=kendo.toString(mtrlCost, 'n0')# # } #",
+                    template: "￦#=kendo.toString(mtrlCost, 'n0')#",
                     footerTemplate: ({ mtrlCost }) => `￦ ${kendo.htmlEncode(mtrlCost.sum)}`,
                     footerAttributes: { style: "text-align: right" },
                 },
@@ -198,7 +198,7 @@ class DeptWorkCostsPage {
                     width: "100px", 
                     attributes: { style: "text-align:right" }, 
                     type: "number",
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # ￦#=kendo.toString(laborCost, 'n0')# # } #",
+                    template: "￦#=kendo.toString(laborCost, 'n0')#",
                     footerTemplate: ({ laborCost }) => `￦ ${kendo.htmlEncode(laborCost.sum)}`,
                     footerAttributes: { style: "text-align: right" },
                 },
@@ -208,7 +208,7 @@ class DeptWorkCostsPage {
                     width: "100px", 
                     attributes: { style: "text-align:right" }, 
                     type: "number",
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # ￦#=kendo.toString(outsideCost, 'n0')# # } #",
+                    template: "￦#=kendo.toString(outsideCost, 'n0')#",
                     footerTemplate: ({ outsideCost }) => `￦ ${kendo.htmlEncode(outsideCost.sum)}`,
                     footerAttributes: { style: "text-align: right" },
                 },
@@ -218,7 +218,7 @@ class DeptWorkCostsPage {
                     width: "100px", 
                     attributes: { style: "text-align:right" }, 
                     type: "number",
-                    template: "# if (deptNm == 'TOTSUM' || deptNm == 'SUBSUM') { # # } else { # ￦#=kendo.toString(etcCost, 'n0')# # } #",
+                    template: "￦#=kendo.toString(etcCost, 'n0')#",
                     footerTemplate: ({ etcCost }) => `￦ ${kendo.htmlEncode(etcCost.sum)}`,
                     footerAttributes: { style: "text-align: right" },
                 }
@@ -270,14 +270,22 @@ class DeptWorkCostsPage {
 
         let result = AjaxUtil.getSyncData(_this.baseUrl, param);
         
-        // let filteredData = result.filter(function(item) {
-        //     return item.deptNm !== 'TOTSUM' && item.deptNm !== 'SUBSUM';
-        // });
+        let filteredData = result.filter(function(item) {
+            return item.deptNm !== 'TOTSUM' && item.deptNm !== 'SUBSUM';
+        });
+        
+        // 문자열을 숫자로 변환
+        filteredData.forEach(function(item) {
+            item.totCost = parseFloat(item.totCost) || 0;
+            item.mtrlCost = parseFloat(item.mtrlCost) || 0;
+            item.laborCost = parseFloat(item.laborCost) || 0;
+            item.outsideCost = parseFloat(item.outsideCost) || 0;
+            item.etcCost = parseFloat(item.etcCost) || 0;
+        });
         
         let grid = $("#statGrid").data("kendoGrid");
         if (grid) {
-            // grid.dataSource.data(filteredData);
-            grid.dataSource.data(result);
+            grid.dataSource.data(filteredData);
             grid.refresh();
         }
     }

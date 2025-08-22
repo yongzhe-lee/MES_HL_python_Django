@@ -16,7 +16,7 @@
                 <div class="form-ui">
                     <div class="col-12 col-sm-6 col-md-5 col-xl-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="생성일">생성일</label>
+                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="실행일">실행일</label>
                             <div class="field-wrapper">
                                 <div id="srch_date_range"></div>
                             </div>
@@ -24,9 +24,22 @@
                     </div>
                     <div class="col-12 col-sm-6 col-md-5 col-xl-3">
                         <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_log_type" data-labelCd="구분">구분</label>
+                            <label class="k-label k-form-label" for="cboTask" data-labelCd="인터페이스">인터페이스</label>
                             <div class="field-wrapper">
-                                <select id="srch_log_type" name="srch_log_type"></select>
+                                <select id="cboTask" name="task">
+                                    <option value="전체">전체</option>
+                                    <option value="sap_material">SAP품목정보</option>
+                                    <option value="sap_bom">SAP BOM</option>
+                                    <option value="sap_rand">SAP 난수번호별 입고번호</option>
+                                    <option value="sap_stock">SAP 품목별재고</option>
+                                    <option value="mes_prod_plan">MES생산계획</option>
+                                    <option value="mes_work_order">MES작업지시</option>
+                                    <option value="mes_lot">MES LOT이력</option>
+                                    <option value="mes_fpy">MES FPY</option>
+                                    <option value="mes_oee">MES OEE</option>
+                                    <option value="qms">QMS</option>
+                                    <option value="van">VAN</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -48,9 +61,82 @@
                         <button id="btnExcel">Excel</button>
                     </span>
                 </div>
-                <div id="system_log_grid"></div>
+                <div id="if_log_grid"></div>
             </div>
-        </div>        
+        </div>  
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">edit</i>시스템 로그 상세 정보
+                    </span>
+                </div>
+                <form id="logForm">
+                    <div class="edit-form-ui">
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="log_date" data-labelCd="실행일시">실행일시</label>
+                                <div class="field-wrapper">
+                                    <input id="log_date" name="log_date" readonly="readonly" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="task" data-labelCd="인터페이스">인터페이스</label>
+                                <div class="field-wrapper">
+                                    <input type="text" id="task" name="task_name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="method" data-labelCd="방식">방식</label>
+                                <div class="field-wrapper">
+                                    <input id="method" name="method" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="success_yn" data-labelCd="결과">결과</label>
+                                <div class="field-wrapper">
+                                    <input id="success_yn" name="success_yn" readonly="readonly" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="api_param" data-labelCd="파라미터">파라미터</label>
+                                <div class="field-wrapper">
+                                    <textarea id="api_param" name="api_param"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="sec_taken" data-labelCd="소요시간(sec)">소요시간(sec)</label>
+                                <div class="field-wrapper">
+                                    <input id="sec_taken" name="sec_taken" readonly="readonly" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="user_name" data-labelCd="실행자">결과</label>
+                                <div class="field-wrapper">
+                                    <input id="user_name" name="user_name" readonly="readonly" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -59,8 +145,9 @@
 <script type="text/javascript">
     class InterfaceLogPage {
         constructor() {
-            this.grid = null;
+            this.$grid = null;
             this.baseUrl = '/api/interface/log';
+            this.$form = $('#logForm');
             this.init();
         }
 
@@ -80,30 +167,28 @@
                 },
                 columns: [
                     // 차후 수정
-                    { field: "id", title: "No", width: 100 },
-                    { field: "task", title: "인터페이스", width: 15 },
-                    { field: "method", title: "방식", width: 150 },
-                    { field: "contents", title: "전송파라미터", width: 300 },
-                    { field: "is_success", title: "결과", width: 100 },
-                    { field: "data_date", title: "생성일", width: 120 },
+                    { field: "log_date", title: "실행일시", width: 160, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "task_name", title: "인터페이스", width: 150, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "method", title: "방식", width: 150, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "api_param", title: "전송파라미터", width: 300, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "success_yn", title: "결과", width: 120, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "sec_taken", title: "걸린시간(sec)", width: 120, attributes: { style: "text-align: right" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
                 ],
                 change: function (e) {
                     _this.showDetail();
                 },
-                dataBound: function (e) {
-                    for (var i = 0; i < this.columns.length; i++) {
-                        this.autoFitColumn(i);
-                    };
-                },
                 height: 500
             };
-            _this.grid = new Grid($("#system_log_grid"), systemLogGridOption);
+            this.$grid = new Grid($("#if_log_grid"), systemLogGridOption);
+
+            let start = CommonUtil.getYYYYMMDD(-14);
+            let end = CommonUtil.getYYYYMMDD();
 
             //search form
             $("#srch_date_range").kendoDateRangePicker({
                 range: {
-                    start: new Date(),
-                    end: new Date()
+                    start: start,
+                    end: end
                 },
                 change: function (e) {
 
@@ -113,13 +198,17 @@
                 startField: "start_date",
                 endField: "end_date"
             });
-            AjaxUtil.fillDropDownOptions($('#srch_log_type'), 'log_type', 'all', null);
-            $('#keyword').kendoTextBox();
-            $('#keyword').keypress(function (e) {
-                if (e.keyCode == 13) {
-                    _this.searchMainData();
-                }
-            })
+
+            $('#task, #log_date, #success_yn, #method').kendoTextBox();
+            $('#api_param').kendoTextArea({
+                rows: 10,
+                placeholder: ""
+            });
+
+            $('#sec_taken, #user_name').kendoTextBox();
+
+            $('#cboTask').kendoDropDownList();
+
 
             $('#btnSearch').kendoButton({
                 icon: "search",
@@ -139,8 +228,26 @@
 
         }
 
+        showDetail() {
+            let _this = this;
+            let selectedData = _this.$grid.getSelect();
+            if (selectedData.length > 0) {
+                let selectedItem = selectedData[0];
+                FormUtil.BindDataForm(selectedItem, this.$form);
+
+                let param = JSON.parse(selectedItem.api_param);
+
+                let str_json = JSON.stringify(param, null, 4);
+                $('#api_param').val(str_json);
+
+            } else {
+                _this.$form[0].reset();
+            }
+        }
+
         searchMainData() {
             let _this = this;
+            this.$form[0].reset();
 
             const startDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().start);
             const endDate = new Date($("#srch_date_range").data("kendoDateRangePicker").range().end);
@@ -148,6 +255,8 @@
             // 9시간 추가(date객체가 UTC 기준이라 서버로 넘어갈 때 9시간 빠져서 넘어감)
             startDate.setHours(startDate.getHours() + 9);
             endDate.setHours(endDate.getHours() + 9);
+
+
 
             let param = {
                 action: 'read',
@@ -160,20 +269,15 @@
 
             let fnSuccess = function (result) {
                 if (result.success) {
-                    _this.grid.setData(result.items);
+                    _this.$grid.setData(result.items);
                 }
                 else {
-
+                    Alert.alert("조회오류", result.message);
                 }
             };
-            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);            
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
         }
-
-     
-
     };
-
-
 
     let page = new InterfaceLogPage();
     $(document).ready(function () {

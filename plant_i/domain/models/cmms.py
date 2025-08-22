@@ -332,8 +332,8 @@ class CmBaseCodeGroup(models.Model):
     CodeGroupCode = models.CharField(primary_key=True, max_length=40, db_column='code_grp_cd', db_comment='코드그룹코드')
     CodeGrpName = models.CharField(max_length=100, db_column='code_grp_nm', db_comment='코드그룹명')
     CodeGrpDsc = models.CharField(max_length=200, blank=True, null=True, db_column='code_grp_dsc', db_comment='코드그룹설명')
-    EditYn = models.CharField(db_column='edit_yn', db_comment='편집가능여부')
-    CodePkYn = models.CharField(blank=True, null=True, db_column='code_pk_yn', db_comment='PK여부')
+    SystemYn = models.CharField(db_column='system_yn', db_comment='시스템코드여부')
+    UseYn = models.CharField(blank=True, null=True, db_column='use_yn', db_comment='사용여부')
     DispOrder = models.SmallIntegerField(blank=True, null=True, db_column='disp_order', db_comment='표시순서')
 
     class Meta:
@@ -341,12 +341,6 @@ class CmBaseCodeGroup(models.Model):
         db_table_comment = '코드그룹'
 
     def set_audit(self, user):
-        # if self.InserterId is None:
-        #     self.InserterId = user.id
-        #     self.InserterName = user.username
-        # self.UpdaterId = user.id
-        # self.UpdaterName = user.username
-        # self.UpdateDt = DateUtil.get_current_datetime()
         return
  
 
@@ -688,6 +682,7 @@ class CmEquipChkItemRslt(models.Model):
     ChkItemRsltDesc = models.CharField(max_length=1000, blank=True, null=True, db_column='chk_item_rslt_desc', db_comment='점검 결과 설명')
     ChkUserPk = models.IntegerField(db_column='chk_user_pk', null=True, db_comment='점검자 PK')
     ChkDt = models.DateTimeField(db_column='chk_dt', db_comment='점검일시')
+    ChkItemRsltNum = models.IntegerField(db_column='chk_item_rslt_num', null=True, db_comment='점검수량')
 
     class Meta:
         db_table = 'cm_equip_chk_item_rslt'
@@ -875,7 +870,7 @@ class CmEquipDeptHist(models.Model):
             self.InserterName = user.username
         # self.UpdaterId = user.id
         # self.UpdaterName = user.username
-        # self.UpdateTs = DateUtil.get_current_datetime()
+        self.InsertTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipLocHist(models.Model):
@@ -897,7 +892,7 @@ class CmEquipLocHist(models.Model):
             self.InserterName = user.username
         # self.UpdaterId = user.id
         # self.UpdaterName = user.username
-        # self.UpdateTs = DateUtil.get_current_datetime()
+        self.InsertTs = DateUtil.get_current_datetime()
         return
  
 class CmEquipPartMtrl(models.Model):
@@ -1719,8 +1714,8 @@ class CmPm(models.Model):
     PmName = models.CharField(db_column='pm_nm', max_length=100, db_comment='PM 명')
     PmNoSort = models.IntegerField(db_column='pm_no_sort', null=True, blank=True, db_comment='PM 번호 소팅')
     CmEquipment = models.ForeignKey(CmEquipment, models.DO_NOTHING, db_column='equip_pk', db_comment='설비 PK')
-    DeptPk = models.SmallIntegerField(db_column='dept_pk', null=True, blank=True, db_comment='작업부서 PK')
-    PmUserPk = models.SmallIntegerField(db_column='pm_user_pk', null=True, blank=True, db_comment='작업담당자 PK')
+    DeptPk = models.SmallIntegerField(db_column='dept_pk', db_comment='작업부서 PK')
+    PmUserPk = models.SmallIntegerField(db_column='pm_user_pk', db_comment='작업담당자 PK')
     CycleType = models.CharField(db_column='cycle_type', max_length=20, null=True, blank=True, db_comment='주기단위 코드')
     PerNumber = models.SmallIntegerField(db_column='per_number', null=True, blank=True, db_comment='PM 주기')
     SchedStartDt = models.DateField(db_column='sched_start_dt', null=True, blank=True, db_comment='주기시작일')

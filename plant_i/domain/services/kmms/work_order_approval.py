@@ -57,3 +57,84 @@ class WorkOrderApprovalService():
 		except Exception as ex:
 			LogWriter.add_dblog('error', 'WorkOrderApprovalService.updateWoRequestBulk', ex)
 			raise ex
+
+	# 작업완료
+	def updateWoFinish(
+										self,
+										workOrderPk,
+										tempSave,
+										problemCd,
+										causeCd,
+										remedyCd,
+										projCd,
+										workSrcCd,										
+										workChargerPk,
+										planStartDt,
+										planEndDt,
+										startDt,
+										endDt,
+										workText,
+
+										finishUserPk,
+										finishUserNm,
+										mtrlCost,
+										laborCost,
+										outsideCost,
+										etcCost,
+										totCost
+									):
+		dic_param = {
+			'workOrderPk': workOrderPk,
+			'tempSave': tempSave,
+			'problemCd': problemCd,
+			'causeCd': causeCd,
+			'remedyCd': remedyCd,
+			'projCd': projCd,
+			'workSrcCd': workSrcCd,
+			'workChargerPk': workChargerPk,
+			'planStartDt': planStartDt,
+			'planEndDt': planEndDt,
+			'startDt': startDt,
+			'endDt': endDt,
+			'workText':workText,			
+
+			'finishUserPk': finishUserPk,
+			'finishUserNm': finishUserNm,
+			'mtrlCost': mtrlCost,
+			'laborCost': laborCost,
+			'outsideCost': outsideCost,
+			'etcCost': etcCost,
+			'totCost': totCost
+		}
+
+		sql = '''
+			/* execute [mig-dept-mapper.xml] */
+			CALL cm_prc_wo_finish(
+				%(workOrderPk)s,
+				%(tempSave)s,
+				%(problemCd)s,
+				%(causeCd)s,
+				%(remedyCd)s,
+				%(projCd)s,
+				%(workSrcCd)s,
+				%(workChargerPk)s,
+				%(planStartDt)s,
+				%(planEndDt)s,
+				%(startDt)s,
+				%(endDt)s,
+				%(workText)s,
+				%(finishUserPk)s,
+				%(finishUserNm)s,
+				%(mtrlCost)s,
+				%(laborCost)s,
+				%(outsideCost)s,
+				%(etcCost)s,
+				%(totCost)s
+			);
+		'''
+
+		try:
+			DbUtil.execute(sql, dic_param)
+		except Exception as ex:
+			LogWriter.add_dblog('error', 'WorkOrderApprovalService.updateWoApproval', ex)
+			raise ex

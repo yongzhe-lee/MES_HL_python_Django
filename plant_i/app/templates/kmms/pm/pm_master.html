@@ -95,7 +95,6 @@
 				<div id="pm_master_grid"></div>
 			</div>
 		</div>
-
 	</div>
 </div>
 <!-- PM일정생성 Kendo Window 팝업 -->
@@ -188,31 +187,35 @@
 					}
 				},
 				columns: [
-					{ field: 'pm_pk', title: 'PM PK', hidden: true },  // ✅ pm_pk 값 유지
-					{ field: 'pm_no', title: 'PM 번호', width: 120 },
+					{ field: 'pm_pk', title: 'PM PK', hidden: true, headerAttributes: { style: 'text-align: center; justify-content: center;' } },
+					{ field: 'pm_no', title: 'PM 번호', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' }, template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#" data-mode="read">#=pm_no#</a>' },
 					{
 						field: "pm_nm",
 						title: "PM명",
-						width: 150,
+						width: 200,
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: left;' },
 						template: '<a href="javascript:void(0);" class="grid-column-link" data-pm-pk="#=pm_pk#">#=pm_nm#</a>'
 					},
 					{
 						field: 'equip_cd',
 						title: '설비코드',
-						width: 100,
+						width: 150,
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: left;' },
 						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_cd#</a>'
 					},
-					{ field: 'equip_nm', title: '설비명', width: 150 },
-					{ field: 'import_rank_nm', title: '중요도', width: 80 },
-					{ field: 'dept_nm', title: '실행부서', width: 100 },
-					{ field: 'mdept_nm', title: '관리부서', width: 100 },
-					{ field: 'loc_nm', title: '설비위치', width: 120 },
-					{ field: 'pm_user_nm', title: 'PM 담당자', width: 100 },
-					{ field: 'pm_type_nm', title: 'PM 유형', width: 80 },
-					{ field: 'per_number', title: '주기', width: 80 },
-					{ field: 'cycle_type_nm', title: '주기단위', width: 80 },
-					{ field: 'sched_start_dt', title: '주기 시작일', width: 80 },
-					{ field: 'next_chk_date', title: '다음 주기일', width: 100 },
+					{ field: 'equip_nm', title: '설비명', width: 200, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+					{ field: 'import_rank_nm', title: '중요도', width: 90, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'Name', title: '실행부서', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'mdept_nm', title: '관리부서', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'loc_nm', title: '설비위치', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: left;' } },
+					{ field: 'pm_user_nm', title: 'PM 담당자', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'pm_type_nm', title: 'PM 유형', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'per_number', title: '주기', width: 80, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: right;' } },
+					{ field: 'cycle_type_nm', title: '주기단위', width: 100, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'sched_start_dt', title: '주기 시작일', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
+					{ field: 'next_chk_date', title: '다음 주기일', width: 120, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' }, template: '#= next_chk_date ? next_chk_date.split("T")[0] : "" #' },
 				],
 
 				dataBound: function (e) {
@@ -221,9 +224,11 @@
 							e.preventDefault();
 							let pmPk = $(this).data("pm-pk");
 							let equipPk = $(this).data("equip-pk");
+							let mode = $(this).data("mode"); // 읽기모드 또는 편집모드
+							
 							if (pmPk) {
 								setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
-								pmMasterPage.show(pmPk);
+								pmMasterPage.show(pmPk, mode);
 								return; // pmPk가 있을 경우 여기서 함수 종료
 							}
 
@@ -238,7 +243,7 @@
 
 								// 인스턴스 생성 및 show
 								window.equipMasterPage = new EquipMaster();
-								window.equipMasterPage.show(equipPk);
+								window.equipMasterPage.show(equipPk, mode);
 							}
 						} catch (error) {
 							console.error('Error in click handler:', error);
@@ -263,29 +268,37 @@
 					}
 				},
 				columns: [
-					{ field: 'chk_mast_pk', title: '점검 PK', hidden: true },
-					{ field: 'chk_mast_no', title: '점검번호', width: 80 },
+					{ field: 'chk_mast_pk', title: '점검 PK', hidden: true, headerAttributes: { style: 'text-align: center; justify-content: center;' } },
+					{ field: 'chk_mast_no', title: '점검번호', width: 80, headerAttributes: { style: 'text-align: center; justify-content: center;' }, attributes: { style: 'text-align: center;' } },
 					{
 						field: "chk_mast_nm",
 						title: "점검명",
 						width: 150,
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: left;' }
 					},
 					{
 						field: 'sched_start_date',
 						title: '주기 시작일',
 						width: 120,
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: center;' },
 						template: '#= kendo.toString(kendo.parseDate(sched_start_date), "yyyy-MM-dd") #'
 					},
 					{
 						field: 'last_chk_date',
 						title: '최근 생성된 일정',
 						width: 120,
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: center;' },
 						template: '#= kendo.toString(kendo.parseDate(last_chk_date), "yyyy-MM-dd") #'
 					},
 					{
 						field: 'cycle_display_nm',
 						title: '주기',
 						width: 80,
+						headerAttributes: { style: 'text-align: center; justify-content: center;' },
+						attributes: { style: 'text-align: center;' }
 					},
 				],
 				height: "400px"
@@ -385,7 +398,7 @@
 				click: function (e) {
 					e.preventDefault();
 					setModalPosition('#modalPmMaster', { width: '70%', height: '70%' });
-					pmMasterPage.show(function (res) { });
+					pmMasterPage.show(null, 'reg');
 				}
 			}).css('visibility', 'visible');
 
@@ -400,9 +413,19 @@
 				}
 			}).css('visibility', 'visible');
 
+			$('#btnSearchCal').kendoButton({
+				icon: "search",
+				themeColor: "info",
+				fillMode: "outline",
+				content: "조회",
+				click: function () {
+					_this.loadSimulationScheduler();
+				}
+			}).css('visibility', 'visible');
+
 			AjaxUtil.fillDropDownTreeOptions($("#calDeptPk"), "depart", "select");
 			AjaxUtil.fillDropDownOptions($('#calChkUserPk'), 'cm_user_info', 'choose');
-			AjaxUtil.fillDropDownOptions($('#calSearchType'), 'cm_code', 'choose', null, 'CYCLE_TYPE');
+			AjaxUtil.fillDropDownOptions($('#calSearchType'), 'cm_code', null, null, 'VIEW_TYPE');
 
 			// 점검 주기 시뮬레이션 Kendo Window 초기화 (최초 1회만)
 			$("#simulationCalendarWindow").kendoWindow({
@@ -430,13 +453,36 @@
 				themeColor: "info",     // info 테마 사용
 				fillMode: "outline",    // outline 스타일로 변경
 				click: function (e) {
-					e.preventDefault();
-
+					e.preventDefault();		
+					let calSearchType = $('#calSearchType').data('kendoDropDownList').value();
+					let action = '';
+					
+					if (calSearchType === 's') {
+						action = 'selectPmScheSimulationByMon';
+					} else {
+						action = 'selectPmScheSimulationCycleByMon';
+					}
+					
+					// 현재 날짜 기준으로 날짜 범위 계산
+					let now = new Date();
+					let fromDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()); // 3개월 전
+					let toDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1); // 1일 후
+					
+					// YYYY-MM-DD 형식으로 변환
+					let fromDateStr = fromDate.getFullYear() + '-' + 
+						String(fromDate.getMonth() + 1).padStart(2, '0') + '-' + 
+						String(fromDate.getDate()).padStart(2, '0');
+					let toDateStr = toDate.getFullYear() + '-' + 
+						String(toDate.getMonth() + 1).padStart(2, '0') + '-' + 
+						String(toDate.getDate()).padStart(2, '0');
+					
 					let calParam = {
-						action: 'selectEquipChkScheSimulationCycleByMon',
+						action: action,
+						fromDate: fromDateStr,
+						toDate: toDateStr,
 						deptPk: $('#calDeptPk').data('kendoDropDownTree').value(),
 						userPk: $('#calChkUserPk').data('kendoDropDownList').value(),
-						calSearchType: $('#calSearchType').data('kendoDropDownList').value()
+						calSearchType: calSearchType
 					};
 			
 					_this.schedulerData = AjaxUtil.getSyncData('/api/kmms/pm_master', calParam);
@@ -495,7 +541,7 @@
 			gridData.saveAsExcel();
 		}
 
-		loadSimulationScheduler() {
+		loadSimulationScheduler() {			
 			// holidayInfo, holidayCustom이 있으면 기존 schedulerData에 추가
 			let mergedData = [...this.schedulerData]; // 기존 시뮬레이션 데이터 복사
 
@@ -595,9 +641,7 @@
 				var scheduler = $("#simulationScheduler").data("kendoScheduler");
 				var uid = $(this).data("uid");
 				var event = scheduler.occurrenceByUid(uid);
-				if (event) {
-					//console.log('event:', event);
-					//debugger;
+				if (event) {			
 					if (event.type == '') {
 						// 그 외 일정은 모달창으로 표시
 						var wnd = $("#simulationCalDetailWindow").data("kendoWindow");

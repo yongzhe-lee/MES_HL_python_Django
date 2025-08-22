@@ -1274,7 +1274,176 @@ class CmReportService:
 
         return items
 
-    # 상위 작업비용 WO
+    # 정비비용 현황
+    def conservation_cost_status(self, searchYearMonth, deptPk):
+        year, month = searchYearMonth.split('-')
+        year = int(year)
+        month = int(month)
+        
+        # 연도 계산 (문자열로 변환)
+        curr_year = str(year)
+        last_year = str(year - 1)
+        before_year = str(year - 2)
+        
+        # 월 범위 계산 (현재 월까지)
+        curr_year_start = f"{curr_year}-01"
+        curr_year_end = f"{curr_year}-{month:02d}"
+        last_year_start = f"{last_year}-01"
+        last_year_end = f"{last_year}-{month:02d}"
+        
+        # 전체 기간 계산 (2년 전 1월 1일 ~ 현재 월 말일)
+        start_date = f"{before_year}-01-01"
+        end_date = f"{curr_year}-{month:02d}-01"
+        
+        items = []
+        dic_param = {
+            "searchYearMonth": searchYearMonth,
+            "deptPk": deptPk,
+            "before_year": before_year,
+            "last_year": last_year,
+            "curr_year": curr_year,
+            "curr_year_start": curr_year_start,
+            "curr_year_end": curr_year_end,
+            "last_year_start": last_year_start,
+            "last_year_end": last_year_end,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+        sql = """
+        /* getMaintCostStatus (보전비용현황) [stat-require-mapper.xml] */
+
+		with t as (
+			SELECT 1 as num, '사후보전' as itemNm
+				, sum(case when to_char(wo.end_dt, 'YYYY') = %(before_year)s then wo.tot_cost else 0 end) as beforeYearResult
+				, sum(case when to_char(wo.end_dt, 'YYYY') = %(last_year)s then wo.tot_cost else 0 end) as lastYearResult
+				, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(last_year_start)s AND %(last_year_end)s then wo.tot_cost else 0 end) as lastYearSum
+				, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(curr_year_start)s AND %(curr_year_end)s then wo.tot_cost else 0 end) as currYearSum
+			FROM cm_work_order wo inner join cm_work_order_approval woa on wo.work_order_approval_pk = woa.work_order_approval_pk
+			WHERE wo.wo_type = 'WO'
+			AND wo.wo_status = 'WOS_CL'
+			AND cast(wo.end_dt as date) between to_date(%(start_date)s, 'YYYY-MM-DD')
+			AND cast(((to_date(%(end_date)s, 'YYYY-MM-DD') + interval '1 month') - interval '1 day') as date)
+			AND wo.maint_type_cd = 'MAINT_TYPE_BM'
+			-- AND wo.site_id = 'WEZON'
+        """
+        if deptPk:
+            sql += """
+            AND (
+                wo.req_dept_pk = %(deptPk)s
+                OR
+                wo.req_dept_pk In (select dept_pk from cm_v_dept_path where cast(%(deptPk)s as integer) = path_info_pk)
+            )
+            """
+        sql += """
+			UNION ALL
+			SELECT 2 as num, '개량보전' as itemNm
+			, sum(case when to_char(wo.end_dt, 'YYYY') = %(before_year)s then wo.tot_cost else 0 end) as beforeYearResult
+			, sum(case when to_char(wo.end_dt, 'YYYY') = %(last_year)s then wo.tot_cost else 0 end) as lastYearResult
+			, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(last_year_start)s AND %(last_year_end)s then wo.tot_cost else 0 end) as lastYearSum
+			, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(curr_year_start)s AND %(curr_year_end)s then wo.tot_cost else 0 end) as currYearSum
+			FROM cm_work_order wo inner join cm_work_order_approval woa on wo.work_order_approval_pk = woa.work_order_approval_pk
+			WHERE wo.wo_type = 'WO'
+			AND wo.wo_status = 'WOS_CL'
+			AND cast(wo.end_dt as date) between to_date(%(start_date)s, 'YYYY-MM-DD')
+			AND cast(((to_date(%(end_date)s, 'YYYY-MM-DD') + interval '1 month') - interval '1 day') as date)
+			AND wo.maint_type_cd = 'MAINT_TYPE_CM'
+			-- AND wo.site_id = 'WEZON'
+        """
+        if deptPk:
+            sql += """
+            AND (
+                wo.req_dept_pk = %(deptPk)s
+                OR
+                wo.req_dept_pk In (select dept_pk from cm_v_dept_path where cast(%(deptPk)s as integer) = path_info_pk)
+            )
+            """
+        sql += """
+			UNION ALL
+			SELECT 3 as num, '일반작업' as itemNm
+			, sum(case when to_char(wo.end_dt, 'YYYY') = %(before_year)s then wo.tot_cost else 0 end) as beforeYearResult
+			, sum(case when to_char(wo.end_dt, 'YYYY') = %(last_year)s then wo.tot_cost else 0 end) as lastYearResult
+			, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(last_year_start)s AND %(last_year_end)s then wo.tot_cost else 0 end) as lastYearSum
+			, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(curr_year_start)s AND %(curr_year_end)s then wo.tot_cost else 0 end) as currYearSum
+			FROM cm_work_order wo inner join cm_work_order_approval woa on wo.work_order_approval_pk = woa.work_order_approval_pk
+			WHERE wo.wo_type = 'WO'
+			AND wo.wo_status = 'WOS_CL'
+			AND cast(wo.end_dt as date) between to_date(%(start_date)s, 'YYYY-MM-DD')
+			AND cast(((to_date(%(end_date)s, 'YYYY-MM-DD') + interval '1 month') - interval '1 day') as date)
+			AND wo.maint_type_cd = 'MAINT_TYPE_GM'
+			-- AND wo.site_id = 'WEZON'
+        """
+        if deptPk:
+            sql += """
+            AND (
+                wo.req_dept_pk = %(deptPk)s
+                OR
+                wo.req_dept_pk In (select dept_pk from cm_v_dept_path where cast(%(deptPk)s as integer) = path_info_pk)
+            )
+            """
+        sql += """
+			UNION ALL
+			SELECT 4 as num, '예방보전' as itemNm
+			, sum(case when to_char(wo.end_dt, 'YYYY') = %(before_year)s then wo.tot_cost else 0 end) as beforeYearResult
+			, sum(case when to_char(wo.end_dt, 'YYYY') = %(last_year)s then wo.tot_cost else 0 end) as lastYearResult
+			, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(last_year_start)s AND %(last_year_end)s then wo.tot_cost else 0 end) as lastYearSum
+			, sum(case when to_char(wo.end_dt, 'YYYY-MM') BETWEEN %(curr_year_start)s AND %(curr_year_end)s then wo.tot_cost else 0 end) as currYearSum
+			FROM cm_work_order wo inner join cm_work_order_approval woa on wo.work_order_approval_pk = woa.work_order_approval_pk
+			WHERE wo.wo_type = 'WO'
+			AND wo.wo_status = 'WOS_CL'
+			AND cast(wo.end_dt as date) between to_date(%(start_date)s, 'YYYY-MM-DD')
+			AND cast(((to_date(%(end_date)s, 'YYYY-MM-DD') + interval '1 month') - interval '1 day') as date)
+			AND wo.maint_type_cd = 'MAINT_TYPE_PM'
+			-- AND wo.site_id = 'WEZON'
+        """
+        if deptPk:
+            sql += """
+            AND (
+                wo.req_dept_pk = %(deptPk)s
+                OR
+                wo.req_dept_pk In (select dept_pk from cm_v_dept_path where cast(%(deptPk)s as integer) = path_info_pk)
+            )
+            """
+        sql += """
+		)
+		, tt as (
+			select t.num
+			, t.itemNm
+			, t.beforeYearResult
+			, t.lastYearResult
+			, t.lastYearSum
+			, t.currYearSum
+			from t
+			union all
+			select 5 as num
+			, '합계' as itemNm
+			, sum(t.beforeYearResult)
+			, sum(t.lastYearResult)
+			, sum(t.lastYearSum)
+			, sum(t.currYearSum)
+			from t
+		)
+		select tt.itemNm as item_nm
+			, round(coalesce(tt.beforeYearResult,0)/1000000, 0) as before_year_result
+			, round(coalesce(tt.lastYearResult,0)/1000000, 0) as last_year_result
+			, round(coalesce(tt.lastYearSum,0)/1000000, 0) as last_year_sum
+			, round(coalesce(tt.currYearSum,0)/1000000, 0) as curr_year_sum
+			, coalesce((case when tt.lastYearSum = 0 then '100' else to_char(((tt.currYearSum - tt.lastYearSum)/tt.lastYearSum)*100, 'FM999999999.00') end),'0') as change_rage
+			, tt.num as row_key
+		from tt
+		order by tt.num
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.conservation_cost_status", ex)
+            raise ex
+
+        return items
+
+    # 작업비용 상위 WO
     def top_work_cost_wo(self, startDt, endDt, reqDeptPk, deptPk):
         items = []
         dic_param = {
@@ -1358,6 +1527,171 @@ class CmReportService:
             LogWriter.add_dblog("error", "CmReportService.top_work_cost_wo", ex)
             raise ex
 
+        return items
+
+    # 아웃소싱 작업건수
+    def outsourced_tasks_count(self, dateType, searchYearMonth, searchYear, workSrc, deptPk):
+        items = []
+        dic_param = {
+            "dateType": dateType,
+            "searchYearMonth": searchYearMonth,
+            "searchYear": searchYear,
+            "workSrc": workSrc,
+            "deptPk": deptPk,
+        }
+        
+        work_src_condition = ""
+        if workSrc:
+            work_src_condition = f"wo.work_src_cd = '{workSrc}'"
+        else:
+            work_src_condition = "wo.work_src_cd in ('WS01', 'WS02', 'WS03')"
+        
+        sql = f"""
+        /* getCompActionStatus (사내조치현황) [stat-require-mapper.xml] */
+
+		with t as (
+			select code_cd, code_nm, disp_order
+			from cm_base_code where code_grp_cd = 'MAINT_TYPE' and use_yn = 'Y'
+		)
+		, tt as (
+			select t.code_cd, t.code_nm
+				, count(distinct wo.work_order_pk) as tot_count
+				, sum(coalesce(wo.tot_cost, 0)) as tot_cost
+
+                , count(distinct case when {work_src_condition} then wo.work_order_pk else null end) as act_count
+                , sum(case when {work_src_condition} then coalesce(wo.tot_cost, 0) else null end) as act_cost
+
+			from t
+			left outer join cm_work_order wo on t.code_cd = wo.maint_type_cd
+			and wo.wo_type != 'PM'
+			and wo.wo_status = 'WOS_CL'
+            and 
+            case 
+                when %(dateType)s = 'year' then to_char(wo.end_dt, 'YYYY') = %(searchYear)s
+                else to_char(wo.end_dt, 'YYYY-MM') = %(searchYearMonth)s
+            end
+            -- and to_char(wo.end_dt, 'YYYY-MM') = '2025-07'
+            -- and wo.site_id = 'WEZON'
+        """
+        if deptPk:
+            sql += """
+                AND (
+					wo.req_dept_pk = %(deptPk)s
+					OR
+					wo.req_dept_pk In (select dept_pk from cm_v_dept_path where cast(%(deptPk)s as integer) = path_info_pk)
+				)
+            """
+        sql += """
+            left outer join cm_equipment eq on wo.equip_pk = eq.equip_pk
+            -- AND eq.site_id = 'WEZON'
+		 	group by t.code_nm, t.disp_order, t.code_cd
+		 	order by t.disp_order
+		 )
+		 , ttt as (
+			  select tt.code_cd, tt.code_nm as item_nm
+				  , tt.tot_count, tt.tot_cost, tt.act_count, tt.act_cost
+				  , (case when tt.tot_count = 0 or tt.act_count = 0 then 0 else cast((tt.act_count*1.0/tt.tot_count*1.0)*100 as integer) end) as rate
+			  from tt
+		 )
+		 select ttt.code_cd as rslt_type
+		 	, ttt.item_nm
+		 	, ttt.tot_count
+		 	, ttt.tot_cost
+		 	, ttt.act_count
+		 	, ttt.act_cost
+		 	, ttt.rate as act_rate
+		 from ttt
+		 union all
+		 select 'sum' as rslt_type
+		 	, '합계' as item_nm
+			, sum(ttt.tot_count) as tot_count
+			, sum(ttt.tot_cost) as tot_cost
+			, sum(ttt.act_count) as act_count
+			, sum(ttt.act_cost) as act_cost
+			, (case when sum(ttt.tot_count) = 0 or sum(ttt.act_count) = 0 then 0 else cast ((sum(ttt.act_count)/sum(ttt.tot_count))*100 as integer) end) as act_rate
+		 from ttt
+        """
+        
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.outsourced_tasks_count", ex)
+            raise ex
+
+        return items
+
+    # 아웃소싱 작업건수 차트
+    def outsourced_tasks_count_total(self, dateType, searchYearMonth, searchYear, workSrc, deptPk):
+        items = []
+        dic_param = {
+            "dateType": dateType,
+            "searchYearMonth": searchYearMonth,
+            "searchYear": searchYear,
+            "workSrc": workSrc,
+            "deptPk": deptPk,
+        }
+        
+        sql = f"""
+        /* getCompActionStatusTotal (사내조치현황 전체) [stat-require-mapper.xml] */
+
+		with t as (
+			select code_cd, code_nm, disp_order
+			from cm_base_code where code_grp_cd = 'MAINT_TYPE' and use_yn = 'Y'
+		)
+		, tt as (
+			select t.code_cd, t.code_nm
+			, sum(case when wo.work_src_cd = 'WS01'then 1 else 0 end) as first_count
+			, sum(case when wo.work_src_cd = 'WS01' then wo.tot_cost else 0 end) as first_cost
+			, sum(case when wo.work_src_cd = 'WS02'then 1 else 0 end) as second_count
+		    , sum(case when wo.work_src_cd = 'WS02' then wo.tot_cost else 0 end) as second_cost
+			, sum(case when wo.work_src_cd = 'WS03'then 1 else 0 end) as third_count
+			, sum(case when wo.work_src_cd = 'WS03' then wo.tot_cost else 0 end) as third_cost
+		from t
+			left outer join cm_work_order wo on t.code_cd = wo.maint_type_cd
+			and wo.wo_type != 'PM'
+			and wo.wo_status = 'WOS_CL'
+            -- and wo.site_id = 'WEZON'
+        """
+        if deptPk:
+            sql += """
+		  		AND (
+					wo.req_dept_pk = %(deptPk)s
+					OR
+					wo.req_dept_pk In (select dept_pk from cm_v_dept_path where cast(%(deptPk)s as integer) = path_info_pk)
+				)
+            """
+        sql += """
+            and 
+            case 
+                when %(dateType)s = 'year' then to_char(wo.end_dt, 'YYYY') = %(searchYear)s
+                else to_char(wo.end_dt, 'YYYY-MM') = %(searchYearMonth)s
+            end
+			-- and to_char(wo.end_dt, 'YYYY') = '2024'
+            left outer join cm_equipment eq on wo.equip_pk = eq.equip_pk
+
+                -- AND eq.site_id = 'WEZON'
+
+			group by t.code_cd, t.code_nm, t.disp_order
+			order by t.disp_order
+		)
+		select tt.code_cd as rslt_type
+			  ,tt.code_nm as item_nm
+			  ,tt.first_count
+			  ,tt.first_cost
+			  ,tt.second_count
+			  ,tt.second_cost
+			  ,tt.third_count
+			  ,tt.third_cost
+		from tt
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.outsourced_tasks_count_total", ex)
+            raise ex
         return items
 
     # 부서별 예방 정비율
@@ -1733,6 +2067,75 @@ class CmReportService:
 
         return items
 
+    # 부서별 기간별 작업 준수율 푸터
+    def dept_task_compliance_rate_footer(self, dateType, startDt, endDt):
+        items = []
+        dic_param = {
+            "dateType": dateType,
+            "startDt": startDt,
+            "endDt": endDt,
+        }
+
+        sql = """
+        /* getWorkOrderComplyWithRateInfo (부서별 기간별 작업 준수율(지연되지 않은 작업 비율, 기간별, 부서 등의 기타 구분) - 통계정보) [stat-work-order-mapper.xml] */
+
+		with sql1 as (
+			select coalesce(t2."Name", '-') as dept_nm
+				,
+                CASE
+                    WHEN %(dateType)s = 'MON' THEN to_char(t1.end_dt, 'YYYY.MM')
+                    WHEN %(dateType)s = 'YEAR' THEN to_char(t1.end_dt, 'YYYY')
+                    ELSE to_char(t1.end_dt, 'YYYY.MM')
+                END as year_mon
+				, count(t1.work_order_pk) as tot_wo_cnt
+				, sum(case when t1.end_dt > t1.plan_end_dt then 0 else 1 end) as ok_wo_cnt
+			from cm_work_order t1
+			left outer join dept t2 on t1.dept_pk = t2.id
+			where t1.wo_status = 'WOS_CL'
+			and (t1.end_dt >= to_date(%(startDt)s, 'YYYYMMDD') and t1.end_dt <= to_date(%(endDt)s, 'YYYYMMDD'))
+			-- and t1.site_id = 'WEZON'
+			group by t2."Name", t1.end_dt
+		),
+		v as (
+			select sql1.dept_nm
+				, sql1.year_mon
+				, sum(sql1.tot_wo_cnt) as tot_wo_cnt
+				, sum(sql1.ok_wo_cnt) as ok_wo_cnt
+			from sql1
+			group by sql1.dept_nm, sql1.year_mon
+		)
+
+		, vo as (
+			SELECT v.dept_nm
+				, v.year_mon
+				, v.tot_wo_cnt
+				, v.ok_wo_cnt
+				, (case when v.tot_wo_cnt = 0 then 0 else round(cast((v.ok_wo_cnt/cast(v.tot_wo_cnt as float))*100 as numeric),2) end) as ok_percent
+			FROM v
+		)
+
+		, cte AS (
+			SELECT sum(vo.tot_wo_cnt) as tot_wo_cnt
+			, sum(vo.ok_wo_cnt) as ok_wo_cnt
+			FROM vo
+		)
+		SELECT coalesce(cte.tot_wo_cnt, 0) AS tot_wo_cnt
+			, coalesce(cte.ok_wo_cnt, 0) AS tot_ok_cnt
+			, coalesce(CAST(CASE WHEN coalesce(cte.tot_wo_cnt, 0) = 0 OR coalesce(cte.ok_wo_cnt, 0) = 0 THEN 0
+				ELSE round((sum(cte.ok_wo_cnt)/sum(cte.tot_wo_cnt))*100,2) END AS numeric), 0) AS ok_percent
+		FROM cte
+		GROUP BY cte.tot_wo_cnt, cte.ok_wo_cnt
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.dept_task_compliance_rate_footer", ex)
+            raise ex
+
+        return items
+
     # 부서별 작업 요청 통계
     def dept_work_request_stats(self, dateType, startDt, endDt, reqDeptPk, deptPk):
         items = []
@@ -1821,6 +2224,398 @@ class CmReportService:
             items = CommonUtil.res_snake_to_camel(items)
         except Exception as ex:
             LogWriter.add_dblog("error", "CmReportService.dept_work_request_stats", ex)
+            raise ex
+
+        return items
+
+
+######################## PM통계 ####################################################
+
+    # 카테고리별 PM현황
+    def pm_status_by_category(self):
+        items = []
+        dic_param = {
+        }
+
+        sql = """
+        /* getPmCountByClass (설비분류별 PM마스타 건수) [stat-pm-mapper.xml] */
+
+			SELECT v.equip_class_desc as group_nm
+				, v.tot_cnt
+				, v.use_cnt
+				, v.del_cnt
+			FROM (
+				select 1 as disp_order
+					, t2.equip_class_desc
+					, count(t1.pm_pk) as tot_cnt
+					, count(case when t1.use_yn = 'N' then 1 END) as use_cnt
+					, count(case when t1.del_yn = 'Y' then 1 END) as del_cnt
+				from cm_pm t1
+				inner join cm_equipment t2 on t1.equip_pk = t2.equip_pk
+				inner join cm_equip_category t3 on t2.equip_category_id = t3.equip_category_id
+                -- where t1.site_id = 'WEZON'
+                where 1 = 1
+				group by t3.equip_category_desc, t2.equip_class_desc
+				UNION ALL
+				select 2 as disp_order
+					, 'TOTSUM' as equip_class_desc
+					, count(t1.pm_pk) as tot_cnt
+					, count(case when t1.use_yn = 'N' then 1 END) as use_cnt
+					, count(case when t1.del_yn = 'Y' then 1 END) as del_cnt
+				from cm_pm t1
+				inner join cm_equipment t2 on t1.equip_pk = t2.equip_pk
+				inner join cm_equip_category t3 on t2.equip_category_id = t3.equip_category_id
+                -- where t1.site_id = 'WEZON'
+                where 1 = 1
+			) v
+			ORDER BY v.disp_order, v.equip_class_desc
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.pm_status_by_category", ex)
+            raise ex
+
+        return items
+
+    # 부서별 PM WO 완료율
+    def pm_wo_completion_rate(self, dateType, startDt, endDt):
+        items = []
+        dic_param = {
+            "dateType": dateType,
+            "startDt": startDt,
+            "endDt": endDt,
+        }
+            
+        sql = '''
+        /* getPmFinishList (PM실시건수(기간별)) [stat-pm-mapper.xml] */
+
+		with cte as (
+			select vo.year_mon
+				, vo.dept_nm
+				, vo.tot_cnt
+				, vo.finish_cnt
+				, vo.not_finish_cnt
+				, vo.finish_percent
+
+			FROM (
+			select v.year_mon
+				, v.dept_nm
+				, v.tot_cnt
+				, v.finish_cnt
+				, v.not_finish_cnt
+				, CAST(case when v.tot_cnt = 0 then 0 else
+					round((coalesce(cast(v.finish_cnt as numeric),0)/coalesce(cast(v.tot_cnt as numeric),0))*100,0) end AS CHAR(5)) as finish_percent
+			from (
+
+					select x.year_mon
+						, x.dept_nm
+						, sum(x.tot_cnt) as tot_cnt
+						, sum(x.finish_cnt) as finish_cnt
+						, sum(x.not_finish_cnt) as not_finish_cnt
+					from (
+
+                    select
+                        CASE
+                            WHEN %(dateType)s = 'MON' THEN to_char(t1.start_dt, 'YYYY.MM')
+                            WHEN %(dateType)s = 'YEAR' THEN to_char(t1.start_dt, 'YYYY')
+                            ELSE to_char(t1.start_dt, 'YYYY.MM')
+                        END as year_mon
+						, t2."Name" as dept_nm
+						, count(t1.pm_pk) as tot_cnt
+						, sum(case when upper(t1.wo_status) = 'WOS_CL' then 1 else 0 end) as finish_cnt
+						, sum(case when upper(t1.wo_status) = 'WOS_CL' then 0 else 1 end) as not_finish_cnt
+						, t1.start_dt
+						from cm_work_order t1
+						left outer join dept t2 on t1.dept_pk = t2.id
+						where t1.pm_pk is not null
+						and t1.wo_status <> 'WOS_DL'
+                        -- and t1.site_id = 'WEZON'
+						and (
+							t1.start_dt >= to_date(%(startDt)s, 'YYYYMMDD')
+							and
+							t1.start_dt <= to_date(%(endDt)s, 'YYYYMMDD')
+						)
+                        group by
+                        CASE
+                            WHEN %(dateType)s = 'MON' THEN to_char(t1.start_dt, 'YYYY.MM')
+                            WHEN %(dateType)s = 'YEAR' THEN to_char(t1.start_dt, 'YYYY')
+                            ELSE to_char(t1.start_dt, 'YYYY.MM')
+                        END
+                        , t2."Name"
+                        , t1.start_dt
+					) x
+					group by x.year_mon
+						, x.dept_nm
+				) v
+			) vo
+
+		)
+		SELECT *
+		FROM (
+			table cte
+
+	             order by year_mon ASC 
+
+	            -- limit 30 offset (1-1)*30
+
+		) sub
+		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		WHERE total_rows != 0
+        '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.pm_wo_completion_rate", ex)
+            raise ex
+
+        return items
+
+    # 부서별 PM WO 완료율 푸터
+    def pm_wo_completion_rate_footer(self, dateType, startDt, endDt):
+        items = []
+        dic_param = {
+            "dateType": dateType,
+            "startDt": startDt,
+            "endDt": endDt,
+        }
+        
+        sql = '''
+        /* getPmFinishInfo (PM실시건수(기간별) - 통계) [stat-pm-mapper.xml] */
+
+		select sum(vo.tot_cnt) as tot_cnt
+			, sum(vo.finish_cnt) as finish_cnt
+			, sum(vo.not_finish_cnt) as not_finish_cnt
+			, (case when sum(vo.tot_cnt) is null then '' else
+	  			CAST(case when sum(vo.tot_cnt) = 0 then 0 else
+	   				round((coalesce(sum(cast(vo.finish_cnt as numeric)),0)/coalesce(sum(cast(vo.tot_cnt as numeric)),0))*100,0) end AS CHAR(5)) end) as finish_percent
+
+			FROM (
+			select v.year_mon
+				, v.dept_nm
+				, v.tot_cnt
+				, v.finish_cnt
+				, v.not_finish_cnt
+				, CAST(case when v.tot_cnt = 0 then 0 else
+					round((coalesce(cast(v.finish_cnt as numeric),0)/coalesce(cast(v.tot_cnt as numeric),0))*100,0) end AS CHAR(5)) as finish_percent
+			from (
+
+					select x.year_mon
+						, x.dept_nm
+						, sum(x.tot_cnt) as tot_cnt
+						, sum(x.finish_cnt) as finish_cnt
+						, sum(x.not_finish_cnt) as not_finish_cnt
+					from (
+                    select
+                        CASE
+                            WHEN %(dateType)s = 'MON' THEN to_char(t1.start_dt, 'YYYY.MM')
+                            WHEN %(dateType)s = 'YEAR' THEN to_char(t1.start_dt, 'YYYY')
+                            ELSE to_char(t1.start_dt, 'YYYY.MM')
+                        END as year_mon
+						, t2."Name" as dept_nm
+						, count(t1.pm_pk) as tot_cnt
+						, sum(case when upper(t1.wo_status) = 'WOS_CL' then 1 else 0 end) as finish_cnt
+						, sum(case when upper(t1.wo_status) = 'WOS_CL' then 0 else 1 end) as not_finish_cnt
+						, t1.start_dt
+						from cm_work_order t1
+						left outer join dept t2 on t1.dept_pk = t2.id
+						where t1.pm_pk is not null
+						and t1.wo_status <> 'WOS_DL'
+                        -- and t1.site_id = 'WEZON'
+                        and (
+							t1.start_dt >= to_date(%(startDt)s, 'YYYYMMDD')
+							and
+							t1.start_dt <= to_date(%(endDt)s, 'YYYYMMDD')
+						)
+                        group by
+                        CASE
+                            WHEN %(dateType)s = 'MON' THEN to_char(t1.start_dt, 'YYYY.MM')
+                            WHEN %(dateType)s = 'YEAR' THEN to_char(t1.start_dt, 'YYYY')
+                            ELSE to_char(t1.start_dt, 'YYYY.MM')
+                        END
+                        , t2."Name"
+                        , t1.start_dt
+                    ) x
+					group by x.year_mon
+						, x.dept_nm
+				) v
+			) vo
+
+		having sum(vo.tot_cnt) is not null
+        '''
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.pm_wo_completion_rate_footer", ex)
+            raise ex
+
+        return items
+
+######################## 점검통계 ####################################################
+
+    # 설비종류별 점검마스터
+    def facility_inspection_master(self):
+        items = []
+        dic_param = {
+        }
+        
+        sql = """
+        /* getInspectionCountByEquipClass (설비분류별 점검마스타 건수) [stat-inspection-mapper.xml] */
+
+			select t3.equip_class_desc as dept_nm
+				, count(t1.chk_mast_pk) as tot_cnt
+				, count(distinct(case when t1.use_yn = 'N' then t1.chk_mast_pk else null end)) as not_use_cnt
+				, count(distinct(case when t1.del_yn = 'Y' then t1.chk_mast_pk else null end)) as useless_cnt
+			from cm_equip_chk_mast t1
+			inner join cm_chk_equip t2 on t1.chk_mast_pk = t2.chk_mast_pk
+			inner join cm_equipment t3 on t2.equip_pk = t3.equip_pk
+			inner join cm_equip_category t4 on t3.equip_category_id = t4.equip_category_id
+			where t1.del_yn = 'N'
+            -- and t1.site_id = 'WEZON'
+			group by t3.equip_class_desc
+			order by t3.equip_class_desc
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.facility_inspection_master", ex)
+            raise ex
+
+        return items
+
+    # 점검결과 이상 설비목록
+    def inspection_issues(self, searchText, startDt, endDt):
+        items = []
+        dic_param = {
+            "searchText": searchText,
+            "startDt": startDt,
+            "endDt": endDt,
+        }
+        
+        sql = """
+        /* getInspectionUnfitList (점검 결과 이상 발생 설비 목록(기간별)) [stat-inspection-mapper.xml] */
+
+		with sql1 as (
+
+			select t4.equip_cd, t4.equip_nm, to_char(t2.chk_dt, 'YYYY-MM-DD') as chk_dt
+			   	, t3."Name" as chk_dept_nm, cm_fn_user_nm(t5."Name", t5.del_yn) as chk_user_nm
+			   	, concat(t6.per_number, ct.code_dsc) as cycle_nm
+			   	, wo.work_order_no, wo.work_order_pk, wo.work_title, t6.chk_mast_nm, t1.chk_sche_pk
+			   	, to_char(t2.chk_sche_dt, 'YYYY-MM-DD') as chk_sche_dt
+			   	, (case when t1.chk_rslt = 'A' then '이상' when t1.chk_rslt = 'C' then '점검불가' when t1.chk_rslt = 'N' then '정상' else '' end) as chk_rslt
+		   	from cm_equip_chk_rslt t1
+		 	inner join cm_equip_chk_sche t2 on t1.chk_sche_pk = t2.chk_sche_pk
+		 	inner join dept t3 on t2.dept_pk = t3.id
+		 	inner join cm_equipment t4 on t1.equip_pk = t4.equip_pk
+		 	left outer join user_profile t5 on t2.chk_user_pk = t5."User_id"
+		 	inner join cm_equip_chk_mast t6 on t2.chk_mast_pk = t6.chk_mast_pk
+		 	inner join cm_equip_chk_item_mst t7 on t2.chk_sche_pk = t7.chk_sche_pk
+		 	inner join cm_equip_chk_item_rslt t8 on t1.chk_rslt_pk = t8.chk_rslt_pk and t7.chk_item_pk = t8.chk_item_pk
+		 	left outer join cm_base_code t10 on t7.chk_item_unit_pk = t10.code_pk
+		 	left outer join cm_work_order wo on t1.chk_rslt_pk = wo.chk_rslt_pk
+             -- and wo.site_id = 'WEZON'
+		 	left outer join cm_base_code ct on t6.cycle_type = ct.code_cd and ct.code_grp_cd = 'CYCLE_TYPE'
+		 	where t1.chk_rslt = 'A'
+            -- and t6.site_id = 'WEZON'
+            -- and t4.site_id = 'WEZON'
+        """
+        if searchText:
+            sql += """
+			and (
+				UPPER(t4.equip_cd) LIKE CONCAT('%%',UPPER(CAST(%(searchText)s as text)),'%%')
+				OR UPPER(t4.equip_nm) LIKE CONCAT('%%',UPPER(CAST(%(searchText)s as text)),'%%')
+				OR UPPER(t6.chk_mast_nm) LIKE CONCAT('%%',UPPER(CAST(%(searchText)s as text)),'%%')
+			)
+        """
+        sql += """
+		 	and (t2.chk_dt >= to_date(%(startDt)s, 'YYYY-MM-DD') and t2.chk_dt <= to_date(%(endDt)s, 'YYYY-MM-DD'))
+		 	and t8.chk_item_rslt = 'A'
+		)
+		, v as (
+			select sql1.equip_cd, sql1.equip_nm, sql1.chk_dt, sql1.chk_dept_nm, sql1.chk_user_nm, sql1.cycle_nm
+		 	, sql1.work_order_no, sql1.work_order_pk, sql1.work_title, sql1.chk_mast_nm, sql1.chk_sche_pk, sql1.chk_sche_dt, sql1.chk_rslt
+		 	from sql1
+		 	group by sql1.equip_cd, sql1.equip_nm, sql1.chk_dt, sql1.chk_dept_nm, sql1.chk_user_nm, sql1.cycle_nm
+		 	, sql1.work_order_no, sql1.work_order_pk, sql1.work_title, sql1.chk_mast_nm, sql1.chk_sche_pk, sql1.chk_sche_dt, sql1.chk_rslt
+		)
+		, cte as (
+			select v.equip_cd
+			, v.equip_nm
+			, v.chk_dt
+			, v.chk_dept_nm
+			, v.chk_user_nm
+			, v.cycle_nm
+			, v.work_order_no
+			, v.work_order_pk
+			, v.work_title
+			, v.chk_mast_nm
+			, v.chk_sche_pk
+			, v.chk_sche_dt
+			, v.chk_rslt
+			from v
+		)
+
+		SELECT *
+		FROM (
+			table cte
+
+	             order by equip_cd ASC 
+
+	            -- limit 30 offset (1-1)*30
+
+		) sub
+		RIGHT JOIN (select count(*) from cte) c(total_rows) on true
+		WHERE total_rows != 0
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.inspection_issues", ex)
+            raise ex
+
+        return items
+
+    # 점검 수행 통계
+    def inspection_stats(self, dateType, startDt, endDt):
+        items = []
+        dic_param = {
+            "dateType": dateType,
+            "startDt": startDt,
+            "endDt": endDt,
+        }
+        
+        sql = """
+        /* getInspectionImplementList (점검실시 수행현황) [stat-inspection-mapper.xml] */
+
+			select t3."Name" as chk_dept_nm
+				, count(t1.chk_rslt_pk) as tot_cnt
+				, sum(case when t2.chk_status = 'CHK_STATUS_Y' then 1 else 0 end) as finish_cnt
+				, sum(case when t2.chk_status = 'CHK_STATUS_Y' then 0 else 1 end) as not_finish_cnt
+			from cm_equip_chk_rslt t1
+			inner join cm_equip_chk_sche t2 on t1.chk_sche_pk = t2.chk_sche_pk
+            inner join cm_equip_chk_mast ecm on t2.chk_mast_pk = ecm.chk_mast_pk
+			inner join dept t3 on t2.dept_pk = t3.id
+			and (t2.chk_sche_dt >= to_date(%(startDt)s, 'YYYYMMDD') and t2.chk_sche_dt <= to_date(%(endDt)s, 'YYYYMMDD'))
+            -- and ecm.site_id = 'WEZON'
+			group by t3."Name"
+			order by t3."Name"
+        """
+
+        try:
+            items = DbUtil.get_rows(sql, dic_param)
+            items = CommonUtil.res_snake_to_camel(items)
+        except Exception as ex:
+            LogWriter.add_dblog("error", "CmReportService.inspection_stats", ex)
             raise ex
 
         return items

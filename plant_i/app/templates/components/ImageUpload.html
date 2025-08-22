@@ -1,20 +1,23 @@
+{# ★ 변경: uid 확보 (전달 없으면 기본값) #}
+{% with uid=uniqueId|default:'woImage' %}
 <div class="file-section">
 	<h3>사진</h3>
 
+	<!-- ★ 변경: 모든 id에 {{ uid }}_ 접두사 -->
 	<!-- 파일 선택 및 드래그 영역 -->
-	<div class="file-upload-container">
-		<input type="file" id="imageInput" multiple accept=".png,.jpg,.jpeg,.gif" hidden />
-		<button type="button" class="upload-button" onclick="document.getElementById('imageInput').click()">
+	<div class="file-upload-container" id="{{ uid }}_uploadContainer">
+		<input type="file" id="{{ uid }}_imageInput" multiple accept=".png,.jpg,.jpeg,.gif" hidden />
+		<button type="button" class="upload-button" id="{{ uid }}_uploadButton">
 			파일선택
 		</button>
 
-		<div id="dropZone" class="file-upload-box">
+		<div id="{{ uid }}_dropZone" class="file-upload-box">
 			<div class="upload-placeholder">업로드할 파일을 여기에 끌어다 놓으세요.</div>
 		</div>
 	</div>
 
 	<!-- 업로드된 파일 미리보기 영역 -->
-	<div class="uploaded-files-preview" id="previewContainer"></div>
+	<div class="uploaded-files-preview" id="{{ uid }}_previewContainer"></div>
 
 	<!-- 파일 그리드 영역 -->
 	<div class="file-grid">
@@ -27,15 +30,15 @@
 					<th>삭제</th>
 				</tr>
 			</thead>
-			<tbody id="fileTableBody"></tbody>
+			<tbody id="{{ uid }}_fileTableBody"></tbody>
 		</table>
 	</div>
 
 	<!-- 파일 정보 영역 -->
 	<div class="file-info-footer">
 		<div class="file-count-info">
-			total count : <span class="count-badge" id="totalCount">0</span>
-			<span class="total-size" id="totalSize">total size : 0 KB</span>
+			total count : <span class="count-badge" id="{{ uid }}_totalCount">0</span>
+			<span class="total-size" id="{{ uid }}_totalSize">total size : 0 KB</span>
 		</div>
 		<div class="file-type-info">
 			허용되는 파일 형식 : png, gif, jpg (파일크기제한 : 10MB)
@@ -46,54 +49,109 @@
 	
 </style>
 <script>
+	// ★ 변경: 헬퍼 - 현재 인스턴스용 getter (스코프 분리)
+	(function() {
+		const __UID__ = '{{ uid }}'; // ★ 변경
+		const gid = (name) => document.getElementById(__UID__ + '_' + name); // ★ 변경
+		const gns = (key) => window[__UID__ + '_' + key];                     // ★ 변경
+		const setGns = (key, val) => (window[__UID__ + '_' + key] = val);    // ★ 변경
+
+	// ★ 변경: 인스턴스별 상태 저장 (기존 window.imagesData → uid별 상태)
+	if (!gns('imagesData')) setGns('imagesData', []);                     // ★ 변경
+
+	// ★ 변경: DOM 캐시도 uid별로
+	setGns('imageInput', gid('imageInput'));                              // ★ 변경
+	setGns('dropZone', gid('dropZone'));                                  // ★ 변경
+	setGns('previewContainer', gid('previewContainer'));                  // ★ 변경
+	setGns('fileTableBody', gid('fileTableBody'));                        // ★ 변경
+	setGns('totalCount', gid('totalCount'));                              // ★ 변경
+	setGns('totalSize', gid('totalSize'));                                // ★ 변경
+
+	// 기존: window.IMAGE_MAX_SIZE/ALLOWED_TYPES는 공용이라 유지해도 OK
 	if (typeof window.IMAGE_MAX_SIZE === 'undefined') {
 		window.IMAGE_MAX_SIZE = 10 * 1024 * 1024;
 	}
 	if (typeof window.IMAGE_ALLOWED_TYPES === 'undefined') {
 		window.IMAGE_ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
 	}
-	if (!window.imagesData) {
-		window.imagesData = [];
-	}
-	// DOM 변수들도 window에 할당
-	window.imageInput = document.getElementById('imageInput');
-	window.dropZone = document.getElementById('dropZone');
-	window.previewContainer = document.getElementById('previewContainer');
-	window.fileTableBody = document.getElementById('fileTableBody');
-	window.totalCount = document.getElementById('totalCount');
-	window.totalSize = document.getElementById('totalSize');
 
 	if (typeof window.ImageUploader === 'undefined') {
 		class ImageUploader {
 			constructor() {
 				this.tableName = '{{ tableName }}';
 				this.attachName = '{{ attachName }}';
-
-				// ⚠ 템플릿에서 안 주는 경우 DOM에서 읽기
-				this.dataPk = document.getElementById('equip_pk')?.value?.trim() || '';
-
+				this.dataPk = '{{ dataPk }}' || '';
+				this._previousDataPk = this.dataPk;
+				this.readOnly = false;
+				this.uid = __UID__;                                            // ★ 변경
 				this.init();
 			}
 
 			init() {
 				this.bindEvents();
-				this.loadFilesFromServer(); // 초기 로드
+				if (this.dataPk) this.loadFilesFromServer();
+				this.updateUIBasedOnMode();
+			}
+
+			// 읽기 모드 설정 메서드 추가
+			setReadOnlyMode(isReadOnly) {
+				this.readOnly = isReadOnly;
+				this.updateUIBasedOnMode();
+			}
+
+			updateUIBasedOnMode() {
+				const uploadContainer = gid('uploadContainer');
+				const deleteHeader = document.querySelector('.file-table th:last-child');
+				if (!uploadContainer || !deleteHeader) return;
+
+				if (this.readOnly) {
+					uploadContainer.style.display = 'none';
+					deleteHeader.style.display = 'none';
+				} else {
+					uploadContainer.style.display = 'block';
+					deleteHeader.style.display = 'table-cell';
+				}
 			}
 
 			bindEvents() {
-				window.imageInput.addEventListener('change', e => {
-					handleImages(e.target.files);
-					window.imageInput.value = '';  // ✅ 같은 파일 다시 선택할 수 있게 초기화
+				const imageInput = gns('imageInput');                         // ★ 변경
+				const dropZone  = gns('dropZone');                             // ★ 변경
+				const uploadBtn = gid('uploadButton');                          // ★ 변경
+
+				// 아래의 handleImages, renderImageTable, updateImageInfo 등은
+				// window 전역이 아닌 "uid별 상태"를 참조하도록 바꿉니다.
+				const getImages = () => gns('imagesData');                     // ★ 변경
+				const setImages = (arr) => setGns('imagesData', arr);          // ★ 변경
+
+				imageInput.addEventListener('change', e => {
+					if (this.readOnly) { e.preventDefault(); return; }
+					handleImages(e.target.files, getImages, setImages, this.uid);    // ★ 변경
+					imageInput.value = '';
 				});
 
-				window.dropZone.addEventListener('dragover', e => e.preventDefault());
-				window.dropZone.addEventListener('drop', e => {
+				dropZone.addEventListener('dragover', e => e.preventDefault());
+				dropZone.addEventListener('drop', e => {
 					e.preventDefault();
-					handleImages(e.dataTransfer.files);
+					if (this.readOnly) return;
+					handleImages(e.dataTransfer.files, getImages, setImages, this.uid); // ★ 변경
+				});
+
+				uploadBtn.addEventListener('click', e => {
+					if (this.readOnly) { e.preventDefault(); return; }
+					imageInput.click();
 				});
 			}
 
-			// 서버에서 파일 목록 로드
+			// dataPk 설정 메서드 (외부에서 호출)
+			setDataPk(newDataPk) {
+				if (this.dataPk !== newDataPk) {
+					this._previousDataPk = this.dataPk;
+					this.dataPk = newDataPk;
+					
+					this.loadFilesFromServer();
+				}
+			}
+
 			loadFilesFromServer(callback) {
 				const url = '/api/files/upload?action=call_attach_file';
 				const data = {
@@ -101,47 +159,53 @@
 					tableName: this.tableName,
 					attachName: this.attachName,
 					dataPk: this.dataPk || ''
-				};		
+				};
 
 				AjaxUtil.postAsyncData(url, data, (res) => {
 					if (res.success) {
+						const tableBody = gns('fileTableBody');                      // ★ 변경
+						const preview   = gns('previewContainer');                   // ★ 변경
+						
 						// 기존 테이블 초기화
-						window.fileTableBody.innerHTML = '';
-						window.previewContainer.innerHTML = '';
-						window.imagesData.length = 0;
+						tableBody.innerHTML = '';
+						preview.innerHTML = '';
+						setGns('imagesData', []);                                    // ★ 변경
 
 						// 받아온 파일 데이터로 테이블 생성
-						res.data.forEach((file, index) => {
-							const fileData = {
-								name: file.FileName,
-								size: file.FileSize,
-								id: file.id,
-								file_index: file.FileIndex,
-								src: '/uploads/plant_i/' + this.tableName +'/' + file.PhysicFileName // <-- 여기를 강제 고정
-							};
-							console.log(window.imageUploader.getImagesData());
+						if (res.data && Array.isArray(res.data)) {
+							res.data.forEach((file, index) => {
+								const fileData = {
+									name: file.FileName,
+									size: file.FileSize,
+									id: file.id,
+									file_index: file.FileIndex,
+									src: '/uploads/plant_i/' + this.tableName + '/' + file.PhysicFileName
+								};
 
-							window.imagesData.push(fileData);
-							renderImageTable(index);
-						});
+								const images = gns('imagesData');
+								images.push(fileData); setGns('imagesData', images);      // ★ 변경
+								renderImageTable(index, this.uid);                        // ★ 변경
+							});
+						}
 
-						updateImageInfo();
+						updateImageInfo(this.uid);                                    // ★ 변경
 
-						// ✅ 콜백 실행
+						if (typeof callback === 'function') callback();
+					} else {
 						if (typeof callback === 'function') callback();
 					}
 				});
 			}
 
-			// 이미지 저장 메서드
 			async saveImages() {
 				const formData = new FormData();
 				
-				// previewContainer에 있는 파일만 저장하도록 수정
-				const previewFiles = Array.from(window.previewContainer.querySelectorAll('.file-item')).map(item => {
+				const preview = gns('previewContainer');                      // ★ 변경
+				const imagesState = gns('imagesData');                        // ★ 변경
+				const previewFiles = Array.from(preview.querySelectorAll('.file-item')).map(item => {
 					const index = parseInt(item.dataset.index);
-					return window.imagesData[index];
-				}).filter(file => file); // null이나 undefined 제거
+					return imagesState[index];
+				}).filter(file => file);
 				
 				// 원본 File 객체(rawFile)로 바로 append
 				for (let i = 0; i < previewFiles.length; i++) {
@@ -152,42 +216,33 @@
 				}
 
 				if (previewFiles.length > 0) {
-					// 추가 파라미터 설정
 					formData.append('action', 'save_file');
 					formData.append('tableName', this.tableName);
 					formData.append('attachName', this.attachName);
 					formData.append('dataPk', this.dataPk);
 					formData.append('others', this.tableName);
 					
-					// 서버로 전송
 					try {
 						const csrfToken = getCookie('csrftoken');
 						const response = await fetch('/api/files/upload', {
 							method: 'POST',
 							body: formData,
-							credentials: 'include', // 세션 쿠키 포함
-							headers: {
-								'X-CSRFToken': csrfToken
-							}
+							credentials: 'include',
+							headers: {'X-CSRFToken': csrfToken}
 						});
 
 						const result = await response.json();
-						// 실패한 파일 목록 필터링
 						const failedFiles = result.filter(f => !f.success);
 
 						if (failedFiles.length > 0) {
-							// 일부 실패
 							const msg = failedFiles.map(f => `${f.fileNm}: ${f.message || '저장 실패'}`).join('\n');
 							Alert.alert('일부 파일 저장 실패', msg);
-						} else {
-							// 전부 성공
-							//Alert.alert('성공', '이미지가 성공적으로 저장되었습니다.');
 						}
 
 						// UI 초기화
-						window.imagesData.length = 0;
-						window.previewContainer.innerHTML = '';
-						updateImageInfo();
+						setGns('imagesData', []);                                  // ★ 변경
+						preview.innerHTML = '';
+						updateImageInfo(this.uid);                                 // ★ 변경
 						this.loadFilesFromServer();
 						return true;
 
@@ -201,47 +256,58 @@
 
 			// 현재 이미지 데이터 반환
 			getImagesData() {
-				return window.imagesData;
+				return gns('imagesData');
 			}
 
 			// 이미지 데이터 초기화
 			clearImages() {
-				window.imagesData.length = 0;
-				window.previewContainer.innerHTML = '';
-				window.fileTableBody.innerHTML = '';
+				setGns('imagesData', []);
+				gns('previewContainer').innerHTML = '';
+				gns('fileTableBody').innerHTML = '';
 				
-				updateImageInfo();
+				updateImageInfo(this.uid);
 			}
 		}
 		window.ImageUploader = ImageUploader;
 	}
 	window.imageUploader = new window.ImageUploader();
 
-	function handleImages(fileList) {
-		Array.from(fileList).forEach(file => {
-			if (!window.IMAGE_ALLOWED_TYPES.includes(file.type)) return alert('지원하지 않는 파일 형식입니다.');
-			if (file.size > window.IMAGE_MAX_SIZE) return alert('파일 크기는 최대 10MB까지 허용됩니다.');
+	// ★ 변경: 헬퍼 함수들도 uid를 받아 동작(예시)
+	function handleImages(fileList, getImages, setImages, uid) {
+		const files = Array.from(fileList);
+		const state = getImages();
+		
+		files.forEach((f) => {
+			if (!window.IMAGE_ALLOWED_TYPES.includes(f.type)) return alert('지원하지 않는 파일 형식입니다.');
+			if (f.size > window.IMAGE_MAX_SIZE) return alert('파일 크기는 최대 10MB까지 허용됩니다.');
 
 			const reader = new FileReader();
 			reader.onload = e => {
-				const index = window.imagesData.push({
-					name: file.name,
-					size: file.size,
+				const index = state.push({
+					name: f.name,
+					size: f.size,
 					src: e.target.result,
-					type: file.type,
-					rawFile: file     // ✅ 원본 File 객체 저장
+					type: f.type,
+					rawFile: f
 				}) - 1;
-				renderImagePreview(index);				
-				updateImageInfo();
+				setImages([...state]);
+				renderImagePreview(index, uid);
+				updateImageInfo(uid);
 			};
-			reader.readAsDataURL(file);
+			reader.readAsDataURL(f);
 		});
 	}
 
-	function renderImagePreview(index) {
-		const file = window.imagesData[index];
+	function renderImagePreview(index, uid) {
+		const file = window[uid + '_imagesData'][index];
 		const div = document.createElement('div');
 		div.className = 'file-item file-doc-item';
+		
+		// 읽기 모드일 때 삭제 버튼 숨김 (현재 인스턴스의 readOnly 상태 사용)
+		const currentUploader = window.imageUploader;
+		const deleteButton = currentUploader && currentUploader.readOnly ? '' : 
+			`<button type="button" class="delete-button" onclick="deleteImage(${index}, '${uid}')">×</button>`;
+		
 		div.innerHTML = `
 			<div class="file-icon">
 				<img src="${file.src}" alt="img" style="width: 48px; height: 48px;">
@@ -250,31 +316,42 @@
 				<span class="file-name">${file.name}</span>
 				<span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
 			</div>
-			<button type="button" class="delete-button" onclick="deleteImage(${index})">×</button>
+			${deleteButton}
 		`;
 		div.dataset.index = index;
-		window.previewContainer.appendChild(div);
+		document.getElementById(uid + '_previewContainer').appendChild(div);
 	}
 
-	function renderImageTable(index) {
-		const file = window.imagesData[index];
+	function renderImageTable(index, uid) {
+		const tableBody = document.getElementById(uid + '_fileTableBody');
+		const file = window[uid + '_imagesData'][index];
 		if (!file) return;
 
 		const tr = document.createElement('tr');
 		tr.dataset.index = index;
+		
+		// 읽기 모드일 때 삭제 버튼 숨김 (현재 인스턴스의 readOnly 상태 사용)
+		const currentUploader = window.imageUploader;
+		const deleteButton = currentUploader && currentUploader.readOnly ? '' : 
+			`<td><button type="button" class="delete-button" onclick="deleteImage(${index}, '${uid}')">×</button></td>`;
+		
 		tr.innerHTML = `
 			<td><img src="/static/img/no-image.png" style="width: 20px; height: 20px;"></td>
 			<td><a href="javascript:void(0)" onclick="downloadFile(${file.id})">${file.name}</a></td>
 			<td>${(file.size / 1024).toFixed(1)} KB</td>
-			<td>
-				<button type="button" class="delete-button" onclick="deleteImage(${index})">×</button>
-			</td>
+			${deleteButton}
 		`;
-		window.fileTableBody.appendChild(tr);
+		tableBody.appendChild(tr);
 	}
 
-	function deleteImage(index) {
-		const file = window.imagesData[index];
+	function deleteImage(index, uid) {
+		// 읽기 모드일 때는 삭제하지 않음
+		if (window.imageUploader.readOnly) {
+			console.log('읽기 모드에서는 이미지 삭제가 불가능합니다.');
+			return;
+		}
+
+		const file = window[uid + '_imagesData'][index];
 		if (!file) return;
 
 		// 서버에 삭제 요청
@@ -290,18 +367,20 @@
 
 		AjaxUtil.postAsyncData(url, data, (res) => {
 			if (res.success) {
-				window.imagesData[index] = null;
+				window[uid + '_imagesData'][index] = null;
 				document.querySelectorAll(`[data-index="${index}"]`).forEach(el => el.remove());
-				updateImageInfo();
+				updateImageInfo(uid);
 			}
 		});
 	}
 
-	function updateImageInfo() {
-		const validFiles = window.imagesData.filter(f => f);
-		const sizeSum = validFiles.reduce((sum, f) => sum + f.size, 0);
-		window.totalCount.textContent = validFiles.length;
-		window.totalSize.textContent = `total size : ${(sizeSum / 1024).toFixed(1)} KB`;
+	function updateImageInfo(uid) {
+		const files = window[uid + '_imagesData'] || [];
+		const cntEl = document.getElementById(uid + '_totalCount');
+		const sizeEl = document.getElementById(uid + '_totalSize');
+		const total = files.reduce((a,b)=>a + (b.size||0), 0);
+		if (cntEl) cntEl.textContent = String(files.length);
+		if (sizeEl) sizeEl.textContent = `total size : ${Math.round(total/1024)} KB`;
 	}
 
 	// 파일 다운로드 함수 추가
@@ -324,4 +403,8 @@
 	    }
 	    return cookieValue;
 	}
+	})(); // ★ 변경: IIFE 닫기
 </script>
+
+{# ★ 변경: with 블록 닫기 #}
+{% endwith %}

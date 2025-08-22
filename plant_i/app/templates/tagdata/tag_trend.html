@@ -1,4 +1,4 @@
-{% extends "app/layout.html" %}
+﻿{% extends "app/layout.html" %}
 
 {% block css %}
 <style>
@@ -107,6 +107,8 @@
 
 
 {% block scripts %}
+<script type="module" src="/static/resource/apexcharts/apexcharts.3.26.min.js"></script>
+
 <script type="text/javascript">
     class chartTrend {
 
@@ -311,44 +313,137 @@
             let calcedMinMax = _this.calcMinMaxY();
             let overPoint = _this.overPoint();
 
-            console.log('_this.series_data : ', _this.series_data);
-
-            //chart
-            _this.chart = $("#"+_this.chartId).kendoChart({
-                title: {
-                    text: _this.series_data[0].name
+            //apex chart
+            var options = {
+                series: [{
+                    //name: "Desktops",
+                    //data: [[1324508400000, 34], [1324594800000, 54] , ... , [1326236400000, 43]]
+                    data: _this.series_data[0].data_source
                 },
-                dataSource: {
-                    data: _this.series_data[0].data_source,
-                },
-                series: [
-                    {
-                        type: "line",
-                        field: "value",
-                        categoryField: "date",
-                        color: "rgb(61, 199, 253)"
-                    },
-                    {
-                        type: "line", // USL 기준선
-                        data: _this.series_data[0].usl,
-                        color: "red",
-                        dashType: "dash",
-                        name: "USL"
-                    },
-                    {
-                        type: "line", // LSL 기준선
-                        data: _this.series_data[0].lsl,
-                        color: "blue",
-                        dashType: "dash",
-                        name: "LSL"
-                    },
+                //{
+                //    name: "usl",
+                //    data: _this.series_data[0].usl
+                //}
                 ],
-                valueAxis: {
+                chart: {
+                    height: 200,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'straight'
+                },
+                title: {
+                    text: _this.title,
+                    align: 'left'
+                },
+                grid: {
+                    row: {
+                        colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                        opacity: 0.5
+                    },
+                },
+                xaxis: {
+                    type: 'datetime',
                     labels: {
-                        format: "{0}"
+                        datetimeUTC: false,   // 로컬시간 사용 (UTC가 아닌 경우)
+                        format: 'MM-dd HH:mm' // 원하는 표시 포맷
                     }
                 }
-            }).data("kendoChart");
+            };
+
+            let curChartId = "#" + _this.chartId
+            var chart = new ApexCharts(document.querySelector(curChartId), options);
+            chart.render();
+
+            //kendo chart
+            //chart
+            //_this.chart = $("#"+_this.chartId).kendoChart({
+            //    title: {
+            //        text: _this.series_data[0].name
+            //    },
+            //    //dataSource: {
+            //    //    data: _this.series_data[0].data_source,
+            //    //},
+            //    series: [
+            //        {
+            //            type: "line",
+            //            field: "value",
+            //            categoryField: "date",
+            //            color: "rgb(61, 199, 253)",
+            //            markers: {
+            //                visible: false
+            //            },
+            //            data: _this.series_data[0].data_source,
+            //        },
+            //        //{
+            //        //    type: "line", // USL 기준선
+            //        //    data: _this.series_data[0].usl,
+            //        //    color: "red",
+            //        //    dashType: "dash",
+            //        //    name: "USL"
+            //        //},
+            //        //{
+            //        //    type: "line", // LSL 기준선
+            //        //    data: _this.series_data[0].lsl,
+            //        //    color: "blue",
+            //        //    dashType: "dash",
+            //        //    name: "LSL"
+            //        //},
+            //    ],
+            //categoryAxis: {
+            //    type: "date",
+            //    // 1번 단계에서 동적으로 계산된 baseUnit과 majorUnit을 적용합니다.
+            //    baseUnit: axisBaseUnit,
+            //    majorUnit: axisMajorUnit,
+
+            //    labels: {
+            //        // "일" 단위일 경우 날짜 형식을, 그 외에는 시간 형식을 사용
+            //        format: axisBaseUnit === 'days' ? "{0:MM-dd}" : "{0:HH:mm}",
+            //        rotation: "auto"
+            //    },
+            //    // 주 눈금선을 표시하면 가독성이 좋아집니다.
+            //    majorGridLines: {
+            //        visible: false
+            //    },
+            //    categories: _this.series_data[0].series_data
+            //},
+            ////categoryAxis: {
+            ////    type: "date",
+            ////    //baseUnit: "fit", // Your data is likely in minutes, so set the smallest unit here.
+            ////    //majorUnit: 1, // This is the key. Set this to 60 for every 60 minutes.
+            ////    //majorGridLines: {
+            ////    //    visible: true // You can also show grid lines at the major units.
+            ////    //},
+            ////    labels: {
+            ////        format: "{0:HH:mm}", // Format the labels to show only hour and minute
+            ////        step: stepValue,
+            ////        rotation: "auto"   //겹침 방지
+            ////    }
+            ////},
+            ////xAxis: {
+            ////    type: "date",        // ⬅️ 스캐터는 xAxis 사용
+            ////    baseUnit: "hours", // 원본 해상도 유지(집계 아님)
+            ////    majorUnit: 1,       // 60분마다 메이저 눈금/라벨
+            ////    labels: { format: "{0:HH:mm}" }
+            ////},
+            ////yAxis: { labels: { format: "{0}" } },
+            //tooltip: {
+            //    visible: true,
+            //    template: "#= kendo.toString(dataItem.dt, 'yyyy-MM-dd HH:mm:ss') # : #= value #"
+            //}
+
+            ////valueAxis: {
+            ////    labels: {
+            ////        format: "{0}"
+            ////    }
+            ////}
+            //}).data("kendoChart");
         }
 
         searchMainData() {
@@ -397,19 +492,32 @@
                         let usl = [];
                         let html = '<div class="col-12"><div class="card-content edit"><div id="chart' + idx + '"></div></div></div>';
 
-                        if (show_brush) html += '<div class="col-12"><div class="card-content edit"><div id="brushchart' + idx + '"></div></div></div>';
+                        if (show_brush)
+                            html += '<div class="col-12"><div class="card-content edit"><div id="brushchart' + idx + '"></div></div></div>';
                         html += "</div>";
 
                         $('#divChart').append(html);
 
                         if (data) {
                             data.forEach(function (item, index) {
-                                series_data.push([Date.parse(item.data_time), item.data_value]);
-                                data_source.push({ 'date': item.data_time.split(' ')[1], 'value': item.data_value });
+
+                                var dt = new Date(item.data_time.replace(" ", "T"));
+
+                                //series_data.push([Date.parse(item.data_time), item.data_value]);
+                                //series_data.push({ 'date': dt, 'value': item.data_value });
+
+                                //data_source.push({ 'date': item.data_time.split(' ')[1], 'value': item.data_value });
+                                data_source.push([dt,item.data_value ]);  //for apexchart
+
                                 lsl.push(tag_data.lsl);
                                 usl.push(tag_data.usl);
                             });
                         }
+
+                        //console.log('series_data=>', series_data)
+                        //console.log('data_source=>', data_source)
+                        //console.log('tag_data.lsl=>', tag_data.lsl)
+                        //console.log('tag_data.usl=>', tag_data.usl)
 
                         let series = [
                             {
@@ -423,7 +531,6 @@
 
                         _this.loadData('chart' + idx, tag_data.tag_name, tag_data.lsl, tag_data.usl, show_brush, series);
                     });
-
                 }
                 else {
                     Alert.alert("error", "데이터 조회 중 오류가 발생했습니다. <br/>원인: " + result.message);

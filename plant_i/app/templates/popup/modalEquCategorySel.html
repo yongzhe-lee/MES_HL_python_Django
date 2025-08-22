@@ -55,8 +55,7 @@
 				},
 				columns: [
 					{ field: 'equip_category_id', title: 'ID', width: 100 },
-					{ field: 'equip_category_desc', title: '코드', width: 200 },
-					{ field: 'remark', title: '카테고리', width: 200 },
+					{ field: 'equip_category_desc', title: '카테고리', width: 200 },
 				],
 				change: () => this.showDetail(),		
 				height: "440px",
@@ -106,7 +105,7 @@
 		showDetail() {
 			const data = this.grid.getSelect();
 			if (data.length > 0) {
-				$('#selectedEquCategoryName').val(data[0].remark);
+				$('#selectedEquCategoryName').val(data[0].equip_category_desc);
 			}
 		}
 

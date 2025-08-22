@@ -46,7 +46,7 @@ ul, li, ol, dl, dd, dt {
 }
 
 a:hover, a:visited, a:active {
-    text-decoration: none
+    text-decoration: none;
 }
 /* input 기본 스타일 초기화 */
 input, select, textarea {
@@ -95,9 +95,11 @@ form {
 .minimized .ux-top > a span {
     display: inline-block
 }
-.minimized .ux-top > a span > img {
-    display: inline-block
-}
+
+    .minimized .ux-top > a span > img {
+        display: inline-block
+    }
+
 .minimized .ux-top > a img {
     display: none
 }
@@ -824,6 +826,20 @@ input:-webkit-autofill {
     margin-bottom: 3px;
 }
 
+/* 필수 입력 표시 */
+.required {
+    color: #e74c3c !important;
+    font-weight: bold !important;
+}
+
+/* 필수 표시를 위한 추가 스타일 */
+.required::after {
+    content: "*";
+    color: #e74c3c !important;
+    font-weight: bold !important;
+    margin-left: 2px;
+}
+
 .align-h {
     align-items: center;
 }
@@ -936,8 +952,8 @@ input:-webkit-autofill {
 .content-ui-row [class*="col-"] {
     padding: 5px;
     /* 25.01.23 김하늘 추가 - 컨텐츠 간 간격 조정  */
-    padding-inline: 10px;       /* 컨텐츠 사이 */
-    padding-inline-end: 20px;   /* 컨텐츠 끝 */
+    padding-inline: 10px; /* 컨텐츠 사이 */
+    padding-inline-end: 20px; /* 컨텐츠 끝 */
 }
 
 
@@ -1511,103 +1527,151 @@ input:-webkit-autofill {
 .k-menu-popup .k-group .k-menu-item i.material-symbols-outlined {
     transform: scale(0.9) !important;
 }
+
 .work-content > .work-section > .edit-form-ui {
     margin-bottom: 10px;
 }
+
 .d-logo {
     scale: 0.9;
 }
+
 .k-grid-md .k-table-th > .k-cell-inner > .k-link {
     background: #e8f9ff !important;
 }
+
 .bg-box {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 20px 10px 10px 10px;
 }
+
 .mb--2 {
     margin-bottom: -2px !important;
 }
+
 .modal > .modal-content > h3 {
     margin-left: 20px;
 }
+
 .modal-footer > .btn > .btn-close {
     border-color: #e5e5e5;
     color: #000000;
     background-color: #f0f0f0;
 }
+
 .btn-close, .btn-close, .modal-footer > .btn-close {
     border-color: #e5e5e5;
     color: #000000;
     background-color: #f0f0f0;
 }
+
     .btn-close:hover, .btn-close:hover, .modal-footer > .btn-close:hover {
         border-color: #e5e5e5;
         color: #424242;
         background-color: #ececec;
     }
+
 .btn-primary:focus, .btn-primary:active, .btn-primary:hover {
     border-color: #40c0f1;
     color: #fff;
     background-color: #27b9f1;
 }
+
 .btn-primary {
     border-color: #40c0f1;
     color: #40c0f1;
     background-color: #fff;
     padding: 7px 23px;
 }
+
 .k-switch-off:focus .k-switch-track, .k-switch-off.k-focus .k-switch-track {
     box-shadow: 0 0 0 1px #40c0f1 !important;
 }
+
 .k-switch-on:focus .k-switch-track, .k-switch-on.k-focus .k-switch-track {
     box-shadow: 0 0 0 1px #40c0f1 !important;
 }
+
 .k-switch-on .k-switch-track {
     border-color: #40c0f1;
     color: var(--kendo-color-on-primary, white);
     background-color: #40c0f1 !important;
 }
-.k-switch-on .k-switch-track:active {
-    border-color: #40c0f1;
-}
+
+    .k-switch-on .k-switch-track:active {
+        border-color: #40c0f1;
+    }
 
 .field-wrapper > field-wrapper > .k-datepicker .k-input .k-input-solid .k-input-md .k-rounded-md > .k-input-inner {
     width: 215px !important;
 }
+
 /*샘플페이지 시작*/
 .k-picker-solid {
     border-color: #d7d9de;
     background-color: #f5f5f5;
     color: #424242;
 }
+
 .k-form .k-form-field > .k-label {
-    color:#333333
+    color: #333333
 }
+
 span.k-input.k-textbox.k-input-solid.k-input-md.k-rounded-md {
     border-color: #e0e2e7;
     background: #fff;
 }
+
 span.k-switch-track.k-rounded-full {
     color: #545754;
     background: #fff;
 }
+
 .k-switch-on:focus .k-switch-track {
     background:
 }
+
 .k-switch-on:focus .k-switch-track {
     border-color: #40c0f1;
     color: #fff;
     background-color: #40c0f1;
     box-shadow: 0 0 0 1px #40c0f1;
 }
- /*샘플페이지 끝*/
+/*샘플페이지 끝*/
 
- /*alert 페이지 수정*/
+/*25.08.07 이가영 추가*/
+nav[aria-label="Page navigation"],
+span, select.form-control {
+    display: inline-block;
+    vertical-align: middle;
+}
 
+select.form-control {
+    width: auto;
+    margin-left: 20px;
+}
+.align-items-center {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between;
+}
+
+span.me-2 {
+    margin-left: 5px !important;
+}
+select.form-control.input-page-ctrl {
+    height: 34px;
+}
+.page-mg {
+    margin: 8px 0 0 0;
+}
+
+/*alert 페이지 수정*/
 .alert-container .k-dialog-titlebar {
     background-color: #fff !important;
 }
+
 .alert-container span.k-window-title.k-dialog-title::before {
     content: "check_circle";
     /* 25.03.31 김하늘 수정 */
@@ -1620,6 +1684,7 @@ span.k-switch-track.k-rounded-full {
     margin-right: 6px; /* 아이콘과 텍스트 사이 간격 */
     color: #39C25E; /* 아이콘 색상 (원하는 색으로 변경 가능) */
 }
+
 .k-dialog-wrapper.alert-container > .k-window.k-dialog {
     width: 300px;
 }
@@ -1628,6 +1693,7 @@ span.k-switch-track.k-rounded-full {
     content: "cancel";
     color: #FF4E3E; /* 아이콘 색상 (원하는 색으로 변경 가능) */
 }
+
 .alert-container > .k-window.k-dialog {
     border-radius: 5px;
     border-left: solid 4px #39C25E;
@@ -1636,11 +1702,13 @@ span.k-switch-track.k-rounded-full {
 .alert-container.error > .k-window.k-dialog {
     border-left: solid 4px #FF4E3E;
 }
+
 .alert-container.error button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base {
     background-color: #FEE4E3 !important;
     color: #f56c6c;
     border: 1px solid #f56c6c !important;
 }
+
 .alert-container span.k-window-title.k-dialog-title {
     color: #39C25E !important;
 }
@@ -1648,16 +1716,19 @@ span.k-switch-track.k-rounded-full {
 .alert-container.error span.k-window-title.k-dialog-title {
     color: #FF4E3E !important;
 }
+
 button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-primary {
     background-color: #E5F9F2;
     color: #39C25E;
     border: solid 1px #39C25E;
 }
+
 button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base {
     background-color: #F4F4F4;
     border: 1px soid #D6D8DD;
     color: #545754;
 }
+
 .k-dialog-actions {
     border-top: none;
 }
@@ -1666,6 +1737,7 @@ button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base {
 .card-group-btn .info-text > label {
     margin-bottom: 0px;
 }
+
 .L-info-txt {
     color: #9599a1;
 }
@@ -1765,8 +1837,9 @@ button.k-button.k-button-md.k-rounded-md.k-button-solid.k-button-solid-base {
 }
 /*인풋체크박스*/
 input[type="radio"], input[type="checkbox"] {
-    margin:0;
+    margin: 0;
 }
+
 .checkbox-item label {
     margin-bottom: 0;
 }
@@ -1803,7 +1876,7 @@ input[type="radio"], input[type="checkbox"] {
 
 .k-form-md.form-dynamic .k-form-field,
 .k-form-md.form-dynamic .k-form-buttons {
-    margin-top: 5px;    /* input box 간 간격 조정*/
+    margin-top: 5px; /* input box 간 간격 조정*/
 }
 
 /* 여기까지 */
@@ -1825,6 +1898,7 @@ input[type="radio"], input[type="checkbox"] {
 .menu-list li a:hover {
     background-color: rgb(64 192 241 / 50%);
 }
+
 .modal-footer > .btn {
     padding: 10px 40px !important;
 }
@@ -1836,6 +1910,7 @@ input[type="radio"], input[type="checkbox"] {
     gap: 16px; /* 좌우 패널 간격 */
     padding: 16px;
 }
+
 .btn-add {
     color: #40c0f1;
     background-color: #fff;
@@ -1844,19 +1919,23 @@ input[type="radio"], input[type="checkbox"] {
     border-radius: 5px;
     height: 30px;
 }
+
 .col-12.aas-col {
     padding: 5px 0 5px 0 !important;
     padding-inline: 0px !important;
     padding-inline-end: 0px !important;
 }
+
 .k-grid .k-grid-md {
-    padding-top:10px;
+    padding-top: 10px;
 }
+
 .mb-10 {
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
+
 .aas-col > .form-item .k-label.k-form-label {
-    width:120px;
+    width: 120px;
 }
 
 /* 왼쪽 패널 (트리 구조) */
@@ -1864,13 +1943,16 @@ input[type="radio"], input[type="checkbox"] {
     height: 100vh; /* 또는 height: 800px; 등 고정값도 가능 */
     overflow-y: auto; /* 내부 스크롤이 필요한 경우 */
 }
+
 .left-panel {
     height: 100vh; /* 또는 height: 800px; 등 고정값도 가능 */
     overflow-y: auto; /* 내부 스크롤이 필요한 경우 */
 }
+
 i.material-symbols-outlined.k-button-text.add {
     scale: 0.8;
 }
+
 .left-panel {
     flex: 1;
     background: #fff;
@@ -1879,6 +1961,7 @@ i.material-symbols-outlined.k-button-text.add {
     overflow: auto; /* 내용이 많아지면 스크롤 */
     border: 1px solid #e6ebf0;
 }
+
 .tree {
     list-style: none;
     padding: 10px;
@@ -1895,9 +1978,11 @@ i.material-symbols-outlined.k-button-text.add {
     font-size: 16px;
     margin: 5px 0;
 }
-    .tree-node {
-        cursor: pointer;
-    }
+
+.tree-node {
+    cursor: pointer;
+}
+
 .toggle-btn {
     width: 12px; /* 크기 일정하게 */
     height: 12px; /* 크기 일정하게 */
@@ -1912,6 +1997,7 @@ i.material-symbols-outlined.k-button-text.add {
     flex-shrink: 0; /* 크기가 변하지 않도록 설정 */
     line-height: 10px; /* 높이와 동일하게 설정하여 수직 중앙 정렬 */
 }
+
 .hidden {
     display: none;
 }
@@ -1940,6 +2026,7 @@ i.material-symbols-outlined.folder {
     color: #0270FF !important;
     font-size: 19px;
 }
+
 i.material-symbols-outlined.folder-open {
     color: #2b95ff !important;
     font-size: 19px;
@@ -1949,6 +2036,7 @@ i.material-symbols-outlined.folder-save {
     color: #79DBFF !important;
     font-size: 19px;
 }
+
 i.material-symbols-outlined.draft {
     color: #00BBFF !important;
     font-size: 19px;
@@ -1960,6 +2048,7 @@ i.material-symbols-outlined.draft {
     font-weight: bold;
     margin-right: 10px;
 }
+
 .prop-title::before {
     content: "";
     width: 12px; /* 동그라미 크기 */
@@ -1970,16 +2059,19 @@ i.material-symbols-outlined.draft {
     margin-right: 8px; /* 텍스트와 간격 조정 */
     font-size: 16px;
 }
+
 .sub-title {
     color: #0295FF;
     font-weight: bold;
     margin-right: 10px;
 }
+
 .coll-title {
     color: #00BBFF;
     font-weight: bold;
     margin-right: 10px;
 }
+
 .aas-time {
     color: #c5c5c5;
     font-size: 14px;
@@ -1990,6 +2082,7 @@ i.material-symbols-outlined.draft {
     font-weight: bold;
     margin-right: 10px;
 }
+
 li.aas-save {
     display: flex;
 }
@@ -2002,9 +2095,11 @@ li.aas-save {
     overflow: auto;
     border: 1px solid #e6ebf0;
 }
+
 .aas-info {
-    padding:10px 0;
+    padding: 10px 0;
 }
+
 .aas-form-control.form-control {
     padding: 4px 12px;
 }
@@ -2047,6 +2142,7 @@ li.aas-save {
         right: -100%;
     }
 }
+
 @media (max-width: 768px) { /* 예: 태블릿 이하 */
     .container {
         flex-direction: column; /* 세로 레이아웃으로 변경 */
@@ -2057,6 +2153,7 @@ li.aas-save {
         margin-left: 0 !important; /* 아래로 떨어지면 왼쪽 여백 제거 */
     }
 }
+
 .panel-container {
     display: flex;
 }
@@ -2079,6 +2176,7 @@ li.aas-save {
     text-decoration: none;
     word-break: break-all; /* 긴 URL이 깨지지 않도록 */
 }
+
 .right-panel {
     margin-left: 10px; /* 기본 간격 */
 }
@@ -2117,11 +2215,13 @@ li.aas-save {
     padding: 8px;
     background: #fff;
 }
+
     .qrcode img {
         width: 70px;
         height: 70px;
         object-fit: contain;
     }
+
 .aas-input-group {
     display: flex;
     align-items: center;
@@ -2133,12 +2233,13 @@ li.aas-save {
     display: flex;
     flex-direction: column;
 }
-    .aas-input-group label {
-        font-weight: bold;
-        width: 120px; /* 라벨 넓이를 일정하게 설정 */
-        flex-shrink: 0;
-        font-weight:500;
-    }
+
+.aas-input-group label {
+    font-weight: bold;
+    width: 120px; /* 라벨 넓이를 일정하게 설정 */
+    flex-shrink: 0;
+    font-weight: 500;
+}
 /* Timestamp & QR 코드 컨테이너 */
 .timestamp-container {
     display: flex;
@@ -2189,12 +2290,13 @@ div[class^='smp_state_div_'] {
     cursor: pointer;
 }
 
-.k-grid .grid-column-link:hover {
-    color: #ff5722 !important; /* hover 시 색상 변경 */
-    text-decoration: none !important;
-}
+    .k-grid .grid-column-link:hover {
+        color: #ff5722 !important; /* hover 시 색상 변경 */
+        text-decoration: none !important;
+    }
+
 .input-group-append {
-    display:flex;
+    display: flex;
 }
 
 
@@ -2340,4 +2442,3 @@ div[class^='smp_state_div_'] {
 .col-auto {
     flex: 0 0 auto;
 }
-

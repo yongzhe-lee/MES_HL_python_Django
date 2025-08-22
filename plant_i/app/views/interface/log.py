@@ -18,16 +18,18 @@ def log(context):
 
             sql='''
             select 
-            id, 
-            task,
-            "method", 
-            contents, 
-            equ_cd, 
-            mat_cd, 
-            rev_no, 
-            is_success,
-            to_char(log_date, 'yyyy-mm-dd hh24:mi:ss') as data_date
-            from if_log
+            aa.id
+            , aa.task,  aa."method"
+            , aa.api_param, aa.contents
+            , aa.rev_no
+            , aa.success_yn
+            , aa.sec_taken
+            , to_char(aa.log_date, 'yyyy-mm-dd hh24:mi:ss') as log_date
+            , sc."Value" as task_name
+            , up."Name" as user_name
+            from if_log aa
+            left join sys_code sc on sc."CodeType"='if_type' and sc."Code"=aa.task
+            left join user_profile up on up."User_id" =aa._creater_id
             where 1=1
             and log_date between %(start_dt)s and %(end_dt)s
             order by log_date desc

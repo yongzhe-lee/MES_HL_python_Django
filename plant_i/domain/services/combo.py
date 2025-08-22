@@ -2,7 +2,7 @@ import datetime
 from app.views.kmms.reliab_code import CmReliabCodes
 from domain import init_once
 from configurations import settings
-from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmEquipClassify, CmImportRank, CmProject, CmSupplier
+from domain.models.cmms import CmBaseCodeGroup, CmBaseCode, CmEquipCategory, CmEquipClassify, CmExSupplier, CmImportRank, CmProject, CmSupplier, CmEquipment
 from .date import DateUtil
 from .sql import DbUtil
 from .logging import LogWriter
@@ -54,6 +54,7 @@ class ComboService(object):
             'material' : cls.material,
             'menu_folder': cls.menu_folder,
             'menu_item': cls.menu_item,
+            'model_kind' : cls.model_kind,
             'sap_storage_location' : cls.sap_storage_location,
             'site': cls.site,
             'smt_line' : cls.smt_line,
@@ -69,10 +70,12 @@ class ComboService(object):
             'cm_code_group': cls.cm_code_group,      
             'cm_equip_category': cls.cm_equip_category,
             'cm_equip_classify': cls.cm_equip_classify,
+            'cm_equipment' : cls.cm_equipment,
             'cm_import_rank': cls.cm_import_rank,
             'cm_project': cls.cm_project,
             'cm_reliab_codes': cls.cm_reliab_codes,
             'cm_supplier': cls.cm_supplier,
+            'cm_ex_supplier': cls.cm_ex_supplier,
             'cm_user_info': cls.cm_user_info,
             'cm_job_class': cls.cm_job_class,
             
@@ -147,6 +150,14 @@ class ComboService(object):
             text = '{}({})'.format(item['MenuName'],item['MenuFolder__FolderName'])
             dic = { 'value': value, 'text':text }
             items.append(dic)
+        return items
+
+    @classmethod
+    def model_kind(cls, cond1, cond2, cond3):
+        items =[
+            { 'value':'TEMPLATE', 'text':'재사용(공유, Template)' },
+            { "value" : "INSTANCE", "text" : "특정자산(전용, Instance)" },
+        ]
         return items
 
     @classmethod
@@ -406,9 +417,9 @@ class ComboService(object):
     def aas_kind(cls, cond1, cond2, cond3):
         # Instance, Type
         items = [
-            { "value":"NotApplicable", "text" : "NotApplicable"},
-            { "value":"Instance", "text" : "Instance(인스턴스)"},
-            { "value":"Type", "text" : "Type(유형)"}
+            { "value":"NOT_APPLICABLE", "text" : "NotApplicable"},
+            { "value":"INSTANCE", "text" : "Instance(인스턴스)"},
+            { "value":"TYPE", "text" : "Type(유형)"}
         ]
         return items
 
@@ -481,7 +492,8 @@ class ComboService(object):
     def user_code(cls, cond1, cond2, cond3):
     # def user_code(cls, site_id, cond1, cond2, cond3): # 우린 아직 code에 site 반영X 추후 여쭤보고 진행
         # 25.04.03 김하늘 수정. code_group 추가
-        q = Code.objects.values('Code', 'Name', 'CodeGroupCode')
+        # 25.07.30 김하늘 수정. remark 추가
+        q = Code.objects.values('Code', 'Name', 'CodeGroupCode', 'Remark')
         # q = q.filter(Site_id=site_id)
         if cond1:
             if ',' in cond1:
@@ -506,7 +518,7 @@ class ComboService(object):
                 q = q.exclude(Code=cond3)
         q = q.filter(DelYn='N', UseYn='Y')
         q = q.order_by('DispOrder', 'Name')
-        items = [ {'value': entry['Code'], 'text':entry['Name'], 'group':entry['CodeGroupCode']} for entry in q ]
+        items = [ {'value': entry['Code'], 'text':entry['Name'], 'group':entry['CodeGroupCode'], 'param_desc':entry['Remark']} for entry in q ]
         return items
     
     @classmethod
@@ -603,6 +615,12 @@ class ComboService(object):
         return items
 
     @classmethod
+    def cm_ex_supplier(cls, cond1, cond2, cond3):
+        query = CmExSupplier.objects.values('id', 'ExSupplierName').filter(DelYn = 'N', UseYn = 'Y').order_by('ExSupplierName')
+        items = [ {'value': entry['id'], 'text':entry['ExSupplierName']} for entry in query ]
+        return items
+
+    @classmethod
     def cm_supplier(cls, cond1, cond2, cond3):
         q = CmSupplier.objects.filter(DelYn='N')
 
@@ -631,6 +649,7 @@ class ComboService(object):
     @classmethod
     def cm_equip_category(cls, cond1, cond2, cond3):
         query = CmEquipCategory.objects.values('EquipCategoryCode', 'EquipCategoryDesc').order_by('EquipCategoryDesc')
+        query = query.filter(UseYn='Y')
         items = [ {'value': entry['EquipCategoryCode'], 'text':entry['EquipCategoryDesc']} for entry in query ]
         return items
 
@@ -642,6 +661,36 @@ class ComboService(object):
         '''
         items = DbUtil.get_rows(sql)
         return items
+
+    @classmethod
+    def cm_equipment(cls, cond1, cond2, cond3):
+        try:
+            # 기본 쿼리셋 생성
+            q = CmEquipment.objects.filter(UseYn='Y', DelYn='N')
+            
+            if cond1:
+                # cond1이 문자열로 넘어온 경우 쉼표로 구분된 값들을 파싱
+                if isinstance(cond1, str):
+                    equip_ids = [int(id.strip()) for id in cond1.split(',') if id.strip().isdigit()]
+                    if equip_ids:
+                        q = q.filter(id__in=equip_ids)
+                # cond1이 리스트로 넘어온 경우
+                elif isinstance(cond1, list):
+                    equip_ids = [int(id) for id in cond1 if str(id).isdigit()]
+                    if equip_ids:
+                        q = q.filter(id__in=equip_ids)
+                # cond1이 단일 값으로 넘어온 경우
+                elif str(cond1).isdigit():
+                    q = q.filter(id=int(cond1))
+            
+            # 결과를 value, text 형태로 변환
+            items = [{'value': item.id, 'text': item.EquipName} for item in q.order_by('EquipName')]            
+            return items
+            
+        except Exception as ex:
+            source = 'ComboService.cm_equipment'
+            LogWriter.add_dblog('error', source, ex)
+            return []
 
     @classmethod
     def cm_user_info(cls, cond1, cond2, cond3):

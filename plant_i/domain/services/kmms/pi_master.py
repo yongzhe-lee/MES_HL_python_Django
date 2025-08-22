@@ -36,6 +36,7 @@ class PIService():
 		lastChkDateTo = dcparam.get('lastChkDateTo',None)
 
 		dic_param = {
+			'chkMastPk': chkMastPk,
 			'searchText': searchText,
 			'equDept': equipDeptPk,
 			'equLoc': locPk,
@@ -53,8 +54,8 @@ class PIService():
 			select t.chk_mast_pk
 				, t.chk_mast_nm
 				, t.chk_mast_no
-				, d.id
-				, d."Name"
+				, d.id as dept_pk
+				, d."Name" as dept_nm
 				, t.chk_user_pk
 				, cm_fn_user_nm(cu."Name", cu.del_yn) as chk_user_nm
 				, (case when (t.chk_mast_no ~ E'^[0-9]+$') = true then cast(t.chk_mast_no as integer) else 999999 end) as chk_mast_no_sort
@@ -103,7 +104,7 @@ class PIService():
 			)
 			'''
 		
-		if deptPk and deptPk > 0:
+		if deptPk and CommonUtil.try_int(deptPk) > 0:
 			sql += ''' AND (
 					d.id = %(deptPk)s
 					OR
@@ -118,7 +119,7 @@ class PIService():
 					ed.id In (select dept_pk from v_dept_path where %(equipDeptPk)s = path_info_pk)
 				)
 			'''
-		if locPk and locPk > 0 :
+		if locPk and CommonUtil.try_int(locPk) > 0 :
 			sql += ''' AND (
 				l.loc_pk = %(locPk)s
 				OR
@@ -134,7 +135,7 @@ class PIService():
 			sql += '''  AND e.environ_equip_yn = %(environEquipYn)s
 			'''
 		
-		if chkMastNo and chkMastNo > 0 :
+		if chkMastNo and CommonUtil.try_int(chkMastNo) > 0 :
 			sql += '''  AND t.chk_mast_no = %(chkMastNo)s
 			'''
 
@@ -142,19 +143,19 @@ class PIService():
 			sql += '''  AND t.chk_mast_nm = %(chkMastNm)s
 			'''
 		
-		if chkUserPk and chkUserPk > 0 :
+		if chkUserPk and CommonUtil.try_int(chkUserPk) > 0 :
 			sql += '''  AND cu."User_id" = %(chkUserPk)s
 			'''
 		
-		if equipPk and equipPk > 0 :
+		if equipPk and CommonUtil.try_int(equipPk) > 0 :
 			sql += '''  AND e.equip_pk = %(equipPk)s
 			'''
 		
-		if chkMastPk and chkMastPk > 0 :
+		if chkMastPk and CommonUtil.try_int(chkMastPk) > 0 :
 			sql += '''  AND t.chk_mast_pk = %(chkMastPk)s
 			'''
 		
-		if chkMastPkNot and chkMastPkNot > 0 :
+		if chkMastPkNot and CommonUtil.try_int(chkMastPkNot) > 0 :
 			sql += '''  AND t.chk_mast_pk <> %(chkMastPkNot)s
 			'''
 		
@@ -205,13 +206,16 @@ class PIService():
 		try:
 			items = DbUtil.get_rows(sql, dic_param)
 		except Exception as ex:
-			LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
+			LogWriter.add_dblog('error', 'PIService.get_pm_master_list', ex)
 			raise ex
 
 		return items
 
 	#점검 주기 시뮬레이션
-	def selectEquipChkScheSimulationCycleByMon(self, deptPk, userPk,calSearchType, fromDate, toDate):
+	def selectEquipChkScheSimulationCycleByMon(self, fromDate,toDate,deptPk, userPk):
+		items = []
+		dic_param = {'fromDate': fromDate,'toDate': toDate,'deptPk': deptPk,'userPk': userPk}
+
 		sql = ''' 
 		/* selectEquipChkScheSimulationCycleByMon [equip-check-mast-mapper.xml] */
 
@@ -229,14 +233,8 @@ class PIService():
 				FROM cm_equip_chk_mast t1
 				inner JOIN dept d ON t1.dept_pk = d.id
 				inner JOIN user_profile u ON t1.chk_user_pk = u."User_id"
-				WHERE t1.use_yn = 'Y' and t1.del_yn = 'N'
-					AND t1.cycle_type IN (
-						SELECT code_cd
-						FROM cm_base_code
-						WHERE code_grp_cd = 'CYCLE_TYPE'
-					)
+				WHERE t1.use_yn = 'Y' and t1.del_yn = 'N'					
 				'''
-
 		if deptPk :
 			sql += '''  
 				AND (
@@ -339,14 +337,6 @@ class PIService():
 			'''
 		
 		try:
-			items = []
-			dic_param = {
-				'deptPk': deptPk,
-				'userPk': userPk,
-				'calSearchType': calSearchType,
-				'fromDate': fromDate,
-				'toDate': toDate,
-			}
 			items = DbUtil.get_rows(sql, dic_param)
 		except Exception as ex:
 			LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
@@ -354,7 +344,10 @@ class PIService():
 
 		return items
 
-	def selectEquipChkScheSimulationByMon(self, calDeptPk, calChkUserPk,calSearchType):
+	def selectEquipChkScheSimulationByMon(self, fromDate,toDate,deptPk, userPk):
+		items = []
+		dic_param = {'fromDate': fromDate,'toDate': toDate,'deptPk': deptPk,'userPk': userPk}
+
 		sql = ''' 
 			/* selectEquipChkScheSimulationByMon [equip-check-mast-mapper.xml] */
 
@@ -372,24 +365,19 @@ class PIService():
 			--and t.sched_start_date BETWEEN to_date('20250427', 'YYYYMMDD') AND to_date('20250531', 'YYYYMMDD')
 			'''
 
-		if calDeptPk :
+		if deptPk :
 			sql += '''
 
 					AND (
-						d.id = %(calDeptPk)s
+						d.id = %(deptPk)s
 						OR
-						d.id In (select dept_pk from cm_v_dept_path where calDeptPk = path_info_pk)
+						d.id In (select dept_pk from cm_v_dept_path where %(deptPk)s = path_info_pk)
 					)
 		'''
 
-		if calChkUserPk :
+		if userPk :
 			sql += '''
-					AND cu."User_id" = %(calChkUserPk)s
-			'''
-
-		if calSearchType :
-			sql += '''
-					AND 1=1
+					AND cu."User_id" = %(userPk)s
 			'''
 
 		sql += '''
@@ -406,12 +394,6 @@ class PIService():
 			ORDER  BY to_char(next_date, 'YYYY-MM-DD')
 			'''
 		try:
-			items = []
-			dic_param = {
-				'calDeptPk': calDeptPk,
-				'calChkUserPk': calChkUserPk,
-				'calSearchType': calSearchType,
-			}
 			items = DbUtil.get_rows(sql, dic_param)
 		except Exception as ex:
 			LogWriter.add_dblog('error', 'PMService.get_pm_master_list', ex)
@@ -450,48 +432,79 @@ class PIService():
 	def get_pi_master_detail(self, chkMastPk):
 		
 		sql = ''' 
-		select t.chk_mast_pk
-				, t.chk_mast_nm
-				, t.chk_mast_no
-				, d.id
-				, d."Name"
-				, t.chk_user_pk
-				, cm_fn_user_nm(cu."Name", cu.del_yn) as chk_user_nm
-				, (case when (t.chk_mast_no ~ E'^[0-9]+$') = true then cast(t.chk_mast_no as integer) else 999999 end) as chk_mast_no_sort
-				, t.last_chk_date
-				, t.first_chk_date
-				, t.sched_start_date
-				, t.next_chk_date
-				, t.cycle_type as cycle_type_cd
-				, ct.code_nm   as cycle_type_nm
-				, concat(t.per_number, ct.code_dsc) as cycle_display_nm
-				, t.per_number
-				, t.work_text
-				--, COUNT(DISTINCT eci.chk_item_pk) as equip_chk_item_cnt
-				--, COUNT(DISTINCT e.equip_pk) as chk_equip_item_cnt
-				, t.use_yn
-				, t.del_yn
-				, t.insert_ts
-				, t.inserter_id
-				, t.inserter_nm
-				, t.update_ts
-				, t.updater_id
-				, t.updater_nm
-				, t.daily_report_cd
-				, t.daily_report_type_cd
-			FROM   cm_equip_chk_mast t
-			--INNER JOIN dept d ON t.dept_pk = d.id
-			--INNER JOIN cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk
-			--INNER JOIN cm_equipment e on ce.equip_pk = e.equip_pk
-			LEFT OUTER JOIN dept d ON t.dept_pk = d.id
-			LEFT OUTER JOIN cm_chk_equip ce on t.chk_mast_pk = ce.chk_mast_pk
-			LEFT OUTER JOIN cm_equipment e on ce.equip_pk = e.equip_pk
-			LEFT OUTER JOIN user_profile cu on t.chk_user_pk = cu."User_id"
-			LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
-			LEFT OUTER JOIN cm_equip_chk_item eci on t.chk_mast_pk = eci.chk_mast_pk
-			LEFT OUTER JOIN cm_location l on e.loc_pk = l.loc_pk
-			LEFT OUTER JOIN dept ed on e.dept_pk = ed.id
-		WHERE  t.chk_mast_pk = %(chkMastPk)s
+			SELECT 
+				t.chk_mast_pk,
+				t.chk_mast_nm,
+				t.chk_mast_no,
+				d.id as dept_pk,
+				d."Name" as dept_nm,
+				t.chk_user_pk,
+				cm_fn_user_nm(cu."Name", cu.del_yn) as chk_user_nm,
+				(CASE 
+					WHEN (t.chk_mast_no ~ E'^[0-9]+$') = true 
+					THEN CAST(t.chk_mast_no AS integer) 
+					ELSE 999999 
+				END) as chk_mast_no_sort,
+				t.last_chk_date,
+				t.first_chk_date,
+				t.sched_start_date,
+				t.next_chk_date,
+				t.cycle_type as cycle_type_cd,
+				ct.code_nm as cycle_type_nm,
+				CONCAT(t.per_number, ct.code_dsc) as cycle_display_nm,
+				t.per_number,
+				t.work_text,
+				COUNT(DISTINCT ce.equip_pk) as chk_equip_item_cnt,
+				COUNT(DISTINCT eci.chk_item_pk) as equip_chk_item_cnt,	
+				t.use_yn,
+				t.del_yn,
+				t.insert_ts,
+				t.inserter_id,
+				t.inserter_nm,
+				t.update_ts,
+				t.updater_id,
+				t.updater_nm,
+				t.daily_report_cd,
+				t.daily_report_type_cd
+
+			FROM cm_equip_chk_mast t
+				INNER JOIN dept d ON t.dept_pk = d.id
+				LEFT OUTER JOIN cm_chk_equip ce ON t.chk_mast_pk = ce.chk_mast_pk
+				LEFT OUTER JOIN cm_equipment e ON ce.equip_pk = e.equip_pk
+				LEFT OUTER JOIN user_profile cu ON t.chk_user_pk = cu."User_id"
+				LEFT OUTER JOIN cm_base_code ct ON t.cycle_type = ct.code_cd AND ct.code_grp_cd = 'CYCLE_TYPE'
+				LEFT OUTER JOIN cm_equip_chk_item eci ON t.chk_mast_pk = eci.chk_mast_pk
+				LEFT OUTER JOIN cm_location l ON e.loc_pk = l.loc_pk
+				LEFT OUTER JOIN dept ed ON e.dept_pk = ed.id
+			WHERE  t.chk_mast_pk = %(chkMastPk)s
+			GROUP BY 
+				t.chk_mast_pk,
+				t.chk_mast_nm,
+				t.chk_mast_no,
+				d.id,
+				d."Name",
+				t.chk_user_pk,
+				cm_fn_user_nm(cu."Name", cu.del_yn),
+				t.last_chk_date,
+				t.first_chk_date,
+				t.sched_start_date,
+				t.next_chk_date,
+				t.cycle_type,
+				ct.code_nm,
+				ct.code_dsc,
+				t.per_number,
+				t.work_text,
+				t.use_yn,
+				t.del_yn,
+				t.insert_ts,
+				t.inserter_id,
+				t.inserter_nm,
+				t.update_ts,
+				t.updater_id,
+				t.updater_nm,
+				t.daily_report_cd,
+				t.daily_report_type_cd;
+		
 		'''
 
 		data = {}

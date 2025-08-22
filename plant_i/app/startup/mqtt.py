@@ -1,4 +1,4 @@
-import json, threading,time, importlib
+﻿import json, threading,time, importlib
 from django.core.serializers.json import DjangoJSONEncoder
 
 from configurations import settings
@@ -80,6 +80,65 @@ class MQTTApplication():
         print("mapping_equipment_topic_handler finish...")
         return
 
+
+class MQTTApplication4DT():
+
+    ###########################################################################
+    def ready(self):
+
+        # MQTT client 초기화
+        if settings.MOSQUITTO_USERNAME:
+            FacadeMQTTClient.initialize(settings.MOSQUITTO_HOST, settings.MOSQUITTO_MQTT_PORT, settings.MOSQUITTO_USERNAME, settings.MOSQUITTO_PASSWORD)
+        else:
+            FacadeMQTTClient.initialize(settings.MOSQUITTO_HOST, settings.MOSQUITTO_MQTT_PORT)
+
+        # Device 메시지 핸들러 초기화
+        #DeviceMessageHandler.initialize()
+
+        #plant_topic_thread = threading.Thread(target=self.mapping_equipment_topic_handler)
+        #plant_topic_thread.start()
+
+        return
+
+
+    def mapping_equipment_topic_handler(self):
+
+        print("mapping_equipment_topic_handler ready...")
+        # 10초간 대기, 어플리케이션이 시작되고 django ORM이 초기화될 때까지 대기
+        time.sleep(5)
+        print("mapping_equipment_topic_handler starting...")
+
+        from domain.services.interface.equipment import IFEquipmentResultService
+
+        if_equ_rst_servide = IFEquipmentResultService()
+        arr_dt_equ_cd = [
+           "hpc1.load",
+           "hpc1.flash",
+           "hpc1.ict",
+           "hpc1.coatload",
+           "hpc1.coating1",
+           "hpc1.coating2",
+           "hpc1.coatvision",
+           "hpc1.pcbrev",
+           "hpc1.curing",
+           "hpc1.frobackload","hpc1.uh.load",
+           "hpc1.tim","hpc1.tim.assy",
+           "hpc1.lh.load",
+           "hpc1.scrwt","hpc1.scrwt.height",
+           "hpc1.fclip","hpc1.fclip.height","hpc1.fclip.clip", "hpc1.fclip.screw",
+           "hpc1.eol1","hpc1.eol2",
+           "hpc1.pinchk","hpc1.labeling","hpc1.brackassm","hpc1.brackassm.height",
+           "smt4.load","smt4.laserrmarking","smt4.sp1","smt4.sp2","smt4.spi","smt4.mnt","smt4.pre-aoi","smt4.reflow","smt4.aoi","smt4.aoireview","smt4.unload"
+           #,"hpc1.packing"
+        ]
+
+        for equ_cd in arr_dt_equ_cd:
+            dt_topic = "dt_" + equ_cd
+            FacadeMQTTClient.set_topic_handler(dt_topic, if_equ_rst_servide.dt_equipment_topic_handler)
+
+        FacadeMQTTClient.apply_topic_handler()
+        print("mapping_equipment_topic_handler finish...")
+        return
 
 class DeviceMessageHandler():
 

@@ -155,8 +155,7 @@ def location(context):
 
             items = DbUtil.get_rows(sql, dc)
             if action == 'countBy':
-                items = len(items)
- 
+                items = len(items) 
 
         elif action == 'findOne':
             locPk = CommonUtil.try_int( gparam.get('locPk') )
@@ -218,9 +217,10 @@ def location(context):
             sql = ''' SELECT count(*) as cnt
             FROM  cm_location t
             WHERE t.del_yn = %(delYn)s
-            AND t.factory_pk = %(factory_pk)s
+
             AND t.loc_cd = %(locCd)s
             '''
+            # -- AND t.factory_pk = %(factory_pk)s
             if exLocPk > 0:
                 sql += ''' AND t.loc_pk <> %(exLocPk)s
                 '''
@@ -260,9 +260,9 @@ def location(context):
 			    FROM cm_location t
 		        WHERE t.up_loc_pk is null
             '''
-            if factory_id:
-                sql += ''' and t.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id:
+            #     sql += ''' and t.factory_pk = %(factory_pk)s
+            #     '''
             if isa95Class:
                 sql += ''' and t.isa95_class = %(isa95_class)s
                 '''
@@ -287,9 +287,9 @@ def location(context):
 			    left JOIN cm_location t2 on t.up_loc_pk = t2.loc_pk
 			    WHERE t.del_yn = 'N'
                 '''
-            if factory_id:
-                sql += ''' and t.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id:
+            #     sql += ''' and t.factory_pk = %(factory_pk)s
+            #     '''
             if useYn:
                 sql += ''' and t.use_yn = %(useYn)s
                 '''
@@ -353,9 +353,9 @@ def location(context):
 			    left JOIN cm_location t2 on t.up_loc_pk = t2.loc_pk
 			    WHERE t.del_yn = 'N'
                 '''
-            if factory_id:
-                sql += ''' and t.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id:
+            #     sql += ''' and t.factory_pk = %(factory_pk)s
+            #     '''
             if useYn:
                 sql += ''' and t.use_yn = %(useYn)s
                 '''
@@ -417,7 +417,7 @@ def location(context):
             c.set_audit(user)
             c.save()
 
-            return {'success': True, 'message': '위치의 정보가 수정되었습니다.'}
+            return {'success': True, 'message': '위치의 정보가 수정되었습니다.', 'data': {'loc_pk': c.LocPk}}
 
 
         elif action == 'delete':
@@ -548,9 +548,9 @@ def location(context):
             if isa95Class:
                 sql += ''' and l.isa95_class = %(isa95Class)s
                 '''
-            if factory_id:
-                sql += ''' and l.factory_pk = %(factory_pk)s
-                '''
+            # if factory_id:
+            #     sql += ''' and l.factory_pk = %(factory_pk)s
+            #     '''
             sql += ''' order by l.out_order, l.loc_cd, l.loc_nm
             '''
             dc = {}
@@ -580,7 +580,8 @@ def location(context):
 		    left join cm_equipment eq on t.loc_pk = eq.loc_pk 
 		    and eq.del_yn = 'N'
 		    left join factory s on t.factory_pk = s.id
-		    where t.factory_pk = %(factory_pk)s
+
+            where 1 = 1
 		    group by t.loc_pk, t.loc_nm, t.loc_cd
 			   , t.factory_pk, s."Name"
 		       , t.up_loc_pk, ul.loc_cd, ul.loc_nm
@@ -589,6 +590,7 @@ def location(context):
 		       , t.use_yn, t.del_yn
                , t.isa95_class
             '''
+		    # -- where t.factory_pk = %(factory_pk)s
             dc = {}
             dc['factory_pk'] = factory_id
 
@@ -679,7 +681,9 @@ def location(context):
             if useYn:
                 sql += ''' and ( vsl.lvl_type = 'sites' or (vsl.lvl_type = 'location' and l.use_yn = %(useYn)s ) )
                 '''
-            sql += ''' and vsl.factory_pk = %(factory_pk)s
+            # and vsl.factory_pk = %(factory_pk)s
+            sql += ''' 
+
 		    order by path_info
             '''
             dc = {}
@@ -749,6 +753,33 @@ def location(context):
             o.MarkerInfo = markerInfo
             o.set_audit(user)
             o.save()
+
+        elif action == 'cm_loc_tree':
+            def build_tree(nodes, parent_id=None):
+                tree = []
+                for node in nodes:
+                    if node["UpLocPk"] == parent_id:  # ✅ 상위 위치(부모 ID) 비교
+                        children = build_tree(nodes, node["LocPk"])  # ✅ 재귀 호출로 하위 노드 검색
+                        tree.append({
+                            "id": node["LocPk"],       # ✅ 위치 PK
+                            "text": node["LocName"], # ✅ 위치 이름 (DropDownTree에서 표시)
+                            "items": children if children else []  # ✅ 하위 항목 없으면 빈 배열 반환
+                        })
+                return tree
+
+            try:
+                # DB에서 부서 정보 조회
+                locations = CmLocation.objects.values('LocPk', 'LocName', 'UpLocPk')         
+
+                # 트리 구조 변환
+                loc_tree = build_tree(list(locations))
+
+                # ✅ `{ "items": [...] }` 형식으로 반환
+                items = {"items": loc_tree}
+
+            except Exception as e:
+                print("🚨 서버 오류 발생:", str(e))  # 🚀 콘솔에 오류 로그 출력
+                items = {"error": str(e)}
 
 
         elif action == 'getLocArea':

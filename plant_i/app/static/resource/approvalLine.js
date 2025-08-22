@@ -64,8 +64,7 @@ if (!window.__WO_APPROVAL_LINE_SCRIPT_LOADED__) {
                 }
             }
             renderFilteredStatusMenu(apprLineArray, modalType = '') {			
-                console.log(`Approval Line: ${apprLineArray}`);
-                
+                //console.log(`Approval Line: ${apprLineArray}`);                
                 // 모달 타입에 따라 다른 ID 사용
                 let statusMenuItemsId = 'statusMenuItems';
                 let woTypeDisplayId = 'woTypeDisplay';
@@ -118,7 +117,7 @@ if (!window.__WO_APPROVAL_LINE_SCRIPT_LOADED__) {
                 if (workOrderInfo && workOrderInfo.wo_status_cd) {
                     this.currentStatus = workOrderInfo.wo_status_cd.substring(workOrderInfo.wo_status_cd.lastIndexOf('_') + 1);
                 }
-				console.log(`Current Status: ${this.currentStatus}`);
+				//console.log(`Current Status: ${this.currentStatus}`);
                 // 승인 라인 조회
                 const paramApprLine = {
                     action: 'getFullApprLine',
@@ -132,7 +131,7 @@ if (!window.__WO_APPROVAL_LINE_SCRIPT_LOADED__) {
                 }
             }
             onWorkOrderClick(workOrderPk, modalType = '') {
-				console.log(`Work Order clicked: ${workOrderPk}, Modal Type: ${modalType}`);
+				//console.log(`Work Order clicked: ${workOrderPk}, Modal Type: ${modalType}`);
                 this.dataPk = workOrderPk;
                 
                 // 모달 타입에 따라 다른 ID 사용

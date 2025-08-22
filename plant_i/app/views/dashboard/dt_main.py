@@ -11,12 +11,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime
 import json
-
-
 from domain.services.common import CommonUtil
-from domain.models.cmms import CmChkEquip
-
-from domain.models.cmms import CmEquipChkItem
+from domain.services.mqtt import FacadeMQTTClient
+from domain.services.interface.equipment import IFEquipmentResultService
 
 def dt_main(context):
     '''
@@ -40,7 +37,7 @@ def dt_main(context):
     request = context.request
     
     #당일 품목별 합부 수
-    if action=='selectQuality':
+    if action=='selectEquip':
         equ_cd = gparam.get('equ_cd') 
         #list로 만들고 any로 조회하면 됨
         equ_cd_list = [x.strip() for x in equ_cd.split(',')]
@@ -114,6 +111,65 @@ def dt_main(context):
         result['alarmdata'] = items3
 
         result['success'] = True
+    elif action=='selectHome':
+        equ_cd = gparam.get('equ_cd') 
+        #전체 합부쿼리        
+        sql = ''' 
+            select equ."Name" as equ_name,equ_cd,mat_cd,
+                case state 
+                    WHEN '0' THEN '합격'
+                    WHEN '1' THEN '불합격'
+                    ELSE '기타'
+                end AS 판정,
+                --state,
+                count(*)
+            from if_equ_result ier
+                inner join equ on ier.equ_cd = equ."Code"
+            where 1=1
+                and data_date::date = CURRENT_DATE
+                and is_alarm = false
+                and equ_cd like %(equ_cd)s
+            group by equ.id,equ."Name" ,equ_cd,mat_cd,state 
+            order by equ.id,equ."Name" ,equ_cd,mat_cd,state
+        '''
+        
+        dc = {}
+        dc['equ_cd'] = f"%{equ_cd}%"
+        items = DbUtil.get_rows(sql, dc)
+        result['qualityHomeData'] = items
+
+        
+        #CT쿼리
+        sql = ''' 
+            with time_diff as (
+              select 
+                equ.id,
+                equ."Name" as equ_name,
+                mat_cd,
+                data_date,
+                lag(data_date) over (partition by mat_cd order by data_date) as prev_date,
+                extract(epoch from data_date - lag(data_date) over (partition by mat_cd order by data_date)) as seconds_per_piece
+              from if_equ_result ier
+  	            inner join equ on ier.equ_cd = equ."Code"
+              where equ_cd like %(equ_cd)s
+                and data_date::date = current_date
+                and is_alarm = false
+            )
+            select 
+              id, equ_name, mat_cd,
+              round(avg(seconds_per_piece)) as avg_seconds
+            from time_diff
+            where seconds_per_piece is not null
+            group by id,equ_name,mat_cd
+            order by id,equ_name,mat_cd;
+         '''
+       
+        dc = {}
+        dc['equ_cd'] = f"%{equ_cd}%"
+        items2 = DbUtil.get_rows(sql, dc)
+        result['ctHomeData'] = items2
+
+        result['success'] = True
     elif action == 'tagmaster':
         #태그마스터
         sql = ''' 
@@ -125,5 +181,51 @@ def dt_main(context):
         dc = {}
         items = DbUtil.get_rows(sql, dc)
         result['data'] = items
-        result['success'] = True
+        result['success'] = True    
+    elif action == 'newsubscribe':
+
+        equ_cd = gparam.get('equ_cd', 'read')    
+        dt_topic = "dt_" + equ_cd
+        # 기존 구독 모두 취소
+        FacadeMQTTClient.unsubscribe_all()
+
+        # 새 설비 구독
+        if_equ_rst_servide = IFEquipmentResultService()
+        FacadeMQTTClient.set_topic_handler(dt_topic, if_equ_rst_servide.dt_equipment_topic_handler)
+        FacadeMQTTClient.apply_topic_handler()
+
+        result['success'] = True    
+    elif action == 'getpayload':
+        equ_cd = gparam.get('equ_cd', 'read')    
+        dt_topic = "dt_" + equ_cd
+
+        payload = IFEquipmentResultService.topic_payloads.get(dt_topic)
+        if payload is None:
+            result['data'] = "payload is None"
+            result['success'] = False    
+            return 
+
+        result = payload
+
     return result
+
+#deleted by choi : 2025/08/17
+#                : 새로운 api method는 안되나????
+def get_topic_payload(context):
+    '''
+    /api/dashboard/get_topic_payload
+    
+    작성명 : Digital TwIN
+    작성자 : 최성열
+    작성일 : 
+    비고 :
+    '''
+
+    gparam = context.gparam;
+    posparam = context.posparam
+    topic = gparam.get('topic', 'read')    
+
+    payload = IFEquipmentResultService.topic_payloads.get(topic)
+    if payload is None:
+        return JsonResponse({'error': 'No data'}, status=404)
+    return JsonResponse(payload)

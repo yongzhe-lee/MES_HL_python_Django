@@ -38,13 +38,13 @@
 					</div>
 					<div class="form-group col-12">
 						<label>희망일</label>
-						<input type="text" class="form-control" id="sum_want_dt" name="sum_	want_dt" readonly>
+						<input type="text" class="form-control" id="sum_want_dt" name="sum_want_dt" readonly>
 					</div>
 				</div>
 			</div>
 			<!-- 탭 섹션 -->
 			<div class="section">
-				<div class="tab-group" id="tab-group">
+				<div class="tab-group-wo" id="tab-group-wo">
 					<button class="tab-button" data-tab="reqInfo" style="background: #1e4f88; color: white; border-color: #1e4f88;">요청정보</button>
 					<button class="tab-button" data-tab="mergedWorkInfo" style="display: none">작업내역(전체)</button>
 					<button class="tab-button" data-tab="workInfo">작업내역</button>
@@ -52,7 +52,7 @@
 					<button class="tab-button" data-tab="fileInfo">파일</button>
 					<button class="tab-button" data-tab="logInfo">로그</button>
 				</div>
-				<div class="tab-content" id="tab-content">
+				<div class="tab-content-wo" id="tab-content-wo">
 					<!-- 요청정보 탭 컨텐츠 -->
 					<div class="tab-pane" id="reqInfo" style="display: block; height: 400px;">
 						<div class="modal-table-header-line"></div>
@@ -91,16 +91,16 @@
 								<th>카테고리</th>
 								<td id="req_equip_category_desc"></td>
 								<th>상위설비</th>
-								<td id="req_loc_nm"></td>
+								<td id="req_up_equip_name"></td>
 								<th>설비위치</th>
-								<td id="req_up_loc_nm" colspan="3"></td>
+								<td id="req_loc_nm" colspan="3"></td>
 							</tr>
 						</table>
 						<br />
 						<div class="form-row">
 							<div class="form-group">
 								<label>작업지침</label>
-								<textarea class="form-control" id="req_pm_work_text" name="req_pm_work_text" style="height:180px !important;"></textarea>
+								<textarea class="form-control" id="req_pm_work_text" name="req_pm_work_text" style="height:180px !important;" readonly></textarea>
 							</div>
 						</div>
 					</div>
@@ -110,62 +110,62 @@
 						<div class="tab-pane active" id="workInfo" style="display: block; height: 400px;">
 							<div class="form-row">
 								<div class="form-group col-12">
-									<label>작업부서<span class="required">*</span></label>
+									<label class="required">작업부서</label>
 									<input type="hidden" id="wo_dept_pk" name="wo_dept_pk">
-									<input type="text" class="form-control" id="wo_dept_nm" name="wo_dept_nm">
+									<input type="text" class="form-control" id="wo_dept_nm" name="wo_dept_nm" readonly>
 								</div>
 								<div class="form-group col-12">
-									<label>작업담당자<span class="required">*</span></label>
-									<input type="text" class="form-control" id="wo_work_charger_nm" name="wo_work_charger_nm">
+									<label class="required">작업담당자</label>
+									<input type="text" class="form-control" id="wo_work_charger_nm" name="wo_work_charger_nm" readonly>
 									<select id="wo_work_charger_sel" name="wo_work_charger_sel"></select>
 								</div>
 								<div class="form-group col-12">
-									<label>작업계획일<span class="required">*</span></label>
+									<label class="required">작업계획일</label>
 									<div class="date-range-input">
-										<input type="text" class="form-control" id="wo_plan_dt" name="wo_plan_dt">
-										<input type="date" id="wo_plan_start_dt" name="wo_plan_start_dt" />
+										<input type="text" class="form-control" id="wo_plan_dt" name="wo_plan_dt" readonly>
+										<input type="date" id="wo_plan_start_dt" name="wo_plan_start_dt" readonly />
 										<span class="spandt" style="margin:0 5px;">~</span>
-										<input type="date" id="wo_plan_end_dt" name="wo_plan_end_dt" />
+										<input type="date" id="wo_plan_end_dt" name="wo_plan_end_dt" readonly />
 									</div>
 								</div>
 								<div class="form-group col-12">
-									<label>보전유형<span class="required">*</span></label>
+									<label class="required">보전유형</label>
 									<input type="hidden" id="wo_maint_type_cd" name="wo_maint_type_cd">
-									<input type="text" class="form-control" id="wo_maint_type_nm" name="wo_maint_type_nm">
+									<input type="text" class="form-control" id="wo_maint_type_nm" name="wo_maint_type_nm" readonly>
 								</div>
 							</div>
 							<div class="form-row">
 								<div class="form-group col-12">
-									<label>현상<span class="required">*</span></label>
-									<input type="text" class="form-control" id="wo_problem_nm" name="wo_problem_nm">
+									<label class="required">현상</label>
+									<input type="text" class="form-control" id="wo_problem_nm" name="wo_problem_nm" readonly>
 									<select id="wo_problem_sel" name="wo_problem_sel"></select>
 								</div>
 								<div class="form-group col-12">
-									<label>원인<span class="required">*</span></label>
-									<input type="text" class="form-control" id="wo_cause_nm" name="wo_cause_nm">
+									<label class="required">원인</label>
+									<input type="text" class="form-control" id="wo_cause_nm" name="wo_cause_nm" readonly>
 									<select id="wo_cause_sel" name="wo_cause_sel"></select>
 								</div>
 								<div class="form-group col-12">
-									<label>조치<span class="required">*</span></label>
-									<input type="text" class="form-control" id="wo_remedy_nm" name="wo_remedy_nm">
+									<label class="required">조치</label>
+									<input type="text" class="form-control" id="wo_remedy_nm" name="wo_remedy_nm" readonly>
 									<select id="wo_remedy_sel" name="wo_remedy_sel"></select>
 								</div>
 								<div class="form-group col-12">
 									<label>프로젝트</label>
-									<input type="text" class="form-control" id="wo_proj_nm" name="wo_proj_nm">
+									<input type="text" class="form-control" id="wo_proj_nm" name="wo_proj_nm" readonly>
 									<select id="wo_proj_sel" name="wo_proj_sel"></select>
 								</div>
 							</div>
 							<div class="form-row">
 								<div class="form-group col-12">
-									<label>작업구분<span class="required">*</span></label>
-									<input type="text" class="form-control" id="wo_work_src_nm" name="wo_work_src_nm">
+									<label class="required">작업구분</label>
+									<input type="text" class="form-control" id="wo_work_src_nm" name="wo_work_src_nm" readonly>
 									<select id="wo_work_src_sel" name="wo_work_src_sel"></select>
 								</div>
 								<div class="form-group col-12">
-									<label>작업기간(시작~종료)<span class="required">*</span></label>
+									<label class="required">작업기간(시작~종료)</label>
 									<div class="date-range-input">
-										<input type="text" class="form-control" id="wo_start_end_dt" name="wo_start_end_dt">
+										<input type="text" class="form-control" id="wo_start_end_dt" name="wo_start_end_dt" readonly>
 										<input type="date" id="wo_start_dt" name="wo_start_dt" />
 										<span class="spandt" style="margin:0 5px;">~</span>
 										<input type="date" id="wo_end_dt" name="wo_end_dt" />
@@ -178,8 +178,15 @@
 							<div class="form-row">
 								<div class="form-group">
 									<label>작업내역</label>
-									<textarea class="form-control" id="wo_work_text" name="wo_work_text"></textarea>
+									<textarea class="form-control" id="wo_work_text" name="wo_work_text" readonly></textarea>
 								</div>
+							</div>
+							<!-- 고장부위 컨텐츠 -->
+							<div class="grid-content">
+								<div class="grid-header">
+									<label data-labelCd="고장부위">고장부위</label>
+								</div>
+								<div id="detailBreakdownPointGrid"></div>
 							</div>
 						</div>
 					</form>
@@ -236,7 +243,7 @@
 					</div>
 					<!-- 파일 탭 컨텐츠 -->
 					<div class="tab-pane" id="fileInfo">
-						{% include 'components/FileUpload.html' with tableName='cm_material' attachName='file' dataPk=cm_material.mtrl_pk|default:'' %}
+						{% include 'components/FileUpload.html' with tableName='cm_work_order' attachName='file' dataPk=cm_work_order.work_order_pk|default:'' uniqueId='woDetail' %}
 					</div>
 					<!-- 로그 탭 컨텐츠 -->
 					<div class="tab-pane" id="logInfo">
@@ -248,7 +255,6 @@
 
 		<!-- 버튼 영역 -->
 		<div class="modal-footer">
-			<button type="button" class="btn-save" id="btnWoSave">저장</button>
 			<button type="button" class="btn-close" id="closeWoModal">닫기</button>
 		</div>
 	</div>
@@ -265,9 +271,14 @@
 		line-height: 1.4;
 	}
 
-	.required {
-		color: #e74c3c;
-		margin-left: 3px;
+	/* mergedWorkInfo 모드에서 탭 간격 조정 */
+	.merged-mode #workInfo {
+		padding-bottom: 60px;
+		margin-bottom: 60px;
+	}
+
+	.merged-mode #manpowerInfo {
+		padding-top: 60px;
 	}
 
 	.grid {
@@ -276,7 +287,7 @@
 	}
 
 	/* 탭 영역 */
-	.tab-group {
+	.tab-group-wo {
 		display: flex;
 		margin-bottom: 10px;
 		border-bottom: 1px solid #1e4f88;
@@ -297,7 +308,7 @@
 		}
 
 	/* 탭 컨텐츠 */
-	.tab-content {
+	.tab-content-wo {
 		min-height: 400px;
 	}
 
@@ -446,148 +457,187 @@
 
 			this.bindMergeTabToggle();
 
-			//$("#woSupplierGrid").kendoGrid({
-			//	dataSource: new kendo.data.DataSource({
-			//		transport: {
-			//			read: {
-			//				url: this.baseUrl,
-			//				dataType: "json",
-			//				contentType: "application/json",
-			//				data: function () {
-			//					return {
-			//						action: 'read_work_order_hist',
-			//						id: $('#work_order_pk').val()
-			//					};
-			//				}
-			//			}
-			//		},
-			//	}),
-			//	height: 100,
-			//	sortable: true,
-			//	autoBind: false, // 자동 데이터 바인딩 비활성화
-			//	columns: [
-			//		{ field: "ex_supplier_pk", title: "id", hidden: true },
-			//		{ field: "ex_supplier_nm", title: "외주업체명", width: 6 },
-			//		{ field: "cost", title: "비용", width: 4 },
-			//	],
-			//	noRecords: {
-			//		template: "조회된 데이터가 없습니다."
-			//	},
-			//	dataBound: function (e) {
-			//		const count = this.dataSource.total();
-			//		$("#woSupplierCount").text(`(Count: ${count})`);
-			//	}
-			//});
+			$("#detailBreakdownPointGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_breakdown_point',
+									id: _this.workOrderPk
+								};
+							}
+						}
+					},
+				}),
+				height: 80,
+				sortable: true,
+				autoBind: false,
+				editable: { confirmation: false },
+				columns: [
+					{ field: "breakdown_code", title: "고장부위코드", width: 100 },
+					{ field: "breakdown_name", title: "고장부위명", width: 180 },
+					{ field: "cause", title: "원인", width: 120 },
+					{ field: "desc", title: "고장 설명", width: 180 },
+					{ field: "reg_user", title: "등록자", width: 80 },
+					{ field: "reg_date", title: "등록일", width: 100, template: "#= kendo.toString(kendo.parseDate(reg_date), 'yyyy-MM-dd') #" },
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				}
+			});
+			
+			$("#woSupplierGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_work_order_supplier',
+									id: $('#work_order_pk').val()
+								};
+							}
+						}
+					},
+				}),
+				height: 100,
+				sortable: true,
+				autoBind: false,
+				columns: [
+					{ field: "id", title: "id", hidden: true },
+					{ field: "ex_supplier_nm", title: "외주업체명", width: 6 },
+					{ field: "cost", title: "비용", width: 4 },
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				},
+				dataBound: function (e) {
+					const count = this.dataSource.total();
+					$("#woSupplierCount").text(`(Count: ${count})`);
+				}
+			});
 
-			//$("#woManpowerGrid").kendoGrid({
-			//	dataSource: new kendo.data.DataSource({
-			//		transport: {
-			//			read: {
-			//				url: this.baseUrl,
-			//				dataType: "json",
-			//				contentType: "application/json",
-			//				data: function () {
-			//					return {
-			//						action: 'read_work_order_hist',
-			//						id: $('#work_order_pk').val()
-			//					};
-			//				}
-			//			}
-			//		},
-			//	}),
-			//	height: 100,
-			//	sortable: true,
-			//	autoBind: false, // 자동 데이터 바인딩 비활성화
-			//	columns: [
-			//		{ field: "work_order_pk", title: "id", hidden: true },
-			//		{ field: "job_class_nm", title: "작업인력 또는 직종 추가", width: 120 },
-			//		{ field: "worker_nos", title: "인원수", width: 120, },
-			//		{ field: "wage_cost", title: "노임단가(시급)", width: 100 },
-			//		{ field: "work_hr", title: "예상작업시간", width: 100 },
-			//		{ field: "real_work_hr", title: "실제작업시간", width: 100 }
-			//	],
-			//	noRecords: {
-			//		template: "조회된 데이터가 없습니다."
-			//	},
-			//	dataBound: function (e) {
-			//		const count = this.dataSource.total();
-			//		$("#woManpowerCount").text(`(Count: ${count})`);
-			//	}
-			//});
+			$("#woManpowerGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_work_order_manpower',
+									id: $('#work_order_pk').val()
+								};
+							}
+						}
+					},
+				}),
+				height: 100,
+				sortable: true,
+				autoBind: false,
+				columns: [
+					{ field: "work_order_pk", title: "id", hidden: true },
+					{ field: "job_class_nm", title: "작업인력 또는 직종 추가", width: 120 },
+					{ field: "worker_nos", title: "인원수", width: 120, },
+					{ field: "wage_cost", title: "노임단가(시급)", width: 100 },
+					{ field: "work_hr", title: "예상작업시간", width: 100 },
+					{ field: "real_work_hr", title: "실제작업시간", width: 100 }
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				},
+				dataBound: function (e) {
+					const count = this.dataSource.total();
+					$("#woManpowerCount").text(`(Count: ${count})`);
+				}
+			});
 
-			//$("#woMaterialGrid").kendoGrid({
-			//	dataSource: new kendo.data.DataSource({
-			//		transport: {
-			//			read: {
-			//				url: this.baseUrl,
-			//				dataType: "json",
-			//				contentType: "application/json",
-			//				data: function () {
-			//					return {
-			//						action: 'read_work_order_hist',
-			//						id: $('#work_order_pk').val()
-			//					};
-			//				}
-			//			}
-			//		},
-			//	}),
-			//	height: 100,
-			//	sortable: true,
-			//	autoBind: false, // 자동 데이터 바인딩 비활성화
-			//	columns: [
-			//		{ field: "work_order_hist_pk", title: "id", hidden: true },
-			//		{ field: "mtrl_cd", title: "자재코드", width: 120 },
-			//		{ field: "mtrl_nm", title: "자재명", width: 120, },
-			//		{ field: "unit_price", title: "자재단가", width: 100 },
-			//		{ field: "plan_amt", title: "예상소요량", width: 100 },
-			//		{ field: "amtrl_amt", title: "A급 수량", width: 100 },
-			//		{ field: "bmtrl_amt", title: "B급 수량", width: 100 }
-			//	],
-			//	noRecords: {
-			//		template: "조회된 데이터가 없습니다."
-			//	},
-			//	dataBound: function (e) {
-			//		const count = this.dataSource.total();
-			//		$("#woMaterialCount").text(`(Count: ${count})`);
-			//	}
-			//});
+			$("#woMaterialGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_work_order_material',
+									id: $('#work_order_pk').val()
+								};
+							}
+						}
+					},
+				}),
+				height: 100,
+				sortable: true,
+				autoBind: false,
+				columns: [
+					{ field: "work_order_pk", title: "id", hidden: true },
+					{ field: "mtrl_cd", title: "자재코드", width: 120 },
+					{ field: "mtrl_nm", title: "자재명", width: 120, },
+					{ field: "unit_price", title: "자재단가", width: 100 },
+					{ field: "plan_amt", title: "예상소요량", width: 100 },
+					{ field: "a_amt", title: "A급 수량", width: 100 },
+					{ field: "b_amt", title: "B급 수량", width: 100 }
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				},
+				dataBound: function (e) {
+					const count = this.dataSource.total();
+					$("#woMaterialCount").text(`(Count: ${count})`);
+				}
+			});
 
-			//$("#logInfoGrid").kendoGrid({
-			//	dataSource: new kendo.data.DataSource({
-			//		transport: {
-			//			read: {
-			//				url: this.baseUrl,
-			//				dataType: "json",
-			//				contentType: "application/json",
-			//				data: function () {
-			//					return {
-			//						action: 'read_work_order_hist',
-			//						id: $('#work_order_pk').val()
-			//					};
-			//				}
-			//			}
-			//		},
-			//	}),
-			//	height: 300,
-			//	sortable: true,
-			//	autoBind: false, // 자동 데이터 바인딩 비활성화
-			//	columns: [
-			//		{ field: "work_order_hist_pk", title: "id", hidden: true },
-			//		{ field: "after_status_nm", title: "상태", width: 120 },
-			//		{ field: "changer_nm", title: "담당자", width: 120, },
-			//		{ field: "change_reason", title: "비고", width: 100 },
-			//		{ field: "change_ts", title: "일시", width: 100 }
-			//	],
-			//	noRecords: {
-			//		template: "조회된 데이터가 없습니다."
-			//	}
-			//});
+			$("#logInfoGrid").kendoGrid({
+				dataSource: new kendo.data.DataSource({
+					transport: {
+						read: {
+							url: this.baseUrl,
+							dataType: "json",
+							contentType: "application/json",
+							data: function () {
+								return {
+									action: 'read_work_order_hist',
+									id: $('#work_order_pk').val()
+								};
+							}
+						}
+					},
+				}),
+				height: 300,
+				sortable: true,
+				autoBind: false,
+				columns: [
+					{ field: "work_order_pk", title: "id", hidden: true },
+					{ field: "after_status_nm", title: "상태", width: 120 },
+					{ field: "changer_nm", title: "담당자", width: 120, },
+					{ field: "change_reason", title: "비고", width: 100 },
+					{ field: "change_ts", title: "일시", width: 100 }
+				],
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
+				}
+			});
 
-			$('.tab-button').on('click', function () {
+			$('#modalWoDetail .tab-button').on('click', function (e) {
+				e.preventDefault();
 				const tabId = $(this).data('tab');
 
 				// 보이는 버튼만 스타일 초기화
-				$('.tab-button').each(function () {
+				$('#modalWoDetail .tab-button').each(function () {
 					if ($(this).is(':visible')) {
 						$(this).removeClass('active').css({
 							'background': '',
@@ -611,21 +661,44 @@
 						$('#workInfo').show();
 						$('#manpowerInfo').show();
 						$('#fileInfo').show();
-					};
+						$('#modalWoDetail').addClass('merged-mode');
+					} else {
+						$('#modalWoDetail').removeClass('merged-mode');
+					}
 				};
+
+				// 탭 그리드 데이터 새로고침
+				if (tabId === 'workInfo' || tabId === 'mergedWorkInfo') {
+					let detailBreakdownPointGrid = $("#detailBreakdownPointGrid").data("kendoGrid");
+					if (detailBreakdownPointGrid) {
+						detailBreakdownPointGrid.dataSource.read();
+					}
+				} else if (tabId === 'manpowerInfo' || tabId === 'mergedWorkInfo') {
+					let woSupplierGrid = $("#woSupplierGrid").data("kendoGrid");
+					if (woSupplierGrid) {
+						woSupplierGrid.dataSource.read();
+					}
+					
+					let woManpowerGrid = $("#woManpowerGrid").data("kendoGrid");
+					if (woManpowerGrid) {
+					    woManpowerGrid.dataSource.read();
+					}
+					
+					let woMaterialGrid = $("#woMaterialGrid").data("kendoGrid");
+					if (woMaterialGrid) {
+					    woMaterialGrid.dataSource.read();
+					}
+				} else if (tabId === 'logInfo') {
+					let logInfoGrid = $("#logInfoGrid").data("kendoGrid");
+					if (logInfoGrid) {
+						logInfoGrid.dataSource.read();
+					}
+				}
 
 				// 탭 ID 저장 및 트리거
 				$(document).trigger(tabId);
 				$("#tabId").val(tabId);
 			});
-
-			$("#btnWoSave").kendoButton({
-				icon: "k-i-save",
-				click: function (e) {
-					e.preventDefault();
-					_this.saveData();
-				}
-			})
 
 			// 모달 닫기
 			$('#closeWoModal').kendoButton({
@@ -645,8 +718,8 @@
 
 			$('#mergeTabsCheckbox').on('change', function () {
 				const isChecked = $(this).is(':checked');
-				const $tabGroup = $('#tab-group');
-				const $tabContent = $('#tab-content');
+				const $tabGroup = $('#tab-group-wo');
+				const $tabContent = $('#tab-content-wo');
 
 				// 모든 탭 버튼과 탭 콘텐츠를 숨김 처리
 				$tabGroup.find('.tab-button')
@@ -679,58 +752,6 @@
 				// 로그 탭 항상 표시
 				$tabGroup.find('[data-tab="logInfo"]').show();
 			});
-		}
-
-		// 작업 결과 저장
-		saveData() {
-			let _this = this;
-			let data = FormUtil.extractForm($('#workResultForm'));
-
-			// 유효성 검사
-			if (!$('#wo_work_charger_sel').val()) {
-				Alert.alert('', '작업담당자를 선택해주세요.');
-				return;
-			}
-			if (!$('#wo_plan_start_dt').val()) {
-				Alert.alert('', '작업계획시작일을 입력해주세요.');
-				return;
-			}
-			if (!$('#wo_plan_end_dt').val()) {
-				Alert.alert('', '작업계획종료일을 입력해주세요.');
-				return;
-			}
-			if (!$('#wo_problem_sel').val()) {
-				Alert.alert('', '현상을 선택해주세요.');
-				return;
-			}
-			if (!$('#wo_cause_sel').val()) {
-				Alert.alert('', '원인을 선택해주세요.');
-				return;
-			}
-			if (!$('#wo_remedy_sel').val()) {
-				Alert.alert('', '조치를 선택해주세요.');
-				return;
-			}
-			if (!$('#wo_start_dt').val()) {
-				Alert.alert('', '작업시작일을 입력해주세요.');
-				return;
-			}
-			if (!$('#wo_end_dt').val()) {
-				Alert.alert('', '작업종료일을 입력해주세요.');
-				return;
-			}
-
-			let funcSucc = function (resp) {
-				if (resp.success) {
-					// 기본 정보 저장 성공 시 작업 인력 저장 진행
-					Notify.success('저장되었습니다.');
-				} else {
-					Alert.alert('error', resp.message);
-				}
-			};
-
-			AjaxUtil.postAsyncData(_this.baseUrl + '?action=save_work_order', data, funcSucc);
-			$("#modalWoDetail").fadeOut();
 		}
 
 		//작업 결과
@@ -767,14 +788,9 @@
 				switch (idx) {
 					case 1:
 						$("#tabId").val('reqInfo');
-						$('#mergedWorkInfo input, #mergedWorkInfo textarea').prop('readonly', true);
 						break;
 					case 2:
-						$("#tabId").val('mergedWorkInfo');
-						// mergedWorkInfo 탭의 모든 input의 readonly 속성 제거
-						$('#mergedWorkInfo input, #mergedWorkInfo textarea').prop('readonly', false);
-						// 작업부서와 보전유형만 readonly로 설정
-						$('#wo_dept_nm, #wo_maint_type_nm').prop('readonly', true);
+						$("#tabId").val('workInfo');
 						break;
 					default:
 						$("#tabId").val('logInfo');
@@ -782,6 +798,21 @@
 				}
 
 				this.activateTab($("#tabId").val(), woSummaryData);
+				
+				// 파일 업로더 인스턴스에 dataPk 설정 및 읽기 모드 설정
+				const fileUploader = window['woDetail_fileUploader'];
+				if (!fileUploader) {
+					console.log('[woDetail] FileUploader 인스턴스를 찾을 수 없습니다.');
+				} else {
+					if (typeof fileUploader.setDataPk === 'function') {
+						fileUploader.setDataPk(work_order_pk);
+					}
+					
+					// FileUpload 컴포넌트를 읽기 모드로 설정 (woDetail은 항상 읽기 모드)
+					if (typeof fileUploader.setReadOnlyMode === 'function') {
+						fileUploader.setReadOnlyMode(true);
+					}
+				}
 
 				// 그리드 데이터 리프레시
 				//$("#logInfoGrid").data("kendoGrid").dataSource.read();
@@ -820,7 +851,25 @@
 			if (tabId === 'reqInfo') {
 				$('#wo_work_charger_nm').show();
 				$('#wo_plan_dt').show();
-				$('#wo_work_charger_sel').css("display", "none"); // ← 이 부분 추가!
+				$('#wo_work_charger_sel').css("display", "none");
+
+				$('.spandt').css("display", "none");
+				$('#wo_plan_start_dt,#wo_plan_end_dt,#wo_start_dt,#wo_end_dt').css({
+					'position': 'absolute',
+					'left': '-9999px'
+				});
+
+				$('#wo_problem_sel').css("display", "none");
+				$('#wo_cause_sel').css("display", "none");
+				$('#wo_remedy_sel').css("display", "none");
+				$('#wo_proj_sel').css("display", "none");
+				$('#wo_work_src_sel').css("display", "none");
+
+			} else if (tabId === 'workInfo') {
+				// workInfo 탭 활성화 시 처리
+				$('#wo_work_charger_nm').show();
+				$('#wo_plan_dt').show();
+				$('#wo_work_charger_sel').css("display", "none");
 
 				$('.spandt').css("display", "none");
 				$('#wo_plan_start_dt,#wo_plan_end_dt,#wo_start_dt,#wo_end_dt').css({
@@ -838,7 +887,6 @@
 				// 기존 옵션 제거
 				$('#wo_work_charger_sel').empty();
 				$('#wo_work_src_sel').empty();
-
 
 				$('#wo_plan_dt,#wo_start_end_dt, #wo_work_charger_nm,#wo_problem_nm,#wo_cause_nm,#wo_remedy_nm,#wo_proj_nm,#wo_work_src_nm').css({
 					'position': 'absolute',
@@ -879,7 +927,6 @@
 					value: data.end_dt,
 					format: "yyyy-MM-dd",
 				});
-
 			}
 		}
 
@@ -893,7 +940,7 @@
 				'sum_wo_type_nm': data.wo_type_nm,
 				'sum_maint_type_nm': data.maint_type_nm,
 				'sum__creater_nm': data._creater_nm,
-				'sum_want_dt': data.want_dt,
+				'sum_want_dt': data.want_dt ? data.want_dt.split('T')[0] : '',
 			};
 
 			// 기본 필드 값 설정
@@ -918,8 +965,8 @@
 				'req_equip_cd_nm': '[' + data.equip_cd + '] ' + data.equip_nm,
 				'req_import_rank_cd': data.import_rank_cd,
 				'req_equip_category_desc': data.equip_category_desc,
+				'req_up_equip_name': data.up_equip_name,
 				'req_loc_nm': data.loc_nm,
-				'req_up_loc_nm': data.up_loc_nm,
 				'req_pm_work_text': data.pm_work_text,
 			};
 
@@ -940,7 +987,7 @@
 				'wo_dept_pk': data.dept_pk,
 				'wo_dept_nm': data.dept_nm,
 				'wo_work_charger_nm': data.work_charger_nm,
-				'wo_plan_dt': data.plan_start_dt + ' ~ ' + data.plan_end_dt,
+				'wo_plan_dt': (data.plan_start_dt || '') + ' ~ ' + (data.plan_end_dt || ''),
 				'wo_maint_type_cd': data.maint_type_cd,
 				'wo_maint_type_nm': data.maint_type_nm,
 				'wo_problem_nm': data.problem_nm,
@@ -948,7 +995,7 @@
 				'wo_remedy_nm': data.remedy_nm,
 				'wo_proj_nm': data.proj_nm,
 				'wo_work_src_nm': data.work_src_nm,
-				'wo_start_end_dt': data.start_dt + ' ~ ' + data.end_dt,
+				'wo_start_end_dt': (data.start_dt ? data.start_dt.replace('T', ' ').substring(0, 16) : '') + ' ~ ' + (data.end_dt ? data.end_dt.replace('T', ' ').substring(0, 16) : ''),
 				'wo_work_text': data.work_text,
 			};
 

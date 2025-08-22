@@ -1,4 +1,4 @@
-﻿class MQTTMessageClient {
+class MQTTMessageClient {
 
     constructor(host, port) {
         let _this = this;
@@ -38,7 +38,7 @@
         }
     }
 
-    connect() {
+    connect(useSSL=true) {
         let _this = this;
 
         let onConnected = function () {
@@ -58,7 +58,7 @@
             Notify.error('Failed to connect to subscription server.');
         };
 
-        this.client.connect({ onSuccess: onConnected, onFailure: onFailure });
+        this.client.connect({ onSuccess: onConnected, onFailure: onFailure, useSSL: useSSL });
     }
 
     subscribe(topic) {
@@ -67,14 +67,14 @@
 
     disconnect() {
 
-        console.log('called disconnect');
+        //console.log('called disconnect');
 
         //added by choi : 기존 topic들 clear한다
         // 모든 구독 해제
         if (this.topics) {
             for (let topic in this.topics) {
                 this.client.unsubscribe(topic);
-                console.log('topic unsubscribe');
+                //console.log('topic unsubscribe');
             }
         }
         this.topics = {};

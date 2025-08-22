@@ -1,10 +1,8 @@
 import os, json
-
 from domain.services.date import DateUtil
 from domain.services.sql import DbUtil
 from domain.services.logging import LogWriter
 from domain.services.interface.sap import SapInterfaceService
-
 from domain.models.interface import IFSapBOM, IFSapMaterial, IFSapMaterialStock, IFSapPcbRandomNumber, IFSapMaterial
 
 def sap(context):
@@ -180,6 +178,39 @@ def sap(context):
             items = DbUtil.get_rows(sql)
             result['items'] = items
 
+        elif action=="req_sap_stock":
+            
+            materials = posparam.get('materials[]')
+            material_count = int(posparam.get('material_count', 1))
+
+            mat_items = []
+            if material_count==1:
+                mat_items.append(materials)
+            else:
+                for i in range(material_count):
+                    mat_cd = materials[i]
+                    if mat_cd:
+                        mat_items.append(mat_cd)
+
+            dic_result = sap_service.get_sap_material_stock(mat_items, user)
+
+            if dic_result["rs"]["tables"] is None:
+                result["success"] = False
+                return result
+
+            items = dic_result['rs']['tables']['STAB']
+
+            now = DateUtil.get_current_datetime()
+            log_dt = now.strftime('%Y-%m-%d %H:%M:%S')
+
+            for item in items:
+                item['log_dt'] = log_dt
+
+
+            result['success'] = True
+            result['items'] = items
+            result['log_dt'] = log_dt
+
         elif action=="search_pcb_random_db":
             rnd_num = gparam.get("rnd_num")
 
@@ -191,7 +222,7 @@ def sap(context):
             items = sap_service.get_sap_input_number_list(rnd_num)
             result['items'] = items
 
-        elif action=="search_pcb_random_sap":
+        elif action=="req_sap_pcb_random":
             '''
             중계서버호출하여 가져온다
             '''
@@ -230,8 +261,6 @@ def sap(context):
                 result['success'] = False
                 result['message'] = str(ex)
 
-
-
         elif action=="local_sap_mat":
             curr_dir = os.getcwd()
             filepath = curr_dir + '/domain/_sql/interface/sap/sap_mat.json'
@@ -256,20 +285,32 @@ def sap(context):
                 if_sap_mat.set_audit(user)
                 if_sap_mat.save()
 
-
-
-        elif action=="request_sam_bom":
-            mat_cd = posparam.get('mat_cd')
+        elif action=="req_sam_bom":
+            '''
+            인터페이스 SAP BOM 요청
+            '''
+            material_count = int(posparam.get('material_count', 1))
+            materials = posparam.get('materials[]')            
             base_date = posparam.get('base_date')
-            today = DateUtil.get_current_datetime()
+            today = DateUtil.get_today_string()
 
-            if base_date is None: 
-                base_date = today.strftime("%Y%m%d")
+            if base_date:
+                base_date = base_date.replace('-', '')
 
+            #mat_cd = posparam.get('mat_cd')
+            #mat_items = []
+            #mat_items.append(mat_cd)
             mat_items = []
-            mat_items.append(mat_cd)
+            if material_count==1:
+                mat_items.append(materials)
+            else:
+                for i in range(material_count):
+                    mat_cd = materials[i]
+                    if mat_cd:
+                        mat_items.append(mat_cd)
 
-            dic_result = sap_service.get_sap_bom(base_date, mat_items)
+
+            dic_result = sap_service.get_sap_bom(base_date, mat_items, user)
             if dic_result["rs"]["tables"] is None:
                 error = dic_result["error"]
                 result["success"] = False
@@ -283,6 +324,7 @@ def sap(context):
 
             # 저장하고 다시 조회해서 리턴
             for item in items:
+                '''
                 if_sap_bom = IFSapBOM()
                 if_sap_bom.stab_mnglg = item["MNGLG"]
                 if_sap_bom.stab_datuv = item["DATUV"]
@@ -299,18 +341,11 @@ def sap(context):
                 if_sap_bom.stab_matnr = item["MATNR"]
                 if_sap_bom.set_audit(user)
                 if_sap_bom.save()
+                '''
+                item["created"] = today
 
 
-            sql= '''
-            select 
-            id, stab_werks, stab_matnr, stab_revlv, stab_bmeng, stab_idnrk, stab_mnglg, stab_meins, stab_stufe, stab_datuv, stab_datab, stab_aennr, stab_bklas, stab_bkbez
-            , "_status", "_created", "_modified", "_creater_id", "_modifier_id"
-            , to_char(_created, 'yyyy-mm-dd hh24:mi:ss') as created
-            from if_sap_bom
-            '''
-            items = DbUtil.get_rows(sql)
             result['items'] = items
-
 
         elif action=="local_sap_bom":
             curr_dir = os.getcwd()
@@ -338,7 +373,6 @@ def sap(context):
                 if_sap_bom.stab_matnr = item["MATNR"]
                 if_sap_bom.set_audit(user)
                 if_sap_bom.save()
-
 
         elif action=="local_sap_stock":
             curr_dir = os.getcwd()
@@ -419,10 +453,11 @@ def sap(context):
             m."Code" as mat_cd
             , m."Name" as mat_nm
             from material m
-            where m.mat_type in ('FERT','HALB')           
+            where m.mat_type in ('FERT','HALB')
             '''
             if keyword:
                 sql+='''
+                and upper(m."Code") like concat('%%', upper(%(keyword)s),'%%')
                 '''
 
             items = DbUtil.get_rows(sql, dic_param)

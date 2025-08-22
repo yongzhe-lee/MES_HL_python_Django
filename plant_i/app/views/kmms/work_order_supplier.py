@@ -52,8 +52,9 @@ def work_order_supplier(context):
             from cm_work_order_supplier wos
             inner join cm_work_order wo on wos.work_order_pk = wo.work_order_pk
             where wos.ex_supplier_pk = %(exSupplierPk)s
-            and wo.factory_pk = %(factory_pk)s
+
             '''
+            # -- and wo.factory_pk = %(factory_pk)s
             dc = {}
             dc['exSupplierPk'] = exSupplierPk
             dc['factory_pk'] = factory_id

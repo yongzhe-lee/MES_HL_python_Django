@@ -187,22 +187,23 @@ class LogWriter:
 
 
     @classmethod
-    def add_interface_log(cls, task, method, contents, equ_cd=None, mat_cd=None, rev_no=None, is_success='Y', user=None):
+    def add_interface_log(cls, task, method, param, success_yn ,start_dt, end_dt, contents, user=None, rev_no='1.0'):
+
+        diff = end_dt-start_dt
+        sec_taken = diff.total_seconds()
 
         if_log = IFLog()
+        if_log.log_date = DateUtil.get_current_datetime()
         if_log.task = task
         if_log.method = method
-        if_log.contents = contents
-        if_log.equ_cd = equ_cd
-        if_log.mat_cd = mat_cd
+        if_log.Parameter = param
+        if_log.contents  = contents
         if_log.rev_no = rev_no
-        if_log.is_success = is_success
+        if_log.success_yn = success_yn
+        if_log.SecondTaken = sec_taken
 
         if user:
             if_log._creater_id = user.id
 
-        if_log.log_date = DateUtil.get_current_datetime()
-
         if_log.save()
-
         return if_log

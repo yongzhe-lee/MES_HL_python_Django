@@ -36,7 +36,7 @@ def pm_master(context):
         cycleType = gparam.get('cycleType', None)
         sDay = gparam.get('start_dt', None)
         eDay = gparam.get('end_dt', None)
-        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else ''
+        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else (None if gparam.get('isMyTask', None) == 'N' else '')
         isLegal = gparam.get('isLegal', None)
 
         items = pm_master_service.get_pm_master_list(keyword, equDept, equLoc, pmDept, pmType, applyYn, cycleType, sDay, eDay, isMyTask, isLegal)
@@ -44,8 +44,44 @@ def pm_master(context):
     elif action=='findOne':
         id = gparam.get('id', None)
         items = pm_master_service.get_pm_master_findOne(id)
-        items = CommonUtil.res_snake_to_camel(items)
         items = items
+
+    elif action=='selectPmScheSimulationCycleByMon':
+        fromDate = gparam.get('fromDate', None)
+        toDate = gparam.get('toDate', None)
+        deptPk = gparam.get('deptPk', None)
+        userPk = gparam.get('userPk', None)
+        items = pm_master_service.selectPmScheSimulationCycleByMon(fromDate,toDate,deptPk,userPk)
+
+    elif action=='selectPmScheSimulationByMon':
+        fromDate = gparam.get('fromDate', None)
+        toDate = gparam.get('toDate', None)
+        deptPk = gparam.get('deptPk', None)
+        userPk = gparam.get('userPk', None)
+        items = pm_master_service.selectPmScheSimulationByMon(fromDate,toDate,deptPk,userPk)
+
+    # WO 상세 작업내역 탭 #############################################################
+    # 고장부위 목록 조회
+    elif action=='read_breakdown_point':
+        work_order_pk = gparam.get('id', None)
+        items = pm_master_service.get_breakdown_point(work_order_pk)
+
+    # WO 상세 작업 인력/자재 탭 ########################################################
+    # 외주업체 목록 조회
+    elif action == 'read_work_order_supplier':
+        work_order_pk = gparam.get('id', None)
+        items = pm_master_service.get_work_order_supplier(work_order_pk)
+
+    # 작업인력 목록 조회
+    elif action == 'read_work_order_manpower':
+        work_order_pk = gparam.get('id', None)
+        items = pm_master_service.get_work_order_manpower(work_order_pk)
+
+    # 작업자재 목록 조회
+    elif action == 'read_work_order_material':
+        work_order_pk = gparam.get('id', None)
+        items = pm_master_service.get_work_order_material(work_order_pk)
+    ##################################################################################
 
     elif action=='findAllPm':
         keyword = gparam.get('keyword', None)
@@ -57,8 +93,8 @@ def pm_master(context):
         sDay = gparam.get('start_date', None)
         eDay = gparam.get('end_date', None)
         equCategory = gparam.get('equCategory', None)
-        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else None
-        isLegal = gparam.get('isLegal', None)
+        isMyTask = user.id if gparam.get('isMyTask', None) == 'Y' else (None if gparam.get('isMyTask', None) == 'N' else None)
+        isLegal = None if gparam.get('isLegal', None) == 'N' else gparam.get('isLegal', None)
 
         items = pm_master_service.findAllPm(keyword, equDept, equLoc, pmDept, pmType, woStatus, sDay, eDay, equCategory, isMyTask, isLegal)
 
@@ -73,7 +109,7 @@ def pm_master(context):
         eDay = gparam.get('end_dt', None)
         srchEquCategory = gparam.get('srchEquCategory', None)
         isNotFinished = gparam.get('isNotFinished', None)
-        isLegal = gparam.get('isLegal', None)
+        isLegal = None if gparam.get('isLegal', None) == 'N' else gparam.get('isLegal', None)
 
         items = pm_master_service.pm_work_findAll(keyword, srchPmNo, srchWoNo, pmType, equDept, pmDept, sDay, eDay, srchEquCategory, isNotFinished, isLegal)
 
@@ -109,6 +145,60 @@ def pm_master(context):
         work_order_pk = gparam.get('id', None)
 
         items = pm_master_service.get_work_order_hist(work_order_pk)
+
+    elif action=='delete':
+        try:
+            PmPk = posparam.get('pm_pk')
+            CmPm.objects.filter(PmPk=PmPk).delete()
+            
+            items = {'success': True}
+            
+        except Exception as ex:
+            source = 'api/kmms/pm_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            items = {'success': False, 'message': str(ex)}
+
+    elif action=='disable':
+        try:
+            PmPk = posparam.get('pm_pk')
+            pm = CmPm.objects.filter(PmPk=PmPk).first()
+            
+            if not pm:
+                items = {'success': False, 'message': f"PM with pk {PmPk} does not exist."}
+            else:
+                pm.UseYn = 'N'
+                pm.UpdateTs = timezone.now()
+                pm.UpdaterId = request.user.id
+                pm.UpdaterName = request.user.username
+                pm.save()
+                
+                items = {'success': True}
+            
+        except Exception as ex:
+            source = 'api/kmms/pm_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            items = {'success': False, 'message': str(ex)}
+
+    elif action=='enable':
+        try:
+            PmPk = posparam.get('pm_pk')
+            pm = CmPm.objects.filter(PmPk=PmPk).first()
+            
+            if not pm:
+                items = {'success': False, 'message': f"PM with pk {PmPk} does not exist."}
+            else:
+                pm.UseYn = 'Y'
+                pm.UpdateTs = timezone.now()
+                pm.UpdaterId = request.user.id
+                pm.UpdaterName = request.user.username
+                pm.save()
+                
+                items = {'success': True}
+            
+        except Exception as ex:
+            source = 'api/kmms/pm_master, action:{}'.format(action)
+            LogWriter.add_dblog('error', source, ex)
+            items = {'success': False, 'message': str(ex)}
 
     elif action=='save':
         # 데이터 저장 로직

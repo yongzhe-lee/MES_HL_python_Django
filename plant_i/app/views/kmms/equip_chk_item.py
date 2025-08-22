@@ -88,11 +88,12 @@ def equip_chk_item(context):
 		    left join cm_base_code ciu on ciu.code_pk = t.chk_item_unit_pk 
 		    and ciu.code_grp_cd = 'CHK_ITEM_UNIT'
 		    WHERE ecm.chk_mast_no = %(chkMastNo)s
-            AND ecm.factory_pk = %(factory_pk)s
-		    AND	t.item_idx = %(itemIdx)s
+		    
+            AND	t.item_idx = %(itemIdx)s
 		    limit 1
             '''
 
+            # --AND ecm.factory_pk = %(factory_pk)s
             dc = {}
             dc['chkMastNo'] = chkMastNo
             dc['itemIdx'] = itemIdx

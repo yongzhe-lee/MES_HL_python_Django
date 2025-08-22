@@ -6,8 +6,7 @@
 		<div class="modal-body">
 			<!-- 그리드 영역 -->
 			<div class="grid-section">
-				<div id="locHistGrid">
-				</div>
+				<div id="locHistGrid"></div>
 			</div>
 		</div>
 		<!-- 버튼 영역 -->
@@ -17,14 +16,11 @@
 	</div>
 </div>
 
-<style>
-</style>
-
 <script type="text/javascript">
 	class EquipLocHist {
 		constructor() {
 			this.grid = null;
-			this.baseUrl = '/api/definition/location';
+			this.baseUrl = '/api/kmms/equipment';
 			this.init();
 		}
 
@@ -39,18 +35,6 @@
 				}
 			});
 
-			// Kendo 버튼 초기화
-			$("#btnModalOpenHist").kendoButton({
-				icon: "search",
-				themeColor: "base",
-				size: "small",
-				click: (e) => {
-					e.preventDefault();
-					this.getList();  // 모달 열 때 데이터 조회
-					modalHist.fadeIn();
-				}
-			});
-
 			this.initGrid();
 		}
 
@@ -59,12 +43,11 @@
 				dataSource: [],
 				columns: [
 					{ field: "equip_loc_hist_pk", title: "번호", width: "8%" },
-					{ field: "beforeloc", title: "변경 전 위치", width: "22%" },
-					{ field: "afterloc", title: "변경 후 위치", width: "22%" },
-					{ field: "changedate", title: "변경 일자", width: "24%" },
-					{ field: "changer", title: "변경자명", width: "20%" }
+					{ field: "equip_loc_bef", title: "변경 전 위치", width: "22%" },
+					{ field: "equip_loc_aft", title: "변경 후 위치", width: "22%" },
+					{ field: "insert_ts", title: "변경 일자", width: "24%" },
+					{ field: "inserter_nm", title: "변경자명", width: "20%" }
 				],
-
 				height: 350,
 				scrollable: true,
 				sortable: true,
@@ -75,12 +58,15 @@
 			}).data("kendoGrid");
 		}
 
-		getLocList() {
+		getLocList(equip_pk) {
 			const self = this;
 			$.ajax({
 				url: this.baseUrl,
 				type: "GET",
-				data: { action: 'read_loc_hist' },
+				data: { 
+					action: 'read_loc_hist',
+					equip_pk: equip_pk
+				},
 				success: function (response) {
 					console.log('서버 응답:', response);  // 데이터 구조 확인용 로그
 
@@ -116,16 +102,12 @@
 			});
 		}
 
-		show(callback) {
-			let _this = this;
-			this.callback = callback;
-
+		show(equip_pk) {
 			$("#modalEquipLocHist").fadeIn();
-			_this.getLocList();
+			this.getLocList(equip_pk);
 		}
 	}
 
-	// 전역 변수 초기화 및 인스턴스 생성
 	let equipLocHistPage = null;
 	$(document).ready(function () {
 		equipLocHistPage = new EquipLocHist();

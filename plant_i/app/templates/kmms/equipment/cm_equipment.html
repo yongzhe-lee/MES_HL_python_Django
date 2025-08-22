@@ -28,7 +28,7 @@
 						<div class="form-item align-h">
 							<label class="k-label k-form-label" for="srch_equ_loc" data-labelCd="설비위치">설비위치</label>
 							<div class="field-wrapper">
-								<select id="srch_equ_loc" name="srch_equ_loc"></select>
+								<input id="srch_equ_loc" name="srch_equ_loc" />
 							</div>
 						</div>
 					</div>
@@ -137,14 +137,14 @@
 						"field": "equip_cd",
 						"width": "100px",
 						"encoded": true,
-
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-mode="read">#=equip_cd#</a>'
 					},
 					{
 						"title": "설비명",
 						"field": "equip_nm",
 						"width": "250px",
 						"encoded": true,
-						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-tab="equipMasterForm">#=equip_nm#</a>'
+						template: '<a href="javascript:void(0);" class="grid-column-link" data-equip-pk="#=equip_pk#" data-mode="edit">#=equip_nm#</a>'
 					},
 					{
 						"title": "설비위치경로",
@@ -197,7 +197,7 @@
 					},
 					{
 						"title": "관리부서",
-						"field": "dept_nm",
+						"field": "Name",
 						"width": "200px",
 						"encoded": true
 					},
@@ -254,7 +254,7 @@
 					},
 					{
 						"title": "정비이력",
-						"field": "wo_history",
+						"field": "wo_count",
 						"width": "100px",
 						"encoded": true,
 						"sortable": false,
@@ -276,7 +276,7 @@
 					},
 					{
 						"title": "PM마스터",
-						"field": "pm_master",
+						"field": "pm_count",
 						"width": "120px",
 						"encoded": true,
 						"sortable": false,
@@ -287,7 +287,7 @@
 					},
 					{
 						"title": "점검마스터",
-						"field": "ins_master",
+						"field": "insp_count",
 						"width": "120px",
 						"encoded": true,
 						"sortable": false,
@@ -333,11 +333,13 @@
 			$(document).on("click", ".grid-column-link", async function (e) {
 				e.preventDefault();
 				let equipPk = $(this).data("equip-pk");
+				let mode = $(this).data("mode"); // 읽기모드 또는 편집모드
 				if (!equipPk) return;
 
 				// 이미 로드된 경우 재사용
 				if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {							
-					equipMasterPage.show(equipPk);
+					// 기존 모달이 있으면 데이터를 다시 로드하고 모드 설정
+					equipMasterPage.show(equipPk, mode);
 					return;
 				}
 
@@ -361,7 +363,7 @@
 					await waitForUploader();
 
 					window.equipMasterPage = new EquipMaster();
-					equipMasterPage.show(equipPk);
+					equipMasterPage.show(equipPk, mode);
 
 				} catch (err) {
 					console.error("equipment.html 로드 실패:", err);
@@ -410,6 +412,13 @@
 				icon: "plus",
 				themeColor: "base",
 				click: async function () {
+					// 기존 모달이 있으면 재사용
+					if ($('#modalEquipMaster').length > 0 && typeof equipMasterPage !== 'undefined') {
+						equipMasterPage.resetForm();
+						equipMasterPage.show(null, 'reg');
+						return;
+					}
+
 					try {
 						// ✅ 1. equipment.html 먼저 append
 						const response = await $.get('/api/kmms/equipment?action=load_modal');
@@ -432,7 +441,8 @@
 
 						// ✅ 3. 이제 EquipMaster 실행
 						window.equipMasterPage = new EquipMaster();
-						$("#modalEquipMaster").fadeIn();
+						equipMasterPage.resetForm();
+						equipMasterPage.show(null, 'reg'); // 등록 시 등록모드로 열기
 
 					} catch (err) {
 						console.error("equipment.html 로드 실패:", err);

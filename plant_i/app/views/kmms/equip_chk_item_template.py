@@ -1,10 +1,10 @@
-﻿from django import db
+from django import db
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
 from domain.models.cmms import CmChkItemTemplate
 
-def equip_chk_item(context):
+def equip_chk_item_template(context):
     '''
     api/kmms/equip_chk_item_template    설비점검항목 템플릿
     최성열 
@@ -98,19 +98,25 @@ def equip_chk_item(context):
             items = DbUtil.get_rows(sql, dc)
 
         elif action == 'insertChkItemTemplate':
-            chkitem = posparam.get('chkitem')
+            id = CommonUtil.try_int(posparam.get('template_id'))
+            chkitem = posparam.get('chk_item')
             unit = posparam.get('unit')
 
+            if id:
+                return {'success': False, 'message': '수정은 불가능합니다. 신규 등록만 가능합니다.'}
+
+            # 신규 등록만 가능
             c = CmChkItemTemplate()
             c.ChkItem = chkitem
             c.Unit = unit
+            c.set_audit(user)
             c.save()
 
-            return {'success': True, 'message': '점검대상설비 정보가 등록되었습니다.'}
+            return {'success': True, 'message': '점검항목이 등록되었습니다.'}
 
         elif action == 'deleteChkItemTemplate':
-            templateId = posparam.get('templateId')
-            CmChkItemTemplate.objects.filter(CmChkItemTemplate_id = templateId).delete()
+            templateId = posparam.get('template_id')
+            CmChkItemTemplate.objects.filter(id = templateId).delete()
             
             items = {'success': True}
 

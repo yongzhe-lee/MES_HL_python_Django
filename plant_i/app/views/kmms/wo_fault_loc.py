@@ -30,25 +30,21 @@ def wo_fault_loc(context):
             workOrderPk = gparam.get('workOrderPk')
 
             sql = ''' select t.work_order_pk
-            , t.fault_loc_cd
-            , fl.reliab_nm as fault_loc_nm
-            , t.fault_loc_desc
-            , t.cause_cd
-            , woc.reliab_nm as cause_nm
-            , t.insert_dt
-            , t.inserter_id
-            , ui."Name" as inserter_nm
-            from cm_wo_fault_loc t
-            left join cm_reliab_codes fl on t.fault_loc_cd  = fl.reliab_cd 
-            AND fl."types" = 'FC' 
-            and fl.factory_pk = %(factory_pk)s
-            left join cm_reliab_codes woc on t.cause_cd  = woc.reliab_cd 
-            AND woc."types" = 'CC' 
-            and woc.factory_pk = %(factory_pk)s
-            left join user_profile ui on t.inserter_id = ui."User_id"::text
-            WHERE t.work_order_pk = %(workOrderPk)s
+                            , t.fault_loc_cd
+                            , fl.reliab_nm as fault_loc_nm
+                            , t.fault_loc_desc
+                            , t.cause_cd
+                            , woc.reliab_nm as cause_nm
+                            , to_char(t.insert_dt, 'YYYY-MM-DD') as insert_dt
+                            , t.inserter_id
+                            , ui."Name" as inserter_nm
+                        from cm_wo_fault_loc t
+                            left join cm_reliab_codes fl on t.fault_loc_cd  = fl.reliab_cd  AND fl."types" = 'FC' 
+                            left join cm_reliab_codes woc on t.cause_cd  = woc.reliab_cd AND woc."types" = 'CC'             
+                            left join user_profile ui on t.inserter_id = ui."User_id"
+                        WHERE t.work_order_pk = %(workOrderPk)s
             '''
-
+            
             dc = {}
             dc['workOrderPk'] = workOrderPk
             dc['factory_pk'] = factory_id
@@ -63,12 +59,14 @@ def wo_fault_loc(context):
             from cm_wo_fault_loc t
             left join reliab_codes fl on t.fault_loc_cd  = fl.reliab_cd 
             AND fl."types" = 'FC' 
-            and fl.factory_pk = %(factory_pk)s
+
             left join reliab_codes woc on t.cause_cd  = woc.reliab_cd 
             AND woc."types" = 'CC' 
-            and woc.factory_pk = %(factory_pk)s
+            
             WHERE t.work_order_pk = %(workOrderPk)s
             '''
+            # -- and fl.factory_pk = %(factory_pk)s
+            # -- and woc.factory_pk = %(factory_pk)s
             if faultLocCd:
                 sql += ''' and t.fault_loc_cd = %(faultLocCd)s
                 '''

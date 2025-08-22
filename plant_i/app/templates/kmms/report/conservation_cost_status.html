@@ -1,11 +1,490 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchYearMonth" data-labelCd="검색 월">검색 월</label>
+                            <div class="field-wrapper">
+                                <input id="searchYearMonth" name="searchYearMonth" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="deptTree" data-labelCd="부서">부서</label>
+                            <div class="field-wrapper">
+                                <input id="deptTree" name="deptPk"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="정비비용 현황">정비비비용 현황</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                
+                <!-- 차트 영역 -->
+                <div class="row">
+                    <div class="col-md-8 col-sm-8 col-xs-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="maintCostChart" style="width:100%; height:360px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="maintCostPieChart" style="width:100%; height:320px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12 text-right mt-2 mb-2" style="font-size: 11px;">
+                        (단위: 백만원)
+                    </div>
+                </div>
+                
+                <!-- 테이블 영역 -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="maintCostGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class ConservationCostStatusPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+        this.chart = null;
+        this.pieChart = null;
+        this.currYear = null;
+        this.currYearBefore = null;
+        this.currYearLast = null;
+        this.currMonth = null;
+        
+        this.init();
+    }
+
+    init() {
+        this.initDatePicker();
+        this.initDeptTree();
+        this.initGrid();
+        this.initCharts();
+        this.bindEvents();
+        this.searchMainData();
+    }
+
+    initDatePicker() {
+        let today = new Date();
+        let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        $("#searchYearMonth").kendoDatePicker({
+            format: "yyyy-MM",
+            value: currentMonth,
+            start: "year",
+            depth: "year"
+        });
+    }
+
+    initDeptTree() {
+        AjaxUtil.fillDropDownTreeOptions($('#deptTree'), 'depart', 'all');
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: []
+            },
+            columns: [
+                { 
+                    title: "No", 
+                    field: "No", 
+                    width: "50px",
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "항목", 
+                    field: "itemNm",
+                    attributes: { style: "text-align:center" }
+                },
+                { 
+                    title: "실적", 
+                    field: "beforeYearResult",
+                    width: "120px",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.beforeYearResult, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "실적", 
+                    field: "lastYearResult",
+                    width: "120px",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.lastYearResult, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "누계", 
+                    field: "lastYearSum",
+                    width: "150px",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.lastYearSum, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "누계", 
+                    field: "currYearSum",
+                    width: "150px",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.currYearSum, 'n0');
+                    },
+                    attributes: { style: "text-align:right" }
+                },
+                { 
+                    title: "증감율(%)", 
+                    field: "changeRage",
+                    width: "100px",
+                    template: function(dataItem) {
+                        return kendo.toString(dataItem.changeRage, 'n2') + '%';
+                    },
+                    attributes: { style: "text-align:right" }
+                }
+            ],
+            scrollable: true,
+            pageable: false,
+            editable: false,
+            selectable: "row",
+            height: 400,
+        };
+        _this.grid = $("#maintCostGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    initCharts() {
+        this.initBarChart();
+        
+        this.initPieChart();
+    }
+
+    initBarChart() {
+        let _this = this;
+        $("#maintCostChart").kendoChart({
+            title: {
+                text: "보전유형별 비용",
+                position: "top"
+            },
+            legend: {
+                position: "top"
+            },
+            seriesDefaults: {
+                type: "column",
+                stack: false
+            },
+            series: [
+                {
+                    name: "사후보전비용",
+                    data: [],
+                    color: "RGB(91,155,213)"
+                },
+                {
+                    name: "개량보전비용", 
+                    data: [],
+                    color: "RGB(237,125,49)"
+                },
+                {
+                    name: "일반작업비용",
+                    data: [],
+                    color: "RGB(221, 235, 247)"
+                },
+                {
+                    name: "예방보전비용",
+                    data: [],
+                    color: "RGB(243, 191, 116)"
+                }
+            ],
+            categoryAxis: {
+                categories: [],
+                labels: {
+                    rotation: 0
+                }
+            },
+            valueAxis: {
+                name: "(백만원)",
+                labels: {
+                    format: "N0"
+                }
+            },
+            tooltip: {
+                visible: true,
+                format: "N0",
+                template: "#= series.name #: #= value #"
+            }
+        });
+        this.chart = $("#maintCostChart").data("kendoChart");
+    }
+
+    initPieChart() {
+        let _this = this;
+        $("#maintCostPieChart").kendoChart({
+            title: {
+                text: "",
+                position: "top"
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "pie",
+                labels: {
+                    visible: true,
+                    position: "outsideEnd",
+                    template: "#= category #: #= value#%"
+                }
+            },
+            series: [{
+                name: "비용 비율",
+                data: []
+            }],
+            tooltip: {
+                visible: true,
+                template: "#= category #: #= value#%"
+            }
+        });
+        this.pieChart = $("#maintCostPieChart").data("kendoChart");
+    }
+
+    bindEvents() {
+        let _this = this;
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'conservation_cost_status';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+        
+        if (result) {
+            _this.setDateInfo(param.searchYearMonth);
+            _this.updateGridData(result);
+            _this.updateChartData(result);
+            _this.updatePieChartData(result);
+        }
+    }
+
+    setDateInfo(searchYearMonth) {
+        let yearMon = searchYearMonth;
+        this.currYear = yearMon.substring(2, 4);
+        this.currYearBefore = Number(this.currYear) - 2;
+        this.currYearLast = Number(this.currYear) - 1;
+        this.currMonth = yearMon.substring(5, 7);
+    }
+
+    updateGridData(data) {
+        for (let i = 0; i < data.length - 1; i++) {
+            data[i].No = i + 1;
+        }
+        
+        let grid = $("#maintCostGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(data);
+            this.updateColumnHeaders();
+            grid.refresh();
+        }
+    }
+
+    updateColumnHeaders() {
+        let grid = $("#maintCostGrid").data("kendoGrid");
+        if (grid) {
+            grid.setOptions({
+                columns: [
+                    grid.options.columns[0], // No
+                    grid.options.columns[1], // 항목
+                    {
+                        ...grid.options.columns[2],
+                        title: this.currYearBefore + '년 실적'
+                    },
+                    {
+                        ...grid.options.columns[3],
+                        title: this.currYearLast + '년 실적'
+                    },
+                    {
+                        ...grid.options.columns[4],
+                        title: this.currYearLast + '년 ' + this.currMonth + '월 누계'
+                    },
+                    {
+                        ...grid.options.columns[5],
+                        title: this.currYear + '년 ' + this.currMonth + '월 누계'
+                    },
+                    grid.options.columns[6] // 증감율
+                ]
+            });
+        }
+    }
+
+    updateChartData(data) {
+        if (!data || data.length < 4) return;
+        
+        let chartData = this.convertToChartData(data);
+        
+        let categories = [
+            this.currYearBefore + '년 실적', 
+            this.currYearLast + '년 실적', 
+            this.currYearLast + '년 ' + this.currMonth + '월 누계', 
+            this.currYear + '년 ' + this.currMonth + '월 누계'
+        ];
+        
+        let series = [
+            {
+                name: "사후보전비용",
+                data: chartData[0] || [],
+                color: "RGB(91,155,213)"
+            },
+            {
+                name: "개량보전비용", 
+                data: chartData[1] || [],
+                color: "RGB(237,125,49)"
+            },
+            {
+                name: "일반작업비용",
+                data: chartData[2] || [],
+                color: "RGB(221, 235, 247)"
+            },
+            {
+                name: "예방보전비용",
+                data: chartData[3] || [],
+                color: "RGB(243, 191, 116)"
+            }
+        ];
+        
+        this.chart.setOptions({
+            categoryAxis: {
+                categories: categories
+            },
+            series: series
+        });
+    }
+
+    convertToChartData(data) {
+        let chartData = [[], [], [], []];
+        
+        for (let i = 0; i < data.length - 1; i++) {
+            let item = data[i];
+            chartData[i] = [
+                item.beforeYearResult || 0,
+                item.lastYearResult || 0, 
+                item.lastYearSum || 0,
+                item.currYearSum || 0
+            ];
+        }
+        
+        return chartData;
+    }
+
+    updatePieChartData(data) {
+        if (!data || data.length <= 1) return;
+        
+        let length = data.length - 1;
+        let totalCost = 0;
+        let beforeYearResult = 0;
+        let lastYearResult = 0;
+        let currYearSum = 0;
+        
+        for (let j = 0; j < length; j++) {
+            beforeYearResult += Number(data[j].beforeYearResult) || 0;
+            lastYearResult += Number(data[j].lastYearResult) || 0;
+            currYearSum += Number(data[j].currYearSum) || 0;
+        }
+        
+        totalCost = beforeYearResult + lastYearResult + currYearSum;
+        
+        let pieData = [];
+        if (totalCost > 0) {
+            pieData.push({
+                category: this.currYearBefore + '년 실적',
+                value: this.getPercent(beforeYearResult, totalCost)
+            });
+            pieData.push({
+                category: this.currYearLast + '년 실적',
+                value: this.getPercent(lastYearResult, totalCost)
+            });
+            pieData.push({
+                category: this.currYear + '년 누계',
+                value: this.getPercent(currYearSum, totalCost)
+            });
+        }
+        
+        this.pieChart.setOptions({
+            series: [{
+                name: "비용 비율",
+                data: pieData
+            }]
+        });
+    }
+
+    getPercent(x, y) {
+        if (y === 0) return 0;
+        return Math.round((x / y) * 100 * 100) / 100;
+    }
+
+    exportExcel() {
+        let gridData = $('#maintCostGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "보전비용_현황.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new ConservationCostStatusPage();
+});
+</script>
+{% endblock %}

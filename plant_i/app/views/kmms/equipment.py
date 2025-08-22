@@ -1,6 +1,6 @@
 from django.db import transaction
 from app.views.kmms import equip_spec
-from domain.models.cmms import CmEquipCategory, CmEquipment, CmImportRank, CmLocation, CmMaterial, CmSupplier
+from domain.models.cmms import CmEquipCategory, CmEquipClassify, CmEquipDeptHist, CmEquipLocHist, CmEquipment, CmImportRank, CmLocation, CmMaterial, CmSupplier
 from domain.models.user import Depart
 from domain.services.sql import DbUtil
 from domain.services.kmms.equipment import EquipmentService
@@ -195,24 +195,23 @@ def equipment(context):
         equip_category_id = posparam.get('equip_category_id')
         locPK = posparam.get('loc_pk')
         deptPK = posparam.get('dept_pk')
-        upEquipPk = posparam.get('upEquipPk', None)        
+        upEquipPk = posparam.get('up_equip_pk', None)        
         environEquipYn = posparam.get('environ_equip_yn', None)        
         equip_mtrl_pk = posparam.get('mtrl_pk') #순환설비자재
         import_rank_pk = posparam.get('import_rank_pk', None)        
         process_cd = posparam.get('process_cd')
-        supplier = posparam.get('supplier', None)
+        supplier = posparam.get('supplier_pk', None)
         system_cd = posparam.get('system_cd')        
-        upEquip_pk = posparam.get('upEquip_pk')
         warranty_dt = posparam.get('warranty_dt')
-        Description = posparam.get('Description')
+        Description = posparam.get('equip_dsc')
         InstallDate = posparam.get('install_dt')
-        Maker = posparam.get('Maker')
-        Model = posparam.get('Model')
+        Maker = posparam.get('maker_pk')
+        Model = posparam.get('model_number')
         ProductionYear = posparam.get('make_dt')
-        PurchaseCost = posparam.get('PurchaseCost')
-        SerialNumber = posparam.get('SerialNumber')
+        BuyCost = posparam.get('buy_cost')
+        SerialNumber = posparam.get('serial_number')
         asset_nos = posparam.get('asset_nos')
-        ccenterCd = posparam.get('ccenterCd')
+        ccenterCd = posparam.get('ccenter_cd')
         EquipClassPath = posparam.get('EquipClassPath')
         EquipClassDesc = posparam.get('EquipClassDesc')
 
@@ -220,15 +219,23 @@ def equipment(context):
         try:
             if id:
                 c = CmEquipment.objects.filter(id=id).first()
+                equipLocBef = c.CmLocation.LocName
+                # 기존 부서명 가져오기
+                try:
+                    oldDept = Depart.objects.get(id=c.DeptPk)
+                    equipDeptBef = oldDept.Name
+                except Depart.DoesNotExist:
+                    equipDeptBef = ""
             else:
                 c = CmEquipment()
                 c.EquipStatus = 'ES_OPER'
+                c.UseYn = 'Y'
            
             c.EquipCode = equipCode
             c.EquipName = equipName
             # 설비 카테고리 처리
             c.CmEquipCategory = CmEquipCategory.objects.get(EquipCategoryCode=equip_category_id)
-            c.SiteId = 1;
+            c.SiteId = 1
         
             c.CmLocation = CmLocation.objects.get(LocPk=locPK)   ## 위치코드
             try:
@@ -240,7 +247,7 @@ def equipment(context):
             if equip_mtrl_pk:
                 c.CmMaterial = CmMaterial.objects.get(id=equip_mtrl_pk) ## 자재대상설비 
             if upEquipPk:
-                c.Parent = CmEquipment.objects.get(id=upEquipPk)   ## 상위위치코드
+                c.Parent = CmEquipment.objects.get(id=upEquipPk)   ## 상위설비PK
             if supplier:
                 c.CmSupplier = CmSupplier.objects.get(id=supplier) ## 공급업체 
             if import_rank_pk:
@@ -248,7 +255,6 @@ def equipment(context):
         
             c.ProcessCode = process_cd        
             c.SystemCode = system_cd
-            c.Parent = upEquip_pk
 
             # 날짜 필드 처리
             def validate_date(date_str, field_name):
@@ -278,7 +284,7 @@ def equipment(context):
         
             # 구매비용 처리
             try:
-                c.BuyCost = int(PurchaseCost) if PurchaseCost else None
+                c.BuyCost = int(BuyCost) if BuyCost else None
             except ValueError:
                 return {'success': False, 'message': '구매비용은 숫자만 입력 가능합니다.'}
             
@@ -286,7 +292,7 @@ def equipment(context):
             c.AssetNos = asset_nos
             c.CcenterCode = ccenterCd
             c.EnvironEquipYn = environEquipYn
-            c.UseYn = 'Y'
+
             c.DelYn = 'N'           
 
             c.EquipClassPath = EquipClassPath
@@ -296,12 +302,35 @@ def equipment(context):
             c.save()
             print("PK:", c.id)  # 저장 후 PK가 할당되는지 확인
 
+            #이미 등록된 설비에서만
+            if id:
+
+                # 기존 설비위치가 변경 되었을 때
+                locHist = CmEquipLocHist()
+                locHist.CmEquipment = c
+                locHist.EquipLocBefore = equipLocBef
+                locHist.EquipLocAfter = c.CmLocation.LocName
+
+                if locHist.EquipLocBefore != "" and locHist.EquipLocBefore != locHist.EquipLocAfter :
+                    locHist.set_audit(user)
+                    locHist.save()                
+
+                # 기존 관리부서가 변경 되었을 때
+                deptHist = CmEquipDeptHist()
+                deptHist.CmEquipment = c
+                deptHist.EquipDeptBefore = equipDeptBef
+                deptHist.EquipDeptAfter = dept.Name
+
+                if deptHist.EquipDeptBefore != "" and deptHist.EquipDeptBefore != deptHist.EquipDeptAfter:
+                    deptHist.set_audit(user)
+                    deptHist.save()
+
             if c.id:
                 handle_equipment_specs(c.id, posparam, request)
 
                 handle_equip_part_mtrl(c.id, posparam, request)
 
-            return {'success': True, 'message': '설비마스터 정보가 저장되었습니다.'}
+            return {'success': True, 'message': '설비마스터 정보가 저장되었습니다.', 'data': {'equip_pk': c.id}}
         except Exception as e:
             return {'success': False, 'message': f'저장 중 오류가 발생했습니다: {str(e)}'}
 
@@ -320,6 +349,58 @@ def equipment(context):
             return {'success': True, 'message': '설비상태가 성공적으로 변경되었습니다.'}
         except Exception as e:
             return {'success': False, 'message': f'설비상태 수정 중 오류가 발생했습니다: {str(e)}'}
+
+    elif action == 'set_not_use':
+        id = CommonUtil.try_int(posparam.get('equip_pk'))
+
+        c = None
+        try:
+            if id:
+                c = CmEquipment.objects.filter(id=id).first()
+            else:
+                return {'success': False, 'message': '설비 정보를 찾을 수 없습니다.'}
+            
+            if not c:
+                return {'success': False, 'message': '존재하지 않는 설비입니다.'}
+            
+            c.UseYn = 'N'
+            c.set_audit(user)
+            c.save()
+            
+            return {'success': True, 'message': '설비마스터가 사용안함으로 처리되었습니다.'}
+        except Exception as e:
+            return {'success': False, 'message': f'설비 사용안함 처리 중 오류가 발생했습니다: {str(e)}'}
+
+    elif action == 'set_use':
+        id = CommonUtil.try_int(posparam.get('equip_pk'))
+
+        c = None
+        try:
+            if id:
+                c = CmEquipment.objects.filter(id=id).first()
+            else:
+                return {'success': False, 'message': '설비 정보를 찾을 수 없습니다.'}
+            
+            if not c:
+                return {'success': False, 'message': '존재하지 않는 설비입니다.'}
+            
+            c.UseYn = 'Y'
+            c.set_audit(user)
+            c.save()
+            
+            return {'success': True, 'message': '설비마스터가 사용으로 처리되었습니다.'}
+        except Exception as e:
+            return {'success': False, 'message': f'설비 사용 처리 중 오류가 발생했습니다: {str(e)}'}
+
+    # 설비 위치 변경이력 조회
+    elif action=='read_loc_hist':
+        equip_pk = gparam.get('equip_pk', None)
+        items = equipmentService.get_equip_loc_hist(equip_pk)
+
+    # 설비 관리부서 변경이력 조회
+    elif action=='read_dept_hist':
+        equip_pk = gparam.get('equip_pk', None)
+        items = equipmentService.get_equip_dept_hist(equip_pk)
 
     # kmms - 설비정보 - 불용설비 조회
     elif action=='read_dispose':
@@ -390,5 +471,87 @@ def equipment(context):
 
         # items = equipmentService.equip_disabled_update(equipPk)
 
+    elif action == 'cm_equip_classify_tree':
+        def get_all_children(parent_codes, all_equip_classes):
+            """재귀적으로 모든 하위 항목들을 찾아서 반환"""
+            children = []
+            for parent_code in parent_codes:
+                for equip_class in all_equip_classes:
+                    if equip_class["ParentCode"] == parent_code:
+                        children.append(equip_class)
+            
+            if children:
+                # 찾은 하위 항목들의 코드들을 수집
+                child_codes = [child["EquipClassCode"] for child in children]
+                # 재귀적으로 더 하위 항목들도 찾기
+                grandchildren = get_all_children(child_codes, all_equip_classes)
+                children.extend(grandchildren)
+            
+            return children
+
+        def build_tree(nodes, parent_id=None, depth=0):
+            tree = []
+            # 2단계까지만 트리 구성 (depth 0: 최상위, depth 1: 하위)
+            if depth >= 2:
+                return []
+                
+            for node in nodes:
+                if node["ParentCode"] == parent_id:
+                    # 하위 항목들은 더 이상의 children을 가지지 않음
+                    if depth == 1:
+                        tree.append({
+                            "id": node["EquipClassCode"],
+                            "text": node["EquipClassDesc"],
+                            "items": []  # 2단계 항목은 빈 items
+                        })
+                    else:
+                        # 최상위 항목만 하위 항목을 가짐
+                        children = build_tree(nodes, node["EquipClassCode"], depth + 1)
+                        tree.append({
+                            "id": node["EquipClassCode"],
+                            "text": node["EquipClassDesc"],
+                            "items": children
+                        })
+            return tree
+
+        try:
+            category = gparam.get('category', None)
+            
+            # 카테고리가 'all'인 경우 빈 트리 반환
+            if category == '':
+                items = {"items": []}
+                return items
+            
+            # 전체 설비 분류 데이터 조회
+            all_equip_classes = CmEquipClassify.objects.filter(UseYn='Y').values('EquipClassCode', 'EquipClassDesc', 'ParentCode', 'CategoryCode')
+            
+            # 필터링된 설비 분류 조회
+            filtered_equip_classes = all_equip_classes.filter(CategoryCode=category) if category else all_equip_classes
+            
+            # 필터링된 항목들의 모든 하위 항목들도 포함
+            filtered_codes = [item["EquipClassCode"] for item in filtered_equip_classes]
+            all_children = get_all_children(filtered_codes, list(all_equip_classes))
+            
+            # 필터링된 항목들과 모든 하위 항목들을 합침
+            final_equip_classes = list(filtered_equip_classes) + all_children
+            
+            # 중복 제거 (EquipClassCode + ParentCode 조합 기준)
+            seen_combinations = set()
+            unique_equip_classes = []
+            for item in final_equip_classes:
+                # EquipClassCode와 ParentCode를 조합한 키 생성
+                combination_key = f"{item['EquipClassCode']}_{item['ParentCode']}"
+                if combination_key not in seen_combinations:
+                    seen_combinations.add(combination_key)
+                    unique_equip_classes.append(item)
+
+            equip_classify_tree = build_tree(unique_equip_classes)
+
+            # ✅ `{ "items": [...] }` 형식으로 반환
+            items = {"items": equip_classify_tree}
+
+        except Exception as e:
+            print("🚨 서버 오류 발생:", str(e))  # 🚀 콘솔에 오류 로그 출력
+            items = {"error": str(e)}
 
     return items   

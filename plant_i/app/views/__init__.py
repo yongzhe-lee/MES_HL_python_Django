@@ -3,7 +3,7 @@ from tkinter import SE
 
 from dateutil.parser import parse as date_parse
 from datetime import datetime
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseServerError
 from django.views import View
 from django.shortcuts import render, redirect
 
@@ -217,7 +217,10 @@ class ApiModuleView(MESBaseView):
 
 class FilesView(MESBaseView):
     http_method_names = ['get', 'post']
-   
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)   
 
     def execute(self, request, *args, **kwargs):
 
@@ -253,8 +256,10 @@ class FilesView(MESBaseView):
             dic_content['message'] = str(ex)
 
         content = json.dumps(dic_content, ensure_ascii=False)
-        res = HttpResponse(status=500, reason=reason, content=content)
-        return res
+        res = HttpResponse(status=500, reason=reason, content=content, content_type="application/json")
+        res['Content-Disposition'] = ""
+
+        return HttpResponseServerError(res)
 
 
     def response401(self, request, reason):
@@ -369,7 +374,6 @@ class GUIPageInfo():
     mqtt_web_port = 9001
     device_topic = ''
     event_topic= ''
-    main_app_run = "N"
     hmi_topic = ''
     system_topic = 'mes21_system_event'
 
@@ -390,8 +394,6 @@ class GUIPageInfo():
         self.gui_name = gui.get('name','')
         self.path_name = gui.get('path_name','')
 
-        if settings.MAIN_APP_RUN:
-            self.main_app_run = "Y"
 
         # get 파라미터를 클래스 멤버로
         for k,v in gparam.items():
@@ -555,6 +557,27 @@ class SystemDefaultRenderer():
                 'TOPIC_HMI_DATA':settings.TOPIC_HMI_DATA,
             }
         )    
+
+    @staticmethod
+    def mig(request):
+        """Renders the kmms migration page."""
+        assert isinstance(request, HttpRequest)
+
+        if request.user.is_authenticated==False:
+            return redirect('login')
+
+        return render(
+            request,
+            'kmms/mig.html',
+            {
+                'SITE_NAME' : settings.SITE_NAME,
+                'DEBUG' : settings.DEBUG,
+                'MOSQUITTO_HOST' : settings.MOSQUITTO_HOST,
+                'TOPIC_DEVICE_DATA':settings.TOPIC_DEVICE_DATA,
+                'TOPIC_DEVICE_EVENT':settings.TOPIC_DEVICE_EVENT,
+                'TOPIC_HMI_DATA':settings.TOPIC_HMI_DATA,
+            }
+        )
 
     @staticmethod
     def notfound403(request):

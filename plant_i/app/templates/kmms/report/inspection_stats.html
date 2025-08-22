@@ -1,11 +1,315 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block css %}
+<style>
+.chart-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <!-- 검색 폼 -->
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="dateType" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="dateType"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="기간선택">기간선택</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="점검 수행 통계">점검 수행 통계</label>
+                    </span>
+                    <span></span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div class="chart-container">
+                    <div id="inspectionStatusChart"></div>
+                </div>
+                <div id="inspectionStatusGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+class InspectionStatusPage {
+    constructor() {
+        this.grid = null;
+        this.chart = null;
+        this.baseUrl = '/api/kmms/report';
+        this.dateType = 'month';
+        
+        this.init();
+    }
+
+    init() {
+        this.initDateTypePicker();
+        this.initDatePicker();
+        this.initGrid();
+        this.initChart();
+        this.bindEvents();
+        this.searchMainData();
+    }
+
+    initDateTypePicker() {
+        $("#dateType").kendoDropDownList({
+            dataSource: [
+                { text: "월별", value: "month" },
+                { text: "연도별", value: "year" }
+            ],
+            dataTextField: "text",
+            dataValueField: "value",
+            value: "month",
+            change: (e) => {
+                this.dateType = e.sender.value();
+                this.updateDatePicker();
+            }
+        });
+    }
+
+    initDatePicker() {
+        let today = new Date();
+        let threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+        // 기존 datepicker 인스턴스 제거
+        if ($("#searchDt_start").data("kendoDatePicker")) {
+            $("#searchDt_start").data("kendoDatePicker").destroy();
+            $("#searchDt_start").remove();
+        }
+        if ($("#searchDt_end").data("kendoDatePicker")) {
+            $("#searchDt_end").data("kendoDatePicker").destroy();
+            $("#searchDt_end").remove();
+        }
+        
+        $("#searchDt").html('<input id="searchDt_start" name="startDt" style="width:120px;" /> ~ <input id="searchDt_end" name="endDt" style="width:120px;" />');
+
+        if (this.dateType === 'month') {
+            $("#searchDt_start").kendoDatePicker({
+                start: "year",
+                depth: "year",
+                format: "yyyy-MM",
+                value: threeMonthsAgo
+            });
+            $("#searchDt_end").kendoDatePicker({
+                start: "year",
+                depth: "year",
+                format: "yyyy-MM",
+                value: today
+            });
+        } else {
+            let fiveYearsAgo = new Date(today.getFullYear() - 5, 0, 1);
+            $("#searchDt_start").kendoDatePicker({
+                start: "decade",
+                depth: "decade",
+                format: "yyyy",
+                value: fiveYearsAgo
+            });
+            $("#searchDt_end").kendoDatePicker({
+                start: "decade",
+                depth: "decade",
+                format: "yyyy",
+                value: today
+            });
+        }
+    }
+
+    updateDatePicker() {
+        this.initDatePicker();
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: []
+            },
+            columns: [
+                {
+                    title: "점검부서",
+                    field: "chkDeptNm"
+                },
+                {
+                    title: "총 점검 건수",
+                    field: "totCnt",
+                    format: "{0:###,###,###,###}",
+                    attributes: { style: "text-align: right" },
+                    width: "120px",
+                    type: "number"
+                },
+                {
+                    title: "점검 수행 건수",
+                    field: "finishCnt",
+                    format: "{0:###,###,###,###}",
+                    attributes: { style: "text-align: right" },
+                    width: "120px",
+                    type: "number"
+                },
+                {
+                    title: "점검 미수행 건수",
+                    field: "notFinishCnt",
+                    format: "{0:###,###,###,###}",
+                    attributes: { style: "text-align: right" },
+                    width: "150px",
+                    type: "number"
+                }
+            ],
+            pageable: false,
+            filterable: false,
+            height: 400,
+            dataBound: function (e) {
+                kendoUtil.showGridRowCount(this.element);
+                _this.updateChart();
+            }
+        };
+        _this.grid = $("#inspectionStatusGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    bindEvents() {
+        let _this = this;
+
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+    }
+
+    initChart() {
+        let _this = this;
+        $("#inspectionStatusChart").kendoChart({
+            title: {
+                text: "점검 수행 통계",
+                font: { size: 16, weight: "bold" }
+            },
+            legend: { position: "bottom" },
+            seriesDefaults: { type: "column", stack: false },
+            series: [
+                {
+                    name: "총 점검건수",
+                    field: "totCnt",
+                    color: "#4CAF50"
+                },
+                {
+                    name: "점검 수행건수",
+                    field: "finishCnt",
+                    color: "#2196F3"
+                },
+                {
+                    name: "점검 미수행건수",
+                    field: "notFinishCnt",
+                    color: "#FF9800"
+                }
+            ],
+            valueAxis: {
+                labels: { format: "N0" },
+                line: { visible: false }
+            },
+            categoryAxis: {
+                field: "chkDeptNm",
+                majorGridLines: { visible: false }
+            },
+            tooltip: {
+                visible: true,
+                template: "#= series.name #: #= value #"
+            },
+            dataSource: { data: [] },
+            height: 400
+        });
+
+        _this.chart = $("#inspectionStatusChart").data("kendoChart");
+    }
+
+    updateChart() {
+        let _this = this;
+        let grid = $("#inspectionStatusGrid").data("kendoGrid");
+        if (grid && _this.chart) {
+            let data = grid.dataSource.data();
+            // 총 점검건수 기준 내림차순 정렬 후 상위 10개만 추출
+            let top10 = data.slice().sort((a, b) => b.totCnt - a.totCnt).slice(0, 10);
+            _this.chart.dataSource.data(top10);
+            _this.chart.refresh();
+        }
+    }
+
+    convertDateRangeToParam() {
+        return DateUtil.convertDateRangeToParam("#searchDt_start", "#searchDt_end", this.dateType);
+    }
+
+    searchMainData() {
+        let _this = this;
+        
+        let param = {
+            action: 'inspection_stats',
+            dateType: this.dateType === 'month' ? 'MON' : 'YEAR',
+        };
+        
+        let dateParam = this.convertDateRangeToParam();
+        param.startDt = dateParam.startDt;
+        param.endDt = dateParam.endDt;
+
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+        let grid = $("#inspectionStatusGrid").data("kendoGrid");
+        if (grid && result) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#inspectionStatusGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "점검_수행_통계.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+};
+
+let page = null;
+$(document).ready(function() {
+    page = new InspectionStatusPage();
+});
+</script>
+{% endblock %}

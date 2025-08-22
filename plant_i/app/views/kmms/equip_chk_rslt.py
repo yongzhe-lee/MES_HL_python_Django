@@ -1,4 +1,4 @@
-﻿from django import db
+from django import db
 from domain.services.logging import LogWriter
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
@@ -39,31 +39,11 @@ def equip_chk_rslt(context):
         if action == 'detail':
 
             #점검결과상세정보
-            # HashMap<String, Object> map = new HashMap<String, Object>();
-	        # map.put("chkSchePk", chkSchePk);
-	        # map.put("siteId", SiteContext.getCurrentSiteId());
-	        # if (pageable != null && pageable.getPageNumber() > 0) {
-	        # 	map.put("pageable", pageable);
-	        # }
-	        # List<EquipChkRslt> lists = equipChkRsltMapper.findAll(map);
-	        # map.remove("pageable");
-	        # EquipChkRslt entity = equipChkRsltMapper.searchOne(map);
-
-	        # List<Long> chkRsltPks = new ArrayList<Long>();
-	        # for(EquipChkRslt equipChkRslt:lists) {
-	        # 	chkRsltPks.add(equipChkRslt.getChkRsltPk());
-	        # }
-
-	        # if(entity != null && chkRsltPks != null && chkRsltPks.size() > 0)
-	        # 	entity.setChkRsltPks(chkRsltPks);
-
-	        # return entity;
-
             chkSchePk = CommonUtil.try_int(gparam.get('chkSchePk'))
             
             dcparam = {}
             dcparam['chkSchePk'] = chkSchePk
-            items = rslt_service.findAll(dcparam)
+            items = rslt_service.findOne(dcparam)
 
         elif action == 'findAll':
             chkSchePk = CommonUtil.try_int(gparam.get('chkSchePk'))
@@ -109,15 +89,16 @@ def equip_chk_rslt(context):
 		    left join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
 		    left join cm_base_code es on e.equip_status = es.code_cd 
 		    and es.code_grp_cd = 'EQUIP_STATUS'
-		    where ecm.factory_pk = %(factory_pk)s
+		    where 1 = 1
             '''
+		    # -- where ecm.factory_pk = %(factory_pk)s
             if chkRsltPkIsNull == 'Y':
                 sql += ''' AND t.chk_rslt_pk IS null
                 '''
-            if chkSchePk > 0:
+            if chkSchePk is not None and chkSchePk > 0:
                 sql += ''' AND t.chk_sche_pk = %(chkSchePk)s
                 '''
-            if chkRsltPk > 0:
+            if chkRsltPk is not None and chkRsltPk > 0:
                 sql += ''' AND t.chk_rslt_pk = %(chkRsltPk)s
                 '''
             if searchText:
@@ -128,7 +109,7 @@ def equip_chk_rslt(context):
 				    UPPER(e.equip_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			    )
                 '''
-            if deptPk > 0:
+            if deptPk is not None and deptPk > 0:
                 sql += ''' AND d.id = %(deptPk)s
                 '''
             if chkStatusCd:
@@ -138,7 +119,7 @@ def equip_chk_rslt(context):
                 sql += ''' and (ecs.chk_sche_dt >= to_date(%(startDate)s, 'YYYYMMDD') 
                 AND ecs.chk_sche_dt <= to_date(%(endDate)s, 'YYYYMMDD'))
    		        '''
-            if unCheckedEquipPk > 0:
+            if unCheckedEquipPk is not None and unCheckedEquipPk > 0:
                 sql += ''' AND ecs.chk_dt is null
 			    AND ecs.chk_user_pk is null
 			    AND cs.code_cd = 'CHK_STATUS_N'
@@ -167,8 +148,7 @@ def equip_chk_rslt(context):
             dc['unCheckedEquipPk'] = unCheckedEquipPk
             dc['factory_pk'] = factory_id
 
-            items = DbUtil.get_rows(sql, dc)
- 
+            items = DbUtil.get_rows(sql, dc) 
 
         elif action == 'findOne':
             chkRsltPk = CommonUtil.try_int( gparam.get('chkRsltPk') )
@@ -207,7 +187,7 @@ def equip_chk_rslt(context):
 		    left join cm_base_code es on e.equip_status = es.code_cd 
 		    and es.code_grp_cd = 'EQUIP_STATUS'
 		    where t.chk_rslt_pk = %(chkRsltPk)s
-            and ecm.factory_pk = %(factory_pk)s
+
             group by t.chk_rslt_pk, t.chk_sche_pk, ecs.chk_sche_no, d.id, d."Name"
 			, ecs.chk_sche_dt, ecs.chk_dt, ecs.chk_sche_type
 			, ecm.chk_mast_no, ecm.chk_mast_nm, ecm.per_number, ecm.last_chk_date, ecm.work_text
@@ -219,6 +199,7 @@ def equip_chk_rslt(context):
 			, e.equip_cd, l.loc_nm, ec.equip_category_desc, e.equip_class_path, e.equip_class_desc
 			, es.code_nm, e.equip_dsc, ecm.daily_report_cd, ecm.daily_report_type_cd
             '''
+            # -- and ecm.factory_pk = %(factory_pk)s
 
             dc = {}
             dc['chkRsltPk'] = chkRsltPk
@@ -246,10 +227,12 @@ def equip_chk_rslt(context):
 		    from cm_equip_chk_rslt t
 		    inner join cm_equip_chk_sche ecs on ecs.chk_sche_pk = t.chk_sche_pk
 		    inner join cm_equip_chk_mast ecm on ecm.chk_mast_pk = ecs.chk_mast_pk
-		    where ecm.factory_pk = %(factory_pk)s
+            
+		    where 1 = 1
 		    and t.chk_sche_pk = %(chkSchePk)s
 		    and t.CHK_RSLT IS NULL
             '''
+		    # -- where ecm.factory_pk = %(factory_pk)s
 
             dc = {}
             dc['chkSchePk'] = chkSchePk
@@ -296,8 +279,10 @@ def equip_chk_rslt(context):
             left join cm_equip_category ec on ec.equip_category_id = e.equip_category_id
             left join cm_base_code es on e.equip_status = es.code_cd 
             and es.code_grp_cd = 'EQUIP_STATUS'
-            where ecm.factory_pk = %(factory_pk)s
+
+            where 1 = 1
              '''
+            # -- where ecm.factory_pk = %(factory_pk)s
             if chkRsltPkIsNull == 'Y':
                 sql += ''' AND t.chk_rslt_pk IS null
                 '''
@@ -380,8 +365,10 @@ def equip_chk_rslt(context):
             left join cm_base_code cs on cs.code_cd = ecs.chk_status 
             and cs.code_grp_cd = 'CHK_STATUS'
             inner join work_order wo on t.chk_rslt_pk = wo.chk_rslt_pk
-            where ecm.factory_pk = %(factory_pk)s
+
+            where 1 = 1
             '''
+            # -- where ecm.factory_pk = %(factory_pk)s
             if chkRsltPkIsNull == 'Y':
                 sql += ''' AND t.chk_rslt_pk IS null
                 '''
@@ -491,21 +478,6 @@ def equip_chk_rslt(context):
             chkItemTot = CommonUtil.try_int(posparam.get('chkItemTot'))
             abnItemCnt = CommonUtil.try_int(posparam.get('abnItemCnt'))
             chkRslt = posparam.get('chkRslt')
-            
-      #       sql = ''' update cm_equip_chk_rslt
-		    # set chk_rslt = %(chkRslt)s
-		    # , chk_item_tot = %(chkItemTot)s
-		    # , abn_item_cnt = %(abnItemCnt)s
-		    # where chk_rslt_pk = %(chkRsltPk)s
-      #       '''
-
-      #       dc = {}
-      #       dc['chkRsltPk'] = chkRsltPk
-      #       dc['chkItemTot'] = chkItemTot
-      #       dc['abnItemCnt'] = abnItemCnt
-      #       dc['chkRslt'] = chkRslt
-
-            #ret = DbUtil.execute(sql, dc)
 
             cr = CmEquipChkRslt.objects.get(id=chkRsltPk)
             cr.ChkRslt = chkRslt
@@ -519,8 +491,7 @@ def equip_chk_rslt(context):
             chkRsltPk = CommonUtil.try_int(posparam.get('chkRsltPk'))
             CmEquipChkRslt.objects.filter(id=chkRsltPk).delete()
 
-            items = {'success': True}
-    
+            items = {'success': True}    
 
         elif action == 'deleteByChkRslts':
             chkSchePk = CommonUtil.try_int(posparam.get('chkSchePk'))
@@ -540,7 +511,6 @@ def equip_chk_rslt(context):
             q.delete()
 
             items = {'success': True}
-
 
     except Exception as ex:
         source = 'kmms/equip_chk_rslt : action-{}'.format(action)

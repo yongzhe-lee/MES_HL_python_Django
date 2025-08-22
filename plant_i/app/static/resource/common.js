@@ -1368,10 +1368,10 @@ let AjaxUtil = {
                 _url = '/api/system/depart?action=depart_tree';
                 break;
             case 'cm_location':
-                _url = '/api/definition/location?action=cm_loc_tree';
+                _url = '/api/kmms/location?action=cm_loc_tree';
                 break;
             case 'cm_equip_classify':
-                _url = '/api/definition/equipment?action=cm_equip_classify_tree&category=' + con1;
+                _url = '/api/kmms/equipment?action=cm_equip_classify_tree&category=' + con1;
                 break;
             default:
                 break;
@@ -1907,12 +1907,22 @@ var kendoUtil = {
             }
         });
     },
-    saveAsExcel: function(kendo_grid, file_name) {
-        kendo_grid.grid.bind("excelExport", function (e) {
+    saveAsExcel: function (selector, file_name) {
+        // 25.08.20 김하늘 수정 - grid 선택자를 통해 kendo grid 객체를 가져오도록 수정(기존: grid.js 객체 자체를 사용)
+        /**
+         * @param {object} selector - kendo grid의 jQuery 선택자(id)
+         * @param {string} file_name - 저장할 파일 이름
+         * Note: kendo_grid.grid가 kendo grid 객체인 경우와 grid.js 객체인 경우를 구분하여 처리
+        **/
+
+        var kendo_grid = $(selector).data("kendoGrid") || $(selector).data("kendoTreeList");
+
+        kendo_grid.bind("excelExport", function (e) {
             let today = kendo.toString(new Date(), "yyyyMMdd_HHmmss");
             e.workbook.fileName = file_name + "_" + today + ".xlsx";
         });
-        kendo_grid.grid.saveAsExcel();
+
+        kendo_grid.saveAsExcel();
     }
 };
 // 공통 팝업

@@ -35,8 +35,8 @@ def alaram_box(context):
 	        , e.equip_cd, e.equip_nm, ab.use_yn
 	        from cm_alarm_box ab
 	        inner join cm_equipment e on ab.equip_pk=e.equip_pk
-	        AND e.factory_pk = %(factory_pk)s
             '''
+	        # -- AND e.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND (upper(coalesce(ab.box_equip_nm, '')) like ('%'||upper(%(searchText)s)||'%'))
                 '''

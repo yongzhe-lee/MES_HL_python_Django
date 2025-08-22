@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'configurations.wsgi.application'
 DBMS_HOST = '10.10.10.231'    # 개발
 
 DBMS_PORT = 5432  # 일반
-# DBMS_PORT = 15432   # 배포_포워딩(테스트용)
+#DBMS_PORT = 15432   # 배포_포워딩(테스트용)
 
 DBMS = 'POSTGRESQL'
 DATABASES = {
@@ -163,7 +163,6 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'#Iframe 오류 관련 수정
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
 USE_MOBILE_LOGIN = False
-MAIN_APP_RUN = False
 
 #MOSQUITTO_HOST = "10.226.236.32"
 #MOSQUITTO_HOST = 'localhost'
@@ -192,12 +191,12 @@ folders = []
 FILE_UPLOAD_PATH = 'c:\\temp\\plant_i\\'     #업로드한 파일의 영구저장 장소
 MIG_UPLOAD_PATH = 'c:\\temp\\plant_i\\mig\\'     #업로드한 파일의 영구저장 장소
 EXTRA_CODE_PATH = 'c:\\temp\\plant_i\\extra\\' # 사용자 정의 코드의 저장 장소
+AAS_BASE_PATH = 'c:\\temp\\plant_i\\aas\\' # AASX 파일의 저장 장소
 # 25.03.13 김하늘 추가
 FILE_TEMP_UPLOAD_PATH ='c:\\temp\\plant_i\\upload_temp\\'    # 파일업로드파일 임시저장위치
 
 MEDIA_URL = '/uploads/'
 MEDIA_ROOT = 'c:/temp'  # 윈도우 경로
-
 
 folders.append(FILE_UPLOAD_PATH)
 folders.append(EXTRA_CODE_PATH)

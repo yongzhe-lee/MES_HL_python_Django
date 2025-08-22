@@ -185,17 +185,9 @@
     };
 
     $(document).ready(function () {
-        page = new PopupMyinfoPage();
-
-		// 부모에서 전달한 param 접근
-		if (window.popupData && window.popupData.param) {
-			console.log("부모에서 받은 param:", window.popupData.param);
-
-			// 예: 폼에 값 바인딩
-			let param = window.popupData.param;
-			$('#login_id').data("kendoTextBox").value(param.login_id || '');
-			$('#name').data("kendoTextBox").value(param.name || '');
-		}
+        let page = new PopupMyinfoPage();
+        $('#login_id').data("kendoTextBox").value(userinfo.login_id || '');
+        $('#name').data("kendoTextBox").value(userinfo.username || '');
     });
 </script>
 {% endblock %}

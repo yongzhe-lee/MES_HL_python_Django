@@ -102,9 +102,13 @@
 
 {% block scripts %}
 
+{% include '../../popup/modalMyWorkPost.html'%}
+{% include '../../popup/modalPmCopy.html'%}
 {% include '../../popup/modalWoDetail.html'%}
 {% include '../../popup/modalWoStatHist.html'%}
 {% include '../../popup/modalEquSel.html'%}
+{% include '../../popup/modalManMultiSel.html'%}
+{% include '../../popup/modalMatMultiSel.html'%}
 
 <script type="text/javascript">
     class PostWorkManagementPage {
@@ -138,25 +142,19 @@
                         field: 'work_order_no',
                         title: '작업지시번호',
                         width: 120,
-                        template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-no-pk=\"#=work_order_pk#\">#= work_order_no != null ? work_order_no : '임시저장' #</a>"
+                        template: "<a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-no-pk=\"#=work_order_pk#\">#= work_order_no != null ? work_order_no : '작성중' #</a>"
                     },
-                    {
-                        field: 'work_title',
-                        title: '작업제목',
-                        width: 200,
-                        //template: "# if (write_yn && wo_status_cd != 'WOS_CL' && wo_status_cd != 'WOS_DL') { # <a href='javascript:void(0);' class='grid-column-link' data-work-order-pk='#=work_order_pk#' data-wo-status-cd='#=wo_status_cd#' data-rqst-dept-pk='#=rqst_dept_pk#'>#=work_title#</a> # } else { # #=work_title# # } #"
-                    },
+					{ field: 'work_title', title: '작업제목', width: 150, template: "# if (!work_order_no || work_order_no === '임시저장' || wo_status_nm === '요청반려') { # <a href=\"javascript:void(0);\" class=\"grid-column-link\" data-wo-title-pk=\"#=work_order_pk#\">#=work_title#</a> # } else { # #=work_title# # } #" },
                     {
                         field: 'work_text',
                         title: '작업내역',
                         width: 200,
-                        //template: "# if (work_text == null) { #<div>&nbsp;</div> # } else { #<div style='overflow: hidden !important; height: 1rem !important;white-space: nowrap !important;text-overflow: ellipsis !important;'>#=work_text.replace(/img src/gi, 'img srcnone')#</div> # } #"
                     },
                     {
                         field: 'equip_nm',
                         title: '설비명',
                         width: 300,
-                        //template: "#= '[' + equip_cd + '] ' + equip_nm #"
+                        template: "#= '[' + equip_cd + '] ' + equip_nm #"
                     },
                     {
                         field: 'start_end_period',
@@ -204,9 +202,10 @@
                 if (woNoPk) {
                     woDetailPage.show(woNoPk, 1);
                 } else if (woTitlePk) {
-                    $("#modalMyWorkReq").fadeIn();
-                } else if (woStatusPk) {
-                    woStatHistPage.show();
+					setModalPosition('#modalMyWorkPost', { width: '70%', height: '70%' });
+					myWorkPostPage.show(woTitlePk);
+                } else if (woStatusPk) {					
+					woStatHistPage.show(woStatusPk);
                 }
             });
 
@@ -243,7 +242,7 @@
                 optionLabel: "전체",
             });
 
-			AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
+            AjaxUtil.fillDropDownTreeOptions($('#dept_pk'), 'depart', 'all');
             let today = new Date();
             let twoMonthsAgo = new Date(today);
             twoMonthsAgo.setMonth(today.getMonth() - 2);
@@ -260,7 +259,7 @@
                 startField: "start_dt",
                 endField: "end_dt"
             });
-			AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'depart', 'all');
+            AjaxUtil.fillDropDownTreeOptions($('#req_dept'), 'depart', 'all');
             AjaxUtil.fillDropDownOptions($('#maint_code'), 'cm_code', 'all', null, 'MAINT_TYPE');
             $('#srch_my_work_only').kendoSwitch({ checked: false });
             $('#srch_environ_equip_only').kendoSwitch({ checked: false });
@@ -281,8 +280,8 @@
                 //spriteCssClass: "k-icon k-foo",
                 click: function (e) {
                     e.preventDefault();
-                    // 작업일보 등록 팝업
-
+                    // 사후작업 등록 팝업
+                    myWorkPostPage.show();
                 }
             }).css('visibility', 'visible');
 

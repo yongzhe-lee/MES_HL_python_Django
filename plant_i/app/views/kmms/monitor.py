@@ -44,8 +44,9 @@ def monitor(context):
 	        inner join cm_equipment eq on eq.equip_pk = t.equip_pk
 	        inner join dept d on d.id = eq.dept_pk
 	        where eq.del_yn = 'N'
-            AND eq.factory_pk = %(factory_pk)s
+
             '''
+            # -- AND eq.factory_pk = %(factory_pk)s
             if useYn:
                 sql += ''' AND eq.use_yn = %(useYn)s
                 '''
@@ -90,8 +91,10 @@ def monitor(context):
 			inner join cm_tag_meas_type tmt on tmt.tag_meas_type_pk = t1.tag_meas_type_pk
 			inner join cm_base_code bc on bc.code_grp_cd = 'SRC_SYSTEM'
 			and bc.code_cd = t1.src_system
-			where eq.factory_pk = %(factory_pk)s
+			where 1 = 1
+
             '''
+			# -- where eq.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR upper(t1.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
@@ -113,9 +116,12 @@ def monitor(context):
                 if locCd:
                     sql += ''' 	AND ( lc.loc_cd = %(locCd)s
 					    OR lc.loc_cd IN ( select loc_cd from (select * from cm_fn_get_loc_path(%(factory_pk)s)) x 
-                            where %(locCd)s = path_info_cd and factory_pk = %(factory_pk)s)
+                            where %(locCd)s = path_info_cd 
+
+                            )
 				    )
                     '''
+                            # -- and factory_pk = %(factory_pk)s)
                 if tagMeasTypePk > 0:
                     sql += ''' AND tmt.tag_meas_type_pk = %(tagMeasTypePk)s
                     '''
@@ -156,8 +162,9 @@ def monitor(context):
 			inner join cm_base_code bc on bc.code_grp_cd = 'SRC_SYSTEM'
 			and bc.code_cd = t1.src_system
 			where t.data_dt BETWEEN concat(%(startDate)s, ' 00:00:00')::timestamp and concat(%(endDate)s, ' 23:59:59')::timestamp
-            and eq.factory_pk = %(factory_pk)s
+            
             '''
+            # -- and eq.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR upper(t1.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
@@ -179,9 +186,12 @@ def monitor(context):
                 if locCd:
                     sql += ''' 	AND ( lc.loc_cd = %(locCd)s
 					    OR lc.loc_cd IN ( select loc_cd from (select * from cm_fn_get_loc_path(%(factory_pk)s)) x 
-                            where %(locCd)s = path_info_cd and factory_pk = %(factory_pk)s)
+                            where %(locCd)s = path_info_cd 
+
+                            )
 				    )
                     '''
+                            # -- and factory_pk = %(factory_pk)s)
                 if tagMeasTypePk > 0:
                     sql += ''' AND tmt.tag_meas_type_pk = %(tagMeasTypePk)s
                     '''
@@ -239,8 +249,9 @@ def monitor(context):
 			inner join cm_base_code bc on bc.code_grp_cd = 'SRC_SYSTEM'
 			and bc.code_cd = t1.src_system
 			where t.data_dt BETWEEN concat(%(startDate)s, ' 00:00:00')::timestamp and concat(%(endDate)s, ' 23:59:59')::timestamp
-            and eq.factory_pk = %(factory_pk)s
+            
             '''
+            # -- and eq.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND ( upper(t1.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR upper(t1.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
@@ -262,9 +273,12 @@ def monitor(context):
                 if locCd:
                     sql += ''' 	AND ( lc.loc_cd = %(locCd)s
 					    OR lc.loc_cd IN ( select loc_cd from (select * from cm_fn_get_loc_path(%(factory_pk)s)) x 
-                            where %(locCd)s = path_info_cd and factory_pk = %(factory_pk)s)
+                            where %(locCd)s = path_info_cd 
+
+                            )
 				    )
                     '''
+                            # -- and factory_pk = %(factory_pk)s)
                 if tagMeasTypePk > 0:
                     sql += ''' AND tmt.tag_meas_type_pk = %(tagMeasTypePk)s
                     '''
@@ -321,8 +335,9 @@ def monitor(context):
 			    left join cm_tag_meas_type tmt on tmt.tag_meas_type_pk = t.tag_meas_type_pk
 			    where date(al.alarm_dt) >= to_date(%(startDate)s, 'YYYY-MM-DD')
 		        AND date(al.alarm_dt) <= to_date(%(endDate)s, 'YYYY-MM-DD')
-                and e.factory_pk = %(factory_pk)s
+            
             '''
+                # -- and e.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND ( upper(t.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
 					OR upper(t.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
@@ -353,9 +368,12 @@ def monitor(context):
             if locCd:
                 sql += ''' 	AND ( l.loc_cd = %(locCd)s
 					OR l.loc_cd IN ( select loc_cd from (select * from cm_fn_get_loc_path(%(factory_pk)s)) x 
-                        where %(locCd)s = path_info_cd and factory_pk = %(factory_pk)s)
+                        where %(locCd)s = path_info_cd 
+
+                        )
 				)
                 '''
+                        # -- and factory_pk = %(factory_pk)s)
             sql += ''' ORDER BY al.alarm_dt DESC, t.tag ASC
             '''
 
@@ -505,10 +523,11 @@ def monitor(context):
 		    INNER JOIN cm_tag t on t.tag_pk = td.tag_pk
 		    INNER JOIN cm_equipment eq ON eq.equip_pk = t.equip_pk
 		    WHERE eq.equip_cd = %(equipCd)s
-            and eq.factory_pk = %(factory_pk)s
+
 		    and td.data_dt between concat(%(startDate)s, ' 00:00:00')::timestamp and concat(%(endDate)s, ' 23:59:59')::timestamp
             and td.data_val <> 9999
             '''
+            # -- and eq.factory_pk = %(factory_pk)s
             if chartGrpCd:
                 sql += ''' and t.chart_grp_cd = %(chartGrpCd)s
                 '''

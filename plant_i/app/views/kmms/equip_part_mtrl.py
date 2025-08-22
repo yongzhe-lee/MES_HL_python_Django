@@ -68,8 +68,9 @@ def equip_part_mtrl(context):
 		    where e.del_yn = 'N'
 		    and e.disposed_date is null
 		    and coalesce(mi.inout_cx_yn, 'N') = 'N'
-            AND e.factory_pk = %(factory_pk)s
+
             '''
+            # -- AND e.factory_pk = %(factory_pk)s
             if equipPk:
                 sql += ''' and t.equip_pk = %(equipPk)s
                 '''
@@ -275,10 +276,11 @@ def equip_part_mtrl(context):
 		    where epm.mtrl_pk = %(mtrlPk)s
 		    and t.use_yn = 'Y' 
 		    and t.del_yn = 'N'
-		    AND t.factory_pk = %(factory_pk)s
+
 		    order by t.equip_nm
             '''
 
+		    # -- AND t.factory_pk = %(factory_pk)s
             dc = {}
             dc['factory_pk'] = factory_id
             dc['mtrlPk'] = mtrlPk

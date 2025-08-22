@@ -1,3 +1,4 @@
+from decimal import Decimal
 import mimetypes 
 import json
 from urllib.parse import quote
@@ -18,14 +19,12 @@ class CommonUtil(object):
         #ID = nowdate.strftime('%Y-%m-%d %H-%M-%S')
         return ID
 
-
     @classmethod
     def try_float(cls, number, default=None):
         try:
             return float(number)
         except Exception as e:
             return default
-
 
     @classmethod
     def try_int(cls, number, default=None):
@@ -34,6 +33,15 @@ class CommonUtil(object):
         except Exception as e:
             return default
 
+    @classmethod
+    def try_decimal(cls, val, default=None):
+
+        ret = default
+        # 문자열을 Decimal로 변환
+        try:
+            return Decimal(val)
+        except Exception as ex:
+            return default
 
     @classmethod
     def try_yyyymmdd(cls, date_text):
@@ -42,7 +50,6 @@ class CommonUtil(object):
             return date_text
         except Exception as e:
             return None
-
 
     @classmethod
     def blank_to_none(cls, text):
@@ -53,7 +60,6 @@ class CommonUtil(object):
                 return None
         except Exception as e:
             return None
-
 
     @classmethod
     def get_utf8_filename(cls, filename):
@@ -130,13 +136,18 @@ class CommonUtil(object):
         return {snake_to_camel(k): v for k, v in data.items()}
 
     @classmethod
-    def res_snake_to_camel(cls, data_list: list) -> list:
+    def res_snake_to_camel(cls, data_list) -> list:
         """
-        리스트 내의 딕셔너리 key를 snake_case에서 camelCase로 변환하여 반환합니다.
+        리스트 또는 딕셔너리의 key를 snake_case에서 camelCase로 변환하여 반환합니다.
+        - 리스트인 경우: 리스트 내의 딕셔너리 key를 변환
+        - 딕셔너리인 경우: 딕셔너리 key를 변환
         """
-        if not isinstance(data_list, list):
+        if isinstance(data_list, dict):
+            return cls.snake_to_camel_dict(data_list)
+        elif isinstance(data_list, list):
+            return [cls.snake_to_camel_dict(item) if isinstance(item, dict) else item for item in data_list]
+        else:
             return data_list
-        return [cls.snake_to_camel_dict(item) if isinstance(item, dict) else item for item in data_list]
 
 
             

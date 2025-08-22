@@ -19,20 +19,20 @@
 				<div class="col-12 col-sm-6 col-md-6">
 					<div class="form-row">
 						<div class="form-group" style="width: 100%;">
-							<label for="mtrl_cd" class="required" data-labelCd="자재코드">자재코드*</label>
+							<label for="mtrl_cd" class="required" data-labelCd="자재코드">자재코드</label>
 							<input type="hidden" id="mtrl_pk" value="{{ material.mtrl_pk }}">
 							<input type="text" class="form-control" id="mtrl_cd" name="mtrl_cd" placeholder="50자 이하로 입력하세요">
 						</div>
 					</div>
 					<div class="form-row">
 						<div class="form-group" style="width: 100%;">
-							<label for="mtrl_nm" class="required" data-labelCd="자재명">자재명*</label>
+							<label for="mtrl_nm" class="required" data-labelCd="자재명">자재명</label>
 							<input type="text" class="form-control" id="mtrl_nm" name="mtrl_nm" placeholder="150자 이하로 입력하세요">
 						</div>
 					</div>
 					<div class="form-row">
 						<div class="form-group" style="width: 100%;">
-							<label for="mtrl_class_pk" class="required" data-labelCd="자재종류">자재종류*</label>
+							<label for="mtrl_class_pk" class="required" data-labelCd="자재종류">자재종류</label>
 							<button type="button" class="plusbutton" id="mrtlClassPlus" name="mrtlClassPlus"></button>
 							<div style="display: flex; gap: 5px;">
 								<select id="mtrl_class_pk" name="mtrl_class_pk"></select>
@@ -40,7 +40,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px;">
+				<div class="col-12 col-sm-6 col-md-3" style="display: flex; justify-content: center; align-items: center; height: 200px; visibility: hidden;">
 					<img src="/static/img/qr-sample.png" alt="QR Code" style="width: 200px; height: 200px;">
 				</div>
 			</div>
@@ -64,7 +64,7 @@
 								<input type="text" class="form-control" id="safety_amt" name="safety_amt" readonly>
 							</div>
 							<div class="form-group col-md-2">
-								<label for="amt_unit_pk" class="required" data-labelCd="수량단위">수량단위*</label>
+								<label for="amt_unit_pk" class="required" data-labelCd="수량단위">수량단위</label>
 								<button type="button" class="plusbutton" id="amtUnitPlus" name="amtUnitPlus"></button>
 								<select id="amt_unit_pk" name="amt_unit_pk"></select>
 							</div>
@@ -77,7 +77,7 @@
 								<input type="date" class="form-control" id="unit_price_dt" name="unit_price_dt" style="border: 1px solid #dee2e6; height: 28px; padding: 0 !important; border-top-left-radius: 4px; border-bottom-left-radius: 4px; ">
 							</div>
 							<div class="form-group col-md-11">
-								<label for="mtrl_dsc" class="required" data-labelCd="자재사양">자재사양*</label>
+								<label for="mtrl_dsc" class="required" data-labelCd="자재사양">자재사양</label>
 								<textarea class="form-control" id="mtrl_dsc" name="mtrl_dsc" placeholder="4000자 이하로 입력하세요"></textarea>
 							</div>
 							<div class="form-group col-md-3">
@@ -118,7 +118,7 @@
 
 					</form>
 					<!--파일 탭 컨텐츠 -->
-					<div class="tab-pane" id="fileTabMat" style="overflow-y:auto; height: 400px;">
+					<div class="tab-pane" id="fileTabMat" style="height: 400px;">
 						{% include 'components/ImageUpload.html' with tableName='cm_material' attachName='image' dataPk=cm_material.mtrl_pk|default:'' %}
 						{% include 'components/FileUpload.html' with tableName='cm_material' attachName='file' dataPk=cm_material.mtrl_pk|default:'' %}
 					</div>
@@ -222,13 +222,14 @@
 				height: 300,
 				sortable: true,
 				columns: [
-					{ field: "inserter_nm", title: "사용자", width: 100, attributes: { style: "text-align: center" } },
+					{ field: "user_nm", title: "사용자", width: 100, attributes: { style: "text-align: center" } },
 					{ field: "log_type", title: "로그 타입", width: 120, attributes: { style: "text-align: center" } },
 					{ field: "log_history", title: "로그 내역", width: 500 },
 					{ field: "log_date", title: "일시", width: 150, attributes: { style: "text-align: center" } }
 				],
-				noRecords: {
-					template: "조회된 데이터가 없습니다."
+				noRecords: true,
+				messages: {
+					noRecords: "조회된 데이터가 없습니다."
 				}
 			}).data("kendoGrid");
 
@@ -272,7 +273,7 @@
 					default:
 						if (_this.mtrl_pk) {
 							// 기본정보
-							this.showMatThumbmail(_this.mtrl_pk);
+							_this.showMatThumbmail(_this.mtrl_pk);
 						}
 						break;
 				}
@@ -326,6 +327,7 @@
 			});
 
 			$('#delBtnMatM').off('click').kendoButton({
+				themeColor: "error",
 				click: function (e) {
 					e.preventDefault();
 
@@ -445,27 +447,32 @@
 		}
 
 		//자재 마스터
-		show(mtrl_pk) {
+		show(mtrl_pk, mode = 'read') {
 			let _this = this;
 			_this.mtrl_pk = mtrl_pk;
 			
-			// 자재 상세 정보 API 호출
-			let param = {
-				action: 'findOne',
-				mtrl_pk: mtrl_pk,
-			};
+			if (mtrl_pk) {
+				let param = {
+					action: 'findOne',
+					mtrl_pk: mtrl_pk,
+				};
 
-			let materialData = AjaxUtil.getSyncData('/api/kmms/material', param);
-			
-			//썸네일 이미지			
-			_this.showMatThumbmail(mtrl_pk);
+				let materialData = AjaxUtil.getSyncData('/api/kmms/material', param);
+				
+				//썸네일 이미지			
+				_this.showMatThumbmail(mtrl_pk);
 
-			// 1.1. 기존 데이터 바인딩
-			this.bindMaterialMasterData(materialData);
-
-			if (materialData) {
-				$("#modalMaterialMaster").fadeIn();
+				// 1.1. 기존 데이터 바인딩
+				this.bindMaterialMasterData(materialData);
+			} else {
+				// 새 자재 등록
+				this.resetForm();
 			}
+
+			// 모드에 따라 폼 필드 활성화/비활성화 설정
+			this.setFormMode(mode);
+
+			$("#modalMaterialMaster").fadeIn();
 		}
 		
 		bindMaterialMasterData(data) {
@@ -502,6 +509,80 @@
 			});
 		}
 
+		// 폼 모드 설정 (읽기/편집)
+		setFormMode(mode) {
+			const isReadMode = mode === 'read';
+			const isNewMode = !this.mtrl_pk;
+			
+			// 모달 전체에서 모든 입력 요소들을 자동으로 찾아서 처리
+			const modal = $('#modalMaterialMaster');
+			const allInputs = modal.find('input, select, textarea');
+			
+			allInputs.each(function() {
+				const element = $(this);
+				const elementId = element.attr('id');
+				
+				// 특정 필드들은 제외 (예: readonly 필드, hidden 필드)
+				if (elementId === 'safety_amt' || elementId === 'mtrl_pk' || element.attr('type') === 'hidden') return;
+				
+				// Kendo UI 컴포넌트인지 확인
+				const kendoTypes = ['kendoDropDownList', 'kendoDatePicker', 'kendoSwitch', 'kendoTextBox'];
+				let isKendoComponent = false;
+				let kendoType = null;
+				
+				for (const type of kendoTypes) {
+					if (element.data(type)) {
+						isKendoComponent = true;
+						kendoType = type;
+						break;
+					}
+				}
+				
+				if (isKendoComponent) {
+					// Kendo UI 컴포넌트 처리
+					try {
+						const kendoInstance = element.data(kendoType);
+						if (kendoInstance && typeof kendoInstance.enable === 'function') {
+							kendoInstance.enable(!isReadMode);
+						}
+					} catch (e) {
+						console.log(`Kendo component error for ${elementId}:`, e);
+					}
+				} else {
+					// 일반 입력 필드 처리
+					element.prop('disabled', isReadMode);
+				}
+			});
+			
+			// 버튼들도 모드에 따라 표시/숨김
+			if (isReadMode) {
+				$('#saveBtnMatM').hide();
+				$('#delBtnMatM').hide();
+				$('#mrtlClassPlus').hide().css('visibility', 'hidden').css('opacity', '0');
+				$('#amtUnitPlus').hide().css('visibility', 'hidden').css('opacity', '0');
+			} else {
+				$('#saveBtnMatM').show();
+				// 삭제 버튼은 수정 모드에서만 표시 (등록 모드에서는 숨김)
+				if (isNewMode) {
+					$('#delBtnMatM').hide();
+				} else {
+					$('#delBtnMatM').show();
+				}
+				$('#mrtlClassPlus').show().css('visibility', 'visible').css('opacity', '1');
+				$('#amtUnitPlus').show().css('visibility', 'visible').css('opacity', '1');
+			}
+			
+			// FileUpload 컴포넌트 읽기 모드 설정
+			if (window.fileUploader && typeof window.fileUploader.setReadOnlyMode === 'function') {
+				window.fileUploader.setReadOnlyMode(isReadMode);
+			}
+			
+			// ImageUpload 컴포넌트 읽기 모드 설정
+			if (window.imageUploader && typeof window.imageUploader.setReadOnlyMode === 'function') {
+				window.imageUploader.setReadOnlyMode(isReadMode);
+			}
+		}
+
 		// 모달 초기화 메소드
 		resetForm() {
 			FormUtil.resetForm($('#materialMasterForm'));
@@ -511,8 +592,8 @@
 			$('#mtrl_class_pk').data("kendoDropDownList").value('');
 
 			// 이미지 초기화
-			if (window.imageUploader && typeof window.imageUploader.clearFiles === 'function') {
-				window.imageUploader.clearFiles();
+			if (window.imageUploader && typeof window.imageUploader.clearImages === 'function') {
+				window.imageUploader.clearImages();
 			}
 
 			// 파일 초기화

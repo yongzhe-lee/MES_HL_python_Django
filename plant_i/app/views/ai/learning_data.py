@@ -13,289 +13,131 @@ from domain.services.common import CommonUtil
 from domain.services.sql import DbUtil
 from domain.services.file.attach_file import AttachFileService
 from domain.services.calculation.data_analysis import DaService
-# from domain.services.ai.data_processing import DataProcessingService
+from domain.services.ai.data_processing import DataProcessingService
 
 # 24.07.23 김하늘 추가 알고리즘 라이브러리
 import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
+# from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.manifold import TSNE
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-# from sklearn.metrics import accuracy_score
-import sklearn.metrics as metrics
+# from sklearn.model_selection import train_test_split, cross_val_score
 
 # 24.07.23 김하늘 추가 시각화를 위한 import
+import matplotlib
+matplotlib.use('Agg')  # 완전 비동기 (창 안뜸, 이미지 저장용)
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import to_hex
-import plotly
-import plotly.graph_objs as go
-import plotly.io as pio
-import plotly.express as px
+# import plotly
+# import plotly.graph_objs as go
+# import plotly.io as pio
+# import plotly.express as px
 
 
 # 24.07.31 김하늘 추가 첨부파일 루트 주소를 가져오기
 # from configurations import settings
 
 # 24.08.08 김하늘 추가 PCA처리 메서드 따로 추출
-def perform_pca(data, features, target_column, num_components=None, scale_factor=None):
-    """
-    PCA 수행 및 주성분 시각화 데이터를 반환.
+# def perform_pca(data, features, target, num_components=None, scale_factor=None):
+#     """
+#     PCA 수행 및 주성분 시각화 데이터를 반환.
 
-    Args:
-        data (pd.DataFrame): 데이터프레임.
-        features (list): 독립 변수(특징) 리스트.
-        target_column (str): 종속 변수 컬럼 이름.
-        num_components (int): 축소할 차원 수(기본값: None, 자동 결정).
-        scale_factor (float): 주성분 선분 크기 조정 비율(기본값: 1).
+#     Args:
+#         data (pd.DataFrame): 데이터프레임.
+#         features (list): 독립 변수(특징) 리스트.
+#         target (str): 종속 변수 컬럼 이름.
+#         num_components (int): 축소할 차원 수(기본값: None, 자동 결정).
+#         scale_factor (float): 주성분 선분 크기 조정 비율(기본값: 1).
 
-    Returns:
-        dict: PCA 결과 및 시각화 데이터.
-    """
+#     Returns:
+#         dict: PCA 결과 및 시각화 데이터.
+#     """
     
-    # 데이터 전처리: 결측치 제거
-    data.dropna(inplace=True)
+#     # 데이터 전처리: 결측치 제거
+#     data.dropna(inplace=True)
 
-    # # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
-    # data['date_val'] = pd.to_datetime(data['date_val'])
-    # data.set_index('date_val', inplace=True)
+#     # # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
+#     # data['date_val'] = pd.to_datetime(data['date_val'])
+#     # data.set_index('date_val', inplace=True)
 
-    # 독립 변수와 종속 변수 분리
-    X = data[features]  # 독립 변수
-    y = data[target_column]  # 종속 변수
+#     # 독립 변수와 종속 변수 분리
+#     X = data[features]  # 독립 변수
+#     y = data[target]  # 종속 변수
 
-    # 데이터 표준화
-    scaler = StandardScaler()
-    X_standardized = scaler.fit_transform(X)
+#     # 데이터 표준화
+#     scaler = StandardScaler()
+#     X_standardized = scaler.fit_transform(X)
 
-    # 훈련 데이터와 테스트 데이터로 분리
-    X_train, X_test, y_train, y_test = train_test_split(X_standardized, y, test_size=0.2, random_state=0)
+#     # 훈련 데이터와 테스트 데이터로 분리
+#     X_train, X_test, y_train, y_test = train_test_split(X_standardized, y, test_size=0.2, random_state=0)
 
-    # PCA(주성분 분석) 진행
-    pca = PCA()
-    pca.fit(X_train)
+#     # PCA(주성분 분석) 진행
+#     pca = PCA()
+#     pca.fit(X_train)
     
-    # 설명 가능한 분산 비율 계산
-    explained_variance_ratio = pca.explained_variance_ratio_
-    cumulative_explained_variance = np.cumsum(explained_variance_ratio)
+#     # 설명 가능한 분산 비율 계산
+#     explained_variance_ratio = pca.explained_variance_ratio_
+#     cumulative_explained_variance = np.cumsum(explained_variance_ratio)
 
-    # 사용자 지정 차원이 없으면(value == '') 설명률이 90% 이상인 차원으로 축소
-    if (num_components == '') or num_components is None:
-        num_components = np.argmax(cumulative_explained_variance >= 0.9) + 1
+#     # 사용자 지정 차원이 없으면(value == '') 설명률이 90% 이상인 차원으로 축소
+#     if (num_components == '') or num_components is None:
+#         num_components = np.argmax(cumulative_explained_variance >= 0.9) + 1
     
-    # num_components 값 확인
-    print(f"\nNumber of components explaining at least 90% of the variance: {num_components}")
+#     # num_components 값 확인
+#     print(f"\nNumber of components explaining at least 90% of the variance: {num_components}")
 
-    # 결정된 주성분 수를 사용하여 PCA 다시 적용
-    pca_final = PCA(n_components=num_components)
-    X_pca = pca_final.fit_transform(X_train)
+#     # 결정된 주성분 수를 사용하여 PCA 다시 적용
+#     pca_final = PCA(n_components=num_components)
+#     X_pca = pca_final.fit_transform(X_train)
 
-    # 24.11.25 주성분 선 폐기. PCA로 변환된 차원의 축 자체가 이미 PC선이기 때문(ex. X축 = PC1, Y축 = PC2, Z축 = PC3)
-    # # 데이터 평균과 주성분 벡터 가져오기
-    # mean = np.mean(X_pca, axis=0)   # PCA 변환된 데이터의 중심(평균)
-    # principal_vector = pca_final.components_  # 축소된 주성분 벡터
+#     # 24.11.25 주성분 선 폐기. PCA로 변환된 차원의 축 자체가 이미 PC선이기 때문(ex. X축 = PC1, Y축 = PC2, Z축 = PC3)
+#     # # 데이터 평균과 주성분 벡터 가져오기
+#     # mean = np.mean(X_pca, axis=0)   # PCA 변환된 데이터의 중심(평균)
+#     # principal_vector = pca_final.components_  # 축소된 주성분 벡터
 
-    # # 동적으로 scale_factor 계산
-    # if scale_factor is None:
-    #     scale_factor = 10
+#     # # 동적으로 scale_factor 계산
+#     # if scale_factor is None:
+#     #     scale_factor = 10
 
-    # # 주성분 축 계산 (축소된 차원만 순회, 유연한 차원 처리)
-    # principal_axes = []
+#     # # 주성분 축 계산 (축소된 차원만 순회, 유연한 차원 처리)
+#     # principal_axes = []
 
-    # # PC선 조정
-    # for i in range(num_components):
-    #     scale_factor_adjusted = scale_factor * explained_variance_ratio[i]
-    #     start = mean  # 데이터 중심
-    #     end = mean + principal_vector[i, :num_components] * scale_factor_adjusted
-    #     principal_axes.append(np.array([start, end]))
+#     # # PC선 조정
+#     # for i in range(num_components):
+#     #     scale_factor_adjusted = scale_factor * explained_variance_ratio[i]
+#     #     start = mean  # 데이터 중심
+#     #     end = mean + principal_vector[i, :num_components] * scale_factor_adjusted
+#     #     principal_axes.append(np.array([start, end]))
 
-    return {
-        'X_train': X_train,
-        'X_test': X_test,
-        'y_train': y_train,
-        'y_test': y_test,
-        'explained_variance_ratio': explained_variance_ratio,
-        'cumulative_explained_variance': cumulative_explained_variance,
-        'X_pca': X_pca,
-        'num_components': num_components,
-        # 'principal_axes': principal_axes
-    }
+#     return {
+#         'X_train': X_train,
+#         'X_test': X_test,
+#         'y_train': y_train,
+#         'y_test': y_test,
+#         'explained_variance_ratio': explained_variance_ratio,
+#         'cumulative_explained_variance': cumulative_explained_variance,
+#         'X_pca': X_pca,
+#         'num_components': num_components,
+#         # 'principal_axes': principal_axes
+#     }
 
-# 24.07.23 김하늘 추가 pca 시각화 메서드
-def visualize_pca(pca, X, X_pca, X_new):
-    plt.scatter(X.iloc[:, 0], X.iloc[:, 1], alpha=0.2, label='Original Data')
-    plt.scatter(X_new[:, 0], X_new[:, 1], alpha=0.8, label='Reconstructed Data')
+# # 24.07.23 김하늘 추가 pca 시각화 메서드
+# def visualize_pca(pca, X, X_pca, X_new):
+#     plt.scatter(X.iloc[:, 0], X.iloc[:, 1], alpha=0.2, label='Original Data')
+#     plt.scatter(X_new[:, 0], X_new[:, 1], alpha=0.8, label='Reconstructed Data')
 
-    # 축소된 차원이 1차원인 경우 y값을 0으로 주어 시각화
-    if X_pca.shape[1] == 1:
-        plt.scatter(X_pca[:, 0], np.zeros_like(X_pca[:, 0]), alpha=0.5, label='PCA Reduced Data (1D)', c='red')
+#     # 축소된 차원이 1차원인 경우 y값을 0으로 주어 시각화
+#     if X_pca.shape[1] == 1:
+#         plt.scatter(X_pca[:, 0], np.zeros_like(X_pca[:, 0]), alpha=0.5, label='PCA Reduced Data (1D)', c='red')
 
-    plt.axis('equal')
-    plt.legend()
-    plt.title('PCA Visualization')
+#     plt.axis('equal')
+#     plt.legend()
+#     plt.title('PCA Visualization')
     
-    # 이미지 저장 및 전송
-    plt.savefig('PCA.png')
-    plt.show()
-    
-# 24.11.20 김하늘 수정 pca 외 다른 그래프도 처리 가능하도록 수정
-def visualize_to_plotly(title, graph1, graph2=None, graph3=None):
-    # 차원에 따른 그래프 데이터 처리
-    def process_trace(graph):
-        """1차원, 2차원 또는 3차원 데이터를 처리하여 Scatter/Scatter3D 트레이스 생성."""
-        key = graph.get('key', None)
-
-        if key == 'principal_axes':         # 주성분 축 데이터 처리
-            traces = []
-            for i, axis in enumerate(graph['data']):   # 각 주성분 축 반복 처리
-                dims = axis.shape[1]  # 데이터 차원 확인
-                if dims == 1:  # 1D -> 차원 축소된 값
-                    x = np.arange(1, len(axis[:, 0]) + 1)  # x 값 자동 생성
-                    y = axis[:, 0]
-                    return go.Scatter(
-                        x=x,
-                        y=y,
-                        mode='lines',
-                        name=f'{graph["name"]} {i + 1}',
-                        meta={'auto_x': False} 
-                    )
-                if dims == 2:  # 2D 주성분 축
-                    x, y = axis[:, 0], axis[:, 1]
-                    traces.append(go.Scatter(
-                        x=x,
-                        y=y,
-                        mode='lines',
-                        name=f'{graph["name"]} {i + 1}',
-                        meta={'auto_x': False}  # x값이 자동 생성된 경우를 메타정보로 추가
-                    ))
-                elif dims == 3:  # 3D 주성분 축
-                    x, y, z = axis[:, 0], axis[:, 1], axis[:, 2]
-                    traces.append(go.Scatter3d(
-                        x=x,
-                        y=y,
-                        z=z,
-                        mode='lines',
-                        name=f'{graph["name"]} {i + 1}'
-                    ))
-                else:
-                    raise ValueError(f"Unsupported dimensionality: {dims}D for principal_axes")
-
-            return traces  # 처리된 모든 주성분 축 반환       
-        
-        else:
-            dims = graph['data'].ndim  # 데이터 차원 확인
-            if dims == 1 : # 1차원 데이터
-                x = np.arange(1, len(graph['data']) + 1)  # x 값 자동 생성
-                y = graph['data']
-                return go.Scatter(
-                    x=x,
-                    y=y,
-                    mode=graph['mode'],
-                    name=graph['name'],
-                    text=graph.get('text', None),                    # hover용 text
-                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
-                    meta={'auto_x': True}  # x값이 자동 생성된 경우를 메타정보로 추가
-                )
-            if dims == 2 and graph['data'].shape[1] == 1:  # 1차원 데이터(np array) -> 차원 축소된 값
-                x = np.arange(1, len(graph['data'][:, 0]) + 1)  # x 값 자동 생성
-                y = graph['data'][:, 0]
-                return go.Scatter(
-                    x=x,
-                    y=y,
-                    mode=graph['mode'],
-                    name=graph['name'],
-                    text=graph.get('text', None),                    # hover용 text
-                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
-                    meta={'auto_x': False} 
-                )
-            elif dims == 2 and graph['data'].shape[1] == 2:  # 2차원 데이터
-                x, y = graph['data'][:, 0], graph['data'][:, 1]
-                return go.Scatter(
-                    x=x,
-                    y=y,
-                    mode=graph['mode'],
-                    name=graph['name'],
-                    text=graph.get('text', None),                    # hover용 text
-                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
-                    meta={'auto_x': False} 
-                )
-            elif dims == 2 and graph['data'].shape[1] == 3:  # 3차원 데이터
-                x, y, z = graph['data'][:, 0], graph['data'][:, 1], graph['data'][:, 2]
-                return go.Scatter3d(
-                    x=x,
-                    y=y,
-                    z=z,
-                    mode='markers',
-                    marker= dict(size=2),
-                    text=graph.get('text', None),                    # hover용 text
-                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
-                    # marker=dict(size= max(1, 10 - len(graph['data']) // 1000)),   # 데이터가 많을수록 크기 감소
-                    name=graph['name']
-            )
-            else:
-                raise ValueError(f"Unsupported data dimensionality: {dims}D")
-
-
-    # 데이터 처리
-    data = []
-    for graph in [graph1, graph2, graph3]:
-        if graph is not None:
-            traces = process_trace(graph)
-            if isinstance(traces, list):
-                data.extend(traces)  # 리스트면 풀어서 추가
-            else:
-                data.append(traces)  # 단일 객체면 그대로 추가
-
-
-    # 레이아웃 설정
-    # xaxis 설정
-    xaxis = None
-    if all(isinstance(trace, go.Scatter) for trace in data):  # 2D Scatter만 포함
-        auto_x = all(trace.meta.get('auto_x', False) for trace in data)
-        xaxis = dict(
-            title=title.get('x', ''),
-            # tickmode='linear' if auto_x else 'auto',  # x값이 자동 생성된 경우에만 linear 설정
-            tickmode='auto',  # x값이 자동 생성된 경우에만 linear 설정
-            nticks=20,  # 최대 눈금 개수 제한
-        )
-
-    layout = go.Layout(
-        title={
-            'text': title['main'], 
-            'x': 0.5,               # chart title 가운데 정렬
-            'xanchor': 'center',    # 중앙에 앵커 설정
-            'xref': 'paper',        # **그래프를 기준으로 중앙 정렬
-        },
-        autosize = True,            # 자동 크기 조정 활성화
-        # autosize=False,           # 자동 크기 조정 비활성화
-        margin = dict(l=50, r=50, t=50, b=50),  # 좌우 여백 최소화로 제목을 정확히 중앙에 위치
-        xaxis = xaxis, 
-        yaxis = dict(
-            title = title.get('y', '')
-        ) if all(isinstance(trace, go.Scatter) for trace in data) else None,
-        scene = dict(  # 3D 데이터용 레이아웃
-            xaxis_title=title.get('x', ''),
-            yaxis_title=title.get('y', ''),
-            zaxis_title=title.get('z', '')  # 3D일 경우 z축 제목 추가
-        ) if any(isinstance(trace, go.Scatter3d) for trace in data) else None,  # 3D 여부 확인
-        showlegend=True  # 강제로 범례 표시
-    )
-    
-    # figure 생성
-    fig = go.Figure(data=data, layout=layout)
-    
-    # Plotly 그래프를 HTML로 변환 (include_plotlyjs = JavaScript 라이브러리 포함 여부 설정)
-    # plotly_graph = pio.to_html(fig, full_html=False)  # 라이브러리가 설치되어 있을 때 사용
-    # cdn = 라이브러리 포함해서 보내기. 추후에는 false로 해서 내부에 라이브러리 저장하는 방식으로 해야하지 않을까
-    plotly_graph = pio.to_html(fig, full_html=False, include_plotlyjs=True, config=dict(responsive=True))
-
-    # Plotly 그래프를 HTML 파일로 저장 (필요시만 활성화)
-    # fig.write_html("D:\김하늘\위존\실무\★SF팀\★HL클레무비\개발실무\스터디\plotly_to_html.html")
-    # fig.write_html("D:\김하늘\위존\실무\★SF팀\★HL클레무비\개발실무\스터디\plotly_to_html.html", include_plotlyjs='cdn')
-    
-    return plotly_graph    
+#     # 이미지 저장 및 전송
+#     plt.savefig('PCA.png')
+#     plt.show()
+      
 
 def learning_data(context):
     items = []
@@ -332,13 +174,17 @@ def learning_data(context):
             # 24.08.08 김하늘 추가 data 불러오기(다른 메서드에서 카피)
             
             md_id = CommonUtil.try_int(gparam.get('md_id'))
-            daService = DaService('ds_model', md_id)
             num_components = gparam.get('num_components')
+
+            daService = DaService('ds_model', md_id)
             data = daService.read_table_data()
+            dp = DataProcessingService()
+            # 범주형 데이터 인코딩
+            df = dp.encode_categorical_columns(data)  # 범주형 데이터 수치형으로 인코딩
 
             # 분석에 필요한 컬럼 지정하기            
             # features = ['AP1', 'AP2', 'AP3', 'AP4', 'EC1', 'EC2', 'EC3', 'RAP1', 'RAP2', 'RAP3', 'RAP4'] # 독립변수
-            # target_column = 'alarm' # 종속변수
+            # target = 'alarm' # 종속변수
 
             # 사용자가 선택한 feature와ㅏ target
             x_vars, y_vars = daService.xy_columns()
@@ -348,12 +194,12 @@ def learning_data(context):
                     return {'success':False, 'not_enough_x_vars': True }
 
                 # 지정된 x,y가 있고, x >=2일 때만 PCA 적용 함수 호출
-                pca_result = perform_pca(data, x_vars, y_vars, num_components)
+                pca_result = dp.perform_pca(df, x_vars, y_vars, num_components)
             else:
                 return {'success':False, 'no_xy_message': True }
 
 
-            # plt 시각화를 html로 만들어주는 함수 호출
+            # pca 설명률 시각화(plotly)
             '''
                 [ 예시 ]
                 title = { 'main': 전체 그래프 제목, 'x': x축 제목, 'y': y축 제목 }
@@ -364,7 +210,7 @@ def learning_data(context):
             graph1 = {'data':pca_result['explained_variance_ratio'], 'mode':'lines+markers', 'name':'주성분별 설명 비율'}
             graph2 = {'data':pca_result['cumulative_explained_variance'], 'mode':'lines+markers', 'name':'누적 설명 비율'}
 
-            pca_plotly = visualize_to_plotly(title, graph1, graph2)
+            pca_plotly = daService.visualize_to_plotly(title, graph1, graph2)
 
             items = {'success':True, 'pca_plotly': pca_plotly, 'x_vars_len': len(x_vars) }
 
@@ -376,13 +222,15 @@ def learning_data(context):
             # X_new = pca_final.inverse_transform(X_pca)
             
             md_id = CommonUtil.try_int(gparam.get('md_id'))
-            daService = DaService('ds_model', md_id)
             num_components = CommonUtil.blank_to_none(gparam.get('num_components'))
-            data = daService.read_table_data()
 
+            daService = DaService('ds_model', md_id)
+            data = daService.read_table_data()
+            dp = DataProcessingService()
+            df = dp.encode_categorical_columns(data)  # 범주형 데이터 수치형으로 인코딩
             # # PCA 적용 및 결과 반환
             # features = ['AP1', 'AP2', 'AP3', 'AP4', 'EC1', 'EC2', 'EC3', 'RAP1', 'RAP2', 'RAP3', 'RAP4']
-            # target_column = 'alarm'
+            # target = 'alarm'
             
             # 사용자가 선택한 feature와ㅏ target
             x_vars, y_vars = daService.xy_columns()
@@ -393,7 +241,7 @@ def learning_data(context):
                     num_components = int(num_components)
 
                 # 지정된 x,y가 있을 때만 PCA 적용 함수 호출
-                pca_result = perform_pca(data, x_vars, y_vars, num_components)
+                pca_result = dp.perform_pca(df, x_vars, y_vars, num_components)
 
             else:
                 return {'success':False, 'no_xy_message': True }
@@ -405,7 +253,7 @@ def learning_data(context):
 
                 # plt 시각화를 html로 만들어주는 함수 호출
                 '''title = {'main':'그래프 제목', 'x':'x축 제목', 'y':'y축 제목'}'''
-                title = {'main': 'PCA가 적용된 그래프', 'x': 'PC1', 'y': 'PC2'}
+                title = {'main': 'PCA가 적용된 그래프', 'x': 'PC1', 'y': 'PC2', 'z': 'PC3'}
 
                 # 시각화 데이터 준비
                 scatter_data = {
@@ -415,59 +263,59 @@ def learning_data(context):
                     'mode': 'markers'
                     }
 
-                pca_plotly = visualize_to_plotly(title, scatter_data)
+                pca_plotly = daService.visualize_to_plotly(title, scatter_data)
 
-            else :
-                pca_plotly = pca_result
+            else:
+                return {'success':True, 'pca_plotly': f'시각화를 지원하지 않는 차원입니다.<br> 지정된 차원: {pca_result['num_components']}차원' }
 
             items = {'success':True, 'pca_plotly': pca_plotly}
             
 
-        # 추후 수정    
-        elif action == 'create_model':
+        # # 추후 수정    
+        # elif action == 'create_model':
         
-            # 랜덤 포레스트 모델 생성
-            rf_model = RandomForestClassifier(n_estimators=100, random_state=0)
+        #     # 랜덤 포레스트 모델 생성
+        #     rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-            # AdaBoost 앙상블 모델 생성
-            model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=0)
-            pca_model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=0)
+        #     # AdaBoost 앙상블 모델 생성
+        #     model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=42)
+        #     pca_model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=42)
             
-            # 모델 훈련(비교)
-            model.fit(X_train, y_train)     # 기본 모델     
-            pca_model.fit(X_pca, y_train)   # PCA 적용 모델
+        #     # 모델 훈련(비교)
+        #     model.fit(X_train, y_train)     # 기본 모델     
+        #     pca_model.fit(X_pca, y_train)   # PCA 적용 모델
 
-            # 테스트 데이터에 대한 예측
-            predictions = model.predict(X_test) # 기본 모델 예측
-            pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
-            pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
+        #     # 테스트 데이터에 대한 예측
+        #     predictions = model.predict(X_test) # 기본 모델 예측
+        #     pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
+        #     pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
             
-            # 예측 결과의 정확도 평가
-            accuracy = metrics.accuracy_score(y_test, predictions)
-            print(f'기본모델 test Accuracy: {accuracy:.2f}')
-            pca_accuracy = metrics.accuracy_score(y_test, pca_predictions)
-            print(f'PCA모델 test Accuracy: {pca_accuracy:.2f}')
+        #     # 예측 결과의 정확도 평가
+        #     accuracy = metrics.accuracy_score(y_test, predictions)
+        #     print(f'기본모델 test Accuracy: {accuracy:.2f}')
+        #     pca_accuracy = metrics.accuracy_score(y_test, pca_predictions)
+        #     print(f'PCA모델 test Accuracy: {pca_accuracy:.2f}')
 
 
-            # 실제 데이터 예측
-            # 미래 5분 후의 알람값 예측을 위해 마지막 30개의 관측치 준비
-            future_data = X[-30:]
+        #     # 실제 데이터 예측
+        #     # 미래 5분 후의 알람값 예측을 위해 마지막 30개의 관측치 준비
+        #     future_data = X[-30:]
 
-            # 미래 값 예측
-            future_predictions = model.predict(future_data)         # 기본모델
-            pca_future_data = pca_final.transform(future_data)      # 관측데이터 PCA 적용
-            pca_future_predictions = pca_model.predict(pca_future_data) # PCA 모델 예측
+        #     # 미래 값 예측
+        #     future_predictions = model.predict(future_data)         # 기본모델
+        #     pca_future_data = pca_final.transform(future_data)      # 관측데이터 PCA 적용
+        #     pca_future_predictions = pca_model.predict(pca_future_data) # PCA 모델 예측
 
-            # # 예측 결과 출력
-            # for i, prediction in enumerate(future_predictions, 1):
-            #     print(f'기본모델: 5분 후 알람값 예측 {i*10}초: {prediction}')
+        #     # # 예측 결과 출력
+        #     # for i, prediction in enumerate(future_predictions, 1):
+        #     #     print(f'기본모델: 5분 후 알람값 예측 {i*10}초: {prediction}')
             
-            # 예측 결과 출력
-            for i, (basic_pred, pca_pred, real_alarm) in enumerate(zip(future_predictions, pca_future_predictions, y[-30:]), 1):
-                print(f'5분 후 알람값 예측 {i*10}초:\n --> 기본모델: {basic_pred}   /   PCA적용모델: {pca_pred}   /   실제 alarm 값: {real_alarm}')
+        #     # 예측 결과 출력
+        #     for i, (basic_pred, pca_pred, real_alarm) in enumerate(zip(future_predictions, pca_future_predictions, y[-30:]), 1):
+        #         print(f'5분 후 알람값 예측 {i*10}초:\n --> 기본모델: {basic_pred}   /   PCA적용모델: {pca_pred}   /   실제 alarm 값: {real_alarm}')
 
-            # 훈련 및 예측이 완료되면 결과값 서버에 전달
-            items = {'success':True}
+        #     # 훈련 및 예측이 완료되면 결과값 서버에 전달
+        #     items = {'success':True}
             
             
         ''' 데이터파일저장 : save_ds_model
@@ -499,8 +347,10 @@ def learning_data(context):
         '''
         # 25.02.10 김하늘 추가
         if action == "ds_model_tree_list":
+            equ_id = gparam.get('equ_id')
             master_type = gparam.get('master_type')
             keyword = gparam.get('keyword')
+            islearn = gparam.get('islearn')
 
             sql = '''
             WITH A AS (
@@ -553,6 +403,11 @@ def learning_data(context):
                 LEFT OUTER JOIN equ e ON e.id = mm."Equipment_id"
                 WHERE 1=1
                 '''
+            if equ_id:
+                sql += '''
+                AND e.id = %(equ_id)s
+                '''
+
             if master_type:
                 sql += '''
                 AND UPPER(mm."Type") = UPPER(%(master_type)s)
@@ -568,7 +423,8 @@ def learning_data(context):
                     md."DsMaster_id" AS master_id,
                     md.id AS model_id,
                     CAST(NULL AS INTEGER) AS train_id,  -- 자료형 맞춤
-                    CAST(NULL AS INTEGER) AS equip_id,
+                    --CAST(NULL AS INTEGER) AS equip_id, --modified by choi : 2025/08/08 equip_id가 있어야 함
+                    mm."Equipment_id" AS equip_id,
                     NULL AS equip_name,
                     md."Name" AS name,
                     COALESCE(tdt."Name", md."Type") AS type,  -- 분석유형 한글명
@@ -675,14 +531,138 @@ def learning_data(context):
             UNION ALL
             SELECT * FROM Train
 
-            ORDER BY tree_master_id NULLS FIRST, name ASC;
+            ORDER BY tree_master_id NULLS FIRST, equip_id, model_id, name, ver;
+            '''
+
+            #modified by choi : 2025/08/08
+            #                 : 쿼리가 복잡해 recursive쿼리로 바꿈. 
+            #                 : like검색 뺌. like검색할 일이 없을 듯. 구조상 키워드 검색 안하는게 좋음
+            
+            sql2 = '''  
+            WITH RECURSIVE tree AS (
+                -- 비재귀 term: train 있는 master만
+                SELECT 
+    	            '마스터' AS node_type,
+                    CONCAT('MM_', m.id) AS tree_id,
+                    NULL::text AS tree_master_id,
+                    m.id as master_id,
+                    NULL::int AS model_id,
+	                NULL::int AS train_id,
+	                e.id AS equip_id,
+	                e."Name"::text AS equip_name,
+	                m."Name"::text AS name,          
+	                m."Type"::text AS type,          
+	                NULL::text AS ver,               
+	                NULL::text AS description,       
+	                m."_created" AS _created,
+                    NULL::bigint  AS var_count,  -- 자료형 맞춤
+                    NULL::text AS file_name,
+                    1 AS level
+                FROM ds_master m
+    	            LEFT OUTER JOIN equ e ON e.id = m."Equipment_id"
+                WHERE 1=1
+                '''
+            if islearn == 'Y':
+                sql2 += '''
+                AND EXISTS (
+                    SELECT 1
+                    FROM ds_model mo
+                    JOIN ds_model_train mt ON mo.id = mt."DsModel_id"
+                    WHERE mo."DsMaster_id" = m.id
+                )
+                '''
+            if equ_id:
+                sql2 += '''
+                AND e.id = %(equ_id)s
+                '''
+            if master_type:
+                sql2 += '''
+                AND UPPER(m."Type") = UPPER(%(master_type)s)
+                '''
+            sql2 += '''
+                UNION ALL
+
+                -- 재귀 term: model과 train 모두 확장
+                SELECT 
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN '모델데이터' ELSE '학습정보'
+                    END AS node_type,
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN CONCAT('MD_', md.id)     -- model 단계
+                        ELSE CONCAT('MT_', mt.id)                            -- train 단계
+                    END AS tree_id,
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN CONCAT('MM_', md."DsMaster_id") -- model의 부모는 master
+                        ELSE CONCAT('MD_', mt."DsModel_id")                      -- train의 부모는 model
+                    END AS tree_master_id,        
+                    --master_id
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md."DsMaster_id" 
+                        ELSE md."DsMaster_id"                         
+                    END AS master_id,
+                    --model_id
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md.id
+                        ELSE mt."DsModel_id"                       
+                    END AS model_id,
+                    --train_id
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN NULL
+                        ELSE mt.id                       
+                    END AS train_id,        
+                    t.equip_id as equip_id,
+                    t.equip_name as equip_name,      
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md."Name"
+                        ELSE CONCAT('[', COALESCE(ts."Name", mt."TrainStatus"), '] ', mt."AlgorithmType")
+                    END AS name,        
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md."Type"
+                        ELSE COALESCE(tt."Name", mt."TaskType")
+                    END AS type,
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md."DataVersion"
+                        ELSE mt."Version"
+                    END AS ver,
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md."Name"
+                        ELSE mt."Description"
+                    END AS description,      
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN md."_created"
+                        ELSE mt."_created"
+                    END AS _created,     
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN (select count(*) from ds_model_col mc where mc."DsModel_id" = md.id) 
+                        ELSE (select COUNT(*) FILTER (WHERE mc."X" = 1 OR mc."Y" = 1) from ds_model_col mc where mc."DsModel_id" = md.id) 
+                    END AS var_count,   
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN (select MAX(af."FileName") from attach_file af where af."TableName" = 'ds_model' and af."DataPk" = md.id)
+                        else NULL
+                    END AS file_name, 
+                    CASE 
+                        WHEN md.id IS NOT NULL THEN 2 ELSE 3
+                    END AS level
+                FROM tree t
+    	            LEFT JOIN ds_model md ON CONCAT('MM_',md."DsMaster_id") = t.tree_id AND t.node_type = '마스터'
+	                LEFT JOIN ds_model_train mt ON CONCAT('MD_',mt."DsModel_id") = t.tree_id AND t.node_type = '모델데이터'
+		            LEFT JOIN code ts ON ts."CodeGroupCode" = 'TRAINING_STATUS'
+	                    AND ts."Code" = mt."TrainStatus"
+	                LEFT JOIN code tt ON tt."CodeGroupCode" = 'TASK_TYPE'
+	                    AND tt."Code" = mt."TaskType"
+                WHERE md.id IS NOT NULL OR mt.id IS NOT NULL
+            )
+            SELECT * --repeat('      ', level-1) || name AS tree_view, *
+            FROM tree
+            ORDER BY equip_id,model_id,name,ver;
             '''
 
             dc = {}
+            dc['equ_id'] = equ_id
             dc['master_type'] = master_type
             dc['keyword'] = keyword
         
-            items = DbUtil.get_rows(sql, dc)  
+            items = DbUtil.get_rows(sql2, dc)  
 
         if action == 'integrated_tag_list':
             mm_id = CommonUtil.try_int(gparam.get('mm_id'))
@@ -761,8 +741,10 @@ def learning_data(context):
   	                    eri.test_item_cd AS var_code,
   	                    '테스트 항목 코드' || ROW_NUMBER() OVER (ORDER BY eri.test_item_cd) AS var_name
                     FROM if_equ_result_item eri 
-                    LEFT JOIN if_equ_result er ON er.id = eri.rst_id 
+                    INNER JOIN if_equ_result er ON er.id = eri.rst_id 
                     WHERE er.equ_cd = (SELECT equ."Code" FROM equ WHERE equ.id = %(equ_id)s)
+                    	AND eri.test_item_cd IS NOT NULL 
+	                    AND eri.test_item_cd NOT LIKE '%%null%%'
                     GROUP BY test_item_cd
                 ),
                 QMS as (
@@ -817,6 +799,20 @@ def learning_data(context):
 
                 dc = {}
                 dc['equ_id'] = equ_id
+
+                # modified by choi : 2025/08/05
+                #                  : total_tag라는 테이블을 만들고 최신 tag를 넣었음. 주기적으로 최신 master를 갱신해 주어야 함(배치프로그램에 넣을 것)
+                #                  : total_tag에 고유 아이디를 만들려고 했는데 그러면 관련된 테이블에 영향을 주어 고유 아이디는 안하기로 함             
+                sql = '''
+                select 
+                    data_source
+                    , table_name
+		            , var_code
+		            , var_name
+                from total_tag tt
+                where tt.equ_id = %(equ_id)s	
+                   or tt.equ_id is null
+                ''';
         
                 items = DbUtil.get_rows(sql, dc) 
             else:
@@ -1146,17 +1142,195 @@ def learning_data(context):
             ;
             '''
 
+            # delted by choi : 2025/08/05
+            #                : 일단 주석처리
+            # dc = {}
+            # dc['md_id'] = md_id
+            # dc['equ_id'] = equ_id
+            # dc['equ_id'] = startDt
+            # dc['equ_id'] = endDt
+            # row = DbUtil.get_row(sql, dc)
+
+            # daService = DaService('ds_model', md_id)
+            # df = daService.read_table_data()
+            # daService.make_col_info(df)
+
+            #added by choi : 2025/08/07
+            #              : 패턴별로 데이터를 찾아 입력한다
+
+            #이미 생성된 데이터는 삭제한다, 만약 train데이터가 있으면 그것도 삭제해야 될 것 같음
+            sql = '''
+                delete from ai.ds_model_data where "DsModel_id" = %(md_id)s
+            '''
+            dc = {}
+            dc['md_id'] = md_id
+            ret = DbUtil.execute(sql, dc)
+
+
+            #이미 생성해둔 모델변수를 가져온다
+            sql = '''
+                select dmc.id,dmc."VarName",dmc."Source", dm.*
+                from ds_model_col dmc
+                  inner join ds_model dm on dm.id = dmc."DsModel_id"
+                  inner join ds_master m on m.id = dm."DsMaster_id"
+                where m."Equipment_id" = %(equ_id)s and dm.id =%(md_id)s
+                ;
+            '''
             dc = {}
             dc['md_id'] = md_id
             dc['equ_id'] = equ_id
-            dc['equ_id'] = startDt
-            dc['equ_id'] = endDt
-            row = DbUtil.get_row(sql, dc)
+            rows = DbUtil.get_rows(sql, dc)
 
-            daService = DaService('ds_model', md_id)
-            df = daService.read_table_data()
-            daService.make_col_info(df)
+            # row의 VarName을 하나씩 보면서 데이터를 insert해준다
+            for row in rows:
+                varName = row['VarName'];
+                source = row['Source'];
+                if source == "MES": 
+                    if varName == "id":             
+                        sql = ''' 
+                        INSERT INTO ai.ds_model_data ("RowIndex","Code", "Char1", "DsModel_id", _created)
+			            select id, 'id', id, %(md_id)s as model_id, now() 
+                        from if_equ_result ier 
+                            inner join equ on equ."Code" = ier.equ_cd
+                        where 1 =  1 
+                            and equ.id = %(equ_id)s
+                            and ier.data_date between CAST(%(startDt)s AS TIMESTAMP) and CAST(%(endDt)s AS TIMESTAMP)
+                        '''
+                    elif varName == "mat_cd":
+                        sql = ''' 
+                        INSERT INTO ai.ds_model_data ("RowIndex","Code", "Char1", "DsModel_id", _created)
+			            select id, 'mat_cd', mat_cd, %(md_id)s as model_id, now() 
+                        from if_equ_result ier 
+                            inner join equ on equ."Code" = ier.equ_cd
+                        where 1 =  1 
+                            and equ.id = %(equ_id)s
+                            and ier.data_date between CAST(%(startDt)s AS TIMESTAMP) and CAST(%(endDt)s AS TIMESTAMP)
+                        '''
+                    elif varName == "bom_ver":
+                        sql = ''' 
+                        '''
+                    elif varName == "data_date":
+                        sql = ''' 
+                        INSERT INTO ai.ds_model_data ("RowIndex","Code", "Char1", "DsModel_id", _created)
+			            select id, 'data_date', data_date, %(md_id)s as model_id, now() 
+                        from if_equ_result ier 
+                            inner join equ on equ."Code" = ier.equ_cd
+                        where 1 =  1 
+                            and equ.id = %(equ_id)s
+                            and ier.data_date between CAST(%(startDt)s AS TIMESTAMP) and CAST(%(endDt)s AS TIMESTAMP)
+                        '''
+                        
+                    elif varName == "state":
+                        sql = ''' 
+                        INSERT INTO ai.ds_model_data ("RowIndex","Code", "Char1", "DsModel_id", _created)
+			            select ier.id, 'state', state, %(md_id)s as model_id, now() 
+                        from if_equ_result ier 
+                            inner join equ on equ."Code" = ier.equ_cd
+                        where 1 =  1 
+                            and equ.id = %(equ_id)s
+                            and ier.data_date between CAST(%(startDt)s AS TIMESTAMP) and CAST(%(endDt)s AS TIMESTAMP)
+                        '''
 
+                    dc = {}
+                    dc['md_id'] = md_id
+                    dc['equ_id'] = equ_id
+                    dc['startDt'] = startDt
+                    dc['endDt'] = endDt
+                    ret = DbUtil.execute(sql, dc)
+                elif source == "MES_ITEM":
+                    sql = ''' 
+                    INSERT INTO ai.ds_model_data ("RowIndex","Code", "Char1", "DsModel_id", _created)
+                    select 
+	                    er.id as rst_id
+	                    , ieri. test_item_cd
+	                    , ieri.test_item_val
+	                    , %(md_id)s as model_id, now() 
+                    from if_equ_result er  
+	                    inner join if_equ_result_item ieri  on er.id = ieri.rst_id
+	                    inner join equ e on e."Code" = er.equ_cd
+                    where 1=1
+                        and e.id = %(equ_id)s
+                        and ieri.test_item_cd = %(varName)s
+                        and er.data_date between CAST(%(startDt)s AS TIMESTAMP) and CAST(%(endDt)s AS TIMESTAMP)
+                    '''
+                    dc = {}
+                    dc['md_id'] = md_id
+                    dc['equ_id'] = equ_id
+                    dc['varName'] = varName
+                    dc['startDt'] = startDt
+                    dc['endDt'] = endDt
+                    ret = DbUtil.execute(sql, dc)
+                  
+                elif source == "PLC":
+
+                    tag_code = row['VarName']
+                    sql = '''
+                    WITH tag AS (
+	                    SELECT tag_code
+	                    FROM public.tag t
+	                    WHERE t."Equipment_id" = %(equ_id)s
+		                    and t.tag_group_id = 8
+                            and t.tag_code = %(tag_code)s
+                    )
+                    , mes AS (
+	                    SELECT
+		                    ier.id AS rst_id,
+		                    mat_cd,
+		                    state,
+		                    ier._created AS mes_date
+		                    , LAG(ier._created) OVER (partition BY ier.mat_cd order by ier._created ASC) AS pre_date
+		                    , ier._created - LAG(ier._created) OVER (partition BY ier.mat_cd order by ier._created ASC) as diff
+	                    FROM public.if_equ_result ier
+	                    inner join equ e on e."Code" = ier.equ_cd and e.id = %(equ_id)s
+	                    WHERE ier._created BETWEEN  CAST(%(startDt)s AS TIMESTAMP) and CAST(%(endDt)s AS TIMESTAMP)
+                    )
+                    , new_mes as MATERIALIZED(
+	                    select	m.rst_id
+			                    , m.mat_cd
+			                    , m.state
+			                    , m.mes_date
+			                    , m.pre_date
+			                    , diff
+			                    , tag.tag_code
+	                    from 	mes m
+	                       cross join tag 
+	                    where 1 =1 
+	                      and pre_date is not null  -- pre_date가 없는 것은 제외해도 무방할 듯 함, 빼도 큰 영향이 없음
+	                      and diff < INTERVAL '10 minutes'   -- 10분 이하일 때만
+                    )
+                    --select * from new_mes;
+                    INSERT INTO ai.ds_model_data ("RowIndex","Code", "Char1", "DsModel_id", _created)
+	                SELECT
+		                new_mes.rst_id,
+		                new_mes.tag_code, 
+		                (select avg(data_value) from das.tag_dat td where td.tag_code = new_mes.tag_code and td.data_date BETWEEN new_mes.pre_date AND new_mes.mes_date),
+                        %(md_id)s as model_id, now() 
+	                FROM new_mes
+                    '''
+                    dc = {}
+                    dc['md_id'] = md_id
+                    dc['equ_id'] = equ_id
+                    dc['tag_code'] = tag_code
+                    dc['startDt'] = startDt
+                    dc['endDt'] = endDt
+
+                    ret = DbUtil.execute(sql, dc)    
+
+
+                elif source == "EM":
+                    sql = ''' 
+                        '''
+                elif source == "QMS":
+                    sql = ''' 
+                        '''
+                elif source == "Viscosity":
+                    sql = ''' 
+                        '''
+                elif source == "Tention":
+                    sql = ''' 
+                        '''
+                
+            
             items = {'success': True, 'message':''}
 
 
@@ -1386,7 +1560,7 @@ def learning_data(context):
         elif action == 'ds_numcol_boxhist':
             ''' 수치형 데이터에 대해서 히스토그램, 상자수염그림 그리기
             '''
-            import matplotlib.pyplot as plt
+            # import matplotlib.pyplot as plt
             #from matplotlib.figure import Figure
 
             md_id = CommonUtil.try_int(gparam.get('md_id'))
@@ -1433,7 +1607,7 @@ def learning_data(context):
         elif action == 'ds_col_count_plot':
             ''' 범주형 히스토그램
             '''
-            import matplotlib.pyplot as plt
+            # import matplotlib.pyplot as plt
             import seaborn as sns
             #from matplotlib.figure import Figure
 
@@ -1482,7 +1656,7 @@ def learning_data(context):
         elif action == 'ds_heatmap':
             ''' 상관관계 히트맵
             '''
-            import matplotlib.pyplot as plt
+            # import matplotlib.pyplot as plt
             import seaborn as sns
             #from matplotlib.figure import Figure
 
@@ -1490,16 +1664,15 @@ def learning_data(context):
             daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
 
-            #num_df = df.select_dtypes(include=['int64','float64'])
-
-            # corr() 실행 전 숫자형 컬럼만 선택
-            df_numeric = df.select_dtypes(include=['number'])
+            # 25.08.19 김하늘 수정 - 범주형 컬럼도 인코딩 하여 히트맵에 추가
+            df_numeric = daService.encode_categorical_columns(df)
+            # df_numeric = df.select_dtypes(include=['number']) # corr() 실행 전 숫자형 컬럼만 선택
+            # num_df = df.select_dtypes(include=['int64','float64'])
             corr_df = df_numeric.corr()
-            # corr_df = df.corr()
-
+ 
             # seaborn을 사용하여 heatmap 출력
-            fig = plt.figure(figsize=(15,10))
-            # fig = plt.figure(figsize=(15,10), tight_layout=True)
+            fig = plt.figure(figsize=(16,12), tight_layout=True)
+            # fig = plt.figure(figsize=(15,10))
             sns.heatmap(corr_df, annot=True, cmap='PuBu')
             #fig = Figure()
            
@@ -1519,11 +1692,13 @@ def learning_data(context):
 
             daService = DaService('ds_model', md_id)
             df = daService.read_table_data()
+            dp = DataProcessingService()
 
+            # 사용자가 선택한 X, Y 컬럼
             x_cols = []
             y_cols = []
-            non_numeric_x_cols = []  # 수치형이 아닌 X 변수 리스트
-            non_numeric_y_cols = []  # 수치형이 아닌 Y 변수 리스트
+            # non_numeric_x_cols = []  # 수치형이 아닌 X 변수 리스트
+            # non_numeric_y_cols = []  # 수치형이 아닌 Y 변수 리스트
 
             for item in Q:
                 q = DsModelColumn.objects.filter(DsModel_id=md_id)
@@ -1538,62 +1713,68 @@ def learning_data(context):
                 if item['Y']:
                    y_cols.append(item['VarName'])
 
-            items = { 'success': True }
+            # items = { 'success': True }
+
+            # 범주형 컬럼 인코딩
+            df = dp.encode_categorical_columns(df)
 
             simplelinear = LinearRegression()
             multilinear = LinearRegression()
 
-            #corr = df[x_cols + y_cols].corr()
+            # #corr = df[x_cols + y_cols].corr()
 
-            # 25.03.07 김하늘 추가
-            # df에서 수치형 컬럼만 선택 (casting 오류 방지)
-            df_numeric = df.select_dtypes(include=[np.number])
+            # # 25.03.07 김하늘 추가
+            # # df에서 수치형 컬럼만 선택 (casting 오류 방지)
+            # df_numeric = df.select_dtypes(include=[np.number])
 
-            # x_cols와 y_cols에서 수치형 컬럼만 유지
-            valid_x_cols = []
-            for col in x_cols:
-                if col in df_numeric.columns:
-                    valid_x_cols.append(col)
-                else:
-                    non_numeric_x_cols.append(col)
-                    # DsModelColumn에서 X 값을 0으로 변경
-                    q = DsModelColumn.objects.filter(DsModel_id=md_id, VarName=col)
-                    if q.exists():
-                        dc = q.first()
-                        dc.X = 0  # 수치형이 아니므로 X 값 초기화
-                        dc.save()
+            # # x_cols와 y_cols에서 수치형 컬럼만 유지
+            # valid_x_cols = []
+            # for col in x_cols:
+            #     if col in df_numeric.columns:
+            #         valid_x_cols.append(col)
+            #     else:
+            #         non_numeric_x_cols.append(col)
+            #         # DsModelColumn에서 X 값을 0으로 변경
+            #         q = DsModelColumn.objects.filter(DsModel_id=md_id, VarName=col)
+            #         if q.exists():
+            #             dc = q.first()
+            #             dc.X = 0  # 수치형이 아니므로 X 값 초기화
+            #             dc.save()
 
-            x_cols = valid_x_cols
+            # x_cols = valid_x_cols
 
-            valid_y_cols = []
-            for col in y_cols:
-                if col in df_numeric.columns:
-                    valid_y_cols.append(col)
-                else:
-                    non_numeric_y_cols.append(col)
-                    # DsModelColumn에서 Y 값을 0으로 변경
-                    q = DsModelColumn.objects.filter(DsModel_id=md_id, VarName=col)
-                    if q.exists():
-                        dc = q.first()
-                        dc.Y = 0  # 수치형이 아니므로 Y 값 초기화
-                        dc.save()
+            # valid_y_cols = []
+            # for col in y_cols:
+            #     if col in df_numeric.columns:
+            #         valid_y_cols.append(col)
+            #     else:
+            #         non_numeric_y_cols.append(col)
+            #         # DsModelColumn에서 Y 값을 0으로 변경
+            #         q = DsModelColumn.objects.filter(DsModel_id=md_id, VarName=col)
+            #         if q.exists():
+            #             dc = q.first()
+            #             dc.Y = 0  # 수치형이 아니므로 Y 값 초기화
+            #             dc.save()
 
-            y_cols = valid_y_cols
-            # y_cols = [col for col in y_cols if col in df_numeric.columns]
+            # y_cols = valid_y_cols
+            # # y_cols = [col for col in y_cols if col in df_numeric.columns]
 
-            # 수치형이 아닌 변수 메시지 생성
-            if non_numeric_x_cols or non_numeric_y_cols:
-                items['message'] = {}
-                if non_numeric_x_cols:
-                    items['message']['non_numeric_x'] = non_numeric_x_cols
-                if non_numeric_y_cols:
-                    items['message']['non_numeric_y'] = non_numeric_y_cols
+            # # 수치형이 아닌 변수 메시지 생성
+            # if non_numeric_x_cols or non_numeric_y_cols:
+            #     items['message'] = {}
+            #     if non_numeric_x_cols:
+            #         items['message']['non_numeric_x'] = non_numeric_x_cols
+            #     if non_numeric_y_cols:
+            #         items['message']['non_numeric_y'] = non_numeric_y_cols
 
-            # if non_numeric_x_cols:
-                # items['message'] = non_numeric_x_cols
+            # # if non_numeric_x_cols:
+            #     # items['message'] = non_numeric_x_cols
 
             q = DsTagCorrelation.objects.filter(DsModel_id=md_id)
             q.delete()
+
+            # 수치형 여부와 관계없이 사용자가 선택한 컬럼을 유지
+            df_filtered = df.dropna(subset=x_cols + y_cols)
 
             for y in y_cols:
 
@@ -1606,7 +1787,7 @@ def learning_data(context):
                 #     df[x] = pd.to_numeric(df[x], errors='coerce')
 
                 # NaN이 포함된 행 제거
-                df_filtered = df.dropna(subset=[y] + x_cols) # 불필요한 데이터 복사x 메모리 효율이 올라감
+                # df_filtered = df.dropna(subset=[y] + x_cols) # 불필요한 데이터 복사x 메모리 효율이 올라감
                 #df_filtered = df[[y] + x_cols].dropna()
 
                 # 다중 선형 회귀 모델 학습
@@ -1625,12 +1806,24 @@ def learning_data(context):
                 if beta_i_list.ndim > 1:
                     beta_i_list = beta_i_list.flatten()
 
+                # (보류_DB수정 필요) 25.08.20 김하늘 추가 다중회귀식 저장 (UI용 표시: 계수*x1(컬럼명) … + intercept)
+                # terms = [f"{beta_i_list[i]:+.4f}x{i+1}({x})" for i, x in enumerate(x_cols)]
+                # multi_equ = "y = " + " ".join(terms) + f" {beta_0:+.4f}"
+
+                # cr = DsTagCorrelation()
+                # cr.DsModel_id = md_id
+                # cr.YVarName = y
+                # cr.XVarName = 'multi_equ'          # 구분용 키
+                # cr.RegressionEquation = multi_equ   # 다중회귀 전체 식
+                # cr.MultiLinearCoef = None
+                # cr.save()
+
+                # 절편 저장
                 cr = DsTagCorrelation()
                 cr.DsModel_id = md_id
                 cr.YVarName = y
                 cr.XVarName = 'intercept_'
-                cr.MultiLinearCoef = beta_0  # ✅ PostgreSQL FLOAT8에 적합한 변환
-                # cr.MultiLinearCoef = beta_0
+                cr.MultiLinearCoef = beta_0  # 절편(intercept_)의 경우 기울기 필드에 절편 값 저장
                 cr.save()
 
                 for i, x in enumerate(x_cols):
@@ -1638,11 +1831,13 @@ def learning_data(context):
                     cr.DsModel_id = md_id
                     cr.XVarName = x
                     cr.YVarName = y
-                    cr.MultiLinearCoef =float(beta_i_list[i]) # np.array → float 변환
-                    # cr.MultiLinearCoef =float(beta_i_list[i]) # np.array → float 변환
+                    cr.MultiLinearCoef =float(beta_i_list[i]) # 독립변수를 돌면서 기울기 저장(np.array -> float 변환)
 
                     try:
                         corr = df_filtered[x].corr(df_filtered[y])
+                        if len(df_filtered[x].unique()) < 2:
+                            # 변수의 데이터가 모두 동일한 경우(하나의 값) 상관계수 계산 불가
+                            corr = None
                     except Exception as e:
                         print(f"상관계수 계산 오류 (X: {x}, Y: {y}): {e}")
                         corr = None
@@ -1652,7 +1847,7 @@ def learning_data(context):
                     #if corr and (corr > 0.5 or 1==1):  #0.5
                     if True:  #0.5
                         try:
-                            # X == Y 체크 (여기서 미리 걸러야 함)
+                            # X == Y 체크 (x랑 y가 둘 다 체크된 경우. 여기서 미리 걸러야 함)
                             if x == y:
                                 print(f"X == Y (X: {y}, Y: {y}) → 단순 회귀 분석을 수행하지 않음.")
                                 continue  # 다음 Y 변수로 넘어감
@@ -1665,12 +1860,14 @@ def learning_data(context):
                             # beta_1 = simplelinear.coef_.flatten()[0]  # coef_는 배열이므로 item만 빼서 가져옴
                             # beta_1 = simplelinear.coef_ 
 
-                            equ = f"y = {beta_1}*x + {beta_0}"  # f-string 사용하여 가독성 향상
-                            # equ = 'y = ' + str(beta_1) + '*x +' + str(beta_0)
+                            equ = f"y = {beta_1:+.4f}x {beta_0:+.4f}"  # f-string 사용하여 가독성 향상
+                            # equ = f"y = {beta_1}*x + {beta_0}"  # f-string 사용하여 가독성 향상
                             cr.RegressionEquation = equ
                         except Exception as e:
                             print(f"단순 선형 회귀 오류 (X: {x}, Y: {y}): {e}")
                     cr.save()
+
+            items = { 'success': True }
 
             return items
 
@@ -1725,11 +1922,12 @@ def learning_data(context):
 
         elif action == 'ds_var_corr_sheet':
             ''' 상관계수 조회
-                가로축 : x1, x2
+                가로축 : x1, x2, ...
                 세로축 : y변수
-                cell 1: r 값.
-                cell 2: 다중회귀식
-
+                cell 1: r값(상관계수)
+                cell 2: 단일회귀식
+                cell 3: 다중회귀식 계수
+                cell 4: 다중회귀식
             '''
             # md_id = gparam.get('md_id')
             md_id = CommonUtil.try_int(gparam.get('md_id'))
@@ -1757,16 +1955,17 @@ def learning_data(context):
                 , NULL::NUMERIC AS intercept_ '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
+                # 25.08.20 김하늘 수정: r 값을 항상 소수점 6자리로 표시(기존: r값 그대로 text 캐스팅)
+                sql += ''' 
+                ,MIN(CASE 
+                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                    THEN to_char(tc.r, 'FM999990.000000')
+                    END) AS col_''' + str(i+1)
                 # sql += ''' 
                 # ,MIN(CASE 
                 #     WHEN tc."XVarName" = \'''' + var_name + '''\' 
                 #     THEN tc.r 
-                #     END)::TEXT AS x''' + str(i+1)
-                sql += ''' 
-                ,MIN(CASE 
-                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
-                    THEN tc.r 
-                    END)::TEXT AS col_''' + str(i+1)
+                #     END)::TEXT AS col_''' + str(i+1)
             sql += ''' 
             FROM ds_tag_corr tc 
             WHERE tc."DsModel_id" = %(md_id)s
@@ -1779,11 +1978,6 @@ def learning_data(context):
                 , NULL::NUMERIC AS intercept_ '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
-                # sql += ''' 
-                # ,MIN(CASE 
-                #     WHEN tc."XVarName" = \'''' + var_name + '''\' 
-                #     THEN tc."RegressionEquation" 
-                #     END) AS x''' + str(i+1)
                 sql += ''' 
                 ,MIN(CASE 
                     WHEN tc."XVarName" = \'''' + var_name + '''\' 
@@ -1800,20 +1994,46 @@ def learning_data(context):
                 , '다중회귀식계수' AS data_type
             , MIN(CASE 
                 WHEN tc."XVarName" = 'intercept_' 
-                THEN tc."MultiLinearCoef" 
+                -- 수정: 절편도 항상 소수점 6자리로 표시
+               THEN ROUND(tc."MultiLinearCoef"::NUMERIC, 6)
+                -- 원래: 절편 그대로 Numeric
+                -- THEN tc."MultiLinearCoef" 
                 end) AS intercept_ '''
             for i, x in enumerate(xrows):
                 var_name = x['VarName']
+                # 25.08.20 김하늘 수정: coef도 항상 소수점 6자리로 표시
+                sql += ''' 
+                ,MIN(CASE 
+                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
+                    THEN to_char(tc."MultiLinearCoef", 'FM999990.000000')
+                    END) AS col_''' + str(i+1)
                 # sql += ''' 
                 # ,MIN(CASE 
                 #     WHEN tc."XVarName" = \'''' + var_name + '''\' 
                 #     THEN tc."MultiLinearCoef" 
-                #     END)::TEXT AS x''' + str(i+1)
-                sql += ''' 
-                ,MIN(CASE 
-                    WHEN tc."XVarName" = \'''' + var_name + '''\' 
-                    THEN tc."MultiLinearCoef" 
-                    END)::TEXT AS col_''' + str(i+1)
+                #     END)::TEXT AS col_''' + str(i+1)
+            sql += '''
+            FROM ds_tag_corr tc 
+            WHERE tc."DsModel_id" = %(md_id)s
+            GROUP BY tc."YVarName" 
+            UNION ALL
+            -- 25.08.20 김하늘 추가: 다중회귀식(XVarName='multi_equ'에 저장된 수식)
+            SELECT 
+                tc."YVarName"
+                , 4 AS grp_idx
+                , '다중회귀식' AS data_type
+                , NULL::NUMERIC AS intercept_ '''
+            for i, x in enumerate(xrows):
+                # multi_equ(다중회귀식)을 col_1에 넣어주고 나머지 컬럼은 NULL로 채워주기
+                if i == 0:
+                    sql += ''' 
+                    , MIN(CASE 
+                        WHEN tc."XVarName" = 'multi_equ' 
+                        THEN tc."RegressionEquation" 
+                        END) AS col_''' + str(i+1)
+                else:
+                    sql += ''' 
+                    , NULL::TEXT AS col_''' + str(i+1)
             sql += '''
             FROM ds_tag_corr tc 
             WHERE tc."DsModel_id" = %(md_id)s
@@ -1881,40 +2101,43 @@ def learning_data(context):
             # 설정에 필요한 멤버들
             task_type = posparam.get('TaskType')
             algorithm_type = posparam.get('AlgorithmType')
-            description = posparam.get('Description')
+            description = posparam.get('train_desc')
             # version = posparam.get('Version')
 
             # 기존 정보를 수정할 건지 여부(mt_id가 있고 모델 학습이 시작되기 전일 때)
-            # is_editable = mt_id and q.filter(id=mt_id).exists()
             is_editable = (
                 mt_id and
                 # q.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
                 DsModelTrain.objects.filter(id=mt_id, TrainStatus__in=['INITIALIZED', 'FAILED']).exists()
-                # DsModelTrain.objects.filter(id=mt_id, TrainStatus='INITIALIZED').exists()
             )
             is_new = not is_editable
 
+            q = DsModelTrain.objects.filter(
+                DsModel_id=md_id,
+                TaskType=task_type,
+                AlgorithmType=algorithm_type
+            )
+            latest = q.order_by('-Version').first()
+
             # 3. 객체 준비
             if is_editable:
-                # mt = q.get(id=mt_id)
+                # 기존에 저장된 훈련 정보가 있으면 수정
                 mt = DsModelTrain.objects.get(id=mt_id)
-                mt.TaskType = task_type  # 기존과 다를 수 있음
-                mt.AlgorithmType = algorithm_type
+                # 기존에 저장된 분석유형/알고리즘이 아닌 다른 선택을 했을 때
+                if mt.TaskType != task_type or mt.AlgorithmType != algorithm_type:
+                    # 동일한 훈련 정보 객체가 있으면 버전에 + 0.1을 더해서 저장. 없으면(신규) default=1
+                    mt.Version = round(float(latest.Version) + 0.1, 1) if latest else 1.0
+                    mt.TaskType = task_type 
+                    mt.AlgorithmType = algorithm_type
+                    mt.TrainStatus = 'INITIALIZED'  # 상태 초기화(변경이 생겼으므로)
             else:
-                # 조건이 동일한 기존 객체 중 가장 마지막 버전 가져오기
-                q = DsModelTrain.objects.filter(
-                    DsModel_id=md_id,
-                    TaskType=task_type,
-                    AlgorithmType=algorithm_type
-                )
-                latest = q.order_by('-Version').first()
+                # 신규 저장
                 mt = DsModelTrain(
                     DsModel_id=md_id,
                     TaskType=task_type,
                     AlgorithmType=algorithm_type,
                     TrainStatus='INITIALIZED',
                     # 동일한 훈련 정보 객체가 있으면 버전에 + 0.1을 더해서 저장. 없으면(신규) default=1
-                    # Version=((float(latest.Version) + float(0.1) if latest else 1)
                     Version = round(float(latest.Version) + 0.1, 1) if latest else 1.0
                 )
 
@@ -1924,7 +2147,7 @@ def learning_data(context):
 
             mt.save()
 
-            # 5. 기존에 저장된 파라미터가 있으면 삭제 후 재저장
+            # 5. 기존에 저장된 파라미터가 있으면 삭제 후 재저장(분석 유형 및 알고리즘, 파라미터 종류가 다를 수 있음)
             DsModelParam.objects.filter(DsModelTrain_id=mt.id).delete()
 
             hyperParams = json.loads(posparam.get('hyperParams', '{}'))
@@ -2061,200 +2284,95 @@ def learning_data(context):
                 # # response.raise_for_status()
                 # if response.status_code == 200:
                 #     items = {'success': True, "data": mt.id}
-
-            
-                #csv을 읽어서 df를 만든다(배포 -> 로컬용)
-                # sql = ''' 
-                # SELECT 
-                #     id
-                #     , "TableName"
-                #     , "DataPk"
-                #     , "AttachName"
-                #     , "FileIndex"
-                #     , "FileName"
-                #     , "PhysicFileName"
-                #     , "ExtName"
-                #     , "FilePath"
-                #     , "_created"
-                #     , "FileSize"
-                # FROM attach_file 
-                # WHERE "TableName" = %(table_name)s
-                # AND "DataPk" = %(data_pk)s
-                # ORDER BY id DESC 
-                # '''
-                # dc = {}
-                # dc['table_name'] = 'ds_model'
-                # # dc['data_pk'] = md_id
-                # dc['data_pk'] = 10
-                # row = DbUtil.get_row(sql, dc)
-                # if not row:
-                #     return
-
-
-                from sklearn.preprocessing import LabelEncoder
-
-                # csv 기반 읽어오기
-                # PhysicFileName = row.get('PhysicFileName')
-                # file_name = settings.FILE_UPLOAD_PATH + 'ai\\learning_data\\' + PhysicFileName
-                # df = pd.read_csv(file_name)
+          
 
                 # table data 읽어오기
                 md_id = mt.DsModel_id
                 daService = DaService('ds_model', md_id)
-                df = daService.read_table_data()
+                df = daService.read_table_data() #데이터 set을  ds_model_data에서 읽어옴
+                dp = DataProcessingService()
 
-                #데이터 set을  ds_model_data에서 읽어옴
-                #전처리도 해야 
+                # feature(X) 컬럼 정보 찾기
+                features = list(
+                    DsModelColumn.objects
+                    .filter(DsModel_id=md_id, X=1)
+                    .values_list('VarName', flat=True)
+                )
 
-                # 데이터 전처리: 결측치 제거
-                df.dropna(inplace=True)
+                # target(Y) 컬럼 정보 찾기
+                target = (
+                    DsModelColumn.objects
+                    .filter(DsModel_id=md_id, Y=1)
+                    .values_list('VarName', flat=True)
+                    .first()
+                )
 
-                # # '수집시간'을 datetime 형태로 변환하고 인덱스로 설정
-                # df['data_date'] = pd.to_datetime(df['data_date'])
-                # df.set_index('data_date', inplace=True)
-                df.set_index('id', inplace=True)
+                # 데이터 전처리
+                index_col = 'id' # index컬럼. 이것도 추후에 화면에서 받도록 설정
 
-                # 인코딩 대상 컬럼
-                # categorical_cols = ['tag_code', 'mat_cd'] # PLC 데이터 사용 시
-                categorical_cols = ['mat_cd']
-                label_encoders = {}
+                X_train, X_test, y_train, y_test = dp.preprocess_data(df, features, target, mt.TaskType, index_col, True)
 
-                # 각 컬럼에 대해 Label Encoding 적용
-                for col in categorical_cols:
-                    le = LabelEncoder()
-                    df[col] = le.fit_transform(df[col])
-                    label_encoders[col] = le  # 나중에 역변환이나 테스트셋에도 재사용 가능
-
-                # # 피벗용 전처리
-                # state_mapping = df[['id', 'state']].drop_duplicates().set_index('data_date')
-                # # 피벗: 시간(data_date) 기준, tag_code를 컬럼으로 만들고 data_value 값 채우기
-                # pivot_df = df.pivot_table(index='id', columns='tag_code', values='data_value')
-                # # 피벗된 df에 rst_id, state 다시 병합 (data_date 기준으로)
-                # pivot_df = pivot_df.merge(state_mapping, left_index=True, right_index=True)
-
-                # 이후에는 기존과 동일하게 features 지정 가능
-                # state를 제외한 나머지 컬럼을 피쳐로
-
-                # features = list(pivot_df.columns.difference(['state', 'id']))  # 분석에 필요 없는 id와 y를 제외한 컬럼(feature)분리
-                features = list(df.columns.difference(['state', 'id', 'data_date']))  # 분석에 필요 없는 id와 y를 제외한 컬럼(feature)분리
-                # features = ['tag_code', 'data_value', 'rst_id', 'mat_cd'] # 독립변수
-                # features = ['tag_code', 'data_value', 'mat_cd']  # rst_id는 feature에서 제거
-                # features = ['mat_cd', 'screw1_1', 'screw1_2', 'screw1_3', 'screw1_4', 'screw1_5', 'screw1_6']  # 독립변수 - 로컬(item)
-                # features = ['mat_cd', 'SCREW1_1', 'SCREW1_2', 'SCREW1_3', 'SCREW1_4', 'SCREW1_5', 'SCREW1_6']  # 독립변수 - 배포(item)
-
-                target_column = 'state' # 종속변수
-
-                # rst_id로 안묶고 진행할 때
-                # # 독립 변수와 종속 변수 분리
-                X = df[features]  # 독립 변수
-                y = df[target_column]  # 종속 변수
-
-                # # 데이터 표준화(선택사항: 현재는 미사용)
-                # scaler = StandardScaler()
-                # X_standardized = scaler.fit_transform(X)
-
-                # 훈련 데이터와 테스트 데이터로 분리(표준화)
-                # X_train, X_test, y_train, y_test = train_test_split(X_standardized, y, test_size=0.2, random_state=0)
-                # 표준화 없이 진행
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-
-                # # rst_id로 묶어서 진행할 때
-                # unique_ids = df['rst_id'].unique()  # rst_id 고유한 값 리스트
-                # train_ids, test_ids = train_test_split(unique_ids, test_size=0.2, random_state=0) # rst_id 리스트중 train / test를 나눔 ex) train_ids: 1,2,3 / test_ids = 4
-
-                # train_df = df[df['rst_id'].isin(train_ids)] # train_ids에 속하는 rst_id를 필터링해서 학습 데이터로 사용
-                # test_df = df[df['rst_id'].isin(test_ids)] # test_ids에 속하는 rst_id를 필터링해서 예측(테스트) 데이터로 사용
-
-                # X_train = train_df[features]
-                # y_train = train_df[target_column]
-
-                # X_test = test_df[features].reset_index(drop=True)
-                # y_test = test_df[target_column].reset_index(drop=True)
-
-                #알고리즘에 넣어서 실행
-
-                # 랜덤 포레스트 모델 생성
-                # rf_model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
-
-                # AdaBoost 앙상블 모델 생성
-                # model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=payload.params.RANDOM_STATE) # base_estimator -> estimators로 바꼈대
-                # model = AdaBoostClassifier(estimator=rf_model, n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
-                # model = AdaBoostClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
-                # model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']), max_depth=int(param_dict['MAX_DEPTH']))
-                # model = RandomForestClassifier(n_estimators=int(param_dict['N_ESTIMATORS']), random_state=int(param_dict['RANDOM_STATE']))
-
-                # model = RandomForestClassifier(
-                #     n_estimators=int(param_dict.get('N_ESTIMATORS', 50)), 
-                #     random_state=int(param_dict.get('RANDOM_STATE', 42)), 
-                #     max_depth=int(param_dict.get('MAX_DEPTH', None)),
-                #     min_samples_leaf=int(param_dict.get('MIN_SAMPLES_LEAF', None)),
-                #     min_samples_split=int(param_dict.get('MIN_SAMPLES_SPLIT', None)),
-                #     max_features=int(param_dict.get('MAX_FEATURES', None)),
-                #     bootstrap=param_dict.get('BOOTSTRAP', None)
-                #     )
-
-                # 기본 파라미터
-                rf_params = {
-                    'n_estimators': int(param_dict.get('N_ESTIMATORS', 50)),
-                    'random_state': int(param_dict.get('RANDOM_STATE', 42)),
-                    'bootstrap': str(param_dict.get('BOOTSTRAP', 'True')).lower() in ['true', '1']
-                }
-
-                optional_params = ['MAX_DEPTH', 'MAX_FEATURES', 'MIN_SAMPLES_LEAF', 'MIN_SAMPLES_SPLIT']
-
-                for k in optional_params:
-                    v = param_dict.get(k)
-                    if v is not None:
-                        rf_params[k.lower()] = int(v)   # 파라미터로 받았을 때만 model 인자로 추가
-
-                model = RandomForestClassifier(**rf_params) # **변수: 딕셔너리를 풀어서 파라미터로 전달
-
-                # pca_model = AdaBoostClassifier(base_estimator=rf_model, n_estimators=50, random_state=0)
+                # 모델 생성
+                model = dp.create_model(mt.TaskType, mt.AlgorithmType, param_dict)
             
-                # 모델 훈련(비교)
-                # model.fit(X_train, y_train)     # 기본 모델     
+                # 분류 모델인 경우 SMOTE 적용 
+                if mt.TaskType == 'CLASSIFICATION':
+                    # 추후에 front에서 smote 여부 확인해서 받아오도록 수정
+                    X_resampled, y_resampled = dp.apply_smote(X_train, y_train, 42, 2)
+
+                # 회귀모델인 경우 표준화 진행
+                elif mt.TaskType == 'REGRESSION':
+                    # 이상치 제거
+                    X_train, X_test = dp.clip_outliers(X_train, X_test, threshold=3)  # z-score 기준으로 이상치 제거
+
+                    # 추후에 front에서 표준화 여부 확인해서 받아오도록 수정
+                    scaler = StandardScaler()
+                    X_train = scaler.fit_transform(X_train)
+                    X_test = scaler.transform(X_test)
+                    # 데이터 표준화(선택사항: 현재는 미사용)
+                    # scaler = StandardScaler()
+                    # X_standardized = scaler.fit_transform(X)
+
+
+                # pca 적용 여부 - 나중에 진행
+
+                # 모델 훈련
                 try:
-                    model.fit(X_train, y_train)
+                    model.fit(X_train, y_train)     # 기본 모델
+                    # model.fit(X_resampled, y_resampled)   # SMOTE 적용 세트
+                    # model.fit(X_pca, y_train)   # PCA 적용 모델
                 except Exception as e:
                     print("에러 발생:", e)
-                # pca_model.fit(X_pca, y_train)   # PCA 적용 모델
 
 
                 # 테스트 데이터에 대한 예측
-                # test_predictions = model.predict(X_test) # 기본 모델 예측
-                # # pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
-                # # pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
-            
-                # # 예측 결과의 정확도 평가
-                # accuracy = metrics.accuracy_score(y_test, test_predictions)
-                # precision = metrics.precision_score(y_test, test_predictions)
-                # recall = metrics.recall_score(y_test, test_predictions)
-                # f1 = metrics.f1_score(y_test, test_predictions)
-                # print(f'기본모델 test Accuracy: {accuracy:.2f}\n기본모델 test Precision: {precision:.2f}\n기본모델 test Precision: {recall:.2f}\n기본모델 test Precision: {f1:.2f}\n')
                 train_predictions = model.predict(X_train)
                 test_predictions = model.predict(X_test)
+                # pca_X_test = pca_final.transform(X_test)    # 예측을 위해 테스트 데이터도 PCA 진행
+                # pca_predictions = pca_model.predict(pca_X_test) # PCA 모델 예측
 
-                # 성능 지표 계산 함수
-                def get_metrics(y_true, y_pred, dataset_type):
-                    return [
-                        {"MetricName": "Accuracy", "MetricValue": metrics.accuracy_score(y_true, y_pred), "DatasetType": dataset_type},
-                        {"MetricName": "Precision", "MetricValue": metrics.precision_score(y_true, y_pred, zero_division=0), "DatasetType": dataset_type},
-                        {"MetricName": "Recall", "MetricValue": metrics.recall_score(y_true, y_pred, zero_division=0), "DatasetType": dataset_type},
-                        {"MetricName": "F1", "MetricValue": metrics.f1_score(y_true, y_pred, zero_division=0), "DatasetType": dataset_type},
-                    ]
 
-                # train/test 각각 계산
-                train_metrics = get_metrics(y_train, train_predictions, "train")
-                test_metrics = get_metrics(y_test, test_predictions, "test")
+                # # 적절한 임계값 찾기
+                # proba = model.predict_proba(X_test)[:, 1]
 
-                # 합쳐서 반환
-                metric = train_metrics + test_metrics
+                # for t in [0.3, 0.5, 0.7, 0.8, 0.9]:
+                #     preds = (proba > t).astype(int)
+                #     precision = metrics.precision_score(y_test, preds)
+                #     recall = metrics.recall_score(y_test, preds)
+                #     f1 = metrics.f1_score(y_test, preds)
+                #     acc = metrics.accuracy_score(y_test, preds)
 
-                # 기존 metric 삭제 (같은 train_id에 대한 기록 제거)
+                #     print(f"   {t:.2f}    |   {precision:.2f}   |  {recall:.2f}  | {f1:.2f} |  {acc:.2f}")
+
+
+                # 성능 지표 계산
+                train_metrics = dp.calculate_metrics(mt.TaskType, y_train, train_predictions, "train")
+                test_metrics = dp.calculate_metrics(mt.TaskType, y_test, test_predictions, "test")
+
+                # 기존 metric 삭제 및 저장
                 DsModelMetric.objects.filter(DsModelTrain_id=mt_id).delete()
-
-                # metric 리스트 저장
-                for m in metric:
+                # for m in metric:
+                for m in train_metrics + test_metrics:
                     DsModelMetric.objects.create(
                         DsModelTrain_id = mt_id,
                         MetricName = m['MetricName'],
@@ -2262,134 +2380,61 @@ def learning_data(context):
                         DatasetType = m['DatasetType']
                     )
 
-                # pca_accuracy = accuracy_score(y_test, pca_predictions)
-                # print(f'PCA모델 test Accuracy: {pca_accuracy:.2f}')
+                # 모델 예측 값, 실제 값 비교 그래프
+                title = {'main':'model 예측 추이', 'x':'테스트 데이터', 'y':f'예측값({target})'}
 
-                # 실제 데이터 예측 (데이터가 많아서 test_df에서 무작위 rst_id n개 선택하여 샘플링. 우선 한 20개로 진행)
-                # num_sample = 20
-                # sampled_ids = test_df['rst_id'].drop_duplicates().sample(n=num_sample, random_state=42)
-                # sampled_test_df = test_df[test_df['rst_id'].isin(sampled_ids)]
-
-                # X_sampled_test = sampled_test_df[features]
-                # sampled_predictions = model.predict(X_sampled_test)
-                # 예전 코드
-                # # 실제 데이터 예측
-                # # 미래 마지막 30개의 관측치 준비(대략 한 사이클에 30개 정도라 치고)
-                # future_data = X[-30:]
-
-                # # 값 예측
-                # future_predictions = model.predict(future_data)         # 기본모델 - 최근 데이터 30건
-                # # pca_future_data = pca_final.transform(future_data)      # 관측데이터 PCA 적용
-                # # pca_future_predictions = pca_model.predict(pca_future_data) # PCA 모델 예측
-
-                # # 예측 결과 출력
-                # for i, prediction in enumerate(future_predictions, 1):
-                #     print(f'기본모델: 5분 후 알람값 예측 {i*10}초: {prediction}')
-            
-                # # 예측 결과 출력
-                # # for i, (basic_pred, pca_pred, real_alarm) in enumerate(zip(future_predictions, pca_future_predictions, y[-30:]), 1):
-                # #     print(f'5분 후 알람값 예측 {i*10}초:\n --> 기본모델: {basic_pred}   /   PCA적용모델: {pca_pred}   /   실제 alarm 값: {real_alarm}')
-                # for i, (pred_state, real_state) in enumerate(zip(sampled_predictions, sampled_test_df[target_column]), 1):
-                #     print(f' 예측값: {pred_state}  /   실제 state 값: {real_state}')
-
-                # # 샘플된 알고리즘에 대한 상태, feature importance.모델설명 그래프
-                # title = {'main':'model 예측 추이', 'x':'테스트 데이터(무작위 rst_id가 같은 데이터로 샘플링)', 'y':'예측값(state)'}
-                # graph1 = {'data':sampled_predictions, 'mode':'lines+markers', 'name':'모델 예측값'}
-                # graph2 = {'data':sampled_test_df[target_column], 'mode':'lines+markers', 'name':'실제 값'}
-
-                #알고리즘에 대한 상태, feature importance.모델설명 그래프
-                title = {'main':'model 예측 추이', 'x':'테스트 데이터', 'y':'예측값(state)'}
-
+                # 실제 값
                 graph1 = {
                     'data':y_test, 
-                    # 'data': np.column_stack((y_test.index.values, y_test.values)),  # (x, y) 묶기
                     'mode':'lines+markers', 
                     'name':'실제값(0,1)',
                     'text': y_test.index.astype(int).astype(str).values,   # hover용 index
-                    'hovertemplate': 'rst_id: %{text}<br>값: %{y}<extra></extra>'
+                    'hovertemplate': f'{index_col}:' + '%{text}<br>값: %{y}<extra></extra>'
                     }
 
+                # 모델 예측 값 - 상위 레이어어야 예측 결과가 잘보임(뒤에 호출할수록 상위 레이어)
                 graph2 = {
                     'data':test_predictions, 
-                    # 'data': np.column_stack((y_test.index.values, test_predictions)),
                     'mode':'lines+markers', 
                     'name':'모델 예측값(0,1)',
                     'text': y_test.index.astype(int).astype(str).values,   # hover용 index
-                    'hovertemplate': 'rst_id: %{text}<br>값: %{y}<extra></extra>'
-                    } #이게 위로 가야(2번) 예측결과가 잘보임
+                    'hovertemplate': f'{index_col}:' + '%{text}<br>값: %{y}<extra></extra>'
+                    }
 
-                pred_plotly = visualize_to_plotly(title, graph1, graph2)
-
-                import matplotlib.pyplot as plt
-                import seaborn as sns
-
-                # 특성중요도 그래프
-                feature_importances = model.feature_importances_
-                feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
-                feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
-                # print(feature_importance_df)
-
-                # 시각화 - 특성중요도가 0인 것들은 제외
-                feat_fig = plt.figure(figsize=(10, 6))
-                sns.barplot(x='Importance', y='Feature', data=feature_importance_df[feature_importance_df['Importance'] > 0])
-                plt.title('Feature Importance')
-
-                feat_chart_url = daService.plt_url(feat_fig)
-
-                
-                # tree 시각화
-                from sklearn.tree import plot_tree
-
-                tree_fig = plt.figure(figsize=(10, 6))
-                plot_tree(model.estimators_[(int(param_dict['N_ESTIMATORS']) - 1)], feature_names=features, filled=True, rounded=True)
-                # plot_tree(model.estimators_[49], feature_names=features, filled=True, rounded=True)
-
-                tree_chart_url = daService.plt_url(tree_fig)
+                pred_plotly = daService.visualize_to_plotly(title, graph1, graph2)
 
 
-                # ROC AUR 그래프
-                from sklearn.metrics import roc_curve, roc_auc_score
+                # 모델 알고리즘 및 성능 시각화
+                # 차트 생성
+                chart_urls = {
+                    'feat_chart_url': dp.visualize_feature_importance(model, features),
+                    'tree_chart_url': dp.visualize_tree(model, features, task_type=mt.TaskType, estimator_index=int(param_dict.get('N_ESTIMATORS', 1)) - 1),
+                    'roc_urls': dp.visualize_roc_curve(model, X_train, y_train, X_test, y_test)
+                }
 
-                train_prob = model.predict_proba(X_train) # 테스트 값이 각 클래스로 분류될 확률 ex) [0.92, 0.08]
-                test_prob = model.predict_proba(X_test) 
+                # ROC Curve 처리
+                if chart_urls['roc_urls'] is not None:
+                    chart_urls['roc_train_chart_url'] = chart_urls['roc_urls']['roc_train_chart_url']
+                    chart_urls['roc_test_chart_url'] = chart_urls['roc_urls']['roc_test_chart_url']
+                else:
+                    chart_urls['roc_train_chart_url'] = None
+                    chart_urls['roc_test_chart_url'] = None
 
-                # ROC Curve - Train
-                fpr_train, tpr_train, thresholds_train = roc_curve(y_train, train_prob[:, 1])
-                auc_train = roc_auc_score(y_train, train_prob[:, 1])
+                # 지원하지 않는 차트 메시지 생성
+                unsupported_charts = []
+                for chart_type, url in chart_urls.items():
+                    if url is None and chart_type != 'roc_urls':  # 'roc_urls'는 제외
+                        chart_name = chart_type.replace('_chart_url', '').replace('_', ' ').capitalize()
+                        unsupported_charts.append(chart_name)
 
-                fig_train = plt.figure(figsize=(6, 6))
-                plt.plot(fpr_train, tpr_train, label=f'ROC Curve (Train AUC = {auc_train:.2f})')
-                plt.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Random Classifier')
-                plt.xlabel('False Positive Rate')
-                plt.ylabel('True Positive Rate')
-                plt.title('ROC Curve (Train Set)')
-                plt.legend()
-                plt.grid(True)
-                plt.tight_layout()
-
-                roc_train_chart_url = daService.plt_url(fig_train)
-
-                # ROC Curve - Test
-                fpr_test, tpr_test, thresholds_test = roc_curve(y_test, test_prob[:, 1])
-                auc_test = roc_auc_score(y_test, test_prob[:, 1])
-
-                fig_test = plt.figure(figsize=(6, 6))
-                plt.plot(fpr_test, tpr_test, label=f'ROC Curve (Test AUC = {auc_test:.2f})')
-                plt.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Random Classifier')
-                plt.xlabel('False Positive Rate')
-                plt.ylabel('True Positive Rate')
-                plt.title('ROC Curve (Test Set)')
-                plt.legend()
-                plt.grid(True)
-                plt.tight_layout()
-
-                roc_test_chart_url = daService.plt_url(fig_test)  # 이미지 URL 저장
-                # plt.close(fig_test)
+                # 메시지 생성
+                if unsupported_charts:
+                    unsupported_message = f"해당 모델은 {', '.join(unsupported_charts)}을(를) 지원하지 않습니다."
+                else:
+                    unsupported_message = None
 
                 # 데이터 분포 확인용
                 print("y_test 분포:", np.bincount(y_test))
-                print("test_prob 샘플:", test_prob[:10, 1])
-                print("test_prob[:, 1]:", test_prob[:, 1])
 
                 mt.TrainStatus = 'COMPLETED'
                 mt.set_audit(user)
@@ -2397,19 +2442,19 @@ def learning_data(context):
                 # 훈련 및 예측이 완료되면 결과값 서버에 전달
                 # 시각화 부분 분리해야 함 특성중요도 그래프 추가할것
 
+                # 결과 전달
                 items = {
-                    'success':True, 
+                    'success': True,
                     'pca_plotly': pred_plotly,
-                    'feat_chart_url': feat_chart_url,
-                    'tree_chart_url': tree_chart_url,
-                    'roc_train_chart_url': roc_train_chart_url, 
-                    'roc_test_chart_url': roc_test_chart_url,
-                    # 'metric': metric
-                    }
+                    'feat_chart_url': chart_urls['feat_chart_url'],
+                    'tree_chart_url': chart_urls['tree_chart_url'],
+                    'roc_train_chart_url': chart_urls['roc_train_chart_url'],
+                    'roc_test_chart_url': chart_urls['roc_test_chart_url'],
+                    'unsupported_message': unsupported_message
+                }
 
             except Exception as e:
                 # 오류 시 상태를 FAILED로 변경
-
                 mt.TrainStatus = 'FAILED'
                 mt.set_audit(user)
                 mt.save()

@@ -1,285 +1,1180 @@
 <!-- 손자 모달 -->
 <div id="modalResultEdit" class="modal child-modal">
-	<div class="modal-content">
+	<div class="modal-content" id="modalContent">
 		<div class="modal-header">
 			<h4>점검작업 결과입력</h4>
 		</div>
-		<div class="modal-body">
-
-			<table class="swing-table swing-table-bordered swing-table-selview swing-striped m-0">
-				<tbody>
-
-					<tr>
-						<th width="10%">점검일정번호</th>
-						<td width="20%" class="text-right" id="chk_sche_no"></td>
-						<th width="10%">점검명</th>
-						<td colspan="3" id="chk_mast_nm"></td>
-					</tr>
-
-					<tr>
-						<th width="10%">점검주기</th>
-						<td width="20%" class="text-right"  id="cycle_display_nm" ><b></b></td>
-						<th width="10%">상태</th>
-						<td width="20%" id="chk_status_nm"   ></td>
-						<th width="15%">점검일정 결과</th>
-						<td width="25%">
-							<span class="cont_view_msg type01"><b>총 </b>1건 / </span> 
-							<span class="cont_view_msg type01"><b>정상 </b>0</span>
-							<span class="cont_view_msg type01" style="color: red;"><b> 이상 </b>0</span>
-							<span class="cont_view_msg type01" style="color: orange;"><b> 점검불가 </b>0</span>
-						</td>
-					</tr>
-					<tr>
-						<th width="10%">생성일</th>
-						<td width="20%" id="insert_ts"></td>
-						<th width="10%">점검계획일</th>
-						<td width="20%" id="chk_sche_dt"></td>
-						<th width="10%">점검완료일</th>
-						<td width="20%"></td>
-					</tr>
-
-					<tr>
-						<th width="10%">점검부서</th>
-						<td colspan="3"> </td>
-						<th width="10%">점검담당자</th>
-						<td></td>
-					</tr>
-
-					<tr>
-						<th width="10%">작업지침</th>
-						<td colspan="5" id="work_text"></td>
-					</tr>
-				</tbody>
-			</table>
-
-			<!--<form id="ResultForm">
-				<input type="hidden" id="chk_mast_pk" name="chk_mast_pk">
-				<div class="plan-content">
-					<div class="form-row">
-						<div class="form-group col-6">
-							<label>점검일정번호</label>
-							<input type="text" class="form-control" id="chk_sche_no" name="chk_sche_no" readonly>
-						</div>
-						<div class="form-group col-6">
-							<label>점검명 <span class="required">*</span></label>
-							<input type="text" class="form-control" id="piName" name="piName">
-						</div>
-					</div>
-					<div class="form-row">-->
-						<!-- 오른쪽 cycleInfo 영역 -->
-						<!-- 주기단위 -->
-						<!--<div class="form-group col-4">
-							<label>주기단위 <span class="required">*</span></label>
-							<select id="cycleType" name="cycleType">
-							</select>
-						</div>
-						<div class="form-group col-4">
-							<label>반복 <span class="required">*</span></label>
-							<div class="field-wrapper" style="display: flex; align-items: center">
-								<span class="mt-2" style="margin-left: 5px;">매</span>
-								<input id="perNumber" name="perNumber" type="number" class="form-control" />
-							</div>
-						</div>-->
-						<!-- 주기시작일 -->
-						<!--<div class="form-group col-4">
-							<label>주기시작일 <span class="required">*</span></label>
-							<div class="field-wrapper">
-								<input type="date" id="schedStartDt" name="schedStartDt" />
-							</div>
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group col-6">
-							<label>점검부서 <span class="required">*</span></label>
-							<select id="executionDept" name="executionDept">
-							</select>
-						</div>
-						<div class="form-group col-6">
-							<label>점검담당자 <span class="required">*</span></label>
-							<select id="piManager" name="piManager">
-								<option value="">점검 담당자를 선택하세요</option>
-							</select>
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group col-12">
-							<label>작업지침</label>
-							<textarea id="work_text" class="form-control" name="work_text" rows="5" placeholder="2000자 이하로 입력하세요" maxlength="2000"></textarea>
-							<div class="char-count">0 / 2000 bytes</div>
-						</div>
+		<div class="modal-body" style="display:flex; overflow-y: auto;">
+			<form id="equipChkScheForm" name="equipChkScheForm">
+				<input type="hidden" id="chkSchePk" name="chkSchePk" />
+				<input type="hidden" id="chkRsltPk" name="chkRsltPk" />
+				<table class="swing-table swing-table-bordered swing-table-selview swing-striped m-0">
+					<tbody>
+						<tr>
+							<th width="15%">점검일정번호</th>
+							<td width="15%" class="text-right" id="chkScheNo">
+							</td>
+							<th width="15%">점검명</th>
+							<td colspan="3" id="chkMastNm"></td>
+						</tr>
+						<tr>
+							<th width="15%">점검주기</th>
+							<td width="15%" class="text-right" id="cycleDisplayNm"><b></b></td>
+							<th width="15%">상태</th>
+							<td width="15%" id="chkStatusNm"></td>
+							<th width="15%" style="vertical-align: middle; height: 40px;">점검일정 결과</th>
+							<td width="25%" style="vertical-align: middle; height: 40px; line-height: 40px;">
+								<b>총 </b><label id="totCount">건 / </label>
+								<b>정상 </b><label id="normalCount"></label>
+								<b style="color: red;"> 이상 </b><label id="abNormalCount" style="color: red; font-weight: bold;"></label>
+								<b style="color: orange;"> 점검불가 </b><label id="unableCheckCount" style="color: orange; font-weight: bold;"></label>
+							</td>
+						</tr>
+						<tr>
+							<th>생성일</th>
+							<td id="schInsertTs"></td>
+							<th>점검계획일</th>
+							<td id="chkScheDt"></td>
+							<th>점검완료일</th>
+							<td id="chkDtContainer">
+								<!-- 점검완료일은 템플릿으로 동적 렌더링됩니다 -->
+							</td>
+						</tr>
+						<tr>
+							<th>점검부서</th>
+							<td colspan="3" id="deptContainer">
+								<!-- 점검부서는 템플릿으로 동적 렌더링됩니다 -->
+							</td>
+							<th>점검담당자</th>
+							<td id="chkUserContainer">
+								<!-- 점검담당자는 템플릿으로 동적 렌더링됩니다 -->
+							</td>
+						</tr>
+						<tr>
+							<th width="15%">작업지침</th>
+							<td colspan="5" id="workText"></td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<div id="equipResultDiv">
+				<div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+					<label class="k-label k-form-label" for="equipResultPk" style="font-weight: bold; margin: 0; white-space: nowrap;">설비별 결과</label>
+					<div id="equipChkRsltContainer" style="flex: 1;">
+						<select id="equipResultPk" name="equipResultPk" class="equip-result-dropdown" style="max-width:300px !important; width: 100%;">
+							<option value="">설비선택</option>
+						</select>
 					</div>
 				</div>
-			</form>-->
+				<div class="row g-3 align-items-end">
+					<!-- 설비별 결과는 템플릿으로 동적 렌더링됩니다 -->
+					<div class="col-12 col-sm-6 col-md-4">
+						<div class="form-item align-h">
+							<label for="equipRsltNm">설비</label>
+							<input type="text" class="form-control" id="equipRsltNm" name="equipRsltNm">
+						</div>
+					</div>
+					<div class="col-12 col-sm-6 col-md-4">
+						<div class="form-item align-h">
+							<label for="equipRsltCnt">점검결과</label>
+							<div class="form-control" id="equipRsltCnt" name="equipRsltCnt" style="min-height: 28px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; background-color: #fff; display: flex; align-items: center; gap: 10px;"></div>
+						</div>
+					</div>
+					<div class="col-12 col-sm-6 col-md-4">
+						<button type="button" id="btnSaveRslt">점검결과 저장</button>
+					</div>
+				</div>
+				<div id="equipChkRsltList" style="margin-top: 20px;">
+					<!-- 점검항목 그리드 -->
+					<div class="grid-content">
+						<div class="grid-header">
+							<label>점검항목</label>
+						</div>
+						<div id="inspectionItemGrid"></div>
+					</div>
+				</div>
+				<!-- 파일 탭 컨텐츠 -->
+				<div id="fileTab">
+					{% include 'components/FileUpload.html' with tableName='cm_equip_chk_item_rslt' attachName='file' dataPk=cm_equip_chk_item_rslt.id|default:'' %}
+				</div>
+			</div>
+			<div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0;">
+				<label class="k-label k-form-label" for="targetEquip" style="margin: 0; text-align: left;">수동 생성 점검 작업입니다!</label>
+				<div style="margin-left: auto;">
+					<button type="button" id="saveReusltAll">결과일괄저장</button>
+					<button type="button" id="deleteSchedule">작업삭제</button>
+					<button type="button" id="compleResult">점검완료</button>
+					<button type="button" class="btn-close" id="closeResultModal">닫기</button>
+				</div>
+			</div>
 
-
-		</div>
-		<div class="modal-footer">
-			<button type="button" class="btn-save" id="saveReusltAll">결과일괄저장</button>
-			<button type="button" class="btn-save" id="deleteSchedule">작업삭제</button>
-			<button type="button" class="btn-save" id="compleResult">점검완료</button>
-			<button type="button" class="btn-close" id="closeResultModal">닫기</button>
+			<!-- 로딩 오버레이 -->
+			<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999;">
+				<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 5px; text-align: center;">
+					<div style="margin-bottom: 10px;">저장 중...</div>
+					<div class="spinner-border" role="status">
+						<span class="sr-only">Loading...</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-</div>
-<style>
 
-    .swing-table-bordered > tbody > tr > th {
-        background-color: #f4f5fa;
-        text-align: center;
-    }
+	<!-- 점검완료일 템플릿 -->
+	<script type="text/x-kendo-template" id="chkDtTemplate">
+		# if(data.chkStatusCd === 'CHK_STATUS_Y' || !writeYn) { #
+			<span>#: data.chkDt || '' #</span>
+		# } else { #
+			<input type="date" id="chkDt" name="chkDt" value="#: data.chkDt || '' #" />
+		# } #
+	</script>
 
-</style>
+	<!-- 점검부서 템플릿 -->
+	<script type="text/x-kendo-template" id="deptTemplate">
+		# if(data.chkStatusCd === 'CHK_STATUS_Y' || !writeYn) { #
+			<span>#: data.deptNm || '' #</span>
+		# } else { #
+			<select id="deptNm" name="deptNm">
+				<!-- 드롭다운 옵션은 JavaScript에서 동적으로 채워집니다 -->
+			</select>
+		# } #
+	</script>
 
-<script type="text/javascript">
-	class ResultEditPage {
-		constructor() {
-			this.grid = null;
-            this.baseUrl = '/api/kmms/equip_chk_rslt';
-            this.chk_sche_pk = null;
-			this.init();
+	<!-- 점검담당자 템플릿 -->
+	<script type="text/x-kendo-template" id="chkUserTemplate">
+		# if(data.chkStatusCd === 'CHK_STATUS_Y' || !writeYn) { #
+			<span>#: data.chkUserNm || '' #</span>
+		# } else { #
+			<div style="display: flex; align-items: center; gap: 5px;">
+				<select id="chkUserNm" name="chkUserNm" style="flex: 1;">
+					<!-- 드롭다운 옵션은 JavaScript에서 동적으로 채워집니다 -->
+				</select>
+				<button id="btnChangeMan">변경</button>
+			</div>
+		# } #
+	</script>
+	<style>
+		.modal-content {
+			max-width: 1200px;
 		}
 
-		init() {
-			//this.initGrid();
-			this.initButton();
-			this.initEvents();
+		.swing-table-bordered > tbody > tr > th {
+			background-color: #f4f5fa;
+			text-align: center;
 		}
 
-		initGrid() {
-			const option = {
-				toolbar: ["columns"],
-				columnMenu: {
-					componentType: "classic",
-					autoSize: true,
-					clearAllFilters: true,
-					columns: { sort: "asc" }
-				},
-				columns: [
-					{ field: 'equip_cd', title: '설비코드', width: 100 },
-					{ field: 'equip_nm', title: '설비명', width: 150 },
-					{ field: '_equip_status_nm', title: '설비상태', width: 80 },
-					{ field: '_equip_category_remark', title: '카테고리', width: 100 },
-					{ field: '_loc_nm', title: '설비위치', width: 100 },
-					{ field: '_dept_nm', title: '관리부서', width: 100 },
-					{ field: 'asset_nos', title: '자산번호', width: 100 },
-					{ field: '_import_rank_nm', title: '중요도등급', hidden: true },
-					{ field: '_environ_equip_yn', title: '환경설비여부', hidden: true },
-					{ field: '_warranty_dt', title: '보증만료일', hidden: true },
-				],
-				change: () => this.showDetail(),
-				dataBound: function () {
-					this.autoFitColumns();
-				},
-				height: "440px",
-				scrollable: true,
-			};
-			this.grid = new Grid($("#equip_sel_grid"), option);
+		/* 점검항목 그리드 스타일 */
+		#inspectionItemGrid .k-grid-header {
+			background-color: #e3f2fd;
 		}
 
-		initButton() {
-			$("#btnConfirmEqu").kendoButton({ icon: "k-i-check", themeColor: "base" });
-			$("#btnCancelEqu").kendoButton({ icon: "cancel", themeColor: "base" });
-			$("#btnSearchEqu").kendoButton({
-				themeColor: "primary",
-				icon: "search",
-				click: () => this.getData()
-			});
-			
+			#inspectionItemGrid .k-grid-header th {
+				background-color: #e3f2fd !important;
+				color: #1976d2;
+				font-weight: bold;
+				text-align: center;
+			}
+
+		#inspectionItemGrid .k-grid-tbody tr {
+			background-color: #fffef7;
 		}
 
-		initEvents() {
-			
+			#inspectionItemGrid .k-grid-tbody tr:nth-child(even) {
+				background-color: #ffffff;
+			}
 
-			$("#btnConfirmEqu").on("click", () => {
-				const data = this.grid.getSelect();			
-				if (typeof this.callback === 'function') {
-					this.callback(data[0]);
+			#inspectionItemGrid .k-grid-tbody tr:hover {
+				background-color: #fff3cd;
+			}
+
+		/* 그리드 컨테이너 스타일 */
+		.grid-content {
+			margin-bottom: 20px;
+		}
+
+		.grid-header {
+			background-color: #f8f9fa;
+			border: 1px solid #dee2e6;
+			border-bottom: none;
+			padding: 10px 15px;
+			border-radius: 4px 4px 0 0;
+		}
+
+			.grid-header label {
+				margin: 0;
+				font-weight: bold;
+				color: #495057;
+			}
+
+		/* 점검결과 저장 버튼 스타일 */
+		[id^="saveInspectionResult_"] {
+			background-color: #28a745 !important;
+			color: white !important;
+			border: none !important;
+			padding: 8px 16px !important;
+			border-radius: 4px !important;
+			font-weight: bold !important;
+		}
+
+			[id^="saveInspectionResult_"]:hover {
+				background-color: #218838 !important;
+			}
+
+		/* 설비 및 점검결과 표시 영역 스타일 */
+		[id^="equipDisplay_"], [id^="inspectionResult_"] {
+			background-color: #f8f9fa !important;
+			border: 1px solid #dee2e6 !important;
+			padding: 4px 8px !important;
+		}
+
+		/* 이상 개수 강조 표시 */
+		[id^="abnormalCount_"] {
+			color: #dc3545 !important;
+			font-weight: bold !important;
+			font-size: 1.1em !important;
+		}
+
+		/* 점검일정 결과 색상 스타일 */
+		#abNormalCount {
+			color: #dc3545 !important;
+			font-weight: bold !important;
+		}
+
+		#unableCheckCount {
+			color: #fd7e14 !important;
+			font-weight: bold !important;
+		}
+
+		/* 이상 텍스트 강조 */
+		#abNormalCount {
+			color: #dc3545 !important;
+			font-weight: bold !important;
+		}
+
+		/* 점검불가 텍스트 강조 */
+		#unableCheckCount {
+			color: #fd7e14 !important;
+			font-weight: bold !important;
+		}
+
+		/* equipResultPk 드롭다운 스타일 */
+		#equipResultPk {
+			border: 1px solid #dee2e6 !important;
+			border-radius: 4px !important;
+			padding: 8px 12px !important;
+			font-size: 14px !important;
+			background-color: #ffffff !important;
+		}
+
+			#equipResultPk:focus {
+				border-color: #80bdff !important;
+				outline: 0 !important;
+				box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+			}
+
+		/* 설비별 결과 필터링 스타일 */
+		[id^="equipChkRslt_"] {
+			transition: all 0.3s ease;
+		}
+
+			[id^="equipChkRslt_"]:not(:target) {
+				opacity: 0.7;
+			}
+
+		/* 모달 높이 강제 설정 */
+		#modalContent {
+			max-height: 800px !important;
+			height: 800px !important;
+		}
+	</style>
+
+	<script type="text/javascript">
+		class ResultEditPage {
+			constructor() {
+				this.grid = null;
+				this.baseUrl = '/api/kmms/equip_chk_rslt';
+				this.chk_sche_pk = null;
+				this.writeYn = true; // 기본값은 편집 가능
+				this.loading = false; // 로딩 상태
+				this.saveType = null;
+				this.equipPk = null;
+				this.chkRsltPk = null;
+				this.init();
+			}
+
+			init() {
+				// equipRsltCnt 초기화
+				updateEquipRsltCnt();
+				
+				// 점검항목 그리드 초기화
+				$("#inspectionItemGrid").kendoGrid({
+					dataSource: new kendo.data.DataSource({
+						transport: {
+							read: {
+								url: '/api/kmms/equip_chk_item_rslt',
+								dataType: "json",
+								contentType: "application/json",
+								data: function () {
+									let params = {
+										action: 'selectEquipChkItemRslt',
+										chkRsltPk: $('#chkRsltPk').val() || ''
+									};
+									console.log('API 요청 파라미터:', params);
+									return params;
+								},
+								success: function (response) {
+									console.log('API 응답 원본:', response);
+									console.log('API 응답 타입:', typeof response);
+									console.log('API 응답이 배열인가?', Array.isArray(response));
+									if (response && typeof response === 'object') {
+										console.log('API 응답 키들:', Object.keys(response));
+									}
+								}
+							}
+						},
+						schema: {
+							data: function (response) {
+								// response가 객체인 경우 data 속성을 찾고, 없으면 response 자체를 반환
+								if (response && typeof response === 'object' && !Array.isArray(response)) {
+									// 일반적인 API 응답 구조: { data: [...], success: true, message: "..." }
+									if (response.data && Array.isArray(response.data)) {
+										return response.data;
+									}
+									// 다른 가능한 속성들 확인
+									if (response.items && Array.isArray(response.items)) {
+										return response.items;
+									}
+									if (response.result && Array.isArray(response.result)) {
+										return response.result;
+									}
+									// 배열이 아닌 경우 빈 배열 반환
+									return [];
+								}
+								// response가 배열인 경우 그대로 반환
+								return Array.isArray(response) ? response : [];
+							}
+						}
+					}),
+					height: 300,
+					sortable: true,
+					autoBind: false,
+					editable: {
+						mode: "incell",
+					},
+					edit: function(e) {
+						console.log('그리드 edit 이벤트 발생:', e);
+					},
+					save: function(e) {
+						console.log('그리드 save 이벤트 발생:', e);
+						// 항목결과 변경 시 equipRsltCnt 업데이트
+						if (e.model && e.model.chk_item_rslt !== undefined) {
+							console.log('항목결과 변경 감지됨:', e.model.chk_item_rslt);
+							// 약간의 지연을 두어 그리드 데이터가 업데이트된 후 실행
+							setTimeout(function() {
+								updateEquipRsltCnt();
+							}, 100);
+						}
+					},
+					dataBound: function(e) {
+						console.log('그리드 dataBound 이벤트 발생');
+						// 그리드 데이터 바인딩 완료 후 equipRsltCnt 업데이트
+						updateEquipRsltCnt();
+					},
+					columns: [
+						{
+							field: "item_idx",
+							title: "순번",
+							width: 80,
+							editable: true,
+							attributes: { style: "text-align: center;" }
+						},
+						{
+							field: "chk_item_nm",
+							title: "점검항목명",
+							width: 300,
+							editable: true,
+							attributes: { style: "text-align: left;" }
+						},
+						{
+							field: "lcl",
+							title: "LCL",
+							width: 80,
+							editable: true,
+							attributes: { style: "text-align: center;" }
+						},
+						{
+							field: "ucl",
+							title: "UCL",
+							width: 80,
+							editable: true,
+							attributes: { style: "text-align: center;" }
+						},
+						{
+							field: "chk_item_unit_nm",
+							title: "단위",
+							width: 120,
+							editable: true,
+							attributes: { style: "text-align: center;" }
+						},
+						{
+							field: "chk_item_rslt",
+							title: "항목결과",
+							width: 150,
+							attributes: { style: "text-align: center;" },
+							template: "#= chk_item_rslt === 'N' ? '정상' : chk_item_rslt === 'A' ? '이상' : chk_item_rslt === 'C' ? '점검불가' : (chk_item_rslt || '정상') #",
+							editor: chkItemRsltDropDownEditor
+						},
+						{
+							field: "chk_item_rslt_num",
+							title: "수치결과",
+							width: 120,
+							attributes: { style: "text-align: right;" },
+							editor: numberOnlyEditor,
+						},
+						{
+							field: "chk_item_rslt_desc",
+							title: "비고",
+							width: 200,
+							attributes: { style: "text-align: left;" },
+						}
+					],
+					noRecords: {
+						template: "조회된 데이터가 없습니다."
+					},
+					edit: function (e) {
+						let field = e.field;
+						if (field === 'item_idx' || field === 'chk_item_nm' || field === 'lcl' || field === 'ucl' || field === 'chk_item_unit_nm') {
+							e.preventDefault();
+							return false;
+						}
+						// chk_item_rslt 필드는 콤보박스로 편집 가능
+						if (field === 'chk_item_rslt') {
+							// 편집 허용
+							return true;
+						}
+					}
+				});
+
+				$("#btnConfirmEqu").kendoButton({ icon: "k-i-check", themeColor: "base" });
+				$("#btnCancelEqu").kendoButton({ icon: "cancel", themeColor: "base" });
+
+				$("#saveReusltAll").kendoButton({
+					themeColor: "base",
+					click: function (e) {
+						e.preventDefault();
+
+						// 점검결과를 일괄저장
+						let saveData = this.onSetJsonBatch();
+
+						// 로딩 표시
+						this.showLoading();
+
+						// API 호출
+						AjaxUtil.postAsyncData('/api/kmms/equip_chk_rslt?action=batch_save&chkSchePk=' + this.chk_sche_pk, saveData,
+							function (response) {
+								// 성공 시
+								this.hideLoading();
+								Alert.alert('success', '점검 결과가 정상적으로 저장되었습니다. 점검완료 처리를 하시기 바랍니다.');
+								this.refreshFileList();
+							}.bind(this),
+							function (error) {
+								// 실패 시
+								this.hideLoading();
+								this.saveType = null;
+								this.equipPk = null;
+								this.chkRsltPk = null;
+								Alert.alert('error', error.errorMessage || error.response?.data?.errorMessage || '저장 중 오류가 발생했습니다.');
+							}.bind(this)
+						);
+					}.bind(this)
+				});
+
+				$("#deleteSchedule").kendoButton({
+					themeColor: "error",
+					click: function (e) {
+						e.preventDefault();
+					}
+				});
+
+				$("#compleResult").kendoButton({
+					themeColor: "base",
+					click: function (e) {
+						e.preventDefault();
+
+						//완료되지 않은 점검 설비가 있는지 판단
+						let param = {
+							chkSchePk: $("#chkSchePk").val()
+						}
+						let fn_success = function (response) {
+							if (response.chk_rslt_cnt > 0) {
+								Alert.alert('error', '완료되지 않은 점검 설비가 있습니다. [점검결과 저장] 후 다시 시도하십시오.');
+							} else {
+
+							}
+						}
+
+						AjaxUtil.getAsyncData('/api/kmms/equip_chk_rslt?action=searchChkEquipChkRslt', param, fn_success);
+					}
+				});
+
+				$("#btnSaveRslt").kendoButton({
+					themeColor: "base",
+					click: function (e) {
+						e.preventDefault();
+					
+						// 점검결과 저장을 위한 데이터 수집
+						let chkRsltPk = $('#chkRsltPk').val();
+						let chkSchePk = $('#chkSchePk').val();
+						
+						if (!chkRsltPk) {
+							Alert.alert('error', '점검결과 PK가 없습니다.');
+							return;
+						}
+						
+						// 점검항목 그리드에서 데이터 수집
+						let grid = $("#inspectionItemGrid").data("kendoGrid");
+						if (!grid) {
+							Alert.alert('error', '점검항목 그리드를 찾을 수 없습니다.');
+							return;
+						}
+						
+						let data = grid.dataSource.data();
+						let savePromises = [];
+						
+						// 각 점검항목에 대해 insertUpdate 호출
+						data.forEach(function(item) {
+							if (item.chk_item_pk) {
+								// chkItemRsltNum 안전하게 처리
+								let chkItemRsltNum = null;
+								if (item.chk_item_rslt_num !== undefined && item.chk_item_rslt_num !== null && item.chk_item_rslt_num !== '') {
+									chkItemRsltNum = item.chk_item_rslt_num;
+								}
+								
+								let param = {
+									chkRsltPk: chkRsltPk,
+									chkItemPk: item.chk_item_pk,
+									chkSchePk: chkSchePk,
+									chkItemRslt: item.chk_item_rslt || '',
+									chkItemRsltDesc: item.chk_item_rslt_desc || '',
+									chkItemRsltNum: chkItemRsltNum
+								};
+								
+								let promise = new Promise(function(resolve, reject) {
+									AjaxUtil.postAsyncData('/api/kmms/equip_chk_item_rslt?action=insertUpdate', param, 
+										function(response) {
+											if (response.success) {
+												resolve(response);
+											} else {
+												reject(response.message || '저장 실패');
+											}
+										},
+										function(error) {
+											reject(error);
+										}
+									);
+								});
+								savePromises.push(promise);
+							}
+						});
+						
+						// 모든 저장 작업이 완료되면 요약 데이터 조회 후 점검결과 정보 업데이트
+						Promise.all(savePromises)
+							.then(function (results) {								
+								// 1. equipChkItemRsltSummary 호출하여 요약 데이터 조회
+								return new Promise(function(resolve, reject) {
+									AjaxUtil.getAsyncData('/api/kmms/equip_chk_item_rslt?action=equipChkItemRsltSummary', 
+										{chkRsltPk: chkRsltPk}, 
+										function (response) {									
+											if (response) {
+												resolve(response);
+											} else {
+												reject('요약 데이터를 가져올 수 없습니다.');
+											}
+										},
+										function(error) {
+											reject(error);
+										}
+									);
+								});
+							})
+							.then(function(summaryData) {
+								// 2. updateChkRsltCountInfo 호출하여 점검결과 정보 업데이트
+								let updateParams = {
+									chkRsltPk: chkRsltPk,
+									chkItemTot: summaryData.tot_count || 0,
+									abnItemCnt: summaryData.ab_normal_count || 0,
+									chkRslt: summaryData.ab_normal_count > 0 ? 'A' : 'N' // 비정상 항목이 있으면 'A', 없으면 'N'
+								};
+								
+								return new Promise(function(resolve, reject) {
+									AjaxUtil.postAsyncData('/api/kmms/equip_chk_rslt?action=updateChkRsltCountInfo', 
+										updateParams, 
+										function(response) {
+											if (response.success) {
+												resolve(response);
+											} else {
+												reject(response.message || '점검결과 정보 업데이트 실패');
+											}
+										},
+										function(error) {
+											reject(error);
+										}
+									);
+								});
+							})
+							.then(function(updateResponse) {
+								// 3. updateEquipChkScheStatus 호출하여 점검스케줄 상태 업데이트
+								let scheUpdateParams = {
+									chkSchePk: chkSchePk
+								};
+								
+								return new Promise(function(resolve, reject) {
+									AjaxUtil.postAsyncData('/api/kmms/equip_chk_sche?action=updateEquipChkScheStatus', 
+										scheUpdateParams, 
+										function(response) {
+											if (response.success) {
+												resolve(response);
+											} else {
+												reject(response.message || '점검스케줄 상태 업데이트 실패');
+											}
+										},
+										function(error) {
+											reject(error);
+										}
+									);
+								});
+							})
+							.then(function(scheUpdateResponse) {
+								Alert.alert('success', '점검결과가 성공적으로 저장되었습니다.');
+								// 그리드 새로고침
+								grid.dataSource.read();
+							})
+							.catch(function(error) {
+								Alert.alert('error', '점검결과 저장 중 오류가 발생했습니다: ' + error);
+							});
+					}
+				});
+
+				// btnChangeMan 버튼은 동적으로 생성되므로 bindMainData에서 초기화
+
+				// 점검항목 그리드 새로고침 함수
+				this.refreshInspectionItemGrid = function (equipPk) {
+					if (equipPk) {
+						// 특정 설비의 그리드 새로고침
+						let grid = $("#inspectionItemGrid_" + equipPk).data("kendoGrid");
+						if (grid) {
+							console.log('점검항목 그리드 새로고침 시작:', equipPk);
+							grid.dataSource.read();
+						} else {
+							console.log('그리드를 찾을 수 없습니다:', "inspectionItemGrid_" + equipPk);
+						}
+					} else {
+						// 기본 그리드 새로고침 (기존 로직)
+						let grid = $("#inspectionItemGrid").data("kendoGrid");
+						if (grid) {
+							console.log('점검항목 그리드 새로고침 시작');
+							console.log('현재 chkRsltPk 값:', $('#chkRsltPk').val());
+							grid.dataSource.read();
+							// 그리드 데이터 로드 완료 후 equipRsltCnt 업데이트
+							grid.dataSource.one('requestEnd', function() {
+								updateEquipRsltCnt();
+							});
+						}
+					}
+				};
+
+				// 설비 선택 드롭다운 변경 이벤트
+				$('#equipResultPk').on('change', function () {
+					let selectedEquipPk = $(this).val();
+					console.log('선택된 설비 PK:', selectedEquipPk);
+					
+					if (selectedEquipPk) {
+						// 선택된 설비의 chkRsltPk를 찾아서 설정
+						let equip_pks = AjaxUtil.getSyncData('/api/kmms/equip_chk_rslt?action=findAll', {
+							chkSchePk: $('#chkSchePk').val()
+						});
+
+						if (equip_pks && Array.isArray(equip_pks)) {
+							let selectedEquip = equip_pks.find(item => item.equip_pk == selectedEquipPk);
+							if (selectedEquip && selectedEquip.chk_rslt_pk) {
+								$('#chkRsltPk').val(selectedEquip.chk_rslt_pk);
+								
+								// 선택된 설비의 이름을 equipRsltNm 필드에 표시
+								if (selectedEquip.equip_nm) {
+									$('#equipRsltNm').val(selectedEquip.equip_nm);
+								} else if (selectedEquip.equip_rslt_nm) {
+									$('#equipRsltNm').val(selectedEquip.equip_rslt_nm);
+								}
+
+								// 선택된 설비의 점검항목 그리드 새로고침
+								let grid = $("#inspectionItemGrid_" + selectedEquipPk).data("kendoGrid");
+								if (grid) {
+									console.log('점검항목 그리드 새로고침 시작:', selectedEquipPk);
+									grid.dataSource.read();
+								} else {
+									console.log('그리드를 찾을 수 없습니다:', "inspectionItemGrid_" + selectedEquipPk);
+								}
+							}
+						}
+					} else {
+						// 설비가 선택되지 않은 경우 equipRsltNm 필드 초기화
+						$('#equipRsltNm').val('');
+					}
+				});
+
+				// 점검결과 저장 버튼 이벤트 (동적으로 생성된 버튼들)
+				$(document).on('click', '[id^="saveInspectionResult_"]', function (e) {
+					e.preventDefault();
+
+					let equipPk = $(this).attr('id').replace('saveInspectionResult_', '');
+					let grid = $("#inspectionItemGrid_" + equipPk).data("kendoGrid");
+
+					if (!grid) return;
+
+					let data = grid.dataSource.data();
+
+					// 여기에 실제 저장 로직을 구현
+					Alert.alert('', '점검결과가 저장되었습니다.');
+				});
+
+				// targetEquip 드롭다운은 설비 데이터가 로드된 후에 초기화됩니다
+
+				// 모달 닫기 - 닫기 버튼 클릭
+				$('#closeResultModal').kendoButton({
+					click: function (e) {
+						e.preventDefault();
+
+						$('#modalResultEdit').fadeOut();
+
+					}
+				});
+
+
+
+			}
+
+			getData() {
+				const param = {
+					action: 'detail',
+					chkSchePk: this.chk_sche_pk
+				};
+				const result = AjaxUtil.getSyncData(this.baseUrl, param);
+				this.bindMainData(result)
+			}
+
+			bindMainData(data) {
+				let _this = this;
+				console.log('bindMainData', data);
+
+				// 점검일정번호 값 할당
+				$('#chkScheNo').text(data.chkScheNo);
+				$('#chkMastNm').text(data.chkMastNm);
+				$('#cycleDisplayNm').text(data.cycleDisplayNm);
+				$('#chkStatusNm').text(data.chkStatusNm);
+
+				// 설비별 결과 렌더링
+				this.renderEquipChkRslt(data);
+
+				$('#schInsertTs').text(data.insertTs);
+				$('#chkScheDt').text(data.chkScheDt);
+				$('#workText').text(data.workText);
+
+				// 점검완료일 처리 - 템플릿 방식으로 변경
+				let chkDtTemplate = kendo.template($('#chkDtTemplate').html());
+				let chkDtHtml = chkDtTemplate({ data: data, writeYn: this.writeYn });
+				$('#chkDtContainer').html(chkDtHtml);
+
+				// 편집 모드일 때만 kendoDatePicker 초기화
+				if (data.chkStatusCd !== 'CHK_STATUS_Y' && this.writeYn) {
+					$("#chkDt").kendoDatePicker({
+						format: "yyyy-MM-dd",
+					});
 				}
-				$modal.fadeOut();
-			});
 
-            // 모달 닫기 - 닫기 버튼 클릭
-            $('#closeResultModal').kendoButton({
-                click: function (e) {
-                    e.preventDefault();
+				// 점검부서 처리 - 템플릿 방식으로 변경
+				let deptTemplate = kendo.template($('#deptTemplate').html());
+				let deptHtml = deptTemplate({ data: data, writeYn: this.writeYn });
+				$('#deptContainer').html(deptHtml);
 
-					$('#modalResultEdit').fadeOut();
-                    this.resetSelection();
-                }
-            });
-		}
+				// 편집 모드일 때만 드롭다운 초기화
+				if (data.chkStatusCd !== 'CHK_STATUS_Y' && this.writeYn) {
+					AjaxUtil.fillDropDownTreeOptions($('#deptNm'), 'depart', 'all');
+					// 부서 데이터가 이미 로드되어 있다면 값 설정
+					if (data.deptPk) {
+						$('#deptNm').data("kendoDropDownTree").value(data.deptPk || '');
+					}
+				}
 
-		getData() {
-			const param = {
-                action: 'detail',
-				chkSchePk: this.chk_sche_pk
-			};
-			const result = AjaxUtil.getSyncData(this.baseUrl, param);
-			console.log(result);
+				// 점검담당자 처리 - 템플릿 방식으로 변경
+				let chkUserTemplate = kendo.template($('#chkUserTemplate').html());
+				let chkUserHtml = chkUserTemplate({ data: data, writeYn: this.writeYn });
+				$('#chkUserContainer').html(chkUserHtml);
 
-            this.bindMainData(result)
-		}
+				// 편집 모드일 때만 드롭다운 초기화
+				if (data.chkStatusCd !== 'CHK_STATUS_Y' && this.writeYn) {
+					AjaxUtil.fillDropDownOptions($('#chkUserNm'), 'cm_user_info', 'all', data.chkUserPk || null, null, null);
 
-        bindMainData(data) {
-            let _this = this;
+					// 동적으로 생성된 버튼 초기화
+					$("#btnChangeMan").kendoButton({
+						themeColor: "base",
+						click: function (e) {
+							e.preventDefault();
 
-            console.log(data[0].chk_sche_no);
-            // 점검일정번호 값 할당
-			$('#chk_sche_no').text(data[0].chk_sche_no);
-			$('#chk_mast_nm').text(data[0].chk_mast_nm);
-            $('#cycle_display_nm').text(data[0].cycle_display_nm);
-			$('#chk_status_nm').text(data[0].chk_status_nm);
+							let formData = FormUtil.extractForm($('#equipChkScheForm'));
 
-            $('#insert_ts').text(data[0].insert_ts);
-            $('#chk_sche_dt').text(data[0].chk_sche_dt);
+							let param = {
+								chkSchePk: formData.chkSchePk,
+								chkUserPk: formData.chkUserNm,
+								deptPk: formData.deptNm,
+							}
 
-            $('#work_text').text(data[0].work_text);
+							let fn_success = function (resp) {
+								if (resp.success) {
+									Alert.alert('success', '점검담당자가 성공적으로 변경되었습니다.');
+									// 페이지 데이터 새로고침
+									_this.getData();
+								}
+								else {
+									Alert.alert('error', resp.message);
+								}
+							}
+							
+							let fn_error = function (error) {
+								Alert.alert('error', '점검담당자 변경 중 오류가 발생했습니다.');
+							}
+							
+							AjaxUtil.postAsyncData('/api/kmms/equip_chk_sche?action=updateChkUser', param, fn_success, fn_error);
+						}
+					});
+				}
 
-			
+				// 기본 필드 바인딩
+				const basicFields = {
+					'piName': data.chkMastNm,
+					'perNumber': data.per_number,
+					'schedStartDt': data.sched_start_date,
+					'workText': data.workText,
+				};
+
+				// 기본 필드 값 설정
+				// choi : 한꺼번에 값을 바인딩하네
+				Object.entries(basicFields).forEach(([id, value]) => {
+					$(`#${id}`).val(value);
+				});
 
 
-            // 기본 필드 바인딩
-            const basicFields = {
-                'piName': data.chk_mast_nm,
-                'perNumber': data.per_number,
-                'schedStartDt': data.sched_start_date,
-                'work_text': data.work_text,
-            };
-            
-            // 기본 필드 값 설정
-            // choi : 한꺼번에 값을 바인딩하네
-            Object.entries(basicFields).forEach(([id, value]) => {
-                $(`#${id}`).val(value);
-            });
 
-        }//bindPiMasterData
+			}
 
-		showDetail() {
-			const data = this.grid.getSelect();
-			if (data.length > 0) {
-				const { equip_pk, equip_nm } = data[0];
-				$('#selectedEquPK').val(equip_pk);
-				$('#selectedEquName').val(equip_nm);
+			/**
+			 * 점검결과 편집 모달 표시
+			 * @param {string} chk_sche_pk - 점검계획 번호
+			 * @param {string} onEdit - 'edit' 또는 'read'
+			 */
+			show(chk_sche_pk, onEdit) {
+				this.chk_sche_pk = chk_sche_pk;
+				$("#chkSchePk").val(chk_sche_pk);
+
+				// 편집 모드 설정
+				this.writeYn = (onEdit === 'edit');
+
+				// 모드에 따라 버튼 상태 설정 (필드 표시/숨김은 bindMainData에서 처리)
+				this.setFieldMode(onEdit);
+
+				this.getData();
+
+				$("#modalResultEdit").fadeIn();
+			}
+
+			/**
+			 * 필드 모드 설정
+			 * @param {string} mode - 'read' 또는 'edit'
+			 */
+			setFieldMode(mode) {
+				const buttons = [
+					'#saveReusltAll',
+					'#deleteSchedule',
+					'#compleResult'
+				];
+
+				if (mode === 'read') {
+					// 읽기 모드: 버튼들 숨기기 (닫기 버튼만 남김)
+					buttons.forEach(btn => {
+						$(btn).hide();
+					});
+
+				} else if (mode === 'edit') {
+					// 편집 모드: 버튼들 보이기
+					buttons.forEach(btn => {
+						$(btn).show();
+					});
+				}
+			}
+
+			/**
+			 * 설비별 점검결과 렌더링
+			 * @param {Object} data - 점검계획 데이터
+			 */
+			renderEquipChkRslt(data) {
+				// 설비별 결과 데이터가 있다면 렌더링
+				if (data.chkSchePk) {
+					let equip_pks = AjaxUtil.getSyncData('/api/kmms/equip_chk_rslt?action=findAll', { chkSchePk: data.chkSchePk });
+					console.log('equip_pks', equip_pks);
+
+					// equip_status_nm 기반으로 카운트 계산
+					let normalCount = 0;
+					let abNormalCount = 0;
+					let unableCheckCount = 0;
+
+					if (equip_pks && Array.isArray(equip_pks)) {
+						equip_pks.forEach(function (item) {
+							if (item && item.equip_status_nm) {
+								if (item.equip_status_nm === '가동중') {
+									normalCount++;
+								} else if (item.equip_status_nm === '고장') {
+									abNormalCount++;
+								} else {
+									unableCheckCount++;
+								}
+							}
+						});
+					}
+
+					// 점검결과 데이터 표시
+					$('#totCount').text(equip_pks.length || 0);
+					$('#normalCount').text(normalCount);
+					$('#abNormalCount').text(abNormalCount);
+					$('#unableCheckCount').text(unableCheckCount);
+
+					// equip_pks.length에 따라 모달창 높이 조정
+					console.log('adjustModalHeight 호출 전 - equip_pks.length:', equip_pks ? equip_pks.length : 'undefined');
+
+					// 모달창 높이 동적 조정
+					let modalContent = $('#modalContent');
+					if (equip_pks && equip_pks.length > 0) {
+						// 설비가 있는 경우: 800px
+						modalContent.css({
+							'max-height': '800px !important',
+							'height': '800px !important'
+						});
+						console.log('모달창 높이를 800px로 조정했습니다. (설비 개수: ' + equip_pks.length + ')');
+					} else {
+						// 설비가 없는 경우: 450px
+						modalContent.css({
+							'max-height': '450px !important',
+							'height': '450px !important'
+						});
+						console.log('모달창 높이를 450px로 조정했습니다. (설비 개수: 0)');
+					}
+
+					// equip_pks 데이터가 있으면 기존 select 요소에 옵션 채우기
+					if (equip_pks && Array.isArray(equip_pks) && equip_pks.length > 0) {
+						// equip_pk 값이 있는 항목만 필터링
+						let validEquipPks = equip_pks.filter(item => item && item.equip_pk);
+
+						if (validEquipPks.length > 0) {
+							// equip_pk 값들을 쉼표로 구분된 문자열로 변환
+							let equipPkString = validEquipPks.map(item => item.equip_pk).join(', ');
+
+							// 기존 select 요소에 옵션 채우기
+							AjaxUtil.fillDropDownOptions($('#equipResultPk'), 'cm_equipment', 'sel', null, equipPkString, null, null);
+
+							// 첫 번째 설비의 chkRsltPk를 설정하고 점검항목 그리드 새로고침
+							if (validEquipPks[0] && validEquipPks[0].chk_rslt_pk) {
+								console.log('설정할 chkRsltPk:', validEquipPks[0].chk_rslt_pk);
+								$('#chkRsltPk').val(validEquipPks[0].chk_rslt_pk);
+								console.log('설정된 chkRsltPk 값:', $('#chkRsltPk').val());
+								
+								// 첫 번째 설비의 이름을 equipRsltNm에 설정
+								if (validEquipPks[0].equip_nm) {
+									$('#equipRsltNm').val(validEquipPks[0].equip_nm);
+								} else if (validEquipPks[0].equip_rslt_nm) {
+									$('#equipRsltNm').val(validEquipPks[0].equip_rslt_nm);
+								}
+								
+								this.refreshInspectionItemGrid();
+							} else {
+								console.warn('chk_rslt_pk가 없습니다:', validEquipPks[0]);
+							}
+						}
+					}
+				}
+			}
+			/**
+			 * 점검결과 일괄저장용 JSON 데이터 생성
+			 * @returns {Object} 점검결과 일괄저장용 JSON 객체
+			 */
+			onSetJsonBatch() {
+				// 점검계획별 점검결과 일괄저장
+				var chkRslts = [];
+				var _this = this;
+
+				// 점검항목 그리드에서 데이터 수집
+				let inspectionGrid = $("#inspectionItemGrid").data("kendoGrid");
+				if (inspectionGrid) {
+					let gridData = inspectionGrid.dataSource.data();
+					let subitems = [];
+
+					gridData.forEach(function (item) {
+						subitems.push({
+							equipChkItem: item.chk_item_pk,
+							chkItemRsltDesc: item.chk_item_rslt_desc,
+							chkItemRslt: item.chk_item_rslt === '정상' ? 'N' : item.chk_item_rslt === '이상' ? 'A' : item.chk_item_rslt === '점검불가' ? 'C' : '',
+							chkItemRsltNum: _this.removeNumberFormat(item.chk_item_rslt_num),
+						});
+					});
+
+					chkRslts.push({
+						chkRsltPk: $('#chkRsltPk').val(),
+						equipChkItems: subitems,
+					});
+				}
+
+				return { chkRslts: chkRslts };
+			}
+
+			removeNumberFormat(value) {
+				if (!value) return '';
+				return value.toString().replace(/[^\d.-]/g, '');
+			}
+
+			refreshFileList() {
+				// 파일 목록 새로고침 로직
+			}
+
+			showLoading() {
+				this.loading = true;
+				$('#loadingOverlay').show();
+			}
+
+			hideLoading() {
+				this.loading = false;
+				$('#loadingOverlay').hide();
 			}
 		}
 
-		resetSelection() {
-			$('#selectedEquPK, #selectedEquName').val('');
-		}
+		/**
+		 * 설비별 점검결과 개수를 계산하여 equipRsltCnt에 표시
+		 */
+		function updateEquipRsltCnt() {
+			let grid = $("#inspectionItemGrid").data("kendoGrid");
+			if (!grid) {
+				console.log('updateEquipRsltCnt: 그리드가 없습니다.');
+				return;
+			}
 
-		show(chk_sche_pk) {
+			let gridData = grid.dataSource.data();
+			console.log('updateEquipRsltCnt: 그리드 데이터 개수:', gridData.length);
+			console.log('updateEquipRsltCnt: 그리드 데이터:', gridData.toJSON());
 			
-			this.chk_sche_pk = chk_sche_pk;
-			console.log("chk_sche_pk=", this.chk_sche_pk);
+			let normalCount = 0;
+			let abnormalCount = 0;
+			let unableCount = 0;
 
-			$("#modalResultEdit").fadeIn();
-			this.getData();
+			// 그리드 데이터가 없거나 빈 경우 기본값 처리
+			if (!gridData || gridData.length === 0) {
+				normalCount = 0;
+				abnormalCount = 0;
+				unableCount = 0;
+				console.log('updateEquipRsltCnt: 그리드 데이터가 없습니다.');
+			} else {
+				gridData.forEach(function(item, index) {
+					let result = item.chk_item_rslt;
+					console.log(`updateEquipRsltCnt: 항목 ${index + 1} - chk_item_rslt: "${result}" (타입: ${typeof result})`);
+					
+					// 기본값이 'N' 또는 '정상'인 경우를 처리
+					if (result === 'N' || result === '정상' || !result) {
+						normalCount++;
+						console.log(`updateEquipRsltCnt: 항목 ${index + 1} - 정상으로 카운트됨 (현재 정상: ${normalCount})`);
+					} else if (result === 'A' || result === '이상') {
+						abnormalCount++;
+						console.log(`updateEquipRsltCnt: 항목 ${index + 1} - 이상으로 카운트됨 (현재 이상: ${abnormalCount})`);
+					} else if (result === 'C' || result === '점검불가') {
+						unableCount++;
+						console.log(`updateEquipRsltCnt: 항목 ${index + 1} - 점검불가로 카운트됨 (현재 점검불가: ${unableCount})`);
+					} else {
+						console.log(`updateEquipRsltCnt: 항목 ${index + 1} - 예상치 못한 값: "${result}"`);
+					}
+				});
+			}
+
+			console.log(`updateEquipRsltCnt: 최종 카운트 - 정상: ${normalCount}, 이상: ${abnormalCount}, 점검불가: ${unableCount}`);
+
+			// equipRsltCnt에 이미지와 동일한 형식의 값을 설정
+			let equipRsltCntElement = $('#equipRsltCnt');
+			if (equipRsltCntElement.length > 0) {
+				// 이미지와 동일한 형식으로 값을 설정 (주요 상태를 앞에 표시하고 괄호 안에 상세 정보)
+				let primaryStatus = '';
+				let primaryColor = '';
+				
+				// 가장 많은 상태를 주요 상태로 설정
+				if (abnormalCount > 0) {
+					primaryStatus = '이상';
+					primaryColor = 'red';
+				} else if (unableCount > 0) {
+					primaryStatus = '점검불가';
+					primaryColor = 'orange';
+				} else {
+					primaryStatus = '정상';
+					primaryColor = 'black';
+				}
+				
+				let resultText = ` - <span style="color: #666;" id="equipRsltStatus">
+					<span style="color: black; font-weight: bold;">( 정상 </span> <span style="color: black;">${normalCount} </span> 
+				<span style="color: red; font-weight: bold;">이상</span> <span style="color: red;">${abnormalCount} </span> 
+				<span style="color: orange; font-weight: bold;">점검불가</span> <span style="color: orange;">${unableCount} </span> 
+				<span style="color: black; font-weight: bold;">)</span>`;
+				$('#equipRsltCnt').html(resultText);
+				console.log('updateEquipRsltCnt: equipRsltCnt에 설정된 값:', resultText);
+			} else {
+				console.log('updateEquipRsltCnt: equipRsltCnt 엘리먼트를 찾을 수 없습니다.');
+			}
 		}
-	}
 
-	let resultEditPage = null;
+		let resultEditPage = null;
 
-	$(document).ready(function () {
-        resultEditPage = new ResultEditPage();
-	});
-</script>
+		// ResultEditPage 클래스를 전역으로 사용할 수 있도록 window 객체에 할당
+		window.ResultEditPage = ResultEditPage;
+
+		$(document).ready(function () {
+			resultEditPage = new ResultEditPage();
+		});
+
+		// 숫자만 입력 에디터
+		function numberOnlyEditor(container, options) {
+			$('<input name="' + options.field + '" type="number" min="0" class="k-input k-textbox" style="text-align:right; width:100%;" />')
+				.appendTo(container)
+				.on('input', function () {
+					this.value = this.value.replace(/[^0-9]/g, '');
+				});
+		}
+
+		// 항목결과 드롭다운 에디터
+		function chkItemRsltDropDownEditor(container, options) {
+			$('<input name="' + options.field + '" />')
+				.appendTo(container)
+				.kendoDropDownList({
+					autoBind: false,
+					dataTextField: "text",
+					dataValueField: "value",
+					dataSource: {
+						transport: {
+							read: {
+								url: "/api/system/combo",
+								dataType: "json",
+								data: {
+									combo_type: "cm_code",
+									cond1: "EQUIP_CHK_ITEM_TYPE",
+									cond2: "",
+									cond3: ""
+								}
+							}
+						}
+					},
+					value: "N",
+					optionLabel: "",
+					textAlign: "center"
+				}).data("kendoDropDownList").dataSource.read();
+		}
+
+	</script>

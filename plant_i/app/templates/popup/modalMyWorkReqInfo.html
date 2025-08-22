@@ -29,14 +29,27 @@
 					<label for="insert_ts">요청일</label>
 					<input type="text" class="form-control" id="insert_ts" name="insert_ts" readonly>
 				</div>
+				<div class="form-group col-md-3">
+					<label for="want_dt" class="required">희망일</label>
+					<div class="field-wrapper">
+						<input type="date" id="want_dt" name="want_dt" readonly />
+					</div>
+				</div>
 			</div>
 			<form id="wo_req_form" name="wo_req_form">
 				<!-- 가이드라인 섹션 -->
 				<div class="top-section">
 					<div class="form-row">
-						<div class="form-group second-group col-md-11">
-							<label for="wo_work_title" class="required">작업제목 *</label>
+						<div class="form-group second-group col-md-11.5">
+							<label for="wo_work_title" class="required">작업제목</label>
 							<input type="text" class="form-control" id="wo_work_title" name="work_title" placeholder="200자 이하로 입력하세요">
+						</div>
+					</div>
+					<!-- 요청정보 탭 컨텐츠 -->
+					<div class="form-row">
+						<div class="form-group second-group col-md-11.4">
+							<label for="reqInfo">요청사항</label>
+							<textarea id="editor" name="reqInfo" style="height:300px" aria-label="editor"></textarea>
 						</div>
 					</div>
 					<div class="form-row">
@@ -46,7 +59,7 @@
 							<input type="text" class="form-control" id="work_order_no" name="work_order_no" readonly placeholder="요청 후 번호 생성">
 						</div>
 						<div class="form-group col-md-3">
-							<label for="wo_equ_name" class="required">설비 *</label>
+							<label for="wo_equ_name" class="required">설비</label>
 							<input type="hidden" id="wo_equ_pk" name="equip_pk" />
 							<input type="text" class="form-control" id="wo_equ_name" name="equip_nm" readonly placeholder="관련 설비를 선택하세요">
 						</div>
@@ -62,69 +75,55 @@
 					</div>
 					<div class="form-row">
 						<div class="form-group col-md-3">
-							<label for="wo_work_dept_pk" class="required">작업부서 *</label>
+							<label for="wo_work_dept_pk" class="required">작업부서</label>
 							<select id="wo_work_dept_pk" name="dept_pk" disabled></select>
 						</div>
 						<div class="form-group col-md-3">
-							<label for="wo_work_charger_pk" class="required">작업담당자 *</label>
+							<label for="wo_work_charger_pk" class="required">작업담당자</label>
 							<select id="wo_work_charger_pk" name="work_charger_pk" disabled>
 							</select>
 						</div>
-						<div class="form-group col-md-3" style="display: flex; flex-direction: column;">
-							<label for="want_dt" class="required">희망일자(마침) *</label>
-							<div class="field-wrapper">
-								<input type="date" id="want_dt" name="want_dt" disabled />
-							</div>
-						</div>
 						<div class="form-group col-md-3">
-							<label for="breakdown_dt" class="required">고장일시 *</label>
-							<div class="field-wrapper">
-								<input type="date" id="breakdown_dt" name="breakdown_dt" disabled />
-							</div>
-						</div>
-					</div>
-					<div class="form-row" style="justify-content: flex-start;">
-						<div class="form-group col-12 col-md-3">
-							<label class="required">현상 *</label>
-							<select id="woProblem" name="problem_cd" disabled></select>
+							<label for="maint_type_cd" class="required">보전유형</label>
+							<select id="maint_type_cd" name="maint_type_cd" disabled>
+							</select>
 						</div>
 						<div class="form-group col-12 col-md-3">
 							<label for="wcType">작업구분</label>
 							<select id="wcType" name="work_src_cd" disabled></select>
+						</div>
+					</div>
+					<div class="form-row" style="justify-content: flex-start;">
+						<div class="form-group col-md-3">
+							<label for="breakdown_dt" class="required">고장일시</label>
+							<div class="field-wrapper">
+								<input type="date" id="breakdown_dt" name="breakdown_dt" disabled />
+							</div>
+						</div>
+						<div class="form-group col-12 col-md-3">
+							<label class="required">현상</label>
+							<select id="woProblem" name="problem_cd" disabled></select>
+						</div>
+						<div class="form-group col-12 col-md-3">
+							<label class="required" for="cause_cd_post" data-labelCd="원인"></label>
+							<select id="cause_cd_post" name="cause_cd_post" disabled></select>
 						</div>
 						<div class="form-group col-12 col-md-3">
 							<label for="projectName">프로젝트</label>
 							<select id="projectName" name="proj_cd" disabled></select>
 						</div>
 					</div>
-
-				</div>
-				<!-- 요청정보 섹션 -->
-				<div class="section">
-					<div class="tab-group">
-						<button class="tab-button active" data-tab="myWorkReqForm">요청정보</button>
-						<button class="tab-button" data-tab="fileTab">파일</button>
-					</div>
-					<div class="tab-content">
-						<!-- 요청정보 탭 컨텐츠 -->
-						<div class="tab-pane active" id="myWorkReqForm">
-							<label>요청사항</label>
-							<section class="section">
-								<textarea id="editor" name="reqInfo" style="height:300px" aria-label="editor"></textarea>
-							</section>
-						</div>
-						<!-- 파일 탭 컨텐츠 -->
-						<div class="tab-pane" id="fileTab" style="height: 400px;">
-							{% include 'components/FileUpload.html' with tableName='cm_work_order' attachName='file' dataPk=cm_work_order.work_order_pk|default:'' %}
-						</div>
-					</div>
-				</div>
+				</div>		
 			</form>
+			<!-- 파일 탭 컨텐츠 -->
+			<div id="fileTab">
+				{% include 'components/FileUpload.html' with tableName='cm_work_order' attachName='file' dataPk=cm_work_order.work_order_pk|default:'' %}
+			</div>
 		</div>
 		<!-- 버튼 영역 -->
 		<div class="modal-footer">
 			<button type="button" class="btn-save" id="btnApproval">승인</button>
-			<button type="button" class="btn-save" id="btnRejectReqInfo">반려</button>
+			<button type="button" id="btnRejectReqInfo">반려</button>
 			<button type="button" class="btn-close" id="btnReqInfo">닫기</button>
 		</div>
 	</div>
@@ -136,7 +135,7 @@
 		<form id="rejectReasonForm">
 			<div class="form-row">
 				<div class="form-group col-12">
-					<label for="reject_reason" class="required" style="color: red;">반려사유 *</label>
+					<label for="reject_reason" class="required">반려사유</label>
 					<textarea class="form-control" id="reject_reason" name="reject_reason" placeholder="4000자 이하로 입력하세요" rows="6" style="resize: vertical;"></textarea>
 					<div class="char-counter" style="text-align: right; margin-top: 5px; color: #666;">
 						<span id="charCount">0</span> / 4000 bytes
@@ -280,7 +279,7 @@
 
 <script type="text/javascript">
 	let myWorkReqInfoPage = null;
-	class MyWorkReq {
+	class MyWorkReqInfo {
 		constructor() {
 			this.baseUrl = '/api/kmms/work_order';
 			this.workOrderPk = null; // 작업지시 PK
@@ -369,12 +368,14 @@
 
 			};
 
+			AjaxUtil.fillDropDownOptions($('#maint_type_cd'), 'cm_code', 'all', 'MAINT_TYPE_BM', 'MAINT_TYPE');
 			AjaxUtil.fillDropDownTreeOptions($("#wo_work_dept_pk"), "depart", "select");
 			AjaxUtil.fillDropDownOptions($('#wo_work_charger_pk'), 'cm_user_info', 'choose', null);
 			AjaxUtil.fillDropDownOptions($('#cycleType'), 'cm_code', 'choose', null, 'CYCLE_TYPE');
 			AjaxUtil.fillDropDownOptions($('#woProblem'), 'cm_reliab_codes', 'choose', null, 'PC');
 			AjaxUtil.fillDropDownOptions($('#wcType'), 'cm_code', 'choose', 'WS01', 'WS_TYPE');
 			AjaxUtil.fillDropDownOptions($('#projectName'), 'cm_project', 'choose', null, null);
+			AjaxUtil.fillDropDownOptions($('#cause_cd_post'), 'cm_reliab_codes', 'choose', null, 'CC');
 
 			let today = CommonUtil.getYYYYMMDD();
 			$("#want_dt").kendoDatePicker({
@@ -442,9 +443,7 @@
 			});
 
 			$("#btnRejectReqInfo").kendoButton({
-				themeColor: "base",
-				rounded: "full",
-				size: "small",
+				themeColor: "error",
 				click: function (e) {
 					e.preventDefault();
 					//기존 common.js 이용
@@ -504,9 +503,6 @@
 				}
 			});
 
-			// 탭 이벤트 초기화 추가
-			_this.initTabEvents();
-
 			// 문자 카운터 초기화
 			_this.initCharCounter();
 
@@ -519,20 +515,12 @@
 					{
 						name: "fontName",
 						items: [
-							{ text: "Andale Mono", value: "\"Andale Mono\"" }, // Font-family names composed of several words should be wrapped in \" \"
 							{ text: "Arial", value: "Arial" },
-							{ text: "Arial Black", value: "\"Arial Black\"" },
-							{ text: "Book Antiqua", value: "\"Book Antiqua\"" },
-							{ text: "Comic Sans MS", value: "\"Comic Sans MS\"" },
-							{ text: "Courier New", value: "\"Courier New\"" },
 							{ text: "Georgia", value: "Georgia" },
 							{ text: "Helvetica", value: "Helvetica" },
 							{ text: "Impact", value: "Impact" },
-							{ text: "Symbol", value: "Symbol" },
 							{ text: "Tahoma", value: "Tahoma" },
-							{ text: "Terminal", value: "Terminal" },
 							{ text: "Times New Roman", value: "\"Times New Roman\"" },
-							{ text: "Trebuchet MS", value: "\"Trebuchet MS\"" },
 							{ text: "Verdana", value: "Verdana" },
 						]
 					},
@@ -552,25 +540,7 @@
 					{ name: "separator4", type: "separator" },
 					"createLink",
 					"unlink",
-					"insertImage",
-					{ name: "separator5", type: "separator" },
-					"tableWizard",
-					"tableProperties",
-					"tableCellProperties",
-					"createTable",
-					"addRowAbove",
-					"addRowBelow",
-					"addColumnLeft",
-					"addColumnRight",
-					"deleteRow",
-					"deleteColumn",
-					"mergeCellsHorizontally",
-					"mergeCellsVertically",
-					"splitCellHorizontally",
-					"splitCellVertically",
-					"tableAlignLeft",
-					"tableAlignCenter",
-					"tableAlignRight"
+					"insertImage"
 				]
 			});
 		}
@@ -680,24 +650,6 @@
 
 		}
 
-		// 탭 전환 이벤트 핸들러
-		initTabEvents() {
-			let _this = this;
-
-			$('.tab-button').on('click', function (e) {
-				e.preventDefault()
-				const tabId = $(this).data('tab');
-				$('.tab-button').removeClass('active').removeAttr('style');
-				$('.tab-pane').removeClass('active').hide();
-				$(this).addClass('active').css({
-					'background': '#1e4f88',
-					'color': 'white',
-					'border-color': '#1e4f88'
-				});
-				if (tabId) $('#' + tabId).addClass('active').show();
-			});
-		}
-
 		show(work_order_pk) {
 			let _this = this;
 			_this.workOrderPk = work_order_pk;
@@ -757,7 +709,7 @@
 		}
 	}
 
-	myWorkReqInfoPage = new MyWorkReq();
+	myWorkReqInfoPage = new MyWorkReqInfo();
 	$(document).ready(function () {
 
 		// 모달이 표시될 때마다 cycleInfo 체크 (jQuery fadeIn 방식)

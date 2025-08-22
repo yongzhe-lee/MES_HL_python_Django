@@ -1,9 +1,9 @@
 <div id="modalWindowDept" class="modal child-modal">
-	<div class="modal-content" style="width: 800px; height: 500px !important;">
+	<div class="modal-content">
 		<div class="modal-header">
 			<h4>설비 부서변경 이력</h4>
 		</div>
-		<div class="modal-body" style="height: auto; overflow: hidden; max-height: 500px;">
+		<div class="modal-body">
 			<!-- 그리드 영역 -->
 			<div class="grid-section">
 				<div id="locDeptGrid"></div>
@@ -16,14 +16,11 @@
 	</div>
 </div>
 
-<style>
-</style>
-
 <script type="text/javascript">
 	class EquipDeptHist {
 		constructor() {
 			this.grid = null;
-			this.baseUrl = '/api/definition/equipment';
+			this.baseUrl = '/api/kmms/equipment';
 			this.init();
 		}
 
@@ -38,18 +35,6 @@
 				}
 			});
 
-			// Kendo 버튼 초기화
-			$("#btnModalOpenDept").kendoButton({
-				icon: "search",
-				themeColor: "base",
-				size: "small",
-				click: (e) => {
-					e.preventDefault();
-					this.getList();  // 모달 열 때 데이터 조회
-					modalDept.fadeIn();
-				}
-			});
-
 			this.initGrid();
 		}
 
@@ -57,10 +42,10 @@
 			this.grid = $("#locDeptGrid").kendoGrid({
 				columns: [
 					{ field: "equip_dept_hist_pk", title: "NO", width: "10%" },
-					{ field: "beforedept", title: "변경전 부서", width: "25%" },
-					{ field: "afterdept", title: "변경후 부서", width: "25%" },
-					{ field: "changedate", title: "변경일자", width: "20%" },
-					{ field: "changer", title: "변경자명", width: "20%" }
+					{ field: "equip_dept_bef", title: "변경전 부서", width: "25%" },
+					{ field: "equip_dept_aft", title: "변경후 부서", width: "25%" },
+					{ field: "insert_ts", title: "변경일자", width: "20%" },
+					{ field: "inserter_nm", title: "변경자명", width: "20%" }
 				],
 				height: 350,
 				scrollable: true,
@@ -72,12 +57,15 @@
 			}).data("kendoGrid");
 		}
 
-		getDeptList() {
+		getDeptList(equip_pk) {
 			const self = this;
 			$.ajax({
 				url: this.baseUrl,
 				type: "GET",
-				data: { action: 'read_dept_hist' },
+				data: { 
+					action: 'read_dept_hist',
+					equip_pk: equip_pk
+				},
 				success: function (response) {
 					console.log('서버 응답:', response);  // 데이터 구조 확인용 로그
 
@@ -113,14 +101,10 @@
 			});
 		}
 
-		show(callback) {
-			let _this = this;
-			this.callback = callback;
-
+		show(equip_pk) {
 			$("#modalWindowDept").fadeIn();
-			_this.getDeptList();
+			this.getDeptList(equip_pk);
 		}
-
 	}
 
 	let equipDeptHistPage = null;

@@ -18,7 +18,7 @@
                 </div>
                 <div class="col-12 col-md-3 col-lg-2 col-xl-2">
                     <div class="card-group-btn search">
-                        <button id="btnRandomNumberDBSearch" class="btn-search">조회</button>
+                        <button id="btnSearch" class="btn-search">조회</button>
 
                     </div>
                 </div>
@@ -46,76 +46,6 @@
     </div>
 </div>
 
-<div id="tmplSapMatInterface" class="content-wrap popup" style="display:none">
-    <div class="content-ui-row">
-        <div class="card-content">
-            <form>
-                <div class="edit-form-ui">
-                    <div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="기간선택">기간선택</label>
-                            <div class="field-wrapper">
-                                <div id="srch_date_range"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="mig_ym" data-labelCd="마이그레이션여부">마이그레이션여부</label>
-                            <div class="field-wrapper">
-                                <select class="form-control" name="mig_ym" id="mig_yn">
-                                    <option value="N">No</option>
-                                    <option value="Y">Yes(전체품목정보가져오기)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <hr />
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card-group-btn search">
-                            <button type="button" id="btnRequestSapMat" class="btn-search">인터페이스실행</button>
-                        </div>
-                    </div>
-
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="tmplSapBOMInterface" class="content-wrap popup" style="display:none">
-    <div class="content-ui-row">
-        <div class="card-content">
-            <form>
-                <div class="edit-form-ui">
-                    <div class="col-12">
-                        <div class="form-item align-h">
-                            <label class="k-label k-form-label" for="srch_date_range" data-labelCd="기준일자">기준일자</label>
-                            <div class="field-wrapper">
-                                <input type="date" id="txtBaseDate" name="base_date" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="card-content grid">
-                        <div id="parent_mat_grid"></div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card-group-btn search">
-                            <button type="button" id="btnRequestSapMat" class="btn-search">인터페이스실행</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 
 {% endblock %}
 {% block scripts %}
@@ -124,20 +54,17 @@
     class IFSapRandomPage {
         constructor() {
             this.grid = null;
+            this.$pcb_random_grid = null;
             this.init();
             this.url = "/api/interface/sap";
         }
 
         init() {
             let _this = this;
-
             this.initSapRandom();
-        }
-
-       
+        }       
 
         initSapRandom() {
-
             let _this = this;
             let gridOption = {
                 toolbar: [
@@ -164,20 +91,20 @@
                 ],
                 height: 650
             };
-            this.pcb_random_grid = new Grid($("#pcb_random_grid"), gridOption);
+            this.$pcb_random_grid = new Grid($("#pcb_random_grid"), gridOption);
 
 
             $('#txtPCBRanNumber').kendoTextBox();
 
-            $('#btnRandomNumberDBSearch').click(function (ex) {
-                _this.searchRandomNumber('DB');
+            $('#btnSearch').click(function (ex) {
+                _this.searchMainData();
             });
 
             $('#btnRandomNumberSAPSearch').kendoButton({
                 icon: "search",
                 themeColor: "success",
                 click: function () {
-                    _this.searchRandomNumber('SAP');
+                    _this.searchSapRandomNumber();
                 }
             });
 
@@ -193,12 +120,10 @@
                     gridData.saveAsExcel();
                 }
             });
-
         }
 
-
-
-        searchRandomNumber(reqType) {
+        //DB조회
+        searchMainData() {
             let _this = this;
             let rnd_num = $('#txtPCBRanNumber').val();
 
@@ -207,25 +132,49 @@
                 return;
             }
 
-            let action = 'search_pcb_random_db';
-            if (reqType == "SAP") {
-                action = "search_pcb_random_sap"
-            }
-
             let data = {
-                action: action,
+                action: "search_pcb_random_db",
                 rnd_num: rnd_num
             };
 
             let g1 = $('#pcb_random_grid');
             kendo.ui.progress(g1, true);
 
-            this.pcb_random_grid.setData([]);
+            this.$pcb_random_grid.setData([]);
             AjaxUtil.getAsyncData(this.url, data, function (result) {
                 if (result.success) {
-                    _this.pcb_random_grid.setData(result.items);
+                    _this.$pcb_random_grid.setData(result.items);
                 }
+                kendo.ui.progress(g1, false);
+            });
+        }
 
+        //SAP 인터페이스 후 DB조회
+        searchSapRandomNumber() {
+            let _this = this;
+            let rnd_num = $('#txtPCBRanNumber').val();
+
+            if (rnd_num == "") {
+                Alert.alert('입력누락', 'PCB난수번호를 입력하세요');
+                return;
+            }
+
+            let data = {
+                action: "req_sap_pcb_random",
+                rnd_num: rnd_num
+            };
+
+            let g1 = $('#pcb_random_grid');
+            kendo.ui.progress(g1, true);
+
+            this.$pcb_random_grid.setData([]);
+            AjaxUtil.getAsyncData(this.url, data, function (result) {
+                if (result.success) {
+                    _this.$pcb_random_grid.setData(result.items);
+                }
+                else {
+                    Alert.alert('SAP조회오류', result.message);
+                }
                 kendo.ui.progress(g1, false);
             });
         }

@@ -66,7 +66,7 @@ def alarm(context):
 		        INNER JOIN cm_equipment e ON e.equip_pk = t.equip_pk
 		        INNER JOIN cm_location l ON e.loc_pk = l.loc_pk
 		        WHERE  To_char(a.alarm_dt, 'YYYYMMDD') = To_char(Now(), 'YYYYMMDD')
-                and e.factory_pk = %(factory_pk)s
+                
                 GROUP  BY l.loc_nm, t.tag_pk, t.tag_desc
             )
             SELECT sub.loc_nm, sub.alarm_dt, sub.tag_desc
@@ -79,6 +79,7 @@ def alarm(context):
 		    AND a.alarm_dt = sub.alarm_dt
 		    ORDER  BY a.alarm_dt DESC
             '''
+                # -- and e.factory_pk = %(factory_pk)s
 
             dc = {}
             dc['factory_pk'] = factory_id
@@ -98,11 +99,12 @@ def alarm(context):
 		    and at.code_grp_cd = 'ALARM_TYPE'
 		    where at.code_cd in ('HH', 'LL')
 		    AND to_char(al.alarm_dt , 'YYYYMMDD') = to_char(now(), 'YYYYMMDD')
-            and e.factory_pk = %(factory_pk)s
+
  		    GROUP BY l.loc_nm, e.equip_cd, e.equip_nm
 		    ORDER BY alarm_dt desc
             '''
 
+            # -- and e.factory_pk = %(factory_pk)s
             dc = {}
             dc['factory_pk'] = factory_id
 
@@ -120,11 +122,12 @@ def alarm(context):
 		    and at.code_grp_cd = 'ALARM_TYPE'
 		    where at.code_cd in ('HI', 'LO', 'LK', 'ND')
 		    AND to_char(al.alarm_dt , 'YYYYMMDD') = to_char(now(), 'YYYYMMDD')
-            and e.factory_pk = %(factory_pk)s
+            
  		    GROUP BY l.loc_nm, e.equip_cd, e.equip_nm
 		    ORDER BY alarm_dt desc
             '''
 
+            # -- and e.factory_pk = %(factory_pk)s
             dc = {}
             dc['factory_pk'] = factory_id
 
@@ -147,7 +150,7 @@ def alarm(context):
 			left outer join cm_base_code at on t.alarm_type = at.code_cd 
 			and at.code_grp_cd = 'ALARM_TYPE'
 			WHERE 1 = 1
-            AND e.factory_pk = %(factory_pk)s
+
 		    )
 		    SELECT cte.*
 		    , (cte.da + cte.wa) as sum_a
@@ -155,6 +158,7 @@ def alarm(context):
 		    , (cte.dr + cte.wr) as sum_r
 		    FROM cte
             '''
+            # -- AND e.factory_pk = %(factory_pk)s
 
             dc = {}
             dc['today'] = today
@@ -269,11 +273,12 @@ def alarm(context):
 			left join cm_alarm a on a.tag_pk = t.tag_pk
 			where l.building_yn = 'N' 
 			and l.plant_yn = 'N'
-            and e.factory_pk = %(factory_pk)s
+
 			group by l.loc_cd, l.loc_nm, l.factory_pk
 			having count(distinct t.equip_pk) > 0
             '''
 
+            # -- and e.factory_pk = %(factory_pk)s
             dc = {}
             dc['today'] = today
             dc['yesterday'] = yesterday

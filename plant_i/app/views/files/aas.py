@@ -27,22 +27,23 @@ def aas(context, request):
             file_element = DBFileElement.objects.get(SubmodelElement__sme_pk=data_pk)
 
             #file_name = f'fe_{submodel_element.sme_pk}_{uuid.uuid4()}.{ext}'
-            filepath = os.path.join (settings.FILE_UPLOAD_PATH, file_element.value)
+            #filepath = os.path.join (settings.FILE_UPLOAD_PATH, file_element.value)
+            # DBFileElement의 path는 물리적 전체경로만 저장하고 value는 aasx 파일내 상대경로를 저장한다
             content_type= file_element.content_type
             filename = file_element.filename
 
-            f = open(filepath, 'rb')
+            f = open(file_element.path, 'rb')
             resp = HttpResponse(f, content_type=content_type)
             download_filename = CommonUtil.get_utf8_filename(filename)
             resp['Content-Disposition'] = 'attachment;filename*=UTF-8\'\'%s' % download_filename
-
             return resp
         elif model_type == 'resource':
-
+            # resource.path 물리적 절대경로
             resource = DBResource.objects.get(pk=data_pk)
-            filepath = os.path.join(settings.FILE_UPLOAD_PATH, resource.path)
+            path = resource.path.lstrip('/').replace("/","\\")
+            filepath = resource.path
             content_type = resource.contentType
-            filename = resource.path.split('\\')[-1]
+            filename = path.split('\\')[-1]
 
             f = open(filepath, 'rb')
             resp = HttpResponse(f, content_type=content_type)

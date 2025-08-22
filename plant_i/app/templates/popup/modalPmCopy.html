@@ -3,18 +3,32 @@
 	<div class="modal-content">
 		<div class="modal-header">
 			<h4>PM선택</h4>
-			<button type="button" class="close" id="closeModalPm">&times;</button>
 		</div>
-
 		<div class="modal-body">
 			<form id="pmCopyForm" name="pmCopyForm">
 				<!-- 검색 영역 -->
 				<div class="search-area">
-					<div class="search-label">검색키워드</div>
-					<input type="text" class="form-control" id="keyword_pm" name="keyword_pm" placeholder="설비코드, 설비명, 자산번호 입력">
-					<div class="search-label col-md-1">관리부서</div>
-					<select id="srch_pm_dept" name="srch_pm_dept">
-					</select>
+
+					<div class="col-sm-6 col-md-4 col-lg-3 col-xl-4">
+						<div class="form-item align-h L-align-h">
+							<label class="k-label k-form-label" for="keyword_pm" data-labelCd="검색키워드">검색키워드</label>
+							<div class="field-wrapper">
+								<input id="keyword_pm" name="keyword_pm" class="form-item" placeholder="PM명, 설비코드, 설비명" />
+							</div>
+						</div>
+					</div>
+
+					<div class="col-sm-6 col-md-4 col-lg-3 col-xl-4">
+						<div class="form-item align-h L-align-h">
+							<label class="k-label k-form-label" for="srch_pm_dept" data-labelCd="관리부서">관리부서</label>
+							<div class="field-wrapper">
+								<select id="srch_pm_dept" name="srch_pm_dept">
+								</select>
+							</div>
+						</div>
+					</div>
+		
+					<div class="search-label col-md-2"></div>
 					<button type="button" class="btn-search" id="btnSearchPmCopy" name="btnSearchPmCopy">검색</button>
 				</div>
 			</form>
@@ -216,6 +230,7 @@
 				themeColor: "base"
 			});
 
+			$('#keyword_pm').kendoTextBox();
 
 			// 검색 버튼을 kendo 버튼으로 변경
 			$("#btnSearchPmCopy").kendoButton({
@@ -256,8 +271,7 @@
 
 			$("#btnCancelPm").on("click", function (e) {
 				e.preventDefault();
-				$("#modalPmCopy").fadeOut();
-				this.reset();
+				$("#modalPmCopy").fadeOut();		
 			});
 
 		}

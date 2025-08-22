@@ -63,8 +63,10 @@ def tag(context):
 	        AND bc2.code_cd = t.src_system
 	        INNER JOIN cm_base_code bc3 on bc3.code_grp_cd = 'MEAS_SENSOR'
 	        AND bc3.code_cd = t.meas_sensor
-            where eq.factory_pk = %(factory_pk)s
+            
+            where 1 = 1
             '''
+            # -- where eq.factory_pk = %(factory_pk)s
             if searchText:
                 sql += ''' AND ( UPPER(t.tag) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
                 or UPPER(t.tag_desc) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
@@ -89,9 +91,12 @@ def tag(context):
             if locCd:
                 sql += ''' 	AND ( lc.loc_cd = %(locCd)s
 					OR lc.loc_cd IN ( select loc_cd from (select * from cm_fn_get_loc_path(%(factory_pk)s)) x 
-                        where %(locCd)s = path_info_cd and factory_pk = %(factory_pk)s)
+                        where %(locCd)s = path_info_cd 
+
+                        )
 				)
                 '''
+                        # -- and factory_pk = %(factory_pk)s)
             if equipCd:
                 sql += ''' AND eq.equip_cd = = %(equipCd)s                
                 '''  
@@ -258,10 +263,11 @@ def tag(context):
    	        from cm_tag t
    	        inner join cm_equipment eq on eq.equip_pk = t.equip_pk
    	        WHERE eq.equip_cd = %(equipCd)s
-            AND eq.factory_pk = %(factory_pk)s
+
    	        and t.chart_grp_cd is not null
    	        group by t.chart_grp_cd order by t.chart_grp_cd
             '''
+            # -- AND eq.factory_pk = %(factory_pk)s
             dc = {}
             dc['equipCd'] = equipCd
             dc['factory_pk'] = factory_id

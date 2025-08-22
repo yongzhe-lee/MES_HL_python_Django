@@ -88,6 +88,7 @@ def reliab_code(context):
             FROM cm_reliab_codes t
             left join user_profile ci on t.inserter_id = ci."User_id"
             left join user_profile ui on t.updater_id = ui."User_id"
+            where 1=1
         
             '''
             if reliabCd:
@@ -141,9 +142,10 @@ def reliab_code(context):
             left join user_profile ci on t.inserter_id = ci."User_id"
             left join user_profile ui on t.updater_id = ui."User_id"
             AND t.reliab_cd = %(reliabCd)s
-		    AND t.factory_pk = %(factory_pk)s
+
             '''
 
+		    # -- AND t.factory_pk = %(factory_pk)s
             dc = {}
             dc['reliabCd'] = reliabCd
             dc['factory_pk'] = factory_id
@@ -202,36 +204,38 @@ def reliab_code(context):
         elif action == 'findReferencedTablesInfo':
             reliabCd = posparam.get('reliabCd')
             types = posparam.get('types')
+                # -- AND factory_pk = %(factory_pk)s
             sql = ''' select t.i18n_code, t1.def_msg, t.cnt
             FROM (
                 SELECT 'workorder.problemcd.lbl' as i18n_code, count(*) as cnt
                 FROM cm_work_order
                 WHERE problem_cd = %(reliabCd)s
                 AND 'PC' = %(types)s
-                AND factory_pk = %(factory_pk)s
+                --
                 UNION ALL
                 SELECT 'workorder.remedycd.lbl' as i18n_code, count(*) as cnt
                 FROM cm_work_order
                 WHERE remedy_cd = %(reliabCd)s
                 AND 'RC' = %(types)s
-                AND factory_pk = %(factory_pk)s
+                -- 
                 UNION ALL
                 SELECT 'workorder.causecd.lbl' as i18n_code, count(*) as cnt
                 FROM cm_work_order
                 WHERE cause_cd = %(reliabCd)s
                 AND 'CC' = %(types)s
-                AND factory_pk = %(factory_pk)s
+                -- 
                 UNION ALL
                 SELECT 'workorder.causecd.lbl' as i18n_code, count(*) as cnt
                 FROM cm_wo_fault_loc t1
                 INNER JOIN cm_work_order t2 ON t1.work_order_pk = t2.work_order_pk
                 WHERE t1.cause_cd = %(reliabCd)s
                 AND 'FC' = %(types)s
-                AND t2.factory_pk = %(factory_pk)s
+                
             ) t
             left join cm_i18n t1 on t.i18n_code = t1.lang_code
             where t.cnt > 0
             '''
+                # -- AND t2.factory_pk = %(factory_pk)s
             dc = {}
             dc['reliabCd'] = reliabCd
             dc['factory_pk'] = factory_id

@@ -50,8 +50,8 @@ def tag_meas_type(context):
 	        inner join cm_base_code bc on bc.code_grp_cd = 'ALARM_DISP_TYPE' 
 	        and bc.code_cd = tmt.alarm_disp_type
 		    where 1=1
-            -- AND t.factory_pk = %(factory_id)s
             '''
+            # -- AND t.factory_pk = %(factory_id)s
             if useYn:
                 sql += ''' and tmt.use_yn = %(useYn)s
                 '''
@@ -211,12 +211,13 @@ def tag_meas_type(context):
 		    and adt.code_grp_cd = 'ALARM_DISP_TYPE'
 		    where t.use_yn = 'Y'
 		    and eq.equip_cd = %(equipCd)s
-            and eq.factory_pk = %(factory_pk)s
+
 		    group by tmt.tag_meas_type_pk
 		    , tmt.meas_type_nm, tmt.meas_unit
 		    , adt.code_nm, adt.code_cd
 		    order by tmt.meas_type_nm
             '''
+            # -- and eq.factory_pk = %(factory_pk)s
             dc = {}
             dc['equipCd'] = equipCd
             dc['factory_pk'] = factory_id

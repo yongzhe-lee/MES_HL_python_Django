@@ -1,11 +1,228 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchText" data-labelCd="검색키워드">검색키워드</label>
+                            <div class="field-wrapper">
+                                <input id="searchText" name="searchText" type="text" placeholder="설비코드, 설비명, 점검명을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="searchDt" data-labelCd="검색기간">검색기간</label>
+                            <div class="field-wrapper">
+                                <div id="searchDt"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text">
+                        <i class="material-symbols-outlined">list_alt</i>
+                        <label data-labelCd="점검결과 이상 설비목록">점검결과 이상 설비목록</label>
+                    </span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="inspectionIssuesGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block scripts %}
+<script type="text/javascript">
+class InspectionIssuesPage {
+    constructor() {
+        this.grid = null;
+        this.baseUrl = '/api/kmms/report';
+
+        this.init();
+    }
+
+    init() {
+        this.initDatePicker();
+        this.initGrid();
+        this.bindEvents();
+        this.searchMainData();
+    }
+
+    formatDate(date) {
+        return date.getFullYear().toString() + 
+               (date.getMonth() + 1).toString().padStart(2, '0') + 
+               date.getDate().toString().padStart(2, '0');
+    }
+
+    initDatePicker() {
+        let today = new Date();
+        let threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+        $("#searchDt").html('<input id="searchDt_start" name="startDt" style="width:120px;" /> ~ <input id="searchDt_end" name="endDt" style="width:120px;" />');
+
+        $("#searchDt_start").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: threeMonthsAgo
+        });
+        $("#searchDt_end").kendoDatePicker({
+            format: "yyyy-MM-dd",
+            value: today
+        });
+    }
+
+    initGrid() {
+        let _this = this;
+        let gridOption = {
+            autoBind: false,
+            dataSource: {
+                data: []
+            },
+            columns: [
+                { 
+                    title: "점검명", 
+                    field: "chkMastNm", 
+                    width: "150px",
+                },
+                { 
+                    title: "점검주기", 
+                    field: "cycleNm", 
+                    width: "100px"
+                },
+                { 
+                    title: "점검계획일", 
+                    field: "chkScheDt", 
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: center"
+                    }
+                },
+                { 
+                    title: "점검완료일", 
+                    field: "chkDt", 
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: center"
+                    }
+                },
+                { 
+                    title: "점검결과", 
+                    field: "chkRslt", 
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: center"
+                    }
+                },
+                { 
+                    title: "설비명", 
+                    field: "equipNm", 
+                    width: "150px"
+                },
+                { 
+                    title: "점검부서", 
+                    field: "chkDeptNm", 
+                    width: "150px"
+                },
+                { 
+                    title: "점검담당자", 
+                    field: "chkUserNm", 
+                    width: "150px",
+                    attributes: {
+                        style: "text-align: center"
+                    }
+                },
+                { 
+                    title: "WO 번호", 
+                    field: "workOrderNo", 
+                    width: "100px",
+                    attributes: {
+                        style: "text-align: right"
+                    },
+                },
+                { 
+                    title: "작업제목", 
+                    field: "workTitle", 
+                    width: "200px"
+                }
+            ],
+            sortable: true,
+            scrollable: true,
+            pageable: false,
+            editable: false,
+            selectable: "row",
+            height: 400,
+        };
+        _this.grid = $("#inspectionIssuesGrid").kendoGrid(gridOption).data("kendoGrid");
+    }
+
+    bindEvents() {
+        let _this = this;
+        
+        $('#btnSearch').kendoButton({
+            icon: "search",
+            themeColor: "base",
+            click: function () {
+                _this.searchMainData();
+            }
+        });
+
+        $('#btnExcel').kendoButton({
+            icon: "file-excel",
+            themeColor: "success",
+            click: function () {
+                _this.exportExcel();
+            }
+        });
+
+        $('#searchText').kendoTextBox();
+        $('#searchText').on('keyup', function(e) {
+            if (e.keyCode === 13) {
+                _this.searchMainData();
+            }
+        });
+    }
+
+    searchMainData() {
+        let _this = this;
+        let param = FormUtil.extractForm($("#searchForm"));
+        param.action = 'inspection_issues';
+        
+        let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+        let grid = $("#inspectionIssuesGrid").data("kendoGrid");
+        if (grid) {
+            grid.dataSource.data(result);
+            grid.refresh();
+        }
+    }
+
+    exportExcel() {
+        let gridData = $('#inspectionIssuesGrid').data("kendoGrid");
+        gridData.bind("excelExport", function (e) {
+            e.workbook.fileName = "점검결과_이상_설비목록.xlsx";
+        });
+        gridData.saveAsExcel();
+    }
+}
+
+let page = null;
+$(document).ready(function() {
+    page = new InspectionIssuesPage();
+});
+</script>
+{% endblock %}

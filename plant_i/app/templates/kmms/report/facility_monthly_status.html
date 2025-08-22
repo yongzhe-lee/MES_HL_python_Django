@@ -222,6 +222,33 @@
 					$tfoot.append($row1).append($row2);
 					$footerTable.append($tfoot);
 
+					// 스크롤바
+					const $footerWrapper = grid.wrapper.find(".k-grid-footer").first();
+					
+					grid.wrapper.find(".custom-horizontal-scrollbar").remove();
+					
+					const $scrollbar = $('<div class="custom-horizontal-scrollbar" style="height: 15px; background: #f5f5f5; border-top: 1px solid #ddd; overflow-x: auto; overflow-y: hidden;"></div>');
+					
+					const tableWidth = $footerTable.width();
+					const $scrollContent = $('<div style="width: ' + tableWidth + 'px; height: 1px;"></div>');
+					
+					$scrollbar.append($scrollContent);
+					$footerWrapper.after($scrollbar);
+					
+					$scrollbar.on('scroll', function() {
+						const scrollLeft = $(this).scrollLeft();
+						grid.wrapper.find('.k-grid-content').scrollLeft(scrollLeft);
+						grid.wrapper.find('.k-grid-header').scrollLeft(scrollLeft);
+						$footerWrapper.scrollLeft(scrollLeft);
+					});
+					
+					grid.wrapper.find('.k-grid-content').on('scroll', function() {
+						const scrollLeft = $(this).scrollLeft();
+						$scrollbar.scrollLeft(scrollLeft);
+						grid.wrapper.find('.k-grid-header').scrollLeft(scrollLeft);
+						$footerWrapper.scrollLeft(scrollLeft);
+					});
+
 					// ✅ 설비코드 / 설비명 병합
 					const trs = grid.tbody.find("tr");
 					let lastEquipCd = "", rowspan = 1, startRowIndex = -1;

@@ -314,7 +314,8 @@ def mig(context):
                             ModelNumber=to_none(row.get('모델 번호', None)),
                             PartNo=to_none(row.get('Part No.', None)),
                             SerialNumber=to_none(row.get('Serial No.', None)),
-                            MakeDt=to_none(row.get('제조일자', None)),
+                            MakeDt=to_none(row.get('제조일', None)),
+                            MtrlCd=to_none(row.get('순환설비 자재', None)),
                             EnvironYn=to_none(row.get('환경설비 여부', None)),
                             Msg=to_none(row.get('비고', None)),
                             UserId=request.user.username,
@@ -337,34 +338,34 @@ def mig(context):
                             SiteId=to_none(row.get('사이트', '1')),
                             EquipSpecNm1=to_none(row.get('사양명칭(1st)', None)),
                             EquipSpecUnit1=to_none(row.get('단위(1st)', None)),
-                            EquipSpecValue1=to_none(row.get('값/설정(1st)', None)),
+                            EquipSpecValue1=to_none(row.get('값/설명(1st)', None)),
                             EquipSpecNm2=to_none(row.get('사양명칭(2nd)', None)),
                             EquipSpecUnit2=to_none(row.get('단위(2nd)', None)),
-                            EquipSpecValue2=to_none(row.get('값/설정(2nd)', None)),
+                            EquipSpecValue2=to_none(row.get('값/설명(2nd)', None)),
                             EquipSpecNm3=to_none(row.get('사양명칭(3rd)', None)),
                             EquipSpecUnit3=to_none(row.get('단위(3rd)', None)),
-                            EquipSpecValue3=to_none(row.get('값/설정(3rd)', None)),
+                            EquipSpecValue3=to_none(row.get('값/설명(3rd)', None)),
                             EquipSpecNm4=to_none(row.get('사양명칭(4th)', None)),
                             EquipSpecUnit4=to_none(row.get('단위(4th)', None)),
-                            EquipSpecValue4=to_none(row.get('값/설정(4th)', None)),
+                            EquipSpecValue4=to_none(row.get('값/설명(4th)', None)),
                             EquipSpecNm5=to_none(row.get('사양명칭(5th)', None)),
                             EquipSpecUnit5=to_none(row.get('단위(5th)', None)),
-                            EquipSpecValue5=to_none(row.get('값/설정(5th)', None)),
+                            EquipSpecValue5=to_none(row.get('값/설명(5th)', None)),
                             EquipSpecNm6=to_none(row.get('사양명칭(6th)', None)),
                             EquipSpecUnit6=to_none(row.get('단위(6th)', None)),
-                            EquipSpecValue6=to_none(row.get('값/설정(6th)', None)),
+                            EquipSpecValue6=to_none(row.get('값/설명(6th)', None)),
                             EquipSpecNm7=to_none(row.get('사양명칭(7th)', None)),
                             EquipSpecUnit7=to_none(row.get('단위(7th)', None)),
-                            EquipSpecValue7=to_none(row.get('값/설정(7th)', None)),
+                            EquipSpecValue7=to_none(row.get('값/설명(7th)', None)),
                             EquipSpecNm8=to_none(row.get('사양명칭(8th)', None)),
                             EquipSpecUnit8=to_none(row.get('단위(8th)', None)),
-                            EquipSpecValue8=to_none(row.get('값/설정(8th)', None)),
+                            EquipSpecValue8=to_none(row.get('값/설명(8th)', None)),
                             EquipSpecNm9=to_none(row.get('사양명칭(9th)', None)),
                             EquipSpecUnit9=to_none(row.get('단위(9th)', None)),
-                            EquipSpecValue9=to_none(row.get('값/설정(9th)', None)),
+                            EquipSpecValue9=to_none(row.get('값/설명(9th)', None)),
                             EquipSpecNm10=to_none(row.get('사양명칭(10th)', None)),
                             EquipSpecUnit10=to_none(row.get('단위(10th)', None)),
-                            EquipSpecValue10=to_none(row.get('값/설정(10th)', None)),
+                            EquipSpecValue10=to_none(row.get('값/설명(10th)', None)),
                             UserId=request.user.username,
                             InsertTs=None,
                             Msg=None
@@ -396,9 +397,9 @@ def mig(context):
                             MtrlNm=to_none(row.get('자재명(설명)', None)),
                             FileLoc=fileloc,
                             FileNm=filename,
-                            FileOrgNm=to_none(row.get('설명', None)),
+                            FileOrgNm=filename,
                             FileExt=FileExt,
-                            PhotoDesc=to_none(row.get('설명', None)),
+                            PhotoDesc=filename,
                             SiteId=to_none(row.get('SITE ID', '1')),
                             UserId=request.user.username,
                             InsertTs=None,
@@ -430,9 +431,9 @@ def mig(context):
                             EquipNm=to_none(row.get('설비명(설명)', None)),
                             FileLoc=fileloc,
                             FileNm=filename,
-                            FileOrgNm=to_none(row.get('설명', None)),
+                            FileOrgNm=filename,
                             FileExt=FileExt,
-                            PhotoDesc=to_none(row.get('설명', None)),
+                            PhotoDesc=filename,
                             SiteId=to_none(row.get('SITE ID', '1')),
                             UserId=request.user.username,
                             InsertTs=None,
@@ -440,7 +441,7 @@ def mig(context):
                         )
                         cmMigEquipPhoto.set_audit(request.user)
                         cmMigEquipPhoto.save()
-                    # items = mig_Service.migrate_equip_photo(Site)
+                    items = mig_Service.migrate_equip_photo(Site)
                 elif migrationType == 'EQUIP_FILE':
                     mig_Service.delete_equip_file(Site)
                     def to_none(val):
@@ -468,9 +469,9 @@ def mig(context):
                             EquipNm=to_none(row.get('설비명(설명)', None)),
                             FileLoc=fileloc,
                             FileNm=filename,
-                            FileOrgNm=to_none(row.get('설명', None)),
+                            FileOrgNm=filename,
                             FileExt=FileExt,
-                            FileDesc=to_none(row.get('설명', None)),
+                            FileDesc=filename,
                             SiteId=to_none(row.get('SITE ID', '1')),
                             UserId=request.user.username,
                             InsertTs=None,
@@ -495,8 +496,8 @@ def mig(context):
                             EquipNm=to_none(row.get('설비명', None)),
                             ImportRankCd=to_none(row.get('중요도(설비)', None)),
                             PmType=to_none(row.get('PM유형', None)),
-                            PerNumber=to_none(row.get('주기(빈도 주기단위)', None)),
-                            CycleType=to_none(row.get('주기(빈도 주기단위)', None)),
+                            PerNumber=to_none(row.get('주기(빈도)', None)),
+                            CycleType=to_none(row.get('주기단위', None)),
                             SchedStartDt=to_none(row.get('주기시작일', None)),
                             DeptCd=to_none(row.get('PM 부서코드', None)),
                             DeptNm=to_none(row.get('PM 부서명', None)),
@@ -742,6 +743,3 @@ def mig(context):
         return {'success': True, 'message': '정보가 저장되었습니다.'}
 
     return items
-
-def mig_page(request):
-    return render(request, 'kmms/mig.html')

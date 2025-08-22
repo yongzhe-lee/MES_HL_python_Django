@@ -17,7 +17,13 @@
         </div>
     </div>
 </div>
+
 <style>
+#modalMan .modal-content {
+    width: 60%; 
+    max-width: 800px;
+    max-height: 70vh !important;
+}
 </style>
 
 <script type="text/javascript">
@@ -40,7 +46,7 @@
 				toolbar: ["columns"],
 				columnMenu: {
 					componentType: "classic",
-					autoSize: true,
+					autoSize: false,
 					clearAllFilters: true,
 					columns: { sort: "asc" }
 				},
@@ -49,9 +55,6 @@
 					{ field: 'user_nm', title: '사용자명', width: 150 },
 					{ field: 'dept_nm', title: '부서명', width: 150 },
 				],
-				dataBound: function () {
-					this.autoFitColumns();
-				},
 				height: "440px",
 				scrollable: true,
 			};

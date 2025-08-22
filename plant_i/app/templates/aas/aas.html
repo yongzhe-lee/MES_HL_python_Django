@@ -37,6 +37,7 @@
                 <div>
                     <button id="btnAddRoot" type="button" title="AAS등록" tabindex="0" class="y_write_auth"></button>
                     <button id="btnAdminManage" type="button" title="Ver, Rev관리" class="y_write_auth"></button>
+                    <button id="btnAASXDownload" type="button" title="AASX Download" class="y_write_auth"></button>
                 </div>
             </div>
             <ul class="tree" id="aas_tree"></ul>
@@ -78,7 +79,7 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
                             <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
-                            <select name="lang_code" class="form-control aas-form-control">
+                            <select name="language" class="form-control aas-form-control">
                                 <option value="ko-KR">한글</option>
                                 <option value="en-US">English</option>
                             </select>
@@ -181,8 +182,8 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label" for="model_kind" data-labelCd="적용범위">적용범위</label>
                             <select name="model_kind" class="form-control aas-form-control">
-                                <option value="Template">재사용(공유, Template)</option>
-                                <option value="Instance">특정자산(전용, Instance)</option>
+                                <option value="TEMPLATE">재사용(공유, Template)</option>
+                                <option value="INSTANCE">특정자산(전용, Instance)</option>
                             </select>
                         </div>
                         <div class="aas-input-group">
@@ -203,7 +204,7 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
                             <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
-                            <select name="lang_code" class="form-control aas-form-control">
+                            <select name="language" class="form-control aas-form-control">
                                 <option value="ko-KR">한글</option>
                                 <option value="en-US">English</option>
                             </select>
@@ -251,7 +252,7 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
                             <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
-                            <select name="lang_code" class="form-control aas-form-control">
+                            <select name="language" class="form-control aas-form-control">
                                 <option value="ko-KR">한글</option>
                                 <option value="en-US">English</option>
                             </select>
@@ -260,8 +261,8 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="model_kind" data-labelCd="적용범위">적용범위</label>
                             <select name="model_kind" class="form-control aas-form-control">
-                                <option value="Template">재사용(공유, Template)</option>
-                                <option value="Instance">특정자산(전용, Instance)</option>
+                                <option value="TEMPLATE">재사용(공유, Template)</option>
+                                <option value="INSTANCE">특정자산(전용, Instance)</option>
                             </select>
                         </div>
                         <div class="aas-input-group">
@@ -318,7 +319,7 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
                             <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
-                            <select name="lang_code" class="form-control aas-form-control">
+                            <select name="language" class="form-control aas-form-control">
                                 <option value="ko-KR">한글</option>
                                 <option value="en-US">English</option>
                             </select>
@@ -334,8 +335,8 @@
                         <div class="aas-input-group">
                             <label class="k-label k-form-label" for="model_kind" data-labelCd="적용범위">적용범위</label>
                             <select name="model_kind" class="form-control aas-form-control">
-                                <option value="Template">재사용(공유, Template)</option>
-                                <option value="Instance">특정자산(전용, Instance)</option>
+                                <option value="TEMPLATE">재사용(공유, Template)</option>
+                                <option value="INSTANCE">특정자산(전용, Instance)</option>
                             </select>
                         </div>
 
@@ -439,15 +440,15 @@
                     <div class="aas-input-group">
                         <label class="k-label k-form-label" for="model_kind" data-labelCd="적용범위">적용범위</label>
                         <select name="model_kind" class="form-control aas-form-control">
-                            <option value="Template">재사용(공유, Template)</option>
-                            <option value="Instance">특정자산(전용, Instance)</option>
+                            <option value="TEMPLATE">재사용(공유, Template)</option>
+                            <option value="INSTANCE">특정자산(전용, Instance)</option>
                         </select>
                     </div>
 
                     <div class="aas-input-group">
                         <label class="k-label k-form-label essential" for="displayName" data-labelCd="Display name">Display name</label>
                         <input name="displayName" class="form-control aas-form-control" placeholder="이름입력" />
-                        <select name="lang_code" class="form-control aas-form-control">
+                        <select name="language" class="form-control aas-form-control">
                             <option value="ko-KR">한글</option>
                             <option value="en-US">English</option>
                         </select>
@@ -776,7 +777,7 @@
             this.$div_subcollection_detail = $('#div_subcollection_detail');
             this.$div_prpt_detail = $('#div_prpt_detail');
             this.$div_file_detail = $('#div_file_detail');
-            
+
             this.$tmplPopupSemanticIdSearchWin = null;
             this.init();
             this.initTree();
@@ -786,6 +787,16 @@
             this.initPropertyElement();
             this.initFileElement();
             this.initSemanticIDPopup();
+        }
+
+        /**
+         * AAS id_short 규칙 검사 (AASd-002)
+         * - 영문자(A-Z, a-z), 숫자(0-9), 언더스코어(_)만 허용
+         * - 첫 글자는 반드시 영문자
+         */
+        isValidIdShort(idShort) {
+            const regex = /^[A-Za-z][A-Za-z0-9_]*$/;
+            return regex.test(idShort);
         }
 
         initSemanticIDPopup() {
@@ -805,7 +816,7 @@
             //reference_type, key_type
             this.$tmplPopupSemanticIdSearchWin.find('select[name=reference_type]').kendoDropDownList();
             this.$tmplPopupSemanticIdSearchWin.find('select[name=key_type]').kendoDropDownList();
-      
+
             // Submodel Semantic ID 입력팝업화면에서 선택완료 버튼클릭
             let $btn = this.$tmplPopupSemanticIdSearchWin.find('button[name=btnSemanticIdSelect]');
             $btn.on("click", function () {
@@ -815,7 +826,7 @@
                 }
             });
         }
-        
+
         callbackSemanticIdSelect(fnCallback) {
             if (fnCallback) {
                 fnCallback();
@@ -828,7 +839,7 @@
             let $form = this.$tmplPopupSemanticIdSearchWin.find("form");
             $form[0].reset();
             this.$tmplPopupSemanticIdSearchWin.find('input[name=p_display_name]').val(p_display_name);
-            this.$tmplPopupSemanticIdSearchWin.data("kendoWindow").center().open(); 
+            this.$tmplPopupSemanticIdSearchWin.data("kendoWindow").center().open();
         }
 
         hideAllDetail() {
@@ -855,6 +866,27 @@
                     _this.showManagement();//버전 리비젼 관리
                 }
             });
+
+            this.$btnAASXDownload = $('#btnAASXDownload').kendoButton({
+                icon: 'download',
+                themeColor: "tertiary",
+                click: function () {
+                    Alert.confirm("AASX downlaod", 'AASX파일을 다운로드 하시겠습니까?', () => {
+                        _this.downlaodAASX();
+                    });
+
+                }
+            });
+
+            this.$btnAASXDownload.attr('disabled', "disabled");
+        }
+
+        downlaodAASX() {
+            let _this = this;
+            let id_short = this.$div_aas_detail.find('input[name=id_short]').val();
+            let url = '/api/files/aasx?id_short=' + id_short;
+            let filename = id_short + ".aasx";
+            AjaxUtil.downloadFile(url, filename);
         }
 
         init() {
@@ -1000,7 +1032,7 @@
             let $form = null;
             let $popupForm = this.$tmplSubmodelElementSelectionWin.find("form");
             let parentType = $popupForm.find("input[name=parentType]").val();
-            let submodelelement_type = $popupForm.find("select[name=submodelelement_type]").val();            
+            let submodelelement_type = $popupForm.find("select[name=submodelelement_type]").val();
             let p_sm_pk = $popupForm.find("input[name=p_sm_pk]").val();
             let p_sme_pk = $popupForm.find("input[name=p_sme_pk]").val();
             let p_display_name = $popupForm.find("input[name=p_display_name]").val();
@@ -1093,7 +1125,7 @@
                     $popupForm.find("input[name=p_display_name]").val(p_display_name);
                     $popupForm.find("input[name=parentType]").val("submodel");
 
-                    
+
                     if (!sm_pk) {
                         Alert.alert("Submodel 하위항목추가 오류", "Submodel을 저장후에 하위항목을 추가할 수 있습니다.");
                         return;
@@ -1107,7 +1139,7 @@
 
             // Submodel 입력 화면에서 Semantic ID 팝업입력 버튼 클릭
             this.$div_submodel_detail.find("button[name=btnShowPopupSemanticId]").on('click', function (e) {
-                let parentDisplayName= $submodel_form.find("input[name=displayName]").val()
+                let parentDisplayName = $submodel_form.find("input[name=displayName]").val()
                 _this.showPopupSemanticIdSelection(parentDisplayName);
             });
         }
@@ -1193,7 +1225,7 @@
                 }
             });
 
-            if (userinfo.can_write()==false) {
+            if (userinfo.can_write() == false) {
                 var upload = $fileElement.data("kendoUpload");
                 upload.disable();
             }
@@ -1252,28 +1284,13 @@
             }
 
             this.$div_aas_detail.show();
-
             let $form = this.$div_aas_detail.find('form');
-            let $lang_code = this.$div_aas_detail.find('select[name=lang_code]');
-
 
             let fnSuccess = function (result) {
                 if (result.success) {
-
                     let aasData = result.data;
                     FormUtil.BindDataForm(aasData, $form);
-
-                    //하위추가팝업데이터 사전 설정함
-                    _this.$tmplAASSubItemChoiceWin.find('input[name=p_display_name]').val(aasData.displayName);
-
-                    $lang_code.off('change').on('change', function () {
-                        let selectedLangCode = $lang_code.val();
-                        let disp_text = _this.getLangTextFromJson(selectedLangCode, aasData.json_displayname);
-                        let desc_text = _this.getLangTextFromJson(selectedLangCode, aasData.json_description);
-                        $form.find("input[name=displayName]").val(disp_text);
-                        $form.find("input[name=description]").text(desc_text);
-                    });
-
+                    _this.$tmplAASSubItemChoiceWin.find('input[name=p_display_name]').val(aasData.p_display_name);
                     _this.$div_submodel_detail.find("button[name=add_child]").removeAttr('disabled');
                 }
             };
@@ -1331,7 +1348,7 @@
             let data = FormUtil.extractForm($form);
 
             let fnSuccess = function (result) {
-                if (result.success) {                    
+                if (result.success) {
                     Alert.alert("저장확인", '저장되었습니다.');
                 }
                 else {
@@ -1382,21 +1399,13 @@
             this.$div_submodel_detail.show();
 
             let $form = this.$div_submodel_detail.find("form");
-            let $lang_code = this.$div_submodel_detail.find('select[name=lang_code]');
+
 
             let param = { action: 'submodel_detail', sm_pk: sm_pk, aas_pk: aas_pk };
             let fnSuccess = function (result) {
                 if (result.success) {
                     let submodelData = result.data;
                     FormUtil.BindDataForm(submodelData, $form);
-
-                    $lang_code.off('change').on('change', function () {
-                        let selectedLangCode = $lang_code.val();
-                        let disp_text = _this.getLangTextFromJson(selectedLangCode, submodelData.json_displayname);
-                        let desc_text = _this.getLangTextFromJson(selectedLangCode, submodelData.json_description);
-                        $form.find("input[name=displayName]").val(disp_text);
-                        $form.find("input[name=description]").text(desc_text);
-                    });
                 }
             };
 
@@ -1511,6 +1520,7 @@
 
 
                     $children_ul.find('.sme_prpt_detail').on('click', function () {
+                        _this.$btnAASXDownload.attr('disabled', "disabled");
                         _this.showPropertyDetail($(this), $node);
                     });
 
@@ -1520,14 +1530,16 @@
                         _this.aasToggleNode(this);
                     });
                     $children_ul.find('.sme_collection_detail').on('click', function () {
+                        _this.$btnAASXDownload.attr('disabled', "disabled");
                         _this.showSubmodelElementsCollectionDetail($(this));
                     });
 
                     $children_ul.find('.sme_file_detail').on('click', function () {
+                        _this.$btnAASXDownload.attr('disabled', "disabled");
                         _this.showFileElementDetail($(this));
                     });
 
-                    
+
 
                     $node.attr('loaded', "1");
                 }
@@ -1545,7 +1557,7 @@
             this.hideAllDetail();
             this.$div_subcollection_detail.show();
             let $form = this.$div_subcollection_detail.find("form");
-            let $lang_code = this.$div_subcollection_detail.find('select[name=lang_code]');
+
             let param = {
                 action: "submodel_element_collection_detail",
                 data_pk: data_pk
@@ -1554,15 +1566,6 @@
                 if (result.success) {
                     let submodelCollData = result.data;
                     FormUtil.BindDataForm(submodelCollData, $form);
-                    
-                    $lang_code.off('change').on('change', function () {
-                        let selectedLangCode = $lang_code.val();
-                        let disp_text = _this.getLangTextFromJson(selectedLangCode, submodelCollData.json_displayname);
-                        let desc_text = _this.getLangTextFromJson(selectedLangCode, submodelCollData.json_description);
-                        $form.find("input[name=displayName]").val(disp_text);
-                        $form.find("input[name=description]").text(desc_text);
-                    });
-
 
                 }
             };
@@ -1588,25 +1591,19 @@
             };
 
 
-            let $lang_code = this.$div_file_detail.find('select[name=lang_code]');
+
             let $divFileElement = $form.find("#divFileElement");
 
             let fnSuccess = function (result) {
                 if (result.success) {
                     let fileData = result.data;
                     FormUtil.BindDataForm(fileData, $form);
-                    $lang_code.off('change').on('change', function () {
-                        let selectedLangCode = $lang_code.val();
-                        let disp_text = _this.getLangTextFromJson(selectedLangCode, fileData.json_displayname);
-                        let desc_text = _this.getLangTextFromJson(selectedLangCode, fileData.json_description);
-                        $form.find("input[name=displayName]").val(disp_text);
-                        $form.find("input[name=description]").text(desc_text);
-                    });
+
 
                     //$img.attr("src", "/api/files/aas?model_type=file&data_pk=" + fileData.sme_pk);
                     let url = "/api/files/aas?model_type=file&data_pk=" + fileData.sme_pk
                     let html = '📦<a href="' + url + '">' + fileData.filename + '</a> ';  //<i class="material-symbols-outlined">delete</i></span></a> <i class="material-symbols-outlined">attach_file</i>
-                    
+
                     $divFileElement.append(html);
                 }
                 else {
@@ -1648,7 +1645,6 @@
             this.hideAllDetail();
             this.$div_prpt_detail.show();
             let $form = this.$div_prpt_detail.find("form");
-            let $lang_code = this.$div_prpt_detail.find('select[name=lang_code]');
             let param = { action: 'property_detail', data_pk: data_pk };
 
             $form[0].reset();
@@ -1658,13 +1654,6 @@
                     let prptData = result.data;
                     FormUtil.BindDataForm(prptData, $form);
 
-                    $lang_code.off('change').on('change', function () {
-                        let selectedLangCode = $lang_code.val();
-                        let disp_text = _this.getLangTextFromJson(selectedLangCode, prptData.json_displayname);
-                        let desc_text = _this.getLangTextFromJson(selectedLangCode, prptData.json_description);
-                        $form.find("input[name=displayName]").val(disp_text);
-                        $form.find("input[name=description]").text(desc_text);
-                    });
                 }
             };
 
@@ -1677,7 +1666,7 @@
             let $inputFile = $form.find("input[name=file_element]");
 
             if ($inputFile[0].files.count == 0) {
-                Alert.alert("File Element 입력누락" , "파일을 선택하세요");
+                Alert.alert("File Element 입력누락", "파일을 선택하세요");
                 return;
             }
 
@@ -1710,6 +1699,7 @@
             this.$aasTree.html(html);
 
             this.$aasTree.find('.aas_detail').on('click', function () {
+                _this.$btnAASXDownload.removeAttr("disabled");
                 _this.showAASDetail($(this));
             });
 
@@ -1718,11 +1708,12 @@
             });
 
             this.$aasTree.find('.submodel_detail').on('click', function () {
+                _this.$btnAASXDownload.attr('disabled', "disabled");
                 _this.showSubmodelDetail($(this));
             });
 
             this.$aasTree.find('.submodel-node').on('click', function () {
-                
+
                 _this.submodelToggleNode(this);
             });
         }

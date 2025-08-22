@@ -70,8 +70,7 @@
             <div class="card-content edit">
                 <div class="card-group-btn">
                     <span class="info-text">
-                        <!--<i class="material-symbols-outlined">list_alt</i> 적합한 icon 찾아야 할듯 -->
-                        시스템 로그 상세 정보
+                        <i class="material-symbols-outlined">edit</i>시스템 로그 상세 정보
                     </span>
                 </div>
                 <form id="systemLogForm">
@@ -106,7 +105,7 @@
                             <div class="form-item align-h">
                                 <label class="k-label k-form-label" for="message" data-labelCd="설명">설명</label>
                                 <div class="field-wrapper">
-                                    <input id="message" name="message" />
+                                    <textarea id="message" name="message"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -118,9 +117,9 @@
                 <hr />
                 <div class="col-12 col-sm-12 col-md-12">
                     <div class="form-item align-h">
-                        <label class="k-label k-form-label" for="message" data-labelCd="실시간DAS이벤트">실시간DAS이벤트</label>
+                        <label class="k-label k-form-label" for="txtEventMessage" data-labelCd="실시간DAS이벤트">실시간DAS이벤트</label>
                         <div class="field-wrapper">
-                            <textarea id="txtEventMessage" class="form-control" ></textarea>
+                            <textarea id="txtEventMessage" ></textarea>
                         </div>
                     </div>
                 </div>
@@ -140,6 +139,7 @@
         constructor() {
             this.grid = null;
             this.baseUrl = '/api/system/system_log';
+            this.$form = $('#systemLogForm');
             this.init();
         }
 
@@ -213,11 +213,10 @@
             AjaxUtil.fillDropDownOptions($('#log_type'), 'log_type', 'choose', null);
             $('#source').kendoTextBox();
             $('#created').kendoTextBox();
-            $('#message').kendoTextArea({
+            $('#message, #txtEventMessage').kendoTextArea({
                 rows: 4,
                 autosize: true,
-                maxLength: 500,
-                size: "large"   // 칸 높이 때문에 추가해봄
+                size: "small"   // 칸 높이 때문에 추가해봄
             });
 
             $('#btnExcel').kendoButton({
@@ -249,6 +248,7 @@
                 keyword: $('#keyword').val(),
             };
 
+            this.$form[0].reset();
 
             _this.grid.setData([]);
             let gg = $('#system_log_grid');
@@ -272,7 +272,7 @@
             //console.log(data)
             if (data.length > 0) {
                 let selectData = data[0];
-                FormUtil.BindDataForm(selectData, $('#systemLogForm'));
+                FormUtil.BindDataForm(selectData, this.$form);
 
                 $('#log_type').data("kendoDropDownList").value(selectData.type);
             }
@@ -289,11 +289,10 @@
         }
 
         initMqttEventMessage() {
-            if (gui.main_app_run == "Y") {
-                this.mqttclient = new MQTTMessageClient(gui.mqtt_host, gui.mqtt_port);
-                this.mqttclient.setTopicMessageHandler(gui.event_topic, this.web_event_handler);
-                this.mqttclient.connect();
-            }
+            this.mqttclient = new MQTTMessageClient(gui.mqtt_host, gui.mqtt_port);
+            this.mqttclient.setTopicMessageHandler(gui.event_topic, this.web_event_handler);
+            let use_ssl = window.location.protocol === 'https:'
+            this.mqttclient.connect(use_ssl);
         }
 
         // 엑셀 다운로드

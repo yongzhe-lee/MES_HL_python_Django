@@ -30,7 +30,7 @@ def wo_mtrl(context):
             sql = ''' select t.work_order_pk, wo.work_order_no
 					, wo.work_title	, t.mtrl_pk
 					, m.mtrl_cd, m.mtrl_nm
-					, t.plan_amt, t.a_amt as amtrl_amt, t.b_amt as bmtrl_amt, t.unit_price
+					, t.plan_amt, t.a_amt, t.b_amt, t.unit_price
 					, t.loc_cd, t.own_dept_cd
 					, t.ab_grade
 					, (case when t.loc_cd is not null and t.ab_grade is null and t.a_amt = 0 and t.b_amt > 0 then 'AB_GRADE_B'

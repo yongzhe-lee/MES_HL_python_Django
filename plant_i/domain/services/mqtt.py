@@ -1,4 +1,4 @@
-import json, time, threading
+﻿import json, time, threading
 import paho.mqtt.client as mqtt
 from configurations import settings
 
@@ -76,12 +76,22 @@ class FacadeMQTTClient(object):
         cls.__mqtt_client__.subscribe(topic, qos=2)
         return
 
+    #added by choi : 2025/08/18
+    @classmethod
+    def unsubscribe_all(cls):
+        if cls.__mqtt_client__:
+            for t in list(cls.__dic_topic_handler.keys()):                
+                cls.__mqtt_client__.unsubscribe(t)
+            # 핸들러도 제거
+            for t in list(cls.__dic_topic_handler.keys()):   
+                del cls.__dic_topic_handler[t]
+
     @classmethod
     def on_message(cls, client, userdata, msg):
 
         topic = msg.topic
         payload = msg.payload
-        print('on_message - topic :', topic, ',  payload :', payload)
+        #print('on_message - topic :', topic, ',  payload :', payload)
 
         try:
             if topic in cls.__dic_topic_handler:
@@ -102,7 +112,7 @@ class FacadeMQTTClient(object):
         print(message)
         # 접속이 끊어 졌다거 다시 연결시에 재 구독 할수 있도록 함
         for topic, handler in cls.__dic_topic_handler.items():
-            cls.__mqtt_client__.subscribe(topic)
+            cls.__mqtt_client__.subscribe(topic) 
 
         return
 

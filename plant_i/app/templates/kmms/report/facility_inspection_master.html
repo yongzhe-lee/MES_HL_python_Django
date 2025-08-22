@@ -1,11 +1,242 @@
-<!DOCTYPE html>
+{% extends "app/layout.html" %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% block css %}
+<style>
+.chart-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="설비종류별 점검마스터">설비종류별 점검마스터</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="btnSearch" class="btn-search">조회</button>
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div class="chart-container">
+                    <div id="chartRegistStatus"></div>
+                </div>
+                <div id="facilityInspectionMasterGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class FacilityInspectionMasterPage {
+        constructor() {
+            this.grid = null;
+            this.chart = null;
+            this.baseUrl = '/api/kmms/report';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                autoBind: false,
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                dataSource: {
+                    data: [],
+                    aggregate: [
+                        { field: "totCnt", aggregate: "sum" },
+                        { field: "notUseCnt", aggregate: "sum" },
+                        { field: "uselessCnt", aggregate: "sum" }
+                    ]
+                },
+                columns: [
+                    {
+                        title: "카테고리명",
+                        field: "deptNm"
+                    },
+                    {
+                        title: "점검 마스터 건수",
+                        field: "totCnt",
+                        format: "{0:###,###,###,###}",
+                        attributes: { style: "text-align: right" },
+                        width: "200px",
+                        type: "number",
+                        footerTemplate: "<div style='text-align:right'>#: kendo.toString(sum, 'n0') #</div>",
+                        aggregates: ["sum"]
+                    },
+                    {
+                        title: "사용안함 건수",
+                        field: "notUseCnt",
+                        format: "{0:###,###,###,###}",
+                        attributes: { style: "text-align: right" },
+                        width: "120px",
+                        type: "number",
+                        footerTemplate: "<div style='text-align:right'>#: kendo.toString(sum, 'n0') #</div>",
+                        aggregates: ["sum"]
+                    },
+                    {
+                        title: "삭제 건수",
+                        field: "uselessCnt",
+                        format: "{0:###,###,###,###}",
+                        attributes: { style: "text-align: right" },
+                        width: "120px",
+                        type: "number",
+                        footerTemplate: "<div style='text-align:right'>#: kendo.toString(sum, 'n0') #</div>",
+                        aggregates: ["sum"]
+                    }
+                ],
+                dataBound: function (e) {
+                    kendoUtil.showGridRowCount(this.element);
+                    _this.updateChart();
+                },
+                height: "540px"
+            };
+            _this.grid = new Grid($("#facilityInspectionMasterGrid"), gridOption);
+
+            _this.initChart();
+
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+        }
+
+        initChart() {
+            let _this = this;
+            
+            $("#chartRegistStatus").kendoChart({
+                title: {
+                    text: "설비종류별 점검마스터",
+                    font: {
+                        size: 16,
+                        weight: "bold"
+                    }
+                },
+                legend: {
+                    position: "bottom"
+                },
+                seriesDefaults: {
+                    type: "column",
+                    stack: false
+                },
+                series: [
+                    {
+                        name: "점검수",
+                        field: "totCnt",
+                        color: "#4CAF50"
+                    },
+                    {
+                        name: "미사용수",
+                        field: "notUseCnt",
+                        color: "#F44336"
+                    },
+                    {
+                        name: "불용수",
+                        field: "uselessCnt",
+                        color: "#FF9800"
+                    }
+                ],
+                valueAxis: {
+                    labels: {
+                        format: "N0"
+                    },
+                    line: {
+                        visible: false
+                    }
+                },
+                categoryAxis: {
+                    field: "deptNm",
+                    majorGridLines: {
+                        visible: false
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    template: "#= series.name #: #= value #"
+                },
+                dataSource: {
+                    data: []
+                },
+                height: 400
+            });
+
+            _this.chart = $("#chartRegistStatus").data("kendoChart");
+        }
+
+        updateChart() {
+            let _this = this;
+            let grid = $("#facilityInspectionMasterGrid").data("kendoGrid");
+            
+            if (grid && _this.chart) {
+                let data = grid.dataSource.data();
+                // 점검수(totCnt) 기준 내림차순 정렬 후 상위 10개만 추출
+                let top10 = data.slice().sort((a, b) => b.totCnt - a.totCnt).slice(0, 10);
+                _this.chart.dataSource.data(top10);
+                _this.chart.refresh();
+            }
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {};
+            param.action = 'facility_inspection_master';
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+            let grid = $("#facilityInspectionMasterGrid").data("kendoGrid");
+            if (grid) {
+                grid.dataSource.data(result);
+                grid.refresh();
+            }
+        }
+
+        exportExcel() {
+            let gridData = $('#facilityInspectionMasterGrid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "설비종류별_점검마스터.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+    };
+
+    let page = null;
+    page = new FacilityInspectionMasterPage();
+
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+</script>
+{% endblock %}

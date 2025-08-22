@@ -68,8 +68,8 @@ def ex_supplier(context):
 		       , t.updater_nm
 		    FROM  cm_ex_supplier t
 		    where t.del_yn = 'N'
-            -- AND t.factory_pk = %(factory_id)s
             '''
+            # -- AND t.factory_pk = %(factory_id)s
             if useYn:
                 sql += ''' and t.use_yn = %(useYn)s
                     '''
@@ -81,6 +81,7 @@ def ex_supplier(context):
                 '''
             if searchText:
                 sql += ''' AND ( UPPER(t.ex_supplier_nm) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
+                                or UPPER(t.ex_supplier_cd) LIKE CONCAT('%%',UPPER(%(searchText)s),'%%')
    			    )
                 '''
 
@@ -100,7 +101,7 @@ def ex_supplier(context):
  
 
         elif action == 'findOne':
-            exSupplierPk = CommonUtil.try_int( gparam.get('exSupplierPk') )
+            exSupplierPk = CommonUtil.try_int( gparam.get('ex_supplier_pk') )
 
             sql = ''' SELECT t.ex_supplier_pk
 		       , t.ex_supplier_nm
@@ -138,20 +139,22 @@ def ex_supplier(context):
 
 
         elif action in ['insert', 'update']:
-            id = CommonUtil.try_int(posparam.get('id'))
-            exSupplierNm = posparam.get('exSupplierNm')
-            chargerNm = posparam.get('chargerNm')
-            businessClassNm = posparam.get('businessClassNm')
-            exSupplierDsc = posparam.get('exSupplierDsc')
+            id = CommonUtil.try_int(posparam.get('ex_supplier_pk'))
+            exSupplierCd = posparam.get('ex_supplier_cd')
+            exSupplierNm = posparam.get('ex_supplier_nm')
+            ceoNm = posparam.get('ceo_nm')
+            chargerNm = posparam.get('charger_nm')
+            businessClassNm = posparam.get('business_class_nm')
+            exSupplierDsc = posparam.get('ex_supplier_dsc')
             nation = posparam.get('nation')
-            zipCode = posparam.get('zipCode')
+            zipCode = posparam.get('zip_code')
             address1 = posparam.get('address1')
             address2 = posparam.get('address2')
             phone = posparam.get('phone')
             fax = posparam.get('fax')
             homepage = posparam.get('homepage')
-            emailAddr = posparam.get('emailAddr')
-            useYn = posparam.get('useYn')
+            emailAddr = posparam.get('email_addr')
+            useYn = posparam.get('use_yn')
   
             if id:
                 c = CmExSupplier.objects.get(id=id)
@@ -159,7 +162,9 @@ def ex_supplier(context):
             else:
                 c = CmExSupplier()
 
+            c.ExSupplierCode = exSupplierCd
             c.ExSupplierName = exSupplierNm
+            c.CeoName = ceoNm
             c.ChargerName = chargerNm
             c.BusinessClassName = businessClassNm
             c.ExSupplierDsc = exSupplierDsc
@@ -173,6 +178,7 @@ def ex_supplier(context):
             c.EmailAddr = emailAddr
             c.Factory_id = factory_id
             c.UseYn = useYn
+            c.DelYn = 'N'
             c.set_audit(user)
             c.save()
 
@@ -180,7 +186,7 @@ def ex_supplier(context):
 
 
         elif action == 'delete':
-            exSupplierPk = CommonUtil.try_int(posparam.get('exSupplierPk'))
+            exSupplierPk = CommonUtil.try_int(posparam.get('ex_supplier_pk'))
             if not findDeletableExSupplier(exSupplierPk):
                 CmExSupplier.objects.filter(id=exSupplierPk).delete()
 
@@ -188,7 +194,7 @@ def ex_supplier(context):
     
 
         elif action == 'deleteUpdate':
-            exSupplierPk = CommonUtil.try_int(posparam.get('exSupplierPk'))
+            exSupplierPk = CommonUtil.try_int(posparam.get('ex_supplier_pk'))
             c = CmExSupplier.objects.get(id=exSupplierPk)
             c.DelYn = 'Y'
             c.save()
@@ -197,12 +203,12 @@ def ex_supplier(context):
 
 
         elif action == 'findDeletableExSupplier':
-            exSupplierPk = CommonUtil.try_int(posparam.get('exSupplierPk'))
+            exSupplierPk = CommonUtil.try_int(posparam.get('ex_supplier_pk'))
             return findDeletableExSupplier(exSupplierPk)
 
 
         elif action == 'findReferencedTablesInfo':
-            exSupplierPk = CommonUtil.try_int(posparam.get('exSupplierPk'))
+            exSupplierPk = CommonUtil.try_int(posparam.get('ex_supplier_pk'))
             sql = ''' select t.i18n_code, t1.def_msg, t.cnt
 			FROM (
 			    select 'workordersupplier.exsupplierpk.lbl' as i18n_code

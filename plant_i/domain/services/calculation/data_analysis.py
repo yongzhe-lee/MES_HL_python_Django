@@ -10,6 +10,11 @@ from domain.models.system import AttachFile
 from domain.models.da import DsModel, DsModelColumn, DsModelData
 from domain.services.sql import DbUtil
 from domain.services.common import CommonUtil
+import plotly
+import plotly.graph_objs as go
+import plotly.io as pio
+import plotly.express as px
+
 
 class DaService(object):
     """ 데이터분석 모듈.
@@ -320,6 +325,37 @@ class DaService(object):
             print (ex)
         return True
 
+
+    def encode_categorical_columns(self, df):
+        """
+        데이터프레임 내 object/category 타입 컬럼을 자동으로 Label Encoding. (캐릭터 -> 수치형)
+        변환된 df와 컬럼별 LabelEncoder 매핑 반환.
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            원본 데이터프레임(변환 시 컬럼값이 inplace로 바뀜)
+
+        Returns
+        -------
+        df : pandas.DataFrame
+            인코딩된 데이터프레임
+        encoders : dict
+            {컬럼명: LabelEncoder 객체} 매핑 (테스트셋 transform 등에 사용 가능)
+        """
+        from sklearn.preprocessing import LabelEncoder
+
+        encoders = {}
+        categorical_cols = df.select_dtypes(include=['object', 'category']).columns
+    
+        for col in categorical_cols:
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col].astype(str))
+            # encoders[col] = le  # 추후 역변환 or 테스트셋 transform 용도
+
+        # return df, encoders
+        return df
+
     def xy_columns(self):
         '''
         '''
@@ -345,6 +381,148 @@ class DaService(object):
             elif row['Y'] == 1:
                 y_vars.append(row['VarName'])
         return x_vars, y_vars
+
+    # 24.11.20 김하늘 수정 pca 외 다른 그래프도 처리 가능하도록 수정
+    def visualize_to_plotly(self, title, graph1, graph2=None, graph3=None):
+        """
+        Plotly를 사용하여 그래프를 생성하고 HTML로 변환하는 함수.
+
+        Parameters
+        ----------
+        title : dict
+            그래프 제목 및 축 제목을 포함하는 딕셔너리.
+            예: {'main': '그래프 제목', 'x': 'X축 제목', 'y': 'Y축 제목', 'z': 'Z축 제목'}
+        graph1 : dict, optional
+            첫 번째 그래프 데이터. 'data' 키에 numpy 배열을 포함해야 함.
+        graph2 : dict, optional
+            두 번째 그래프 데이터. 'data' 키에 numpy 배열을 포함해야 함.
+        graph3 : dict, optional
+            세 번째 그래프 데이터. 'data' 키에 numpy 배열을 포함해야 함.
+
+        Returns
+        -------
+            str
+            Plotly 그래프를 HTML 문자열로 반환.
+        """
+
+        # 차원에 따른 그래프 데이터 처리
+        def process_trace(graph):
+            """1차원, 2차원 또는 3차원 데이터를 처리하여 Scatter/Scatter3D 트레이스 생성."""
+            key = graph.get('key', None)
+            dims = graph['data'].ndim  # 데이터 차원 확인
+
+            if dims == 1 : # 1차원 데이터
+                x = np.arange(1, len(graph['data']) + 1)  # x 값 자동 생성
+                y = graph['data']
+                return go.Scatter(
+                    x=x,
+                    y=y,
+                    mode=graph['mode'],
+                    name=graph['name'],
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
+                    meta={'auto_x': True}  # x값이 자동 생성된 경우를 메타정보로 추가
+                )
+
+            if dims == 2 and graph['data'].shape[1] == 1:  # 1차원 데이터(np array) -> 차원 축소된 값
+                x = np.arange(1, len(graph['data'][:, 0]) + 1)  # x 값 자동 생성
+                y = graph['data'][:, 0]
+                return go.Scatter(
+                    x=x,
+                    y=y,
+                    mode=graph['mode'],
+                    name=graph['name'],
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
+                    meta={'auto_x': False} 
+                )
+
+            elif dims == 2 and graph['data'].shape[1] == 2:  # 2차원 데이터
+                x, y = graph['data'][:, 0], graph['data'][:, 1]
+                return go.Scatter(
+                    x=x,
+                    y=y,
+                    mode=graph['mode'],
+                    name=graph['name'],
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
+                    meta={'auto_x': False} 
+                )
+
+            elif dims == 2 and graph['data'].shape[1] == 3:  # 3차원 데이터
+                x, y, z = graph['data'][:, 0], graph['data'][:, 1], graph['data'][:, 2]
+                return go.Scatter3d(
+                    x=x,
+                    y=y,
+                    z=z,
+                    mode='markers',
+                    marker= dict(size=2),
+                    text=graph.get('text', None),                    # hover용 text
+                    hovertemplate=graph.get('hovertemplate', None),  # hovertemplate 지원
+                    # marker=dict(size= max(1, 10 - len(graph['data']) // 1000)),   # 데이터가 많을수록 크기 감소
+                    name=graph['name']
+            )
+            else:
+                raise ValueError(f"Unsupported data dimensionality: {dims}D")
+
+        # 데이터 처리
+        data = []
+        for graph in [graph1, graph2, graph3]:
+            if graph is not None:
+                traces = process_trace(graph)
+                # traces가 리스트일 경우와 단일 객체일 경우 처리
+                if isinstance(traces, list):
+                    data.extend(traces)  # 리스트면 풀어서 추가
+                else:
+                    data.append(traces)  # 단일 객체면 그대로 추가
+
+        # 레이아웃 설정
+        # xaxis 설정
+        xaxis = None
+        if all(isinstance(trace, go.Scatter) for trace in data):  # 2D Scatter만 포함
+            auto_x = all(trace.meta.get('auto_x', False) for trace in data)
+            xaxis = dict(
+                title=title.get('x', ''),
+                # tickmode='linear' if auto_x else 'auto',  # x값이 자동 생성된 경우에만 linear 설정
+                tickmode='auto',  # x값이 자동 생성된 경우에만 linear 설정
+                nticks=20,  # 최대 눈금 개수 제한
+            )
+
+        layout = go.Layout(
+            title={
+                'text': title['main'], 
+                'x': 0.5,               # chart title 가운데 정렬
+                'xanchor': 'center',    # 중앙에 앵커 설정
+                'xref': 'paper',        # **그래프를 기준으로 중앙 정렬
+            },
+            autosize = True,            # 자동 크기 조정 활성화
+            # autosize=False,           # 자동 크기 조정 비활성화
+            margin = dict(l=50, r=50, t=50, b=50),  # 좌우 여백 최소화로 제목을 정확히 중앙에 위치
+            xaxis = xaxis, 
+            yaxis = dict(
+                title = title.get('y', '')
+            ) if all(isinstance(trace, go.Scatter) for trace in data) else None,
+            scene = dict(  # 3D 데이터용 레이아웃
+                xaxis_title=title.get('x', ''),
+                yaxis_title=title.get('y', ''),
+                zaxis_title=title.get('z', '')  # 3D일 경우 z축 제목 추가
+            ) if any(isinstance(trace, go.Scatter3d) for trace in data) else None,  # 3D 여부 확인
+            showlegend=True  # 강제로 범례 표시
+        )
+    
+        # figure 생성
+        fig = go.Figure(data=data, layout=layout)
+    
+        # Plotly 그래프를 HTML로 변환 (include_plotlyjs = JavaScript 라이브러리 포함 여부 설정)
+        # plotly_graph = pio.to_html(fig, full_html=False)  # 라이브러리가 설치되어 있을 때 사용
+        plotly_graph = pio.to_html(fig, full_html=False, include_plotlyjs=True, config=dict(responsive=True))
+
+        # Plotly 그래프를 HTML 파일로 저장 (필요시만 활성화)
+        # fig.write_html("D:\김하늘\위존\실무\★SF팀\★HL클레무비\개발실무\스터디\plotly_to_html.html", include_plotlyjs='cdn')
+        # cdn: CDN 링크로 Plotly.js 포함해서 보내기. 폐쇄망에서 사용 불가)
+    
+        return plotly_graph 
+
 
     def load_data(self, rows):
         '''
