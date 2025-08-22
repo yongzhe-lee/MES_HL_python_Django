@@ -1,0 +1,164 @@
+{
+  "config_id": 5,
+  "name": "HPC#1 PCB반전 PLC데이터수집건",
+  "description": "미쯔비시",
+  "equipment": "hpc1.pcbrev",
+  "device_type": "melsec_tcp",
+  "host": "10.226.234.54",
+  "port": 5002,
+  "dbms_key": "default",
+  "topic": "dt_hpc1.pcbrev",
+  "schedule": {
+    "trigger_type": "cron_expression",
+    "cron_expression": "1/5 * * * * *"
+  },
+  "actions": [
+    {
+      "action": "read",
+      "address": "X400",
+      "quantity": 2,
+      "fields": [
+        {
+          "tag": "hpc1.pcbrev.op.mode",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "X401",
+          "value_index": 1
+        },
+        {
+          "tag": "hpc1.pcbrev.emer.stop",
+          "data_type": "bool",
+          "address": "X405",
+          "persist_mode": "dt",
+          "value_index": 5
+        },
+        {
+          "tag": "hpc1.pcbrev.door",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "value_index": 8
+        },
+        {
+          "tag": "hpc1.pcbrev.prod.detect",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "value_index": 23
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "Y410",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.pcbrev.lamp.g",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "Y41D",
+          "value_index": 13
+        },
+        {
+          "tag": "hpc1.pcbrev.lamp.y",
+          "data_type": "bool",
+          "address": "Y41E",
+          "persist_mode": "dt",
+          "value_index": 14
+        },
+        {
+          "tag": "hpc1.pcbrev.lamp.r",
+          "data_type": "bool",
+          "address": "Y41F",
+          "persist_mode": "dt",
+          "value_index": 15
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "D100",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.pcbrev.prod.info",
+          "data_type": "int",
+          "persist_mode": "both",
+          "value_index": 0
+        }
+      ]
+    },
+    {
+      "action": "read_alarm",
+      "address": "D2000",
+      "tag": "hpc1.pcbrev.alm.cnt",
+      "items": [
+        {
+          "address": "F0000",
+          "quantity": 4,
+          "fields": [
+            {
+              "tag": "hpc1.pcbrev.alm.F0000",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0002",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 2
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0010",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 10
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0040",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 40
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0041",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 41
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0042",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 42
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0043",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 43
+            }
+          ]
+        },
+        {
+          "address": "F0050",
+          "quantity": 1,
+          "fields": [
+            {
+              "tag": "hpc1.pcbrev.alm.F0050",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            },
+            {
+              "tag": "hpc1.pcbrev.alm.F0051",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

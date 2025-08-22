@@ -1,0 +1,530 @@
+{
+  "config_id": 13,
+  "name": "HPC#1 EOL PLC데이터수집건",
+  "description": "미쯔비시",
+  "equipment": "hpc1.eol",
+  "device_type": "melsec_tcp",
+  "host": "10.226.234.62",
+  "port": 5002,
+  "dbms_key": "default",
+  "topic": "dt_hpc1.eol",
+  "schedule": {
+    "trigger_type": "cron_expression",
+    "cron_expression": "1/5 * * * * *"
+  },
+  "actions": [
+    {
+      "action": "read",
+      "address": "W1101",
+      "data_type": "word_to_bit",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.eol.op.au",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "W1101A",
+          "value_index": 10
+        },
+        {
+          "tag": "hpc1.eol.op.ma",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "W1101B",
+          "value_index": 11
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "X300",
+      "quantity": 4,
+      "fields": [
+        {
+          "tag": "hpc1.eol.au.stop",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X301",
+          "value_index": 1
+        },
+        {
+          "tag": "hpc1.eol.op.mode",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X302",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.eol.au.op",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X303",
+          "value_index": 3
+        },
+        {
+          "tag": "hpc1.eol.emer.stop",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X306",
+          "value_index": 6
+        },
+        {
+          "tag": "hpc1.eol.door1",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X30A",
+          "value_index": 10
+        },
+        {
+          "tag": "hpc1.eol.door2",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X30B",
+          "value_index": 11
+        },
+        {
+          "tag": "hpc1.eol.door3",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X30C",
+          "value_index": 12
+        },
+        {
+          "tag": "hpc1.eol.door4",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X30D",
+          "value_index": 13
+        },
+        {
+          "tag": "hpc1.eol.air.press",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X30F",
+          "value_index": 15
+        },
+        {
+          "tag": "hpc1.eol1.prod.detect",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X323",
+          "value_index": 35
+        },
+        {
+          "tag": "hpc1.eol2.prod.detect",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "X333",
+          "value_index": 51
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "Y34C",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.eol.lamp.r",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "Y34C",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.eol.lamp.y",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "Y34D",
+          "value_index": 1
+        },
+        {
+          "tag": "hpc1.eol.lamp.g",
+          "data_type": "bool",
+          "persist_mode": "both",
+          "address": "Y34E",
+          "value_index": 2
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "D0513",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.eol.prod.info",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "D0100",
+          "value_index": 0
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "D1098",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.eol.ct",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "D1098",
+          "value_index": 0
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "M6510",
+      "quantity": 10,
+      "fields": [
+        {
+          "tag": "hpc1.eol1.jig.clamp",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6510",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.eol1.prob.md.fward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6512",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.eol1.prob.fward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6514",
+          "value_index": 4
+        },
+        {
+          "tag": "hpc1.eol1.test.exec",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6516",
+          "value_index": 6
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "M6520",
+      "quantity": 10,
+      "fields": [
+        {
+          "tag": "hpc1.eol1.prob.bward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6520",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.eol1.prob.md.bward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6522",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.eol1.unclamp",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6524",
+          "value_index": 4
+        },
+        {
+          "tag": "hpc1.eol1.wk.finish",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6526",
+          "value_index": 6
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "M6560",
+      "quantity": 10,
+      "fields": [
+        {
+          "tag": "hpc1.eol2.jig.clamp",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6560",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.eol2.prob.md.fward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6562",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.eol2.prob.fward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6564",
+          "value_index": 4
+        },
+        {
+          "tag": "hpc1.eol2.test.exec",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6566",
+          "value_index": 6
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "M6570",
+      "quantity": 10,
+      "fields": [
+        {
+          "tag": "hpc1.eol2.prob.bward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6570",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.eol2.prob.md.bward",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6572",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.eol2.unclamp",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6574",
+          "value_index": 4
+        },
+        {
+          "tag": "hpc1.eol2.wk.finish",
+          "data_type": "number",
+          "persist_mode": "database",
+          "address": "M6576",
+          "value_index": 6
+        }
+      ]
+    },
+    {
+      "action": "read_alarm",
+      "address": "M1000",
+      "tag": "hpc1.eol.alm.cnt",
+      "items": [
+        {
+          "address": "F0000",
+          "quantity": 6,
+          "fields": [
+            {
+              "tag": "hpc1.eol.alm.F0000",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            },
+            {
+              "tag": "hpc1.eol.alm.F0001",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 1
+            },
+            {
+              "tag": "hpc1.eol.alm.F0002",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 2
+            },
+            {
+              "tag": "hpc1.eol.alm.F0007",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 7
+            },
+            {
+              "tag": "hpc1.eol.alm.F0008",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 8
+            },
+            {
+              "tag": "hpc1.eol.alm.F0009",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 9
+            },
+            {
+              "tag": "hpc1.eol.alm.F0010",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 10
+            },
+            {
+              "tag": "hpc1.eol.alm.F0011",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 11
+            },
+            {
+              "tag": "hpc1.eol.alm.F0012",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 12
+            },
+            {
+              "tag": "hpc1.eol.alm.F0013",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 13
+            },
+            {
+              "tag": "hpc1.eol.alm.F0014",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 14
+            },
+            {
+              "tag": "hpc1.eol.alm.F0015",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 15
+            },
+            {
+              "tag": "hpc1.eol.alm.F0016",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 16
+            },
+            {
+              "tag": "hpc1.eol.alm.F0017",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 17
+            },
+            {
+              "tag": "hpc1.eol.alm.F0018",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 18
+            },
+            {
+              "tag": "hpc1.eol.alm.F0019",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 19
+            },
+            {
+              "tag": "hpc1.eol.alm.F0021",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 21
+            },
+            {
+              "tag": "hpc1.eol.alm.F0029",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 29
+            }
+          ]
+        },
+        {
+          "address": "F0100",
+          "quantity": 2,
+          "fields": [
+            {
+              "tag": "hpc1.eol.alm.F0100",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            },
+            {
+              "tag": "hpc1.eol.alm.F0101",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 1
+            },
+            {
+              "tag": "hpc1.eol.alm.F0102",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 2
+            },
+            {
+              "tag": "hpc1.eol.alm.F0103",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 3
+            },
+            {
+              "tag": "hpc1.eol.alm.F0104",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 4
+            },
+            {
+              "tag": "hpc1.eol.alm.F0105",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 5
+            },
+            {
+              "tag": "hpc1.eol.alm.F0106",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 6
+            },
+            {
+              "tag": "hpc1.eol.alm.F0107",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 7
+            },
+            {
+              "tag": "hpc1.eol.alm.F0108",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 8
+            },
+            {
+              "tag": "hpc1.eol.alm.F0109",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 9
+            },
+            {
+              "tag": "hpc1.eol.alm.F0110",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 10
+            },
+            {
+              "tag": "hpc1.eol.alm.F0119",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 19
+            }
+          ]
+        },
+        {
+          "address": "F0200",
+          "quantity": 1,
+          "fields": [
+            {
+              "tag": "hpc1.eol.alm.F0200",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

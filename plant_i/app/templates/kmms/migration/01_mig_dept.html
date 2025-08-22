@@ -1,0 +1,768 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="configurator">
+        <div class="header"></div>
+        <div class="box-col">
+			<h4>
+				
+			</h4>
+            <ul class="options">
+                <li>
+                    <button id="save">변경된 내용을 디비에 저장</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="spreadsheet" style="width: 100%"></div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+	class MigDeptPage {
+		constructor() {
+			this.baseUrl = '/api/migration/mig_spreadsheet';
+			this.dataSource = null;
+			this.isHeaderSet = false; // 헤더 설정 플래그
+			this.isDataBound = false; // 데이터 바인딩 완료 플래그
+			this.isLoading = false; // 데이터 로딩 플래그
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+
+			$("#save").kendoButton({
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault();
+					// 버튼 항상 활성화 - disabled 체크 제거
+					page.saveData();
+				}
+			});
+
+			this.dataSource = new kendo.data.DataSource({
+				transport: {
+					read: function (options) {
+						_this.onRead(options);
+					},
+					submit: function (options) {
+						_this.onSubmit(options);
+					}
+				},
+				batch: true,
+				change: function () {
+					// 버튼은 항상 활성화 상태로 유지
+					$("#save").removeClass("k-disabled");
+				},
+				schema: {
+					model: {
+						id: "cm_mig_dept",
+						fields: {
+							pk: { type: "number", defaultValue: 0 },
+							action_type: { type: "string", defaultValue: "" },
+							dept_cd: { type: "string", defaultValue: "" },
+							dept_nm: { type: "string", defaultValue: "" },
+							up_dept_cd: { type: "string", defaultValue: "" },
+							up_dept_nm: { type: "string", defaultValue: "" },
+							business_yn: { type: "string", defaultValue: "" },
+							team_yn: { type: "string", defaultValue: "" },
+							tpm_yn: { type: "string", defaultValue: "" },
+							cc_cd: { type: "string", defaultValue: "" },
+							site_id: { type: "string", defaultValue: "" },
+							user_id: { type: "string", defaultValue: "" },
+							insert_ts: { type: "string", defaultValue: "" },
+							msg: { type: "string", defaultValue: "" }
+						}
+					}
+				}
+			});
+
+			$("#spreadsheet").kendoSpreadsheet({
+				columns: 11,
+				rows: 100, // 완전 무제한 행 수
+				toolbar: true, // 메뉴/툴바 활성화
+				sheetsbar: false,
+				excel: {
+					// 파일 다운로드/업로드 기능 활성화
+					proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+				},
+				pdf: {
+					proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+				},
+				dataBinding: function (e) {
+				},
+				dataBound: function (e) {
+					// 무한 루프 방지
+					if (_this.isDataBound) {
+						return;
+					}
+					_this.isDataBound = true;
+
+					// 데이터 바인딩 후 헤더를 한글로 다시 설정
+					let sheet = e.sheet;
+					_this.setHeaders(sheet);
+
+					console.log('데이터 바인딩 완료');
+					
+					// 플래그 리셋 (일정 시간 후)
+					setTimeout(function () {
+						_this.isDataBound = false;
+					}, 1000);
+				},
+				// 행 삭제 이벤트 처리 추가
+				beforeRowDelete: function (e) {
+					console.log('행 삭제 시작:', e);
+					// 삭제할 행의 데이터 확인
+					let sheet = e.sheet;
+					let rowIndex = e.rowIndex;
+					let pk = sheet.range("A" + (rowIndex + 1)).value();
+					let deptCd = sheet.range("C" + (rowIndex + 1)).value();
+					let deptNm = sheet.range("D" + (rowIndex + 1)).value();
+
+					console.log('삭제될 행 정보:', {
+						rowIndex: rowIndex + 1,
+						pk: pk,
+						deptCd: deptCd,
+						deptNm: deptNm
+					});
+				},
+				rowDelete: function (e) {
+					console.log('행 삭제 완료:', e);
+					// 행 삭제 후 즉시 데이터 재정렬 (강화된 처리)
+					setTimeout(function () {
+						_this.reorganizeDataAfterDelete();
+					}, 100);
+				},
+				// 컨텍스트 메뉴 추가
+				contextMenu: {
+					items: [
+						{
+							text: "Cut",
+							icon: "cut"
+						},
+						{
+							text: "Copy",
+							icon: "copy"
+						},
+						{
+							text: "Paste",
+							icon: "paste"
+						},
+						{
+							text: "Delete Row",
+							icon: "delete",
+							click: function (e) {
+								let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+								let sheet = spreadsheet.activeSheet();
+								let selection = sheet.selection();
+
+								if (selection) {
+									// 선택된 행의 모든 셀을 초기화 (행 단위 삭제)
+									let startRow = selection.top;
+									let endRow = selection.bottom;
+
+									console.log('삭제할 행 범위:', startRow + 1, '~', endRow + 1);
+
+									for (let row = startRow; row <= endRow; row++) {
+										let rowIndex = row + 1;
+										let pk = sheet.range("A" + rowIndex).value();
+										let deptCd = sheet.range("C" + rowIndex).value();
+
+										console.log('행', rowIndex, '삭제 전 데이터:', pk, deptCd);
+
+										// 해당 행의 모든 셀을 초기화
+										sheet.range("A" + rowIndex + ":P" + rowIndex).value(""); // H에서 P로 확장
+
+										console.log('행', rowIndex, '삭제 완료');
+									}
+
+									// 삭제 후 즉시 데이터 재정렬 (강화된 처리)
+									setTimeout(function () {
+										page.reorganizeDataAfterDelete();
+									}, 100);
+								}
+							}
+						},
+						{
+							text: "Hide",
+							icon: "hide"
+						}
+					]
+				},
+				sheets: [{
+					name: "m_project(+)"
+					,rows: [{
+						height: 40,
+						cells: [
+							{ value: "No" },
+							{ value: "유형" },
+							{ value: "부서코드" },
+							{ value: "부서명" },
+							{ value: "상위 부서코드" },
+							{ value: "상위 부서명" },
+							{ value: "사업부 여부" },
+							{ value: "팀 여부" },
+							{ value: "정비부서 여부" },
+							{ value: "코스트센터" },
+							{ value: "SITE ID" }
+						]
+					}],
+					columns: [
+						{ width: 50 },   // No
+						{ width: 60 },   // 유형
+						{ width: 120 },  // 부서코드
+						{ width: 150 },  // 부서명
+						{ width: 120 },  // 상위 부서코드
+						{ width: 150 },  // 상위 부서명
+						{ width: 80 },   // 사업부 여부
+						{ width: 80 },   // 팀 여부
+						{ width: 100 },  // 정비부서 여부
+						{ width: 120 },  // 코스트센터
+						{ width: 80 }    // SITE ID
+					]
+				}]
+			});
+
+			// 스프레드시트 초기화 후 헤더 설정 및 데이터 로드
+			let self = this;
+			setTimeout(function() {
+				let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+				if (spreadsheet && spreadsheet.activeSheet) {
+					let sheet = spreadsheet.activeSheet();
+					self.setHeaders(sheet);
+					
+					// 초기 데이터 로드
+					self.dataSource.read();
+					
+					// 버튼 항상 활성화 상태로 설정
+					$("#save").removeClass("k-disabled");
+				}
+			}, 500);
+
+		}
+
+		// 안전한 셀 값 가져오기 헬퍼 메서드
+		getSafeValue(sheet, range) {
+			try {
+				if (!sheet || !sheet.range) {
+					return '';
+				}
+				let value = sheet.range(range).value();
+				if (value === null || value === undefined) {
+					return '';
+				}
+				return value;
+			} catch (e) {
+				console.log('셀 값 가져오기 오류:', range, e);
+				return '';
+			}
+		}
+
+		// 안전한 셀 값 설정 헬퍼 메서드
+		setSafeValue(sheet, range, value) {
+			try {
+				if (!sheet || !sheet.range) {
+					return;
+				}
+				
+				// null이나 undefined인 경우 빈 문자열로 설정
+				let safeValue = (value !== null && value !== undefined) ? value : '';
+				
+				// 문자열이 아닌 경우 문자열로 변환
+				if (typeof safeValue !== 'string' && typeof safeValue !== 'number') {
+					safeValue = String(safeValue);
+				}
+				
+				sheet.range(range).value(safeValue);
+			} catch (e) {
+				console.log('셀 값 설정 오류:', range, e);
+			}
+		}
+
+		// 헤더 설정 메서드
+		setHeaders(sheet) {
+			try {
+				// 이미 헤더가 설정되었다면 중복 실행 방지
+				if (this.isHeaderSet) {
+					return;
+				}
+
+				// 한글 헤더 강제 설정 (데이터 로드 후에도 유지)
+				if (sheet && sheet.range) {
+					sheet.range("A1").value("No");
+					sheet.range("B1").value("유형");
+					sheet.range("C1").value("부서코드");
+					sheet.range("D1").value("부서명");
+					sheet.range("E1").value("상위 부서코드");
+					sheet.range("F1").value("상위 부서명");
+					sheet.range("G1").value("사업부 여부");
+					sheet.range("H1").value("팀 여부");
+					sheet.range("I1").value("정비부서 여부");
+					sheet.range("J1").value("코스트센터");
+					sheet.range("K1").value("SITE ID");
+					
+					this.isHeaderSet = true;
+					console.log('한글 헤더 설정 완료');
+					
+					// 헤더 설정 플래그를 일정 시간 후 리셋
+					let self = this;
+					setTimeout(function() {
+						self.isHeaderSet = false;
+					}, 2000);
+				}
+			} catch (e) {
+				console.log('헤더 설정 중 오류:', e);
+			}
+		}
+
+		onRead(options) {
+			let _this = this;
+
+			// 이미 로딩 중이면 중복 요청 방지
+			if (this.isLoading) {
+				console.log('이미 데이터 로딩 중, 요청 무시');
+				return;
+			}
+
+			this.isLoading = true;
+			console.log('데이터 로딩 시작');
+
+			$.ajax({
+				url: this.baseUrl,
+				dataType: "json",
+				method: "GET",
+				data: {
+					action: 'read',
+					migrationType: 'DEPT'  // 부서 마이그레이션 타입 추가
+				},
+				success: function (result) {
+					console.log('서버 응답 데이터:', result);
+					
+					// 결과가 null, undefined 또는 배열이 아닌 경우 처리
+					if (!result || !Array.isArray(result)) {
+						console.log('데이터가 없거나 배열이 아님, 빈 배열 반환');
+						options.success([]);
+						return;
+					}
+
+					// 배열이 비어있는 경우 처리
+					if (result.length === 0) {
+						console.log('빈 배열 응답');
+						options.success([]);
+						return;
+					}
+
+					// API 응답 데이터를 스프레드시트에서 기대하는 형식으로 매핑
+					let mapped = result.map((item, index) => {
+						// item이 null이나 undefined인 경우 안전하게 처리
+						if (!item || typeof item !== 'object') {
+							console.log('유효하지 않은 아이템:', item);
+							return {
+								pk: '',
+								action_type: '',
+								dept_cd: '',
+								dept_nm: '',
+								up_dept_cd: '',
+								up_dept_nm: '',
+								business_yn: '',
+								team_yn: '',
+								tpm_yn: '',
+								cc_cd: '',
+								site_id: '',
+								user_id: '',
+								insert_ts: '',
+								msg: ''
+							};
+						}
+
+						// 실제 데이터베이스 필드명에 맞게 매핑 (안전한 접근)
+						let mappedItem = {
+							pk: (item.pk !== null && item.pk !== undefined) ? String(item.pk) : '',
+							action_type: (item.action_type !== null && item.action_type !== undefined) ? String(item.action_type) : '',
+							dept_cd: (item.dept_cd !== null && item.dept_cd !== undefined) ? String(item.dept_cd) : '',
+							dept_nm: (item.dept_nm !== null && item.dept_nm !== undefined) ? String(item.dept_nm) : '',
+							up_dept_cd: (item.up_dept_cd !== null && item.up_dept_cd !== undefined) ? String(item.up_dept_cd) : '',
+							up_dept_nm: (item.up_dept_nm !== null && item.up_dept_nm !== undefined) ? String(item.up_dept_nm) : '',
+							business_yn: (item.business_yn !== null && item.business_yn !== undefined) ? String(item.business_yn) : '',
+							team_yn: (item.team_yn !== null && item.team_yn !== undefined) ? String(item.team_yn) : '',
+							tpm_yn: (item.tpm_yn !== null && item.tpm_yn !== undefined) ? String(item.tpm_yn) : '',
+							cc_cd: (item.cc_cd !== null && item.cc_cd !== undefined) ? String(item.cc_cd) : '',
+							site_id: (item.site_id !== null && item.site_id !== undefined) ? String(item.site_id) : '',
+							user_id: (item.user_id !== null && item.user_id !== undefined) ? String(item.user_id) : '',
+							insert_ts: (item.insert_ts !== null && item.insert_ts !== undefined) ? String(item.insert_ts) : '',
+							msg: (item.msg !== null && item.msg !== undefined) ? String(item.msg) : ''
+						};
+
+						return mappedItem;
+					});
+
+					console.log('매핑된 데이터:', mapped);
+					
+					// 스프레드시트에 직접 데이터 설정
+					_this.loadDataToSpreadsheet(mapped);
+					
+					// 데이터 소스에는 빈 배열 반환 (바인딩 안함)
+					options.success([]);
+					
+					// 로딩 완료
+					_this.isLoading = false;
+					console.log('데이터 로딩 완료');
+				},
+				error: function (xhr, status, error) {
+					// 백엔드 오류 시에도 빈 배열 반환하여 헤더는 표시
+					console.log("데이터 로드 오류:", error);
+					options.success([]);
+					
+					// 로딩 완료 (오류 시에도)
+					_this.isLoading = false;
+				}
+			});
+		}
+
+		// 스프레드시트에 데이터 직접 로드하는 메서드
+		loadDataToSpreadsheet(data) {
+			try {
+				let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+				if (!spreadsheet) {
+					console.log('스프레드시트가 아직 준비되지 않음');
+					// 200ms 후 재시도 (횟수 제한)
+					let self = this;
+					if (!this.retryCount) this.retryCount = 0;
+					if (this.retryCount < 5) {
+						this.retryCount++;
+						setTimeout(function() {
+							self.loadDataToSpreadsheet(data);
+						}, 200);
+					} else {
+						console.log('스프레드시트 초기화 실패');
+						this.retryCount = 0;
+					}
+					return;
+				}
+				
+				// 재시도 카운트 리셋
+				this.retryCount = 0;
+
+				let sheet = spreadsheet.activeSheet();
+				if (!sheet) {
+					console.log('활성 시트를 찾을 수 없음');
+					return;
+				}
+
+				console.log('스프레드시트에 데이터 로드 시작:', data.length + '개');
+
+				// 빠른 데이터 지우기 (범위 선택으로 한 번에)
+				if (data.length < 100) {
+					let clearRange = "A2:K" + (data.length + 10); // 여유분 포함
+					try {
+						sheet.range(clearRange).value("");
+					} catch (e) {
+						// 개별 지우기로 폴백
+						for (let row = 2; row <= Math.min(100, data.length + 10); row++) {
+							for (let col = 1; col <= 11; col++) {
+								let range = this.getColumnLetter(col) + row;
+								this.setSafeValue(sheet, range, '');
+							}
+						}
+					}
+				}
+
+				// 새 데이터 설정 (일괄 처리)
+				for (let i = 0; i < data.length; i++) {
+					let item = data[i];
+					let row = i + 2; // 2번째 행부터 시작 (1번째는 헤더)
+
+					// 한 번에 여러 셀 설정
+					try {
+						let rowData = [
+							item.pk || '',
+							item.action_type || '',
+							item.dept_cd || '',
+							item.dept_nm || '',
+							item.up_dept_cd || '',
+							item.up_dept_nm || '',
+							item.business_yn || '',
+							item.team_yn || '',
+							item.tpm_yn || '',
+							item.cc_cd || '',
+							item.site_id || ''
+						];
+						
+						// 행 단위로 한 번에 설정
+						for (let col = 0; col < rowData.length; col++) {
+							let cellRange = this.getColumnLetter(col + 1) + row;
+							this.setSafeValue(sheet, cellRange, rowData[col]);
+						}
+					} catch (e) {
+						console.log('행', row, '데이터 설정 오류:', e);
+					}
+				}
+
+				// 헤더 설정
+				this.setHeaders(sheet);
+
+				console.log('스프레드시트 데이터 로드 완료');
+			} catch (e) {
+				console.log('데이터 로드 중 오류:', e);
+			}
+		}
+
+		// 컬럼 번호를 문자로 변환하는 헬퍼 메서드
+		getColumnLetter(columnNumber) {
+			let letter = '';
+			while (columnNumber > 0) {
+				columnNumber--;
+				letter = String.fromCharCode(65 + (columnNumber % 26)) + letter;
+				columnNumber = Math.floor(columnNumber / 26);
+			}
+			return letter;
+		}
+
+		// 행 삭제 후 데이터 재정렬 메서드
+		reorganizeDataAfterDelete() {
+			let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			
+			// 스프레드시트가 존재하지 않으면 종료
+			if (!spreadsheet) {
+				console.log('스프레드시트가 존재하지 않음');
+				return;
+			}
+			
+			let sheet = spreadsheet.activeSheet();
+			
+			// 시트가 존재하지 않으면 종료
+			if (!sheet) {
+				console.log('활성 시트가 존재하지 않음');
+				return;
+			}
+
+			console.log('데이터 재정렬 시작');
+
+			// 모든 데이터를 수집 (더 넓은 범위)
+			let allData = [];
+			let maxRow = 100;
+
+			for (let row = 2; row <= maxRow; row++) {
+				// 셀 값을 안전하게 가져오기 (null/undefined 처리)
+				let pk = this.getSafeValue(sheet, "A" + row);
+				let actionType = this.getSafeValue(sheet, "B" + row);
+				let deptCd = this.getSafeValue(sheet, "C" + row);
+				let deptNm = this.getSafeValue(sheet, "D" + row);
+				let upDeptCd = this.getSafeValue(sheet, "E" + row);
+				let upDeptNm = this.getSafeValue(sheet, "F" + row);
+				let businessYn = this.getSafeValue(sheet, "G" + row);
+				let teamYn = this.getSafeValue(sheet, "H" + row);
+				let tpmYn = this.getSafeValue(sheet, "I" + row);
+				let ccCd = this.getSafeValue(sheet, "J" + row);
+				let siteId = this.getSafeValue(sheet, "K" + row);
+				let userId = this.getSafeValue(sheet, "L" + row);
+				let insertTs = this.getSafeValue(sheet, "M" + row);
+				let msg = this.getSafeValue(sheet, "N" + row);
+
+				// 실제 데이터가 있는 행만 수집 (더 엄격한 조건)
+				if (deptCd && deptCd.toString().trim() !== '' &&
+					deptCd.toString().trim() !== '0' &&
+					deptCd.toString().trim() !== '부서코드') {
+
+					allData.push({
+						row: row,
+						pk: pk,
+						actionType: actionType,
+						deptCd: deptCd,
+						deptNm: deptNm,
+						upDeptCd: upDeptCd,
+						upDeptNm: upDeptNm,
+						businessYn: businessYn,
+						teamYn: teamYn,
+						tpmYn: tpmYn,
+						ccCd: ccCd,
+						siteId: siteId,
+						userId: userId,
+						insertTs: insertTs,
+						msg: msg
+					});
+
+					console.log('수집된 데이터 행', row, ':', deptCd, deptNm);
+				}
+			}
+
+			console.log('총 수집된 데이터 개수:', allData.length);
+
+			// 모든 행을 초기화 (더 넓은 범위)
+			for (let row = 2; row <= maxRow; row++) {
+				sheet.range("A" + row + ":P" + row).value(""); // H에서 P로 확장
+			}
+
+			// 데이터를 순서대로 다시 배치
+			for (let i = 0; i < allData.length; i++) {
+				let data = allData[i];
+				let targetRow = i + 2;
+
+				this.setSafeValue(sheet, "A" + targetRow, data.pk);
+				this.setSafeValue(sheet, "B" + targetRow, data.actionType);
+				this.setSafeValue(sheet, "C" + targetRow, data.deptCd);
+				this.setSafeValue(sheet, "D" + targetRow, data.deptNm);
+				this.setSafeValue(sheet, "E" + targetRow, data.upDeptCd);
+				this.setSafeValue(sheet, "F" + targetRow, data.upDeptNm);
+				this.setSafeValue(sheet, "G" + targetRow, data.businessYn);
+				this.setSafeValue(sheet, "H" + targetRow, data.teamYn);
+				this.setSafeValue(sheet, "I" + targetRow, data.tpmYn);
+				this.setSafeValue(sheet, "J" + targetRow, data.ccCd);
+				this.setSafeValue(sheet, "K" + targetRow, data.siteId);
+				this.setSafeValue(sheet, "L" + targetRow, data.userId);
+				this.setSafeValue(sheet, "M" + targetRow, data.insertTs);
+				this.setSafeValue(sheet, "N" + targetRow, data.msg);
+				// O~P 컬럼은 빈 상태로 유지 (추가 데이터 입력용)
+
+				console.log('행', targetRow, '에 데이터 재배치 완료:', data.deptCd);
+			}
+
+			console.log('데이터 재정렬 완료 - 총', allData.length, '개 행 처리');
+		}
+
+		saveData() {
+			let _this = this;
+
+			console.log('saveData 호출됨');
+
+			// 스프레드시트에서 직접 데이터 가져오기
+			let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			
+			if (!spreadsheet) {
+				Alert.alert('', '스프레드시트를 찾을 수 없습니다.');
+				return;
+			}
+			
+			let sheet = spreadsheet.activeSheet();
+			
+			if (!sheet) {
+				Alert.alert('', '활성 시트를 찾을 수 없습니다.');
+				return;
+			}
+			
+			let changedData = [];
+
+			// 동적으로 실제 데이터가 있는 행만 수집
+			let row = 2;
+			let emptyRowCount = 0;
+			const maxEmptyRows = 10; // 연속으로 빈 행이 10개 이상이면 중단
+
+			while (emptyRowCount < maxEmptyRows && row <= 100) {
+				// 안전한 셀 값 가져오기
+				let pk = _this.getSafeValue(sheet, "A" + row);
+				let actionType = _this.getSafeValue(sheet, "B" + row);
+				let deptCd = _this.getSafeValue(sheet, "C" + row);
+				let deptNm = _this.getSafeValue(sheet, "D" + row);
+				let upDeptCd = _this.getSafeValue(sheet, "E" + row);
+				let upDeptNm = _this.getSafeValue(sheet, "F" + row);
+				let businessYn = _this.getSafeValue(sheet, "G" + row);
+				let teamYn = _this.getSafeValue(sheet, "H" + row);
+				let tpmYn = _this.getSafeValue(sheet, "I" + row);
+				let ccCd = _this.getSafeValue(sheet, "J" + row);
+				let siteId = _this.getSafeValue(sheet, "K" + row);
+				let userId = _this.getSafeValue(sheet, "L" + row);
+				let insertTs = _this.getSafeValue(sheet, "M" + row);
+				let msg = _this.getSafeValue(sheet, "N" + row);
+
+				// 부서 코드, 이름, 또는 ID가 있는 경우에만 처리
+				if ((deptCd && deptCd.toString().trim() !== '') ||
+					(deptNm && deptNm.toString().trim() !== '') ||
+					(pk && pk.toString().trim() !== '')) {
+
+					emptyRowCount = 0; // 데이터가 있으면 빈 행 카운트 리셋
+
+					let rowData = {
+						pk: pk || '',
+						action_type: actionType || '',
+						dept_cd: deptCd || '',
+						dept_nm: deptNm || '',
+						up_dept_cd: upDeptCd || '',
+						up_dept_nm: upDeptNm || '',
+						business_yn: businessYn || '',
+						team_yn: teamYn || '',
+						tpm_yn: tpmYn || '',
+						cc_cd: ccCd || '',
+						site_id: siteId || '',
+						user_id: userId || '',
+						insert_ts: insertTs || '',
+						msg: msg || ''
+					};
+
+					console.log('행', row, '데이터:', rowData);
+					changedData.push(rowData);
+				} else {
+					emptyRowCount++;
+				}
+				row++;
+			}
+
+			console.log('전체 데이터 개수:', changedData.length);
+
+			if (changedData.length === 0) {
+				Alert.alert('', '저장할 데이터가 없습니다.');
+				return;
+			}
+
+			let formData = {
+				data: changedData,
+				migrationType: 'DEPT'  // 사용자 마이그레이션 타입 추가
+			};
+
+			console.log('서버로 전송할 데이터:', formData);	
+
+			let fnSuccess = function (res) {
+				console.log('서버 응답:', res);
+				if (res.success) {
+					Alert.alert('', res.message || '저장되었습니다.');
+					
+					// 저장 후 데이터 다시 로드 (중복 호출 제거)
+					setTimeout(function() {
+						_this.isHeaderSet = false; // 헤더 설정 플래그 리셋
+						_this.isDataBound = false; // 데이터 바인딩 플래그 리셋
+						
+						// 한 번만 데이터 로드
+						if (!_this.isLoading) {
+							_this.dataSource.read();
+						}
+						
+						// 버튼 항상 활성화 상태로 유지
+						$("#save").removeClass("k-disabled");
+					}, 300);
+				} else {
+					Alert.alert('', res.message || '저장 중 오류가 발생했습니다.');
+				}
+			};
+
+			let fnError = function (xhr, status, error) {
+				console.log('서버 오류:', xhr, status, error);
+				Alert.alert('', '저장 중 오류가 발생했습니다.');
+			};
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=submit', formData, fnSuccess, fnError);
+		}
+
+		onSubmit(options) {
+			// DataSource sync를 위한 빈 구현
+			options.success();
+		}
+
+	};
+
+	let page = null;
+
+	$(document).ready(function () {
+		page = new MigDeptPage();
+	});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,373 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="업체코드, 업체명을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부">사용여부</label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="외주업체 목록">외주업체 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="exSupplierGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>외주업체</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="ex_supplier_pk" name="ex_supplier_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="ex_supplier_cd" data-labelCd="업체코드">업체코드</label>
+                                <div class="field-wrapper">
+                                    <input id="ex_supplier_cd" name="ex_supplier_cd" class="k-input k-textbox" data-msg="업체코드를" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="supplier_nm" data-labelCd="업체명">업체명</label>
+                                <div class="field-wrapper">
+                                    <input id="ex_supplier_nm" name="ex_supplier_nm" data-msg="업체명을" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="ceo_nm" data-labelCd="대표자">대표자</label>
+                                <div class="field-wrapper">
+                                    <input id="ceo_nm" name="ceo_nm" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="phone" data-labelCd="전화번호">전화번호</label>
+                                <div class="field-wrapper">
+                                    <input id="phone" name="phone" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="business_class_nm" data-labelCd="업종">업종</label>
+                                <div class="field-wrapper">
+                                    <input id="business_class_nm" name="business_class_nm" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="nation" data-labelCd="국가">국가</label>
+                                <div class="field-wrapper">
+                                    <input id="nation" name="nation" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="charger_nm" data-labelCd="담당자">담당자</label>
+                                <div class="field-wrapper">
+                                    <input id="charger_nm" name="charger_nm" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="fax" data-labelCd="팩스번호">팩스번호</label>
+                                <div class="field-wrapper">
+                                    <input id="fax" name="fax" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="zip_code" data-labelCd="우편번호">우편번호</label>
+                                <div class="field-wrapper">
+                                    <input id="zip_code" name="zip_code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="address1" data-labelCd="주소1">주소1</label>
+                                <div class="field-wrapper">
+                                    <input id="address1" name="address1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="address2" data-labelCd="주소2">주소2</label>
+                                <div class="field-wrapper">
+                                    <input id="address2" name="address2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="email_addr" data-labelCd="이메일주소">이메일주소</label>
+                                <div class="field-wrapper">
+                                    <input id="email_addr" name="email_addr" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class ExSupplierPage {
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/ex_supplier';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'ex_supplier_pk', title: 'ex_supplier_pk', hidden: true },
+                    { field: 'ex_supplier_cd', title: '업체코드', width: 80 },
+                    { field: 'ex_supplier_nm', title: '업체명', width: 100 },
+                    { field: 'ceo_nm', title: '대표자', width: 100 },
+                    { field: 'charger_nm', title: '담당자', width: 100 },
+                    { field: 'phone', title: '전화번호', width: 80 },
+                    { field: 'business_class_nm', title: '업종', width: 100 },
+                    { field: 'nation', title: '국가', width: 80 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.grid = new Grid($('#exSupplierGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "외주업체_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'cm_code', 'all', null, 'USE_YN')
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
+            });
+
+            // form
+            $('#ex_supplier_cd').kendoTextBox();
+            $('#ex_supplier_nm').kendoTextBox();
+            $('#ceo_nm').kendoTextBox();
+            $('#charger_nm').kendoTextBox();
+            $('#business_class_nm').kendoTextBox({});
+            $('#nation').kendoTextBox();
+            $('#zip_code').kendoTextBox({});
+            $('#address1').kendoTextBox();
+            $('#address2').kendoTextBox();
+            $('#phone').kendoTextBox({});
+            $('#fax').kendoTextBox({});
+            $('#email_addr').kendoTextBox();
+            $('#use_yn').kendoSwitch({ checked: true });
+
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'findAll',
+                searchText: $('#sch_keyword').val(),
+                useYn: $('#sch_use_yn').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                let useYnSwitch = $("#use_yn").data("kendoSwitch");
+                useYnSwitch.check(selectData.use_yn === 'Y');
+                useYnSwitch.wrapper.toggleClass("k-switch-on", selectData.use_yn === 'Y');
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#detailForm'));
+            formData.use_yn = $("#use_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            console.log("formData:\n", formData);
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=insert', formData, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].ex_supplier_pk) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { ex_supplier_pk: formData[0].ex_supplier_pk }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
+        }
+    }
+
+    let page = null;
+    page = new ExSupplierPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

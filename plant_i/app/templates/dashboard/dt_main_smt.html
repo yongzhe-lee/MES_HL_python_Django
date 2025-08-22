@@ -1,0 +1,1280 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+
+    /* 레이아웃 */
+    .hl-dashboard {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    .hl-left-panel, .hl-right-panel {
+        width: 100%;
+        display: block;
+        margin-bottom: 20px;
+    }
+
+    .hl-center-panel {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    /* 카드 */
+
+
+    .hl-card h3 {
+        font-size: 15px;
+        margin: 0 0 10px 0;
+        border-left: 4px solid #007bff;
+        padding-left: 10px;
+    }
+
+    /* 테이블 */
+    .hl-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+
+
+    .hl-th, .hl-td {
+        border: 1px solid #ddd;
+        padding: 6px 8px;
+        text-align: center;
+    }
+
+    .hl-th {
+        font-weight: 600;
+    }
+
+        .hl-td:first-child, .hl-th:first-child {
+            text-align: left;
+        }
+
+    .hl-wrap {
+        overflow-y: auto;
+    }
+
+    /* 이미지 */
+    .hl-center-panel canvas {
+        width: 100%;
+        height: auto;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    /* 푸터 */
+    .hl-footer-wrapper {
+        margin-top: 40px;
+        flex-shrink: 0;
+        display: block;
+        z-index: 1;
+        position: relative;
+        clear: both;
+        padding: 10px 10px;
+        background: #fff;
+        border-top: 2px solid #007bff;
+        box-sizing: border-box;
+        border-radius: 8px;
+        margin: 0 30px 30px;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .hl-footer-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 10px;
+        text-align: center;
+    }
+
+        .hl-footer-table td {
+            background-color: #f2f2f2;
+            color: #000;
+            padding: 10px 0;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            transition: 0.2s;
+            min-width: 100px;
+        }
+
+            .hl-footer-table td:hover {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+
+            .hl-footer-table td.active {
+                background-color: #ff0000 !important;
+                color: #fff !important;
+                border-color: #007bff !important;
+            }
+
+    .hl-footer-home {
+        background-color: #555 !important;
+        color: white !important;
+        font-weight: bold;
+        font-size: 14px;
+        border: 1px solid #444 !important;
+        transition: 0.2s;
+    }
+
+    td.hl-footer-home {
+        min-width: 54px;
+    }
+
+    .hl-footer-home:hover {
+        background-color: #444 !important;
+        border-color: #333 !important;
+    }
+
+    .hl-footer-home:active {
+        background-color: #222 !important;
+        border-color: #111 !important;
+    }
+
+    .hl-table thead {
+        background-color: #e6f2ff;
+        border-bottom: 2px solid #007bff;
+    }
+
+    .hl-table tbody tr:nth-child(even) {
+        background-color: #f9fcff;
+    }
+
+    .hl-table tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    @media (max-width: 1024px) {
+        .hl-dashboard {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .hl-left-panel, .hl-right-panel {
+            width: 100%;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+            .hl-left-panel .hl-card,
+            .hl-right-panel .hl-card {
+                flex: 1 1 calc(50% - 10px);
+                min-width: 280px;
+                margin-bottom: 10px;
+            }
+
+        .hl-center-panel {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .hl-center-panel canvas {
+                width: 100%;
+                max-height: 50vh;
+                object-fit: contain;
+                margin-bottom: 20px;
+            }
+
+        .hl-footer-wrapper {
+            margin-top: 40px;
+            display: block;
+            width: 100%;
+            margin: 30px auto 20px;
+            padding: 10px 5px;
+            overflow-x: auto;
+            clear: both;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hl-footer-table {
+            width: 100%;
+            min-width: 700px;
+        }
+
+            .hl-footer-table td {
+                font-size: 12px;
+                padding: 8px 10px;
+                min-width: 80px;
+                white-space: nowrap;
+            }
+
+                .hl-footer-table td:hover {
+                    background-color: #007bff;
+                    color: white;
+                    border-color: #007bff;
+                }
+
+                .hl-footer-table td.active {
+                    background-color: #ff0000 !important;
+                    color: #fff !important;
+                    border-color: #007bff !important;
+                }
+
+        td.hl-footer-home {
+            min-width: 54px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hl-left-panel, .hl-right-panel {
+            width: 100%;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+            .hl-left-panel .hl-card,
+            .hl-right-panel .hl-card {
+                width: 100%;
+                min-width: 100%;
+                margin-bottom: 10px;
+            }
+
+        .hl-footer-wrapper {
+            flex-shrink: 0;
+            display: block;
+            z-index: 1;
+            position: relative;
+            clear: both;
+            margin-top: 30px;
+        }
+
+        .hl-footer-table {
+            min-width: 100%;
+        }
+
+            .hl-footer-table td {
+                font-size: 11px;
+                padding: 6px 8px;
+                min-width: 70px;
+            }
+
+                .hl-footer-table td:hover {
+                    background-color: #007bff;
+                    color: white;
+                    border-color: #007bff;
+                }
+
+                .hl-footer-table td.active {
+                    background-color: #ff0000 !important;
+                    color: #fff !important;
+                    border-color: #007bff !important;
+                }
+    }
+
+    @media (max-width: 480px) {
+        .hl-footer-table td {
+            font-size: 10px;
+            padding: 4px 6px;
+            min-width: 60px;
+        }
+    }
+
+    /* --- Moved from HTML <style> --- */
+    body {
+        margin: 0;
+        font-family: sans-serif;
+    }
+
+    .hl-dashboard {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 10px;
+        height: calc(95vh - 200px);
+        box-sizing: border-box;
+    }
+
+    .hl-left-panel, .hl-right-panel {
+        flex: 0 0 18%;
+        display: flex;
+        flex-direction: column;
+        width: 180px;
+    }
+
+    .hl-center-panel {
+        flex: 1;
+        margin: 0 10px;
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hl-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+        box-shadow: none;
+        height: 100%;
+        overflow: hidden;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .hl-footer-wrapper {
+        padding: 10px 10px;
+        background: #fff;
+        border-top: 2px solid #007bff;
+        box-sizing: border-box;
+        border-radius: 8px;
+        margin: 0 30px 30px;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .hl-center-panel canvas {
+        width: 100%;
+        height: auto;
+        max-height: 100%;
+        border-radius: 0;
+        object-fit: contain;
+    }
+
+    /* --- Responsive & Scroll Support --- */
+
+    /* 기본 레이아웃 */
+    .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    /* 좌우 패널 공통 */
+    .left-panel, .right-panel {
+        flex: 1 1 20%;
+        max-width: 20%;
+        min-width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow: hidden;
+    }
+
+    /* 중앙 이미지 영역 */
+    .center-panel {
+        flex: 1 1 55%;
+        max-width: 55%;
+        min-width: 320px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    /* 카드 안 테이블 스크롤 */
+    .card {
+        background: #f2f2f2;
+        border-radius: 8px;
+        padding: 12px;
+        overflow: hidden;
+        flex: 1;
+    }
+
+        .card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+            .card table thead {
+                position: sticky;
+                top: 0;
+                background: #ddd;
+            }
+
+            .card table tbody {
+                display: block;
+                max-height: 180px;
+                overflow-y: auto;
+            }
+
+                .card table thead, .card table tbody tr {
+                    display: table;
+                    width: 100%;
+                    table-layout: fixed;
+                }
+
+    /* 하단 네비게이션 */
+    .footer-wrapper {
+        width: 100%;
+        padding: 10px;
+        background: #fff;
+        box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+
+    .footer-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+        .footer-nav button {
+            padding: 6px 12px;
+            border: none;
+            background: #eee;
+            border-radius: 4px;
+        }
+
+            .footer-nav button.active {
+                background: #999;
+                color: white;
+            }
+
+    /* 반응형 */
+    @media (max-width: 1024px) {
+        .left-panel, .right-panel, .center-panel {
+            flex: 1 1 100%;
+            max-width: 100%;
+        }
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="hl-dashboard">
+    <!-- 좌측 영역 -->
+    <div class="hl-left-panel">
+        <div class="hl-card">
+            <h3>당일 합격/불합격</h3>
+            <div class="hl-wrap" id="qtTable">
+            </div>
+        </div>
+        <div class="hl-card">
+            <h3>당일 생산 시간</h3>
+            <div class="hl-wrap" id="ctTable">
+            </div>
+        </div>
+        <div class="field-wrapper">
+            <textarea class="form-control" id="txtMessage" style="height:300px"></textarea>
+        </div>
+    </div>
+    <!-- 중앙 이미지 영역 -->
+    <!-- 중앙 이미지 영역 -->
+    <div class="hl-center-panel">
+        
+            <canvas id="unity-canvas"></canvas>
+        
+    </div>
+    <!-- 우측 정보 영역 -->
+    <div class="hl-right-panel">
+        <div class="hl-card">
+            <h3 id="equ_title">Flash 설비</h3>
+            <div class="hl-wrap" id="plcTable">
+            </div>
+        </div>
+        <div class="hl-card">
+            <h3>알람리스트(최근 10개)</h3>
+            <div class="hl-wrap" id="alarmTable">
+            </div>
+        </div>        
+    </div>
+</div>
+<!-- 하단 네비게이션 -->
+<div class="hl-footer-wrapper">
+    <table class="hl-footer-table">
+        <tr>
+            <td id="smt4home" rowspan="3" class="hl-footer-home">HOME</td>
+            <td id="smt4load">Loader</td>
+            <td id="smt4laserrmarking">LaserMarking</td>
+            <td id="smt4spi">SPI</td>
+            <td id="smt4mnt">Mounter</td>
+        </tr>
+        <tr>
+            <td id="smt4pre-aoi">Pre-AOI</td>
+            <td id="smt4reflow">Reflow</td>
+            <td id="smt4aoi">Post-AOI</td>
+            <td id="smt4unloader">Unloader</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript" src="/static/resource/paho-mqtt/mqttws31.min.js"></script>
+<script type="text/javascript" src="/static/resource/mqtt.js?v=2007"></script>
+
+
+<script src="/dt/resource/WeZon_Web.loader.js?v=20250722"></script>
+<script type="text/javascript">
+    class DtMainPage {
+        constructor() {
+            this.baseUrl = '/api/dashboard/dt_main';
+            this.mqttclient = null;
+            this.curEqucd = null;
+            this.taglist = null;
+
+            //choi : callback에서 this를 참조하기 위해서 선언해 주어야 함
+            this.web_event_handler = this.web_event_handler.bind(this);
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            _this.searchTagData();
+
+            $('#smt4home').on('click', function (e) {
+                e.preventDefault();
+
+                $('.hl-footer-table td').removeClass('active'); //전체 td에 class제거
+                $(this).addClass('active');                     //이 td에만 class삽입
+
+                _this.homeData();
+
+            }).css('visibility', 'visible');
+
+
+            $('#smt4load').on('click', function (e) {
+                e.preventDefault();
+
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                //_this.equipData('smt4.load');
+                _this.startsSubscribe('smt4.load');
+            }).css('visibility', 'visible');
+
+            $('#smt4laserrmarking').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                _this.equipData('smt4.laserrmarking');
+                _this.startsSubscribe('smt4.laserrmarking');
+            }).css('visibility', 'visible');
+
+            $('#smt4spi').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                _this.equipData('smt4.spi');
+                _this.startsSubscribe('smt4.spi');
+            }).css('visibility', 'visible');
+
+            $('#smt4mnt').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                _this.equipData('smt4.mnt');
+                _this.startsSubscribe('smt4.mnt');
+            }).css('visibility', 'visible');
+
+            $('#smt4pre-aoi').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                _this.equipData('smt4.pre-aoi');
+                _this.startsSubscribe('smt4.pre-aoi');
+            }).css('visibility', 'visible');
+
+            $('#smt4reflow').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                _this.equipData('smt4.reflow');
+                _this.startsSubscribe('smt4.reflow');
+            }).css('visibility', 'visible');
+
+            $('#smt4aoi').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                _this.equipData('smt4.aoi');
+                _this.startsSubscribe('smt4.aoi');
+            }).css('visibility', 'visible');
+
+            $('#smt4unloader').on('click', function (e) {
+                e.preventDefault();
+                $('.hl-footer-table td').removeClass('active');
+                $(this).addClass('active');
+
+                _this.resetData();
+                //_this.equipData('smt4.unloader');
+                _this.startsSubscribe('smt4.unload');
+            }).css('visibility', 'visible');
+        }        
+
+        renderQuality(data) {
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">품목</th>
+                <th class="hl-th" style="text-align:center;">판정</th>
+                <th class="hl-th" style="text-align:center;">수량</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:center;">${item.mat_cd}</td>
+                <td class="hl-td" style="text-align:center;">${item.판정}</td>
+                <td class="hl-td" style="text-align:right;">${item.count}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            $("#qtTable").html(html);
+        }
+
+        renderCT(data) {
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">품목</th>
+                <th class="hl-th" style="text-align:center;">CT</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:center;">${item.mat_cd}</td>
+                <td class="hl-td" style="text-align:right;" >${item.avg_seconds}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            $("#ctTable").html(html);
+        }
+
+        renderHomeQuality(data) {
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">설비</th>
+                <th class="hl-th" style="text-align:center;">품목</th>
+                <th class="hl-th" style="text-align:center;">판정</th>
+                <th class="hl-th" style="text-align:center;">수량</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:center;">${item.equ_name}</td>
+                <td class="hl-td" style="text-align:center;">${item.mat_cd}</td>
+                <td class="hl-td" style="text-align:center;">${item.판정}</td>
+                <td class="hl-td" style="text-align:right;">${item.count}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            $("#qtTable").html(html);
+        }
+
+        renderHomeCT(data) {
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">설비</th>
+                <th class="hl-th" style="text-align:center;">품목</th>
+                <th class="hl-th" style="text-align:center;">CT</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:center;">${item.equ_name}</td>
+                <td class="hl-td" style="text-align:center;">${item.mat_cd}</td>
+                <td class="hl-td" style="text-align:right;" >${item.avg_seconds}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            $("#ctTable").html(html);
+        }
+
+        renderWorkOrder(data) {
+            $("#equ_title").text('■ ' + '금일작업지시');
+
+            console.log('renderWorkOrder data:', data);
+
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">orderNo</th>
+                <th class="hl-th" style="text-align:center;">lineDesc</th>
+                <th class="hl-th" style="text-align:center;">matCode</th>
+                <th class="hl-th" style="text-align:center;">ordQty</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:center;">${item.orderNo}</td>
+                <td class="hl-td" style="text-align:center;">${item.lineDesc}</td>
+                <td class="hl-td" style="text-align:right;" >${item.matCode}</td>
+                <td class="hl-td" style="text-align:right;" >${item.ordQty}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            $("#plcTable").html(html);
+        }
+
+        renderAlarm(data) {
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">알람</th>
+                <th class="hl-th" style="text-align:center;">시각</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:right;" >${item.details}</td>
+                <td class="hl-td" style="text-align:right;" >${item.data_time}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            $("#alarmTable").html(html);
+        }
+
+        renderPLC(data) {
+            let html = `<table class="hl-table">
+            <thead>
+              <tr>
+                <th class="hl-th" style="text-align:center;">태그명</th>
+                <th class="hl-th" style="text-align:center;">값</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+            data.forEach(item => {
+                html += `
+                <tr>
+                <td class="hl-td" style="text-align:left;" >${item.tag_nm}</td>
+                <td class="hl-td" style="text-align:right;" >${item.value}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            document.getElementById("plcTable").innerHTML = html;
+        }
+
+        searchTagData() {
+            let _this = this;
+            //alert('equCd:'+ equCd);
+            let param = {
+                action: 'tagmaster'
+            }
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    if (result.data) {
+                        console.log(result.data);
+                        _this.taglist = result.data;
+                    }
+                }
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+        //html을 reset함
+        resetData() {
+            $("#qtTable").html("");
+            $("#ctTable").html("");
+            $("#alarmTable").html("");
+            $("#plcTable").html("");
+            $("#equ_title").text("");
+            $("#txtMessage").text("");
+        }
+
+        equipData(equCd) {
+            let _this = this;
+            //alert('equCd:'+ equCd);
+            let param = {
+                action: 'selectEquip',
+                equ_cd: equCd
+            }
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    if (result.qualitydata) {
+                        console.log(result.qualitydata);
+                        _this.renderQuality(result.qualitydata)
+                    }
+
+                    if (result.ctdata) {
+                        console.log(result.ctdata);
+                        _this.renderCT(result.ctdata)
+                    }
+
+                    if (result.alarmdata) {
+                        console.log(result.alarmdata);
+                        _this.renderAlarm(result.alarmdata)
+                    }
+                }
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+
+        homeData() {
+
+            let _this = this;
+
+            //안보이게
+            $("#txtMessage").hide();
+
+            //설비 구독을 취소하고 화면 전환
+            _this.startsSubscribe("hpc1.home");
+
+            //1. 설비별 생산품질현황
+            //2. 설비별 CT
+            let param = {
+                action: 'selectHome',
+                equ_cd: 'smt4',
+            }
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    if (result.qualityHomeData) {
+                        console.log(result.qualityHomeData);
+                        _this.renderHomeQuality(result.qualityHomeData)
+                    }
+
+                    if (result.ctHomeData) {
+                        console.log(result.ctHomeData);
+                        _this.renderHomeCT(result.ctHomeData)
+                    }
+                }
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+
+
+            //3.작업지시           
+
+            //let line_cd = 'PCU-01-01';
+            //let data = {
+            //    line_cd: line_cd,
+            //    'action': 'workorder_list'
+            //};
+
+            //AjaxUtil.getAsyncData('/api/interface/mes', data, function (result) {
+            //    if (result.success) {
+            //        //_this.grid.setData(result.items);
+            //    }
+            //    else {
+            //        Alert.alert('오류', result.message);
+            //    }
+            //});
+
+            //테스트용 데이터
+            let data =
+            {
+                "success": true,
+                "items": [
+                    {
+                        "id": "D10.031-00_6_001",
+                        "orderNo": "D10.031-00_6_001",
+                        "lineCode": "SMT-04",
+                        "lineDesc": "SMT#4",
+                        "matCode": "D10.031-00",
+                        "matDesc": "APCU-10S UNIT & BRACKET ASS'Y - CL4_APCU",
+                        "planMonth": "202506",
+                        "flowCode": "PCU-ASSY-FLOW",
+                        "flowDesc": "PCU Assembly Flow",
+                        "ordQty": 0,
+                        "ordInQty": 0,
+                        "ordOutQty": 0,
+                        "rcvGoodQty": 0,
+                        "rcvLossQty": 0,
+                        "ordDate": "2025-06-18",
+                        "ordStatus": "WAIT",
+                        "ordStatusDesc": "대기",
+                        "ordStartTime": "2025-06-18T16:45:24+0900",
+                        "createUserId": "h00689",
+                        "createUserDesc": "이강성",
+                        "createTime": "2025-06-18T16:24:34+0900",
+                        "updateUserId": "prod",
+                        "updateUserDesc": "생산라인 조회용",
+                        "updateTime": "2025-07-16T10:48:32+0900",
+                        "achievementRate": 0,
+                        "ordCmf3": "6",
+                        "planQty": 0,
+                        "inputQty": 0,
+                        "outQty": 0,
+                        "lineCmf2": "false"
+                    },
+                    {
+                        "id": "D10.031-02_3_001",
+                        "orderNo": "D10.031-02_3_001",
+                        "lineCode": "SMT-04",
+                        "lineDesc": "SMT#4",
+                        "matCode": "D10.031-02",
+                        "matDesc": "APCU-10S UNIT & BRACKET ASS'Y - TK_APCU-",
+                        "planMonth": "202410",
+                        "flowCode": "PCU-ASSY-FLOW",
+                        "flowDesc": "PCU Assembly Flow",
+                        "ordQty": 0,
+                        "ordInQty": 0,
+                        "ordOutQty": 0,
+                        "rcvGoodQty": 0,
+                        "rcvLossQty": 0,
+                        "ordDate": "2024-10-30",
+                        "ordStatus": "WAIT",
+                        "ordStatusDesc": "대기",
+                        "ordStartTime": "2024-10-30T13:56:58+0900",
+                        "createUserId": "h00827",
+                        "createUserDesc": "이지호",
+                        "createTime": "2024-10-30T13:50:18+0900",
+                        "updateUserId": "prod",
+                        "updateUserDesc": "생산라인 조회용",
+                        "updateTime": "2025-07-20T06:56:35+0900",
+                        "achievementRate": 0,
+                        "ordCmf3": "3",
+                        "planQty": 0,
+                        "inputQty": 0,
+                        "outQty": 0,
+                        "lineCmf2": "false"
+                    },
+                    {
+                        "id": "D10.031-03_3_001",
+                        "orderNo": "D10.031-03_3_001",
+                        "lineCode": "SMT-04",
+                        "lineDesc": "SMT#4",
+                        "matCode": "D10.031-03",
+                        "matDesc": "APCU-10S UNIT & BRACKET ASS'Y - CL4 5DR_",
+                        "planMonth": "202412",
+                        "flowCode": "PCU-ASSY-FLOW",
+                        "flowDesc": "PCU Assembly Flow",
+                        "ordQty": 0,
+                        "ordInQty": 0,
+                        "ordOutQty": 0,
+                        "rcvGoodQty": 0,
+                        "rcvLossQty": 0,
+                        "ordDate": "2024-12-13",
+                        "ordStatus": "WAIT",
+                        "ordStatusDesc": "대기",
+                        "ordStartTime": "2024-12-13T13:28:47+0900",
+                        "createUserId": "h00827",
+                        "createUserDesc": "이지호",
+                        "createTime": "2024-12-13T13:22:16+0900",
+                        "updateUserId": "prod",
+                        "updateUserDesc": "생산라인 조회용",
+                        "updateTime": "2025-07-18T04:51:42+0900",
+                        "achievementRate": 0,
+                        "ordCmf3": "3",
+                        "planQty": 0,
+                        "inputQty": 0,
+                        "outQty": 0,
+                        "lineCmf2": "false"
+                    },
+                    {
+                        "id": "D10.031-04_5_001",
+                        "orderNo": "D10.031-04_5_001",
+                        "lineCode": "SMT-04",
+                        "lineDesc": "SMT#4",
+                        "matCode": "D10.031-04",
+                        "matDesc": "APCU-10S UNIT & BRACKET ASS'Y - LX3 LHD_",
+                        "planMonth": "202504",
+                        "flowCode": "PCU-ASSY-FLOW",
+                        "flowDesc": "PCU Assembly Flow",
+                        "ordQty": 0,
+                        "ordInQty": 0,
+                        "ordOutQty": 0,
+                        "rcvGoodQty": 0,
+                        "rcvLossQty": 0,
+                        "ordDate": "2025-04-02",
+                        "ordStatus": "PROCESS",
+                        "ordStatusDesc": "진행",
+                        "ordStartTime": "2025-04-02T09:50:40+0900",
+                        "createUserId": "h00689",
+                        "createUserDesc": "이강성",
+                        "createTime": "2025-04-02T09:27:02+0900",
+                        "updateUserId": "equipment",
+                        "updateUserDesc": "설비 I/F",
+                        "updateTime": "2025-07-21T09:32:41+0900",
+                        "achievementRate": 0,
+                        "ordCmf3": "5",
+                        "planQty": 0,
+                        "inputQty": 0,
+                        "outQty": 0,
+                        "lineCmf2": "false"
+                    },
+                    {
+                        "id": "D10.031-05_4_001",
+                        "orderNo": "D10.031-05_4_001",
+                        "lineCode": "SMT-04",
+                        "lineDesc": "SMT#4",
+                        "matCode": "D10.031-05",
+                        "matDesc": "APCU-10S UNIT & BRACKET ASS'Y - LX3 RHD_",
+                        "planMonth": "202504",
+                        "flowCode": "PCU-ASSY-FLOW",
+                        "flowDesc": "PCU Assembly Flow",
+                        "ordQty": 0,
+                        "ordInQty": 0,
+                        "ordOutQty": 0,
+                        "rcvGoodQty": 0,
+                        "rcvLossQty": 0,
+                        "ordDate": "2025-04-02",
+                        "ordStatus": "WAIT",
+                        "ordStatusDesc": "대기",
+                        "ordStartTime": "2025-04-02T10:29:47+0900",
+                        "createUserId": "h00689",
+                        "createUserDesc": "이강성",
+                        "createTime": "2025-04-02T09:42:33+0900",
+                        "updateUserId": "prod",
+                        "updateUserDesc": "생산라인 조회용",
+                        "updateTime": "2025-07-20T00:47:04+0900",
+                        "achievementRate": 0,
+                        "ordCmf3": "4",
+                        "planQty": 0,
+                        "inputQty": 0,
+                        "outQty": 0,
+                        "lineCmf2": "false"
+                    },
+                ]
+            };
+            
+            _this.renderWorkOrder(data.items);
+
+
+        }
+
+
+        web_event_handler(message) {
+            let _this = this;
+            let mqttData = JSON.parse(message.payloadString);
+            //console.log(mqttData);
+            let txt = JSON.stringify(mqttData, null, 4);
+
+            let $txtMessage = $("#txtMessage");
+
+            $txtMessage.text(txt);
+
+            // entryArray: [["hpc1.flash.prod.info", 20560], ...]
+            // _this.taglist: [{tag_code: "hpc1.flash.prod.info", tag_name: "생산량", equ_name: "Flash설비", ...}, ...]
+            //console.log('taglist:',_this.taglist);
+
+            if (!_this.taglist) {
+                console.warn('taglist가 아직 로드되지 않았습니다.');
+                return;
+            }
+
+            // tag_cd로 tag_nm, equ_name을 빠르게 찾기 위한 Map 생성
+            const tagMap = new Map(_this.taglist.map(tag => [tag.tag_code, tag]));
+
+            // entryArray: [["hpc1.load.alm.cnt", 0], ...]
+            const entryArray = Object.entries(mqttData.data);
+            //console.log(entryArray);
+
+            // tag_cd, tag_nm, equ_name, value로 새 배열 생성
+            const newEntryArray = entryArray.map(([tagCd, value]) => {
+                const tagInfo = tagMap.get(tagCd) || {};
+                return {
+                    tag_cd: tagCd,
+                    tag_nm: tagInfo.tag_name || tagCd,
+                    equ_name: tagInfo.equ_name || "",
+                    value: value
+                };
+            });
+
+            //newEntryArray.forEach(function (item, idx) {
+            //    console.log('[' + idx + ']', item);
+            //});
+
+            if (newEntryArray.length > 0) {
+                var equName = newEntryArray[0].equ_name;
+                $("#equ_title").text('■ ' + equName);
+            }
+
+            _this.renderPLC(newEntryArray);
+            sendMessage(txt);
+
+        }
+
+        startsSubscribe(equ_cd) {
+            if (equ_cd == "") {
+                Alert.alert("입력오류", "설비가 선택되지 않았습니다.");
+                return;
+            }
+            this.curEqucd = equ_cd;
+            let topic = "dt_" + equ_cd;
+
+            if (this.mqttclient != null) {
+                //console.log('called 11');
+                if (this.mqttclient.mqttConnected) {
+                    //console.log('called 22');
+                    this.mqttclient.disconnect();
+                    //console.log('called 33');
+                }
+                this.mqttclient = null;
+            }
+
+            this.mqttclient = new MQTTMessageClient(gui.mqtt_host, gui.mqtt_port);
+            this.mqttclient.setTopicMessageHandler(topic, this.web_event_handler);
+
+            let use_ssl = window.location.protocol === 'https:'
+            this.mqttclient.connect(use_ssl);            
+
+            callEquipment(equ_cd);
+        }
+
+
+       
+    }//end class DtMainPage
+
+    // Unity → JS 호출 함수
+    function receiveMessageFromUnity(msg) {
+        console.log("Unity → JS:", msg);
+    }
+
+    let unityInstance = null;
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        //var canvas = document.querySelector("#unity-canvas");
+        //canvas.style.width = "100%";
+        //canvas.style.height = "100%";
+        //canvas.style.position = "fixed";
+
+        //document.body.style.textAlign = "left";
+    }
+
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+        arguments: [],
+        dataUrl: "/dt/resource/WeZon_Web.data.br",
+        frameworkUrl: "/dt/resource/WeZon_Web.framework.js.br",
+        workerUrl: "/dt/resource/WeZon_Web.worker.js.br",
+        codeUrl: "/dt/resource/WeZon_Web.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "HL",
+        productName: "WeZon_HDRP",
+        productVersion: "0.1.0",
+        matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+    }).then((instance) => {
+        unityInstance = instance;
+        //alert("instance ok");
+    });
+
+    //--------------------------아래 함수를 호출하면 unity에서 수신해야함 start----------------
+    function callEquipment(equ_cd) {
+        
+
+        console.log("callEquipment:" + equ_cd);
+
+        if (unityInstance) {
+            unityInstance.SendMessage('WebReceiver', 'callEquipment', equ_cd);
+        } else {
+            console.warn('Unity instance not ready yet.');
+        }
+    }
+
+    // Unity로 메시지를 보내는 함수
+    function sendMessage(mqttmessage) {
+        let message = this.curEqucd + '|' + mqttmessage;
+        //console.log("sendMessage:" + message);
+        if (unityInstance) {
+            unityInstance.SendMessage('WebReceiver', 'sendMessage', message);
+        } else {
+            console.warn('Unity instance not ready yet.');
+        }
+    }
+    //--------------------------아래 함수를 호출하면 unity에서 수신해야함 end----------------
+
+    //사이즈가 변경될때 조정하기
+    $(window).on('resize', function () {
+        const $canvas = $('#unity-canvas');
+        const $parent = $canvas.parent();
+        if ($canvas.length === 0 || $parent.length === 0) return;
+
+        $canvas[0].width = $parent.width();
+        $canvas[0].height = $parent.height();
+
+        console.log('parent.width:', $parent.width());
+        console.log('parent.height:', $parent.height());
+    });
+
+
+    let page = new DtMainPage();
+
+    $(document).ready(function () {
+
+        //alert("ready ok");
+
+        //choi : matchWebGLToCanvasSize: false을 주고 아래 코딩을 해주니 canvas가 줄어들지 않음
+        //     : matchWebGLToCanvasSize는 canvas의 사이즈를 사용자가 지정한 크기로 맞추는 것 같음
+        const canvas = document.getElementById('unity-canvas');
+        const parent = canvas.parentElement;
+        canvas.width = parent.offsetWidth;
+        canvas.height = parent.offsetHeight;
+
+        //choi : canvas에 width와 height를 임의로 주어 자리를 잡게 한다
+        //     : parent는 dom이 로드된 다음에 부모(imagebox)의 넓이와 높이를 알수 있는 것 같음. offset.width = 1124, offset.height=726 정도 계산되어 적용됨
+        //<canvas id="unity-canvas" tabindex="-1" width="1280" height="720" style="width: 100%; height: 100%; background: #231F20"></canvas>
+        console.log('parent.offsetWidth:', parent.offsetWidth);
+        console.log('parent.offsetHeight:', parent.offsetHeight);
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+
+    });
+
+</script>
+
+{% endblock %}

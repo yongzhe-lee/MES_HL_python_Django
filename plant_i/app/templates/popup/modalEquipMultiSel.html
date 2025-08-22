@@ -1,0 +1,122 @@
+<!-- 손자 모달 (설비 선택) -->
+<div id="modalEquipMultiSel" class="modal child-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>설비선택</h4>
+        </div>
+        <div class="modal-body">
+            <div class="search-area">
+                <div class="search-label col-auto">검색키워드</div>
+                <input type="text" class="form-control" id="keyword_multi_equip" name="keyword_multi_equip" placeholder="자재코드, 자재명을 입력하세요">
+                <div class="search-label col-auto">관리부서</div>                
+                <select id="srch_dept_multi_equip" name="srch_dept_multi_equip" class="col-auo">
+                </select>
+                <button type="button" class="btn-search" id="btnSearchMultiEquip" style="margin-left: 50px;">검색</button>
+            </div>
+            <div id="equip_multi_sel_grid"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="btnConfirmMultiEquip">확인</button>
+            <button type="button" class="btn-close" id="btnCancelMultiEquip">취소</button>
+        </div>
+    </div>
+</div>
+<style>
+</style>
+<script type="text/javascript">
+    class EquipMultiSelPage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/kmms/equipment';
+            this.callback = null;
+            this.init();
+        }
+
+        init() {
+            this.initGrid();
+            this.initButton();
+            this.initEvents();
+        }
+
+        initGrid() {
+            const option = {
+                toolbar: ["columns"],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: { sort: "asc" }
+                },
+                selectable: "multiple, row",
+                columns: [
+                    { selectable: true, width: "50px" },
+					{ field: 'equip_pk', title: 'equip_pk', width: 100, hidden: true },
+					{ field: 'equip_cd', title: '설비코드', width: 100 },
+					{ field: 'equip_nm', title: '설비명', width: 150 },
+                    { field: 'loc_nm', title: '설비위치', width: 100 },
+					{ field: 'equip_category_desc', title: '카테고리', width: 100 },
+					{ field: 'equip_status_nm', title: '설비상태', width: 80 },
+					{ field: 'import_rank_cd', title: '설비중요도', width: 100 }, 
+                ],
+                dataBound: function () {
+                    //this.autoFitColumns();
+                },
+                height: "440px",
+                //scrollable: true,
+            };
+            this.grid = new Grid($("#equip_multi_sel_grid"), option);
+        }
+
+        initButton() {
+
+            $("#btnConfirmMultiEquip").kendoButton({ icon: "k-i-check", themeColor: "base" });
+            $("#btnCancelMultiEquip").kendoButton({ icon: "cancel", themeColor: "base" });
+            $("#btnSearchMultiEquip").kendoButton({
+                themeColor: "primary",
+                icon: "search",
+                click: () => this.getEquipData()
+            });
+
+            AjaxUtil.fillDropDownTreeOptions($("#srch_dept_multi_equip"), "depart", "select");
+
+        }
+
+        initEvents() {
+            const $modal = $("#modalEquipMultiSel");
+
+            $("#btnCancelMultiEquip").on("click", (e) => {
+                e.preventDefault();
+                $modal.fadeOut();
+            });
+
+            $("#btnConfirmMultiEquip").on("click", () => {
+                const data = this.grid.getSelect();
+                if (typeof this.callback === 'function') {
+                    this.callback(data);
+                }
+                $modal.fadeOut();
+            });
+        }
+
+        getEquipData() {
+            const param = {
+                action: 'findAll',
+                keyword: $('#keyword_multi_equip').val(),
+                depart_id: $('#srch_dept_multi_equip').data("kendoDropDownTree").value(),
+            };
+            const result = AjaxUtil.getSyncData(this.baseUrl, param);
+            this.grid.setData(result);
+        }
+
+        show(callback) {
+            this.callback = callback;
+            $("#modalEquipMultiSel").fadeIn();
+            this.getEquipData();
+        }
+    }
+
+    let equipMultiSelectPage = null;
+    $(document).ready(function () {
+		equipMultiSelectPage = new EquipMultiSelPage();
+    });
+</script>

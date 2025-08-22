@@ -1,0 +1,789 @@
+﻿{% extends "app/layout.html" %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="카테고리 ID, 카테고리를 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부">사용여부</label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div id="tab_strip" style="width: 100%">
+                    <ul>
+                        <li class="k-active">카테고리</li>
+                        <li>종류</li>
+                        <li>유형</li>
+                    </ul>
+                    <!-- 카테고리 탭 컨텐츠 -->
+                    <div class="tab-contents">
+                        <div class="card-content grid">
+                            <div class="card-group-btn">
+                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="카테고리 목록">카테고리 목록</label></span>
+                                <span>
+                                </span>
+                                <span>
+                                    <!-- 오른쪽 버튼 영역-->
+                                    <button id="btnCategoryExcel">Excel</button>
+                                </span>
+                            </div>
+                            <div id="equipGroupListCategoryGrid"></div>
+                        </div>
+                    </div>
+                    <!-- 종류 탭 컨텐츠 -->
+                    <div class="tab-contents">
+                        <div class="card-content grid">
+                            <div class="card-group-btn">
+                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="종류 목록">종류 목록</label></span>
+                                <span>
+                                </span>
+                                <span>
+                                    <!-- 오른쪽 버튼 영역-->
+                                    <button id="btnClassExcel">Excel</button>
+                                </span>
+                            </div>
+                            <div id="equipGroupListClassGrid"></div>
+                        </div>
+                    </div>
+                    <!-- 유형 탭 컨텐츠 -->
+                    <div class="tab-contents">
+                        <div class="card-content grid">
+                            <div class="card-group-btn">
+                                <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="유형 목록">유형 목록</label></span>
+                                <span>
+                                </span>
+                                <span>
+                                    <!-- 오른쪽 버튼 영역-->
+                                    <button id="btnTypeExcel">Excel</button>
+                                </span>
+                            </div>
+                            <div id="equipGroupListTypeGrid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 카테고리 탭 상세보기 -->
+        <div class="content-ui-row connect" id="categoryDetail">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>설비분류</span>
+                    <span>
+                        <button id="btnCategoryClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnCategorySave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnCategoryDelete" style="display:none;" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+                <form id="categoryDetailForm">
+                    <input type="hidden" id="equip_class_pk" name="equip_class_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="equip_category_id" data-labelCd="ID">ID</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_category_id" name="equip_category_id" class="k-input k-textbox" placeholder="2자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="equip_category_desc" data-labelCd="카테고리">카테고리</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_category_desc" name="equip_category_desc" placeholder="50자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="remark" data-labelCd="설명">설명</label>
+                                <div class="field-wrapper">
+                                    <input id="remark" name="remark" placeholder="50자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 종류 탭 상세보기 -->
+        <div class="content-ui-row connect" id="classDetail">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnClassClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnClassSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnClassDelete" style="display:none;" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+                <form id="classDetailForm">
+                    <input type="hidden" id="equip_class_pk" name="equip_class_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="equip_class_id" data-labelCd="설비 종류ID">설비 종류ID</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_class_id" name="equip_class_id" class="k-input k-textbox" placeholder="20자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="equip_class_desc" data-labelCd="설비종류">설비종류</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_class_desc" name="equip_class_desc" placeholder="50자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="category_id" data-labelCd="카테고리">카테고리</label>
+                                <div class="field-wrapper">
+                                    <select id="category_id" name="category_id"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 유형 탭 상세보기 -->
+        <div class="content-ui-row connect" id="typeDetail">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>Load Data</span>
+                    <span>
+                        <button id="btnTypeClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnTypeSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnTypeDelete" style="display:none;" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+                <form id="typeDetailForm">
+                    <input type="hidden" id="equip_class_pk" name="equip_class_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="equip_class_id" data-labelCd="설비 유형ID">설비 유형ID</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_class_id" name="equip_class_id" class="k-input k-textbox" placeholder="20자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="equip_class_desc" data-labelCd="설비 유형">설비 유형</label>
+                                <div class="field-wrapper">
+                                    <input id="equip_class_desc" name="equip_class_desc" placeholder="50자 이하로 입력하세요" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn" data-labelCd="사용여부">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="parent_id" data-labelCd="설비 종류">설비 종류</label>
+                                <div class="field-wrapper">
+                                    <select id="parent_id" name="parent_id"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="hierarchy_path" data-labelCd="계층경로">계층경로</label>
+                                <div class="field-wrapper">
+                                    <input id="hierarchy_path" name="hierarchy_path" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class equipmentGroupListPage {
+
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/equip_classify';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            this.initEquipCategory();
+            this.initEquipClass();
+            this.initEquipType();
+            this.initTabStrip();
+
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    let activeTab = $("#tab_strip").data("kendoTabStrip").select().index();
+                    
+                    _this.searchMainData(activeTab);
+                }
+            });
+
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData($("#tab_strip").data("kendoTabStrip").select().index())); 
+
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'cm_code', 'all', null, 'USE_YN')
+            $('#sch_use_yn').change(() => {
+                this.searchMainData($("#tab_strip").data("kendoTabStrip").select().index())
+            }
+
+
+        )};
+
+        initEquipCategory() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'equip_category_id', title: 'equipCategoryPk', hidden: true },
+                    { field: 'equip_category_id', title: 'ID', width: 80 },
+                    { field: 'equip_category_desc', title: '카테고리', width: 100 },
+                    { field: 'remark', title: '설명', width: 80 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                ],
+                dataBound: function (e) {
+                    const categoryGrid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.categoryGrid = new Grid($('#equipGroupListCategoryGrid'), gridOption);
+
+            // grid btns
+            $('#btnCategoryExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.categoryGrid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.categoryGrid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // form
+            $('#categoryDetailForm #equip_category_id').kendoTextBox();
+            $('#categoryDetailForm #equip_category_desc').kendoTextBox();
+            $('#categoryDetailForm #use_yn').kendoSwitch({ checked: true });
+            $('#categoryDetailForm #remark').kendoTextBox();
+
+            $('#btnCategorySave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnCategoryDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnCategoryClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnCategoryDelete').prop('disabled', true);
+        }
+
+        initEquipClass() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'equip_class_pk', title: 'equipClassPk', hidden: true },
+                    { field: 'category', title: '카테고리', width: 80 },
+                    { field: 'equip_class_id', title: '설비 종류 ID', width: 100 },
+                    { field: 'equip_class_desc', title: '설비 종류', width: 80 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                ],
+                dataBound: function (e) {
+                    const classGrid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.classGrid = new Grid($('#equipGroupListClassGrid'), gridOption);
+
+            // grid btns
+            $('#btnClassExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.classGrid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.classGrid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // form
+            $('#classDetailForm #equip_class_id').kendoTextBox();
+            $('#classDetailForm #equip_class_desc').kendoTextBox();
+            $('#classDetailForm #use_yn').kendoSwitch({ checked: true });
+            AjaxUtil.fillDropDownOptions($('#classDetailForm #category_id'), 'cm_equip_category', 'choose', null);
+
+            $('#btnClassSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnClassDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClassClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnClassDelete').prop('disabled', true);
+        }
+
+        initEquipType() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'equip_class_pk', title: 'equipClassPk', hidden: true },
+                    { field: 'category', title: '설비 종류', width: 80 },
+                    { field: 'hierarchy_path', title: '계층경로', width: 100 },
+                    { field: 'equip_class_id', title: '설비 유형 ID', width: 80 },
+                    { field: 'equip_class_desc', title: '설비 유형', width: 80 },
+                    { field: 'use_yn', title: '사용여부', width: 80 },
+                ],
+                dataBound: function (e) {
+                    const typeGrid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.typeGrid = new Grid($('#equipGroupListTypeGrid'), gridOption);
+
+            // grid btns
+            $('#btnTypeExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.typeGrid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.typeGrid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // form
+            $('#typeDetailForm #equip_class_id').kendoTextBox();
+            $('#typeDetailForm #equip_class_desc').kendoTextBox();
+            $('#typeDetailForm #use_yn').kendoSwitch({ checked: true });
+            AjaxUtil.fillDropDownOptions($('#typeDetailForm #parent_id'), 'cm_equip_classify', 'all', null, 'TYPES');
+            $('#typeDetailForm #hierarchy_path').kendoTextBox();
+
+            $('#btnTypeSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnTypeDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnTypeClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnTypeDelete').prop('disabled', true);
+        }
+
+        initTabStrip() {
+            let _this = this;
+            $("#classDetail").hide();
+            $("#typeDetail").hide();
+
+            $("#tab_strip").kendoTabStrip({
+                animation: { open: { effects: "fadeIn" } },
+                activate: function (e) {
+                    let activeTabIndex = $(e.item).index();
+                    _this.searchMainData(activeTabIndex);
+                    _this.resetForm();
+
+                    $("#categoryDetail").hide(); 
+                    $("#classDetail").hide();
+                    $("#typeDetail").hide();
+
+                    if (!activeTabIndex || activeTabIndex === 0) {
+                        $("#categoryDetail").show(); 
+                    } else if (activeTabIndex === 1) {
+                        $("#classDetail").show();
+                    } else if (activeTabIndex === 2) {
+                        $("#typeDetail").show(); 
+                    }
+                }
+            });
+
+        }
+
+        searchMainData(tabIndex) {
+            let _this = this;
+            let param;
+            let result;
+            tabIndex = tabIndex ? tabIndex : 0;
+
+            switch (tabIndex) {
+                case 0:
+                    param = {
+                        action: 'findAll',
+                        searchText: $('#sch_keyword').val(),
+                        useYn: $('#sch_use_yn').val(),
+                    };
+
+                    result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                    _this.categoryGrid.setData(result);
+                    break;
+                case 1:
+                    param = {
+                        action: 'classFindAll',
+                        types: 'CLASS',
+                        searchText: $('#sch_keyword').val(),
+                        useYn: $('#sch_use_yn').val(),
+                    };
+
+                    result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                    _this.classGrid.setData(result);
+                    break;
+                case 2:
+                    param = {
+                        action: 'classFindAll',
+                        types: 'TYPES',
+                        searchText: $('#sch_keyword').val(),
+                        useYn: $('#sch_use_yn').val(),
+                    };
+
+                    result = AjaxUtil.getSyncData(_this.baseUrl, param);
+                    _this.typeGrid.setData(result);
+                    break;
+            }
+        }
+
+        showDetail() {
+            let _this = this;
+            let activeTab = $("#tab_strip").data("kendoTabStrip").select().index();
+            activeTab = activeTab ? activeTab : 0;
+            let formData;
+            let detailForm = '';
+
+            switch (activeTab) {
+                case 0:
+                    formData = _this.categoryGrid.getSelect();
+                    detailForm = '#categoryDetailForm';
+                    break;
+                case 1:
+                    formData = _this.classGrid.getSelect();
+                    detailForm = '#classDetailForm';
+                    break;
+                case 2:
+                    formData = _this.typeGrid.getSelect();
+                    detailForm = '#typeDetailForm';
+                    break;
+            }
+
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $(detailForm));
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let activeTab = $("#tab_strip").data("kendoTabStrip").select().index();
+            activeTab = activeTab ? activeTab : 0;
+            let detailForm = '';
+            let actionName = '';
+
+            switch (activeTab) {
+                case 0:
+                    detailForm = '#categoryDetailForm';
+                    actionName = 'save';
+                    break;
+                case 1:
+                    detailForm = '#classDetailForm';
+                    actionName = 'insertEquipClassify'
+                    break;
+                case 2:
+                    detailForm = '#typeDetailForm';
+                    actionName = 'insertEquipClassify'
+                    break;
+            }
+
+            let formData = FormUtil.extractForm($(detailForm));
+
+            // 유효성 검사 및 데이터 추가
+            switch (activeTab) {
+                case 0:
+                    if (!formData.equip_category_id) {
+                        Alert.alert('', 'ID를 입력해주세요.');
+                        return;
+                    } else if (!formData.equip_category_desc) {
+                        Alert.alert('', '카테고리를 입력해주세요.');
+                        return;
+                    }
+                    break;
+                case 1:
+                    if (!formData.equip_class_id) {
+                        Alert.alert('', '설비 종류ID를 입력해주세요.');
+                        return;
+                    } else if (!formData.equip_class_desc) {
+                        Alert.alert('', '설비종류를 입력해주세요.');
+                        return;
+                    } else if (!formData.category_id) {
+                        Alert.alert('', '카테고리를 선택해주세요.');
+                        return;
+                    }
+                    formData.hierarchy_path = formData.equip_class_id;
+                    formData.class_type = 'CLASS';
+                    break;
+                case 2:
+                    if (!formData.equip_class_id) {
+                        Alert.alert('', '설비 유형ID를 입력해주세요.');
+                        return;
+                    } else if (!formData.equip_class_desc) {
+                        Alert.alert('', '설비유형을 입력해주세요.');
+                        return;
+                    } else if (!formData.parent_id) {
+                        Alert.alert('', '설비 종류를 선택해주세요.');
+                        return;
+                    }
+                    formData.hierarchy_path = formData.parent_id + '/' + formData.equip_class_id;
+                    formData.class_type = 'TYPES';
+                    break;
+            }
+
+            console.log("formData:\n", formData);
+            if (checkForm($(detailForm)) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData(activeTab);
+                    _this.resetForm();
+                    
+                    _this.updateDropdownData(activeTab);
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=' + actionName, formData, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].equip_category_id) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { equip_category_id: formData[0].equip_category_id }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            let _this = this;
+            let activeTab = $("#tab_strip").data("kendoTabStrip").select().index();
+            activeTab = activeTab ? activeTab : 0;
+            let detailForm = '';
+
+            switch (activeTab) {
+                case 0:
+                    detailForm = '#categoryDetailForm';
+                    break;
+                case 1:
+                    detailForm = '#classDetailForm';
+                    break;
+                case 2:
+                    detailForm = '#typeDetailForm';
+                    break;
+            }
+            FormUtil.resetForm($(detailForm));
+            
+            $(detailForm + ' #use_yn').data('kendoSwitch').check(true);
+            
+            $('#btnDelete').prop('disabled', true);
+        }
+
+        updateDropdownData(activeTab) {
+            let _this = this;
+            
+            if (activeTab === 0) {
+                AjaxUtil.fillDropDownOptions($('#classDetailForm #category_id'), 'cm_equip_category', 'all', null);
+                
+                AjaxUtil.fillDropDownOptions($('#typeDetailForm #parent_id'), 'cm_equip_classify', 'all', null, 'TYPES');
+            }
+            else if (activeTab === 1) {
+                AjaxUtil.fillDropDownOptions($('#typeDetailForm #parent_id'), 'cm_equip_classify', 'all', null, 'TYPES');
+            }
+            else if (activeTab === 2) {
+            }
+        }
+    }
+
+    let page = null;
+    page = new equipmentGroupListPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

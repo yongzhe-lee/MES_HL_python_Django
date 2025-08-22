@@ -1,0 +1,404 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="위치코드, 위치명을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_use_yn" data-labelCd="사용여부">사용여부</label>
+                            <div class="field-wrapper">
+                                <select id="sch_use_yn" name="sch_use_yn"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_isa95_class" data-labelCd="ISA-95 분류">ISA-95 분류</label>
+                            <div class="field-wrapper">
+                                <select id="sch_isa95_class" name="sch_isa95_class"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="위치 목록">위치 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="locListGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>설비위치정보</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="loc_pk" name="loc_pk" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="loc_cd">위치코드</label>
+                                <div class="field-wrapper">
+                                    <input id="loc_cd" name="loc_cd" placeholder="50자 이하로 입력하세요" data-msg="위치코드를" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="loc_nm">위치명</label>
+                                <div class="field-wrapper">
+                                    <input id="loc_nm" name="loc_nm" placeholder="50자 이하로 입력하세요" data-msg="위치명을" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="loc_status">상태</label>
+                                <div class="field-wrapper">
+                                    <select id="loc_status" name="loc_status" data-msg="상태를" ></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="up_loc_pk">상위위치</label>
+                                <div class="field-wrapper">
+                                    <select id="up_loc_pk" name="up_loc_pk"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="isa95_class">ISA-95 분류</label>
+                                <div class="field-wrapper">
+                                    <select id="isa95_class" name="isa95_class"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="use_yn">사용여부</label>
+                                <div class="field-wrapper">
+                                    <input id="use_yn" name="use_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="plant_yn">공장여부</label>
+                                <div class="field-wrapper">
+                                    <input id="plant_yn" name="plant_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="building_yn">건물여부</label>
+                                <div class="field-wrapper">
+                                    <input id="building_yn" name="building_yn" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="spshop_yn">보관자재창고여부</label>
+                                <div class="field-wrapper">
+                                    <input id="spshop_yn" name="spshop_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        {% include 'components/ImageUpload.html' with tableName='cm_location' attachName='image' dataPk=cm_location.loc_pk|default:'' %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class LocListPage {
+
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/location';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'loc_pk', title: 'loc_pk', hidden: true },
+                    { field: 'loc_cd', title: '위치코드', width: 80 },
+                    { field: 'loc_nm', title: '위치명칭', width: 100 },
+                    { field: 'up_loc_pk', title: '상위위치', width: 80 },
+                    { field: 'plant_yn', title: '공장', width: 80 },
+                    { field: 'isa95_class', title: 'ISA-95분류', width: 80 },
+                    { field: 'plant_yn', title: '공장여부', width: 80 },
+                    { field: 'building_yn', title: '건물여부', width: 80 },
+                    { field: 'spshop_yn', title: '자재창고', width: 80 },
+                    { field: 'use_yn', title: '사용', width: 100 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.grid = new Grid($('#locListGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "업체_" + today +".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+            AjaxUtil.fillDropDownOptions($('#sch_use_yn'), 'cm_code', 'all', null, 'USE_YN')
+
+            // 사용여부 dropbox
+            $('#sch_use_yn').change(() => {
+                this.searchMainData();
+            });
+
+            AjaxUtil.fillDropDownOptions($('#sch_isa95_class'), 'cm_code', 'all', null, 'ISA95CLASS')
+            $('#sch_isa95_class').change(() => {
+                this.searchMainData();
+            });
+
+            // form
+            $('#loc_cd').kendoTextBox();
+            $('#loc_nm').kendoTextBox();
+			AjaxUtil.fillDropDownOptions($('#loc_status'), 'cm_code', 'all', null, 'LOC_STATUS')
+            AjaxUtil.fillDropDownTreeOptions($("#up_loc_pk"), "cm_location", "select");
+            AjaxUtil.fillDropDownOptions($('#isa95_class'), 'cm_code', 'all', null, 'ISA95CLASS')
+            $('#plant_yn').kendoSwitch({ checked: true });
+            $('#building_yn').kendoSwitch({ checked: true });
+            $('#spshop_yn').kendoSwitch({ checked: true });
+            $('#use_yn').kendoSwitch({ checked: true });
+
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+
+            let param = {
+				action: 'findAll',
+				searchText: $('#sch_keyword').val(),
+                useYn: $('#sch_use_yn').val(),
+                isa95Class: $('#sch_isa95_class').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+
+                const dataPk = selectData.loc_pk; 
+                window.imageUploader.dataPk = dataPk;
+                window.imageUploader.loadFilesFromServer(); 
+            }
+        }
+
+        saveData() {
+            let _this = this;
+
+             // 안전한 컴포넌트 값 가져오기
+            const getComponentValue = (selector, type) => {
+                try {
+                    const component = $(selector).data(type);
+                    return component ? component.value() : '';
+                } catch (e) {
+                    console.warn(`Failed to get value for ${selector}`, e);
+                    return '';
+                }
+            };
+
+            let upLocPkValue = getComponentValue("#up_loc_pk", "kendoDropDownTree");
+
+            let formData = FormUtil.extractForm($('#detailForm'));
+            formData.up_loc_pk = upLocPkValue;
+
+            if(checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = async function (res) {
+                if (res.success) {
+
+                    if (res.data && res.data.loc_pk) {
+                        window.imageUploader.dataPk = res.data.loc_pk;
+                    }
+
+                    Alert.alert('', '저장되었습니다.');
+					if (window.imageUploader) {
+						const imageResult = await window.imageUploader.saveImages();
+					}
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=insert', formData, fnSuccess);
+            console.log(formData);
+            _this.resetForm();
+        }
+
+        deleteData() {            
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            let param = {
+                loc_pk: $("#loc_pk").val()
+            };
+         
+            if (formData[0].loc_pk) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', param, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
+            
+            // 이미지 파일 초기화
+            if (window.imageUploader) {
+                window.imageUploader.clearImages();
+                window.imageUploader.dataPk = '';
+            }
+        }
+    }
+
+    let page = null;
+    page = new LocListPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

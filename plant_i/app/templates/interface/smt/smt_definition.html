@@ -1,0 +1,140 @@
+{% extends "app/layout.html" %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm">
+            <div class="card-content search">
+                <!-- 개발자 수동 적용, grid-template-columns:1fr 1fr 1fr auto  -->
+                <div class="form-ui">
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-4">
+                        <div class="form-item align-h">
+                            <label class="k-label k-form-label" for="cboPartsType" data-labelCd="Parts">Parts</label>
+                            <div class="field-wrapper">
+                                <select id="cboPartsType">
+                                    <option value="all">전체</option>
+                                    <option value="mounter">mounter</option>
+                                    <option value="feeder">feeder</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2 col-xl-2">
+                        <div class="card-group-btn search">
+                            <button id="btnSearch" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">clarify</i><label data-labelCd="SMT Parts내역">SMT Parts내역</label> &nbsp;<span id="totalCountContainer"></span></span>
+                    <span></span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="parts_grid"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% verbatim %}
+{% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+  
+<script type="text/javascript">
+    class FujiPickupRatePage {
+        constructor() {
+            this.grid = null;
+            this.baseUrl = '/api/definition/smt';
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+            let gridOption = {
+                navigatable: true,
+                columns: [
+                    { field: "id", title: "id", width: 120, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                    { field: "created", title: "생성일", width: 160, attributes: { style: "text-align: center" }, headerAttributes: { style: "text-align: center; justify-content: center" } },
+                ],
+                change: function (e) {
+                },
+                height: 400
+            };
+            _this.grid = new Grid($("#parts_grid"), gridOption);
+
+            $('#cboPartsType').kendoDropDownList();
+
+            //form button
+            $('#btnSearch').kendoButton({
+                icon: "search",
+                themeColor: "base",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+
+            $('#btnExcel').kendoButton({
+                icon: "file-excel",
+                themeColor: "success",
+                click: function () {
+                    page.exportExcel();
+                }
+            });
+        }
+
+        // 엑셀 다운로드
+        exportExcel() {
+            let gridData = $('#parts_grid').data("kendoGrid");
+            gridData.bind("excelExport", function (e) {
+                e.workbook.fileName = "smt_parts.xlsx";
+            });
+            gridData.saveAsExcel();
+        }
+
+        searchMainData() {
+
+            let _this = this;
+            let param = {
+                parts_type: $('#cboPartsType').val(),
+                start_dt: start_dt,
+                end_dt: end_dt,
+                action: 'read'
+            };
+
+            let $gg = $('#parts_grid');
+            kendo.ui.progress($gg, true);
+            _this.grid.setData([]);
+
+            let fnSuccess = function (result) {
+                if (result.success) {
+                    _this.grid.setData(result.data);
+                    _this.paginator.setTotalCount(result.total_count);
+                    _this.paginator.render();
+                }
+
+                kendo.ui.progress($gg, false);
+            };
+
+            AjaxUtil.getAsyncData(_this.baseUrl, param, fnSuccess);
+        }
+    }
+
+    let page = new FujiPickupRatePage();
+    $(document).ready(function () {
+        page.searchPageData(1);
+    });
+</script>
+
+{% endblock %}

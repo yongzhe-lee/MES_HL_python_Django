@@ -1,0 +1,331 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+
+<div class="content-wrap">
+	<div class="content-ui-row">
+		<form id="searchForm" class="search-form">
+			<div class="card-content search">
+				<div class="form-ui-header">
+					<div id="toggleSearchBtn"></div> <!-- 삼각형 화살표 버튼 -->
+				</div>
+				<div class="form-ui" id="searchFormContent">
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">검색키워드</label>
+							<input id="searchText" name="searchText" class="k-textbox" placeholder="점검일정번호, 점검번호, 점검명, 설비코드, 설비명을 입력하세요" style="width: 60%;" />
+							<button type="button" class="zoombutton" id="equKeword" name="equKeword"></button>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">점검결과</label>
+							<select id="chkRslt" name="chkRslt" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">점검부서</label>
+							<select id="deptPk" name="deptPk" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">점검상태</label>
+							<select id="chkStatus" name="chkStatus" style="width: 200px;"></select>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label">점검기간</label>
+							<div id="srch_date_range"></div>
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="chk_my_task">나의 담당건</label>
+							<input id="chk_my_task" name="chk_my_task">
+						</div>
+					</div>
+					<div class="col-auto">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="chk_legal">법정관리설비만</label>
+							<input id="chk_legal" name="chk_legal">
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="content-ui-row">
+			<div class="card-content grid">
+				<div class="card-group-btn">
+					<span class="info-text">
+						<i class="material-symbols-outlined">list_alt</i>
+						<label data-labelCd="점검결과목록">점검결과목록</label>
+					</span>
+					<span>
+						<!-- 오른쪽 버튼 영역-->
+						<button id="btnSearch" class="btn-search">조회</button>
+						<button id="btnExcel">Excel</button>
+					</span>
+				</div>
+				<div id="pi_result_grid"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% include '../../popup/modalEquSel.html'%}
+
+<script type="text/javascript">
+	class PiResultPage {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/pi_master';
+
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+			
+			let piResultGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{ field: 'chkSchePk', title: '점검일정Pk', hidden: true },
+					{ field: 'chkMastPk', title: '점검Pk', hidden: true },
+					{ 
+						field: 'chkScheNo', 
+						title: '점검일정번호', 
+						width: 140,
+						attributes: { style: "text-align: right" }
+					},
+					{ 
+						field: 'chkMastNo', 
+						title: '점검번호', 
+						width: 100,
+						attributes: { style: "text-align: right" },
+						// template: '<a href="javascript:void(0);" class="grid-column-link" data-mast-pk="#=chkMastPk#">#=chkMastNo#</a>'
+					},
+					{ 
+						field: 'chkMastNm', 
+						title: '점검명', 
+						width: 200,
+						// template: '<a href="javascript:void(0);" class="grid-column-link" data-sche-pk="#=chkSchePk#">#=chkMastNm#</a>'
+					},
+					{ 
+						field: 'equipCnt', 
+						title: '점검 설비수', 
+						width: 120,
+						attributes: { style: "text-align: right" }
+					},
+					{ 
+						field: 'itemCnt', 
+						title: '점검 항목수', 
+						width: 120,
+						attributes: { style: "text-align: right" }
+					},
+					{ 
+						field: 'chkStatusNm', 
+						title: '점검상태', 
+						width: 100,
+						attributes: { style: "text-align: center" }
+					},
+					{ 
+						field: 'chkResult', 
+						title: '점검결과', 
+						width: 240,
+						attributes: { style: "text-align: center" },
+						template: function(dataItem) {
+							if (dataItem.chkStatusNm !== '미점검') {
+								return '총 ' + dataItem.equipCnt + '건 / 정상 ' + dataItem.normalCount + ' , <span class="my-kendo-cell-off">이상 ' + dataItem.failCount + '</span> , <span class="label-text-orange">점검불가 ' + dataItem.unableCheckCount + '</span>';
+							} else {
+								return '총 ' + dataItem.equipCnt + '건 / 정상 ' + dataItem.normalCount + ' , 이상 ' + dataItem.failCount + ' , 점검불가 ' + dataItem.unableCheckCount;
+							}
+						}
+					},
+					{ 
+						field: 'chkResult', 
+						title: '점검이상', 
+						width: 100,
+						attributes: { style: "text-align: center" },
+						template: function(dataItem) {
+							return '<span class="' + (dataItem.failCount > 0 ? 'my-kendo-cell-off' : '') + '">' + dataItem.chkResult + '</span>';
+						}
+					},
+					{ 
+						field: 'workOrderNo', 
+						title: 'WO 번호', 
+						width: 100,
+						attributes: { style: "text-align: center" },
+						template: function(dataItem) {
+							return dataItem.woCount > 0 ? '발행됨' : '';
+						}
+					},
+					{ 
+						field: 'resultAttachCount', 
+						title: '점검파일', 
+						width: 120,
+						attributes: { style: "text-align: center" },
+						// template: function(dataItem) {
+						// 	return dataItem.resultAttachCount > 0 ? '<a href="javascript:void(0);" class="grid-column-link" data-sche-pk="#=chkSchePk#">[목록보기]</a>' : '';
+						// }
+					},
+					{ 
+						field: 'chkScheDt', 
+						title: '점검계획일', 
+						width: 150,
+						attributes: { style: "text-align: center" },
+						template: '#= kendo.toString(kendo.parseDate(chkScheDt), "yyyy-MM-dd") #'
+					},
+					{ 
+						field: 'chkDt', 
+						title: '점검완료일', 
+						width: 150,
+						attributes: { style: "text-align: center" },
+						template: '#= chkDt ? kendo.toString(kendo.parseDate(chkDt), "yyyy-MM-dd") : "" #'
+					},
+					{ 
+						field: 'Name', 
+						title: '점검부서', 
+						width: 150,
+						attributes: { style: "text-align: center" }
+					},
+					{ 
+						field: 'chkUserNm', 
+						title: '점검담당자', 
+						width: 120,
+						attributes: { style: "text-align: center" }
+					}
+				],
+				height: "540px"
+			};
+			
+			_this.grid = new Grid($("#pi_result_grid"), piResultGridOption);
+
+			$('#searchText').kendoTextBox();
+			$("#equKeword").kendoButton({
+                icon: "k-i-zoom-in",
+                rounded: "full",
+                click: function (e) {
+                    e.preventDefault();
+                    setModalPosition('#modalEqu', { width: '70%', height: '70%' });
+                    equipSelectPage.show(function (data) {
+                        $("#searchText").val(data.equip_cd);
+                    });
+                }
+            });
+			
+			$("#chkRslt").kendoDropDownList({
+				dataSource: [
+					{ text: "전체", value: "" },
+					{ text: "정상", value: "N" },
+					{ text: "이상", value: "A" },
+					{ text: "점검불가", value: "C" },
+				],
+				dataTextField: "text",
+				dataValueField: "value"
+			});
+
+			AjaxUtil.fillDropDownOptions($('#chkStatus'), 'cm_code', 'all', null, 'CHK_STATUS');
+
+			AjaxUtil.fillDropDownTreeOptions($("#deptPk"), "depart", "select");
+
+			const today = new Date();
+			const threeMonthsAgo = new Date();
+			threeMonthsAgo.setMonth(today.getMonth() - 3);
+			
+			$("#srch_date_range").kendoDateRangePicker({
+				range: {
+					start: threeMonthsAgo,
+					end: today
+				},
+				change: function (e) {
+				},
+				format: "yyyy-MM-dd",
+				labels: false,
+				startField: "start_date",
+				endField: "end_date"
+			});
+
+			$('#chk_my_task').kendoSwitch({checked: false});
+
+			$('#chk_legal').kendoSwitch({checked: false});
+
+			$('#btnSearch').kendoButton({
+				icon: "search",
+				themeColor: "base",
+				click: function () {
+					_this.searchMainData();
+				}
+			});
+
+			$('#btnExcel').kendoButton({
+				icon: "file-excel",
+				themeColor: "success",
+				click: function () {
+					_this.exportExcel();
+				}
+			});
+		}
+
+		searchMainData() {
+			let _this = this;
+			let param = FormUtil.extractForm($("#searchForm"));
+			param.action = 'findAllCheckResult';
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+			
+			let grid = $("#pi_result_grid").data("kendoGrid");
+			if (grid) {
+				grid.dataSource.data(result);
+				grid.refresh();
+			}
+		}
+
+		exportExcel() {
+			let gridData = $('#pi_result_grid').data("kendoGrid");
+			gridData.bind("excelExport", function (e) {
+				e.workbook.fileName = "점검결과목록.xlsx";
+			});
+			gridData.saveAsExcel();
+		}
+	}
+
+	let page = null;
+	page = new PiResultPage();
+
+	$(document).ready(function () {
+		page.searchMainData();
+
+		$("#searchFormContent").removeClass("search-expanded");
+
+		$(document).on("click", "#toggleSearchBtn", function () {
+			let searchForm = $("#searchFormContent");
+
+			if (searchForm.hasClass("search-expanded")) {
+				searchForm.removeClass("search-expanded").animate({ height: "50px" }, 300);
+				$("#toggleSearchBtn").removeClass("expanded");
+			} else {
+				searchForm.addClass("search-expanded").animate({ height: "auto" }, 300);
+				$("#toggleSearchBtn").addClass("expanded");
+			}
+		});
+	});
+</script>
+
+{% endblock %}

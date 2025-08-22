@@ -1,0 +1,314 @@
+﻿{% extends "app/layout.html" %}
+
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="휴일명을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_year_val" data-labelCd="연도">연도</label>
+                            <div class="field-wrapper">
+                                <select id="sch_year_val" name="sch_year_val"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="휴일 목록">휴일 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <button id="searchBtn" class="btn-search">조회</button>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="holidayGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>휴일스케줄</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="id" name="id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="name" data-labelCd="휴일명">휴일명</label>
+                                <div class="field-wrapper">
+                                    <input id="name" name="name" class="k-input k-textbox" data-msg="휴일명을"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="holiday_date" data-labelCd="휴일일자">휴일일자</label>
+                                <div class="field-wrapper">
+                                    <input id="holiday_date" name="holiday_date" data-msg="휴일일자를"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="repeat_yn" data-labelCd="매년 반복">매년 반복</label>
+                                <div class="field-wrapper">
+                                    <input id="repeat_yn" name="repeat_yn" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class HolidayPage {
+
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/holiday';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'id', title: 'holiday_pk', hidden: true },
+                    {
+                        field: 'name',
+                        title: '휴일명',
+                        width: 300,
+                    },
+                    { field: 'year', title: '연도', width: 150 },
+                    { field: 'month', title: '월', width: 150 },
+                    { field: 'day', title: '일', width: 150 },
+                    {
+                        field: 'repeat_yn',
+                        title: '반복여부',
+                        width: 150,
+                        template: "# if (repeat_yn == 'Y') { # 반복 # } else { # - # } #"
+                    }
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+            _this.grid = new Grid($('#holidayGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "휴일_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+
+            // yeardropdown
+            const currentYear = new Date().getFullYear() + 1;
+
+            // 연도 배열 생성
+            const years = [];
+            for (let year = currentYear; year >= (currentYear-10); year--) {
+                years.push({ text: year.toString(), value: year });
+            }
+
+            // Kendo DropDownList로 초기화
+            $("#sch_year_val").kendoDropDownList({
+                optionLabel: "연도 선택",
+                dataTextField: "text",
+                dataValueField: "value",
+                dataSource: years
+            });
+
+            // form
+            $('#name').kendoTextBox();
+            $("#holiday_date").kendoDatePicker({ format: "yyyy-MM-dd" }).data("kendoDatePicker");
+            $('#repeat_yn').kendoSwitch({ checked: true });
+
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'findAll',
+                keyword: $('#sch_keyword').val(),
+                year: $('#sch_year_val').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+            console.log(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                selectData.holiday_date = `${selectData.year}-${String(selectData.month).padStart(2, '0')}-${String(selectData.day).padStart(2, '0')}`;
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+
+                let repeatYnSwitch = $("#repeat_yn").data("kendoSwitch");
+                repeatYnSwitch.check(selectData.repeat_yn === 'Y');
+                repeatYnSwitch.wrapper.toggleClass("k-switch-on", selectData.repeat_yn === 'Y');
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#detailForm'));
+
+            let holiday_date = formData.holiday_date;
+            if (holiday_date) {
+                holiday_date = new Date(holiday_date);
+                formData.holiday_year = holiday_date.getFullYear();
+                formData.holiday_month = holiday_date.getMonth() + 1;
+                formData.holiday_day = holiday_date.getDate();
+            }
+
+            formData.repeat_yn = $("#repeat_yn").data("kendoSwitch").check() ? 'Y' : 'N';
+            console.log("formData:\n", formData);
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=save', formData, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].id) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=delete', { id: formData[0].id }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            $('#btnDelete').prop('disabled', true);
+        }
+    }
+
+    let page = null;
+    page = new HolidayPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

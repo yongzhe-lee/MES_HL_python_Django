@@ -1,0 +1,111 @@
+<div id="modalManMulti" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+			<h4>작업자선택</h4>
+        </div>
+        <div class="modal-body">
+            <div class="search-area">
+                <div class="search-label">검색키워드</div>
+                <input type="text" class="form-control" id="keyword_man" placeholder="사용자명, 부서명을 입력하세요">
+                <button type="button" class="btn-search" id="btnSearchMan">검색</button>
+            </div>
+            <div id="woLaborMultiSelGrid"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-save" id="btnConfirmManMulti">확인</button>
+            <button type="button" class="btn-close" id="btnCancelManMulti">취소</button>
+        </div>
+    </div>
+</div>
+<style>
+</style>
+
+<script type="text/javascript">
+	class WoLoborMultiSelPage {
+		constructor() {
+			this.grid = null;
+            this.baseUrl = '/api/kmms/project';
+			this.callback = null;
+			this.init();
+		}
+
+		init() {
+			this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
+
+		initGrid() {
+			const option = {
+				toolbar: ["columns"],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: { sort: "asc" }
+				},
+				selectable: "multiple, row",
+				columns: [
+					{ selectable: true, width: "50px" },
+                    { field: 'user_pk', title: 'user_pk', hidden: true },
+					{ field: 'user_nm', title: '사용자명', width: 200 },
+					{ field: 'dept_nm', title: '부서명', width: 200 },
+				],
+				dataBound: function () {
+					//this.autoFitColumns();
+				},
+				height: "440px",
+				scrollable: true,
+			};
+			this.grid = new Grid($("#woLaborMultiSelGrid"), option);
+		}
+
+		initButton() {
+			$("#btnConfirmManMulti").kendoButton({ icon: "k-i-check", themeColor: "base" });
+			$("#btnCancelManMulti").kendoButton({ icon: "cancel", themeColor: "base" });
+			$("#btnSearchMan").kendoButton({
+				themeColor: "primary",
+				icon: "search",
+				click: () => this.getManData()
+			});
+		}
+
+		initEvents() {
+			const $modal = $("#modalManMulti");
+
+			$("#btnCancelManMulti").on("click", (e) => {
+				e.preventDefault();
+				$modal.fadeOut();
+			});
+
+			$("#btnConfirmManMulti").on("click", () => {
+                const data = this.grid.getSelect();			
+                if (typeof this.callback === 'function') {
+                    this.callback(data);
+                }
+				$modal.fadeOut();
+			});
+		}
+
+		getManData() {
+			const param = {
+                action: 'FindAllUser',
+				keyword: $('#keyword_man').val(),
+			};
+			const result = AjaxUtil.getSyncData(this.baseUrl, param);
+			this.grid.setData(result);
+		}
+
+		show(callback) {
+			this.callback = callback;
+			$("#modalManMulti").fadeIn();
+			this.getManData();
+		}
+	}
+
+	let woLoborMultiSelPage = null;
+
+	$(document).ready(function () {
+		woLoborMultiSelPage = new WoLoborMultiSelPage();
+	});
+</script>

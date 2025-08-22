@@ -1,0 +1,199 @@
+{
+  "config_id": 17,
+  "name": "SMT#4로더 PLC데이터수집건",
+  "description": "parasonic",
+  "equipment": "smt4.load",
+  "device_type": "mewtocol_tcp",
+  "host": "10.226.234.129",
+  "port": 5002,
+  "dbms_key": "default",
+  "topic": "dt_smt4.load",
+  "schedule": {
+    "trigger_type": "cron_expression",
+    "cron_expression": "1/5 * * * * *"
+  },
+  "actions": [
+    {
+      "action": "read_alarm",
+      "address": "R028",
+      "quantity": 1,
+      "tag": "smt4.load.alm.cnt",
+      "items": [
+        {
+          "memory_type": "R",
+          "start_address": "0028",
+          "end_address": "0029",
+          "fields": [
+            {
+              "tag": "smt4.load.alm.R0281",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 1
+            },
+            {
+              "tag": "smt4.load.alm.R0282",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 2
+            },
+            {
+              "tag": "smt4.load.alm.R0283",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 3
+            },
+            {
+              "tag": "smt4.load.alm.R0284",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 4
+            },
+            {
+              "tag": "smt4.load.alm.R0285",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 5
+            },
+            {
+              "tag": "smt4.load.alm.R0286",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 6
+            },
+            {
+              "tag": "smt4.load.alm.R0287",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 7
+            },
+            {
+              "tag": "smt4.load.alm.R0288",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 8
+            },
+            {
+              "tag": "smt4.load.alm.R0289",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 9
+            },
+            {
+              "tag": "smt4.load.alm.R0290",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 16
+            },
+            {
+              "tag": "smt4.load.alm.R0293",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 19
+            },
+            {
+              "tag": "smt4.load.alm.R0294",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 20
+            }
+          ]
+        },
+        {
+          "start_address": "R0019",
+          "end_address": "R0019",
+          "fields": [
+            {
+              "tag": "smt4.load.alm.R0191",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 1
+            }
+          ]
+        },
+        {
+          "start_address": "R0111",
+          "end_address": "R0111",
+          "fields": [
+            {
+              "tag": "smt4.load.alm.R1110",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "function": "read_rcp",
+      "device_id": "01",
+      "memory_type": "Y",
+      "fields": [
+        {
+          "tag": "smt4.load.lamp.g",
+          "address": "Y2C",
+          "persist_mode": "both"
+        },
+        {
+          "tag": "smt4.load.lamp.y",
+          "address": "Y2D",
+          "persist_mode": "both"
+        },
+        {
+          "tag": "smt4.load.lamp.r",
+          "address": "Y2E",
+          "persist_mode": "both"
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "function": "read_rd",
+      "device_id": "01",
+      "memory_type": "D",
+      "start_address": "31200",
+      "end_address": "31200",
+      "fields": [
+        {
+          "tag": "smt4.load.pitch",
+          "data_type": "number",
+          "persist_mode": "both",
+          "value_index": 0
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "function": "read_rd",
+      "device_id": "01",
+      "memory_type": "D",
+      "start_address": "31220",
+      "end_address": "31220",
+      "fields": [
+        {
+          "tag": "smt4.load.pitch.first",
+          "data_type": "number",
+          "persist_mode": "both",
+          "value_index": 0
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "function": "read_rd",
+      "device_id": "01",
+      "memory_type": "D",
+      "start_address": "25000",
+      "end_address": "25000",
+      "fields": [
+        {
+          "tag": "smt4.load.pcb.pan.cnt",
+          "data_type": "number",
+          "persist_mode": "both",
+          "value_index": 0
+        }
+      ]
+    }
+  ]
+}

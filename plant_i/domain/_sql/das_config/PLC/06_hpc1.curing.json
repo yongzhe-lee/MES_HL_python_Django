@@ -1,0 +1,179 @@
+{
+  "config_id": 6,
+  "name": "HPC#1 코팅경화 PLC데이터수집건",
+  "description": "미쯔비시",
+  "equipment": "hpc1.curing",
+  "device_type": "melsec_tcp",
+  "host": "10.226.234.55",
+  "port": 5002,
+  "dbms_key": "default",
+  "topic": "dt_hpc1.curing",
+  "schedule": {
+    "trigger_type": "cron_expression",
+    "cron_expression": "1/5 * * * * *"
+  },
+  "actions": [
+    {
+      "action": "read",
+      "address": "Y0020",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.curing.au.md",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "Y0020",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.curing.ma.md",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "Y0021",
+          "value_index": 1
+        },
+        {
+          "tag": "hpc1.curing.au.start",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "Y0022",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.curing.au.stop",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "Y0023",
+          "value_index": 3
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "X400",
+      "quantity": 1,
+      "fields": [      
+        {
+          "tag": "hpc1.curing.prod.detect.out",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "X400F",
+          "value_index": 15
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "X0000",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.curing.emer.stop",
+          "data_type": "bool",
+          "persist_mode": "dt",
+          "address": "X000",
+          "value_index": 0
+        }
+      ]
+    },
+
+    {
+      "action": "read",
+      "address": "D3900",
+      "quantity": 1,
+      "fields": [
+        {
+          "tag": "hpc1.curing.prod.info",
+          "data_type": "int",
+          "persist_mode": "dt",
+          "address": "D3900",
+          "value_index": 0
+        }
+      ]
+    },
+    {
+      "action": "read",
+      "address": "D0110",
+      "quantity": 4,
+      "fields": [
+        {
+          "tag": "hpc1.curing.top.cur.temp",
+          "data_type": "int",
+          "persist_mode": "both",
+          "address": "D0110",
+          "value_index": 0
+        },
+        {
+          "tag": "hpc1.curing.top.set.temp",
+          "data_type": "int",
+          "persist_mode": "both",
+          "address": "D0111",
+          "value_index": 1
+        },
+        {
+          "tag": "hpc1.curing.botm.cur.temp",
+          "data_type": "int",
+          "persist_mode": "both",
+          "address": "D0112",
+          "value_index": 2
+        },
+        {
+          "tag": "hpc1.curing.botm.set.temp",
+          "data_type": "int",
+          "persist_mode": "both",
+          "address": "D0113",
+          "value_index": 3
+        }
+      ]
+    },
+    {
+      "action": "read_alarm",
+      "address": "M1000",
+      "tag": "hpc1.curing.alm.cnt",
+      "items": [
+        {
+          "address": "M1009",
+          "quantity": 1,
+          "fields": [
+            {
+              "tag": "hpc1.curing.alm.M1009",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 0
+            },
+            {
+              "tag": "hpc1.curing.alm.M1010",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 1
+            },
+            {
+              "tag": "hpc1.curing.alm.M1011",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 2
+            },
+            {
+              "tag": "hpc1.curing.alm.M1012",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 3
+            },
+            {
+              "tag": "hpc1.curing.alm.M1013",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 4
+            },
+            {
+              "tag": "hpc1.curing.alm.M1014",
+              "data_type": "bool",
+              "persist_mode": "database",
+              "value_index": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

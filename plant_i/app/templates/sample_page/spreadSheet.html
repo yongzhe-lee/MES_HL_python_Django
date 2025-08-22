@@ -1,0 +1,579 @@
+{% extends "app/layout.html" %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="configurator">
+        <div class="header"></div>
+        <div class="box-col">
+			<h4>
+				Spreadsheet DataSource Binding, Save changes
+			</h4>
+            <ul class="options">
+                <li>
+                    <button id="save">변경된 내용을 디비에 저장</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="spreadsheet" style="width: 100%"></div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+	class SampleSpreadSheetPage {
+		constructor() {
+			this.baseUrl = '/api/sample_page/spreadSheet';
+			this.dataSource = null;
+			this.init();
+		}
+
+		init() {
+			let _this = this;
+
+			$("#save").kendoButton({
+				icon: "k-i-save",
+				click: function (e) {
+					e.preventDefault();
+					if (!$(this).hasClass("k-disabled")) {
+						page.saveData();
+					}
+				}
+			});
+
+			this.dataSource = new kendo.data.DataSource({
+				transport: {
+					read: function (options) {
+						_this.onRead(options);
+					},
+					submit: function (options) {
+						_this.onSubmit(options);
+					}
+				},
+				batch: true,
+				change: function () {
+					$("#save").toggleClass("k-disabled", !this.hasChanges());
+				},
+				schema: {
+					model: {
+						id: "proj_pk",
+						fields: {
+							proj_pk: { type: "number" },
+							proj_cd: { type: "string" },
+							proj_nm: { type: "string" },
+							user_nm: { type: "string" },
+							plan_start_dt: { type: "string" },
+							plan_end_dt: { type: "string" },
+							status_nm: { type: "string" },
+							proj_tot_cost: { type: "number" }
+						}
+					}
+				}
+			});
+
+			$("#spreadsheet").kendoSpreadsheet({
+				columns: 20,
+				rows: 10000, // 완전 무제한 행 수
+				toolbar: false,
+				sheetsbar: false,
+				dataBinding: function (e) {
+				},
+				dataBound: function (e) {
+					// 데이터 바인딩 후 헤더를 한글로 다시 설정
+					let sheet = e.sheet;
+					sheet.range("A1").value("프로젝트ID");
+					sheet.range("B1").value("프로젝트코드");
+					sheet.range("C1").value("프로젝트명");
+					sheet.range("D1").value("프로젝트 관리자");
+					sheet.range("E1").value("계획 시작일");
+					sheet.range("F1").value("계획 마침일");
+					sheet.range("G1").value("상태");
+					sheet.range("H1").value("총예산");
+
+					// 날짜 헤더 설정
+					_this.setDateHeader();
+
+					// 헤더 스타일 적용 - Kendo Spreadsheet의 올바른 스타일링 방법 사용
+					try {
+						let headerRange = sheet.range("A1:P1"); // A1부터 P1까지 확장
+						headerRange.background("#9c27b0");
+						headerRange.color("white");
+						headerRange.bold(true);
+						// 수평 정렬은 textAlign 메서드 사용
+						headerRange.textAlign("center");
+					} catch (error) {
+						console.log('스타일링 오류:', error);
+					}
+
+					// 데이터 로드 후 자동 정리
+					setTimeout(function () {
+						_this.reorganizeDataAfterDelete();
+					}, 200);
+					console.log('데이터 바인딩 완료');
+				},
+				// 행 삭제 이벤트 처리 추가
+				beforeRowDelete: function (e) {
+					console.log('행 삭제 시작:', e);
+					// 삭제할 행의 데이터 확인
+					let sheet = e.sheet;
+					let rowIndex = e.rowIndex;
+					let projPk = sheet.range("A" + (rowIndex + 1)).value();
+					let projCd = sheet.range("B" + (rowIndex + 1)).value();
+					let projNm = sheet.range("C" + (rowIndex + 1)).value();
+
+					console.log('삭제될 행 정보:', {
+						rowIndex: rowIndex + 1,
+						projPk: projPk,
+						projCd: projCd,
+						projNm: projNm
+					});
+				},
+				rowDelete: function (e) {
+					console.log('행 삭제 완료:', e);
+					// 행 삭제 후 즉시 데이터 재정렬 (강화된 처리)
+					setTimeout(function () {
+						_this.reorganizeDataAfterDelete();
+					}, 100);
+				},
+				// 컨텍스트 메뉴 추가
+				contextMenu: {
+					items: [
+						{
+							text: "Cut",
+							icon: "cut"
+						},
+						{
+							text: "Copy",
+							icon: "copy"
+						},
+						{
+							text: "Paste",
+							icon: "paste"
+						},
+						{
+							text: "Delete Row",
+							icon: "delete",
+							click: function (e) {
+								let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+								let sheet = spreadsheet.activeSheet();
+								let selection = sheet.selection();
+
+								if (selection) {
+									// 선택된 행의 모든 셀을 초기화 (행 단위 삭제)
+									let startRow = selection.top;
+									let endRow = selection.bottom;
+
+									console.log('삭제할 행 범위:', startRow + 1, '~', endRow + 1);
+
+									for (let row = startRow; row <= endRow; row++) {
+										let rowIndex = row + 1;
+										let projPk = sheet.range("A" + rowIndex).value();
+										let projCd = sheet.range("B" + rowIndex).value();
+
+										console.log('행', rowIndex, '삭제 전 데이터:', projPk, projCd);
+
+										// 해당 행의 모든 셀을 초기화
+										sheet.range("A" + rowIndex + ":P" + rowIndex).value(""); // H에서 P로 확장
+
+										console.log('행', rowIndex, '삭제 완료');
+									}
+
+									// 삭제 후 즉시 데이터 재정렬 (강화된 처리)
+									setTimeout(function () {
+										page.reorganizeDataAfterDelete();
+									}, 100);
+								}
+							}
+						},
+						{
+							text: "Hide",
+							icon: "hide"
+						}
+					]
+				},
+				sheets: [{
+					name: "m_project(+)",
+					dataSource: this.dataSource,
+					rows: [{
+						height: 40
+					}, {
+						cells: [{
+							// A2 셀 (빈 셀)
+						}, {
+							// B2 셀에 코멘트 추가
+							comment: "B2 셀에 추가된 코멘트입니다."
+						}]
+					}, {
+						// 3번째 행 (빈 행)
+					}, {
+						// 4번째 행 (빈 행)
+					}, {
+						// 5번째 행 (빈 행)
+					}, {
+						cells: [{
+							// A6 셀 (빈 셀)
+						}, {
+							// B6 셀에 코멘트 추가
+							comment: "여기는 코멘트"
+						}, {
+							// C6 셀 (빈 셀)
+						}, {
+							// D6 셀에 코멘트 추가
+							comment: "재직중"
+						}]
+					}],
+					columns: [
+						{ width: 100 },  // A: 프로젝트ID
+						{ width: 150 },  // B: 프로젝트코드
+						{ width: 200 },  // C: 프로젝트명
+						{ width: 120 },  // D: 프로젝트 관리자
+						{ width: 100 },  // E: 계획 시작일
+						{ width: 100 },  // F: 계획 마침일
+						{ width: 80 },   // G: 상태
+						{ width: 100 },  // H: 총예산
+						{ width: 80 },   // I: 날짜1
+						{ width: 80 },   // J: 날짜2
+						{ width: 80 },   // K: 날짜3
+						{ width: 80 },   // L: 날짜4
+						{ width: 80 },   // M: 날짜5
+						{ width: 80 },   // N: 날짜6
+						{ width: 80 },   // O: 날짜7
+						{ width: 80 }    // P: 날짜8
+					]
+				}]
+			});
+
+		}
+
+		onRead(options) {
+			let _this = this;
+
+			$.ajax({
+				url: this.baseUrl,
+				dataType: "json",
+				contentType: "application/json",
+				data: function () {
+					return {
+						action: 'findAll',
+					};
+				},
+				success: function (result) {
+					// API 응답이 배열인지 확인
+					if (!Array.isArray(result)) {
+						options.success([]);
+						return;
+					}
+
+					// API 응답 데이터를 스프레드시트에서 기대하는 형식으로 매핑
+					let mapped = result.map((item, index) => {
+						// 실제 데이터베이스 필드명에 맞게 매핑 (manager_id 제외)
+						let mappedItem = {
+							proj_pk: item.proj_pk || '',
+							proj_cd: item.proj_cd || '',
+							proj_nm: item.proj_nm || '',
+							user_nm: item.user_nm || '',
+							plan_start_dt: item.plan_start_dt || '',
+							plan_end_dt: item.plan_end_dt || '',
+							status_nm: item.status_nm || '',
+							proj_tot_cost: item.proj_tot_cost || ''
+						};
+
+						return mappedItem;
+					});
+
+					// 데이터가 비어있는지 확인
+					if (mapped.length === 0) {
+						options.success([]);
+						return;
+					}
+
+					// 실제 데이터가 있는지 확인 (모든 필드가 비어있지 않은지)
+					let hasRealData = mapped.some(item =>
+						item.proj_pk && item.proj_cd && item.proj_nm && item.user_nm
+					);
+
+					if (!hasRealData) {
+						options.success([]);
+						return;
+					}
+
+					options.success(mapped);
+				},
+				error: function (xhr, status, error) {
+					// 백엔드 오류 시 빈 배열 반환
+					options.success([]);
+				}
+			});
+		}
+
+		setDateHeader() {
+			let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			let sheet = spreadsheet.activeSheet();
+			let dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+			let paramDate = {
+				action: 'getDateHeader',
+			};
+			
+			// 동기적으로 날짜 헤더 데이터 가져오기
+			const dateHeader = AjaxUtil.getSyncData(this.baseUrl, paramDate);
+			console.log('날짜 헤더 데이터:', dateHeader);
+
+			if (dateHeader && dateHeader.success && dateHeader.data) {
+				// 데이터베이스에서 가져온 날짜 데이터 사용
+				for (let i = 0; i < dateHeader.data.length; i++) {
+					let dateItem = dateHeader.data[i];
+					let dateStr = dateItem.data_ymd; // '2025-08-14' 형식
+					
+					// 날짜 파싱
+					let dateParts = dateStr.split('-');
+					let year = parseInt(dateParts[0]);
+					let month = parseInt(dateParts[1]);
+					let day = parseInt(dateParts[2]);
+					
+					// 요일 계산
+					let date = new Date(year, month - 1, day);
+					let dayName = dayNames[date.getDay()];
+					
+					let headerText = month + '/' + day + '(' + dayName + ')';
+					let columnLetter = String.fromCharCode(73 + i); // I부터 시작 (73 = 'I'의 ASCII)
+
+					console.log('날짜 헤더 설정:', columnLetter + '1', headerText, dateStr);
+
+					sheet.range(columnLetter + "1").value(headerText);
+
+					// 주말(토,일) 스타일 적용
+					if (date.getDay() === 0 || date.getDay() === 6) { // 일요일(0) 또는 토요일(6)
+						try {
+							let weekendRange = sheet.range(columnLetter + "1");
+							weekendRange.background("#ffeb3b"); // 노란색 배경
+							weekendRange.color("black");
+							weekendRange.bold(true);
+							weekendRange.textAlign("center");
+							console.log('주말 스타일 적용:', columnLetter + '1');
+						} catch (error) {
+							console.log('주말 스타일링 오류:', error);
+						}
+					}
+				}
+			} else {
+				// 데이터베이스에서 데이터를 가져올 수 없는 경우 기본 로직 사용
+				console.log('데이터베이스에서 날짜 데이터를 가져올 수 없어 기본 로직 사용');
+				let today = new Date();
+				
+				for (let i = 0; i < 7; i++) {
+					let date = new Date(today);
+					date.setDate(today.getDate() + i);
+
+					let month = date.getMonth() + 1;
+					let day = date.getDate();
+					let dayName = dayNames[date.getDay()];
+
+					let headerText = month + '/' + day + '(' + dayName + ')';
+					let columnLetter = String.fromCharCode(73 + i); // I부터 시작 (73 = 'I'의 ASCII)
+
+					console.log('날짜 헤더 설정 (기본):', columnLetter + '1', headerText, date);
+
+					sheet.range(columnLetter + "1").value(headerText);
+
+					// 주말(토,일) 스타일 적용
+					if (date.getDay() === 0 || date.getDay() === 6) { // 일요일(0) 또는 토요일(6)
+						try {
+							let weekendRange = sheet.range(columnLetter + "1");
+							weekendRange.background("#ffeb3b"); // 노란색 배경
+							weekendRange.color("black");
+							weekendRange.bold(true);
+							weekendRange.textAlign("center");
+							console.log('주말 스타일 적용:', columnLetter + '1');
+						} catch (error) {
+							console.log('주말 스타일링 오류:', error);
+						}
+					}
+				}
+			}
+		}
+
+		// 행 삭제 후 데이터 재정렬 메서드
+		reorganizeDataAfterDelete() {
+			let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			let sheet = spreadsheet.activeSheet();
+
+			console.log('데이터 재정렬 시작');
+
+			// 모든 데이터를 수집 (더 넓은 범위)
+			let allData = [];
+			let maxRow = 100;
+
+			for (let row = 2; row <= maxRow; row++) {
+				let projPk = sheet.range("A" + row).value();
+				let projCd = sheet.range("B" + row).value();
+				let projNm = sheet.range("C" + row).value();
+				let userNm = sheet.range("D" + row).value();
+				let planStartDt = sheet.range("E" + row).value();
+				let planEndDt = sheet.range("F" + row).value();
+				let statusNm = sheet.range("G" + row).value();
+				let projTotCost = sheet.range("H" + row).value();
+
+				// 실제 데이터가 있는 행만 수집 (더 엄격한 조건)
+				if (projCd && projCd.toString().trim() !== '' &&
+					projCd.toString().trim() !== '0' &&
+					projCd.toString().trim() !== '프로젝트코드') {
+
+					allData.push({
+						row: row,
+						projPk: projPk,
+						projCd: projCd,
+						projNm: projNm,
+						userNm: userNm,
+						planStartDt: planStartDt,
+						planEndDt: planEndDt,
+						statusNm: statusNm,
+						projTotCost: projTotCost
+					});
+
+					console.log('수집된 데이터 행', row, ':', projCd, projNm);
+				}
+			}
+
+			console.log('총 수집된 데이터 개수:', allData.length);
+
+			// 모든 행을 초기화 (더 넓은 범위)
+			for (let row = 2; row <= maxRow; row++) {
+				sheet.range("A" + row + ":P" + row).value(""); // H에서 P로 확장
+			}
+
+			// 데이터를 순서대로 다시 배치
+			for (let i = 0; i < allData.length; i++) {
+				let data = allData[i];
+				let targetRow = i + 2;
+
+				sheet.range("A" + targetRow).value(data.projPk);
+				sheet.range("B" + targetRow).value(data.projCd);
+				sheet.range("C" + targetRow).value(data.projNm);
+				sheet.range("D" + targetRow).value(data.userNm);
+				sheet.range("E" + targetRow).value(data.planStartDt);
+				sheet.range("F" + targetRow).value(data.planEndDt);
+				sheet.range("G" + targetRow).value(data.statusNm);
+				sheet.range("H" + targetRow).value(data.projTotCost);
+				// I~P 컬럼은 빈 상태로 유지 (날짜별 데이터 입력용)
+
+				console.log('행', targetRow, '에 데이터 재배치 완료:', data.projCd);
+			}
+
+			console.log('데이터 재정렬 완료 - 총', allData.length, '개 행 처리');
+		}
+
+		saveData() {
+			let _this = this;
+
+			console.log('saveData 호출됨');
+
+			// 스프레드시트에서 직접 데이터 가져오기
+			let spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			let sheet = spreadsheet.activeSheet();
+			let changedData = [];
+
+			// 동적으로 실제 데이터가 있는 행만 수집
+			let row = 2;
+			let emptyRowCount = 0;
+			const maxEmptyRows = 10; // 연속으로 빈 행이 10개 이상이면 중단
+
+			while (emptyRowCount < maxEmptyRows && row <= 10000) {
+				let projPk = sheet.range("A" + row).value();
+				let projCd = sheet.range("B" + row).value();
+				let projNm = sheet.range("C" + row).value();
+				let userNm = sheet.range("D" + row).value();
+				let planStartDt = sheet.range("E" + row).value();
+				let planEndDt = sheet.range("F" + row).value();
+				let statusNm = sheet.range("G" + row).value();
+				let projTotCost = sheet.range("H" + row).value();
+
+				// 프로젝트 코드, 이름, 또는 ID가 있는 경우에만 처리
+				if ((projCd && projCd.toString().trim() !== '') ||
+					(projNm && projNm.toString().trim() !== '') ||
+					(projPk && projPk.toString().trim() !== '')) {
+
+					emptyRowCount = 0; // 데이터가 있으면 빈 행 카운트 리셋
+
+					// 날짜별 데이터 수집 (I~O 컬럼)
+					let dailyData = {};
+					for (let col = 0; col < 7; col++) {
+						let columnLetter = String.fromCharCode(73 + col); // I부터 시작
+						let cellValue = sheet.range(columnLetter + row).value();
+						dailyData['day_' + (col + 1)] = cellValue || '';
+					}
+
+					let rowData = {
+						proj_pk: projPk || '',
+						proj_cd: projCd || '',
+						proj_nm: projNm || '',
+						user_nm: userNm || '',
+						plan_start_dt: planStartDt || '',
+						plan_end_dt: planEndDt || '',
+						proj_tot_cost: projTotCost || 0,
+						status_nm: statusNm || 'PREP',
+						daily_data: dailyData
+					};
+
+					console.log('행', row, '데이터:', rowData);
+					changedData.push(rowData);
+				} else {
+					emptyRowCount++;
+				}
+				row++;
+			}
+
+			console.log('전체 데이터 개수:', changedData.length);
+
+			if (changedData.length === 0) {
+				Alert.alert('', '저장할 데이터가 없습니다.');
+				return;
+			}
+
+			let formData = {
+				data: changedData
+			};
+
+			console.log('서버로 전송할 데이터:', formData);
+
+			let fnSuccess = function (res) {
+				console.log('서버 응답:', res);
+				if (res.success) {
+					Alert.alert('', res.message || '저장되었습니다.');
+					// 데이터 다시 로드
+					_this.dataSource.read();
+				} else {
+					Alert.alert('', res.message || '저장 중 오류가 발생했습니다.');
+				}
+			};
+
+			let fnError = function (xhr, status, error) {
+				console.log('서버 오류:', xhr, status, error);
+				Alert.alert('', '저장 중 오류가 발생했습니다.');
+			};
+
+			AjaxUtil.postAsyncData(_this.baseUrl + '?action=submit', formData, fnSuccess, fnError);
+		}
+
+		onSubmit(options) {
+			// DataSource sync를 위한 빈 구현
+			options.success();
+		}
+
+	};
+
+	let page = null;
+
+	$(document).ready(function () {
+		page = new SampleSpreadSheetPage();
+	});
+
+</script>
+
+{% endblock %}

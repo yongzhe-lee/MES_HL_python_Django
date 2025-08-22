@@ -1,0 +1,280 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+<div class="content-wrap">
+    <div class="content-ui-row">
+        <form class="search-form" id="searchForm" onsubmit="return false;">
+            <div class="card-content search">
+                <div class="form-ui">
+                    <div class="col-auto">
+                        <div class="form-item align-h L-form-item align-h">
+                            <label class="k-label k-form-label" for="sch_keyword" data-labelCd="검색어">검색어</label>
+                            <div class="field-wrapper">
+                                <input id="sch_keyword" name="sch_keyword" placeholder="점검항목을 입력하세요" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="card-group-btn search">
+                            <button id="searchBtn" class="btn-search">조회</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="content-ui-row connect">
+            <div class="card-content grid">
+                <div class="card-group-btn">
+                    <span class="info-text"><i class="material-symbols-outlined">list_alt</i><label data-labelCd="점검항목 목록">점검항목 목록</label></span>
+                    <span>
+                    </span>
+                    <span>
+                        <!-- 오른쪽 버튼 영역-->
+                        <button id="btnExcel">Excel</button>
+                    </span>
+                </div>
+                <div id="chkItemGrid"></div>
+            </div>
+        </div>
+        <div class="content-ui-row connect">
+            <div class="card-content edit">
+                <div class="card-group-btn">
+                    <!--  -->
+                    <span class="info-text"><i class="material-symbols-outlined">info</i>점검항목</span>
+                    <span>
+                        <button id="btnClear" title="신규"><i class="material-symbols-outlined">add</i>신규</button>
+                        <button id="btnSave" title="저장"><i class="material-symbols-outlined">save</i>저장</button>
+                        <button id="btnDelete" title="삭제"><i class="material-symbols-outlined">delete</i>삭제</button>
+                    </span>
+                </div>
+
+                <form id="detailForm">
+                    <input type="hidden" id="template_id" name="template_id" />
+                    <div class="edit-form-ui">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label required" for="chk_item" data-labelCd="점검항목">점검항목</label>
+                                <div class="field-wrapper">
+                                    <input id="chk_item" name="chk_item" class="k-input k-textbox" data-msg="점검항목을" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-item align-h">
+                                <label class="k-label k-form-label" for="unit" data-labelCd="단위">단위</label>
+                                <div class="field-wrapper">
+                                    <select id="unit" name="unit"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    class ChkItemPage {
+        constructor() {
+            this.grid = null;
+            this.form = null;
+            this.baseUrl = '/api/kmms/equip_chk_item_template';
+
+            this.init();
+        }
+
+        init() {
+            let _this = this;
+
+            let gridOption = {
+                toolbar: [
+                    "columns"
+                ],
+                columnMenu: {
+                    componentType: "classic",
+                    autoSize: true,
+                    clearAllFilters: true,
+                    columns: {
+                        sort: "asc",
+                    }
+                },
+                columns: [
+                    { field: 'template_id', title: 'template_id', hidden: true },
+                    { field: 'chk_item', title: '점검항목', width: 120 },
+                    { field: 'unit', title: '단위', width: 120 },
+                ],
+                dataBound: function (e) {
+                    const grid = this;
+
+                    this.autoFitColumns();
+                },
+                change: function (e) {
+                    _this.showDetail();
+                },
+                height: "430px"
+            };
+
+            _this.grid = new Grid($('#chkItemGrid'), gridOption);
+
+            // grid btns
+            $('#btnExcel').kendoButton({ icon: "file-excel", themeColor: "success", click: function () { _this.grid.grid.saveAsExcel(); } });
+
+            var today = CommonUtil.formatYYYYMMDD(new Date());
+            // 파일명 변경
+            _this.grid.grid.bind("excelExport", function (e) {
+                e.workbook.fileName = "점검항목_" + today + ".xlsx";
+            });
+
+            kendo.pdf.defineFont({
+                "Gowun Batang": '/static/app/fonts/GowunBatang-Regular.ttf'
+            });
+
+            // searchForm
+            // 검색어 입력 시 엔터 키 바인딩
+            kendoUtil.bindEnterKey('#sch_keyword', () => this.searchMainData());
+
+            // form
+            $('#chk_item').kendoTextBox();
+            AjaxUtil.fillDropDownOptions($('#unit'), 'cm_code', '', null, 'CHK_ITEM_UNIT');
+            
+            // cm_code는 CodeCd를 value로 사용하지만, 여기서는 CodeName을 value로 사용해야 함
+            // 드롭다운 데이터를 변환하여 CodeName을 value로 설정
+            let unitDropdown = $('#unit').data('kendoDropDownList');
+            if (unitDropdown) {
+                let dataSource = unitDropdown.dataSource;
+                let items = dataSource.data();
+                let convertedItems = items.map(function(item) {
+                    return {
+                        value: item.text,
+                        text: item.text
+                    };
+                });
+                dataSource.data(convertedItems);
+            }
+
+            // button
+            $("#searchBtn").kendoButton({
+                icon: "search",
+                click: function () {
+                    _this.searchMainData();
+                }
+            });
+            $('#btnSave').kendoButton({
+                themeColor: 'info',
+                click: function () {
+                    Alert.confirm('', '저장하시겠습니까?', function () {
+                        _this.saveData();
+                    })
+                }
+            });
+            $("#btnDelete").kendoButton({
+                themeColor: 'error',
+                click: function () {
+                    Alert.confirm('', '삭제하시겠습니까?', function () {
+                        _this.deleteData();
+                    })
+                }
+            });
+            $('#btnClear').kendoButton({
+                themeColor: "base",
+                click: function () {
+                    _this.resetForm();
+                }
+            });
+
+            $('#btnDelete').prop('disabled', true);
+
+        }
+
+        searchMainData() {
+            let _this = this;
+
+            let param = {
+                action: 'findAll',
+                keyword: $('#sch_keyword').val(),
+            };
+
+            let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+            _this.grid.setData(result);
+        }
+
+        showDetail() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData.length > 0) {
+                let selectData = formData[0];
+                FormUtil.BindDataForm(selectData, $('#detailForm'));
+                
+                // 단위 드롭다운에서 선택된 값 설정
+                let unitDropdown = $('#unit').data('kendoDropDownList');
+                if (unitDropdown && selectData.unit) {
+                    unitDropdown.value(selectData.unit);
+                }
+                
+                $('#btnDelete').prop('disabled', false);
+                console.log("selectData:\n", selectData);
+            }
+        }
+
+        saveData() {
+            let _this = this;
+            let formData = FormUtil.extractForm($('#detailForm'));
+
+            console.log("formData:\n", formData);
+            if (checkForm($('#detailForm')) === false) return;
+
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    Alert.alert('', '저장되었습니다.');
+                    _this.searchMainData();
+                    _this.resetForm();
+                } else if (!res.success) {
+                    Alert.alert('', res.message);
+                }
+            };
+            AjaxUtil.postAsyncData(_this.baseUrl + '?action=insertChkItemTemplate', formData, fnSuccess);
+        }
+
+        deleteData() {
+            let _this = this;
+            let formData = _this.grid.getSelect();
+            if (formData[0].template_id) {
+                let fnSuccess = function (res) {
+                    if (res.success) {
+                        Alert.alert('', '삭제되었습니다.');
+                        _this.searchMainData();
+                        _this.resetForm();
+                    } else if (!res.success) {
+                        Alert.alert('', '삭제실패');
+                    }
+                };
+                AjaxUtil.postAsyncData(_this.baseUrl + '?action=deleteChkItemTemplate', { template_id: formData[0].template_id }, fnSuccess);
+            } else {
+                Alert.alert('', '데이터를 선택하세요.');
+            }
+        }
+
+        resetForm() {
+            FormUtil.resetForm($('#detailForm'));
+            
+            // 단위 드롭다운 초기화
+            let unitDropdown = $('#unit').data('kendoDropDownList');
+            if (unitDropdown) {
+                unitDropdown.value('');
+            }
+            
+            $('#btnDelete').prop('disabled', true);
+        }
+    }
+
+    let page = null;
+    page = new ChkItemPage();
+    $(document).ready(function () {
+        page.searchMainData();
+    });
+
+</script>
+{% endblock %}

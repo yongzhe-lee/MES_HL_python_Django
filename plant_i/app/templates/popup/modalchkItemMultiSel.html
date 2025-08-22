@@ -1,0 +1,119 @@
+
+<div id="modalchkItemMulti" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>점검항목 선택</h4>
+		</div>
+
+		<div class="modal-body">
+			<!-- 검색 영역 -->
+			<div class="search-area" style="display: flex; align-items: center; gap: 10px;">
+				<div class="search-label">검색키워드</div>
+				<input type="text" class="form-control col-auto" id="keyword_item" name="keyword_item" placeholder="점검항목명" style="flex: 1;">
+				<button type="button" class="btn-search" id="btnSearchItems">검색</button>
+			</div>
+			<!-- 그리드 영역 -->
+			<div id="chkItemTemplateGrid"></div>
+			<!-- 선택된 점검항목 영역 -->
+			<div class="bottom-area">
+				<div class="selected-equipment">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn-save" id="btnConfirmChkItem">선택</button>
+					<button type="button" class="btn-close" id="btnCancelChkItem">취소</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	class chkItemTemplate {
+		constructor() {
+			this.grid = null;
+			this.baseUrl = '/api/kmms/equip_chk_item_template';
+			this.callback = null;
+			this.init();
+		}
+
+		init() {
+			this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
+
+		initGrid() {
+			const option = {
+				toolbar: ["columns"],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: { sort: "asc" }
+				},
+				selectable: "multiple, row",
+				columns: [
+					{ selectable: true, width: "50px" },
+					{ field: 'template_id', title: 'templateId', hidden: true },
+					{ field: 'chk_item', title: '점검항목', width: 200 },
+					{ field: 'unit', title: '단위', width: 200 },
+				],
+				dataBound: function () {
+					//this.autoFitColumns();
+				},
+				height: "440px",
+				scrollable: true,
+			};
+			this.grid = new Grid($("#chkItemTemplateGrid"), option);
+		}
+
+		initButton() {
+			$("#btnConfirmChkItem").kendoButton({ icon: "k-i-check", themeColor: "base" });
+			$("#btnCancelChkItem").kendoButton({ icon: "cancel", themeColor: "base" });
+			$("#btnSearchItems").kendoButton({
+				themeColor: "primary",
+				icon: "search",
+				click: () => this.getManData()
+			});
+		}
+
+		initEvents() {
+			const $modal = $("#modalchkItemMulti");
+
+			$("#btnCancelChkItem").on("click", (e) => {
+				e.preventDefault();
+				$modal.fadeOut();
+			});
+
+			$("#btnConfirmChkItem").on("click", () => {
+				const data = this.grid.getSelect();
+				if (typeof this.callback === 'function') {
+					this.callback(data);
+				}
+				$modal.fadeOut();
+			});
+		}
+
+		getManData() {
+			const param = {
+				action: 'findAll',
+				keyword: $('#keyword_item').val(),
+			};
+			const result = AjaxUtil.getSyncData(this.baseUrl, param);
+			this.grid.setData(result);
+		}
+
+		show(callback) {	
+			this.callback = callback;
+			$("#modalchkItemMulti").fadeIn();
+			this.getManData();
+		}
+	}
+
+	let chkItemTemplatePage = null;
+	$(document).ready(function () {
+		chkItemTemplatePage = new chkItemTemplate();
+
+	});
+</script>

@@ -1,0 +1,323 @@
+<!-- 손자 모달 (설비 선택) - 부모 모달의 자식이 아닌 최상위 div에 배치 -->
+<div id="modalPiCopy" class="modal child-modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h4>점검선택</h4>
+		</div>
+		<div class="modal-body">
+			<form id="piCopyForm" name="piCopyForm">
+				<!-- 검색 영역 -->
+				<div class="search-area">
+
+					<div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+						<div class="form-item align-h L-align-h">
+							<label class="k-label k-form-label" for="keyword_pi" data-labelCd="검색키워드">검색키워드</label>
+							<div class="field-wrapper">
+								<input id="keyword_pi" name="searchText" class="form-item" placeholder="점검명, 설비코드, 설비명" />
+							</div>
+						</div>
+					</div>
+
+					<div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+						<div class="form-item align-h L-align-h">
+							<label class="k-label k-form-label" for="srch_pi_dept" data-labelCd="점검부서">점검부서</label>
+							<div class="field-wrapper">
+								<select id="srch_pi_dept" name="deptPk">
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-12 col-sm-6 col-md-5">
+						<div class="form-item align-h">
+							<label class="k-label k-form-label" for="srchStartDt" data-labelCd="최종점검생성일">최종점검생성일</label>
+							<div class="field-wrapper">
+								<input id="schedStartDtPi" name="startDate"/>~
+							</div>
+							<div class="field-wrapper">
+								<input id="schedEndDtPi" name="endDate"/>
+							</div>
+						</div>
+					</div>					
+					<button type="button" class="btn-search" id="btnSearchPiCopy" name="btnSearchPiCopy">검색</button>
+				</div>
+			</form>
+			<!-- 그리드 영역 -->
+			<div id="picopy_grid"></div>
+
+			<!-- 선택된 설비 영역 -->
+			<div class="bottom-area">
+				<div class="selected-item">
+					<label>선택된 항목</label>
+					<input type="hidden" id="selectedPiPK" name="selectedPiPK">
+					<input type="text" id="selectedPiName" name="selectedPiName" readonly>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn-save" id="btnConfirmPi">확인</button>
+					<button type="button" class="btn-close" id="btnCancelPi">취소</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+
+	#modalPiCopy .search-area input {
+		width: 350px;
+	}
+
+	/* 손자 모달 내부 컨텐츠 스타일 */
+	#modalPiCopy .modal-content {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	#modalPiCopy .modal-body {
+		flex-grow: 1;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.grid-area {
+		flex-grow: 1;
+		overflow-y: auto;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+	}
+
+	.paging-area {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		padding: 10px;
+		font-size: 14px;
+	}
+
+	.selected-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+		.selected-item label {
+			font-size: 13px;
+			color: #333;
+		}
+
+		.selected-item input {
+			flex: 1;
+			height: 28px;
+			border: 1px solid #ccc;
+			padding: 0 8px;
+			background-color: #f5f5f5;
+		}
+</style>
+
+<script type="text/javascript">
+
+	class PmCopy {
+		constructor() {
+			this.gridPmSel = null;
+			this.srchPmDept = null;
+
+			this.baseUrl = '/api/kmms/pi_master';
+			this.callback = null;
+			this.init();
+		}
+
+		init() {
+			this.initGrid();
+			this.initButton();
+			this.initEvents();
+		}
+
+		initGrid() {
+			let _this = this;
+			let pmCopyGridOption = {
+				toolbar: [
+					"columns"
+				],
+				columnMenu: {
+					componentType: "classic",
+					autoSize: true,
+					clearAllFilters: true,
+					columns: {
+						sort: "asc",
+					}
+				},
+				columns: [
+					{
+						"title": "점검마스터 PK",
+						"field": "chk_mast_pk",
+						"hidden": true,
+						"width": "100px"
+					},
+					{
+						"title": "점검마스터 번호",
+						"field": "chk_mast_no",
+						"width": "150px"
+					},
+					{
+						"title": "점검마스터 명",
+						"field": "chk_mast_nm",
+						"width": "210px"
+					},
+					{
+						"title": "점검부서PK",
+						"field": "dept_pk",
+						"hidden": true,
+						"width": "120px"
+					},
+					{
+						"title": "점검부서",
+						"field": "dept_nm",
+						"width": "120px"
+					},
+					{
+						"title": "주기일",
+						"field": "cycle_display_nm",
+						"width": "150px"
+					},
+					{
+						"title": "최종점검생성일",
+						"field": "last_chk_date",
+						"attributes": {
+							"style": "text-align: center"
+						},
+						"width": "120px"
+					},
+				],
+
+				change: function (e) {
+					_this.selectPiData();
+				},
+				dataBound: function (e) {
+					for (var i = 0; i < this.columns.length; i++) {
+						//this.autoFitColumn(i);
+					};
+
+					// grid 데이터 개수 표시
+					kendoUtil.showGridRowCount(this.element);
+				},
+				height: "540px"
+			};
+			_this.gridPmSel = new Grid($("#picopy_grid"), pmCopyGridOption);
+		}
+
+		initButton() {
+
+			$("#btnConfirmPi").kendoButton({
+				icon: "k-i-check", // 확인 아이콘 (✔️)
+			});
+
+			$("#btnCancelPi").kendoButton({
+				icon: "cancel", // 취소 아이콘 (❌)
+				themeColor: "base"
+			});
+
+			$('#keyword_pi').kendoTextBox();
+
+			let today = CommonUtil.getYYYYMMDD();
+			// 1달 이전 날짜 계산
+			let oneMonthAgo = new Date();
+			oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+			let oneMonthAgoStr = oneMonthAgo.getFullYear() + '-' +
+				String(oneMonthAgo.getMonth() + 1).padStart(2, '0') + '-' +
+				String(oneMonthAgo.getDate()).padStart(2, '0');
+
+			$("#schedStartDtPi").kendoDatePicker({
+				value: oneMonthAgoStr,
+				format: "yyyy-MM-dd",
+			});
+
+			$("#schedEndDtPi").kendoDatePicker({
+				value: today,
+				format: "yyyy-MM-dd",
+			});
+
+			// 검색 버튼을 kendo 버튼으로 변경
+			$("#btnSearchPiCopy").kendoButton({
+				icon: "search",
+				click: () => {
+					this.getPiData();
+				}
+			});
+
+			this.srchPmDept = AjaxUtil.fillDropDownTreeOptions($('#srch_pi_dept'), 'depart', 'select');
+
+		}
+
+		initEvents() {
+
+			$("#btnConfirmPi").on("click", () => {
+
+				debugger;
+				let _this = this;
+				const selectedPmID = $('#selectedPiPK').val();
+				const selectedPiName = $('#selectedPiName').val();
+				if (!selectedPmID || !selectedPiName) {
+					alert('선택해주세요.');
+					return;
+				}
+
+				let param = {
+					action: 'findAll',
+					chkMastPk: $('#selectedPiPK').val(),
+				};
+
+				let result = AjaxUtil.getSyncData(_this.baseUrl, param);
+
+				if (typeof this.callback === 'function') {
+					this.callback(result[0]);
+				}
+				
+				$("#modalPiCopy").fadeOut();
+				FormUtil.resetForm($('#piCopyForm'));
+
+			});
+
+			$("#btnCancelPi").on("click", function (e) {
+				e.preventDefault();
+				$("#modalPiCopy").fadeOut();
+			});
+
+		}
+
+		getPiData() {
+			let _this = this;
+			let param = FormUtil.extractForm($('#piCopyForm'));
+
+			let result = AjaxUtil.getSyncData(_this.baseUrl + '?action=findAll', param);
+			_this.gridPmSel.setData(result);
+		}
+
+
+
+		selectPiData() {
+			let _this = this;
+			let data = _this.gridPmSel.getSelect();
+			if (data.length > 0) {
+				let selectData = data[0];
+				$('#selectedPiPK').val(selectData.chk_mast_pk);
+				$('#selectedPiName').val(selectData.chk_mast_nm);
+			}
+		}
+
+		show(callback) {
+			this.callback = callback;
+			this.getPiData();
+			$("#modalPiCopy").fadeIn();
+		}
+	}
+
+	let piCopyPage = null;
+	$(document).ready(function () {
+		piCopyPage = new PmCopy();
+	});
+
+</script>

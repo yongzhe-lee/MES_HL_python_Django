@@ -1,0 +1,439 @@
+{
+  "result": {
+    "items": [
+      {
+        "config_id": 7,
+        "name": "HPC#1 프론트백로드 PLC데이터수집건",
+        "description": "미쯔비시",
+        "equipment": "hpc1.frobackload",
+        "device_type": "melsec_tcp",
+        "host": "10.226.234.56",
+        "port": 5002,
+        "dbms_key": "default",
+        "topic": "dt_hpc1.frobackload",
+        "schedule": {
+          "trigger_type": "cron_expression",
+          "cron_expression": "1/5 * * * * *"
+        },
+        "actions": [
+          {
+            "action": "read",
+            "address": "X400",
+            "quantity": 2,
+            "fields": [
+              {
+                "tag": "hpc1.frobackload.op.mode",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X401",
+                "value_index": 1
+              },
+              {
+                "tag": "hpc1.frobackload.au.op",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X403",
+                "value_index": 3
+              },
+              {
+                "tag": "hpc1.frobackload.au.stop",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X404",
+                "value_index": 4
+              },
+              {
+                "tag": "hpc1.frobackload.emer.stop",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X405",
+                "value_index": 5
+              },
+              {
+                "tag": "hpc1.frobackload.door1",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X408",
+                "value_index": 8
+              },
+              {
+                "tag": "hpc1.frobackload.door2",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X409",
+                "value_index": 9
+              },
+              {
+                "tag": "hpc1.frobackload.door3",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40A",
+                "value_index": 10
+              },
+              {
+                "tag": "hpc1.frobackload.door4",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X40B",
+                "value_index": 11
+              },
+
+              {
+                "tag": "hpc1.frobackload.air.press",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "X41F",
+                "value_index": 31
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "Y41D",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.frobackload.lamp.g",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41D",
+                "value_index": 0
+              },
+              {
+                "tag": "hpc1.frobackload.lamp.y",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41E",
+                "value_index": 1
+              },
+              {
+                "tag": "hpc1.frobackload.lamp.r",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "Y41F",
+                "value_index": 2
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D0100",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.frobackload.prod.info",
+                "data_type": "number",
+                "persist_mode": "database",
+                "address": "D0100",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read",
+            "address": "D9000",
+            "quantity": 1,
+            "fields": [
+              {
+                "tag": "hpc1.frobackload.ct",
+                "data_type": "bool",
+                "persist_mode": "database",
+                "address": "D9000",
+                "value_index": 0
+              }
+            ]
+          },
+          {
+            "action": "read_alarm",
+            "address": "D2000",
+            "tag": "hpc1.frobackload.alm.cnt",
+            "items": [
+              {
+                "address": "F0000",
+                "quantity": 1,
+                "fields": [
+                  {
+                    "tag": "hpc1.frobackload.alm.F0000",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0002",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0010",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0011",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0012",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0013",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 13
+                  }
+                ]
+              },
+              {
+                "address": "F0080",
+                "quantity": 1,
+                "fields": [
+                  {
+                    "tag": "hpc1.frobackload.alm.F0080",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  }
+                ]
+              },
+              {
+                "address": "F0100",
+                "quantity": 4,
+                "fields": [
+                  {
+                    "tag": "hpc1.frobackload.alm.F0100",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 0
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0102",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 2
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0103",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 3
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0104",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 4
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0105",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 5
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0106",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 6
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0107",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 7
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0110",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 10
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0111",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 11
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0112",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 12
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0113",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 13
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0114",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 14
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0115",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 15
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0130",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 30
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0131",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 31
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0132",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 32
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0133",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 33
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0134",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 34
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0135",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 35
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0136",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 36
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0137",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 37
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0138",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 38
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0139",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 39
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0140",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 40
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0141",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 41
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0142",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 42
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0143",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 43
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0144",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 44
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0145",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 45
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0146",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 46
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0147",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 47
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0148",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 48
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0149",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 49
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0150",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 50
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0160",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 60
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0161",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 61
+                  },
+                  {
+                    "tag": "hpc1.frobackload.alm.F0162",
+                    "data_type": "bool",
+                    "persist_mode": "database",
+                    "value_index": 62
+                  }                  
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
